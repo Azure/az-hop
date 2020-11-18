@@ -1,14 +1,13 @@
-# Project
+# DeployHPC, your deployment to be HPC-Ready! 
 
-> This repo has been populated by an initial template to help get you started. Please
-> make sure to update the content to build a great experience for community-building.
+DeployHPC provides the end-2-end deployment mechanism for a base HPC infrastructure on Azure. Industry standard tools like Terraform, Ansible and Packer will be used.
 
-As the maintainer of this project, please make a few updates:
+The installation steps consist of:
+- prerequirements
+Resource group, Virtual network etc.
+- base infrastructure
+Active Directory, CycleCloud, Scheduler, OpenOndemand and Home-storage 
 
-- Improving this README.MD file to provide a great experience
-- Updating SUPPORT.MD with content about this project's support experience
-- Understanding the security reporting process in SECURITY.MD
-- Remove this section from the README
 
 ## Contributing
 
