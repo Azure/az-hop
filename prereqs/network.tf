@@ -21,6 +21,14 @@ resource "azurerm_subnet" "netapp" {
   virtual_network_name = azurerm_virtual_network.deployhpc.name
   resource_group_name  = azurerm_resource_group.deployhpc.name
   address_prefixes     = ["10.0.2.0/24"]
+  delegation {
+    name = "netapp"
+
+    service_delegation {
+      name    = "Microsoft.Netapp/volumes"
+      actions = ["Microsoft.Network/networkinterfaces/*", "Microsoft.Network/virtualNetworks/subnets/join/action"]
+    }
+  }
 }
 resource "azurerm_subnet" "compute" {
   name                 = "compute"
