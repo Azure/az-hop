@@ -21,7 +21,7 @@ resource "azurerm_netapp_volume" "home" {
   resource_group_name = azurerm_resource_group.deployhpc.name
   account_name        = azurerm_netapp_account.deployhpc.name
   pool_name           = azurerm_netapp_pool.anfpool.name
-  volume_path         = "home20201120"
+  volume_path         = format("%s-%s", "home", random_string.random.result)
   service_level       = "Standard"
   subnet_id           = azurerm_subnet.netapp.id
   protocols           = ["NFSv3"]
