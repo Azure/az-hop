@@ -1,0 +1,61 @@
+---
+- name: prep socks tunnel
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+  #- name: close previous sessions on local port
+  #  shell: ps ax | grep 5985 | grep ssh | awk '{print "kill " $1}' | bash
+  - name: start socks tunnel  
+    shell: ssh -fN -D localhost:5985 hpcadmin@{{ psrp_ssh_proxy }}
+
+- name: Configure AD Server
+  hosts: ad
+  tasks:
+  - name: Install AD-Domain-Services
+    win_feature:
+      name: AD-Domain-Services
+      include_management_tools: yes
+      include_sub_features: yes
+      state: present
+  - name: Create AD-Domain
+    ansible.windows.win_domain:
+      dns_domain_name: hpc.azure
+      safe_mode_password: password123!
+    register: ad_promotion
+  - name: Reboot after promotion
+    ansible.windows.win_reboot:
+      post_reboot_delay: 600
+    when: ad_promotion.reboot_required
+  - name: Ensure user hugo is present
+    community.windows.win_domain_user:
+      name: hugo
+      firstname: hugo
+      password: Microsoft12345! 
+      state: present
+      groups:
+        - Domain Users
+        - Domain Admins
+      attributes:
+        uidNumber: 10001 
+        uid: hugo
+        loginShell: /bin/bash
+        homedirectory: /nfshome/hugo
+        gidnumber: 5000 
+  - name: Ensure user domainjoinuser is present
+    community.windows.win_domain_user:
+      name: domainjoinuser
+      firstname: domainjoinuser
+      password: Microsoft12345! 
+      state: present
+      groups:
+        - Domain Users
+
+- name: close socks tunnel
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+  - name: close session on local port
+    shell: ps aux | grep 5985 | grep ssh | awk '{print "kill -9 " $0}'
+

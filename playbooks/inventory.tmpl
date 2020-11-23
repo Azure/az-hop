@@ -1,0 +1,11 @@
+[general]
+localhost psrp_ssh_proxy=${jumpbox-pip}
+
+[bastion]
+jumpbox ansible_host=${jumpbox-pip} ansible_ssh_user=${jumpbox-user}
+
+[linux]
+scheduler ansible_host=${scheduler-ip} ansible_ssh_user=${scheduler-user} ansible_ssh_common_args='-o ProxyCommand="ssh -W %h:%p ${jumpbox-user}@${jumpbox-pip}"'
+
+[windows]
+ad ansible_host=${ad-ip} ansible_connection=psrp ansible_psrp_protocol=http ansible_user=hpcadmin ansible_password=${ad-passwd} ansible_psrp_proxy=socks5h://localhost:5985

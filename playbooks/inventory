@@ -1,0 +1,11 @@
+[general]
+localhost psrp_ssh_proxy=13.81.9.104
+
+[bastion]
+jumpbox ansible_host=13.81.9.104 ansible_ssh_user=hpcadmin
+
+[linux]
+scheduler ansible_host=10.0.1.7 ansible_ssh_user=hpcadmin ansible_ssh_common_args='-o ProxyCommand="ssh -W %h:%p hpcadmin@13.81.9.104"'
+
+[windows]
+ad ansible_host=10.0.1.5 ansible_connection=psrp ansible_psrp_protocol=http ansible_user=hpcadmin ansible_password=CWa2hwAuq4snhX5x ansible_psrp_proxy=socks5h://localhost:5985
