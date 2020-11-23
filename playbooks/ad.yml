@@ -40,7 +40,7 @@
         uidNumber: 10001 
         uid: hugo
         loginShell: /bin/bash
-        unixhomedirectory: /nfshome/hugo
+        unixhomedirectory: /anfhome/hugo
         gidnumber: 5000 
   - name: Ensure user domainjoinuser is present
     community.windows.win_domain_user:
@@ -50,6 +50,11 @@
       state: present
       groups:
         - Domain Users
+  - name: update gidnumber Domain Users 
+    community.windows.win_domain_group:
+      name: Domain Users
+      attributes:
+        gidnumber: 5000
 
 - name: close socks tunnel
   hosts: localhost

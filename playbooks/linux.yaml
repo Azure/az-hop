@@ -6,7 +6,7 @@
   tasks:
   - name: Install dependencies
     yum:
-      name: epel-release, sssd, realmd, oddjob, oddjob-mkhomedir, adcli, samba-common, samba-common-tools, krb5-workstation, openldap-clients, policycoreutils-python 
+      name: epel-release, sssd, realmd, oddjob, oddjob-mkhomedir, adcli, samba-common, samba-common-tools, krb5-workstation, openldap-clients, policycoreutils-python, nfs-utils 
   - name: Restart service dbus
     service:
       name: dbus
@@ -23,9 +23,25 @@
     service:
       name: NetworkManager
       state: restarted
+  - name: Creates directory
+    file:
+      path: /anfhome
+      state: directory
+      mode: '0777'
+  - name: Mount an NFS volume
+    ansible.posix.mount:
+      src: '{{ anf_home_ip }}:/{{ anf_home_path }}'
+      path: /anfhome
+      opts: rw,sync,hard,intr
+      state: mounted
+      fstype: nfs
+  - name: check if sssd.conf file exists
+    stat: 
+      path: /etc/sssd/sssd.conf
+    register: sssd_conf
   - name: Join AD domain
     shell: echo {{ ad_join_password }} | realm join -U {{ ad_join_user }} {{ ad_join_domain }}
-    run_once: true
+    when: sssd_conf.stat.exists == false
   - name: configure sssd
     lineinfile:
       path: /etc/sssd/sssd.conf
@@ -36,7 +52,7 @@
       path: /etc/sssd/sssd.conf
       regexp: '^ldap_id_mapping'
       line: 'ldap_id_mapping = False'
-  - name: Restart service network
+  - name: Restart sssd
     service:
       name: sssd 
       state: restarted
