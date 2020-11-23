@@ -1,0 +1,26 @@
+name : container
+
+on:
+  push:
+    paths:
+      - 'toolset/**'
+
+jobs:
+  build:
+
+    run-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Docker Hub Login
+      uses: Azure/docker-login@v1
+      with:
+        # Container registry username
+        username: xpillons
+        # Container registry password
+        password: ${{ secrets.docker_registry_password }}
+        # Container registry server url
+        login-server: https://index.docker.io/v1/
+    - name: Build the HPC Rover
+      run: |
+        ./toolset/build_container.sh github
