@@ -1,6 +1,6 @@
 ---
 - name: Join AD domain 
-  hosts: jumpbox,scheduler
+  hosts: jumpbox
   become: true
 
   tasks:
@@ -10,8 +10,33 @@
   - name: Restart service dbus
     service:
       name: dbus
-      state: restarted
+      state: restarted 
   - name: Restart service systemd-logind
     service:
       name: systemd-logind
+      state: restarted
+  - name: create dhclient config
+    copy:
+      content: "supersede domain-name-servers {{ ad_dns }};\nappend domain-name-servers 168.63.129.16;"
+      dest: "/etc/dhcp/dhclient.conf"
+  - name: Restart service network
+    service:
+      name: NetworkManager
+      state: restarted
+  - name: Join AD domain
+    shell: echo {{ ad_join_password }} | realm join -U {{ ad_join_user }} {{ ad_join_domain }}
+    run_once: true
+  - name: configure sssd
+    lineinfile:
+      path: /etc/sssd/sssd.conf
+      regexp: '^use_fully_qualified_names'
+      line: 'use_fully_qualified_names = False'
+  - name: configure sssd
+    lineinfile:
+      path: /etc/sssd/sssd.conf
+      regexp: '^ldap_id_mapping'
+      line: 'ldap_id_mapping = False'
+  - name: Restart service network
+    service:
+      name: sssd 
       state: restarted
