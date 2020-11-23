@@ -14,6 +14,6 @@ resource "random_password" "password" {
 }
 
 resource "azurerm_resource_group" "rg" {
-  name     = "hugo-tf-resources"
-  location = "westeurope"
+  name     = var.resource_group
+  location = var.location
 }
