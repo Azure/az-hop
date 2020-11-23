@@ -85,6 +85,7 @@ You need the following installed to launch:
 * Ansible with the following collections:
   - community.windows
   - ansible.windows
+  - ansible.posix
 * Python3 with the following packages:
   - pypsrp
   - pysocks
@@ -102,6 +103,7 @@ sudo apt-get update && sudo apt-get install terraform
 sudo apt-get install ansible
 ansible-galaxy collection install ansible.windows
 ansible-galaxy collection install community.windows
+ansible-galaxy collection install ansible.posix
 
 # install python packages
 sudo apt-get install python3-pip
