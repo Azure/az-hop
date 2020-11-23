@@ -1,0 +1,8 @@
+# Terraform
+.terraform
+*.tfstate
+*.tfstate.backup
+*.tfstate.lock.info
+
+# Ansible auto-generated inventory
+playbooks/inventory
