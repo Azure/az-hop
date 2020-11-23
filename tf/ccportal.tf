@@ -33,11 +33,6 @@ resource "azurerm_virtual_machine" "ccportal" {
     }
   }
 
-  #admin_ssh_key {
-  #  username   = "hpcadmin"
-  #  public_key = file("~/.ssh/id_rsa.pub")
-  #}
-
   storage_os_disk {
     name              = "ccportal-osdisk"
     create_option     = "FromImage"
@@ -67,15 +62,3 @@ resource "azurerm_virtual_machine" "ccportal" {
     disk_size_gb      = 128
   }
 }
-
-#  connection {
-#    type     = "ssh"
-#    host     = azurerm_public_ip.jumpbox-pip.ip_address
-#    user     = azurerm_linux_virtual_machine.jumpbox.admin_username
-#    private_key = file("~/.ssh/id_rsa")
-#  }
-
-#  provisioner "remote-exec" {
-#    inline = ["sudo yum install screen -y"]
-#  }
-
