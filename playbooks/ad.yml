@@ -40,7 +40,7 @@
         uidNumber: 10001 
         uid: hugo
         loginShell: /bin/bash
-        homedirectory: /nfshome/hugo
+        unixhomedirectory: /nfshome/hugo
         gidnumber: 5000 
   - name: Ensure user domainjoinuser is present
     community.windows.win_domain_user:
