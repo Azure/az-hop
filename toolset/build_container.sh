@@ -1,5 +1,7 @@
 #!/bin/bash
 set -e
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+pushd $DIR
 buildenv=${1:-local}
 
 tag=$(date +"%g%m.%d%H")
@@ -31,3 +33,4 @@ case "$buildenv" in
 esac
 
 echo "Version ${hpcrover} created."
+popd
