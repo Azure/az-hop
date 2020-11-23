@@ -9,6 +9,10 @@ all:
       ansible_host: ${scheduler-ip}
       ansible_ssh_user: ${scheduler-user}
       ansible_ssh_common_args: '-o ProxyCommand="ssh -W %h:%p ${jumpbox-user}@${jumpbox-pip}"'
+    ondemand:
+      ansible_host: ${ondemand-ip}
+      ansible_ssh_user: ${ondemand-user}
+      ansible_ssh_common_args: '-o ProxyCommand="ssh -W %h:%p ${jumpbox-user}@${jumpbox-pip}"'
     ad:
       ansible_host: ${ad-ip}
       ansible_connection: psrp

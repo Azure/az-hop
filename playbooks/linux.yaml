@@ -1,6 +1,6 @@
 ---
-- name: Join AD domain 
-  hosts: jumpbox
+- name: Join AD domain and mount anf-home
+  hosts: jumpbox, scheduler, ondemand
   become: true
 
   tasks:
