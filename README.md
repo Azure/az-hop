@@ -9,6 +9,52 @@ Resource group, Virtual network etc.
 Active Directory, CycleCloud, Scheduler, OpenOndemand and Home-storage 
 
 
+## Pre-requisites
+
+You need the following installed to launch:
+
+* Terraform
+* Ansible with the following collections:
+  - community.windows
+  - ansible.windows
+* Python3 with the following packages:
+  - pypsrp
+  - pysocks
+
+
+## Installation on Ubuntu
+
+```
+# install terraform
+curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+sudo apt-get update && sudo apt-get install terraform
+
+# install ansible
+sudo apt-get install ansible
+ansible-galaxy collection install ansible.windows
+ansible-galaxy collection install community.windows
+
+# install python packages
+sudo apt-get install python3-pip
+pip3 install pypsrp
+pip3 install pysocks
+
+# clone the repo
+git clone https://github.com/Azure/deployhpc.git
+cd deployhpc
+
+# create infrastructure
+terraform init ./tf
+terraform apply ./tf
+
+# install
+ansible-playbook -i playbooks/inventory ./playbooks/ad.yml
+```
+
+
+
+
 ## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
