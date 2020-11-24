@@ -5,7 +5,7 @@
   gather_facts: false
   tasks:
   - name: start socks tunnel  
-    shell: ssh -fN -D localhost:5985 hpcadmin@{{ psrp_ssh_proxy }}
+    shell: ssh -i hpcadmin_id_rsa -fN -D localhost:5985 hpcadmin@{{ psrp_ssh_proxy }}
 
 - name: Configure AD Server
   hosts: ad
