@@ -28,7 +28,7 @@ jobs:
 
     container:
       image: xpillons/hpcrover:2011.2317
-      options: --users 0
+      options: --user 0
 
     outputs:
         resource_group: ${{ steps.deployment.outputs.resource_group }}
@@ -58,7 +58,7 @@ jobs:
 
     container:
       image: xpillons/hpcrover:2011.2317
-      options: --users 0
+      options: --user 0
 
     steps:
       - uses: actions/checkout@v2
@@ -83,7 +83,7 @@ jobs:
 
     container:
       image: xpillons/hpcrover:2011.2317
-      options: --users 0
+      options: --user 0
 
     steps:
       - uses: actions/checkout@v2
