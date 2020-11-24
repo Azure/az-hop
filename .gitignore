@@ -10,3 +10,6 @@ playbooks/inventory
 # ssk keys
 *.pub
 *id_rsa*
+
+# datafiles
+*.txt
