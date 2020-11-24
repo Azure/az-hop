@@ -49,8 +49,8 @@ RUN \
         tzdata && \
         # install python packages
         apt-get install python3-pip && \
-        pip3 install pypsrp && \
-        pip3 install pysocks && \
+        # pip3 install pypsrp && \
+        # pip3 install pysocks && \
         # Install AzCLI
         curl -sL https://aka.ms/InstallAzureCLIDeb | bash && \
         # Install Ansible
@@ -103,12 +103,10 @@ USER ${USERNAME}
 
 COPY ./scripts/sshd_config /home/${USERNAME}/.ssh/sshd_config
 
-RUN     ansible-galaxy collection install ansible.windows && \
-        ansible-galaxy collection install community.windows && \
-        # ssh server for Azure ACI
-        #
-        ssh-keygen -q -N "" -t ecdsa -b 521 -f /home/${USERNAME}/.ssh/ssh_host_ecdsa_key
-
+# ssh server for Azure ACI
+RUN    ssh-keygen -q -N "" -t ecdsa -b 521 -f /home/${USERNAME}/.ssh/ssh_host_ecdsa_key && \ 
+#         ansible-galaxy collection install ansible.windows && \
+#         ansible-galaxy collection install community.windows && \
 
 EXPOSE 22
 CMD  ["/hpc/scripts/sshd.sh"]
