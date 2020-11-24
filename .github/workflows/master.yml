@@ -27,7 +27,7 @@ jobs:
 
     container:
       image: xpillons/hpcrover:2011.2317 
-      options: --user vscode
+      options: --user 0
 
     outputs:
         resource_group: ${{ steps.deployment.outputs.resource_group }}
