@@ -48,6 +48,10 @@ terraform apply -auto-approve -var location=westeurope -var resource_group=$RESO
 
 # install
 ansible-playbook -i playbooks/inventory ./playbooks/ad.yml
+
+# Delete all
+terraform destroy -auto-approve -var location=westeurope -var resource_group=$RESOURCE_GROUP ./tf
+
 ```
 
 ## Contributing
