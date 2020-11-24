@@ -27,10 +27,10 @@
     ansible.windows.win_reboot:
       post_reboot_delay: 600
     when: ad_promotion.reboot_required
-  - name: Ensure user hugo is present
+  - name: Ensure user paul is present
     community.windows.win_domain_user:
-      name: hugo
-      firstname: hugo
+      name: paul
+      firstname: paul
       password: Microsoft12345! 
       state: present
       groups:
@@ -38,9 +38,9 @@
         - Domain Admins
       attributes:
         uidNumber: 10001 
-        uid: hugo
+        uid: paul
         loginShell: /bin/bash
-        homedirectory: /nfshome/hugo
+        homedirectory: /nfshome/paul
         gidnumber: 5000 
   - name: Ensure user domainjoinuser is present
     community.windows.win_domain_user:

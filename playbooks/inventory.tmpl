@@ -9,3 +9,6 @@ scheduler ansible_host=${scheduler-ip} ansible_ssh_user=${scheduler-user} ansibl
 
 [windows]
 ad ansible_host=${ad-ip} ansible_connection=psrp ansible_psrp_protocol=http ansible_user=hpcadmin ansible_password=${ad-passwd} ansible_psrp_proxy=socks5h://localhost:5985
+
+[ood]
+ondemand ansible_host=${ondemand-ip} ansible_ssh_user=${ondemand-user} ansible_ssh_common_args='-o ProxyCommand="ssh -W %h:%p ${jumpbox-user}@${jumpbox-pip}"'
