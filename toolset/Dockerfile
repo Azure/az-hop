@@ -90,7 +90,13 @@ RUN \
         chmod 777 -R /home/${USERNAME} && \
         chmod 700 /home/${USERNAME}/.ssh && \
         echo ${USERNAME} ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/${USERNAME} && \
-        chmod 0440 /etc/sudoers.d/${USERNAME}
+        chmod 0440 /etc/sudoers.d/${USERNAME} && \
+        # setting up keys
+        echo "Host *" > /home/${USERNAME}/.ssh/config && \
+        echo "    StrictHostKeyChecking no" >> /home/${USERNAME}/.ssh/config && \
+        echo "    UserKnownHostsFile /dev/null" >> /home/${USERNAME}/.ssh/config && \
+        echo "    LogLevel ERROR" >> /home/${USERNAME}/.ssh/config && \
+        chmod 644 /home/${USERNAME}/.ssh/config
 
 WORKDIR /hpc/scripts
 COPY ./scripts/sshd.sh .
