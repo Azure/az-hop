@@ -33,12 +33,25 @@ az login
 # Update the configurations.tfvars file with your own values
 
 # create infrastructure
-terraform init -var-file=configuration.tfvars ./tf
-terraform plan -var-file=configuration.tfvars ./tf
-terraform apply -auto-approve -var-file=configuration.tfvars ./tf
+# Initialize Terraform
+terraform init ./tf
+
+# Create a unique resource group name
+UUID="$(cat /proc/sys/kernel/random/uuid | tr -d '\n-' | tr '[:upper:]' '[:lower:]' | cut -c 1-6)"
+RESOURCE_GROUP="hpc_$UUID"
+
+# Plan the deployment
+terraform plan -var location=westeurope -var resource_group=$RESOURCE_GROUP ./tf
+
+# Apply the deployment
+terraform apply -auto-approve -var location=westeurope -var resource_group=$RESOURCE_GROUP ./tf
 
 # install
 ansible-playbook -i playbooks/inventory ./playbooks/ad.yml
+
+# Delete all
+terraform destroy -auto-approve -var location=westeurope -var resource_group=$RESOURCE_GROUP ./tf
+
 ```
 
 ## Contributing

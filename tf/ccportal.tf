@@ -15,21 +15,20 @@ resource "azurerm_virtual_machine" "ccportal" {
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   vm_size                = "Standard_d2s_v3"
-  #admin_username      = "hpcadmin"
   network_interface_ids = [
     azurerm_network_interface.ccportal-nic.id,
   ]
 
   os_profile {
     computer_name  = "ccportal"
-    admin_username = "hpcadmin"
+    admin_username = var.admin_username
   }
 
   os_profile_linux_config {
     disable_password_authentication = true
     ssh_keys {
-      path     = "/home/hpcadmin/.ssh/authorized_keys"
-      key_data = file("~/.ssh/id_rsa.pub")
+      path     = "/home/${var.admin_username}/.ssh/authorized_keys"
+      key_data = tls_private_key.internal.public_key_openssh # file("~/.ssh/id_rsa.pub")
     }
   }
 

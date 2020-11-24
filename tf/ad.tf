@@ -15,7 +15,7 @@ resource "azurerm_windows_virtual_machine" "ad" {
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   size                = "Standard_d2s_v3"
-  admin_username      = "hpcadmin"
+  admin_username      = var.admin_username
   admin_password      = random_password.password.result 
   network_interface_ids = [
     azurerm_network_interface.ad-nic.id,

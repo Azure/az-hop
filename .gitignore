@@ -6,3 +6,7 @@
 
 # Ansible auto-generated inventory
 playbooks/inventory
+
+# ssk keys
+*.pub
+*id_rsa*

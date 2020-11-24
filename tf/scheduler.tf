@@ -15,14 +15,14 @@ resource "azurerm_linux_virtual_machine" "scheduler" {
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   size                = "Standard_d2s_v3"
-  admin_username      = "hpcadmin"
+  admin_username      = var.admin_username
   network_interface_ids = [
     azurerm_network_interface.scheduler-nic.id,
   ]
 
   admin_ssh_key {
-    username   = "hpcadmin"
-    public_key = file("~/.ssh/id_rsa.pub")
+    username   = var.admin_username
+    public_key = tls_private_key.internal.public_key_openssh #file("~/.ssh/id_rsa.pub")
   }
 
   os_disk {

@@ -1,0 +1,69 @@
+#
+# Copyright (c) Microsoft Corporation
+# Licensed under the MIT License.
+#
+
+name : master
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'tf/**'
+      - 'playbooks/**'
+
+env:
+  TF_CLI_ARGS: '-no-color'
+  TF_CLI_ARGS_destroy: '-auto-approve -refresh=false'
+  ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+  ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+
+jobs:
+  deploy:
+    name: deploy
+    runs-on: ubuntu-latest
+
+    container:
+      image: xpillons/hpcrover:2011.2317 
+      options: --user 0
+
+    outputs:
+        resource_group: ${{ steps.deployment.outputs.resource_group }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Login azure
+        run: |
+          az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
+          az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
+          echo "local user: $(whoami)"
+
+      - name: Deployment
+        id: deployment
+        continue-on-error : true
+        run: |
+          UUID="$(cat /proc/sys/kernel/random/uuid | tr -d '\n-' | tr '[:upper:]' '[:lower:]' | cut -c 1-6)"
+          export RESOURCE_GROUP="hpc_$UUID"
+          echo "RESOURCE_GROUP=$RESOURCE_GROUP" >> $GITHUB_ENV
+          #echo "::set-output name=RESOURCE_GROUP::$RESOURCE_GROUP"
+          terraform init ./tf
+          terraform apply -auto-approve -parallelism=30 -var location=westeurope -var resource_group=$RESOURCE_GROUP ./tf
+
+      - name: Configure
+        continue-on-error : true
+        if : ${{ steps.deployment.outcome == 'success' }}
+        run: |
+          printenv
+
+          ansible-playbook -i playbooks/inventory ./playbooks/ad.yml
+          ansible-playbook -i playbooks/inventory ./playbooks/linux.yaml
+
+      - name: Remove Resources
+        run: |
+          printenv
+          terraform apply -auto-approve -parallelism=30 -var location=westeurope -var resource_group=$RESOURCE_GROUP ./tf
+          #terraform destroy -auto-approve -parallelism=30 -var location=europe -var resource_group=${{needs.deploy.outputs.resource_group}} ./tf
+

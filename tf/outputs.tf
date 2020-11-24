@@ -1,5 +1,3 @@
-### The Ansible inventory file
-resource "local_file" "AnsibleInventory" {
  content = templatefile("playbooks/inventory.tmpl",
  {
   jumpbox-pip = azurerm_public_ip.jumpbox-pip.ip_address,
@@ -18,3 +16,4 @@ resource "local_file" "AnsibleInventory" {
  )
  filename = "playbooks/inventory"
 }
+
