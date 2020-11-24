@@ -27,7 +27,7 @@
     ansible.windows.win_reboot:
       post_reboot_delay: 600
     when: ad_promotion.reboot_required
-  - name: Ensure user hugo is present
+  - name: Ensure user paul is present
     community.windows.win_domain_user:
       name: hugo
       firstname: hugo

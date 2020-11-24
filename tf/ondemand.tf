@@ -3,6 +3,7 @@ resource "azurerm_public_ip" "ondemand-pip" {
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   allocation_method   = "Static"
+  domain_name_label   = "ondemand${random_string.resource_postfix.result}"
 }
 
 resource "azurerm_network_interface" "ondemand-nic" {

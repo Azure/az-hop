@@ -7,6 +7,14 @@ resource "random_string" "random" {
   special = false
 }
 
+resource "random_string" "resource_postfix" {
+  length = 6
+  special = false
+  upper = false
+  lower = true
+  number = true
+}
+
 resource "random_password" "password" {
   length = 16
   special = true
