@@ -19,7 +19,6 @@ env:
   ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
   ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
   ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-  
 
 jobs:
   deploy:
@@ -27,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: aztfmod/rover:2010.3011 # xpillons/hpcrover:2011.2317
+      image: xpillons/hpcrover:2011.2317 
       options: --user 0
 
     outputs:
@@ -45,10 +44,10 @@ jobs:
       - name: Deployment
         run: |
           UUID="$(cat /proc/sys/kernel/random/uuid | tr -d '\n-' | tr '[:upper:]' '[:lower:]' | cut -c 1-6)"
-          RESOURCE_GROUP="hpc-$UUID"
+          RESOURCE_GROUP="hpc_$UUID"
           echo "::set-output name=RESOURCE_GROUP::$RESOURCE_GROUP"
           terraform init ./tf
-          terraform apply -auto-approve -parallelism=30 -var 'location=europe' -var 'resource_group=$RESOURCE_GROUP' ./tf
+          terraform apply -auto-approve -parallelism=30 -var location=westeurope -var resource_group=$RESOURCE_GROUP ./tf
 
   configure:
     name: configure
@@ -57,7 +56,7 @@ jobs:
     needs: deploy
 
     container:
-      image: aztfmod/rover:2010.3011
+      image: xpillons/hpcrover:2011.2317
       options: --user 0
 
     steps:
@@ -82,7 +81,7 @@ jobs:
     needs: [deploy, configure]
 
     container:
-      image: aztfmod/rover:2010.3011
+      image: xpillons/hpcrover:2011.2317
       options: --user 0
 
     steps:
@@ -96,7 +95,7 @@ jobs:
 
       - name: Remove Resources
         run: |
-          terraform destroy -auto-approve -parallelism=30 -var 'location=europe' -var 'resource_group=${{needs.deploy.outputs.resource_group}}' ./tf
+          terraform destroy -auto-approve -parallelism=30 -var location=europe -var resource_group=${{needs.deploy.outputs.resource_group}} ./tf
 
 
 

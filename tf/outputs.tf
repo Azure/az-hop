@@ -16,3 +16,4 @@ resource "local_file" "AnsibleInventory" {
   )
   filename = "playbooks/inventory"
 }
+

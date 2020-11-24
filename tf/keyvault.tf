@@ -1,7 +1,7 @@
 data "azurerm_client_config" "current" {}
 
 resource "azurerm_key_vault" "deployhpc" {
-  name                        = format("%s-%s", "kv", random_string.random.result)
+  name                        = format("%s%s", "kv", random_string.random.result)
   location                    = azurerm_resource_group.rg.location
   resource_group_name         = azurerm_resource_group.rg.name
   enabled_for_disk_encryption = true
