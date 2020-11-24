@@ -8,6 +8,8 @@ resource "local_file" "AnsibleInventory" {
   scheduler-user = azurerm_linux_virtual_machine.scheduler.admin_username,
   ondemand-ip = azurerm_network_interface.ondemand-nic.private_ip_address,
   ondemand-user = azurerm_linux_virtual_machine.ondemand.admin_username,
+  ccportal-ip = azurerm_network_interface.ccportal-nic.private_ip_address,
+  #ccportal-user = azurerm_virtual_machine.ccportal.os_profile.admin_username[0],
   ad-ip = azurerm_network_interface.ad-nic.private_ip_address,
   ad-passwd = azurerm_windows_virtual_machine.ad.admin_password,
   anf-home-ip = element(azurerm_netapp_volume.home.mount_ip_addresses, 0),

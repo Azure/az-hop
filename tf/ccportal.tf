@@ -61,4 +61,8 @@ resource "azurerm_virtual_machine" "ccportal" {
     managed_disk_type = "Premium_LRS"
     disk_size_gb      = 128
   }
+
+  identity {
+    type = "SystemAssigned"
+  }
 }

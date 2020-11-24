@@ -4,8 +4,6 @@
   connection: local
   gather_facts: false
   tasks:
-  #- name: close previous sessions on local port
-  #  shell: ps ax | grep 5985 | grep ssh | awk '{print "kill " $1}' | bash
   - name: start socks tunnel  
     shell: ssh -fN -D localhost:5985 hpcadmin@{{ psrp_ssh_proxy }}
 
