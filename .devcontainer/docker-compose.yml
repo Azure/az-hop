@@ -6,7 +6,7 @@
   version: '3.7'
   services:
     hpcrover:
-      image: xpillons/hpcrover:2011.2317
+      image: xpillons/hpcrover:2011.2418
       user: vscode 
       
       labels:
