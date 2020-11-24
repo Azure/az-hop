@@ -19,7 +19,7 @@ env:
   ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
   ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
   ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-  CONTAINER_IMAGE: aztfmod/rover:2010.3011 # xpillons/hpcrover:2011.2317
+  CONTAINER_IMAGE: 'aztfmod/rover:2010.3011' # xpillons/hpcrover:2011.2317
 
 jobs:
   deploy:
@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: ${{ env.CONTAINER_IMAGE }}
+      image: '${{ env.CONTAINER_IMAGE }}'
       options: --user 0
 
     outputs:
@@ -57,7 +57,7 @@ jobs:
     needs: deploy
 
     container:
-      image: ${{ env.CONTAINER_IMAGE }}
+      image: '${{ env.CONTAINER_IMAGE }}'
       options: --user 0
 
     steps:
@@ -82,7 +82,7 @@ jobs:
     needs: [deploy, configure]
 
     container:
-      image: ${{ env.CONTAINER_IMAGE }}
+      image: '${{ env.CONTAINER_IMAGE }}'
       options: --user 0
 
     steps:
