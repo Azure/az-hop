@@ -110,7 +110,7 @@ USER ${USERNAME}
 COPY ./scripts/sshd_config /home/${USERNAME}/.ssh/sshd_config
 
 # ssh server for Azure ACI
-RUN    ssh-keygen -q -N "" -t ecdsa -b 521 -f /home/${USERNAME}/.ssh/ssh_host_ecdsa_key && \ 
+RUN    ssh-keygen -q -N "" -t ecdsa -b 521 -f /home/${USERNAME}/.ssh/ssh_host_ecdsa_key 
 #         ansible-galaxy collection install ansible.windows && \
 #         ansible-galaxy collection install community.windows && \
 
