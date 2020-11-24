@@ -47,6 +47,7 @@ jobs:
         run: |
           UUID="$(cat /proc/sys/kernel/random/uuid | tr -d '\n-' | tr '[:upper:]' '[:lower:]' | cut -c 1-6)"
           export RESOURCE_GROUP="hpc_$UUID"
+          echo "RESOURCE_GROUP=$RESOURCE_GROUP" >> $GITHUB_ENV
           #echo "::set-output name=RESOURCE_GROUP::$RESOURCE_GROUP"
           terraform init ./tf
           terraform apply -auto-approve -parallelism=30 -var location=westeurope -var resource_group=$RESOURCE_GROUP ./tf
@@ -55,12 +56,14 @@ jobs:
         continue-on-error : true
         if : ${{ steps.deployment.outcome == 'success' }}
         run: |
+          printenv
+
           ansible-playbook -i playbooks/inventory ./playbooks/ad.yml
           ansible-playbook -i playbooks/inventory ./playbooks/linux.yaml
 
       - name: Remove Resources
         run: |
-          echo "Resource group is $RESOURCE_GROUP"
+          printenv
           terraform apply -auto-approve -parallelism=30 -var location=westeurope -var resource_group=$RESOURCE_GROUP ./tf
           #terraform destroy -auto-approve -parallelism=30 -var location=europe -var resource_group=${{needs.deploy.outputs.resource_group}} ./tf
 
