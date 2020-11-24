@@ -29,8 +29,8 @@
     when: ad_promotion.reboot_required
   - name: Ensure user paul is present
     community.windows.win_domain_user:
-      name: paul
-      firstname: paul
+      name: hugo
+      firstname: hugo
       password: Microsoft12345! 
       state: present
       groups:
@@ -38,7 +38,7 @@
         - Domain Admins
       attributes:
         uidNumber: 10001 
-        uid: paul
+        uid: hugo
         loginShell: /bin/bash
         unixhomedirectory: /anfhome/hugo
         gidnumber: 5000 
