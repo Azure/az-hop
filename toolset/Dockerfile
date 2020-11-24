@@ -90,13 +90,8 @@ RUN \
         chmod 777 -R /home/${USERNAME} && \
         chmod 700 /home/${USERNAME}/.ssh && \
         echo ${USERNAME} ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/${USERNAME} && \
-        chmod 0440 /etc/sudoers.d/${USERNAME} && \
-        # setting up keys
-        echo "Host *" > /home/${USERNAME}/.ssh/config && \
-        echo "    StrictHostKeyChecking no" >> /home/${USERNAME}/.ssh/config && \
-        echo "    UserKnownHostsFile /dev/null" >> /home/${USERNAME}/.ssh/config && \
-        echo "    LogLevel ERROR" >> /home/${USERNAME}/.ssh/config && \
-        chmod 644 /home/${USERNAME}/.ssh/config
+        chmod 0440 /etc/sudoers.d/${USERNAME}
+        
 
 WORKDIR /hpc/scripts
 COPY ./scripts/sshd.sh .
@@ -108,9 +103,11 @@ COPY ./scripts/sshd.sh .
 USER ${USERNAME}
 
 COPY ./scripts/sshd_config /home/${USERNAME}/.ssh/sshd_config
+COPY ./scripts/ssh_config /home/${USERNAME}/.ssh/config
 
 # ssh server for Azure ACI
-RUN    ssh-keygen -q -N "" -t ecdsa -b 521 -f /home/${USERNAME}/.ssh/ssh_host_ecdsa_key 
+RUN     ssh-keygen -q -N "" -t ecdsa -b 521 -f /home/${USERNAME}/.ssh/ssh_host_ecdsa_key && \
+        chmod 644 /home/${USERNAME}/.ssh/config
 #         ansible-galaxy collection install ansible.windows && \
 #         ansible-galaxy collection install community.windows && \
 
