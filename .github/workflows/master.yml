@@ -6,7 +6,7 @@
 name : master
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: # This allow you to trigger the workflow manually
   push:
     paths:
       - 'tf/**'
@@ -56,14 +56,10 @@ jobs:
         continue-on-error : true
         if : ${{ steps.deployment.outcome == 'success' }}
         run: |
-          printenv
-
           ansible-playbook -i playbooks/inventory ./playbooks/ad.yml
           ansible-playbook -i playbooks/inventory ./playbooks/linux.yaml
 
       - name: Remove Resources
         run: |
-          printenv
-          terraform apply -auto-approve -parallelism=30 -var location=westeurope -var resource_group=$RESOURCE_GROUP ./tf
-          #terraform destroy -auto-approve -parallelism=30 -var location=europe -var resource_group=${{needs.deploy.outputs.resource_group}} ./tf
+          terraform destroy -auto-approve -parallelism=30 -var location=westeurope -var resource_group=$RESOURCE_GROUP ./tf
 
