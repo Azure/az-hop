@@ -45,15 +45,4 @@ resource "azurerm_linux_virtual_machine" "ondemand" {
     sku       = "7.7"
     version   = "latest"
   }
-
-  connection {
-    type     = "ssh"
-    host     = azurerm_public_ip.ondemand-pip.ip_address
-    user     = azurerm_linux_virtual_machine.ondemand.admin_username
-    private_key = file("~/.ssh/id_rsa")
-  }
-
-  provisioner "remote-exec" {
-    inline = ["sudo yum install screen -y"]
-  }
 }

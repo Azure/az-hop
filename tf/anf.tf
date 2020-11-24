@@ -26,4 +26,11 @@ resource "azurerm_netapp_volume" "home" {
   subnet_id           = azurerm_subnet.netapp.id
   protocols           = ["NFSv3"]
   storage_quota_in_gb = 100
+
+  export_policy_rule {
+    rule_index        = 1 
+    allowed_clients   = [ "0.0.0.0/0" ]
+    unix_read_write   = true
+    protocols_enabled = [ "NFSv3" ]
+  }
 }

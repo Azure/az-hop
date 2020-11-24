@@ -2,58 +2,44 @@
 
 DeployHPC provides the end-2-end deployment mechanism for a base HPC infrastructure on Azure. Industry standard tools like Terraform, Ansible and Packer will be used.
 
-The installation steps consist of:
-- prerequirements
-Resource group, Virtual network etc.
-- base infrastructure
-Active Directory, CycleCloud, Scheduler, OpenOndemand and Home-storage 
+## HPC Rover - Setup the toolchain
 
+The `HPC Rover` is a docker container acting as a sandbox toolchain development environemnt to avoid impacting the local machine configuration. It is the same container if you are using Windows, Linux or macOS, you only need Visual Studio Code.
 
-## Pre-requisites
+<img src="https://code.visualstudio.com/assets/docs/remote/containers/architecture-containers.png" width="75%">
 
-You need the following installed to launch:
+You can learn more about the Visual Studio Code Remote on this [link](https://code.visualstudio.com/docs/remote/remote-overview).
 
-* Terraform
-* Ansible with the following collections:
-  - community.windows
-  - ansible.windows
-* Python3 with the following packages:
-  - pypsrp
-  - pysocks
+### Pre-requisites
 
+The Visual Studio Code system requirements describe the steps to follow to get your development environment ready -> [link](https://code.visualstudio.com/docs/remote/containers#_system-requirements)
 
-## Installation on Ubuntu
+* **Windows**: Docker Desktop 2.0+ on Windows 10 Pro/Enterprise with Linux Container mode
+* **macOS**: Docker Desktop 2.0+
+* **Linux**: Docker CE/EE 18.06+ and Docker Compose 1.24+
+
+The `HPC Rover` is a Ubuntu 18.04 base image and is hosted on the Docker Hub [Link](https://hub.docker.com/r/xpillons/hpcrover/tags?page=1&ordering=last_updated)
+
+Install
+* Visual Studio Code version 1.41+ - [link](https://code.visualstudio.com/Download)
+* Install Visual Studio Code Extension - Remote Development - [link](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack)
+
+## Deploying
 
 ```
-# install terraform
-curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
-sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-sudo apt-get update && sudo apt-get install terraform
+# Login to Azure
+az login
 
-# install ansible
-sudo apt-get install ansible
-ansible-galaxy collection install ansible.windows
-ansible-galaxy collection install community.windows
-
-# install python packages
-sudo apt-get install python3-pip
-pip3 install pypsrp
-pip3 install pysocks
-
-# clone the repo
-git clone https://github.com/Azure/deployhpc.git
-cd deployhpc
+# Update the configurations.tfvars file with your own values
 
 # create infrastructure
-terraform init ./tf
-terraform apply ./tf
+terraform init -var-file=configuration.tfvars ./tf
+terraform plan -var-file=configuration.tfvars ./tf
+terraform apply -auto-approve -var-file=configuration.tfvars ./tf
 
 # install
 ansible-playbook -i playbooks/inventory ./playbooks/ad.yml
 ```
-
-
-
 
 ## Contributing
 
@@ -76,3 +62,69 @@ trademarks or logos is subject to and must follow
 [Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).
 Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship.
 Any use of third-party trademarks or logos are subject to those third-party's policies.
+
+
+
+
+## Old documentation below => to be deleted
+
+
+
+The installation steps consist of:
+- prerequirements
+Resource group, Virtual network etc.
+- base infrastructure
+Active Directory, CycleCloud, Scheduler, OpenOndemand and Home-storage 
+
+
+## Pre-requisites
+
+You need the following installed to launch:
+
+* Terraform
+* Ansible with the following collections:
+  - community.windows
+  - ansible.windows
+  - ansible.posix
+* Python3 with the following packages:
+  - pypsrp
+  - pysocks
+
+
+## Installation on Ubuntu
+
+```
+# install terraform
+curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+sudo apt-get update && sudo apt-get install terraform
+
+# install ansible
+sudo apt-get install ansible
+ansible-galaxy collection install ansible.windows
+ansible-galaxy collection install community.windows
+ansible-galaxy collection install ansible.posix
+
+# install python packages
+sudo apt-get install python3-pip
+pip3 install pypsrp
+pip3 install pysocks
+
+# clone the repo
+git clone https://github.com/Azure/deployhpc.git
+cd deployhpc
+
+# Login to Azure
+az login
+
+# create infrastructure
+terraform init ./tf
+terraform apply ./tf
+
+# install
+ansible-playbook -i playbooks/inventory ./playbooks/ad.yml
+```
+
+
+
+
