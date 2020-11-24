@@ -78,7 +78,7 @@ jobs:
     name: destroy
     runs-on: ubuntu-latest
     if: always()
-    needs: deploy, configure
+    needs: [deploy, configure]
 
     container:
       image: xpillons/hpcrover:2011.2317
