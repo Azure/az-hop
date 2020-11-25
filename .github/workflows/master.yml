@@ -53,6 +53,7 @@ jobs:
           terraform apply -auto-approve -parallelism=30 -var location=westeurope -var resource_group=$RESOURCE_GROUP ./tf
 
       - name: Configure
+        id: configure
         continue-on-error : true
         if : ${{ steps.deployment.outcome == 'success' }}
         run: |
@@ -70,7 +71,7 @@ jobs:
           terraform destroy -auto-approve -parallelism=30 -var location=westeurope -var resource_group=$RESOURCE_GROUP ./tf
 
           # Return on error if any tasks failed
-          if [ "steps.Configure.outcome" != "success" ]; then
+          if [ "steps.configure.outcome" != "success" ]; then
             echo "::error::Configure Step failed"
             exit 1
           fi
