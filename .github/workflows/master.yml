@@ -70,7 +70,7 @@ jobs:
           terraform destroy -auto-approve -parallelism=30 -var location=westeurope -var resource_group=$RESOURCE_GROUP ./tf
 
           # Return on error if any tasks failed
-          if [ "steps.deployment.outcome" != "success" ]; then
+          if [ "steps.Configure.outcome" != "success" ]; then
             echo "::error::Configure Step failed"
             exit 1
           fi
