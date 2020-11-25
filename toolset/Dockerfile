@@ -68,9 +68,9 @@ RUN \
         #
         echo "Installing terraform ..." && \
         apt update -y && \
-        curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add - && \
-        sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main" && \
-        sudo apt-get update && sudo apt-get install terraform && \
+        curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add - && \
+        apt-add-repository --yes "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main" && \
+        apt-get update -y && apt install -y terraform && \
         mkdir -p /home/${USERNAME}/.terraform.cache/plugin-cache && \
         # Clean-up
         rm -f /tmp/*.zip && rm -f /tmp/*.gz && \
