@@ -13,10 +13,10 @@ resource "azurerm_network_interface" "ccportal-nic" {
 }
 
 resource "azurerm_virtual_machine" "ccportal" {
-  name                = "ccportal"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  vm_size                = "Standard_d2s_v3"
+  name                  = "ccportal"
+  resource_group_name   = azurerm_resource_group.rg.name
+  location              = azurerm_resource_group.rg.location
+  vm_size               = "Standard_d2s_v3"
   network_interface_ids = [
     azurerm_network_interface.ccportal-nic.id,
   ]
@@ -37,7 +37,7 @@ resource "azurerm_virtual_machine" "ccportal" {
   storage_os_disk {
     name              = "ccportal-osdisk"
     create_option     = "FromImage"
-    caching              = "ReadWrite"
+    caching           = "ReadWrite"
     managed_disk_type = "Standard_LRS"
   }
 
@@ -49,9 +49,9 @@ resource "azurerm_virtual_machine" "ccportal" {
   }
 
   plan {
-    name = "cyclecloud-81"
+    name      = "cyclecloud-81"
     publisher = "azurecyclecloud"
-    product = "azure-cyclecloud"
+    product   = "azure-cyclecloud"
   }
 
   storage_data_disk {
@@ -82,10 +82,9 @@ resource "azurerm_role_assignment" "ccportal" {
 }
 
 resource "azurerm_storage_account" "ccportal" {
-  #name                = format("%s%s", "storage-", random_string.random.result)
-  name                = "cc12345test"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  name                      = format("%s%s", "storage", random_string.random.result)
+  resource_group_name       = azurerm_resource_group.rg.name
+  location                  = azurerm_resource_group.rg.location
   account_tier             = "Standard"
   account_replication_type = "LRS"
 }
