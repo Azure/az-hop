@@ -1,8 +1,8 @@
 ---
+- name: Disable SELinux
+  selinux:
+    state: disabled
 
 - name: Configure Cycle Cloud portal host
-  script: "files/configure.py --useManagedIdentity --username {{cc_admin_user}} --acceptTerms --publickey {{cc_public_key}} --password {{cc_password}} --storageAccount {{cc_storage}}"
-  args:
-    executable: python3
-#    creates: /foo/cycle => Need to find which marker file to use to be idempotent
+  script: '{{role_path}}/files/configure.py --useManagedIdentity --username {{cc_admin_user}} --acceptTerms --publickey "{{cc_public_key}}" --password "{{cc_password}}" --storageAccount {{cc_storage}}'
 
