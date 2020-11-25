@@ -5,10 +5,11 @@
   gather_facts: false
   tasks:
   - name: start socks tunnel  
-    shell: ssh -i {{ lookup('env', 'PWD') }}/hpcadmin_id_rsa -fN -D localhost:5985 -o StrictHostKeyChecking=no hpcadmin@{{ psrp_ssh_proxy }}
+    shell: ssh -i {{ lookup('env', 'PWD') }}/{{ansible_ssh_private_key_file}} -fN -D localhost:5985 -o StrictHostKeyChecking=no ${ansible_user}@{{ psrp_ssh_proxy }}
 
 - name: Configure AD Server
   hosts: ad
+
   tasks:
   - name: Install AD-Domain-Services
     win_feature:
@@ -16,20 +17,23 @@
       include_management_tools: yes
       include_sub_features: yes
       state: present
+
   - name: Create AD-Domain
     ansible.windows.win_domain:
       dns_domain_name: hpc.azure
-      safe_mode_password: password123!
+      safe_mode_password: '{{ad_join_password}}'
     register: ad_promotion
+
   - name: Reboot after promotion
     ansible.windows.win_reboot:
       post_reboot_delay: 600
     when: ad_promotion.reboot_required
+
   - name: Ensure user hugo is present
     community.windows.win_domain_user:
       name: hugo
       firstname: hugo
-      password: Microsoft12345! 
+      password: '{{ad_join_password}}'
       state: present
       groups:
         - Domain Users
@@ -40,11 +44,12 @@
         loginShell: /bin/bash
         unixhomedirectory: /anfhome/hugo
         gidnumber: 5000 
+
   - name: Ensure user xavier is present
     community.windows.win_domain_user:
       name: xavier
       firstname: xavier
-      password: Microsoft12345! 
+      password: '{{ad_join_password}}' 
       state: present
       groups:
         - Domain Users
@@ -55,11 +60,12 @@
         loginShell: /bin/bash
         unixhomedirectory: /anfhome/xavier
         gidnumber: 5000 
+
   - name: Ensure user paul is present
     community.windows.win_domain_user:
       name: paul
       firstname: paul
-      password: Microsoft12345! 
+      password: '{{ad_join_password}}' 
       state: present
       groups:
         - Domain Users
@@ -70,11 +76,12 @@
         loginShell: /bin/bash
         unixhomedirectory: /anfhome/paul
         gidnumber: 5000 
+
   - name: Ensure user domainjoinuser is present
     community.windows.win_domain_user:
       name: domainjoinuser
       firstname: domainjoinuser
-      password: Microsoft12345! 
+      password: '{{ad_join_password}}' 
       state: present
       groups:
         - Domain Users
