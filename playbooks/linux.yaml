@@ -42,7 +42,7 @@
     file:
       path: /anfhome
       state: directory
-      mode: '0777'
+      mode: '0755'
     run_once : true
   - name: check if sssd.conf file exists
     stat: 
