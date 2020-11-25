@@ -23,7 +23,7 @@
     service:
       name: NetworkManager
       state: restarted
-  - name: Creates directory
+  - name: Creates home directory mountpoint
     file:
       path: /anfhome
       state: directory
@@ -35,6 +35,12 @@
       opts: rw,sync,hard,intr
       state: mounted
       fstype: nfs
+  - name: Update ANF chmod mode
+    file:
+      path: /anfhome
+      state: directory
+      mode: '0777'
+    run_once : true
   - name: check if sssd.conf file exists
     stat: 
       path: /etc/sssd/sssd.conf

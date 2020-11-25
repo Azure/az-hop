@@ -5,7 +5,7 @@
   gather_facts: false
   tasks:
   - name: start socks tunnel  
-    shell: ssh -i {{ lookup('env', 'PWD') }}/hpcadmin_id_rsa -fN -D localhost:5985 hpcadmin@{{ psrp_ssh_proxy }}
+    shell: ssh -i {{ lookup('env', 'PWD') }}/hpcadmin_id_rsa -fN -D localhost:5985 -o StrictHostKeyChecking=no hpcadmin@{{ psrp_ssh_proxy }}
 
 - name: Configure AD Server
   hosts: ad
@@ -25,7 +25,7 @@
     ansible.windows.win_reboot:
       post_reboot_delay: 600
     when: ad_promotion.reboot_required
-  - name: Ensure user paul is present
+  - name: Ensure user hugo is present
     community.windows.win_domain_user:
       name: hugo
       firstname: hugo
@@ -39,6 +39,36 @@
         uid: hugo
         loginShell: /bin/bash
         unixhomedirectory: /anfhome/hugo
+        gidnumber: 5000 
+  - name: Ensure user xavier is present
+    community.windows.win_domain_user:
+      name: xavier
+      firstname: xavier
+      password: Microsoft12345! 
+      state: present
+      groups:
+        - Domain Users
+        - Domain Admins
+      attributes:
+        uidNumber: 10002 
+        uid: xavier
+        loginShell: /bin/bash
+        unixhomedirectory: /anfhome/xavier
+        gidnumber: 5000 
+  - name: Ensure user paul is present
+    community.windows.win_domain_user:
+      name: paul
+      firstname: paul
+      password: Microsoft12345! 
+      state: present
+      groups:
+        - Domain Users
+        - Domain Admins
+      attributes:
+        uidNumber: 10003 
+        uid: paul
+        loginShell: /bin/bash
+        unixhomedirectory: /anfhome/paul
         gidnumber: 5000 
   - name: Ensure user domainjoinuser is present
     community.windows.win_domain_user:
