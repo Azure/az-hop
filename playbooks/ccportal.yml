@@ -13,3 +13,4 @@
       dest: /tmp/cyclecloud_install.py 
   - name: configure CC 
     shell: python3 /tmp/cyclecloud_install.py --useManagedIdentity --username hpcadmin --hostname 10.0.1.5 --acceptTerms --publickey "12345" --password "Microsoft12345!" --azureSovereignCloud "public" --storageAccount cc12345test || exit 1
+  
