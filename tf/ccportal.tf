@@ -30,7 +30,7 @@ resource "azurerm_virtual_machine" "ccportal" {
     disable_password_authentication = true
     ssh_keys {
       path     = "/home/${var.admin_username}/.ssh/authorized_keys"
-      key_data = tls_private_key.internal.public_key_openssh # file("~/.ssh/id_rsa.pub")
+      key_data = tls_private_key.internal.public_key_openssh
     }
   }
 
@@ -73,16 +73,14 @@ data "azurerm_role_definition" "contributor" {
 }
 
 resource "azurerm_role_assignment" "ccportal" {
-  #name               = "00000000-0000-0000-0000-000000000000"
   name               = lookup(azurerm_virtual_machine.ccportal.identity[0], "principal_id")
   scope              = data.azurerm_subscription.primary.id
   role_definition_id = "${data.azurerm_subscription.primary.id}${data.azurerm_role_definition.contributor.id}"
-  #principal_id       = azurerm_virtual_machine.ccportal.identity[0]["principal_id"]
   principal_id       = lookup(azurerm_virtual_machine.ccportal.identity[0], "principal_id")
 }
 
 resource "azurerm_storage_account" "ccportal" {
-  name                      = format("%s%s", "storage", random_string.random.result)
+  name                      = format("%s%s", "storage", random_string.resource_postfix.result)
   resource_group_name       = azurerm_resource_group.rg.name
   location                  = azurerm_resource_group.rg.location
   account_tier             = "Standard"

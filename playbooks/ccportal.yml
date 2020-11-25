@@ -1,15 +1,14 @@
 ---
-- name: Configure ccportal
-  hosts: ccportal
-  become: true
+- hosts: ccportal
+  gather_facts: no
 
   tasks:
-  - name: Install dependencies
-    yum:
-      name: python3, nfs-utils
-  - name: download CC install script 
-    get_url: 
-      url: "https://raw.githubusercontent.com/dapolloxp/AzureCycleAKSDeployment/master/docker/cyclecloud8/scripts/cyclecloud_install.py"
-      dest: /tmp/cyclecloud_install.py 
-  - name: configure CC 
-    shell: python3 /tmp/cyclecloud_install.py --useManagedIdentity --username hpcadmin --hostname 10.0.1.5 --acceptTerms --publickey "12345" --password "Microsoft12345!" --azureSovereignCloud "public" --storageAccount cc12345test || exit 1
+    - include_role: 
+        name: cyclecloud
+        apply: 
+          become: true
+      vars:
+        cc_admin_user: '{{global_admin_username}}'
+        cc_public_key: '{{global_ssh_public_key}}'
+        cc_password: '{{global_cc_password}}'
+        cc_storage: '{{global_cc_storage}}'
