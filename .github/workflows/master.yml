@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: xpillons/hpcrover:2011.2508 
+      image: xpillons/hpcrover:2011.2514 
       options: --user 0
 
     outputs:
