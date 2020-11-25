@@ -7,6 +7,9 @@
   - name: Install dependencies
     yum:
       name: epel-release, sssd, realmd, oddjob, oddjob-mkhomedir, adcli, samba-common, samba-common-tools, krb5-workstation, openldap-clients, policycoreutils-python, nfs-utils 
+  - name: Disable SELinux
+    ansible.posix.selinux:
+      state: disabled
   - name: Restart service dbus
     service:
       name: dbus
@@ -23,7 +26,7 @@
     service:
       name: NetworkManager
       state: restarted
-  - name: Creates directory
+  - name: Creates home directory mountpoint
     file:
       path: /anfhome
       state: directory
@@ -35,6 +38,12 @@
       opts: rw,sync,hard,intr
       state: mounted
       fstype: nfs
+  - name: Update ANF chmod mode
+    file:
+      path: /anfhome
+      state: directory
+      mode: '0777'
+    run_once : true
   - name: check if sssd.conf file exists
     stat: 
       path: /etc/sssd/sssd.conf

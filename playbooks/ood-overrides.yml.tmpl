@@ -11,5 +11,7 @@ clusters:
       batch_connect:
 httpd_auth:
 - AuthType Basic
+- AuthName "Open OnDemand"
+- AuthBasicProvider PAM
+- AuthPAMService ood
 - Require valid-user
-- AuthUserFile "{{ apache_etc_dir }}/.htpasswd"
