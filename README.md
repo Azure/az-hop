@@ -48,6 +48,14 @@ terraform apply -auto-approve -var location=westeurope -var resource_group=$RESO
 
 # install
 ansible-playbook -i playbooks/inventory ./playbooks/ad.yml
+ansible-playbook -i playbooks/inventory ./playbooks/linux.yaml
+ansible-playbook -i playbooks/inventory ./playbooks/ccportal.yml
+
+# create a tunnel (outside of the container)
+ssh -L 9443:ccportal:9443 -i hpcadmin_rsa_id hpcadmin@<public ip jumpbox>
+# Browse to the cycle UI
+https://localhost:9443
+
 
 # Delete all
 terraform destroy -auto-approve -var location=westeurope -var resource_group=$RESOURCE_GROUP ./tf

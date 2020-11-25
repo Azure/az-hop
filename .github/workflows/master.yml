@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: xpillons/hpcrover:2011.2417 
+      image: xpillons/hpcrover:2011.2514 
       options: --user 0
 
     outputs:
@@ -63,6 +63,7 @@ jobs:
 
           ansible-playbook -i playbooks/inventory ./playbooks/ad.yml
           ansible-playbook -i playbooks/inventory ./playbooks/linux.yaml
+          ansible-playbook -i playbooks/inventory ./playbooks/ccportal.yaml
 
       - name: Remove Resources
         run: |

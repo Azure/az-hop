@@ -21,12 +21,12 @@ all:
       ansible_host: ${ad-ip}
       ansible_connection: psrp
       ansible_psrp_protocol: http
-      ansible_user: hpcadmin
+      ansible_user: ${jumpbox-user}
       ansible_password: "${ad-passwd}"
       ansible_psrp_proxy: socks5h://localhost:5985
   vars:
     ad_dns: ${ad-ip} 
-    ad_join_password: Microsoft12345!
+    ad_join_password: '${ ad_join_password }'
     ad_join_user: domainjoinuser
     ad_join_domain: hpc.azure
     anf_home_ip: ${ anf-home-ip }

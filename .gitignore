@@ -6,7 +6,12 @@
 
 # Ansible auto-generated inventory
 playbooks/inventory
+playbooks/group_vars/*
+playbooks/ood-overrides.*
 
 # ssk keys
 *.pub
 *id_rsa*
+
+# datafiles
+*.txt
