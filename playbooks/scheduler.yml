@@ -47,5 +47,19 @@
   - name: Configure pbs 4/4
     shell: /opt/pbs/bin/qmgr -c 'c r pool_name type=string,flag=h'
     when: pbspro_pool_name.failed is true
-
+  - name: download pbs script 1 
+    get_url: 
+      url: "https://raw.githubusercontent.com/Azure/cyclecloud-pbspro/master/specs/default/chef/site-cookbooks/pbspro/files/default/doqmgr.sh"
+      dest: /var/spool/pbs/doqmgr.sh
+      mode: '777'
+  - name: download pbs config
+    get_url: 
+      url: "https://raw.githubusercontent.com/Azure/cyclecloud-pbspro/master/specs/default/chef/site-cookbooks/pbspro/files/default/sched.config"
+      dest: /var/spool/pbs/sched_priv/sched_config
+  - name: activate pbs config
+    shell: /var/spool/pbs/doqmgr.sh && touch /etc/qmgr.config
+  - name: Enable service pbs
+    service:
+      name: pbs
+      state: restarted
     

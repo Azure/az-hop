@@ -36,8 +36,7 @@
     file:
       path: /anfhome
       state: directory
-      mode: '0777'
-
+      mode: 0755
   - name: Mount an NFS volume
     mount:
       src: '{{ anf_home_ip }}:/{{ anf_home_path }}'
@@ -50,7 +49,7 @@
     file:
       path: /anfhome
       state: directory
-      mode: '0777'
+      mode: '0755'
     run_once : true
 
   - name: check if sssd.conf file exists
