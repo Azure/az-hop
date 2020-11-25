@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 # Arguments set during docker-compose build -b --build from .env file
 
@@ -48,16 +48,15 @@ RUN \
         zip \
         tzdata && \
         # install python packages
-        apt-get install python3-pip && \
-        # pip3 install pypsrp && \
-        # pip3 install pysocks && \
+        apt install -y python3-pip && \
         # Install AzCLI
         curl -sL https://aka.ms/InstallAzureCLIDeb | bash && \
         # Install Ansible
-        apt update -y && \
-        apt install -y software-properties-common && \
-        apt-add-repository --yes --update ppa:ansible/ansible && \
         apt install -y ansible && \
+        # apt update -y && \
+        # apt install -y software-properties-common && \
+        # apt-add-repository --yes --update ppa:ansible/ansible && \
+        # apt install -y ansible && \
         #
         # Create USERNAME
         #
