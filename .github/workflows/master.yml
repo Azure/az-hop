@@ -9,6 +9,8 @@ on:
   workflow_dispatch: # This allow you to trigger the workflow manually
   push:
     paths:
+      - .devcontainer
+      - .github/workflows/master.yml
       - 'tf/**'
       - 'playbooks/**'
 
