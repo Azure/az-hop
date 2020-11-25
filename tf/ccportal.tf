@@ -73,11 +73,9 @@ data "azurerm_role_definition" "contributor" {
 }
 
 resource "azurerm_role_assignment" "ccportal" {
-  #name               = "00000000-0000-0000-0000-000000000000"
   name               = lookup(azurerm_virtual_machine.ccportal.identity[0], "principal_id")
   scope              = data.azurerm_subscription.primary.id
   role_definition_id = "${data.azurerm_subscription.primary.id}${data.azurerm_role_definition.contributor.id}"
-  #principal_id       = azurerm_virtual_machine.ccportal.identity[0]["principal_id"]
   principal_id       = lookup(azurerm_virtual_machine.ccportal.identity[0], "principal_id")
 }
 
