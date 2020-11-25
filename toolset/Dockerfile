@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:18.04
 
 # Arguments set during docker-compose build -b --build from .env file
 
