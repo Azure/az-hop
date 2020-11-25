@@ -1,0 +1,9 @@
+- hosts: ondemand
+  #gather_facts: no
+  become: true
+  tasks:
+  - include_role:
+      name : ood-ansible
+  - name: Disable SELinux
+    ansible.posix.selinux:
+      state: disabled 
