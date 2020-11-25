@@ -63,7 +63,7 @@ jobs:
 
           ansible-playbook -i playbooks/inventory ./playbooks/ad.yml
           ansible-playbook -i playbooks/inventory ./playbooks/linux.yaml
-          ansible-playbook -i playbooks/inventory ./playbooks/ccportal.yaml
+          ansible-playbook -i playbooks/inventory ./playbooks/ccportal.yml
 
       - name: Remove Resources
         run: |
