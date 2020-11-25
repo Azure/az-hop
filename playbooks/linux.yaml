@@ -27,7 +27,7 @@
     file:
       path: /anfhome
       state: directory
-      mode: '0777'
+      mode: 0755
   - name: Mount an NFS volume
     ansible.posix.mount:
       src: '{{ anf_home_ip }}:/{{ anf_home_path }}'
