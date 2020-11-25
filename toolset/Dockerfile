@@ -54,7 +54,7 @@ RUN \
         # Install Ansible
         apt install -y ansible && \
         # apt update -y && \
-        # apt install -y software-properties-common && \
+        apt install -y software-properties-common && \
         # apt-add-repository --yes --update ppa:ansible/ansible && \
         # apt install -y ansible && \
         #
@@ -67,7 +67,7 @@ RUN \
         # Install Terraform
         #
         echo "Installing terraform ..." && \
-        apt update -y && \
+        #apt update -y && \
         curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add - && \
         apt-add-repository --yes "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main" && \
         apt-get update -y && apt install -y terraform && \
