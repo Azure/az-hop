@@ -12,9 +12,9 @@ resource "azurerm_netapp_pool" "anfpool" {
   size_in_tb          = 4
 }
 resource "azurerm_netapp_volume" "home" {
-  lifecycle {
-    prevent_destroy = true
-  }
+#  lifecycle {
+#    prevent_destroy = true
+#  }
 
   name                = "anfhome"
   location            = azurerm_resource_group.rg.location

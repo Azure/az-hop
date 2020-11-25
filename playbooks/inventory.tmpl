@@ -8,17 +8,21 @@ all:
     scheduler:
       ansible_host: ${scheduler-ip}
       ansible_ssh_user: ${scheduler-user}
-      ansible_ssh_common_args: '-o ProxyCommand="ssh -W %h:%p ${jumpbox-user}@${jumpbox-pip}"'
+      ansible_ssh_common_args: '-o ProxyCommand="ssh -i ${jumpbox-user}_id_rsa -W %h:%p ${jumpbox-user}@${jumpbox-pip}"'
     ondemand:
       ansible_host: ${ondemand-ip}
       ansible_ssh_user: ${ondemand-user}
-      ansible_ssh_common_args: '-o ProxyCommand="ssh -W %h:%p ${jumpbox-user}@${jumpbox-pip}"'
+      ansible_ssh_common_args: '-o ProxyCommand="ssh -i ${jumpbox-user}_id_rsa -W %h:%p ${jumpbox-user}@${jumpbox-pip}"'
+    ccportal:
+      ansible_host: ${ccportal-ip}
+      ansible_ssh_user: ${ondemand-user}
+      ansible_ssh_common_args: '-o ProxyCommand="ssh -i ${jumpbox-user}_id_rsa -W %h:%p ${jumpbox-user}@${jumpbox-pip}"'
     ad:
       ansible_host: ${ad-ip}
       ansible_connection: psrp
       ansible_psrp_protocol: http
       ansible_user: hpcadmin
-      ansible_password: ${ad-passwd}
+      ansible_password: "${ad-passwd}"
       ansible_psrp_proxy: socks5h://localhost:5985
   vars:
     ad_dns: ${ad-ip} 
@@ -28,3 +32,4 @@ all:
     anf_home_ip: ${ anf-home-ip }
     anf_home_path: ${ anf-home-path }
     ondemand_fqdn: ${ ondemand-fqdn }
+    ansible_ssh_private_key_file: ${jumpbox-user}_id_rsa
