@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: xpillons/hpcrover:2011.2317 
+      image: xpillons/hpcrover:2011.2417 
       options: --user 0
 
     outputs:
@@ -56,6 +56,11 @@ jobs:
         continue-on-error : true
         if : ${{ steps.deployment.outcome == 'success' }}
         run: |
+          pip3 install pypsrp
+          pip3 install pysocks
+          ansible-galaxy collection install ansible.windows
+          ansible-galaxy collection install community.windows
+
           ansible-playbook -i playbooks/inventory ./playbooks/ad.yml
           ansible-playbook -i playbooks/inventory ./playbooks/linux.yaml
 
