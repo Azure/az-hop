@@ -16,4 +16,4 @@ rm terraform.tfstate
 
 ./bin/terraform apply -var-file configuration.tfvars ./tf/
 
-ansible-playbook -i playbooks/inventory playbooks/ad.yml playbooks/linux.yaml playbooks/scheduler.yml playbooks/ccportal.yml
+ansible-playbook -i playbooks/inventory playbooks/ad.yml playbooks/linux.yml playbooks/scheduler.yml playbooks/ccportal.yml
