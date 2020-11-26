@@ -15,3 +15,6 @@ playbooks/ood-overrides.*
 
 # datafiles
 *.txt
+
+# ood-ansible role
+playbooks/roles/ood-ansible
