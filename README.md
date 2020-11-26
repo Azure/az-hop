@@ -124,9 +124,12 @@ sudo apt-get update && sudo apt-get install terraform
 
 # install ansible
 sudo apt-get install ansible
+# These are needed for AD
 ansible-galaxy collection install ansible.windows
 ansible-galaxy collection install community.windows
+# These are needed for OpenOnDemand
 ansible-galaxy collection install ansible.posix
+ansible-galaxy collection install community.general
 
 # install python packages
 sudo apt-get install python3-pip
