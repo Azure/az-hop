@@ -60,11 +60,10 @@ jobs:
           ansible-galaxy collection install ansible.windows
           ansible-galaxy collection install community.windows
 
-          ansible-playbook -i playbooks/inventory \ 
-              playbooks/ad.yml \
-              playbooks/linux.yaml \
-              playbooks/scheduler.yml \
-              playbooks/ccportal.yml
+          ansible-playbook -i playbooks/inventory ./playbooks/ad.yml 
+          ansible-playbook -i playbooks/inventory ./playbooks/linux.yaml 
+          ansible-playbook -i playbooks/inventory ./playbooks/scheduler.yml 
+          ansible-playbook -i playbooks/inventory ./playbooks/ccportal.yml
 
   cleanup:
     name: cleanup
