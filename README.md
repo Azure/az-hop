@@ -51,6 +51,7 @@ ansible-playbook -i playbooks/inventory ./playbooks/ad.yml
 ansible-playbook -i playbooks/inventory ./playbooks/linux.yml
 ansible-playbook -i playbooks/inventory ./playbooks/ccportal.yml
 ansible-playbook -i playbooks/inventory ./playbooks/scheduler.yml
+ansible-playbook -i playbooks/inventory ./playbooks/ood.yml --extra-vars=@playbooks/ood-overrides.yml
 
 # create a tunnel (outside of the container)
 ssh -L 9443:ccportal:9443 -i hpcadmin_rsa_id hpcadmin@<public ip jumpbox>
@@ -113,7 +114,7 @@ You need the following installed to launch:
   - pysocks
 
 
-## Installation on Ubuntu
+## Setup on Ubuntu (e.g. WSL2)
 
 ```
 # install terraform
@@ -131,20 +132,6 @@ ansible-galaxy collection install ansible.posix
 sudo apt-get install python3-pip
 pip3 install pypsrp
 pip3 install pysocks
-
-# clone the repo
-git clone https://github.com/Azure/deployhpc.git
-cd deployhpc
-
-# Login to Azure
-az login
-
-# create infrastructure
-terraform init ./tf
-terraform apply ./tf
-
-# install
-ansible-playbook -i playbooks/inventory ./playbooks/ad.yml
 ```
 
 
