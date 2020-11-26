@@ -80,7 +80,7 @@ resource "azurerm_role_assignment" "ccportal" {
 }
 
 resource "azurerm_storage_account" "ccportal" {
-  name                      = format("%s%s", "storage", random_string.resource_postfix.result)
+  name                      = "storage${random_string.resource_postfix.result}"
   resource_group_name       = azurerm_resource_group.rg.name
   location                  = azurerm_resource_group.rg.location
   account_tier             = "Standard"
