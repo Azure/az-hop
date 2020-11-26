@@ -135,4 +135,11 @@ pip3 install pysocks
 
 
 
+## TODO: Users
+
+* Create home directory
+* SSH config to StictHostKeyChecking false
+* Create ssh key
+* Copy public key to authorized keys
+
 
