@@ -32,7 +32,7 @@ jobs:
       options: --user 0
 
     outputs:
-        resource_group: ${{ steps.deployment.outputs.resource_group }}
+        resource_group: ${{ steps.deploy.outputs.resource_group }}
 
     steps:
       - uses: actions/checkout@v2
@@ -44,38 +44,50 @@ jobs:
           echo "local user: $(whoami)"
 
       - name: Deployment
-        id: deployment
-        continue-on-error : true
+        id: deploy
         run: |
           UUID="$(cat /proc/sys/kernel/random/uuid | tr -d '\n-' | tr '[:upper:]' '[:lower:]' | cut -c 1-6)"
           export RESOURCE_GROUP="hpc_$UUID"
           echo "RESOURCE_GROUP=$RESOURCE_GROUP" >> $GITHUB_ENV
-          #echo "::set-output name=RESOURCE_GROUP::$RESOURCE_GROUP"
+          echo "::set-output name=RESOURCE_GROUP::$RESOURCE_GROUP"
           terraform init ./tf
           terraform apply -auto-approve -parallelism=30 -var location=westeurope -var resource_group=$RESOURCE_GROUP ./tf
 
       - name: Configure
-        id: configure
-        continue-on-error : true
-        if : ${{ steps.deployment.outcome == 'success' }}
         run: |
           pip3 install pypsrp
           pip3 install pysocks
           ansible-galaxy collection install ansible.windows
           ansible-galaxy collection install community.windows
 
-          ansible-playbook -i playbooks/inventory ./playbooks/ad.yml
-          ansible-playbook -i playbooks/inventory ./playbooks/linux.yaml
-          ansible-playbook -i playbooks/inventory ./playbooks/ccportal.yml
+          ansible-playbook -i playbooks/inventory \ 
+              playbooks/ad.yml \
+              playbooks/linux.yaml \
+              playbooks/scheduler.yml \
+              playbooks/ccportal.yml
+
+  cleanup:
+    name: cleanup
+    runs-on: ubuntu-latest
+    if: always()
+    needs: deploy
+
+    container:
+      image: xpillons/hpcrover:2011.2514 
+      options: --user 0
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Login azure
+        run: |
+          az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
+          az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: Remove Resources
         run: |
-          terraform destroy -auto-approve -parallelism=30 -var location=westeurope -var resource_group=$RESOURCE_GROUP ./tf
-
-          # Return on error if any tasks failed
-          # TODO : Need to find a way to make tasks failed an this one to always run
-          #if [ "steps.configure.outcome" != "success" ]; then
-          #  echo "::error::Configure Step failed"
-          #  exit 1
-          #fi
+          RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
+          echo "removing resource group $RESOURCE_GROUP"
+          az group delete -n $RESOURCE_GROUP -y 
+          #--no-wait
 
