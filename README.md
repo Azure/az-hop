@@ -48,8 +48,9 @@ terraform apply -auto-approve -var location=westeurope -var resource_group=$RESO
 
 # install
 ansible-playbook -i playbooks/inventory ./playbooks/ad.yml
-ansible-playbook -i playbooks/inventory ./playbooks/linux.yaml
+ansible-playbook -i playbooks/inventory ./playbooks/linux.yml
 ansible-playbook -i playbooks/inventory ./playbooks/ccportal.yml
+ansible-playbook -i playbooks/inventory ./playbooks/scheduler.yml
 ansible-playbook -i playbooks/inventory ./playbooks/ood.yml --extra-vars=@playbooks/ood-overrides.yml
 
 # create a tunnel (outside of the container)
