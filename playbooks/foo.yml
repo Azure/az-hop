@@ -1,0 +1,12 @@
+---
+- name: Lookup secret from Azure Key Vault
+  hosts: localhost
+  gather_facts: false
+  connection: local
+  tasks:
+    - name: Look up secret from Azure Key Vault and output to Console
+      vars:
+        url: 'https://azcathpcncus.vault.azure.net/'
+        secretname: 'GrafanaPassword'
+      debug:
+        msg: "{{ lookup('azure_keyvault_secret', secretname, vault_url=url) }}"
