@@ -41,7 +41,7 @@
         uidNumber: "{{ item.uid }}"
         uid: "{{ item.name }}"
         loginShell: /bin/bash
-        unixhomedirectory: /anfhome/"{{ item.name }}"
+        unixhomedirectory: /anfhome/{{ item.name }}
         gidnumber: 5000
     with_items:
       - { name: hugo, uid: 10001 }
