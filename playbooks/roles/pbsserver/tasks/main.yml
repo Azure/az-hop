@@ -1,0 +1,83 @@
+---
+
+- name: Install dependencies
+  yum:
+    name: python3, nfs-utils
+
+- name: Download pbspro 
+  unarchive:
+    src: https://github.com/PBSPro/pbspro/releases/download/v19.1.1/pbspro_19.1.1.centos7.zip
+    dest: /mnt/resource
+    remote_src: yes
+
+- name: Install pbspro
+  yum:
+    name: 
+      - /mnt/resource/pbspro_19.1.1.centos7/pbspro-server-19.1.1-0.x86_64.rpm
+    state: present
+
+- name: Ensure pbs-server is running.
+  service: 
+    name: pbs
+    state: started
+    enabled: yes
+
+- name: check pbspro 1/4 - manager
+  shell: /opt/pbs/bin/qmgr -c 'p s managers' | grep -v '#' | grep {{pbs_admin}}
+  register: pbspro_manager
+  ignore_errors: true
+
+- name: Configure pbs 1/4
+  shell: /opt/pbs/bin/qmgr -c 's s managers += {{pbs_admin}}@*'
+  when: pbspro_manager is failed
+
+- name: check pbspro 2/4 - flatuid
+  shell: /opt/pbs/bin/qmgr -c 'p s flatuid' | grep -v '#' | grep 'flatuid = True'
+  register: pbspro_flatuid
+  ignore_errors: true
+
+- name: Configure pbs 2/4
+  shell: /opt/pbs/bin/qmgr -c 's s flatuid=t'
+  when: pbspro_flatuid is failed
+
+- name: check pbspro 3/4 - job_history_enable
+  shell: /opt/pbs/bin/qmgr -c 'p s job_history_enable' | grep -v '#' | grep 'job_history_enable = True'
+  register: pbspro_job_history_enable
+  ignore_errors: true
+
+- name: Configure pbs 3/4
+  shell: /opt/pbs/bin/qmgr -c 's s job_history_enable=t'
+  when: pbspro_job_history_enable is failed
+
+- name: check pbspro 4/4 - pool_name resource
+  shell: /opt/pbs/bin/qmgr -c 'p r pool_name' | grep -v '#' | grep 'pool_name'
+  register: pbspro_pool_name
+  ignore_errors: true
+
+- name: Configure pbs 4/4
+  shell: /opt/pbs/bin/qmgr -c 'c r pool_name type=string,flag=h'
+  when: pbspro_pool_name is failed
+
+- name: download pbs script 1 
+  get_url: 
+    url: "https://raw.githubusercontent.com/Azure/cyclecloud-pbspro/master/specs/default/chef/site-cookbooks/pbspro/files/default/doqmgr.sh"
+    dest: /var/spool/pbs/doqmgr.sh
+    mode: '777'
+  when: pbs_cc_headless
+
+- name: download pbs config
+  get_url: 
+    url: "https://raw.githubusercontent.com/Azure/cyclecloud-pbspro/master/specs/default/chef/site-cookbooks/pbspro/files/default/sched.config"
+    dest: /var/spool/pbs/sched_priv/sched_config
+  when: pbs_cc_headless
+
+- name: activate pbs config
+  shell: /var/spool/pbs/doqmgr.sh && touch /etc/qmgr.config
+  args:
+    creates: /etc/qmgr.config
+  when: pbs_cc_headless
+
+- name: Restart pbs-server 
+  service: 
+    name: pbs
+    state: restarted
