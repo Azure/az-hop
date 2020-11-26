@@ -15,4 +15,10 @@
     args:
       creates: /etc/pam.d/ood
   - include_role:
-      name : ood-ansible
+      name: ood-ansible
+  - include_role:
+      name: pbsclient
+      apply:
+        become: true
+    vars:
+      pbs_server: scheduler
