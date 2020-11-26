@@ -125,7 +125,7 @@ sudo apt-get update && sudo apt-get install terraform
 # install ansible
 sudo apt-get install ansible
 ansible-galaxy collection install ansible.windows
-ansible-galaxy collection install community.windows
+#ansible-galaxy collection install community.windows => this one seems no longer needed
 ansible-galaxy collection install ansible.posix
 
 # install python packages
