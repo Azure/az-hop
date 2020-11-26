@@ -1,3 +1,3 @@
 [submodule "playbooks/roles/ood-ansible"]
 	path = playbooks/roles/ood-ansible
-	url = https://github.com/OSC/ood-ansible
+	url = https://github.com/OSC/ood-ansible.git
