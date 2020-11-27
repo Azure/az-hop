@@ -16,9 +16,12 @@ resource "random_string" "resource_postfix" {
 }
 
 resource "random_password" "password" {
-  length = 16
-  special = true
-  override_special = "_%@"
+  length            = 16
+  special           = true
+  min_lower         = 1
+  min_upper         = 1
+  min_numeric       = 1
+  override_special  = "_%@"
 }
 
 resource "azurerm_resource_group" "rg" {
