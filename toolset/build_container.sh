@@ -8,6 +8,7 @@ tag=$(date +"%g%m.%d%H")
 case "$buildenv" in
     "github")
         hpcrover="xpillons/hpcrover:${tag}"
+        latest="xpillons/hpcrover:latest"
     ;;
 
     "local")
@@ -22,10 +23,12 @@ echo "Creating version ${hpcrover}"
 docker-compose build 
 
 docker tag toolset_hpcrover ${hpcrover}
+docker tag toolset_hpcrover ${latest}
 case "$buildenv" in
     "github")
         docker login
         docker push ${hpcrover}
+        docker push ${latest}
     ;;
 
     "local")

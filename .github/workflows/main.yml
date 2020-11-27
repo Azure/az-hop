@@ -3,14 +3,16 @@
 # Licensed under the MIT License.
 #
 
-name : master
+name : main
 
 on:
   workflow_dispatch: # This allow you to trigger the workflow manually
   push:
+    branches:
+      - main
     paths:
       - .devcontainer
-      - .github/workflows/master.yml
+      - .github/workflows/main.yml
       - 'tf/**'
       - 'playbooks/**'
 
@@ -48,9 +50,13 @@ jobs:
       - name: Deployment
         id: deploy
         run: |
+          set -e
+          VERSION_TAG=$(date +"%g%m.%d%H")
+          echo "VERSION_TAG=${VERSION_TAG}" >> $GITHUB_ENV
+
           UUID="$(cat /proc/sys/kernel/random/uuid | tr -d '\n-' | tr '[:upper:]' '[:lower:]' | cut -c 1-6)"
-          export RESOURCE_GROUP="hpc_$UUID"
-          echo "RESOURCE_GROUP=$RESOURCE_GROUP" >> $GITHUB_ENV
+          RESOURCE_GROUP="hpc_$UUID"
+          #echo "RESOURCE_GROUP=$RESOURCE_GROUP" >> $GITHUB_ENV
           echo "::set-output name=RESOURCE_GROUP::$RESOURCE_GROUP"
           terraform init ./tf
           terraform apply -auto-approve -parallelism=30 -var location=westeurope -var resource_group=$RESOURCE_GROUP ./tf
@@ -61,13 +67,26 @@ jobs:
           pip3 install pysocks
           ansible-galaxy collection install ansible.windows
           ansible-galaxy collection install community.windows
+          ansible-galaxy collection install ansible.posix
+          ansible-galaxy collection install community.general
 
           ansible-playbook -i playbooks/inventory ./playbooks/ad.yml 
           ansible-playbook -i playbooks/inventory ./playbooks/linux.yml 
           ansible-playbook -i playbooks/inventory ./playbooks/scheduler.yml 
           ansible-playbook -i playbooks/inventory ./playbooks/ccportal.yml
           ansible-playbook -i playbooks/inventory ./playbooks/ood.yml --extra-vars=@playbooks/ood-overrides.yml
-          
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        with:
+          tag_name: ${{ env.VERSION_TAG }}
+          release_name: v${{ env.VERSION_TAG }}
+          draft: false
+          prerelease: true
+
   cleanup:
     name: cleanup
     runs-on: ubuntu-latest
