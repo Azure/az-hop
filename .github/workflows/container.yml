@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'toolset/**'
+      - .github/workflows/container.yml
 
 jobs:
   build:
