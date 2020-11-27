@@ -3,14 +3,16 @@
 # Licensed under the MIT License.
 #
 
-name : master
+name : main
 
 on:
   workflow_dispatch: # This allow you to trigger the workflow manually
   push:
+    branches:
+      - main
     paths:
       - .devcontainer
-      - .github/workflows/master.yml
+      - .github/workflows/main.yml
       - 'tf/**'
       - 'playbooks/**'
 
@@ -48,6 +50,9 @@ jobs:
       - name: Deployment
         id: deploy
         run: |
+          version_tag=$(date +"%g%m.%d%H")
+          echo ::set-env name=version_tag::${version_tag}
+
           UUID="$(cat /proc/sys/kernel/random/uuid | tr -d '\n-' | tr '[:upper:]' '[:lower:]' | cut -c 1-6)"
           export RESOURCE_GROUP="hpc_$UUID"
           echo "RESOURCE_GROUP=$RESOURCE_GROUP" >> $GITHUB_ENV
@@ -69,7 +74,18 @@ jobs:
           ansible-playbook -i playbooks/inventory ./playbooks/scheduler.yml 
           ansible-playbook -i playbooks/inventory ./playbooks/ccportal.yml
           ansible-playbook -i playbooks/inventory ./playbooks/ood.yml --extra-vars=@playbooks/ood-overrides.yml
-          
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@latest
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      with:
+        tag_name: ${{ env.version_tag }}
+        release_name: v${{ env.version_tag }}
+        draft: false
+        prerelease: true
+
   cleanup:
     name: cleanup
     runs-on: ubuntu-latest
