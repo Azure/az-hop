@@ -16,9 +16,12 @@ resource "random_string" "resource_postfix" {
 }
 
 resource "random_password" "password" {
-  length = 16
-  special = true
-  override_special = "_%@"
+  length            = 16
+  special           = true
+  min_lower         = 1
+  min_upper         = 1
+  min_numeric       = 1
+  override_special  = "_%@"
 }
 
 resource "azurerm_resource_group" "rg" {
@@ -41,4 +44,15 @@ resource "local_file" "public_key" {
     content     = tls_private_key.internal.public_key_openssh
     filename = "${var.admin_username}_id_rsa.pub"
     file_permission = "0644"
+}
+
+# Storage account used for
+#   - CycleCloud projects
+#   - Terraform states
+resource "azurerm_storage_account" "deployhpc" {
+  name                      = "storage${random_string.resource_postfix.result}"
+  resource_group_name       = azurerm_resource_group.rg.name
+  location                  = azurerm_resource_group.rg.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
 }
