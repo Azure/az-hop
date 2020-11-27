@@ -14,9 +14,56 @@
       chgrp apache /etc/shadow
     args:
       creates: /etc/pam.d/ood
-  - include_role:
+  - name: Check if we need to register HTTPS
+    stat:
+      path: /etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.crt
+    register: sslcert
+  - name: Run the ood-anisible role to get certificate
+    include_role:
       name: ood-ansible
-  - include_role:
+    vars:
+      servername: null
+      httpd_port: 80
+      httpd_public_uri: /.well-known
+      httpd_public_root: /var/www/ood/.well-known
+    when: sslcert.stat.exists == False
+  - name: Setup HTTPS certificate
+    shell: |
+      cd /root
+
+      # get ssl
+      curl --silent https://raw.githubusercontent.com/srvrco/getssl/master/getssl > getssl
+      chmod 700 getssl
+
+      # Generate the certificate
+      ./getssl -c {{ ondemand_fqdn }}
+      cat <<EOF > ${HOME}/.getssl/{{ ondemand_fqdn }}/getssl.cfg 
+      CA="https://acme-v02.api.letsencrypt.org"
+      SANS=""
+      ACL=('/var/www/ood/.well-known/acme-challenge')
+      EOF
+      ./getssl {{ ondemand_fqdn }} 2>&1 | tee getssl-{{ ondemand_fqdn }}.log
+
+      # set the certificate
+      mkdir /etc/ssl/{{ ondemand_fqdn }}
+      cp /root/.getssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.crt /etc/ssl/{{ ondemand_fqdn }}
+      cp /root/.getssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.key /etc/ssl/{{ ondemand_fqdn }}
+      wget https://letsencrypt.org/certs/letsencryptauthorityx3.pem.txt -O /etc/ssl/{{ ondemand_fqdn }}/letsencryptauthorityx3.pem.txt
+    args:
+      creates: /etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.crt
+    when: sslcert.stat.exists == False
+  - name: Run the ood-ansible role for HTTPS
+    include_role:
+      name: ood-ansible
+    vars:
+      servername: "{{ ondemand_fqdn }}"
+      httpd_port: 443
+      ssl:
+      - SSLCertificateFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.crt"
+      - SSLCertificateKeyFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.key"
+      - SSLCertificateChainFile "/etc/ssl/{{ ondemand_fqdn }}/letsencryptauthorityx3.pem.txt"
+  - name: Run the pbsclient role
+    include_role:
       name: pbsclient
       apply:
         become: true
