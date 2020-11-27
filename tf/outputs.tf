@@ -32,13 +32,3 @@ resource "local_file" "global_variables" {
   filename = "playbooks/group_vars/all.yml"
 
 }
-
-resource "local_file" "OpenOnDemandOverrides" {
-  content = templatefile("playbooks/templates/ood-overrides-https.yml.tmpl",
-    {
-      ondemand-fqdn  = azurerm_public_ip.ondemand-pip.fqdn,
-    }
-  )
-  filename = "playbooks/ood-overrides-https.yml"
-}
-
