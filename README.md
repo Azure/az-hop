@@ -58,6 +58,14 @@ ssh -L 9443:ccportal:9443 -i hpcadmin_id_rsa hpcadmin@<public ip jumpbox>
 # Browse to the cycle UI
 https://localhost:9443
 
+# Connect to the ondemand machine to initialize your home directory
+ssh -i hpcadmin_id_rsa hpcadmin@ondemand -o ProxyCommand="ssh -i hpcadmin_id_rsa -W %h:%p hpcadmin@<public ip jumpbox>"
+sudo su <user>
+cd
+
+# Connect on the ondemand portal
+In the inventory file, locate the ondemand_fqdn variable, browse to this URI
+Connect with your user account and the password located in the inventory file
 
 # Delete all
 terraform destroy -auto-approve -var location=westeurope -var resource_group=$RESOURCE_GROUP ./tf
