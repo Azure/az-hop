@@ -48,17 +48,17 @@
     regexp: '^fi'
     replace: '#fi'
 
-- name: Add vmssname as pool name attribute
-  shell: |
-    # Retrieve the VMSS name to be used as the pool name for multiple VMSS support
-    poolName=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2018-10-01" | jq -r '.compute.vmScaleSetName')
-    /opt/pbs/bin/qmgr -c "c n $(hostname) resources_available.pool_name='$poolName'" || exit 1
+#- name: Add vmssname as pool name attribute
+#  shell: |
+#    # Retrieve the VMSS name to be used as the pool name for multiple VMSS support
+#    poolName=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2018-10-01" | jq -r '.compute.vmScaleSetName')
+#    /opt/pbs/bin/qmgr -c "c n $(hostname) resources_available.pool_name='$poolName'" || exit 1
 
-    mkdir -p /tmp/ansible/{{role_name}}
-    touch /tmp/ansible/{{role_name}}/pool_name
-  args:
-    executable: /bin/bash
-    creates: /tmp/ansible/{{role_name}}/pool_name
+#    mkdir -p /tmp/ansible/{{role_name}}
+#    touch /tmp/ansible/{{role_name}}/pool_name
+#  args:
+#    executable: /bin/bash
+#    creates: /tmp/ansible/{{role_name}}/pool_name
 
 - name: Ensure pbs is running.
   service: 
