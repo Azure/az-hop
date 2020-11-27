@@ -26,7 +26,7 @@ resource "local_file" "global_variables" {
       admin_username = var.admin_username
       ssh_public_key = tls_private_key.internal.public_key_openssh
       cc_password    = azurerm_windows_virtual_machine.ad.admin_password
-      cc_storage     = azurerm_storage_account.ccportal.name
+      cc_storage     = azurerm_storage_account.deployhpc.name
     }
   )
   filename = "playbooks/group_vars/all.yml"
