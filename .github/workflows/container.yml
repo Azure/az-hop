@@ -12,16 +12,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2.3.4
+    - uses: actions/checkout@v2
     - name: Docker Hub Login
-      uses: docker/docker-action@v1.6.0
+      uses: Azure/docker-login@v1
       with:
         # Container registry username
         username: xpillons
         # Container registry password
         password: ${{ secrets.docker_registry_password }}
         # Container registry server url
-        registry: https://index.docker.io/v1/
+        login-server: https://index.docker.io/v1/
     - name: Build the HPC Rover
       run: |
         ./toolset/build_container.sh github
