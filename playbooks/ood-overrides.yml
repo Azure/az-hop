@@ -1,5 +1,4 @@
 ---
-servername: ${ondemand-fqdn}
 clusters:
   ondemand:
     v2:

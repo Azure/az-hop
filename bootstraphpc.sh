@@ -12,8 +12,20 @@ echo Found terraform at $TERRAFORM_BIN
 echo Found ansible at $ANSIBLE_BIN 
 echo Found packer at $PACKER_BIN 
 
-rm terraform.tfstate
+if [ -e terraform.tfstate ]; then
+  echo Terraform state file exists, please remove with:
+  echo rm terraform.tfstate*
+  echo interrupt with ctrl-C or we continue in 30 seconds...
+  sleep 30
+else
+  ./bin/terraform apply -auto-approve -parallelism=30 -var-file configuration.tfvars ./tf/
+fi
 
-./bin/terraform apply -var-file configuration.tfvars ./tf/
 
-ansible-playbook -i playbooks/inventory playbooks/ad.yml playbooks/linux.yml playbooks/scheduler.yml playbooks/ccportal.yml
+ansible-playbook -i playbooks/inventory \
+  playbooks/ad.yml \
+  playbooks/linux.yml \
+  playbooks/scheduler.yml \
+  playbooks/ccportal.yml \
+  playbooks/ood.yml \
+  --extra-vars=@playbooks/ood-overrides.yml

@@ -54,7 +54,7 @@ ansible-playbook -i playbooks/inventory ./playbooks/scheduler.yml
 ansible-playbook -i playbooks/inventory ./playbooks/ood.yml --extra-vars=@playbooks/ood-overrides.yml
 
 # create a tunnel (outside of the container)
-ssh -L 9443:ccportal:9443 -i hpcadmin_rsa_id hpcadmin@<public ip jumpbox>
+ssh -L 9443:ccportal:9443 -i hpcadmin_id_rsa hpcadmin@<public ip jumpbox>
 # Browse to the cycle UI
 https://localhost:9443
 
