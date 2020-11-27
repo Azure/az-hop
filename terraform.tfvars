@@ -1,2 +1,2 @@
-location=westeurope
-resource_group=<NOT-SET>
+location= "westeurope"
+resource_group= "<NOT-SET>"
