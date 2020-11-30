@@ -6,3 +6,93 @@
 - name: Configure Cycle Cloud portal host
   script: '{{role_path}}/files/configure.py --useManagedIdentity --username {{cc_admin_user}} --acceptTerms --publickey "{{cc_public_key}}" --password "{{cc_password}}" --storageAccount {{cc_storage}}'
 
+- name: Configure CycleCloud CLI
+  command: '/usr/local/bin/cyclecloud initialize --force --batch --name ccportal --url=https://localhost:9443 --verify-ssl=false --username={{cc_admin_user}} --password="{{cc_password}}"'
+  args:
+    creates: /root/.cycle/config.ini
+
+- name: Update "default locker" configuration cyclecloud-cli
+  blockinfile:
+    path: /root/.cycle/config.ini
+    insertafter: "[cyclecloud]"
+    block: |
+      default_project_locker = azure-storage
+
+- name: Create CycleCloud project
+  command: '/usr/local/bin/cyclecloud project init pbs'
+  args:
+    chdir: '/root'
+    creates: /root/pbs/project.ini
+
+- name: Add joindomain script 
+  copy:
+    src: '{{role_path}}/files/0-joindomain.sh'
+    dest: /root/pbs/specs/default/cluster-init/scripts/0-joindomain.sh
+
+- name: Add mountnfs script 
+  copy:
+    src: '{{role_path}}/files/1-mountnfs.sh'
+    dest: /root/pbs/specs/default/cluster-init/scripts/1-mountnfs.sh
+
+- name: Create CycleCloud project
+  command: '/usr/local/bin/cyclecloud project upload'
+  args:
+    chdir: '/root/pbs'
+
+- name: Add PBS-headless template
+  copy:
+    src: '{{role_path}}/files/pbs-headless.txt'
+    dest: /root/pbs-headless.txt
+
+- name: Add PBS-headless parameters
+  copy:
+    content: |
+      {
+        "MaxExecuteCoreCount" : 100,
+        "UsePublicNetwork" : false,
+        "serverMachineType" : "Standard_D8as_v4",
+        "AdditionalNAS" : false,
+        "AdditionalNFSMountOptions" : null,
+        "About shared" : null,
+        "SubnetId" : "{{ global_resource_group }}/hpcvnet/compute",
+        "PBSVersion" : "20.0.1-0",
+        "Region" : "{{ global_region }}",
+        "Additional NFS Mount Readme" : null,
+        "NumberLoginNodes" : 0,
+        "AdditionalNFSExportPath" : "/data",
+        "FilesystemSize" : 100,
+        "ExecuteMachineType" : "Standard_F2s_v2",
+        "AdditionalNFSMountPoint" : "/data",
+        "NFSSharedMountOptions" : null,
+        "ExecuteClusterInitSpecs" : {
+          "pbs:default:1.0.0" : {
+            "Order" : 10000,
+            "Name" : "pbs:default:1.0.0",
+            "Spec" : "default",
+            "Project" : "pbs",
+            "Version" : "1.0.0",
+            "Locker" : "azure-storage"
+          }
+        },
+        "ReturnProxy" : false,
+        "Credentials" : "azure",
+        "Autoscale" : true,
+        "NFSAddress" : null,
+        "NFSSharedExportPath" : "/shared",
+        "UseLowPrio" : false,
+        "NFSType" : "Builtin",
+        "serverClusterInitSpecs" : null,
+        "AdditonalNFSAddress" : null,
+        "pbspro" : null,
+        "SchedulerImageName" : "cycle.image.centos7",
+        "ImageName" : "cycle.image.centos7",
+        "ExecuteNodesPublic" : false
+      }
+    dest: /root/pbs1-parameters.json
+
+- name: Configure CycleCloud CLI
+  command: '/usr/local/bin/cyclecloud import_cluster pbs1 -f /root/pbs-headless.txt -p /root/pbs1-parameters.json -c OpenPBS-headless --force'
+
+- name: Configure CycleCloud CLI
+  command: '/usr/local/bin/cyclecloud start_cluster pbs1'
+
