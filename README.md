@@ -30,46 +30,45 @@ Install
 # Login to Azure
 az login
 
-# Update the configurations.tfvars file with your own values
+# Copy the terraforms.tfvars file to <myvariables.tfvars> and update it with your own values
 
-# create infrastructure
-# Initialize Terraform
-terraform init ./tf
-
-# Create a unique resource group name
-UUID="$(cat /proc/sys/kernel/random/uuid | tr -d '\n-' | tr '[:upper:]' '[:lower:]' | cut -c 1-6)"
-RESOURCE_GROUP="hpc_$UUID"
-
-# Plan the deployment
-terraform plan -var location=westeurope -var resource_group=$RESOURCE_GROUP ./tf
-
-# Apply the deployment
-terraform apply -auto-approve -var location=westeurope -var resource_group=$RESOURCE_GROUP ./tf
+# Build the whole infrastructure
+./build.sh <myvariables.tfvars> apply
 
 # install
-ansible-playbook -i playbooks/inventory ./playbooks/ad.yml
-ansible-playbook -i playbooks/inventory ./playbooks/linux.yml
-ansible-playbook -i playbooks/inventory ./playbooks/ccportal.yml
-ansible-playbook -i playbooks/inventory ./playbooks/scheduler.yml
-ansible-playbook -i playbooks/inventory ./playbooks/ood.yml --extra-vars=@playbooks/ood-overrides.yml
+./install.sh
 
 # create a tunnel (outside of the container)
-ssh -L 9443:ccportal:9443 -i hpcadmin_id_rsa hpcadmin@<public ip jumpbox>
+# The public IP of the jumbox canbe retrieved from the inventory file created
+jb_ip=$(grep "hpcadmin@" playbooks/inventory | tail -n1 | cut -d'@' -f2 | cut -d'"' -f1)
+ssh -L 9443:ccportal:9443 -i hpcadmin_id_rsa hpcadmin@$jb_ip
+
 # Browse to the cycle UI
 https://localhost:9443
 
+# Connect with hpcadmin/<password generated>
+
 # Connect to the ondemand machine to initialize your home directory
-ssh -i hpcadmin_id_rsa hpcadmin@ondemand -o ProxyCommand="ssh -i hpcadmin_id_rsa -W %h:%p hpcadmin@<public ip jumpbox>"
+ssh -i hpcadmin_id_rsa hpcadmin@ondemand -o ProxyCommand="ssh -i hpcadmin_id_rsa -W %h:%p hpcadmin@$jb_ip"
 sudo su <user>
 cd
 
-# Connect on the ondemand portal
-In the inventory file, locate the ondemand_fqdn variable, browse to this URI
-Connect with your user account and the password located in the inventory file
+#In the inventory file, locate the ondemand_fqdn variable, browse to this URI
+#Connect with your user account and the password located in the inventory file
+grep ondemand_fqdn playbooks/inventory 
 
 # Delete all
-terraform destroy -auto-approve -var location=westeurope -var resource_group=$RESOURCE_GROUP ./tf
+./build.sh <myvariables.tfvars> destroy
 
+```
+
+## Persisting Terraform state in blobs
+Terraform can persist it's deployment state into blobs. For this the storage account need to be created before running the `terraform init` command.
+The `backend.sh` script will create a random storage account, and create the `./tf/backend.tf` file with all the values needed to keep the state there. The `build.sh` script will set the ARM_ACCESS_KEY used by Terraform to access the storage account.
+
+Before running the `build.sh` script, run the `backend.sh` script.
+```
+./backend.sh
 ```
 
 ## Contributing

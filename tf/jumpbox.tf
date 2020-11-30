@@ -12,7 +12,7 @@ resource "azurerm_network_interface" "jumpbox-nic" {
 
   ip_configuration {
     name                          = "internal"
-    subnet_id                     = azurerm_subnet.admin.id
+    subnet_id                     = azurerm_subnet.frontend.id
     private_ip_address_allocation = "Dynamic"
     public_ip_address_id          = azurerm_public_ip.jumpbox-pip.id
   }
@@ -30,7 +30,7 @@ resource "azurerm_linux_virtual_machine" "jumpbox" {
 
   admin_ssh_key {
     username   = var.admin_username
-    public_key = tls_private_key.internal.public_key_openssh #file("~/.ssh/id_rsa.pub")
+    public_key = tls_private_key.internal.public_key_openssh
   }
 
   os_disk {

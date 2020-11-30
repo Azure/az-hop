@@ -73,6 +73,17 @@ resource "azurerm_network_security_group" "frontend" {
         destination_address_prefix = "VirtualNetwork"
   }
 
+  security_rule {
+        name                       = "https-in-allow-80"
+        priority                   = "105"
+        direction                  = "Inbound"
+        access                     = "Allow"
+        protocol                   = "tcp"
+        source_port_range          = "*"
+        destination_port_range     = "80"
+        source_address_prefix      = "*"
+        destination_address_prefix = "VirtualNetwork"
+  }
 }
 
 resource "azurerm_subnet_network_security_group_association" "frontend" {
