@@ -11,6 +11,8 @@ echo "supersede domain-name-servers ${NAMESERVER};" > /etc/dhcp/dhclient.conf
 echo "append domain-name-servers 168.63.129.16;" >> /etc/dhcp/dhclient.conf
 systemctl restart NetworkManager
 
+sleep 10
+
 ADMIN_DOMAIN=$(jetpack config adjoin.ad_domain)
 ADMIN_NAME=$(jetpack config adjoin.ad_admin)
 ADMIN_PASSWORD=$(jetpack config adjoin.ad_password)
