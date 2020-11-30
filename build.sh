@@ -3,16 +3,9 @@ set -e
 TFVARS_FILE=${1:-terraform.tfvars}
 TF_COMMAND=${2:-plan}
 TF_BACKEND_FILE=./tf/backend.tf
-TF_CLI_ARGS_apply="-auto-approve"
-
-function get_resource_group {
-  RESOURCE_GROUP=$(grep "resource_group" $TFVARS_FILE | cut -d'=' -f2 | xargs)
-  
-  if [ "$RESOURCE_GROUP" == "<NOT-SET>" ]; then
-    echo "Please fill up the 'resource_group' value in $TFVARS_FILE"
-    exit 1
-  fi
-}
+export TF_CLI_ARGS_apply="-auto-approve"
+#export TF_LOG=INFO
+#export TF_LOG_PATH=.terraform/terraform.log
 
 function get_storage_id {
   # get the storage account ID to use
@@ -44,10 +37,7 @@ function get_arm_access_key {
   fi
 }
 
-
-#get_resource_group
 get_arm_access_key
 
 terraform init ./tf
 terraform $TF_COMMAND -parallelism=30 -var-file=$TFVARS_FILE ./tf
-

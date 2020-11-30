@@ -1,2 +1,2 @@
 location= "westeurope"
-resource_group= "<NOT-SET>"
+#resource_group= "my resource group"
