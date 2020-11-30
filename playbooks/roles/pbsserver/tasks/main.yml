@@ -170,14 +170,14 @@
 #  shell: /opt/pbs/bin/qmgr -c 's s flatuid=t'
 #  when: pbspro_flatuid is failed
 
-#- name: check pbspro 3/4 - job_history_enable
-#  shell: /opt/pbs/bin/qmgr -c 'p s job_history_enable' | grep -v '#' | grep 'job_history_enable = True'
-#  register: pbspro_job_history_enable
-#  ignore_errors: true
+- name: check pbspro 3/4 - job_history_enable
+  shell: /opt/pbs/bin/qmgr -c 'p s job_history_enable' | grep -v '#' | grep 'job_history_enable = True'
+  register: pbspro_job_history_enable
+  ignore_errors: true
 
-#- name: Configure pbs 3/4
-#  shell: /opt/pbs/bin/qmgr -c 's s job_history_enable=t'
-#  when: pbspro_job_history_enable is failed
+- name: Configure pbs 3/4
+  shell: /opt/pbs/bin/qmgr -c 's s job_history_enable=t'
+  when: pbspro_job_history_enable is failed
 
 #- name: check pbspro 4/4 - pool_name resource
 #  shell: /opt/pbs/bin/qmgr -c 'p r pool_name' | grep -v '#' | grep 'pool_name'
