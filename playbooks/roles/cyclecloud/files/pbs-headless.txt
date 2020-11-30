@@ -32,6 +32,12 @@ Autoscale = $Autoscale
         cyclecloud.exports.defaults.samba.enabled = false      
         cshared.server.legacy_links_disabled = true
 
+        [[[configuration]]]
+	adjoin.ad_domain = $ad_domain 
+	adjoin.ad_server = $ad_server
+	adjoin.ad_admin = $ad_admin
+	adjoin.ad_password = $ad_password
+
         # [[[cluster-init cyclecloud/pbspro:default]]]
         # Optional = false
 
@@ -310,3 +316,35 @@ Order = 20
         ParameterType = Boolean
         Config.Label = Access execute nodes from the Internet
         Conditions.Excluded := UsePublicNetwork isnt true
+
+[parameters Active Directory]
+Order = 40
+
+    [[parameters AD Settings]]
+    Order = 10 
+
+        [[[parameter ad_domain]]]
+        Label = Active Directory Domain
+        Description = The Active Directory Domain name.
+        DefaultValue = azure.hpc
+        Required = True
+
+        [[[parameter ad_server]]]
+        Label = Active Directory Domain Server
+        Description = The Active Directory Domain Server IP.
+        DefaultValue = 10.0.0.1
+        Required = True
+
+        [[[parameter ad_admin]]]
+        Label = AD User
+        Description = User with rights to join computer to the domain.
+        DefaultValue = domainjoinuser 
+        Required = True
+
+        [[[parameter ad_password]]]
+        Label = AD password
+        ParameterType = Password
+        Description = Password for user with rights to join computer to the domain.
+        DefaultValue = "mypassword@1234"
+        Required = True
+
