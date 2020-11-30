@@ -77,3 +77,51 @@
     service:
       name: sssd 
       state: restarted
+
+  - name: init user context for hugo
+    command: ssh-keygen -t rsa -f ~/.ssh/id_rsa -q -N ""
+    become_user: hugo 
+    run_once: yes
+    args: 
+      creates: /anfhome/hugo/.ssh/id_rsa
+
+  - name: Copy file with owner and permissions
+    copy:
+      src: /anfhome/hugo/.ssh/id_rsa.pub 
+      dest: /anfhome/hugo/.ssh/authorized_keys
+      remote_src: yes
+      mode: '0600'
+      owner: hugo
+      group: "domain users" 
+
+  - name: init user context for paul
+    command: ssh-keygen -t rsa -f ~/.ssh/id_rsa -q -N ""
+    become_user: paul
+    run_once: yes
+    args: 
+      creates: /anfhome/paul/.ssh/id_rsa
+
+  - name: Copy file with owner and permissions
+    copy:
+      src: /anfhome/paul/.ssh/id_rsa.pub
+      dest: /anfhome/paul/.ssh/authorized_keys
+      remote_src: yes
+      mode: '0600'
+      owner: paul 
+      group: "domain users"
+
+  - name: init user context for xavier
+    command: ssh-keygen -t rsa -f ~/.ssh/id_rsa -q -N ""
+    become_user: xavier
+    run_once: yes
+    args: 
+      creates: /anfhome/xavier/.ssh/id_rsa
+ 
+  - name: Copy file with owner and permissions
+    copy:
+      src: /anfhome/xavier/.ssh/id_rsa.pub
+      dest: /anfhome/xavier/.ssh/authorized_keys
+      remote_src: yes
+      mode: '0600'
+      owner: xavier
+      group: "domain users"

@@ -69,6 +69,11 @@
     src: '{{role_path}}/files/2-installpbs.sh'
     dest: /root/pbs/specs/default/cluster-init/scripts/2-installpbs.sh
 
+- name: Add cvmfs script 
+  copy:
+    src: '{{role_path}}/files/3-installcvmfs.sh'
+    dest: /root/pbs/specs/default/cluster-init/scripts/3-installcvmfs.sh
+
 - name: Create CycleCloud project
   command: '/usr/local/bin/cyclecloud project upload'
   args:
