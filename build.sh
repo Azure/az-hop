@@ -3,6 +3,7 @@ set -e
 TFVARS_FILE=${1:-terraform.tfvars}
 TF_COMMAND=${2:-plan}
 TF_BACKEND_FILE=./tf/backend.tf
+TF_CLI_ARGS_apply="-auto-approve"
 
 function get_resource_group {
   RESOURCE_GROUP=$(grep "resource_group" $TFVARS_FILE | cut -d'=' -f2 | xargs)
@@ -11,15 +12,6 @@ function get_resource_group {
     echo "Please fill up the 'resource_group' value in $TFVARS_FILE"
     exit 1
   fi
-
-  # if [ ! -e $RG_FILE ]; then
-  #   UUID="$(cat /proc/sys/kernel/random/uuid | tr -d '\n-' | tr '[:upper:]' '[:lower:]' | cut -c 1-6)"
-  #   RESOURCE_GROUP="hpc_$UUID"
-  #   echo $RESOURCE_GROUP > $RG_FILE
-  # else
-  #   RESOURCE_GROUP=$(cat $RG_FILE)
-  # fi
-
 }
 
 function get_storage_id {
@@ -58,8 +50,4 @@ get_arm_access_key
 
 terraform init ./tf
 terraform $TF_COMMAND -parallelism=30 -var-file=$TFVARS_FILE ./tf
-#terraform apply -parallelism=30 -var-file=$TFVARS_FILE ./tf
-#terraform apply -auto-approve -parallelism=30 -var location=westeurope -var resource_group=$RESOURCE_GROUP ./tf
-
-
 
