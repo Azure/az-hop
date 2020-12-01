@@ -5,7 +5,7 @@
 
 [cluster OpenPBS-headless]
 FormLayout = selectionpanel
-Category = Schedulers
+Category = DeployHPC 
 
 Autoscale = $Autoscale
 
@@ -18,8 +18,6 @@ Autoscale = $Autoscale
     KeyPairLocation = ~/.ssh/cyclecloud.pem
     
         [[[configuration]]]
-        # pbspro.version = $PBSVersion
-        # For fast spin-up after Deallocate, force an immediate re-converge on boot
         cyclecloud.converge_on_boot = true
 
         # Disable normal NFS exports and mounts
@@ -32,60 +30,29 @@ Autoscale = $Autoscale
         cyclecloud.exports.defaults.samba.enabled = false      
         cshared.server.legacy_links_disabled = true
 
-        [[[configuration]]]
-	adjoin.ad_domain = $ad_domain 
-	adjoin.ad_server = $ad_server
-	adjoin.ad_admin = $ad_admin
-	adjoin.ad_password = $ad_password
-
-        # [[[cluster-init cyclecloud/pbspro:default]]]
-        # Optional = false
-
-        # [[[configuration cyclecloud.mounts.nfs_shared]]]
-        # type = nfs
-        # mountpoint = /shared
-        # export_path = $NFSSharedExportPath
-        # address = $NFSAddress
-        # options = $NFSSharedMountOptions
-
-        # [[[configuration cyclecloud.mounts.nfs_sched]]]
-        # type = nfs
-        # mountpoint = /sched
-
-        # [[[configuration cyclecloud.mounts.additional_nfs]]]
-        # disabled = ${AdditionalNAS isnt true}
-        # type = nfs
-        # address = $AdditonalNFSAddress
-        # mountpoint = $AdditionalNFSMountPoint
-        # export_path = $AdditionalNFSExportPath
-        # options = $AdditionalNFSMountOptions
-
     [[nodearray execute]]
     MachineType = $ExecuteMachineType
     MaxCoreCount = $MaxExecuteCoreCount
-
     Interruptible = $UseLowPrio
     AdditionalClusterInitSpecs = $ExecuteClusterInitSpecs
-
-
         [[[configuration]]]
-        autoscale.disabled = ${Autoscale == False}
-        
-        # [[[cluster-init cyclecloud/pbspro:execute]]]
+        pbspro.slot_type = execute
 
-        # [[[network-interface eth0]]]
-        # AssociatePublicIpAddress = $ExecuteNodesPublic
+    [[nodearray hc44rs]]
+    MachineType = Standard_hc44rs 
+    MaxCoreCount = $MaxExecuteCoreCount
+    Interruptible = $UseLowPrio
+    AdditionalClusterInitSpecs = $ExecuteClusterInitSpecs
+        [[[configuration]]]
+        pbspro.slot_type = hc44rs 
 
-
-[parameters About]
-Order = 1
-
-    [[parameters About OpenPBS]]
-
-        [[[parameter pbspro]]]
-        HideLabel = true
-        Config.Plugin = pico.widget.HtmlTemplateWidget
-        Config.Template := "<table role=\"presentation\"><tr><td><p>OpenPBS is a highly configurable open source workload manager. See the <a href=\"http://www.openpbs.org/\" target=\"_blank\">OpenPBS project site</a> for an overview.</p></td></tr></table>"
+    [[nodearray hb60rs]]
+    MachineType = Standard_hb60rs 
+    MaxCoreCount = $MaxExecuteCoreCount
+    Interruptible = $UseLowPrio
+    AdditionalClusterInitSpecs = $ExecuteClusterInitSpecs
+        [[[configuration]]]
+        pbspro.slot_type = hb60rs 
 
 [parameters Required Settings]
 Order = 10
@@ -98,12 +65,6 @@ Order = 10
         Label = Region
         Description = Deployment Location
         ParameterType = Cloud.Region
-
-        [[[parameter serverMachineType]]]
-        Label = Server VM Type
-        Description = The VM type for scheduler server and shared filer.
-        ParameterType = Cloud.MachineType
-        DefaultValue = Standard_D8as_v4
 
         [[[parameter ExecuteMachineType]]]
         Label = Execute VM Type
@@ -146,92 +107,6 @@ Order = 10
         ParameterType = Azure.Subnet
         Required = True
 
-[parameters Network Attached Storage]
-Order = 15
-
-    [[parameters Default NFS Share]]
-    Order = 10
-        [[[parameter About shared]]]
-        HideLabel = true
-        Config.Plugin = pico.widget.HtmlTemplateWidget
-        Config.Template := "<p>The directory <code>/shared</code> is a network attached mount and exists in all nodes of the cluster. Users' home directories reside within this mountpoint with the base homedir <code>/shared/home</code>.<br><br>There are two options for providing this mount:<br> <strong>[Builtin]</strong>: The scheduler node is an NFS server that provides the mountpoint to the other nodes of the cluster.<br> <strong>[External NFS]</strong>: A network attached storage such as Azure Netapp Files, HPC Cache, or another VM running an NFS server, provides the mountpoint.</p>"
-        Order = 20
-
-        [[[parameter NFSType]]]
-        Label = NFS Type
-        ParameterType = StringList
-        Config.Label = Type of NFS to use for this cluster
-        Config.Plugin = pico.form.Dropdown
-        Config.Entries := {[Label="External NFS"; Value="External"], [Label="Builtin"; Value="Builtin"]}
-        DefaultValue = Builtin
-
-        [[[parameter NFSAddress]]]
-        Label = NFS IP Address
-        Description = The IP address or hostname of the NFS server. Also accepts a list comma-separated addresses, for example, to mount a frontend load-balanced Azure HPC Cache.
-        Config.ParameterType = String
-        Conditions.Hidden := NFSType != "External"
-
-        [[[parameter NFSSharedExportPath]]]
-        Label = Shared Export Path
-        Description = The path exported by the file system
-        DefaultValue = /shared
-        Conditions.Hidden := NFSType != "External"
-
-        [[[parameter NFSSharedMountOptions]]]
-        Label = NFS Mount Options
-        Description = NFS Client Mount Options
-        Conditions.Hidden := NFSType != "External"
-
-        [[[parameter FilesystemSize]]]
-        Label = Size (GB)
-        Description = The filesystem size
-        DefaultValue = 100
-
-        Config.Plugin = pico.form.NumberTextBox
-        Config.MinValue = 10
-        Config.MaxValue = 10240
-        Config.IntegerOnly = true
-        Conditions.Excluded := NFSType != "Builtin"
-
-    [[parameters Additional NFS Mount]]
-    Order = 20
-        [[[parameter Additional NFS Mount Readme]]]
-        HideLabel = true
-        Config.Plugin = pico.widget.HtmlTemplateWidget
-        Config.Template := "<p>Mount another NFS endpoint on the cluster nodes</p>"
-        Order = 20
-
-        [[[parameter AdditionalNAS]]]
-        HideLabel = true
-        DefaultValue = false
-        Widget.Plugin = pico.form.BooleanCheckBox
-        Widget.Label = Add NFS mount
-
-        [[[parameter AdditonalNFSAddress]]]
-        Label = NFS IP Address 
-        Description = The IP address or hostname of the NFS server. Also accepts a list comma-separated addresses, for example, to mount a frontend load-balanced Azure HPC Cache.
-        Config.ParameterType = String
-        Conditions.Excluded := AdditionalNAS isnt true
-
-        [[[parameter AdditionalNFSMountPoint]]]
-        Label = NFS Mount Point
-        Description = The path at which to mount the Filesystem
-        DefaultValue = /data
-        Conditions.Excluded := AdditionalNAS isnt true
-
-        [[[parameter AdditionalNFSExportPath]]]
-        Label = NFS Export Path
-        Description = The path exported by the file system
-        DefaultValue = /data
-        Conditions.Excluded := AdditionalNAS isnt true
-
-        [[[parameter AdditionalNFSMountOptions]]]
-        Label = NFS Mount Options
-        Description = NFS Client Mount Options
-        Conditions.Excluded := AdditionalNAS isnt true
-    
-
-
 [parameters Advanced Settings]
 Order = 20
 
@@ -241,17 +116,6 @@ Order = 20
         [[[parameter Credentials]]]
         Description = The credentials for the cloud provider
         ParameterType = Cloud.Credentials
-
-    [[parameters PBSPro Settings ]]
-    Description = "Section for configuring OpenPBS"
-    Order = 5
-
-        
-
-    [[parameters Software]]
-    Description = "Specify the scheduling software, and base OS installed on all nodes, and optionally the cluster-init and chef versions from your Locker."
-    Order = 10
-
 
         [[[parameter SchedulerImageName]]]
         Label = Scheduler OS
@@ -267,12 +131,6 @@ Order = 20
         DefaultValue = cycle.image.centos8
         Config.Filter := Package in {"cycle.image.centos7", "cycle.image.centos8"}
 
-        [[[parameter PBSVersion]]]
-        Label = PBS Version
-        Config.Plugin = pico.form.Dropdown
-        Config.Entries := {[Label="OpenPBS v20, el8-only"; Value="20.0.1-0"], [Label="PBSPro v18, el7-only"; Value="18.1.4-0"]}
-        DefaultValue = 20.0.1-0
-
         [[[parameter serverClusterInitSpecs]]]
         Label = Server Cluster-Init
         DefaultValue = =undefined
@@ -284,16 +142,6 @@ Order = 20
         DefaultValue = =undefined
         Description = Cluster init specs to apply to execute nodes
         ParameterType = Cloud.ClusterInitSpecs
-
-        [[[parameter NumberLoginNodes]]]
-        Label = Num Login Nodes
-        DefaultValue = 0
-        Description = Number of optional login nodes to create.
-        Config.Plugin = pico.form.NumberTextBox
-        Config.MinValue = 0
-        Config.MaxValue = 10000
-        Config.IntegerOnly = true
-	
 
     [[parameters Advanced Networking]]
     Description = Advanced networking settings
@@ -316,35 +164,3 @@ Order = 20
         ParameterType = Boolean
         Config.Label = Access execute nodes from the Internet
         Conditions.Excluded := UsePublicNetwork isnt true
-
-[parameters Active Directory]
-Order = 40
-
-    [[parameters AD Settings]]
-    Order = 10 
-
-        [[[parameter ad_domain]]]
-        Label = Active Directory Domain
-        Description = The Active Directory Domain name.
-        DefaultValue = azure.hpc
-        Required = True
-
-        [[[parameter ad_server]]]
-        Label = Active Directory Domain Server
-        Description = The Active Directory Domain Server IP.
-        DefaultValue = 10.0.0.1
-        Required = True
-
-        [[[parameter ad_admin]]]
-        Label = AD User
-        Description = User with rights to join computer to the domain.
-        DefaultValue = domainjoinuser 
-        Required = True
-
-        [[[parameter ad_password]]]
-        Label = AD password
-        ParameterType = Password
-        Description = Password for user with rights to join computer to the domain.
-        DefaultValue = "mypassword@1234"
-        Required = True
-
