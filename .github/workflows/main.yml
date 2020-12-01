@@ -15,10 +15,13 @@ on:
       - .github/workflows/main.yml
       - 'tf/**'
       - 'playbooks/**'
+      - build.sh
+      - install.sh
 
 env:
   TF_CLI_ARGS: '-no-color'
   TF_CLI_ARGS_destroy: '-auto-approve -refresh=false'
+  TF_CLI_ARGS_apply: '-auto-approve'
   ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
   ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
   ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
@@ -30,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: xpillons/hpcrover:2011.2514 
+      image: xpillons/hpcrover:2011.2719
       options: --user 0
 
     outputs:
@@ -54,38 +57,40 @@ jobs:
           VERSION_TAG=$(date +"%g%m.%d%H")
           echo "VERSION_TAG=${VERSION_TAG}" >> $GITHUB_ENV
 
-          UUID="$(cat /proc/sys/kernel/random/uuid | tr -d '\n-' | tr '[:upper:]' '[:lower:]' | cut -c 1-6)"
-          RESOURCE_GROUP="hpc_$UUID"
+          #UUID="$(cat /proc/sys/kernel/random/uuid | tr -d '\n-' | tr '[:upper:]' '[:lower:]' | cut -c 1-6)"
+          RESOURCE_GROUP="deployhpc_$RANDOM"
           #echo "RESOURCE_GROUP=$RESOURCE_GROUP" >> $GITHUB_ENV
           echo "::set-output name=RESOURCE_GROUP::$RESOURCE_GROUP"
-          terraform init ./tf
-          terraform apply -auto-approve -parallelism=30 -var location=westeurope -var resource_group=$RESOURCE_GROUP ./tf
+
+          echo "location=westeurope" > configuration.tfvars
+          echo "resource_group=$RESOURCE_GROUP" >> configuration.tfvars
+
+          ./build.sh -a apply -c configuration.tfvars
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: artifact
+          path: |
+            configuration.tfvars
+            playbooks/inventory
+            *_id_rsa
+            *_id_rsa.pub
+            terraform.tfstate
 
       - name: Configure
         run: |
-          pip3 install pypsrp
-          pip3 install pysocks
-          ansible-galaxy collection install ansible.windows
-          ansible-galaxy collection install community.windows
-          ansible-galaxy collection install ansible.posix
-          ansible-galaxy collection install community.general
+          #./install.sh
 
-          ansible-playbook -i playbooks/inventory ./playbooks/ad.yml 
-          ansible-playbook -i playbooks/inventory ./playbooks/linux.yml 
-          ansible-playbook -i playbooks/inventory ./playbooks/scheduler.yml 
-          ansible-playbook -i playbooks/inventory ./playbooks/ccportal.yml
-          ansible-playbook -i playbooks/inventory ./playbooks/ood.yml --extra-vars=@playbooks/ood-overrides.yml
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@latest
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-        with:
-          tag_name: ${{ env.VERSION_TAG }}
-          release_name: v${{ env.VERSION_TAG }}
-          draft: false
-          prerelease: true
+      # - name: Create Release
+      #   id: create_release
+      #   uses: actions/create-release@latest
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      #   with:
+      #     tag_name: ${{ env.VERSION_TAG }}
+      #     release_name: v${{ env.VERSION_TAG }}
+      #     draft: false
+      #     prerelease: true
 
   cleanup:
     name: cleanup
@@ -94,11 +99,12 @@ jobs:
     needs: deploy
 
     container:
-      image: xpillons/hpcrover:2011.2514 
+      image: xpillons/hpcrover:2011.2719 
       options: --user 0
 
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v2
 
       - name: Login azure
         run: |
@@ -107,6 +113,10 @@ jobs:
 
       - name: Remove Resources
         run: |
+          ls -al
+
+          ./build.sh -a destroy -c configuration.tfvars
+          
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           echo "removing resource group $RESOURCE_GROUP"
           az group delete -n $RESOURCE_GROUP -y 
