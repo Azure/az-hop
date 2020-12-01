@@ -62,6 +62,14 @@
       - SSLCertificateFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.crt"
       - SSLCertificateKeyFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.key"
       - SSLCertificateChainFile "/etc/ssl/{{ ondemand_fqdn }}/letsencryptauthorityx3.pem.txt"
+  - name: Copy logo
+    copy: 
+      src: logo.png
+      dest: /var/www/ood/public
+  - name: Copy favicon
+    copy: 
+      src: favicon.ico
+      dest: /var/www/ood/public
   - name: Run the pbsclient role
     include_role:
       name: pbsclient

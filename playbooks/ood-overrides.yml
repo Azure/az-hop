@@ -11,6 +11,23 @@ clusters:
         host: scheduler
         exec: /opt/pbs
       batch_connect:
+        basic:
+          script_wrapper: |
+            module purge
+            %s
+        vnc:
+          script_wrapper: |
+            module purge
+            export PATH="/opt/TurboVNC/bin:$PATH"
+            export WEBSOCKIFY_CMD="/usr/bin/websockify"
+            %s
+ood_apps:
+  bc_desktop:
+    title: "remote desktop"
+    cluster: ondemand
+    attributes:
+      desktop: xfce
+      bc_num_slots: 6
 httpd_auth:
 - AuthType Basic
 - AuthName "Open OnDemand"
@@ -20,3 +37,9 @@ httpd_auth:
 host_regex: '[^./]+'
 node_uri: '/node'
 rnode_uri: '/rnode'
+pun_custom_env:
+  OOD_DASHBOARD_TITLE: "AzureHPC OnDemand"
+  OOD_DASHBOARD_LOGO: "/public/logo.png"
+  OOD_BRAND_BG_COLOR: "#0078d4"
+  OOD_BRAND_LINK_ACTIVE_BG_COLOR: "#fff"
+  OOD_JOB_NAME_ILLEGAL_CHARS: "/"
