@@ -67,7 +67,7 @@ jobs:
           echo "resource_group= \"$RESOURCE_GROUP\"" >> $TF_CONFIGURATION
           cat $TF_CONFIGURATION
 
-          ./build.sh -a apply -v $TF_CONFIGURATION
+          #./build.sh -a apply -v $TF_CONFIGURATION
 
       - uses: actions/upload-artifact@v2
         with:
@@ -117,10 +117,10 @@ jobs:
         run: |
           ls -al
 
-          ./build.sh -a destroy -c configuration.tfvars
+          #./build.sh -a destroy -c configuration.tfvars
 
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           echo "removing resource group $RESOURCE_GROUP"
-          az group delete -n $RESOURCE_GROUP -y 
+          #az group delete -n $RESOURCE_GROUP -y 
           #--no-wait
 
