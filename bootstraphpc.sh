@@ -15,11 +15,10 @@ echo Found packer at $PACKER_BIN
 if [ -e terraform.tfstate ]; then
   echo Terraform state file exists, please remove with:
   echo rm terraform.tfstate*
-  echo interrupt with ctrl-C or we continue in 30 seconds...
-  sleep 30
-else
-  ./bin/terraform apply -auto-approve -parallelism=30 -var-file configuration.tfvars ./tf/
+  echo interrupt with ctrl-C or we continue in 10 seconds...
+  sleep 10
 fi
+./bin/terraform apply -auto-approve -parallelism=30 -var-file configuration.tfvars ./tf/
 
 
 ansible-playbook -i playbooks/inventory \

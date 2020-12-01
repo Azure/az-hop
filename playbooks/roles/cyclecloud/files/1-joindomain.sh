@@ -13,19 +13,8 @@ systemctl restart NetworkManager
 
 sleep 10
 
-ADMIN_DOMAIN=$(jetpack config adjoin.ad_domain)
-ADMIN_NAME=$(jetpack config adjoin.ad_admin)
-ADMIN_PASSWORD=$(jetpack config adjoin.ad_password)
-
-echo $ADMIN_PASSWORD| realm join -U $ADMIN_NAME $ADMIN_DOMAIN
-
 sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
 systemctl restart sshd
-
-sed -i 's@use_fully_qualified_names.*@use_fully_qualified_names = False@' /etc/sssd/sssd.conf
-sed -i 's@ldap_id_mapping.*@ldap_id_mapping = False@' /etc/sssd/sssd.conf
-
-systemctl restart sssd
 
 cat <<EOF >/etc/ssh/ssh_config
 Host *
@@ -33,3 +22,13 @@ Host *
     UserKnownHostsFile /dev/null
 EOF
 
+ADMIN_DOMAIN=$(jetpack config adjoin.ad_domain)
+ADMIN_NAME=$(jetpack config adjoin.ad_admin)
+ADMIN_PASSWORD=$(jetpack config adjoin.ad_password)
+
+echo $ADMIN_PASSWORD| realm join -U $ADMIN_NAME $ADMIN_DOMAIN
+
+sed -i 's@use_fully_qualified_names.*@use_fully_qualified_names = False@' /etc/sssd/sssd.conf
+sed -i 's@ldap_id_mapping.*@ldap_id_mapping = False@' /etc/sssd/sssd.conf
+
+systemctl restart sssd
