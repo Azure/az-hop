@@ -51,7 +51,7 @@ def is_keepalive?
     am_i_keepalive = true
     
     cluster_status["nodes"].each do |node|
-       if node[:Name] == node_name then
+       if node["Name"] == node_name then
             am_i_keepalive = node["KeepAlive"]
        end
     end
