@@ -3,7 +3,7 @@
 # Licensed under the MIT License.
 #
 
-name : main
+name : xpillons
 
 on:
   workflow_dispatch: # This allow you to trigger the workflow manually
