@@ -1,7 +1,26 @@
 #!/bin/bash
+
+# Build the HPC infrastructure with Terraform.
+# build.sh -a [plan, apply, destroy] -v <vars file>
+# 
 set -e
-TFVARS_FILE=${1:-terraform.tfvars}
-TF_COMMAND=${2:-plan}
+TFVARS_FILE=terraform.tfvars
+while (( "$#" )); do
+  case "${1}" in
+    -a|--action)
+      TF_COMMAND=${2}
+      shift 2
+    ;;
+    -v|-var-file)
+      TFVARS_FILE=${2}
+      shift 2
+    ;;
+    *) 
+      shift
+      ;;
+  esac
+done
+
 TF_BACKEND_FILE=./tf/backend.tf
 export TF_CLI_ARGS_apply="-auto-approve"
 #export TF_LOG=INFO

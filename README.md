@@ -33,7 +33,7 @@ az login
 # Copy the terraforms.tfvars file to <myvariables.tfvars> and update it with your own values
 
 # Build the whole infrastructure
-./build.sh <myvariables.tfvars> apply
+./build.sh -a apply -v <myvariables.tfvars> 
 
 # install
 ./install.sh
@@ -58,7 +58,7 @@ cd
 grep ondemand_fqdn playbooks/inventory 
 
 # Delete all
-./build.sh <myvariables.tfvars> destroy
+./build.sh -a destroy -v <myvariables.tfvars> 
 
 ```
 
