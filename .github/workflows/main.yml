@@ -9,7 +9,7 @@ on:
   workflow_dispatch: # This allow you to trigger the workflow manually
   push:
     branches:
-      - main
+      - xpillons
     paths:
       - .devcontainer
       - .github/workflows/main.yml
@@ -65,6 +65,7 @@ jobs:
           echo "location=westeurope" > configuration.tfvars
           echo "resource_group=$RESOURCE_GROUP" >> configuration.tfvars
 
+          ls -al 
           ./build.sh -a apply -c configuration.tfvars
 
       - uses: actions/upload-artifact@v2
@@ -116,7 +117,7 @@ jobs:
           ls -al
 
           ./build.sh -a destroy -c configuration.tfvars
-          
+
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           echo "removing resource group $RESOURCE_GROUP"
           az group delete -n $RESOURCE_GROUP -y 
