@@ -62,10 +62,10 @@ jobs:
           #echo "RESOURCE_GROUP=$RESOURCE_GROUP" >> $GITHUB_ENV
           echo "::set-output name=RESOURCE_GROUP::$RESOURCE_GROUP"
 
-          echo "location=westeurope" > configuration.tfvars
-          echo "resource_group=$RESOURCE_GROUP" >> configuration.tfvars
+          echo "location= westeurope" > configuration.tfvars
+          echo "resource_group= $RESOURCE_GROUP" >> configuration.tfvars
+          cat configuration.tfvars
 
-          ls -al 
           ./build.sh -a apply -c configuration.tfvars
 
       - uses: actions/upload-artifact@v2
