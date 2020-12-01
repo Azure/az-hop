@@ -57,16 +57,17 @@ jobs:
           VERSION_TAG=$(date +"%g%m.%d%H")
           echo "VERSION_TAG=${VERSION_TAG}" >> $GITHUB_ENV
 
-          #UUID="$(cat /proc/sys/kernel/random/uuid | tr -d '\n-' | tr '[:upper:]' '[:lower:]' | cut -c 1-6)"
-          RESOURCE_GROUP="deployhpc_$RANDOM"
+          UUID="$(cat /proc/sys/kernel/random/uuid | tr -d '\n-' | tr '[:upper:]' '[:lower:]' | cut -c 1-6)"
+          RESOURCE_GROUP="deployhpc_$UUID"
           #echo "RESOURCE_GROUP=$RESOURCE_GROUP" >> $GITHUB_ENV
           echo "::set-output name=RESOURCE_GROUP::$RESOURCE_GROUP"
 
-          echo "location= westeurope" > configuration.tfvars
-          echo "resource_group= $RESOURCE_GROUP" >> configuration.tfvars
-          cat configuration.tfvars
+          TF_CONFIGURATION=configuration.tfvars
+          echo "location= \"westeurope\#" > $TF_CONFIGURATION
+          echo "resource_group= \"$RESOURCE_GROUP\"" >> $TF_CONFIGURATION
+          cat $TF_CONFIGURATION
 
-          ./build.sh -a apply -c configuration.tfvars
+          ./build.sh -a apply -c $TF_CONFIGURATION
 
       - uses: actions/upload-artifact@v2
         with:
