@@ -2,9 +2,9 @@
 
 ################### INSTALL NVIDIA DRIVERS
 
-sudo yum install -y epel-release
-sudo yum install -y dkms
-sudo yum install -y "kernel-devel-uname-r == $(uname -r)"
+yum install -y epel-release
+yum install -y dkms
+yum install -y "kernel-devel-uname-r == $(uname -r)"
 
 cat <<EOF >/etc/modprobe.d/nouveau.conf
 blacklist nouveau
