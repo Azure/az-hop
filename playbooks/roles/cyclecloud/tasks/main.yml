@@ -26,13 +26,13 @@
 
 - name: Copy mountnfs file.
   template:
-    src: 0-mountnfs.j2
+    src: 0-mountnfs.sh.j2
     dest: /root/pbs/specs/default/cluster-init/scripts/0-mountnfs.sh
     mode: 0777
 
 - name: Add joindomain script 
   template:
-    src: 1-joindomain.j2
+    src: 1-joindomain.sh.j2
     dest: /root/pbs/specs/default/cluster-init/scripts/1-joindomain.sh
     mode: 0777
 
@@ -68,7 +68,7 @@
 
 - name: Add PBS-headless parameters
   template:
-    src: pbs-headless.j2
+    src: pbs-headless.json.j2
     dest: /root/pbs1-parameters.json
 
 - name: Configure CycleCloud CLI
