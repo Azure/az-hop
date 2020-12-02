@@ -1,0 +1,126 @@
+#
+# Copyright (c) Microsoft Corporation
+# Licensed under the MIT License.
+#
+
+name : xpillons
+
+on:
+  workflow_dispatch: # This allow you to trigger the workflow manually
+  push:
+    branches:
+      - xpillons
+    paths:
+      - .devcontainer
+      - .github/workflows/main.yml
+      - 'tf/**'
+      - 'playbooks/**'
+      - build.sh
+      - install.sh
+
+env:
+  TF_CLI_ARGS: '-no-color'
+  TF_CLI_ARGS_destroy: '-auto-approve -refresh=false'
+  TF_CLI_ARGS_apply: '-auto-approve'
+  ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+  ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+
+jobs:
+  deploy:
+    name: deploy
+    runs-on: ubuntu-latest
+
+    container:
+      image: xpillons/hpcrover:2011.2719
+      options: --user 0
+
+    outputs:
+        resource_group: ${{ steps.deploy.outputs.resource_group }}
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Login azure
+        run: |
+          az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
+          az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
+          echo "local user: $(whoami)"
+
+      - name: Deployment
+        id: deploy
+        run: |
+          set -e
+          VERSION_TAG=$(date +"%g%m.%d%H")
+          echo "VERSION_TAG=${VERSION_TAG}" >> $GITHUB_ENV
+
+          UUID="$(cat /proc/sys/kernel/random/uuid | tr -d '\n-' | tr '[:upper:]' '[:lower:]' | cut -c 1-6)"
+          RESOURCE_GROUP="deployhpc_$UUID"
+          #echo "RESOURCE_GROUP=$RESOURCE_GROUP" >> $GITHUB_ENV
+          echo "::set-output name=RESOURCE_GROUP::$RESOURCE_GROUP"
+
+          TF_CONFIGURATION=configuration.tfvars
+          echo "location= \"westeurope\"" > $TF_CONFIGURATION
+          echo "resource_group= \"$RESOURCE_GROUP\"" >> $TF_CONFIGURATION
+          cat $TF_CONFIGURATION
+
+          ./build.sh -a apply -v $TF_CONFIGURATION
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: artifact
+          path: |
+            configuration.tfvars
+            playbooks/inventory
+            *_id_rsa
+            *_id_rsa.pub
+            terraform.tfstate
+
+      - name: Configure
+        run: |
+          #./install.sh
+
+      # - name: Create Release
+      #   id: create_release
+      #   uses: actions/create-release@latest
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      #   with:
+      #     tag_name: ${{ env.VERSION_TAG }}
+      #     release_name: v${{ env.VERSION_TAG }}
+      #     draft: false
+      #     prerelease: true
+
+  cleanup:
+    name: cleanup
+    runs-on: ubuntu-latest
+    if: always()
+    needs: deploy
+
+    container:
+      image: xpillons/hpcrover:2011.2719 
+      options: --user 0
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v2
+
+      - name: Login azure
+        run: |
+          az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
+          az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
+
+      - name: Remove Resources
+        run: |
+          ls -al
+
+          ./build.sh -a destroy -c configuration.tfvars
+
+          RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
+          echo "removing resource group $RESOURCE_GROUP"
+          az group delete -n $RESOURCE_GROUP -y 
+          #--no-wait
+
