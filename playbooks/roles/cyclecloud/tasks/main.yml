@@ -24,45 +24,17 @@
     chdir: '/root'
     creates: /root/pbs/project.ini
 
-- name: Add mountnfs script 
-  copy:
-    src: '{{role_path}}/files/0-mountnfs.sh'
+- name: Copy mountnfs file.
+  template:
+    src: 0-mountnfs.j2
     dest: /root/pbs/specs/default/cluster-init/scripts/0-mountnfs.sh
-
-- name: Update mountnfs script
-  lineinfile:
-    path: /root/pbs/specs/default/cluster-init/scripts/0-mountnfs.sh
-    regexp: 'mount'
-    line: mount {{ anf_home_ip }}:/{{ anf_home_path }} /anfhome
+    mode: 0777
 
 - name: Add joindomain script 
-  copy:
-    src: '{{role_path}}/files/1-joindomain.sh'
+  template:
+    src: 1-joindomain.j2
     dest: /root/pbs/specs/default/cluster-init/scripts/1-joindomain.sh
-
-- name: Update joindomain script
-  lineinfile:
-    path: /root/pbs/specs/default/cluster-init/scripts/1-joindomain.sh
-    regexp: 'NAMESERVER='
-    line: NAMESERVER={{ ad_dns }}
-
-- name: Update joindomain script
-  lineinfile:
-    path: /root/pbs/specs/default/cluster-init/scripts/1-joindomain.sh
-    regexp: 'ADMIN_DOMAIN='
-    line: ADMIN_DOMAIN={{ ad_join_domain }}
-
-- name: Update joindomain script
-  lineinfile:
-    path: /root/pbs/specs/default/cluster-init/scripts/1-joindomain.sh
-    regexp: 'ADMIN_NAME='
-    line: ADMIN_NAME={{ ad_join_user }}
-
-- name: Update joindomain script
-  lineinfile:
-    path: /root/pbs/specs/default/cluster-init/scripts/1-joindomain.sh
-    regexp: 'ADMIN_PASSWORD='
-    line: ADMIN_PASSWORD={{ ad_join_password }}
+    mode: 0777
 
 - name: Add installpbs script 
   copy:
@@ -95,49 +67,8 @@
     dest: /root/pbs-headless.txt
 
 - name: Add PBS-headless parameters
-  copy:
-    content: |
-      {
-        "MaxExecuteCoreCount" : 100,
-        "UsePublicNetwork" : false,
-        "serverMachineType" : "Standard_D8as_v4",
-        "AdditionalNAS" : false,
-        "AdditionalNFSMountOptions" : null,
-        "About shared" : null,
-        "SubnetId" : "{{ global_resource_group }}/hpcvnet/compute",
-        "PBSVersion" : "20.0.1-0",
-        "Region" : "{{ global_region }}",
-        "Additional NFS Mount Readme" : null,
-        "NumberLoginNodes" : 0,
-        "AdditionalNFSExportPath" : "/data",
-        "FilesystemSize" : 100,
-        "ExecuteMachineType" : "Standard_F2s_v2",
-        "AdditionalNFSMountPoint" : "/data",
-        "NFSSharedMountOptions" : null,
-        "ExecuteClusterInitSpecs" : {
-          "pbs:default:1.0.0" : {
-            "Order" : 10000,
-            "Name" : "pbs:default:1.0.0",
-            "Spec" : "default",
-            "Project" : "pbs",
-            "Version" : "1.0.0",
-            "Locker" : "azure-storage"
-          }
-        },
-        "ReturnProxy" : false,
-        "Credentials" : "azure",
-        "Autoscale" : true,
-        "NFSAddress" : null,
-        "NFSSharedExportPath" : "/shared",
-        "UseLowPrio" : false,
-        "NFSType" : "Builtin",
-        "serverClusterInitSpecs" : null,
-        "AdditonalNFSAddress" : null,
-        "pbspro" : null,
-        "SchedulerImageName" : "cycle.image.centos7",
-        "ImageName" : "cycle.image.centos7",
-        "ExecuteNodesPublic" : false
-      }
+  template:
+    src: pbs-headless.j2
     dest: /root/pbs1-parameters.json
 
 - name: Configure CycleCloud CLI
