@@ -1,0 +1,7 @@
+users:
+  - name: hugo
+    uid: 10001
+  - name: paul
+    uid: 10002
+  - name: xavier
+    uid: 10003

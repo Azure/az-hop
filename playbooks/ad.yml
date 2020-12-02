@@ -28,6 +28,11 @@
     ansible.windows.win_reboot:
       post_reboot_delay: 600
     when: ad_promotion.reboot_required
+
+  - name: Include users into the 'users' variable
+    include_vars:
+      file: users.yml
+
   - name: add users
     community.windows.win_domain_user:
       name: "{{ item.name }}"
@@ -43,10 +48,8 @@
         loginShell: /bin/bash
         unixhomedirectory: /anfhome/{{ item.name }}
         gidnumber: 5000
-    with_items:
-      - { name: hugo, uid: 10001 }
-      - { name: paul, uid: 10002 }
-      - { name: xavier, uid: 10003 }
+    with_items: "{{users}}"
+
   - name: Ensure user domainjoinuser is present
     community.windows.win_domain_user:
       name: domainjoinuser
