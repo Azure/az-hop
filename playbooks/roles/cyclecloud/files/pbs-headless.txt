@@ -38,6 +38,14 @@ Autoscale = $Autoscale
         [[[configuration]]]
         pbspro.slot_type = execute
 
+    [[nodearray h16]]
+    MachineType = Standard_h16
+    MaxCoreCount = $MaxExecuteCoreCount
+    Interruptible = $UseLowPrio
+    AdditionalClusterInitSpecs = $ExecuteClusterInitSpecs
+        [[[configuration]]]
+        pbspro.slot_type = h16 
+
     [[nodearray hc44rs]]
     MachineType = Standard_hc44rs 
     MaxCoreCount = $MaxExecuteCoreCount
@@ -53,6 +61,46 @@ Autoscale = $Autoscale
     AdditionalClusterInitSpecs = $ExecuteClusterInitSpecs
         [[[configuration]]]
         pbspro.slot_type = hb60rs 
+
+    [[nodearray nc6]]
+    MachineType = Standard_nc6 
+    MaxCoreCount = $MaxExecuteCoreCount
+    Interruptible = $UseLowPrio
+    AdditionalClusterInitSpecs = $ExecuteClusterInitSpecs
+        [[[configuration]]]
+        pbspro.slot_type = nc6 
+
+    [[nodearray nc6sv3]]
+    MachineType = Standard_nc6s_v3 
+    MaxCoreCount = $MaxExecuteCoreCount
+    Interruptible = $UseLowPrio
+    AdditionalClusterInitSpecs = $ExecuteClusterInitSpecs
+        [[[configuration]]]
+        pbspro.slot_type = nc6sv3 
+
+    [[nodearray nc12sv3]]
+    MachineType = Standard_nc12s_v3 
+    MaxCoreCount = $MaxExecuteCoreCount
+    Interruptible = $UseLowPrio
+    AdditionalClusterInitSpecs = $ExecuteClusterInitSpecs
+        [[[configuration]]]
+        pbspro.slot_type = nc12sv3 
+
+    [[nodearray nc24sv3]]
+    MachineType = Standard_nc24s_v3 
+    MaxCoreCount = $MaxExecuteCoreCount
+    Interruptible = $UseLowPrio
+    AdditionalClusterInitSpecs = $ExecuteClusterInitSpecs
+        [[[configuration]]]
+        pbspro.slot_type = nc24sv3 
+
+    [[nodearray nd40rsv2]]
+    MachineType = Standard_nd40rs_v2 
+    MaxCoreCount = $MaxExecuteCoreCount
+    Interruptible = $UseLowPrio
+    AdditionalClusterInitSpecs = $ExecuteClusterInitSpecs
+        [[[configuration]]]
+        pbspro.slot_type = nd40rsv2
 
 [parameters Required Settings]
 Order = 10
