@@ -37,6 +37,7 @@
       path: /anfhome
       state: directory
       mode: 0755
+
   - name: Mount an NFS volume
     mount:
       src: '{{ anf_home_ip }}:/{{ anf_home_path }}'
@@ -52,22 +53,18 @@
       mode: '0755'
     run_once : true
 
-  - name: check if sssd.conf file exists
-    stat: 
-      path: /etc/sssd/sssd.conf
-    register: sssd_conf
-
   - name: Join AD domain
     shell: echo "{{ ad_join_password }}" | realm join -U {{ ad_join_user }} {{ ad_join_domain }}
-    when: sssd_conf.stat.exists == false
+    args:
+      creates: /etc/sssd/sssd.conf
 
-  - name: configure sssd
+  - name: configure sssd - use_fully_qualified_names
     lineinfile:
       path: /etc/sssd/sssd.conf
       regexp: '^use_fully_qualified_names'
       line: 'use_fully_qualified_names = False'
 
-  - name: configure sssd
+  - name: configure sssd - ldap_id_mapping
     lineinfile:
       path: /etc/sssd/sssd.conf
       regexp: '^ldap_id_mapping'
@@ -78,50 +75,24 @@
       name: sssd 
       state: restarted
 
-  - name: init user context for hugo
+  - name: Include users into the 'users' variable
+    include_vars:
+      file: users.yml
+
+  - name: init user context for {{item.name}}
     command: ssh-keygen -t rsa -f ~/.ssh/id_rsa -q -N ""
-    become_user: hugo 
+    become_user: '{{item.name}}'
     run_once: yes
     args: 
-      creates: /anfhome/hugo/.ssh/id_rsa
+      creates: /anfhome/{{item.name}}/.ssh/id_rsa
+    with_items: "{{users}}"
 
   - name: Copy file with owner and permissions
     copy:
-      src: /anfhome/hugo/.ssh/id_rsa.pub 
-      dest: /anfhome/hugo/.ssh/authorized_keys
+      src: /anfhome/{{item.name}}/.ssh/id_rsa.pub 
+      dest: /anfhome/{{item.name}}/.ssh/authorized_keys
       remote_src: yes
       mode: '0600'
-      owner: hugo
+      owner: '{{item.name}}'
       group: "domain users" 
-
-  - name: init user context for paul
-    command: ssh-keygen -t rsa -f ~/.ssh/id_rsa -q -N ""
-    become_user: paul
-    run_once: yes
-    args: 
-      creates: /anfhome/paul/.ssh/id_rsa
-
-  - name: Copy file with owner and permissions
-    copy:
-      src: /anfhome/paul/.ssh/id_rsa.pub
-      dest: /anfhome/paul/.ssh/authorized_keys
-      remote_src: yes
-      mode: '0600'
-      owner: paul 
-      group: "domain users"
-
-  - name: init user context for xavier
-    command: ssh-keygen -t rsa -f ~/.ssh/id_rsa -q -N ""
-    become_user: xavier
-    run_once: yes
-    args: 
-      creates: /anfhome/xavier/.ssh/id_rsa
- 
-  - name: Copy file with owner and permissions
-    copy:
-      src: /anfhome/xavier/.ssh/id_rsa.pub
-      dest: /anfhome/xavier/.ssh/authorized_keys
-      remote_src: yes
-      mode: '0600'
-      owner: xavier
-      group: "domain users"
+    with_items: "{{users}}"

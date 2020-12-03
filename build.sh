@@ -5,6 +5,17 @@
 # 
 set -e
 TFVARS_FILE=terraform.tfvars
+if [ $# -eq 0 ]; then
+  echo "Usage build.sh "
+  echo "  Required arguments:"
+  echo "    -a|--action [plan, apply, destroy] "
+  echo "   "
+  echo "  Optional arguments:"
+  echo "    -v|-var-file <foo.tfvars> - if not specified the file named terraform.tfvars will be used"
+
+  exit 1
+fi
+
 while (( "$#" )); do
   case "${1}" in
     -a|--action)

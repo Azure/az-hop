@@ -5,7 +5,8 @@ yum install sssd realmd oddjob oddjob-mkhomedir adcli samba-common samba-common-
 systemctl restart dbus
 systemctl restart systemd-logind
 
-NAMESERVER=$(jetpack config adjoin.ad_server)
+#NAMESERVER=$(jetpack config adjoin.ad_server)
+NAMESERVER={{ ad_dns }}
 
 sed -i "s/nameserver.*/nameserver ${NAMESERVER}\nnameserver 168.63.129.16/g" /etc/resolv.conf
 
@@ -21,9 +22,13 @@ Host *
     UserKnownHostsFile /dev/null
 EOF
 
-ADMIN_DOMAIN=$(jetpack config adjoin.ad_domain)
-ADMIN_NAME=$(jetpack config adjoin.ad_admin)
-ADMIN_PASSWORD=$(jetpack config adjoin.ad_password)
+# ADMIN_DOMAIN=$(jetpack config adjoin.ad_domain)
+# ADMIN_NAME=$(jetpack config adjoin.ad_admin)
+# ADMIN_PASSWORD=$(jetpack config adjoin.ad_password)
+ADMIN_DOMAIN={{ ad_join_domain }}
+ADMIN_NAME={{ ad_join_user }}
+ADMIN_PASSWORD={{ ad_join_password }}
+
 
 echo $ADMIN_PASSWORD| realm join -U $ADMIN_NAME $ADMIN_DOMAIN
 
