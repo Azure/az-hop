@@ -23,7 +23,7 @@ resource "azurerm_linux_virtual_machine" "ondemand" {
   name                = "ondemand"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-  size                = "Standard_d2s_v3"
+  size                = "Standard_D2s_v3"
   admin_username      = var.admin_username
   network_interface_ids = [
     azurerm_network_interface.ondemand-nic.id,
