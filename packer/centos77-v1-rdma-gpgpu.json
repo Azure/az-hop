@@ -11,7 +11,7 @@
             "image_sku": "7.7",
             "image_version": "7.7.2020062400",
             "managed_image_resource_group_name": "{{user `var_resource_group`}}",
-            "managed_image_name": "{{user `var_image`}}",
+            "managed_image_name": "centos77-v1-rdma-gpgpu",
             "os_type": "Linux",
             "vm_size": "Standard_d8s_v3",
             "ssh_pty": "true",
