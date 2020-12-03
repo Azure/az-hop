@@ -47,15 +47,13 @@ ssh -L 9443:ccportal:9443 -i hpcadmin_id_rsa hpcadmin@$jb_ip
 https://localhost:9443
 
 # Connect with hpcadmin/<password generated>
+grep "ad_join_password" playbooks/inventory 
 
-# Connect to the ondemand machine to initialize your home directory
-ssh -i hpcadmin_id_rsa hpcadmin@ondemand -o ProxyCommand="ssh -i hpcadmin_id_rsa -W %h:%p hpcadmin@$jb_ip"
-sudo su <user>
-cd
 
 #In the inventory file, locate the ondemand_fqdn variable, browse to this URI
 #Connect with your user account and the password located in the inventory file
 grep ondemand_fqdn playbooks/inventory 
+
 
 # Delete all
 ./build.sh -a destroy -v <myvariables.tfvars> 
