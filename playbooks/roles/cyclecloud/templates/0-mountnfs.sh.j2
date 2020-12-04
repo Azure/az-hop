@@ -5,4 +5,4 @@ yum install nfs-utils -y
 mkdir /anfhome
 mount {{ anf_home_ip }}:/{{ anf_home_path }} /anfhome
 
-setsebool -P use_nfs_home_dirs 1
+setsebool -P use_nfs_home_dirs 1 | true
