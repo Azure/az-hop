@@ -1,8 +1,6 @@
 # Terraform
-.terraform
-*.tfstate
-*.tfstate.backup
-*.tfstate.lock.info
+.terraform*
+*.tfstate*
 
 # Ansible auto-generated inventory
 playbooks/inventory
@@ -11,6 +9,7 @@ playbooks/group_vars/*
 # ssk keys
 *.pub
 *id_rsa*
+*.pem
 
 # datafiles
 *.txt

@@ -16,6 +16,7 @@ if [ $# -eq 0 ]; then
   exit 1
 fi
 
+unset PARAMS
 while (( "$#" )); do
   case "${1}" in
     -a|--action)
@@ -26,7 +27,8 @@ while (( "$#" )); do
       TFVARS_FILE=${2}
       shift 2
     ;;
-    *) 
+    *)
+      PARAMS+="${1} "
       shift
       ;;
   esac
@@ -70,4 +72,4 @@ function get_arm_access_key {
 get_arm_access_key
 
 terraform init ./tf
-terraform $TF_COMMAND -parallelism=30 -var-file=$TFVARS_FILE ./tf
+terraform $TF_COMMAND -parallelism=30 -var-file=$TFVARS_FILE $PARAMS ./tf

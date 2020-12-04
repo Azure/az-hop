@@ -34,3 +34,16 @@ resource "local_file" "global_variables" {
   filename = "playbooks/group_vars/all.yml"
 
 }
+
+resource "local_file" "packer" {
+  content = templatefile("packer/templates/options.tmpl",
+    {
+      subscription_id = data.azurerm_subscription.primary.subscription_id
+      spn_name = azuread_application.packer.name
+      resource_group  = var.resource_group
+      key_vault = azurerm_key_vault.deployhpc.name
+    }
+  )
+  filename = "packer/options.json"
+
+}
