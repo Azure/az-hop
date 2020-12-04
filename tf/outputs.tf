@@ -34,3 +34,14 @@ resource "local_file" "global_variables" {
   filename = "playbooks/group_vars/all.yml"
 
 }
+
+resource "local_file" "connect_script" {
+  sensitive_content = templatefile("playbooks/templates/connect.tmpl",
+    {
+      jumpbox-pip       = azurerm_public_ip.jumpbox-pip.ip_address,
+      jumpbox-user      = azurerm_linux_virtual_machine.jumpbox.admin_username,
+    }
+  )
+  filename = "bin/connect"
+  file_permission = 0755
+}
