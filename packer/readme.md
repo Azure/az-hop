@@ -1,21 +1,24 @@
 # Building the images
 
-First create an `options.json` file with the following fields:
+The file `options.json` is automatically created for you after the infrastructure deployment, there is no need to update it.
+
+It contains the following fields:
 
 ```
 {
-    "var_subscription_id": "",
-    "var_tenant_id": "",
-    "var_client_id": "",
-    "var_client_secret": "",
-    "var_resource_group": "",
-    "var_image": ""
+  "var_subscription_id": "",
+  "var_resource_group": "",
+  "spn_name" : "",
+  "key_vault": ""
 }
 ```
 
-Build an image as follows:
+The key vault contains the SPN secret stored under the secret named with the SPN name. This is created and pre-filled when you build the infrastructure.
+
+Build an image with the `build_image.sh` helper script as follows:
 
 ```
-packer build -var-file=options.json centos-7.7-desktop-3d.json
+./build_image.sh packer_file.json
 ```
 
+>Note: Use the var_image variable in your image name, it will be replaced by the name of the packer file

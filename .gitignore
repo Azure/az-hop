@@ -14,3 +14,5 @@ playbooks/group_vars/*
 # datafiles
 *.txt
 
+# bin
+bin/*
