@@ -95,4 +95,5 @@
       mode: '0600'
       owner: '{{item.name}}'
       group: "domain users" 
+      force: no
     with_items: "{{users}}"

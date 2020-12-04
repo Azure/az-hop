@@ -95,3 +95,9 @@
       url: "https://cvmfs.blob.core.windows.net/generic/generic.azure.pub"
       dest: /etc/cvmfs/keys/generic.azure.pub 
       mode: '644'
+  - name: create ssh_config file
+    copy:
+      content: |
+        Host *
+          StrictHostKeyChecking=No
+      dest: /etc/ssh/ssh_config

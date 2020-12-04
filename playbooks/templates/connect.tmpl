@@ -1,0 +1,3 @@
+#!/bin/bash
+
+exec ssh -i ${jumpbox-user}_id_rsa -o ProxyCommand="ssh -i ${jumpbox-user}_id_rsa -W %h:%p ${jumpbox-user}@${jumpbox-pip}" "$@"
