@@ -61,6 +61,12 @@ apt-add-repository --yes "deb [arch=amd64] https://apt.releases.hashicorp.com $(
 apt update -y
 apt install -y terraform
 
+#
+# Install Packer
+#
+echo "Installing packer...."
+apt-get install packer
+
 # Clean-up
 rm -f /tmp/*.zip && rm -f /tmp/*.gz && \
 
@@ -76,6 +82,10 @@ echo "================="
 echo "Terraform version"
 echo "================="
 terraform --version
+echo "=============="
+echo "Packer version"
+echo "=============="
+packer --version
 echo "=========="
 echo "AZ version"
 echo "=========="

@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: xpillons/hpcrover:2011.2719
+      image: xpillons/hpcrover:2012.0309
       options: --user 0
 
     outputs:
@@ -112,7 +112,7 @@ jobs:
     needs: deploy
 
     container:
-      image: xpillons/hpcrover:2011.2719 
+      image: xpillons/hpcrover:2012.0309 
       options: --user 0
 
     steps:

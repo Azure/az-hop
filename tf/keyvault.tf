@@ -9,18 +9,20 @@ resource "azurerm_key_vault" "deployhpc" {
   soft_delete_enabled         = true
   soft_delete_retention_days  = 7
   purge_protection_enabled    = false
-
+  # TODO => Add the option to enable VMs to keep secrets in KV
   sku_name = "standard"
 
   access_policy {
     tenant_id = data.azurerm_client_config.current.tenant_id
     object_id = data.azurerm_client_config.current.object_id
 
+    # QUESTION => Do we need this ?
     certificate_permissions = [
       "get",
       "managecontacts", 
     ]
 
+    # QUESTION => Do we need this ?
     key_permissions = [
       "get",
     ]
@@ -30,8 +32,12 @@ resource "azurerm_key_vault" "deployhpc" {
       "set",
       "list",
       "delete",
+      "purge",
+      "recover",
+      "restore"
     ]
 
+    # QUESTION => Do we need this ?
     storage_permissions = [
       "get",
     ]
