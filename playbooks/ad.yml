@@ -63,6 +63,13 @@
       name: Domain Users
       attributes:
         gidnumber: 5000
+  - name: allow domainjoinuser to add computers to domain
+    win_user_right:
+      name: SeMachineAccountPrivilege
+      users:
+      - domainjoinuser
+      action: add
+
 
 - name: close socks tunnel
   hosts: localhost
