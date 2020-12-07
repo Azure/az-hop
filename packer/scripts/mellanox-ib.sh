@@ -9,3 +9,4 @@ tar zxf /tmp/${MLNX_OFED_PKG}
 rm -rf MLNX_OFED_LINUX-4.9-0.1.7.0-rhel7.7-x86_64; rm -rf /tmp/${MLNX_OFED_PKG}
 sed -i -e 's/# OS.EnableRDMA=y/OS.EnableRDMA=y/g' /etc/waagent.conf
 echo "vm.zone_reclaim_mode = 1" >> /etc/sysctl.conf
+dracut -f
