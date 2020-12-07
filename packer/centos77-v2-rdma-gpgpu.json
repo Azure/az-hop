@@ -32,7 +32,11 @@
                 "/tmp/scripts/kernel-centos77.sh",
                 "/tmp/scripts/nvidia-gpgpu.sh",
                 "/tmp/scripts/mellanox-ib.sh",
+                "/tmp/scripts/pbspro.sh",
+                "/tmp/scripts/cyclecloud-jetpack.sh",
                 "rm -rf /tmp/scripts",
+                "yum history sync",
+                "lscpu",
                 "/usr/sbin/waagent -force -deprovision+user && export HISTSIZE=0 && sync"
             ],
             "inline_shebang": "/bin/sh -x",
