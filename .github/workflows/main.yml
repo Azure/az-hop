@@ -72,21 +72,47 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: artifact
+          if: always()
           path: |
             configuration.tfvars
             playbooks/inventory
+            playbooks/group_vars/*
+            packer/options.json
             *_id_rsa
             *_id_rsa.pub
             terraform.tfstate
           retention-days: 1
 
-      - name: Configure
+  configure:
+    name: configure
+    runs-on: ubuntu-latest
+    needs: deploy
+
+    container:
+      image: xpillons/hpcrover:2012.0309
+      options: --user 0
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+         
+      - uses: actions/download-artifact@v2
+        with: 
+          name: artifact
+
+      - name: Login azure
+        run: |
+          az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
+          az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
+
+      - name: Install applications
         run: |
           ./install.sh
 
   release:
     runs-on: ubuntu-latest
-    needs: deploy
+    needs: configure
     if: github.ref == 'refs/heads/master'
     steps:
       - name: Set Release
@@ -109,7 +135,7 @@ jobs:
     name: cleanup
     runs-on: ubuntu-latest
     if: always()
-    needs: deploy
+    needs: [deploy, configure]
 
     container:
       image: xpillons/hpcrover:2012.0309
