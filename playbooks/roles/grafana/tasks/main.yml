@@ -1,0 +1,20 @@
+---
+
+- name: Add the Grafana YUM repository
+  yum_repository:
+    name: "{{ grafana_install_repo['name'] }}"
+    description: "{{ grafana_install_repo['name'] }}"
+    baseurl: "{{ grafana_install_repo['yum_repo'] }}"
+    gpgkey: "{{ grafana_install_repo['yum_gpg_key'] | default(omit) }}"
+    gpgcheck: "{{ grafana_install_repo['yum_gpg_check'] | default(False) }}"
+    state: present
+
+- include: install.yml
+- include: configure.yml
+#- include: provisioning.yml
+
+- name: Start and enable the Grafana service
+  service:
+    name: grafana-server
+    state: started
+    enabled: true

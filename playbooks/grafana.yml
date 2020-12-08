@@ -1,0 +1,15 @@
+- hosts: jumpbox
+  gather_facts: yes
+  become: true
+  tasks:
+  - name: Install Grafana
+    include_role:
+      name: grafana
+    vars:
+      grafana_fqdn: localhost
+      grafana_admin_user: "{{global_admin_username}}"
+      grafana_admin_password: "{{global_cc_password}}"
+      grafana_ldap_server: "{{ad_dns}}"
+      grafana_server_root_url: "%(protocol)s://%(domain)s:%(http_port)s/rnode/jumpbox/%(http_port)s/"
+      grafana_auth_ldap_enabled: true
+      grafana_public_facing_domain_name: localhost
