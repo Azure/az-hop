@@ -1,6 +1,12 @@
 # Grafana installation repository
 grafana_install_repo: "{{ grafana_repo_stable }}"
 
+# Grafana paths configuration
+grafana_paths_data: "/var/lib/grafana"
+grafana_paths_logs: "/var/log/grafana"
+grafana_paths_plugins: "/var/lib/grafana/plugins"
+grafana_paths_provisioning: "/etc/grafana/provisioning"
+
 # Grafana user and group
 grafana_user: "grafana"
 grafana_group: "grafana"

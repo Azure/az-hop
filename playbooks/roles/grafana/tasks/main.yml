@@ -11,7 +11,7 @@
 
 - include: install.yml
 - include: configure.yml
-#- include: provisioning.yml
+- include: provisioning.yml
 
 - name: Start and enable the Grafana service
   service:
