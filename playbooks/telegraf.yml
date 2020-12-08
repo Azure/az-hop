@@ -1,0 +1,14 @@
+- hosts: jumpbox, scheduler, ondemand
+  gather_facts: yes
+  become: true
+  tasks:
+
+  - name: Install Telegraf
+    include_role:
+      name: telegraf
+    vars:
+      influxdb_username: "{{global_admin_username}}"
+      influxdb_password: "{{global_cc_password}}"
+      influxdb_database_name: "telegraf"
+      telegraf_influxdb_urls: 
+        - "http://jumpbox:8086"
