@@ -156,7 +156,8 @@
   copy:
     src: '{{role_path}}/files/doqmgr.sh'
     dest: /var/spool/pbs/doqmgr.sh
-
+    mode: '0755'
+    
 - name: Add pbs sched_config
   copy:
     src: '{{role_path}}/files/sched_config'
