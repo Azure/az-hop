@@ -12,7 +12,6 @@ on:
       - xpillons
     paths:
       - .devcontainer
-      - .github/workflows/main.yml
       - 'tf/**'
       - 'playbooks/**'
       - build.sh
@@ -112,7 +111,7 @@ jobs:
     needs: deploy
 
     container:
-      image: xpillons/hpcrover:2012.0309 
+      image: xpillons/hpcrover:2012.0309
       options: --user 0
 
     steps:
