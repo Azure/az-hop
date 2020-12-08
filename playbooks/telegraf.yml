@@ -1,4 +1,4 @@
-- hosts: jumpbox, scheduler, ondemand
+- hosts: jumpbox, scheduler, ondemand, ccportal
   gather_facts: yes
   become: true
   tasks:
