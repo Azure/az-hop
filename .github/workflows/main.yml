@@ -157,11 +157,14 @@ jobs:
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: Remove Resources
-        if: always()
         run: |
           ls -al
 
           ./build.sh -a destroy -c configuration.tfvars
+
+      - name: Cleanup
+        if: always()
+        run: |
 
           # If resource group is still there after destroy remove it
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
@@ -170,4 +173,3 @@ jobs:
             echo "removing resource group $RESOURCE_GROUP"
             az group delete -n $RESOURCE_GROUP -y --no-wait
           fi
-
