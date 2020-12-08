@@ -1,0 +1,22 @@
+---
+
+- name: Create the Grafana group
+  group:
+    name: "{{ grafana_group }}"
+    system: true
+    state: present
+
+- name: Create the Grafana user
+  user:
+    name: "{{ grafana_user }}"
+    group: "{{ grafana_group }}"
+    system: yes
+    createhome: no
+    state: present
+
+- name: Install Grafana
+  yum: 
+    name:
+      - grafana
+    state: present
+

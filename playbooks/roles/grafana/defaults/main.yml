@@ -1,0 +1,27 @@
+# Grafana installation repository
+grafana_install_repo: "{{ grafana_repo_stable }}"
+
+# Grafana user and group
+grafana_user: "grafana"
+grafana_group: "grafana"
+
+# Grafana admin
+grafana_admin_user: "admin"
+grafana_admin_password: "admin"
+
+# Grafana server configuration
+grafana_server_protocol: "http"
+grafana_server_http_port: "3000"
+grafana_server_root_url: "%(protocol)s://%(domain)s:%(http_port)s"
+grafana_server_router_logging: "true"
+grafana_server_serve_from_sub_path: "true"
+
+grafana_public_facing_domain_name: "foo.com"
+
+# Grafana LDAP auth settings
+grafana_auth_ldap_enabled: "true"
+grafana_ldap_server: ""
+
+# Grafana provisioning
+grafana_datasources: []
+grafana_dashboards: []
