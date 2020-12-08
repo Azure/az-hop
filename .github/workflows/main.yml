@@ -169,8 +169,7 @@ jobs:
           # If resource group is still there after destroy remove it
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           rg_exists=$(az group exists -n $RESOURCE_GROUP)
-          echo "Cleaning resource group $rg_exists"
-          if [ "$rg_exists" == "true" ]; then
+          if [ "$rg_exists" = "true" ]; then
             #echo "removing resource group $RESOURCE_GROUP"
             az group delete -n $RESOURCE_GROUP -y --no-wait
           fi
