@@ -1,0 +1,7 @@
+# influxdb installation repository
+influxdb_install_repo: "{{ influxdb_repo_stable }}"
+
+influxdb_username: root
+influxdb_password: root
+influxdb_database_name: telegraf
+

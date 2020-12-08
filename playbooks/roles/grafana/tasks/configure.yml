@@ -33,17 +33,17 @@
     mode: 0640
   notify: restart grafana
 
-# - name: Create Grafana directories
-#   file:
-#     path: "{{ item }}"
-#     state: directory
-#     owner: "{{ grafana_user }}"
-#     group: "{{ grafana_group }}"
-#     mode: 0755
-#   with_items:
-#     - "{{ grafana_paths_data }}"
-#     - "{{ grafana_paths_logs }}"
-#     - "{{ grafana_paths_plugins }}"
-#     - "{{ grafana_paths_provisioning }}"
-#     - "{{ grafana_paths_provisioning }}/datasources"
-#     - "{{ grafana_paths_provisioning }}/dashboards"
+- name: Create Grafana directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ grafana_user }}"
+    group: "{{ grafana_group }}"
+    mode: 0755
+  with_items:
+    - "{{ grafana_paths_data }}"
+    - "{{ grafana_paths_logs }}"
+    - "{{ grafana_paths_plugins }}"
+    - "{{ grafana_paths_provisioning }}"
+    - "{{ grafana_paths_provisioning }}/datasources"
+    - "{{ grafana_paths_provisioning }}/dashboards"

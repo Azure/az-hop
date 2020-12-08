@@ -1,0 +1,35 @@
+---
+
+- name: Add the Influxdb YUM repository
+  yum_repository:
+    name: "{{ influxdb_install_repo['name'] }}"
+    description: "{{ influxdb_install_repo['name'] }}"
+    baseurl: "{{ influxdb_install_repo['yum_repo'] }}"
+    gpgkey: "{{ influxdb_install_repo['yum_gpg_key'] | default(omit) }}"
+    gpgcheck: "{{ influxdb_install_repo['yum_gpg_check'] | default(False) }}"
+    state: present
+
+- name: Install Influxdb
+  yum: 
+    name:
+      - influxdb
+      - python-pip
+    state: present
+
+- name: Install required pip packages
+  pip:
+    name: 
+    - influxdb
+
+- name: Create database
+  community.general.influxdb_database:
+      username: "{{influxdb_username}}"
+      password: "{{influxdb_password}}"
+      database_name: "{{influxdb_database_name}}"
+      validate_certs: no
+
+- name: Start and enable the influxdb service
+  service:
+    name: influxdb
+    state: started
+    enabled: true
