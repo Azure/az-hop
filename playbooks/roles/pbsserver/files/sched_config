@@ -1,0 +1,28 @@
+round_robin: False	all
+by_queue: True		prime
+by_queue: True		non_prime
+strict_ordering: false	ALL
+help_starving_jobs:	true	ALL
+max_starve: 24:00:00
+backfill_prime:	false	ALL
+prime_exempt_anytime_queues:	false
+primetime_prefix: p_
+nonprimetime_prefix: np_
+node_sort_key: "sort_priority HIGH"	ALL
+provision_policy: "aggressive_provision"
+sort_queues:	true	ALL
+resources: "ncpus, mem, arch, host, vnode, aoe, slot_type, group_id, ungrouped, instance_id, machinetype, disk, ngpus, nodearray"
+load_balancing: false	ALL
+smp_cluster_dist: pack
+fair_share: false	ALL
+fairshare_usage_res: cput
+fairshare_entity: euser
+fairshare_decay_time: 24:00:00
+fairshare_decay_factor: 0.5
+preemptive_sched: true	ALL
+preempt_queue_prio:	150
+preempt_prio: "express_queue, normal_jobs"
+preempt_order: "SCR"
+preempt_sort: min_time_since_start
+dedicated_prefix: ded
+log_filter: 3328
