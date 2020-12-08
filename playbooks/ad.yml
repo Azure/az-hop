@@ -58,18 +58,21 @@
       state: present
       groups:
         - Domain Users
-  - name: update gidnumber Domain Users 
-    community.windows.win_domain_group:
-      name: Domain Users
       attributes:
         gidnumber: 5000
+
+  # - name: update gidnumber Domain Users 
+  #   community.windows.win_domain_group:
+  #     name: Domain Users
+  #     attributes:
+  #       gidnumber: 5000
+
   - name: allow domainjoinuser to add computers to domain
     win_user_right:
       name: SeMachineAccountPrivilege
       users:
-      - domainjoinuser
+      - hpc\domainjoinuser
       action: add
-
 
 - name: close socks tunnel
   hosts: localhost
@@ -78,4 +81,3 @@
   tasks:
   - name: close session on local port
     shell: ps aux | grep 5985 | grep ssh | awk '{print "kill -9 " $0}'
-

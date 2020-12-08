@@ -1,0 +1,19 @@
+---
+
+- name: Create Grafana Datasources provisioning files
+  template:
+    src: datasources.yml.j2
+    dest: "{{ grafana_paths_provisioning }}/datasources/datasources.yml"
+    owner: "root"
+    group: "{{ grafana_group }}"
+    mode: 0640
+  notify: restart grafana
+
+- name: Create Grafana Dashboards provisioning files
+  template:
+    src: dashboards.yml.j2
+    dest: "{{ grafana_paths_provisioning }}/dashboards/dashboards.yml"
+    owner: "root"
+    group: "{{ grafana_group }}"
+    mode: 0640
+  notify: restart grafana

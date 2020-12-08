@@ -1,0 +1,15 @@
+# influxdb installation repository
+influxdb_install_repo: "{{ influxdb_repo_stable }}"
+
+influxdb_username: root
+influxdb_password: root
+influxdb_database_name: telegraf
+
+telegraf_influxdb_urls:
+  - http://localhost:8086
+
+telegraf_agent_interval: "10s"
+telegraf_omit_hostname: "false"
+
+telegraf_debug: "false"
+telegraf_quiet: "false"
