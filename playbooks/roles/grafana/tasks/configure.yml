@@ -1,0 +1,49 @@
+---
+
+- block:
+
+  - name: Ensure override directory exists (SystemD)
+    file:
+      name: "/etc/systemd/system/grafana-server.service.d"
+      state: directory
+
+  - name: Customize the Grafana Service Unit (SystemD)
+    template:
+      src: grafana.systemd.j2
+      dest: "/etc/systemd/system/grafana-server.service.d/settings.conf"
+    notify: reload systemd and restart grafana
+
+  when: ansible_service_mgr == "systemd"
+
+- name: Configure Grafana
+  template:
+    src: grafana.ini.j2
+    dest: /etc/grafana/grafana.ini
+    owner: "root"
+    group: "{{ grafana_group }}"
+    mode: 0640
+  notify: restart grafana
+
+- name: Configure LDAP Auth
+  template:
+    src: ldap.toml.j2
+    dest: /etc/grafana/ldap.toml
+    owner: "root"
+    group: "{{ grafana_group }}"
+    mode: 0640
+  notify: restart grafana
+
+- name: Create Grafana directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ grafana_user }}"
+    group: "{{ grafana_group }}"
+    mode: 0755
+  with_items:
+    - "{{ grafana_paths_data }}"
+    - "{{ grafana_paths_logs }}"
+    - "{{ grafana_paths_plugins }}"
+    - "{{ grafana_paths_provisioning }}"
+    - "{{ grafana_paths_provisioning }}/datasources"
+    - "{{ grafana_paths_provisioning }}/dashboards"

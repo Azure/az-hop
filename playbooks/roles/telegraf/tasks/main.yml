@@ -1,0 +1,28 @@
+---
+
+- name: Add the Influxdb YUM repository
+  yum_repository:
+    name: "{{ influxdb_install_repo['name'] }}"
+    description: "{{ influxdb_install_repo['name'] }}"
+    baseurl: "{{ influxdb_install_repo['yum_repo'] }}"
+    gpgkey: "{{ influxdb_install_repo['yum_gpg_key'] | default(omit) }}"
+    gpgcheck: "{{ influxdb_install_repo['yum_gpg_check'] | default(False) }}"
+    state: present
+
+- name: Install telegraf
+  yum: 
+    name:
+      - telegraf
+    state: present
+
+- name: Configure telegraf
+  template:
+    src: telegraf.conf.j2
+    dest: /etc/telegraf/telegraf.conf
+  notify: restart telegraf
+
+- name: Start and enable the telegraf service
+  service:
+    name: telegraf
+    state: started
+    enabled: true
