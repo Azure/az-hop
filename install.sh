@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 pip3 install pypsrp
 pip3 install pysocks
