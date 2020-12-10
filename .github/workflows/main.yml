@@ -121,7 +121,7 @@ jobs:
     needs: deploy
     strategy: 
       matrix:
-        packer_file: [centos-77-desktop-3d.json, centos77-v1-rdma-gpgpu.json, centos77-v2-rdma-gpgpu.json]
+        packer_file: ["centos-7.7-desktop-3d.json", "centos77-v1-rdma-gpgpu.json", "centos77-v2-rdma-gpgpu.json"]
     container:
       image: xpillons/hpcrover:2012.0309
       options: --user 0
