@@ -46,6 +46,17 @@ resource "local_file" "connect_script" {
   file_permission = 0755
 }
 
+resource "local_file" "packer" {
+  content = templatefile("${path.root}/../packer/templates/options.json.tmpl",
+    {
+      subscription_id = data.azurerm_subscription.primary.subscription_id
+      resource_group  = var.resource_group
+    }
+  )
+  filename = "${path.module}/../packer/options.json"
+}
+
+
 output "ondemand_fqdn" {
   value = azurerm_public_ip.ondemand-pip.fqdn
 }
