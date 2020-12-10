@@ -69,6 +69,21 @@ Before running the `build.sh` script, run the `backend.sh` script.
 ./backend.sh
 ```
 
+## Using Service Principal Name to build
+
+Create a contributor SPN, give it a name you want
+```
+az ad sp create-for-rbac --name terraform_spn
+
+# Keep the output safe as it contains a secret that will be displayed only once and needed later
+
+# Assign the role "User Access Administrator" in order to create managed identity for CycleCloud
+
+az role assignment create --assignee "http://terraform_spn" --role "User Access Administrator"
+
+# In order to use your SPN with packer to buid images you have to store it's secret in a keyvault and grant a read access policy to this 
+```
+
 ## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a

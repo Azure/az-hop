@@ -5,7 +5,5 @@ variable "location" {
 
 variable "resource_group" {}
 
-variable admin_username {
-  default = "hpcadmin"
-} 
-
+# The SPN used for devops operations.
+variable "devops_spn" {}

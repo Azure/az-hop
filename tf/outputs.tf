@@ -1,5 +1,5 @@
 resource "local_file" "AnsibleInventory" { 
-  content = templatefile("playbooks/templates/inventory.tmpl",
+  content = templatefile("${path.root}/../playbooks/templates/inventory.tmpl",
    {
       jumpbox-pip       = azurerm_public_ip.jumpbox-pip.ip_address
       jumpbox-user      = azurerm_linux_virtual_machine.jumpbox.admin_username
@@ -17,11 +17,11 @@ resource "local_file" "AnsibleInventory" {
       ad_join_password  = random_password.password.result
     }
   )
-  filename = "playbooks/inventory"
+  filename = "${path.root}/../playbooks/inventory"
 }
 
 resource "local_file" "global_variables" {
-  sensitive_content = templatefile("playbooks/templates/global_variables.tmpl",
+  sensitive_content = templatefile("${path.root}/../playbooks/templates/global_variables.tmpl",
     {
       admin_username = var.admin_username
       ssh_public_key = tls_private_key.internal.public_key_openssh
@@ -31,30 +31,18 @@ resource "local_file" "global_variables" {
       resource_group = var.resource_group
     }
   )
-  filename = "playbooks/group_vars/all.yml"
+  filename = "${path.root}/../playbooks/group_vars/all.yml"
 
 }
 
-resource "local_file" "packer" {
-  content = templatefile("packer/templates/options.tmpl",
-    {
-      subscription_id = data.azurerm_subscription.primary.subscription_id
-      spn_name = azuread_application.packer.name
-      resource_group  = var.resource_group
-      key_vault = azurerm_key_vault.deployhpc.name
-    }
-  )
-  filename = "packer/options.json"
-
-}
 resource "local_file" "connect_script" {
-  sensitive_content = templatefile("playbooks/templates/connect.tmpl",
+  sensitive_content = templatefile("${path.root}/../playbooks/templates/connect.tmpl",
     {
       jumpbox-pip       = azurerm_public_ip.jumpbox-pip.ip_address,
       jumpbox-user      = azurerm_linux_virtual_machine.jumpbox.admin_username,
     }
   )
-  filename = "bin/connect"
+  filename = "${path.root}/../bin/connect"
   file_permission = 0755
 }
 
