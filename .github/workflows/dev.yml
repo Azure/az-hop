@@ -9,7 +9,8 @@ on:
   workflow_dispatch: # This allow you to trigger the workflow manually
   push:
     branches:
-      - *
+      - '**'
+      - '!main'
     paths:
       - .devcontainer
       - 'packer/**'
@@ -17,6 +18,7 @@ on:
       - 'playbooks/**'
       - build.sh
       - install.sh
+      - '!**.md'
 
 env:
   TF_CLI_ARGS: '-no-color'
