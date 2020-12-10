@@ -5,6 +5,7 @@
 # 
 set -e
 TFVARS_FILE=terraform.tfvars
+TF_FOLDER=./tf
 if [ $# -eq 0 ]; then
   echo "Usage build.sh "
   echo "  Required arguments:"
@@ -27,6 +28,10 @@ while (( "$#" )); do
       TFVARS_FILE=${2}
       shift 2
     ;;
+    -f|-folder)
+      TF_FOLDER=${2}
+      shift 2
+    ;;
     *)
       PARAMS+="${1} "
       shift
@@ -34,7 +39,7 @@ while (( "$#" )); do
   esac
 done
 
-TF_BACKEND_FILE=./tf/backend.tf
+TF_BACKEND_FILE=$TF_FOLDER/backend.tf
 export TF_CLI_ARGS_apply="-auto-approve"
 #export TF_LOG=INFO
 #export TF_LOG_PATH=.terraform/terraform.log
@@ -71,5 +76,5 @@ function get_arm_access_key {
 
 get_arm_access_key
 
-terraform init ./tf
-terraform $TF_COMMAND -parallelism=30 -var-file=$TFVARS_FILE $PARAMS ./tf
+terraform -chdir=$TF_FOLDER init
+terraform -chdir=$TF_FOLDER $TF_COMMAND -parallelism=30 -var-file=$TFVARS_FILE $PARAMS
