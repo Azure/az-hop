@@ -12,16 +12,18 @@ on:
       - main
     paths:
       - .devcontainer
-      - .github/workflows/main.yml
+      - 'packer/**'
       - 'tf/**'
       - 'playbooks/**'
       - build.sh
       - install.sh
+      - '!**.md'
 
 env:
   TF_CLI_ARGS: '-no-color'
   TF_CLI_ARGS_destroy: '-auto-approve -refresh=false'
   TF_CLI_ARGS_apply: '-auto-approve'
+  TF_CONFIGURATION: configuration.tfvars
   ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
   ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
   ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
@@ -61,13 +63,12 @@ jobs:
           RESOURCE_GROUP="deployhpc_$UUID"
           #echo "RESOURCE_GROUP=$RESOURCE_GROUP" >> $GITHUB_ENV
           echo "::set-output name=RESOURCE_GROUP::$RESOURCE_GROUP"
-
-          TF_CONFIGURATION=configuration.tfvars
+          
           echo "location= \"westeurope\"" > $TF_CONFIGURATION
           echo "resource_group= \"$RESOURCE_GROUP\"" >> $TF_CONFIGURATION
           cat $TF_CONFIGURATION
 
-          ./build.sh -a apply -v $TF_CONFIGURATION
+          ./build.sh -a apply -v $(pwd)/$TF_CONFIGURATION -f ./tf
 
       - uses: actions/upload-artifact@v2
         with:
@@ -160,7 +161,7 @@ jobs:
         run: |
           ls -al
 
-          ./build.sh -a destroy -c configuration.tfvars
+          ./build.sh -a destroy -v $(pwd)/$TF_CONFIGURATION -f ./tf
 
       - name: Cleanup
         if: always()
