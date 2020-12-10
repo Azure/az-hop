@@ -71,9 +71,9 @@ jobs:
           ./build.sh -a apply -v $(pwd)/$TF_CONFIGURATION -f ./tf
 
       - uses: actions/upload-artifact@v2
+        if: always()
         with:
           name: artifact
-          if: always()
           path: |
             configuration.tfvars
             playbooks/inventory
@@ -81,7 +81,7 @@ jobs:
             packer/options.json
             *_id_rsa
             *_id_rsa.pub
-            terraform.tfstate
+            tf/terraform.tfstate
           retention-days: 1
 
   configure:
@@ -109,6 +109,7 @@ jobs:
 
       - name: Install applications
         run: |
+          ls -al
           ./install.sh
 
   release:

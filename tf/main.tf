@@ -36,13 +36,13 @@ resource "tls_private_key" "internal" {
 
 resource "local_file" "private_key" {
     content     = tls_private_key.internal.private_key_pem
-    filename = "${var.admin_username}_id_rsa"
+    filename = "${path.root}/../${var.admin_username}_id_rsa"
     file_permission = "0600"
 }
 
 resource "local_file" "public_key" {
     content     = tls_private_key.internal.public_key_openssh
-    filename = "${var.admin_username}_id_rsa.pub"
+    filename = "${path.root}/../${var.admin_username}_id_rsa.pub"
     file_permission = "0644"
 }
 
