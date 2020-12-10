@@ -15,3 +15,5 @@ devops_spn = "spndevops"
 ```
   ./build.sh -v $(pwd)/devops.tfvars -f ./devops/tf -a apply
 ```
+
+ 
