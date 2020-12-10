@@ -33,7 +33,7 @@ az login
 # Copy the terraforms.tfvars file to <myvariables.tfvars> and update it with your own values
 
 # Build the whole infrastructure
-./build.sh -a apply -v <myvariables.tfvars> 
+./build.sh -v $(pwd)/<myvariables.tfvars> -f ./tf -a apply
 
 # install
 ./install.sh
@@ -56,7 +56,7 @@ grep ondemand_fqdn playbooks/inventory
 
 
 # Delete all
-./build.sh -a destroy -v <myvariables.tfvars> 
+./build.sh -v $(pwd)/<myvariables.tfvars> -f ./tf -a destroy
 
 ```
 
@@ -81,8 +81,11 @@ az ad sp create-for-rbac --name terraform_spn
 
 az role assignment create --assignee "http://terraform_spn" --role "User Access Administrator"
 
-# In order to use your SPN with packer to buid images you have to store it's secret in a keyvault and grant a read access policy to this 
+
 ```
+In order to use your SPN with packer to buid images you have to store it's secret in a keyvault and grant a read access policy to this 
+
+> Note: You can also have a look on how to configure a [devops environment](./devops/readme.md).
 
 ## Contributing
 

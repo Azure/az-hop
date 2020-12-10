@@ -10,14 +10,3 @@ resource "local_file" "packer" {
   filename = "${path.module}/../../packer/options.json"
 }
 
-output "application" {
-  value = azuread_application.devops
-}
-
-output "password" {
-  value = azuread_application_password.devops_password
-}
-
-output "tenandid" {
-  value = data.azurerm_subscription.primary.tenant_id
-}
