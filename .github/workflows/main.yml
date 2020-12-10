@@ -109,6 +109,9 @@ jobs:
 
       - name: Install applications
         run: |
+          # Fix SSH Keys permission as they are not preserved by the artifacts
+          chmod 600 hpcadmin_id_rsa
+          chmod 644 hpcadmin_id_rsa.pub
           ls -al
           ./install.sh
 
