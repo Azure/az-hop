@@ -54,6 +54,16 @@ grep "ad_join_password" playbooks/inventory
 #Connect with your user account and the password located in the inventory file
 grep ondemand_fqdn playbooks/inventory 
 
+# To access the grafana dashboard, browse to https://<ondemand_fqdn>/rnode/jumpbox/3000/
+
+# From the OnDemand portal, select the menu "Clusters/_my_cluster Shell Access" to open a shell window
+# Submit a simple test job 
+
+```
+qsub -l select=1:slot_type=hb60rs -- sleep 60
+qstat
+
+```
 
 # Delete all
 ./build.sh -v $(pwd)/<myvariables.tfvars> -f ./tf -a destroy

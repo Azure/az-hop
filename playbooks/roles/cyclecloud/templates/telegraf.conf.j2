@@ -1,0 +1,46 @@
+[global_tags]
+
+[agent]
+  interval = "10s"
+  round_interval = true
+  metric_batch_size = 1000
+  metric_buffer_limit = 10000
+  collection_jitter = "0s"
+  flush_interval = "10s"
+  flush_jitter = "0s"
+  precision = ""
+  hostname =  ""
+  ## If set to true, do no set the "host" tag in the telegraf agent.
+  omit_hostname = false
+  ## Run telegraf in debug mode
+  debug = false
+  ## Run telegraf in quiet mode
+  quiet = false
+
+[[outputs.influxdb]]
+  urls = [ "{{ telegraf_influxdb_urls|join('","') }}" ]
+  database = "{{influxdb_database_name}}"
+  username = "{{cc_admin_user}}"
+  password = "{{cc_password}}"
+
+[[inputs.cpu]]
+  percpu = true
+  totalcpu = true
+  collect_cpu_time = false
+  report_active = false
+
+[[inputs.interrupts]]
+  cpu_as_tag = false
+
+[[inputs.disk]]
+  ignore_fs = ["tmpfs", "devtmpfs", "devfs", "iso9660", "overlay", "aufs", "squashfs"]
+
+[[inputs.diskio]]
+[[inputs.kernel]]
+[[inputs.mem]]
+[[inputs.processes]]
+[[inputs.swap]]
+[[inputs.system]]
+[[inputs.net]]
+[[inputs.conntrack]]
+  files = ["ip_conntrack_count","ip_conntrack_max", "nf_conntrack_count","nf_conntrack_max"]
