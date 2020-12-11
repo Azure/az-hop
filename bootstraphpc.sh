@@ -24,7 +24,10 @@ fi
 ansible-playbook -i playbooks/inventory \
   playbooks/ad.yml \
   playbooks/linux.yml \
+  playbooks/add_users.yml \
   playbooks/scheduler.yml \
   playbooks/ccportal.yml \
   playbooks/ood.yml \
-  --extra-vars=@playbooks/ood-overrides.yml
+  --extra-vars=@playbooks/ood-overrides.yml \
+  playbooks/grafana.yml \
+  playbooks/telegraf.yml

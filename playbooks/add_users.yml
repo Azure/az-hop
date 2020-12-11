@@ -1,0 +1,69 @@
+---
+- name: prep socks tunnel
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+  - name: start socks tunnel  
+    shell: ssh -i {{ lookup('env', 'PWD') }}/{{ansible_ssh_private_key_file}} -fN -D localhost:5985 -o StrictHostKeyChecking=no {{global_admin_username}}@{{ psrp_ssh_proxy }}
+
+- name: Add domain users
+  hosts: ad
+
+  tasks:
+  - name: Include users into the 'users' variable
+    include_vars:
+      file: users.yml
+
+  - name: add users
+    community.windows.win_domain_user:
+      name: "{{ item.name }}"
+      firstname: "{{ item.name }}"
+      password: '{{ad_join_password}}' 
+      state: present
+      groups:
+        - Domain Users
+        - Domain Admins
+      attributes:
+        uidNumber: "{{ item.uid }}"
+        uid: "{{ item.name }}"
+        loginShell: /bin/bash
+        unixhomedirectory: /anfhome/{{ item.name }}
+        gidnumber: "{{item.gid}}"
+    with_items: "{{users}}"
+
+- name: close socks tunnel
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+  - name: close session on local port
+    shell: ps aux | grep 5985 | grep ssh | awk '{print "kill -9 " $0}'
+
+- name: Configure Users
+  hosts: jumpbox
+  become: true
+
+  tasks:
+  - name: Include users into the 'users' variable
+    include_vars:
+      file: users.yml
+
+  - name: init user context for {{item.name}}
+    command: ssh-keygen -t rsa -f ~/.ssh/id_rsa -q -N ""
+    become_user: '{{item.name}}'
+#    run_once: yes
+    args: 
+      creates: /anfhome/{{item.name}}/.ssh/id_rsa
+    with_items: "{{users}}"
+
+  - name: Copy file with owner and permissions
+    copy:
+      src: /anfhome/{{item.name}}/.ssh/id_rsa.pub 
+      dest: /anfhome/{{item.name}}/.ssh/authorized_keys
+      remote_src: yes
+      mode: '0600'
+      owner: '{{item.name}}'
+      group: "domain users" 
+      force: no
+    with_items: "{{users}}"
