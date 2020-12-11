@@ -1,5 +1,7 @@
 # Building the images
 
+ - Fill up the `spn.json` with the SPN used by Packer and the keyvault in which it's secret is stored (using the spn name as a secret name)
+
 The file `options.json` is automatically created for you after the infrastructure deployment, there is no need to update it.
 
 It contains the following fields:
@@ -7,13 +9,9 @@ It contains the following fields:
 ```
 {
   "var_subscription_id": "",
-  "var_resource_group": "",
-  "spn_name" : "",
-  "key_vault": ""
+  "var_resource_group": ""
 }
 ```
-
-The key vault contains the SPN secret stored under the secret named with the SPN name. This is created and pre-filled when you build the infrastructure.
 
 Build an image with the `build_image.sh` helper script as follows:
 
