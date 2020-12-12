@@ -1,0 +1,36 @@
+---
+location: westeurope
+resource_group: deployhpc
+users:
+  - name: hugo
+    uid: 10001
+    gid: 5000
+    shell: /bin/bash
+    home: /anfhome/hugo
+    admin: true
+  - name: paul
+    uid: 10002
+    gid: 5000
+    shell: /bin/bash
+    home: /anfhome/paul
+    admin: true
+  - name: xavier
+    uid: 10003
+    gid: 5000
+    shell: /bin/bash
+    home: /anfhome/xavier
+    admin: true
+groups:
+  - name: users
+    gid: 500
+filesystems:
+  - name: anfhome
+    size: 4
+    mount: /anfhome
+queues:
+  - name: viz3d
+    sku: Standard_NV6
+    image: centos-7.7-desktop-3d
+  - name: compute
+    sku: Standard_HB120rs_v2
+    image: centos-77-v1-rdma-gpgpu
