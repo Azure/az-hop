@@ -25,8 +25,8 @@ resource "random_password" "password" {
 }
 
 resource "azurerm_resource_group" "rg" {
-  name     = var.resource_group
-  location = var.location
+  name     = local.resource_group
+  location = local.location
 }
 
 resource "tls_private_key" "internal" {
@@ -36,13 +36,13 @@ resource "tls_private_key" "internal" {
 
 resource "local_file" "private_key" {
     content     = tls_private_key.internal.private_key_pem
-    filename = "${path.root}/../${var.admin_username}_id_rsa"
+    filename = "${path.root}/../${local.admin_username}_id_rsa"
     file_permission = "0600"
 }
 
 resource "local_file" "public_key" {
     content     = tls_private_key.internal.public_key_openssh
-    filename = "${path.root}/../${var.admin_username}_id_rsa.pub"
+    filename = "${path.root}/../${local.admin_username}_id_rsa.pub"
     file_permission = "0644"
 }
 

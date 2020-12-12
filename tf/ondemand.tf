@@ -24,13 +24,13 @@ resource "azurerm_linux_virtual_machine" "ondemand" {
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   size                = "Standard_D2s_v3"
-  admin_username      = var.admin_username
+  admin_username      = local.admin_username
   network_interface_ids = [
     azurerm_network_interface.ondemand-nic.id,
   ]
 
   admin_ssh_key {
-    username   = var.admin_username
+    username   = local.admin_username
     public_key = tls_private_key.internal.public_key_openssh
   }
 

@@ -9,7 +9,7 @@ resource "azurerm_netapp_pool" "anfpool" {
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   service_level       = "Standard"
-  size_in_tb          = 4
+  size_in_tb          = local.homefs_size
 }
 resource "azurerm_netapp_volume" "home" {
 #  lifecycle {

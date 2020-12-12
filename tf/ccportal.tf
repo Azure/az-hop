@@ -23,13 +23,13 @@ resource "azurerm_virtual_machine" "ccportal" {
 
   os_profile {
     computer_name  = "ccportal"
-    admin_username = var.admin_username
+    admin_username = local.admin_username
   }
 
   os_profile_linux_config {
     disable_password_authentication = true
     ssh_keys {
-      path     = "/home/${var.admin_username}/.ssh/authorized_keys"
+      path     = "/home/${local.admin_username}/.ssh/authorized_keys"
       key_data = tls_private_key.internal.public_key_openssh
     }
   }

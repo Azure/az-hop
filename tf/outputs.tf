@@ -13,7 +13,7 @@ resource "local_file" "AnsibleInventory" {
       ad-passwd         = azurerm_windows_virtual_machine.ad.admin_password
       anf-home-ip       = element(azurerm_netapp_volume.home.mount_ip_addresses, 0)
       anf-home-path     = azurerm_netapp_volume.home.volume_path
-      admin-username    = var.admin_username
+      admin-username    = local.admin_username
       ad_join_password  = random_password.password.result
     }
   )
@@ -23,12 +23,12 @@ resource "local_file" "AnsibleInventory" {
 resource "local_file" "global_variables" {
   sensitive_content = templatefile("${path.root}/../playbooks/templates/global_variables.tmpl",
     {
-      admin_username = var.admin_username
+      admin_username = local.admin_username
       ssh_public_key = tls_private_key.internal.public_key_openssh
       cc_password    = azurerm_windows_virtual_machine.ad.admin_password
       cc_storage     = azurerm_storage_account.deployhpc.name
-      region         = var.location
-      resource_group = var.resource_group
+      region         = local.location
+      resource_group = local.resource_group
     }
   )
   filename = "${path.root}/../playbooks/group_vars/all.yml"
@@ -50,7 +50,7 @@ resource "local_file" "packer" {
   content = templatefile("${path.root}/../packer/templates/options.json.tmpl",
     {
       subscription_id = data.azurerm_subscription.primary.subscription_id
-      resource_group  = var.resource_group
+      resource_group  = local.resource_group
     }
   )
   filename = "${path.module}/../packer/options.json"
