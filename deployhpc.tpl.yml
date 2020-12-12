@@ -1,7 +1,8 @@
 ---
 location: westeurope
 resource_group: deployhpc
-users:
+homefs_size: 4
+users: // TODO
   - name: hugo
     uid: 10001
     gid: 5000
@@ -20,14 +21,10 @@ users:
     shell: /bin/bash
     home: /anfhome/xavier
     admin: true
-groups:
+groups: // TODO
   - name: users
-    gid: 500
-filesystems:
-  - name: anfhome
-    size: 4
-    mount: /anfhome
-queues:
+    gid: 5000
+queues: // TODO
   - name: viz3d
     sku: Standard_NV6
     image: centos-7.7-desktop-3d
