@@ -12,3 +12,6 @@
         cc_public_key: '{{global_ssh_public_key}}'
         cc_password: '{{global_cc_password}}'
         cc_storage: '{{global_cc_storage}}'
+        influxdb_database_name: "telegraf"
+        telegraf_influxdb_urls: 
+          - "http://jumpbox:8086"

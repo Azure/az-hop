@@ -56,6 +56,16 @@
     src: '{{role_path}}/files/autostop.rb'
     dest: /root/pbs/specs/default/cluster-init/files/autostop.rb
 
+- name: Add telegraf configuration file  
+  template:
+    src: telegraf.conf.j2
+    dest: /root/pbs/specs/default/cluster-init/files/telegraf.conf
+
+- name: Add telegraf setup script 
+  copy:
+    src: '{{role_path}}/files/5-install-telegraf.sh'
+    dest: /root/pbs/specs/default/cluster-init/scripts/5-install-telegraf.sh
+
 - name: Create CycleCloud project
   command: '/usr/local/bin/cyclecloud project upload'
   args:
