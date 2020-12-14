@@ -16,3 +16,6 @@ playbooks/group_vars/*
 
 # bin
 bin/*
+
+# working dir
+working
