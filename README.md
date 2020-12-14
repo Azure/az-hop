@@ -60,7 +60,7 @@ grep ondemand_fqdn playbooks/inventory
 # Submit a simple test job 
 
 ```
-qsub -l select=1:slot_type=hb60rs -- sleep 60
+qsub -l select=1:slot_type=hb60rs -- bash -c "sleep 60"
 qstat
 
 ```
