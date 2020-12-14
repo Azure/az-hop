@@ -1,18 +1,20 @@
 #!/bin/bash
 
 # Build the HPC infrastructure with Terraform.
-# build.sh -a [plan, apply, destroy] -v <vars file>
+# build.sh -a [plan, apply, destroy] -v <vars file> -f <folder>
 # 
 set -e
-TFVARS_FILE=terraform.tfvars
-TF_FOLDER=./tf
+THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+TFVARS_FILE=""
+TF_FOLDER=$THIS_DIR/tf
 if [ $# -eq 0 ]; then
   echo "Usage build.sh "
   echo "  Required arguments:"
   echo "    -a|--action [plan, apply, destroy] "
   echo "   "
   echo "  Optional arguments:"
-  echo "    -v|-var-file <foo.tfvars> - if not specified the file named terraform.tfvars will be used"
+  echo "    -v|-var-file <foo.tfvars>"
+  echo "    -f|-folder <relative path> - relative folder name containing the terraform files, default is ./tf"
 
   exit 1
 fi
@@ -25,11 +27,11 @@ while (( "$#" )); do
       shift 2
     ;;
     -v|-var-file)
-      TFVARS_FILE=${2}
+      TFVARS_FILE=$THIS_DIR/${2}
       shift 2
     ;;
     -f|-folder)
-      TF_FOLDER=${2}
+      TF_FOLDER=${THIS_DIR}/${2}
       shift 2
     ;;
     *)
@@ -77,4 +79,8 @@ function get_arm_access_key {
 get_arm_access_key
 
 terraform -chdir=$TF_FOLDER init
-terraform -chdir=$TF_FOLDER $TF_COMMAND -parallelism=30 -var-file=$TFVARS_FILE $PARAMS
+if [ "$TFVARS_FILE" != "" ]; then
+  PARAMS+=" -var-file=$TFVARS_FILE"
+fi
+echo "terraform -chdir=$TF_FOLDER $TF_COMMAND -parallelism=30 $PARAMS"
+terraform -chdir=$TF_FOLDER $TF_COMMAND -parallelism=30 $PARAMS
