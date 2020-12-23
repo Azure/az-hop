@@ -65,7 +65,7 @@ jobs:
           #echo "RESOURCE_GROUP=$RESOURCE_GROUP" >> $GITHUB_ENV
           echo "::set-output name=RESOURCE_GROUP::$RESOURCE_GROUP"
           
-          sed 's/__LOCATION__/westeurope/g;s/__RESOURCE_GROUP__/$RESOURCE_GROUP/g' $TF_TEMPLATE_CONFIGURATION > $TF_CONFIGURATION
+          sed "s/__LOCATION__/westeurope/g;s/__RESOURCE_GROUP__/$RESOURCE_GROUP/g" $TF_TEMPLATE_CONFIGURATION > $TF_CONFIGURATION
 
           #echo "location= \"westeurope\"" > $TF_CONFIGURATION
           #echo "resource_group= \"$RESOURCE_GROUP\"" >> $TF_CONFIGURATION
