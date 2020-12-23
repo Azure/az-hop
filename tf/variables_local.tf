@@ -4,6 +4,6 @@ locals {
     
     location = local.configuration_yml["location"]
     resource_group = local.configuration_yml["resource_group"]
-    homefs_size = local.configuration_yml["homefs_size"]
+    homefs_size_tb = local.configuration_yml["homefs_size_tb"]
     admin_username = local.configuration_yml["admin_user"]
 }

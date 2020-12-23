@@ -30,10 +30,10 @@ Install
 # Login to Azure
 az login
 
-# Copy the terraforms.tfvars file to <myvariables.tfvars> and update it with your own values
+# Use the deployhpc.tpl.yml as a template to create the deployhpc.yml file.
 
 # Build the whole infrastructure
-./build.sh -v $(pwd)/<myvariables.tfvars> -f ./tf -a apply
+./build.sh -f ./tf -a apply
 
 # install
 ./install.sh
@@ -66,7 +66,7 @@ qstat
 ```
 
 # Delete all
-./build.sh -v $(pwd)/<myvariables.tfvars> -f ./tf -a destroy
+./build.sh -f ./tf -a destroy
 
 ```
 
