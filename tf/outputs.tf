@@ -30,6 +30,7 @@ resource "local_file" "global_variables" {
       region         = local.location
       resource_group = local.resource_group
       users_file     = local.configuration_file
+      homedir_mountpoint = local.homedir_mountpoint
     }
   )
   filename = "${local.playbook_root_dir}/group_vars/all.yml"
