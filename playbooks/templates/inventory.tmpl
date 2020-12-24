@@ -27,7 +27,7 @@ all:
   vars:
     ad_dns: ${ad-ip} 
     ad_join_password: '${ ad_join_password }'
-    ad_join_user: domainjoinuser
+    ad_join_user: ${ admin-username }
     ad_join_domain: hpc.azure
     anf_home_ip: ${ anf-home-ip }
     anf_home_path: ${ anf-home-path }

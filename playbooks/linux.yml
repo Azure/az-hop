@@ -54,7 +54,7 @@
     run_once : true
 
   - name: Join AD domain
-    shell: echo "{{ ad_join_password }}" | realm join -U {{ ad_join_user }} {{ ad_join_domain }}
+    shell: echo "{{ ad_join_password }}" | realm join -v -U {{ ad_join_user }} {{ ad_join_domain }}
     args:
       creates: /etc/sssd/sssd.conf
 

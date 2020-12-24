@@ -50,16 +50,16 @@
   #       gidnumber: 5000
   #   with_items: "{{users}}"
 
-  - name: Ensure user domainjoinuser is present
-    community.windows.win_domain_user:
-      name: domainjoinuser
-      firstname: domainjoinuser
-      password: '{{ad_join_password}}' 
-      state: present
-      groups:
-        - Domain Users
-      attributes:
-        gidnumber: 5000
+  # - name: Add user domainjoinuser
+  #   community.windows.win_domain_user:
+  #     name: domainjoinuser
+  #     firstname: domainjoinuser
+  #     password: '{{ad_join_password}}' 
+  #     state: present
+  #     groups:
+  #       - Domain Users
+  #     attributes:
+  #       gidnumber: 5000
 
   - name: update gidnumber Domain Users 
     community.windows.win_domain_group:
@@ -67,12 +67,12 @@
       attributes:
         gidnumber: 5000
 
-  - name: allow domainjoinuser to add computers to domain
-    win_user_right:
-      name: SeMachineAccountPrivilege
-      users:
-      - hpc\domainjoinuser
-      action: add
+  # - name: allow domainjoinuser to add computers to domain
+  #   win_user_right:
+  #     name: SeMachineAccountPrivilege
+  #     users:
+  #     - hpc\domainjoinuser
+  #     action: add
 
 - name: close socks tunnel
   hosts: localhost
