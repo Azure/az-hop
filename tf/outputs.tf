@@ -1,5 +1,5 @@
 resource "local_file" "AnsibleInventory" { 
-  content = templatefile("${path.root}/../playbooks/templates/inventory.tmpl",
+  content = templatefile("${local.playbooks_template_dir}/inventory.tmpl",
    {
       jumpbox-pip       = azurerm_public_ip.jumpbox-pip.ip_address
       jumpbox-user      = azurerm_linux_virtual_machine.jumpbox.admin_username
@@ -17,11 +17,11 @@ resource "local_file" "AnsibleInventory" {
       ad_join_password  = random_password.password.result
     }
   )
-  filename = "${path.root}/../playbooks/inventory"
+  filename = "${local.playbook_root_dir}/inventory"
 }
 
 resource "local_file" "global_variables" {
-  sensitive_content = templatefile("${path.root}/../playbooks/templates/global_variables.tmpl",
+  sensitive_content = templatefile("${local.playbooks_template_dir}/global_variables.tmpl",
     {
       admin_username = local.admin_username
       ssh_public_key = tls_private_key.internal.public_key_openssh
@@ -29,14 +29,15 @@ resource "local_file" "global_variables" {
       cc_storage     = azurerm_storage_account.deployhpc.name
       region         = local.location
       resource_group = local.resource_group
+      users_file     = local.configuration_file
     }
   )
-  filename = "${path.root}/../playbooks/group_vars/all.yml"
+  filename = "${local.playbook_root_dir}/group_vars/all.yml"
 
 }
 
 resource "local_file" "connect_script" {
-  sensitive_content = templatefile("${path.root}/../playbooks/templates/connect.tmpl",
+  sensitive_content = templatefile("${local.playbooks_template_dir}/connect.tmpl",
     {
       jumpbox-pip       = azurerm_public_ip.jumpbox-pip.ip_address,
       jumpbox-user      = azurerm_linux_virtual_machine.jumpbox.admin_username,
@@ -47,13 +48,13 @@ resource "local_file" "connect_script" {
 }
 
 resource "local_file" "packer" {
-  content = templatefile("${path.root}/../packer/templates/options.json.tmpl",
+  content = templatefile("${local.packer_root_dir}/templates/options.json.tmpl",
     {
       subscription_id = data.azurerm_subscription.primary.subscription_id
       resource_group  = local.resource_group
     }
   )
-  filename = "${path.module}/../packer/options.json"
+  filename = "${local.packer_root_dir}/options.json"
 }
 
 
