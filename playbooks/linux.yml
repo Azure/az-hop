@@ -34,21 +34,21 @@
 
   - name: Creates home directory mountpoint
     file:
-      path: /anfhome
+      path: '{{global_homedir_mountpoint}}'
       state: directory
       mode: 0755
 
   - name: Mount an NFS volume
     mount:
       src: '{{ anf_home_ip }}:/{{ anf_home_path }}'
-      path: /anfhome
+      path: '{{global_homedir_mountpoint}}'
       opts: rw,sync,hard,intr
       state: mounted
       fstype: nfs
 
   - name: Update ANF chmod mode
     file:
-      path: /anfhome
+      path: '{{global_homedir_mountpoint}}'
       state: directory
       mode: '0755'
     run_once : true

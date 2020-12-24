@@ -3,6 +3,7 @@ location: __LOCATION__
 resource_group: __RESOURCE_GROUP__
 homefs_size_tb: 4
 admin_user: hpcadmin
+homedir_mountpoint: /anfhome
 users: # TODO
   - name: user1
     uid: 10001
