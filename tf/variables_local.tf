@@ -1,4 +1,7 @@
 locals {
+    packer_root_dir = "${path.root}/../packer"
+    playbook_root_dir = "${path.root}/../playbooks"
+    playbooks_template_dir = "${local.playbook_root_dir}/templates"
     configuration_file="${path.root}/../deployhpc.yml"
     configuration_yml=yamldecode(file(local.configuration_file))
     

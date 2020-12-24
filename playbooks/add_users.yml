@@ -13,7 +13,7 @@
   tasks:
   - name: Include users into the 'users' variable
     include_vars:
-      file: users.yml
+      file: "{{global_users_file}}"
 
   - name: add users
     community.windows.win_domain_user:
@@ -27,8 +27,8 @@
       attributes:
         uidNumber: "{{ item.uid }}"
         uid: "{{ item.name }}"
-        loginShell: /bin/bash
-        unixhomedirectory: /anfhome/{{ item.name }}
+        loginShell: "{{ item.shell }}"
+        unixhomedirectory: "{{ item.home }}"
         gidnumber: "{{item.gid}}"
     with_items: "{{users}}"
 
@@ -47,20 +47,19 @@
   tasks:
   - name: Include users into the 'users' variable
     include_vars:
-      file: users.yml
+      file: "{{global_users_file}}"
 
   - name: init user context for {{item.name}}
     command: ssh-keygen -t rsa -f ~/.ssh/id_rsa -q -N ""
     become_user: '{{item.name}}'
-#    run_once: yes
     args: 
-      creates: /anfhome/{{item.name}}/.ssh/id_rsa
+      creates: "{{item.home}}/.ssh/id_rsa"
     with_items: "{{users}}"
 
   - name: Copy file with owner and permissions
     copy:
-      src: /anfhome/{{item.name}}/.ssh/id_rsa.pub 
-      dest: /anfhome/{{item.name}}/.ssh/authorized_keys
+      src: "{{item.home}}/.ssh/id_rsa.pub"
+      dest: "{{item.home}}/.ssh/authorized_keys"
       remote_src: yes
       mode: '0600'
       owner: '{{item.name}}'
