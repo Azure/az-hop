@@ -52,7 +52,6 @@
   - name: init user context for {{item.name}}
     command: ssh-keygen -t rsa -f ~/.ssh/id_rsa -q -N ""
     become_user: '{{item.name}}'
-#    run_once: yes
     args: 
       creates: "{{item.home}}/.ssh/id_rsa"
     with_items: "{{users}}"

@@ -29,50 +29,11 @@
       post_reboot_delay: 600
     when: ad_promotion.reboot_required
 
-  # - name: Include users into the 'users' variable
-  #   include_vars:
-  #     file: users.yml
-
-  # - name: add users
-  #   community.windows.win_domain_user:
-  #     name: "{{ item.name }}"
-  #     firstname: "{{ item.name }}"
-  #     password: '{{ad_join_password}}' 
-  #     state: present
-  #     groups:
-  #       - Domain Users
-  #       - Domain Admins
-  #     attributes:
-  #       uidNumber: "{{ item.uid }}"
-  #       uid: "{{ item.name }}"
-  #       loginShell: /bin/bash
-  #       unixhomedirectory: /anfhome/{{ item.name }}
-  #       gidnumber: 5000
-  #   with_items: "{{users}}"
-
-  # - name: Add user domainjoinuser
-  #   community.windows.win_domain_user:
-  #     name: domainjoinuser
-  #     firstname: domainjoinuser
-  #     password: '{{ad_join_password}}' 
-  #     state: present
-  #     groups:
-  #       - Domain Users
-  #     attributes:
-  #       gidnumber: 5000
-
   - name: update gidnumber Domain Users 
     community.windows.win_domain_group:
       name: Domain Users
       attributes:
         gidnumber: 5000
-
-  # - name: allow domainjoinuser to add computers to domain
-  #   win_user_right:
-  #     name: SeMachineAccountPrivilege
-  #     users:
-  #     - hpc\domainjoinuser
-  #     action: add
 
 - name: close socks tunnel
   hosts: localhost
