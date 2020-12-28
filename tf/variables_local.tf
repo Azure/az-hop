@@ -9,4 +9,5 @@ locals {
     resource_group = local.configuration_yml["resource_group"]
     homefs_size_tb = local.configuration_yml["homefs_size_tb"]
     admin_username = local.configuration_yml["admin_user"]
+    homedir_mountpoint = local.configuration_yml["homedir_mountpoint"]
 }

@@ -9,9 +9,7 @@ on:
   workflow_dispatch: # This allow you to trigger the workflow manually
   push:
     branches:
-      - '**'
-      - '!main'
-
+      - *
     paths:
       - .devcontainer
       - 'packer/**'
@@ -25,7 +23,8 @@ env:
   TF_CLI_ARGS: '-no-color'
   TF_CLI_ARGS_destroy: '-auto-approve -refresh=false'
   TF_CLI_ARGS_apply: '-auto-approve'
-  TF_CONFIGURATION: configuration.tfvars
+  TF_TEMPLATE_CONFIGURATION: '.github/workflows/deployhpc.yml.tpl'
+  TF_CONFIGURATION: 'deployhpc.yml'
   ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
   ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
   ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
@@ -66,18 +65,20 @@ jobs:
           #echo "RESOURCE_GROUP=$RESOURCE_GROUP" >> $GITHUB_ENV
           echo "::set-output name=RESOURCE_GROUP::$RESOURCE_GROUP"
           
-          echo "location= \"westeurope\"" > $TF_CONFIGURATION
-          echo "resource_group= \"$RESOURCE_GROUP\"" >> $TF_CONFIGURATION
+          sed "s/__LOCATION__/westeurope/g;s/__RESOURCE_GROUP__/$RESOURCE_GROUP/g" $TF_TEMPLATE_CONFIGURATION > $TF_CONFIGURATION
+
+          #echo "location= \"westeurope\"" > $TF_CONFIGURATION
+          #echo "resource_group= \"$RESOURCE_GROUP\"" >> $TF_CONFIGURATION
           cat $TF_CONFIGURATION
 
-          ./build.sh -a apply -v $(pwd)/$TF_CONFIGURATION -f ./tf
+          ./build.sh -a apply -f ./tf
 
       - uses: actions/upload-artifact@v2
         if: always()
         with:
           name: artifact
           path: |
-            configuration.tfvars
+            deployhpc.yml
             playbooks/inventory
             playbooks/group_vars/*
             packer/options.json
@@ -147,27 +148,6 @@ jobs:
           cd packer
           ./build_image.sh ${{matrix.packer_file}}
 
-  release:
-    runs-on: ubuntu-latest
-    needs: [configure, build_image]
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - name: Set Release
-        run: |
-          VERSION_TAG=$(date +"%g%m.%d%H")
-          echo "VERSION_TAG=${VERSION_TAG}" >> $GITHUB_ENV
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@latest
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-        with:
-          tag_name: ${{ env.VERSION_TAG }}
-          release_name: v${{ env.VERSION_TAG }}
-          draft: false
-          prerelease: true
-
   cleanup:
     name: cleanup
     runs-on: ubuntu-latest
@@ -197,7 +177,7 @@ jobs:
         run: |
           ls -al
 
-          ./build.sh -a destroy -v $(pwd)/$TF_CONFIGURATION -f ./tf
+          ./build.sh -a destroy -f ./tf
 
       - name: Cleanup
         if: always()

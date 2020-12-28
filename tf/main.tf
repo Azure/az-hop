@@ -1,18 +1,28 @@
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 2.41.0"
+    }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.0.0"
+    }
+  }
+  required_version = ">= 0.13"
+}
+
+
 provider "azurerm" {
   features {}
 }
 
-resource "random_string" "random" {
-  length = 8
-  special = false
-}
-
 resource "random_string" "resource_postfix" {
-  length = 6
+  length = 8
   special = false
   upper = false
   lower = true
-  number = true
+  number = true  
 }
 
 resource "random_password" "password" {
@@ -50,7 +60,7 @@ resource "local_file" "public_key" {
 #   - CycleCloud projects
 #   - Terraform states
 resource "azurerm_storage_account" "deployhpc" {
-  name                      = "storage${random_string.resource_postfix.result}"
+  name                      = "deployhpc${random_string.resource_postfix.result}"
   resource_group_name       = azurerm_resource_group.rg.name
   location                  = azurerm_resource_group.rg.location
   account_tier             = "Standard"
