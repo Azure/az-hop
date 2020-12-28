@@ -1,9 +1,4 @@
 {
-  "MaxExecuteCoreCount" : 10000,
-  "UsePublicNetwork" : false,
-  "SubnetId" : "{{ global_resource_group }}/hpcvnet/compute",
-  "Region" : "{{ global_region }}",
-  "ExecuteMachineType" : "Standard_F2s_v2",
   "ExecuteClusterInitSpecs" : {
     "pbs:default:1.0.0" : {
       "Order" : 10000,
@@ -14,10 +9,6 @@
       "Locker" : "azure-storage"
     }
   },
-  "ReturnProxy" : false,
   "Credentials" : "azure",
-  "Autoscale" : true,
-  "UseLowPrio" : false,
-  "ImageName" : "OpenLogic:CentOS-HPC:7.7:latest",
-  "ExecuteNodesPublic" : false
+  "ImageName" : "OpenLogic:CentOS-HPC:7.7:latest"
 }
