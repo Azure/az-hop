@@ -11,9 +11,9 @@
   hosts: ad
 
   tasks:
-  - name: Include users into the 'users' variable
+  - name: load configuration variables
     include_vars:
-      file: "{{global_users_file}}"
+      file: "{{global_config_file}}"
 
   - name: add users
     community.windows.win_domain_user:
@@ -45,9 +45,9 @@
   become: true
 
   tasks:
-  - name: Include users into the 'users' variable
+  - name: Load global variables 
     include_vars:
-      file: "{{global_users_file}}"
+      file: "{{global_config_file}}"
 
   - name: init user context for {{item.name}}
     command: ssh-keygen -t rsa -f ~/.ssh/id_rsa -q -N ""

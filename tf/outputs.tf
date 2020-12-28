@@ -29,7 +29,7 @@ resource "local_file" "global_variables" {
       cc_storage     = azurerm_storage_account.deployhpc.name
       region         = local.location
       resource_group = local.resource_group
-      users_file     = local.configuration_file
+      config_file     = local.configuration_file
       homedir_mountpoint = local.homedir_mountpoint
     }
   )
