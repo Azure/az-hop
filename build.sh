@@ -13,7 +13,6 @@ if [ $# -eq 0 ]; then
   echo "    -a|--action [plan, apply, destroy] "
   echo "   "
   echo "  Optional arguments:"
-#  echo "    -v|-var-file <foo.tfvars>"
   echo "    -f|-folder <relative path> - relative folder name containing the terraform files, default is ./tf"
 
   exit 1
@@ -26,10 +25,6 @@ while (( "$#" )); do
       TF_COMMAND=${2}
       shift 2
     ;;
-    # -v|-var-file)
-    #   TFVARS_FILE=$THIS_DIR/${2}
-    #   shift 2
-    # ;;
     -f|-folder)
       TF_FOLDER=${THIS_DIR}/${2}
       shift 2
@@ -79,8 +74,12 @@ function get_arm_access_key {
 get_arm_access_key
 
 terraform -chdir=$TF_FOLDER init
-# if [ "$TFVARS_FILE" != "" ]; then
-#   PARAMS+=" -var-file=$TFVARS_FILE"
-# fi
+
+# Get the current logged user
+azure_user=$(az account show --query user.name -o tsv)
+created_on=$(date -u)
 echo "terraform -chdir=$TF_FOLDER $TF_COMMAND -parallelism=30 $PARAMS"
-terraform -chdir=$TF_FOLDER $TF_COMMAND -parallelism=30 $PARAMS
+terraform -chdir=$TF_FOLDER $TF_COMMAND -parallelism=30 \
+  -var "CreatedBy=$azure_user" \
+  -var "CreatedOn=$created_on" \
+  $PARAMS
