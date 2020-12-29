@@ -2,3 +2,22 @@ cc_admin_user:
 cc_public_key:
 cc_password:
 cc_storage:
+cc_region:
+cc_subnetid:
+cc_queues:
+  - name: execute
+    vm_size: Standard_F2s_v2
+    max_core_count: 1024
+    image: OpenLogic:CentOS-HPC:7.7:latest
+  - name: hc44rs
+    vm_size: Standard_HC44rs
+    max_core_count: 1024
+    image: OpenLogic:CentOS-HPC:7.7:latest
+  - name: hb60rs
+    vm_size: Standard_HB60rs
+    max_core_count: 1024
+    image: OpenLogic:CentOS-HPC:7.7:latest
+  - name: hb120rs_v2
+    vm_size: Standard_HB120rs_v2
+    max_core_count: 1024
+    image: OpenLogic:CentOS-HPC:7.7:latest

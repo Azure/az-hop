@@ -4,7 +4,7 @@ resource_group: deployhpc
 homefs_size_tb: 4
 homedir_mountpoint: /anfhome
 admin_user: hpcadmin
-users: # TODO
+users:
   - name: user1
     uid: 10001
     gid: 5000
@@ -20,10 +20,28 @@ users: # TODO
 groups: # TODO
   - name: users
     gid: 5000
-queues: # TODO
-  - name: viz3d
-    sku: Standard_NV6
-    image: centos-7.7-desktop-3d
-  - name: compute
-    sku: Standard_HB120rs_v2
-    image: centos-77-v1-rdma-gpgpu
+queues:
+  - name: execute
+    vm_size: Standard_F2s_v2
+    max_core_count: 1024
+    image: OpenLogic:CentOS-HPC:7.7:latest
+  - name: hc44rs
+    vm_size: Standard_HC44rs
+    max_core_count: 1024
+    image: OpenLogic:CentOS-HPC:7.7:latest
+  - name: hb60rs
+    vm_size: Standard_HB60rs
+    max_core_count: 1024
+    image: OpenLogic:CentOS-HPC:7.7:latest
+  - name: hb120rs_v2
+    vm_size: Standard_HB120rs_v2
+    max_core_count: 1024
+    image: OpenLogic:CentOS-HPC:7.7:latest
+
+  # - name: viz3d
+  #   vm_size: Standard_NV6
+  #   image: centos-7.7-desktop-3d
+  #   max_core_count: 1000
+  # - name: compute
+  #   vm_size: Standard_HB120rs_v2
+  #   image: centos-77-v1-rdma-gpgpu
