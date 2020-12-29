@@ -37,6 +37,10 @@ resource "random_password" "password" {
 resource "azurerm_resource_group" "rg" {
   name     = local.resource_group
   location = local.location
+  tags = {
+    CreatedBy = var.CreatedBy
+    CreatedOn = var.CreatedOn
+  }
 }
 
 resource "tls_private_key" "internal" {
