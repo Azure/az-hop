@@ -5,16 +5,11 @@ resource "local_file" "AnsibleInventory" {
       jumpbox-user      = azurerm_linux_virtual_machine.jumpbox.admin_username
       scheduler-ip      = azurerm_network_interface.scheduler-nic.private_ip_address
       scheduler-user    = azurerm_linux_virtual_machine.scheduler.admin_username
-      ondemand-fqdn     = azurerm_public_ip.ondemand-pip.fqdn
       ondemand-ip       = azurerm_network_interface.ondemand-nic.private_ip_address
       ondemand-user     = azurerm_linux_virtual_machine.ondemand.admin_username
       ccportal-ip       = azurerm_network_interface.ccportal-nic.private_ip_address
       ad-ip             = azurerm_network_interface.ad-nic.private_ip_address
       ad-passwd         = azurerm_windows_virtual_machine.ad.admin_password
-      anf-home-ip       = element(azurerm_netapp_volume.home.mount_ip_addresses, 0)
-      anf-home-path     = azurerm_netapp_volume.home.volume_path
-      admin-username    = local.admin_username
-      ad_join_password  = random_password.password.result
     }
   )
   filename = "${local.playbook_root_dir}/inventory"
@@ -23,14 +18,19 @@ resource "local_file" "AnsibleInventory" {
 resource "local_file" "global_variables" {
   sensitive_content = templatefile("${local.playbooks_template_dir}/global_variables.tmpl",
     {
-      admin_username = local.admin_username
-      ssh_public_key = tls_private_key.internal.public_key_openssh
-      cc_password    = azurerm_windows_virtual_machine.ad.admin_password
-      cc_storage     = azurerm_storage_account.deployhpc.name
-      region         = local.location
-      resource_group = local.resource_group
-      config_file     = local.configuration_file
-      homedir_mountpoint = local.homedir_mountpoint
+      admin_username      = local.admin_username
+      ssh_public_key      = tls_private_key.internal.public_key_openssh
+      cc_password         = azurerm_windows_virtual_machine.ad.admin_password
+      cc_storage          = azurerm_storage_account.deployhpc.name
+      region              = local.location
+      resource_group      = local.resource_group
+      config_file         = local.configuration_file
+      homedir_mountpoint  = local.homedir_mountpoint
+      ad-ip               = azurerm_network_interface.ad-nic.private_ip_address
+      ad_join_password    = random_password.password.result
+      anf-home-ip         = element(azurerm_netapp_volume.home.mount_ip_addresses, 0)
+      anf-home-path       = azurerm_netapp_volume.home.volume_path
+      ondemand-fqdn       = azurerm_public_ip.ondemand-pip.fqdn
     }
   )
   filename = "${local.playbook_root_dir}/group_vars/all.yml"

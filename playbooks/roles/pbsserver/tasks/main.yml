@@ -96,8 +96,8 @@
          },
          "config": {
            "web_server": "https://ccportal:9443",
-           "username": "{{ global_admin_username }}",
-           "password": "{{ global_cc_password }}"
+           "username": "{{ cc_admin }}",
+           "password": "{{ cc_password }}"
          }
        }
       }

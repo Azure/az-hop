@@ -1,6 +1,9 @@
 - hosts: ondemand
   #gather_facts: no
   become: true
+  vars_files:
+    - '{{global_config_file}}'
+
   tasks:
   - name: Set up PAM authentication
     shell: |
