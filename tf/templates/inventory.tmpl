@@ -24,12 +24,4 @@ all:
       ansible_user: ${jumpbox-user}
       ansible_password: "${ad-passwd}"
       ansible_psrp_proxy: socks5h://localhost:5985
-  vars:
-    ad_dns: ${ad-ip} 
-    ad_join_password: '${ ad_join_password }'
-    ad_join_user: ${ admin-username }
-    ad_join_domain: hpc.azure
-    anf_home_ip: ${ anf-home-ip }
-    anf_home_path: ${ anf-home-path }
-    ondemand_fqdn: ${ ondemand-fqdn }
-    ansible_ssh_private_key_file: ${jumpbox-user}_id_rsa
+#  vars: all moved into global_variables and in group_vars/all.yml

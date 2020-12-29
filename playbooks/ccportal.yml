@@ -1,20 +1,18 @@
 ---
 - hosts: ccportal
   gather_facts: no
+  vars_files:
+    - '{{global_config_file}}'
 
   tasks:
-  - name: Load global variables 
-    include_vars:
-      file: "{{global_config_file}}"
-
   - include_role: 
       name: cyclecloud
       apply: 
         become: true
     vars:
-      cc_region: '{{global_region}}'
-      cc_subnetid: '{{ global_resource_group }}/hpcvnet/compute'
-      cc_admin_user: '{{global_admin_username}}'
+      cc_region: '{{location}}'
+      cc_subnetid: '{{ resource_group }}/hpcvnet/compute'
+      cc_admin_user: '{{admin_user}}'
       cc_public_key: '{{global_ssh_public_key}}'
       cc_password: '{{global_cc_password}}'
       cc_storage: '{{global_cc_storage}}'

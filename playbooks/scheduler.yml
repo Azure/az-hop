@@ -1,12 +1,14 @@
 ---
 - hosts: scheduler
   gather_facts: no
+  vars_files:
+    - '{{global_config_file}}'
 
   tasks:
-    - include_role: 
-        name: pbsserver
-        apply: 
-          become: true
-      vars:
-        pbs_admin: '{{global_admin_username}}'
-        pbs_cc_headless: true
+  - include_role: 
+      name: pbsserver
+      apply: 
+        become: true
+    vars:
+      cc_admin: '{{admin_user}}'
+      cc_password: '{{global_cc_password}}'

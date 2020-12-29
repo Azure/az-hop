@@ -3,18 +3,19 @@
   hosts: localhost
   connection: local
   gather_facts: false
+  vars_files:
+    - '{{global_config_file}}'
+
   tasks:
   - name: start socks tunnel  
-    shell: ssh -i {{ lookup('env', 'PWD') }}/{{ansible_ssh_private_key_file}} -fN -D localhost:5985 -o StrictHostKeyChecking=no {{global_admin_username}}@{{ psrp_ssh_proxy }}
+    shell: ssh -i {{ lookup('env', 'PWD') }}/{{ansible_ssh_private_key_file}} -fN -D localhost:5985 -o StrictHostKeyChecking=no {{admin_user}}@{{ psrp_ssh_proxy }}
 
 - name: Add domain users
   hosts: ad
+  vars_files:
+    - '{{global_config_file}}'
 
   tasks:
-  - name: load configuration variables
-    include_vars:
-      file: "{{global_config_file}}"
-
   - name: add users
     community.windows.win_domain_user:
       name: "{{ item.name }}"
@@ -43,12 +44,10 @@
 - name: Configure Users
   hosts: jumpbox
   become: true
+  vars_files:
+    - '{{global_config_file}}'
 
   tasks:
-  - name: Load global variables 
-    include_vars:
-      file: "{{global_config_file}}"
-
   - name: init user context for {{item.name}}
     command: ssh-keygen -t rsa -f ~/.ssh/id_rsa -q -N ""
     become_user: '{{item.name}}'

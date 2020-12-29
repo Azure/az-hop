@@ -1,13 +1,15 @@
 - hosts: jumpbox, scheduler, ondemand, ccportal
   gather_facts: yes
   become: true
-  tasks:
+  vars_files:
+    - '{{global_config_file}}'
 
+  tasks:
   - name: Install Telegraf
     include_role:
       name: telegraf
     vars:
-      influxdb_username: "{{global_admin_username}}"
+      influxdb_username: "{{admin_user}}"
       influxdb_password: "{{global_cc_password}}"
       influxdb_database_name: "telegraf"
       telegraf_influxdb_urls: 
