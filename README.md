@@ -47,12 +47,12 @@ ssh -L 9443:ccportal:9443 -i hpcadmin_id_rsa hpcadmin@$jb_ip
 https://localhost:9443
 
 # Connect with hpcadmin/<password generated>
-grep "ad_join_password" playbooks/inventory 
+grep "ad_join_password" playbooks/group_vars/all.yml  
 
 
 #In the inventory file, locate the ondemand_fqdn variable, browse to this URI
 #Connect with your user account and the password located in the inventory file
-grep ondemand_fqdn playbooks/inventory 
+grep ondemand_fqdn playbooks/group_vars/all.yml  
 
 # To access the grafana dashboard, browse to https://<ondemand_fqdn>/rnode/jumpbox/3000/
 
