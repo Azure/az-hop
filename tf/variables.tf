@@ -1,11 +1,7 @@
-variable {
-  CreatedBy {
-    default = ""
-  }
+variable CreatedBy {
+  default = ""
 }
 
-variable {
-  CreatedOn {
-    default = ""
-  }
+variable CreatedOn {
+   default = ""
 }
