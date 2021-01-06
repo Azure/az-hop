@@ -31,6 +31,7 @@ resource "local_file" "global_variables" {
       anf-home-ip         = element(azurerm_netapp_volume.home.mount_ip_addresses, 0)
       anf-home-path       = azurerm_netapp_volume.home.volume_path
       ondemand-fqdn       = azurerm_public_ip.ondemand-pip.fqdn
+      subscription_id     = data.azurerm_subscription.primary.subscription_id
     }
   )
   filename = "${local.playbook_root_dir}/group_vars/all.yml"
@@ -57,7 +58,6 @@ resource "local_file" "packer" {
   )
   filename = "${local.packer_root_dir}/options.json"
 }
-
 
 output "ondemand_fqdn" {
   value = azurerm_public_ip.ondemand-pip.fqdn

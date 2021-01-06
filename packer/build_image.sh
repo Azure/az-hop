@@ -11,7 +11,7 @@ spn_file=spn.json
 
 if [ -z "$ARM_CLIENT_ID" ]; then
   # Need the SPN name to use
-  spn_appname=$(jq -r '.spn_appname' $spn_file )
+  spn_appname=$(jq -r '.spn_name' $spn_file )
   echo "spn_appname=$spn_appname"
   # Need keyvault name where the SPN secret is stored
   key_vault=$(jq -r '.key_vault' $spn_file )
