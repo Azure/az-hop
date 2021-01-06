@@ -37,3 +37,15 @@ resource "azurerm_windows_virtual_machine" "ad" {
     version   = "latest"
   }
 }
+
+resource "azurerm_key_vault_secret" "admin_password" {
+  name         = format("%s-password", local.admin_username)
+  value        = random_password.password.result
+  key_vault_id = azurerm_key_vault.deployhpc.id
+
+  lifecycle {
+    ignore_changes = [
+      value
+    ]
+  }
+}

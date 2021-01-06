@@ -8,6 +8,11 @@ ansible-galaxy collection install community.windows
 ansible-galaxy collection install ansible.posix
 ansible-galaxy collection install community.general
 
+# This is to fix an issue when using delegate_to
+if [ -f /usr/bin/python3 ] && [ ! -f /usr/bin/python ]; then 
+  sudo ln --symbolic /usr/bin/python3 /usr/bin/python; 
+fi
+
 ansible-playbook -i playbooks/inventory ./playbooks/ad.yml
 ansible-playbook -i playbooks/inventory ./playbooks/linux.yml
 ansible-playbook -i playbooks/inventory ./playbooks/add_users.yml

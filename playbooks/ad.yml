@@ -2,7 +2,7 @@
 - name: prep socks tunnel
   hosts: localhost
   connection: local
-  gather_facts: false
+  gather_facts: no
   vars_files:
     - '{{global_config_file}}'
 
@@ -12,6 +12,8 @@
 
 - name: Configure AD Server
   hosts: ad
+  vars_files:
+    - '{{global_config_file}}'
 
   tasks:
   - name: Install AD-Domain-Services
@@ -21,10 +23,15 @@
       include_sub_features: yes
       state: present
 
+  - name: Read Password from KV
+    command: az keyvault secret show --vault-name {{key_vault}} -n {{admin_user}}-password --query "value" -o tsv
+    delegate_to: 127.0.0.1
+    register: ad_join_password
+
   - name: Create AD-Domain
     ansible.windows.win_domain:
       dns_domain_name: hpc.azure
-      safe_mode_password: '{{ad_join_password}}'
+      safe_mode_password: '{{ad_join_password.stdout}}'
     register: ad_promotion
 
   - name: Reboot after promotion
@@ -41,7 +48,7 @@
 - name: close socks tunnel
   hosts: localhost
   connection: local
-  gather_facts: false
+  gather_facts: no
   tasks:
   - name: close session on local port
     shell: ps aux | grep 5985 | grep ssh | awk '{print "kill -9 " $0}'
