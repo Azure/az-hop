@@ -2,7 +2,7 @@
 - name: prep socks tunnel
   hosts: localhost
   connection: local
-  gather_facts: false
+  gather_facts: no
   vars_files:
     - '{{global_config_file}}'
 
@@ -16,11 +16,18 @@
     - '{{global_config_file}}'
 
   tasks:
+  - name: Read Password from KV
+    command: az keyvault secret show --vault-name {{key_vault}} -n {{admin_user}}-password --query "value" -o tsv
+    delegate_to: 127.0.0.1
+    register: password
+    become: false
+    run_once: true
+
   - name: add users
     community.windows.win_domain_user:
       name: "{{ item.name }}"
       firstname: "{{ item.name }}"
-      password: '{{ad_join_password}}' 
+      password: '{{password.stdout}}' 
       state: present
       groups:
         - Domain Users
@@ -36,7 +43,7 @@
 - name: close socks tunnel
   hosts: localhost
   connection: local
-  gather_facts: false
+  gather_facts: no
   tasks:
   - name: close session on local port
     shell: ps aux | grep 5985 | grep ssh | awk '{print "kill -9 " $0}'

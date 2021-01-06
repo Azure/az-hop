@@ -27,7 +27,7 @@ EOF
 # ADMIN_PASSWORD=$(jetpack config adjoin.ad_password)
 ADMIN_DOMAIN={{ ad_join_domain }}
 ADMIN_NAME={{ ad_join_user }}
-ADMIN_PASSWORD={{ ad_join_password }}
+ADMIN_PASSWORD={{ cc_password }}
 
 echo $ADMIN_PASSWORD| realm join -U $ADMIN_NAME $ADMIN_DOMAIN  
 

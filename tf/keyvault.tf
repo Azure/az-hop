@@ -48,9 +48,3 @@ resource "azurerm_key_vault" "deployhpc" {
     bypass         = "AzureServices"
   }
 }
-
-resource "azurerm_key_vault_secret" "windows-password" {
-  name         = "windows-password"
-  value        = random_password.password.result 
-  key_vault_id = azurerm_key_vault.deployhpc.id
-}

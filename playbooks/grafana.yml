@@ -1,16 +1,21 @@
 - hosts: jumpbox
-  gather_facts: yes
   become: true
   vars_files:
     - '{{global_config_file}}'
 
   tasks:
+  - name: Read Password from KV
+    command: az keyvault secret show --vault-name {{key_vault}} -n {{admin_user}}-password --query "value" -o tsv
+    delegate_to: 127.0.0.1
+    register: password
+    become: false
+
   - name: Install InfluxDB
     include_role:
       name: influxdb
     vars:
       influxdb_username: "{{admin_user}}"
-      influxdb_password: "{{global_cc_password}}"
+      influxdb_password: "{{password.stdout}}"
       influxdb_database_name: "telegraf"
 
   - name: Install Grafana
@@ -19,7 +24,7 @@
     vars:
       grafana_fqdn: localhost
       grafana_admin_user: "{{admin_user}}"
-      grafana_admin_password: "{{global_cc_password}}"
+      grafana_admin_password: "{{password.stdout}}"
       grafana_ldap_server: "{{ad_dns}}"
       grafana_server_root_url: "%(protocol)s://%(domain)s:%(http_port)s/rnode/jumpbox/%(http_port)s/"
       grafana_auth_ldap_enabled: true
@@ -30,7 +35,7 @@
           access: "proxy"
           database: "telegraf"
           user: "{{admin_user}}"
-          password: "{{global_cc_password}}"
+          password: "{{password.stdout}}"
           url: http://localhost:8086
           jsonData:
             httpMode: GET

@@ -47,7 +47,8 @@ ssh -L 9443:ccportal:9443 -i hpcadmin_id_rsa hpcadmin@$jb_ip
 https://localhost:9443
 
 # Connect with hpcadmin/<password generated>
-grep "ad_join_password" playbooks/group_vars/all.yml  
+# Read the secret generated and stored into the key vault by running the helper command
+./bin/get_secret
 
 
 #In the inventory file, locate the ondemand_fqdn variable, browse to this URI

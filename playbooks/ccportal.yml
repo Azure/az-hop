@@ -1,10 +1,17 @@
 ---
 - hosts: ccportal
-  gather_facts: no
+  vars:
+    - ansible_python_interpreter: /usr/bin/python3
   vars_files:
     - '{{global_config_file}}'
 
   tasks:
+  - name: Read Password from KV
+    command: az keyvault secret show --vault-name {{key_vault}} -n {{admin_user}}-password --query "value" -o tsv
+    delegate_to: 127.0.0.1
+    register: password
+    become: false
+
   - include_role: 
       name: cyclecloud
       apply: 
@@ -14,7 +21,7 @@
       cc_subnetid: '{{ resource_group }}/hpcvnet/compute'
       cc_admin_user: '{{admin_user}}'
       cc_public_key: '{{global_ssh_public_key}}'
-      cc_password: '{{global_cc_password}}'
+      cc_password: '{{password.stdout}}'
       cc_storage: '{{global_cc_storage}}'
       cc_queues: '{{queues}}'
       influxdb_database_name: "telegraf"
