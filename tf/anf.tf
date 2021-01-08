@@ -25,7 +25,7 @@ resource "azurerm_netapp_volume" "home" {
   service_level       = "Standard"
   subnet_id           = azurerm_subnet.netapp.id
   protocols           = ["NFSv3"]
-  storage_quota_in_gb = 100
+  storage_quota_in_gb = local.homefs_size_tb * 1024
 
   export_policy_rule {
     rule_index        = 1 
