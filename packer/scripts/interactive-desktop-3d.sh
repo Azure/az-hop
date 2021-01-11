@@ -19,6 +19,8 @@ sudo cp /etc/nvidia/gridd.conf.template /etc/nvidia/gridd.conf
 
 BUSID=`nvidia-xconfig --query-gpu-info | awk '/PCI BusID/{print \$4}'`
 nvidia-xconfig -a --allow-empty-initial-configuration -c /etc/X11/xorg.conf --busid=$BUSID --virtual=1920x1200 -s
+# fix for this issue: https://www.gitmemory.com/issue/VirtualGL/virtualgl/120/614331680
+sed -i '/BusID/a\    Option         "HardDPMS" "false"' /etc/X11/xorg.conf
 
 cat <<EOF >>/etc/nvidia/gridd.conf
 IgnoreSP=FALSE
