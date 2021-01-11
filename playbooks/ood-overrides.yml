@@ -25,9 +25,21 @@ ood_apps:
   bc_desktop:
     title: "remote desktop"
     cluster: ondemand
+    form:
+      - desktop
+      - hours
     attributes:
       desktop: xfce
-      bc_num_slots: 6
+      hours:
+        value: 1
+    submit: |
+      ---
+      script:
+        native:
+          - "-l"
+          - "slot_type=viz3d"
+          - "-l"
+          - "ncpus=6"
 httpd_auth:
 - AuthType Basic
 - AuthName "Open OnDemand"
