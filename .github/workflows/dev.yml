@@ -23,8 +23,8 @@ env:
   TF_CLI_ARGS: '-no-color'
   TF_CLI_ARGS_destroy: '-auto-approve -refresh=false'
   TF_CLI_ARGS_apply: '-auto-approve'
-  TF_TEMPLATE_CONFIGURATION: '.github/workflows/deployhpc.yml.tpl'
-  TF_CONFIGURATION: 'deployhpc.yml'
+  TF_TEMPLATE_CONFIGURATION: '.github/workflows/config.yml.tpl'
+  TF_CONFIGURATION: 'config.yml'
   ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
   ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
   ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
@@ -61,7 +61,7 @@ jobs:
           echo "VERSION_TAG=${VERSION_TAG}" >> $GITHUB_ENV
 
           UUID="$(cat /proc/sys/kernel/random/uuid | tr -d '\n-' | tr '[:upper:]' '[:lower:]' | cut -c 1-6)"
-          RESOURCE_GROUP="deployhpc_$UUID"
+          RESOURCE_GROUP="azhop_$UUID"
           #echo "RESOURCE_GROUP=$RESOURCE_GROUP" >> $GITHUB_ENV
           echo "::set-output name=RESOURCE_GROUP::$RESOURCE_GROUP"
           
@@ -78,7 +78,7 @@ jobs:
         with:
           name: artifact
           path: |
-            deployhpc.yml
+            azhop.yml
             playbooks/inventory
             playbooks/group_vars/*
             packer/options.json

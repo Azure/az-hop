@@ -2,7 +2,7 @@
 LOCATION=${1:-westeurope}
 RESOURCE_GROUP_NAME=tfstate-$LOCATION
 CONTAINER_NAME=tfstate
-TFSTATE_FILE=deploy$RANDOM
+TFSTATE_FILE=azhop$RANDOM
 
 # Create resource group
 az group create --name $RESOURCE_GROUP_NAME --location $LOCATION -o table

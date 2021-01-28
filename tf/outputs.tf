@@ -20,7 +20,7 @@ resource "local_file" "global_variables" {
     {
       admin_username      = local.admin_username
       ssh_public_key      = tls_private_key.internal.public_key_openssh
-      cc_storage          = azurerm_storage_account.deployhpc.name
+      cc_storage          = azurerm_storage_account.azhop.name
       region              = local.location
       resource_group      = local.resource_group
       config_file         = local.configuration_file
@@ -30,7 +30,7 @@ resource "local_file" "global_variables" {
       anf-home-path       = azurerm_netapp_volume.home.volume_path
       ondemand-fqdn       = azurerm_public_ip.ondemand-pip.fqdn
       subscription_id     = data.azurerm_subscription.primary.subscription_id
-      key_vault           = azurerm_key_vault.deployhpc.name
+      key_vault           = azurerm_key_vault.azhop.name
     }
   )
   filename = "${local.playbook_root_dir}/group_vars/all.yml"
@@ -51,7 +51,7 @@ resource "local_file" "connect_script" {
 resource "local_file" "get_secret_script" {
   sensitive_content = templatefile("${local.playbooks_template_dir}/get_secret.tmpl",
     {
-      key_vault          = azurerm_key_vault.deployhpc.name
+      key_vault          = azurerm_key_vault.azhop.name
       admin_user         = local.admin_username
     }
   )

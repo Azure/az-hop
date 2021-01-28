@@ -1,11 +1,11 @@
-resource "azurerm_netapp_account" "deployhpc" {
+resource "azurerm_netapp_account" "azhop" {
   name                = "hpcanf-${random_string.resource_postfix.result}"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
 }
 resource "azurerm_netapp_pool" "anfpool" {
   name                = "anfpool-${random_string.resource_postfix.result}"
-  account_name        = azurerm_netapp_account.deployhpc.name
+  account_name        = azurerm_netapp_account.azhop.name
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   service_level       = "Standard"
@@ -19,7 +19,7 @@ resource "azurerm_netapp_volume" "home" {
   name                = "anfhome"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  account_name        = azurerm_netapp_account.deployhpc.name
+  account_name        = azurerm_netapp_account.azhop.name
   pool_name           = azurerm_netapp_pool.anfpool.name
   volume_path         = "home-${random_string.resource_postfix.result}"
   service_level       = "Standard"
