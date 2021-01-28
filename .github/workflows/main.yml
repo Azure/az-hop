@@ -78,7 +78,7 @@ jobs:
         with:
           name: artifact
           path: |
-            azhop.yml
+            config.yml
             playbooks/inventory
             playbooks/group_vars/*
             packer/options.json
