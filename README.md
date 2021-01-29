@@ -108,7 +108,7 @@ grep ondemand_fqdn playbooks/group_vars/all.yml
 # Submit a simple test job 
 
 
-qsub -l select=1:slot_type=hb60rs -- bash -c "sleep 60"
+qsub -l select=1:slot_type=hb60rs -- /usr/bin/bash -c 'sleep 60'
 qstat
 
 # Delete all
