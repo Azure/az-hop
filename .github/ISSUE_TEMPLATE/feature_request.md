@@ -15,6 +15,7 @@ assignees: ''
 > /area autoscaling
 > /area configuration
 > /area cyclecloud
+> /area documentation
 > /area image
 > /area job-scheduling
 > /area monitoring
