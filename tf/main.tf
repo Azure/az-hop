@@ -63,8 +63,8 @@ resource "local_file" "public_key" {
 # Storage account used for
 #   - CycleCloud projects
 #   - Terraform states
-resource "azurerm_storage_account" "deployhpc" {
-  name                      = "deployhpc${random_string.resource_postfix.result}"
+resource "azurerm_storage_account" "azhop" {
+  name                      = "azhop${random_string.resource_postfix.result}"
   resource_group_name       = azurerm_resource_group.rg.name
   location                  = azurerm_resource_group.rg.location
   account_tier             = "Standard"

@@ -1,6 +1,6 @@
 ---
 location: westeurope
-resource_group: deployhpc
+resource_group: azhop
 homefs_size_tb: 4
 homedir_mountpoint: /anfhome
 admin_user: hpcadmin
