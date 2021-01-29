@@ -1,6 +1,6 @@
-# Azure HPC On demand Platform, your deployment to be HPC-Ready! 
+# Azure HPC On-Demand Platform, your deployment to be HPC-Ready! 
 
-Azure HPC On demand Platform, provides the end-2-end deployment mechanism for a base HPC infrastructure on Azure. Industry standard tools like Terraform, Ansible and Packer are used to provision and configure this environment containing :
+Azure HPC On-Demand Platform, provides the end-2-end deployment mechanism for a base HPC infrastructure on Azure. Industry standard tools like Terraform, Ansible and Packer are used to provision and configure this environment containing :
 - An OpenOn Demand Portal for all user access, remote shell access, remote visualization access, job submission, file access and more,
 - An Active Directory for user authentication and domain control,
 - A PBS Job Scheduler,
