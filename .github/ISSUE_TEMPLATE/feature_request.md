@@ -12,6 +12,7 @@ assignees: ''
 
 > /area administration
 > /area autoscaling
+> /area configuration
 > /area image
 > /area job-scheduling
 > /area monitoring
