@@ -2,6 +2,11 @@
 .terraform*
 *.tfstate*
 
+# Config files and generated options files
+config.yml
+packer/options.json
+packer/spn.json
+
 # Ansible auto-generated inventory
 playbooks/inventory
 playbooks/group_vars/*
