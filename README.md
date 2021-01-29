@@ -13,6 +13,19 @@ Azure HPC On-Demand Platform, provides the end-2-end deployment mechanism for a 
 # Toolchain setup
 The toolchain can be setup either from a docker container or locally. See below for instructions regarding the installation.
 
+## Clone the repo
+- Option 1
+```
+git clone --recursive https://github.com/Azure/az-hop.git
+```
+ 
+- Option 2
+```
+git clone https://github.com/Azure/az-hop.git 
+git submodule init
+git submodule update
+```
+
 ## HPC Rover - Setup the toolchain from a container
 
 The `HPC Rover` is a docker container acting as a sandbox toolchain development environemnt to avoid impacting the local machine configuration. It is the same container if you are using Windows, Linux or macOS, you only need Visual Studio Code.
