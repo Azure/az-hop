@@ -45,6 +45,13 @@ echo "Installing AzCLI ..."
 curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 
 #
+# Install AzCopy
+#
+echo "Installing AzCopy ..."
+cd /usr/local/bin
+wget -q https://aka.ms/downloadazcopy-v10-linux -O - | tar zxf - --strip-components 1 --wildcards '*/azcopy'
+chmod 755 /usr/local/bin/azcopy 
+#
 # Install Ansible
 #
 echo "Installing Ansible ..."
@@ -90,3 +97,7 @@ echo "=========="
 echo "AZ version"
 echo "=========="
 az --version
+echo "=========="
+echo "AZ Copy version"
+echo "=========="
+azcopy --version
