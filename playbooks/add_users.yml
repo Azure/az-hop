@@ -18,7 +18,8 @@
   tasks:
   - name: Read Password from KV
     command: az keyvault secret show --vault-name {{key_vault}} -n {{admin_user}}-password --query "value" -o tsv
-    delegate_to: 127.0.0.1
+    delegate_to: localhost
+    connection: local
     register: password
     become: false
     run_once: true
