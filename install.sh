@@ -1,8 +1,16 @@
 #!/bin/bash
 set -e
 
-pip3 install pypsrp
-pip3 install pysocks
+if [[ `pip3 list pypsrp` == *"pypsrp"* ]]; then 
+  echo pypsrp is already installed 
+else
+  pip3 install pypsrp
+fi
+if [[ `pip3 list PySocks` == *"PySocks"* ]]; then 
+  echo PySocks is already installed 
+else
+  pip3 install PySocks
+fi
 ansible-galaxy collection install ansible.windows
 ansible-galaxy collection install community.windows
 ansible-galaxy collection install ansible.posix
