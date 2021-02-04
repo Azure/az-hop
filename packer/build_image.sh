@@ -55,7 +55,7 @@ echo "tenantId=$tenantId"
 image_name=$(basename "$packer_file")
 image_name="${image_name%.*}"
 
-packer build -var-file $options_file \
+packer build -force -var-file $options_file \
   -var "var_tenant_id=$tenantId" \
   -var "var_client_id=$appId" \
   -var "var_client_secret=$secret" \
