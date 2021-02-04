@@ -45,6 +45,13 @@ echo "Installing AzCLI ..."
 curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 
 #
+# Install AzCopy
+#
+echo "Installing AzCopy ..."
+cd /usr/local/bin
+wget -q https://aka.ms/downloadazcopy-v10-linux -O - | tar zxf - --strip-components 1 --wildcards '*/azcopy'
+chmod 755 /usr/local/bin/azcopy 
+#
 # Install Ansible
 #
 echo "Installing Ansible ..."
@@ -66,6 +73,14 @@ apt install -y terraform
 #
 echo "Installing packer...."
 apt-get install packer
+
+#
+# Install yq
+#
+echo "Installing yq...."
+VERSION=v4.2.0
+BINARY=yq_linux_amd64
+wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY} -O /usr/bin/yq && chmod +x /usr/bin/yq
 
 # Clean-up
 rm -f /tmp/*.zip && rm -f /tmp/*.gz && \
@@ -90,3 +105,11 @@ echo "=========="
 echo "AZ version"
 echo "=========="
 az --version
+echo "=========="
+echo "AZ Copy version"
+echo "=========="
+azcopy --version
+echo "=========="
+echo "yq version"
+echo "=========="
+yq --version
