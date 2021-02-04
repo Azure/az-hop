@@ -3,7 +3,7 @@
 # Licensed under the MIT License.
 #
 
-name : shared-env
+name : integration
 
 on:
   workflow_dispatch: 
@@ -13,11 +13,13 @@ env:
   TF_CLI_ARGS: '-no-color'
   TF_CLI_ARGS_destroy: '-auto-approve -refresh=false'
   TF_CLI_ARGS_apply: '-auto-approve'
-  AZHOP_CONFIGURATION: '.github/workflows/configs/shared.yml'
+  AZHOP_CONFIGURATION: '.github/workflows/configs/integration.yml'
   ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
   ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
   ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
   ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+  AZHOP_STATE_CONTAINER: environments
+  AZHOP_STATE_ACCOUNT: ${{ secrets.STATE_ACCOUNT }}
 
 jobs:
   deploy:
@@ -25,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: xpillons/hpcrover:2012.0309
+      image: xpillons/hpcrover:latest
       options: --user 0
 
     outputs:
@@ -49,20 +51,8 @@ jobs:
           cp $AZHOP_CONFIGURATION config.yml
 
           ./build.sh -a apply -f ./tf
+          ./azhop_state.sh upload ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
 
-      - uses: actions/upload-artifact@v2
-        if: always()
-        with:
-          name: artifact
-          path: |
-            config.yml
-            playbooks/inventory
-            playbooks/group_vars/*
-            packer/options.json
-            *_id_rsa
-            *_id_rsa.pub
-            tf/terraform.tfstate
-          retention-days: 7
 
   configure:
     name: configure
@@ -70,7 +60,7 @@ jobs:
     needs: deploy
 
     container:
-      image: xpillons/hpcrover:2012.0309
+      image: xpillons/hpcrover:latest
       options: --user 0
 
     steps:
@@ -78,10 +68,6 @@ jobs:
         with:
           submodules: true
          
-      - uses: actions/download-artifact@v2
-        with: 
-          name: artifact
-
       - name: Login azure
         run: |
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
@@ -89,10 +75,7 @@ jobs:
 
       - name: Install applications
         run: |
-          # Fix SSH Keys permission as they are not preserved by the artifacts
-          chmod 600 hpcadmin_id_rsa
-          chmod 644 hpcadmin_id_rsa.pub
-          ls -al
+          ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
           ./install.sh
 
   build_image:
@@ -103,7 +86,7 @@ jobs:
       matrix:
         packer_file: ["centos-7.7-desktop-3d.json"]
     container:
-      image: xpillons/hpcrover:2012.0309
+      image: xpillons/hpcrover:latest
       options: --user 0
 
     steps:
@@ -111,10 +94,6 @@ jobs:
         with:
           submodules: true
          
-      - uses: actions/download-artifact@v2
-        with: 
-          name: artifact
-
       - name: Login azure
         run: |
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
@@ -122,5 +101,6 @@ jobs:
 
       - name: Build Images
         run: |
+          ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
           cd packer
           ./build_image.sh ${{matrix.packer_file}}
