@@ -49,6 +49,7 @@ jobs:
         run: |
           set -e
           cp $AZHOP_CONFIGURATION config.yml
+          ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
 
           ./build.sh -a apply -f ./tf
           ./azhop_state.sh upload ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
@@ -75,6 +76,7 @@ jobs:
 
       - name: Install applications
         run: |
+          cp $AZHOP_CONFIGURATION config.yml
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
           ./install.sh
 
@@ -101,6 +103,7 @@ jobs:
 
       - name: Build Images
         run: |
+          cp $AZHOP_CONFIGURATION config.yml
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
           cd packer
           ./build_image.sh ${{matrix.packer_file}}
