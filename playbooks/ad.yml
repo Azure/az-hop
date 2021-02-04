@@ -17,7 +17,7 @@
 
   tasks:
   - name: Run command to mitigate AD vulnerability 
-    ansible.windows.win_command: netsh int ipv4 set global sourceroutingbehavior=drop 
+    win_command: netsh int ipv4 set global sourceroutingbehavior=drop 
 
   - name: Install AD-Domain-Services
     win_feature:
