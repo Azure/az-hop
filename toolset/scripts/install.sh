@@ -74,6 +74,14 @@ apt install -y terraform
 echo "Installing packer...."
 apt-get install packer
 
+#
+# Install yq
+#
+echo "Installing yq...."
+VERSION=v4.2.0
+BINARY=yq_linux_amd64
+wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY} -O /usr/bin/yq && chmod +x /usr/bin/yq
+
 # Clean-up
 rm -f /tmp/*.zip && rm -f /tmp/*.gz && \
 
@@ -101,3 +109,7 @@ echo "=========="
 echo "AZ Copy version"
 echo "=========="
 azcopy --version
+echo "=========="
+echo "yq version"
+echo "=========="
+yq --version

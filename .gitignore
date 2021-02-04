@@ -24,3 +24,6 @@ bin/*
 
 # working dir
 working
+
+# states
+.state
