@@ -41,16 +41,18 @@ case $COMMAND in
     sas=$(az storage container generate-sas --account-name $SA_ACCOUNT --name $SA_CONTAINER --permissions rl --start $start --expiry $expiry --output tsv)
     azcopy copy "https://$SA_ACCOUNT.blob.core.windows.net/$SA_CONTAINER/$RESOURCE_GROUP/*?$sas" "$STATE_DIR" --recursive --overwrite=ifSourceNewer
 
-    # Use a local state directory as azcopy swallow the prefix file name if this one is the same that the directory name !!! 
-    # This will also help uploading the whole directory content as well
-    cp -r -u $STATE_DIR/* .
-    # Fix SSH Keys permission as they are not preserved
-    ADMIN_USER=$(yq eval '.admin_user' $AZHOP_CONFIG)
-    chmod 600 ${ADMIN_USER}_id_rsa
-    chmod 644 ${ADMIN_USER}_id_rsa.pub
-    # Add chmod+x on scripts
-    if [ -d /bin ]; then
-      chmod +x /bin/*.sh
+    if [ -d $STATE_DIR ]; then
+      # Use a local state directory as azcopy swallow the prefix file name if this one is the same that the directory name !!! 
+      # This will also help uploading the whole directory content as well
+      cp -r -u $STATE_DIR/* .
+      # Fix SSH Keys permission as they are not preserved
+      ADMIN_USER=$(yq eval '.admin_user' $AZHOP_CONFIG)
+      chmod 600 ${ADMIN_USER}_id_rsa
+      chmod 644 ${ADMIN_USER}_id_rsa.pub
+      # Add chmod+x on scripts
+      if [ -d /bin ]; then
+        chmod +x /bin/*.sh
+      fi
     fi
   ;;
 
