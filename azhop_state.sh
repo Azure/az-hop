@@ -48,6 +48,8 @@ case $COMMAND in
     ADMIN_USER=$(yq eval '.admin_user' $AZHOP_CONFIG)
     chmod 600 ${ADMIN_USER}_id_rsa
     chmod 644 ${ADMIN_USER}_id_rsa.pub
+    # Add chmod+x on scripts
+    chmod +x /bin/*.sh
   ;;
 
   upload)
@@ -64,6 +66,8 @@ case $COMMAND in
     cp playbooks/inventory $STATE_DIR/playbooks
     mkdir -p $STATE_DIR/tf
     cp tf/terraform.tfstate $STATE_DIR/tf
+    mkdir -p $STATE_DIR/bin
+    cp bin/* $STATE_DIR/bin
 
     sas=$(az storage container generate-sas --account-name $SA_ACCOUNT --name $SA_CONTAINER --permissions rwdl --start $start --expiry $expiry --output tsv)
     azcopy copy "$STATE_DIR/*" "https://$SA_ACCOUNT.blob.core.windows.net/$SA_CONTAINER/$RESOURCE_GROUP?$sas"  --recursive --overwrite=ifSourceNewer
