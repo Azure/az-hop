@@ -82,6 +82,9 @@ az login
 # Build the whole infrastructure
 ./build.sh -f ./tf -a apply
 
+# Create user password
+./create_passwords.sh
+
 # install
 ./install.sh
 
