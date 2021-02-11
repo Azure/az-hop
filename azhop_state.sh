@@ -49,7 +49,9 @@ case $COMMAND in
     chmod 600 ${ADMIN_USER}_id_rsa
     chmod 644 ${ADMIN_USER}_id_rsa.pub
     # Add chmod+x on scripts
-    chmod +x /bin/*.sh
+    if [ -d /bin ]; then
+      chmod +x /bin/*.sh
+    fi
   ;;
 
   upload)
