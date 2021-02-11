@@ -83,3 +83,7 @@ terraform -chdir=$TF_FOLDER $TF_COMMAND -parallelism=30 \
   -var "CreatedBy=$azure_user" \
   -var "CreatedOn=$created_on" \
   $PARAMS
+
+# Generate the user passwords
+./create_passwords.sh
+

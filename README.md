@@ -95,7 +95,7 @@ https://localhost:9443
 
 # Connect with hpcadmin/<password generated>
 # Read the secret generated and stored into the key vault by running the helper command
-./bin/get_secret
+./bin/get_secret hpcadmin
 
 
 #In the inventory file, locate the ondemand_fqdn variable, browse to this URI
