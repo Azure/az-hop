@@ -85,5 +85,6 @@ terraform -chdir=$TF_FOLDER $TF_COMMAND -parallelism=30 \
   $PARAMS
 
 # Generate the user passwords
-./create_passwords.sh
-
+if [ "$TF_COMMAND" == "apply" ]; then
+  ./create_passwords.sh
+fi
