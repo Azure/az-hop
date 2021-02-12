@@ -82,7 +82,7 @@ az login
 # Build the whole infrastructure
 ./build.sh -f ./tf -a apply
 
-# Create user password
+# Create users passwords for all users defined in the config.yml file
 ./create_passwords.sh
 
 # install
