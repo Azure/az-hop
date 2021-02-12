@@ -96,14 +96,15 @@ ssh -L 9443:ccportal:9443 -i hpcadmin_id_rsa hpcadmin@$jb_ip
 # Browse to the cycle UI
 https://localhost:9443
 
-# Connect with hpcadmin/<password generated>
+# Connect to Cycle with the **hpcadmin** user 
 # Read the secret generated and stored into the key vault by running the helper command
 ./bin/get_secret hpcadmin
 
 
 #In the inventory file, locate the ondemand_fqdn variable, browse to this URI
-#Connect with your user account and the password located in the inventory file
-grep ondemand_fqdn playbooks/group_vars/all.yml  
+#Connect with your one of the user account defined in the config.yml file
+grep ondemand_fqdn playbooks/group_vars/all.yml
+./bin/get_secret <user>
 
 # To access the grafana dashboard, browse to https://<ondemand_fqdn>/rnode/jumpbox/3000/
 
