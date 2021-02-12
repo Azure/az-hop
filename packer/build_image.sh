@@ -55,9 +55,17 @@ echo "tenantId=$tenantId"
 image_name=$(basename "$packer_file")
 image_name="${image_name%.*}"
 
-packer build -force -var-file $options_file \
-  -var "var_tenant_id=$tenantId" \
-  -var "var_client_id=$appId" \
-  -var "var_client_secret=$secret" \
-  -var "var_image=$image_name" \
-  $packer_file
+# check if image already exists
+resource_group=$(jq -r '.var_resource_group' $options_file)
+image_id=$(az image list -g $resource_group --query "[?name=='$image_name'].id" -o tsv)
+if [ "$image_id" == "" ]; then
+  echo "image $image_name not found in $resource_group, building it"
+  packer build -var-file $options_file \
+    -var "var_tenant_id=$tenantId" \
+    -var "var_client_id=$appId" \
+    -var "var_client_secret=$secret" \
+    -var "var_image=$image_name" \
+    $packer_file
+else
+  echo "Image $image_id exists, skipping building the image"
+fi
