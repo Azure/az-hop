@@ -40,7 +40,9 @@ Autoscale = true
     AdditionalClusterInitSpecs = $ExecuteClusterInitSpecs
         [[[configuration]]]
         pbspro.slot_type = {{ queue.name }}
+{%    if queue.EnableAcceleratedNetworking is defined %}        
         EnableAcceleratedNetworking = {{ queue.EnableAcceleratedNetworking }}
+{%    endif %}
 {% endfor %}
 
 [parameters Advanced Settings]
