@@ -51,7 +51,7 @@ case $COMMAND in
       chmod 644 ${ADMIN_USER}_id_rsa.pub
       # Add chmod+x on scripts
       if [ -d /bin ]; then
-        chmod +x /bin/*.sh
+        chmod +x /bin/*
       fi
     fi
   ;;
