@@ -66,6 +66,11 @@
     src: '{{role_path}}/files/5-install-telegraf.sh'
     dest: /root/pbs/specs/default/cluster-init/scripts/5-install-telegraf.sh
 
+- name: Add default script 
+  copy:
+    src: '{{role_path}}/files/6-default.sh'
+    dest: /root/pbs/specs/default/cluster-init/scripts/6-default.sh
+
 - name: Create CycleCloud project
   command: '/usr/local/bin/cyclecloud project upload'
   args:
