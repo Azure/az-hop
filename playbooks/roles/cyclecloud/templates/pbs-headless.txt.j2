@@ -29,6 +29,7 @@ Autoscale = true
         cyclecloud.exports.shared.samba.enabled = false
         cyclecloud.exports.defaults.samba.enabled = false      
         cshared.server.legacy_links_disabled = true
+        EnableAcceleratedNetworking = false
 
 {% for queue in cc_queues %}
     [[nodearray {{ queue.name }}]]
@@ -39,6 +40,7 @@ Autoscale = true
     AdditionalClusterInitSpecs = $ExecuteClusterInitSpecs
         [[[configuration]]]
         pbspro.slot_type = {{ queue.name }}
+        EnableAcceleratedNetworking = {{ queue.EnableAcceleratedNetworking }}
 {% endfor %}
 
 [parameters Advanced Settings]

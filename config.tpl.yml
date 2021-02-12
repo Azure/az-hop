@@ -25,6 +25,7 @@ queues:
     vm_size: Standard_F2s_v2
     max_core_count: 1024
     image: OpenLogic:CentOS-HPC:7.7:latest
+    #EnableAcceleratedNetworking: true or false # false is the default value
   - name: hc44rs
     vm_size: Standard_HC44rs
     max_core_count: 1024
