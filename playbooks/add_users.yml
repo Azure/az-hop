@@ -16,30 +16,33 @@
     - '{{global_config_file}}'
 
   tasks:
-  - name: Read Password from KV
-    command: az keyvault secret show --vault-name {{key_vault}} -n {{admin_user}}-password --query "value" -o tsv
-    delegate_to: localhost
-    connection: local
-    register: password
-    become: false
-    run_once: true
-
-  - name: add users
-    community.windows.win_domain_user:
-      name: "{{ item.name }}"
-      firstname: "{{ item.name }}"
-      password: '{{password.stdout}}' 
-      state: present
-      groups:
-        - Domain Users
-        - Domain Admins
-      attributes:
-        uidNumber: "{{ item.uid }}"
-        uid: "{{ item.name }}"
-        loginShell: "{{ item.shell }}"
-        unixhomedirectory: "{{ item.home }}"
-        gidnumber: "{{item.gid}}"
+  - include: create_user.yml user="{{item}}"
     with_items: "{{users}}"
+
+  # - name: Read Password from KV
+  #   command: az keyvault secret show --vault-name {{key_vault}} -n {{admin_user}}-password --query "value" -o tsv
+  #   delegate_to: localhost
+  #   connection: local
+  #   register: password
+  #   become: false
+  #   run_once: true
+
+  # - name: add users
+  #   community.windows.win_domain_user:
+  #     name: "{{ item.name }}"
+  #     firstname: "{{ item.name }}"
+  #     password: '{{password.stdout}}' 
+  #     state: present
+  #     groups:
+  #       - Domain Users
+  #       - Domain Admins
+  #     attributes:
+  #       uidNumber: "{{ item.uid }}"
+  #       uid: "{{ item.name }}"
+  #       loginShell: "{{ item.shell }}"
+  #       unixhomedirectory: "{{ item.home }}"
+  #       gidnumber: "{{item.gid}}"
+  #   with_items: "{{users}}"
 
 - name: close socks tunnel
   hosts: localhost

@@ -52,7 +52,6 @@ resource "local_file" "get_secret_script" {
   sensitive_content = templatefile("${local.playbooks_template_dir}/get_secret.tmpl",
     {
       key_vault          = azurerm_key_vault.azhop.name
-      admin_user         = local.admin_username
     }
   )
   filename = "${path.root}/../bin/get_secret"

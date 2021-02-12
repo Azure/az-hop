@@ -72,6 +72,7 @@ jobs:
           cat $TF_CONFIGURATION
 
           ./build.sh -a apply -f ./tf
+          ./create_passwords.sh
 
       - uses: actions/upload-artifact@v2
         if: always()

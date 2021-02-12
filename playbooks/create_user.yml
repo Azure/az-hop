@@ -1,0 +1,22 @@
+- name: Read Password from KV
+  command: az keyvault secret show --vault-name {{key_vault}} -n {{user.name}}-password --query "value" -o tsv
+  delegate_to: localhost
+  connection: local
+  register: password
+  become: false
+
+- name: add user
+  community.windows.win_domain_user:
+    name: "{{ user.name }}"
+    firstname: "{{ user.name }}"
+    password: '{{password.stdout}}' 
+    state: present
+    groups:
+      - Domain Users
+      - Domain Admins
+    attributes:
+      uidNumber: "{{ user.uid }}"
+      uid: "{{ user.name }}"
+      loginShell: "{{ user.shell }}"
+      unixhomedirectory: "{{ user.home }}"
+      gidnumber: "{{user.gid}}"
