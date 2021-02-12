@@ -59,6 +59,7 @@ image_name="${image_name%.*}"
 resource_group=$(jq -r '.var_resource_group' $options_file)
 image_id=$(az image list -g $resource_group --query "[?name=='$image_name'].id" -o tsv)
 if [ "$image_id" == "" ]; then
+  echo "image $image_name not found in $resource_group, building it"
   packer build -var-file $options_file \
     -var "var_tenant_id=$tenantId" \
     -var "var_client_id=$appId" \
