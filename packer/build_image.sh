@@ -58,7 +58,7 @@ image_name="${image_name%.*}"
 # check if image already exists
 resource_group=$(jq -r '.var_resource_group' $options_file)
 image_id=$(az image list -g $resource_group --query "[?name=='$image_name'].id" -o tsv)
-if [ "$image_id" != "" ]; then
+if [ "$image_id" == "" ]; then
   packer build -force -var-file $options_file \
     -var "var_tenant_id=$tenantId" \
     -var "var_client_id=$appId" \
