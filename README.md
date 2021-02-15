@@ -69,6 +69,11 @@ ansible-galaxy collection install community.general
 sudo apt-get install python3-pip
 pip3 install pypsrp
 pip3 install pysocks
+
+# install yq
+VERSION=v4.2.0
+BINARY=yq_linux_amd64
+wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY} -O /usr/bin/yq && chmod +x /usr/bin/yq
 ```
 
 ## Deploying
