@@ -78,7 +78,7 @@ wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY} -O /
 
 ## Deploying
 
-```
+```bash
 # Login to Azure
 az login
 
@@ -92,37 +92,52 @@ az login
 
 # install
 ./install.sh
+```
 
-# create a tunnel (outside of the container)
-# The public IP of the jumbox canbe retrieved from the inventory file created
-jb_ip=$(grep "hpcadmin@" playbooks/inventory | tail -n1 | cut -d'@' -f2 | cut -d'"' -f1)
-ssh -L 9443:ccportal:9443 -i hpcadmin_id_rsa hpcadmin@$jb_ip
+### Accessing the CycleCloud portal
+You need to create an ssh tunnel. From the outside of the container if you run the toolchain from inside a container.
 
-# Browse to the cycle UI
-https://localhost:9443
+```bash
+./bin/connect cyclecloud
+```
 
-# Connect to Cycle with the **hpcadmin** user 
-# Read the secret generated and stored into the key vault by running the helper command
+Browse to the cycle UI https://localhost:9443
+
+Connect to Cycle with the **hpcadmin** user, read the secret stored in the key vault by running the **get_secret** helper command.
+```bash
 ./bin/get_secret hpcadmin
+```
 
+### Accessing the az-hop Portal
+In the inventory file, locate the **ondemand_fqdn** variable
 
-#In the inventory file, locate the ondemand_fqdn variable, browse to this URI
-#Connect with your one of the user account defined in the config.yml file
+```bash
 grep ondemand_fqdn playbooks/group_vars/all.yml
+```
+Browse to this URI
+
+Connect with your the user account defined in the config.yml and it's password stored in key vault.
+
+```bash
 ./bin/get_secret <user>
+```
 
-# To access the grafana dashboard, browse to https://<ondemand_fqdn>/rnode/jumpbox/3000/
-
-# From the OnDemand portal, select the menu "Clusters/_my_cluster Shell Access" to open a shell window
-# Submit a simple test job 
+From the portal, select the menu **Clusters/_my_cluster Shell Access** to open a shell window, and the submit a simple test job.
 
 
+```bash
 qsub -l select=1:slot_type=hb60rs -- /usr/bin/bash -c 'sleep 60'
 qstat
+```
+### Accessing the Grafana dashboard
+To access the grafana dashboard, browse to **https://<ondemand_fqdn>/rnode/jumpbox/3000/**
+On the grafana page, to view the default dashboard, in the left menu select dashboard/manage and then select _Telegraf: system dashboard_
+
+
 
 # Delete all
+```bash 
 ./build.sh -f ./tf -a destroy
-
 ```
 
 ## Persisting Terraform state in blobs
