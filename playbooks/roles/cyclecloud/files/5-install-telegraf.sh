@@ -12,8 +12,10 @@ gpgkey = https://repos.influxdata.com/influxdb.key
 EOF
 fi
 
-echo "#### Telegraf Installation:"
-yum -y install telegraf
+if ! rpm -q telegraf; then
+  echo "#### Telegraf Installation:"
+  yum -y install telegraf
+fi
 
 echo "Copy configuration file to use"
 TELEGRAF_CONF_DIR=/etc/telegraf
