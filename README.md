@@ -82,6 +82,12 @@ wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY} -O /
 # Login to Azure
 az login
 
+# Review the current subscription
+az account show
+
+# Change your default subscription if needed
+az account set -s <subid>
+
 # Use the **config.tpl.yml** as a template to create the **config.yml** file.
 
 # Build the whole infrastructure
