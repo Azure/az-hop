@@ -20,3 +20,8 @@ Build an image with the `build_image.sh` helper script as follows:
 ```
 
 >Note: Use the var_image variable in your image name, it will be replaced by the name of the packer file
+
+To list existing marketplace image use this command
+```bash
+az vm image list -l westeurope -p Openlogic --all -o table
+```

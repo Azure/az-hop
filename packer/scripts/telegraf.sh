@@ -14,12 +14,3 @@ fi
 
 echo "#### Telegraf Installation:"
 yum -y install telegraf
-
-echo "Copy configuration file to use"
-TELEGRAF_CONF_DIR=/etc/telegraf
-cp ../files/telegraf.conf $TELEGRAF_CONF_DIR/telegraf.conf
-
-echo "#### Starting Telegraf services:"
-systemctl start telegraf
-systemctl enable telegraf
-
