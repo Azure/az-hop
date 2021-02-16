@@ -4,15 +4,17 @@
 COMMAND=${1,,}
 SA_ACCOUNT=$2
 SA_CONTAINER=$3
+RESOURCE_GROUP=$4
 
 STATE_DIR=.state
 
 function usage()
 {
-  echo "azhop_state command account container"
-  echo "    command   = download or upload"
-  echo "    account   = azure storage account to read/write state"
-  echo "    container = container to use"
+  echo "azhop_state command account container resource_group"
+  echo "    command        = download or upload"
+  echo "    account        = azure storage account to read/write state"
+  echo "    container      = container to use"
+  echo "    resource group = resource group to use (only for download)"
   exit 1
 }
 
@@ -22,22 +24,24 @@ fi
 
 AZHOP_CONFIG=config.yml
 
-if [ ! -e $AZHOP_CONFIG ]; then
-  echo "$AZHOP_CONFIG doesn't exist, exiting"
-  exit
-fi
-
-RESOURCE_GROUP=$(yq eval '.resource_group' $AZHOP_CONFIG)
-if [ -z $RESOURCE_GROUP ]; then
-  echo "Resource group is empty, exiting"
-  exit
-fi
-
 start=$(date -u -d "-10 minutes" '+%Y-%m-%dT%H:%MZ')
 expiry=$(date -u -d "60 minutes" '+%Y-%m-%dT%H:%MZ')
 
 case $COMMAND in 
   download)
+    # If resource group is empty, read it from the configuration file
+    if [ -z $RESOURCE_GROUP ]; then
+        if [ ! -e $AZHOP_CONFIG ]; then
+          echo "$AZHOP_CONFIG doesn't exist, exiting"
+          exit
+        fi
+
+        RESOURCE_GROUP=$(yq eval '.resource_group' $AZHOP_CONFIG)
+        if [ -z $RESOURCE_GROUP ]; then
+          echo "Resource group is empty, exiting"
+          exit
+        fi
+    fi
     sas=$(az storage container generate-sas --account-name $SA_ACCOUNT --name $SA_CONTAINER --permissions rl --start $start --expiry $expiry --output tsv)
     azcopy copy "https://$SA_ACCOUNT.blob.core.windows.net/$SA_CONTAINER/$RESOURCE_GROUP/*?$sas" "$STATE_DIR" --recursive --overwrite=ifSourceNewer
 
@@ -57,6 +61,16 @@ case $COMMAND in
   ;;
 
   upload)
+    if [ ! -e $AZHOP_CONFIG ]; then
+      echo "$AZHOP_CONFIG doesn't exist, exiting"
+      exit
+    fi
+
+    RESOURCE_GROUP=$(yq eval '.resource_group' $AZHOP_CONFIG)
+    if [ -z $RESOURCE_GROUP ]; then
+      echo "Resource group is empty, exiting"
+      exit
+    fi
     # Copy state files into the state directory
     mkdir -p $STATE_DIR
     cp $AZHOP_CONFIG $STATE_DIR
