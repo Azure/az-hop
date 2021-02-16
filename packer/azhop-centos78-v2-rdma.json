@@ -1,0 +1,44 @@
+{
+    "builders": [
+        {
+            "type": "azure-arm",
+            "subscription_id": "{{user `var_subscription_id`}}",
+            "tenant_id": "{{user `var_tenant_id`}}",
+            "client_id": "{{user `var_client_id`}}",
+            "client_secret": "{{user `var_client_secret`}}",
+            "image_publisher": "OpenLogic",
+            "image_offer": "CentOS-HPC",
+            "image_sku": "7.8",
+            "image_version": "latest",
+            "managed_image_resource_group_name": "{{user `var_resource_group`}}",
+            "managed_image_name": "{{user `var_image`}}",
+            "os_type": "Linux",
+            "vm_size": "Standard_d8s_v3",
+            "ssh_pty": "true",
+            "build_resource_group_name": "{{user `var_resource_group`}}"
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "file",
+            "source": "scripts",
+            "destination": "/tmp"
+        },
+        {
+            "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E sh '{{ .Path }}'",
+            "inline": [
+                "chmod +x /tmp/scripts/*.sh",
+                "/tmp/scripts/linux-setup.sh",
+                "/tmp/scripts/pbspro.sh",
+                "/tmp/scripts/cyclecloud-jetpack.sh",
+                "rm -rf /tmp/scripts",
+                "yum history sync",
+                "lscpu",
+                "/usr/sbin/waagent -force -deprovision+user && export HISTSIZE=0 && sync"
+            ],
+            "inline_shebang": "/bin/sh -x",
+            "type": "shell",
+            "skip_clean": true
+        }
+    ]
+}
