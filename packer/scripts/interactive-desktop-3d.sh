@@ -1,8 +1,7 @@
 #!/bin/bash
 
-################### INSTALL NVIDIA DRIVERS
-
 yum install -y epel-release
+yum install -y libglvnd-devel pkgconfig
 yum install -y dkms
 yum install -y "kernel-devel-uname-r == $(uname -r)"
 
@@ -10,6 +9,42 @@ cat <<EOF >/etc/modprobe.d/nouveau.conf
 blacklist nouveau
 blacklist lbm-nouveau
 EOF
+
+
+################### INSTALL VirtualGL / VNC
+
+yum groupinstall -y "X Window system"
+yum groupinstall -y xfce
+yum install -y https://netix.dl.sourceforge.net/project/turbovnc/2.2.5/turbovnc-2.2.5.x86_64.rpm
+yum install -y https://cbs.centos.org/kojifiles/packages/python-websockify/0.8.0/13.el7/noarch/python2-websockify-0.8.0-13.el7.noarch.rpm
+
+yum install -y VirtualGL turbojpeg xorg-x11-apps
+/usr/bin/vglserver_config -config +s +f -t
+
+systemctl disable firstboot-graphical
+systemctl set-default graphical.target
+systemctl isolate graphical.target
+
+# install CUDA
+
+yum-config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-rhel7.repo
+yum clean all
+yum -y install nvidia-driver-latest-dkms cuda
+yum -y install cuda-drivers
+
+# browser and codecs
+yum -y localinstall --nogpgcheck https://download1.rpmfusion.org/free/el/rpmfusion-free-release-7.noarch.rpm
+yum -y install firefox ffmpeg ffmpeg-devel
+
+# increase buffer size
+cat << EOF >>/etc/sysctl.conf
+net.core.rmem_max=2097152
+net.core.wmem_max=2097152
+EOF
+
+################### INSTALL NVIDIA DRIVERS
+
+init 3
 
 wget -O NVIDIA-Linux-x86_64-grid.run https://go.microsoft.com/fwlink/?linkid=874272  
 chmod +x NVIDIA-Linux-x86_64-grid.run
@@ -43,34 +78,3 @@ fi
 EOF
 chmod +x /etc/rc.d/rc3.d/busidupdate.sh
 /etc/rc.d/rc3.d/busidupdate.sh
-
-################### INSTALL VirtualGL / VNC
-
-yum groupinstall -y "X Window system"
-yum groupinstall -y xfce
-yum install -y https://netix.dl.sourceforge.net/project/turbovnc/2.2.5/turbovnc-2.2.5.x86_64.rpm
-yum install -y https://cbs.centos.org/kojifiles/packages/python-websockify/0.8.0/13.el7/noarch/python2-websockify-0.8.0-13.el7.noarch.rpm
-
-yum install -y VirtualGL turbojpeg xorg-x11-apps
-/usr/bin/vglserver_config -config +s +f -t
-
-systemctl disable firstboot-graphical
-systemctl set-default graphical.target
-systemctl isolate graphical.target
-
-# install CUDA
-
-yum-config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-rhel7.repo
-yum clean all
-yum -y install nvidia-driver-latest-dkms cuda
-yum -y install cuda-drivers
-
-# browser and codecs
-yum -y localinstall --nogpgcheck https://download1.rpmfusion.org/free/el/rpmfusion-free-release-7.noarch.rpm
-yum -y install firefox ffmpeg ffmpeg-devel
-
-# increase buffer size
-cat << EOF >>/etc/sysctl.conf
-net.core.rmem_max=2097152
-net.core.wmem_max=2097152
-EOF
