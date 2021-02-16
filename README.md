@@ -34,6 +34,8 @@ The `HPC Rover` is a docker container acting as a sandbox toolchain development 
 
 You can learn more about the Visual Studio Code Remote on this [link](https://code.visualstudio.com/docs/remote/remote-overview).
 
+To start the container in VS Code, simply open the cloned repository directory (from the **File** menu or by using `code .` from the cloned directory in a separate WSL instance) and click on **Reopen in Container** in the pop-up notification in the bottom right corner.
+
 ### Pre-requisites
 
 The Visual Studio Code system requirements describe the steps to follow to get your development environment ready -> [link](https://code.visualstudio.com/docs/remote/containers#_system-requirements)
