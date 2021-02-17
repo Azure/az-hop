@@ -20,6 +20,13 @@ users:
 groups: # TODO
   - name: users
     gid: 5000
+images:
+  - name: image_definition_name # Should match the packer configuration file
+    publisher: azhop
+    offer: CentOS
+    sku: 7.8-gen2
+    hyper_v: V2 # V1 or V2 (V1 is the default)
+    os_type: Linux # Linux or Windows
 queues:
   - name: execute
     vm_size: Standard_F2s_v2
