@@ -56,6 +56,16 @@
     src: '{{role_path}}/files/autostop.rb'
     dest: /root/pbs/specs/default/cluster-init/files/autostop.rb
 
+- name: Add healthcheck node script 
+  copy:
+    src: '{{role_path}}/files/check_stuff.sh'
+    dest: /root/pbs/specs/default/cluster-init/files/check_stuff.sh
+
+- name: Add healthcheck node script 
+  copy:
+    src: '{{role_path}}/files/1-healthcheck.sh'
+    dest: /root/pbs/specs/default/cluster-init/scripts/1-healthcheck.sh
+
 - name: Add telegraf configuration file  
   template:
     src: telegraf.conf.j2
