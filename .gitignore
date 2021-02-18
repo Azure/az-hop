@@ -11,6 +11,7 @@ packer/*.log
 # Ansible auto-generated inventory
 playbooks/inventory
 playbooks/group_vars/*
+playbooks/image_lookup.yml
 
 # ssk keys
 *.pub
