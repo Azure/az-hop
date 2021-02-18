@@ -141,7 +141,21 @@ qstat
 To access the grafana dashboard, browse to **https://<ondemand_fqdn>/rnode/jumpbox/3000/**
 On the grafana page, to view the default dashboard, in the left menu select dashboard/manage and then select _Telegraf: system dashboard_
 
+### SSH-ing to VMs on the az-hop vnet
+The `bin/connect` command will be created by terraform.  In addition to the specific `cyclecloud` and `ad` commands it can be a general wrapper for `ssh` in order to access resources on the vnet.  This will handle proxy-ing through the jumpbox and so you can connect directly to the resources on the vnet.  For example, to connect to the ondemand, you can run the following:
 
+```bash
+./bin/connect hpcadmin@ondemand
+```
+
+### Accessing the AD VM
+You need to create an ssh tunnel in order to access the AD VM. From the outside of the container if you run the toolchain from inside a container.
+
+```bash
+./bin/connect ad
+```
+
+Now, with the tunnel, you are able to connect using RDP to the AD VM via `localhost` on port `3390`.
 
 # Delete all
 ```bash 
