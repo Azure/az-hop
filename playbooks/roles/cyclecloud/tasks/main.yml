@@ -61,6 +61,11 @@
     src: '{{role_path}}/files/check_stuff.sh'
     dest: /root/pbs/specs/default/cluster-init/files/check_stuff.sh
 
+- name: Add healthchecks.json file 
+  copy:
+    src: '{{role_path}}/files/healthchecks.json'
+    dest: /root/pbs/specs/default/cluster-init/files/healthchecks.json
+
 - name: Add healthcheck node script 
   copy:
     src: '{{role_path}}/files/1-healthcheck.sh'
