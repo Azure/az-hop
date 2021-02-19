@@ -4,17 +4,51 @@
 #  - With environment variables like in github actions
 #     * ARM_CLIENT_ID, ARM_CLIENT_SECRET and ARM_TENANT_ID
 #  - Thru the spn.json config file
+set -e
+OPTIONS_FILE=options.json
+FORCE=0
+SPN_FILE=spn.json
+CONFIG_FILE=../config.yml
 
-packer_file=$1
-options_file=${2:-options.json}
-spn_file=spn.json
+if [ $# -lt 2 ]; then
+  echo "Usage build_image.sh "
+  echo "  Required arguments:"
+  echo "    -i|--image <image_file.json> | image packer file"
+  echo "   "
+  echo "  Optional arguments:"
+  echo "    -o|--options <options.json>  | file with options for packer generated in the build phase"
+  echo "    -f|--force                   | overwrite existing image and always push a new version in the SIG"
+  exit 1
+fi
+
+PACKER_OPTIONS="-timestamp-ui"
+while (( "$#" )); do
+  case "${1}" in
+    -i|--image)
+      PACKER_FILE=${2}
+      shift 2
+    ;;
+    -o|--options)
+      OPTIONS_FILE=${2}
+      shift 2
+    ;;
+    -f|--force)
+      FORCE=1
+      PACKER_OPTIONS+=" -force"
+      shift 1
+    ;;
+    *)
+      shift
+      ;;
+  esac
+done
 
 if [ -z "$ARM_CLIENT_ID" ]; then
   # Need the SPN name to use
-  spn_appname=$(jq -r '.spn_name' $spn_file )
+  spn_appname=$(jq -r '.spn_name' $SPN_FILE )
   echo "spn_appname=$spn_appname"
   # Need keyvault name where the SPN secret is stored
-  key_vault=$(jq -r '.key_vault' $spn_file )
+  key_vault=$(jq -r '.key_vault' $SPN_FILE )
   echo "key_vault=$key_vault"
 
   # Check that the key_vault exists
@@ -52,21 +86,88 @@ fi
 echo "appId=$appId"
 echo "tenantId=$tenantId"
 
-image_name=$(basename "$packer_file")
+image_name=$(basename "$PACKER_FILE")
 image_name="${image_name%.*}"
 
 # check if image already exists
-resource_group=$(jq -r '.var_resource_group' $options_file)
+resource_group=$(jq -r '.var_resource_group' $OPTIONS_FILE)
 image_id=$(az image list -g $resource_group --query "[?name=='$image_name'].id" -o tsv)
-if [ "$image_id" == "" ]; then
-  logfile="${packer_file%.*}.log"
-  echo "image $image_name not found in $resource_group, building it (writing log to $logfile)"
-  packer build -var-file $options_file \
+
+if [ "$image_id" == "" ] || [ $FORCE -eq 1 ]; then
+  logfile="${PACKER_FILE%.*}.log"
+  echo "Image $image_name not found in $resource_group, building it (writing log to $logfile)"
+  packer build $PACKER_OPTIONS -var-file $OPTIONS_FILE \
     -var "var_tenant_id=$tenantId" \
     -var "var_client_id=$appId" \
     -var "var_client_secret=$secret" \
     -var "var_image=$image_name" \
-    $packer_file | tee $logfile
+    -var "var_img_version=$version" \
+    $PACKER_FILE | tee $logfile
+
 else
-  echo "Image $image_id exists, skipping building the image"
+  echo "Image $image_name exists, skipping building the image"
+fi
+
+sig_name=$(jq -r '.var_sig_name' $OPTIONS_FILE)
+
+# Create the image definition if it doesn't exists
+img_def_id=$(az sig image-definition list -r $sig_name -g $resource_group --query "[?name=='$image_name'].id" -o tsv)
+if [ "$img_def_id" == "" ]; then
+  echo "Creating an image definition for $image_name"
+  # Get the image definition from the config file
+  eval_str=".images[] | select(.name == "\"$image_name"\") | .offer"
+  offer=$(yq eval "$eval_str" $CONFIG_FILE)
+  eval_str=".images[] | select(.name == "\"$image_name"\") | .publisher"
+  publisher=$(yq eval "$eval_str" $CONFIG_FILE)
+  eval_str=".images[] | select(.name == "\"$image_name"\") | .sku"
+  sku=$(yq eval "$eval_str" $CONFIG_FILE)
+  eval_str=".images[] | select(.name == "\"$image_name"\") | .hyper_v"
+  hyper_v=$(yq eval "$eval_str" $CONFIG_FILE)
+  if [ "$hyper_v" == "" ]; then 
+    hyper_v="V1"
+  fi
+  eval_str=".images[] | select(.name == "\"$image_name"\") | .os_type"
+  os_type=$(yq eval "$eval_str" $CONFIG_FILE)
+
+  img_def_id=$(az sig image-definition create -r $sig_name -i $image_name -g $resource_group \
+                -f $offer --os-type $os_type -p $publisher -s $sku --hyper-v-generation $hyper_v \
+                --query 'id' -o tsv)
+else
+  echo "Image definition for $image_name found in gallery $sig_name"
+fi
+
+# Check if the version of the managed image (retrieved thru the tag) exists in the SIG, if not then push to the SIG
+image_id=$(az image list -g $resource_group --query "[?name=='$image_name'].id" -o tsv)
+image_version=$(az image show --id $image_id --query "tags.Version" -o tsv)
+
+# Check if the image version exists in the SIG
+echo "Looking for image $image_name version $image_version ..."
+img_version_id=$(az sig image-version list  -r $sig_name -i $image_name -g $resource_group --query "[?name=='$image_version'].id" -o tsv)
+
+if [ "$img_version_id" == "" ] || [ $FORCE -eq 1 ]; then
+  # Create an image version Major.Minor.Patch with Patch=YYmmddHHMM
+  patch=$(date +"%g%m%d%H%M")
+  eval_str=".images[] | select(.name == "\"$image_name"\") | .version"
+  version=$(yq eval "$eval_str" $CONFIG_FILE)
+  version+=".$patch"
+  echo "Pushing version $version of $image_name in $sig_name"
+
+  location=$(jq -r '.var_location' $OPTIONS_FILE)
+
+  az sig image-version create \
+    --resource-group $resource_group \
+    --gallery-name $sig_name \
+    --gallery-image-definition $image_name \
+    --gallery-image-version $version \
+    --storage-account-type "Premium_LRS" \
+    --location $location \
+    --replica-count 1 \
+    --managed-image $image_id \
+    -o tsv
+
+  # Tag the image with the version 
+  echo "Tagging the source image with version $version"
+  az image update --ids $image_id --tags Version=$version -o tsv
+else
+  echo "Image $image_name version $image_version found in galley $sig_name" 
 fi

@@ -23,7 +23,7 @@ It contains the following fields:
 Build an image with the `build_image.sh` helper script as follows:
 
 ```
-./build_image.sh packer_file.json
+./build_image.sh -i packer_file.json [-f|--force] [-o|--options options.json]
 ```
 
 >Note: Use the var_image variable in your image name, it will be replaced by the name of the packer file

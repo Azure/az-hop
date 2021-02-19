@@ -21,7 +21,7 @@ groups: # TODO
   - name: users
     gid: 5000
 images:
-  - name: image_definition_name # Should match the packer configuration file
+  - name: image_definition_name # Should match the packer configuration file name, one per packer file
     publisher: azhop
     offer: CentOS
     sku: 7.8-gen2
