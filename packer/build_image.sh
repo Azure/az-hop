@@ -154,6 +154,7 @@ if [ "$img_version_id" == "" ] || [ $FORCE -eq 1 ]; then
   version+=".$patch"
   echo "Pushing version $version of $image_name in $sig_name"
 
+  storage_type=$(az image show --id $image_id --query "storageProfile.osDisk.storageAccountType" -o tsv)
   location=$(jq -r '.var_location' $OPTIONS_FILE)
 
   az sig image-version create \
@@ -161,7 +162,7 @@ if [ "$img_version_id" == "" ] || [ $FORCE -eq 1 ]; then
     --gallery-name $sig_name \
     --gallery-image-definition $image_name \
     --gallery-image-version $version \
-    --storage-account-type "Premium_LRS" \
+    --storage-account-type $storage_type \
     --location $location \
     --replica-count 1 \
     --managed-image $image_id \
