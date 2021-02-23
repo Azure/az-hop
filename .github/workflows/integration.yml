@@ -13,7 +13,7 @@ env:
   TF_CLI_ARGS: '-no-color'
   TF_CLI_ARGS_destroy: '-auto-approve -refresh=false'
   TF_CLI_ARGS_apply: '-auto-approve'
-  AZHOP_CONFIGURATION: '.github/workflows/configs/hackathon.yml'
+  AZHOP_CONFIGURATION: '.github/workflows/configs/integration.yml'
   ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
   ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
   ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
@@ -88,7 +88,7 @@ jobs:
     needs: deploy
     strategy: 
       matrix:
-        packer_file: ["centos-7.7-desktop-3d.json"]
+        packer_file: ["azhop-centos78-v2-rdma", "centos-7.7-desktop-3d.json"]
     container:
       image: xpillons/hpcrover:latest
       options: --user 0
@@ -108,4 +108,4 @@ jobs:
           cp $AZHOP_CONFIGURATION config.yml
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
           cd packer
-          ./build_image.sh ${{matrix.packer_file}}
+          ./build_image.sh -i ${{matrix.packer_file}}
