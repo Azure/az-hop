@@ -115,6 +115,7 @@ img_def_id=$(az sig image-definition list -r $sig_name -g $resource_group --quer
 if [ "$img_def_id" == "" ]; then
   echo "Creating an image definition for $image_name"
   # Get the image definition from the config file
+  echo "Read image definition from $CONFIG_FILE"
   eval_str=".images[] | select(.name == "\"$image_name"\") | .offer"
   offer=$(yq eval "$eval_str" $CONFIG_FILE)
   eval_str=".images[] | select(.name == "\"$image_name"\") | .publisher"
