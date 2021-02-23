@@ -29,6 +29,8 @@ env:
   ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
   ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
   ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+  AZHOP_STATE_CONTAINER: environments
+  AZHOP_STATE_ACCOUNT: ${{ secrets.STATE_ACCOUNT }}
 
 jobs:
   deploy:
@@ -68,10 +70,12 @@ jobs:
           sed "s/__LOCATION__/westeurope/g;s/__RESOURCE_GROUP__/$RESOURCE_GROUP/g" $TF_TEMPLATE_CONFIGURATION > $TF_CONFIGURATION
 
           cat $TF_CONFIGURATION
-
           ./build.sh -a apply -f ./tf
+
+          echo "Creating users and passwords"
           ./create_passwords.sh
 
+          echo "Uploading state in ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}"
           ./azhop_state.sh upload ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
 
   configure:
