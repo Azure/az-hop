@@ -132,7 +132,7 @@ jobs:
           sed "s/__LOCATION__/westeurope/g;s/__RESOURCE_GROUP__/$RESOURCE_GROUP/g" $TF_TEMPLATE_CONFIGURATION > $TF_CONFIGURATION
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
           cd packer
-          ./build_image.sh ${{matrix.packer_file}}
+          ./build_image.sh -i ${{matrix.packer_file}}
 
   release:
     runs-on: ubuntu-latest
