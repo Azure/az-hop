@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: xpillons/hpcrover:2012.0309
+      image: xpillons/hpcrover:latest
       options: --user 0
 
     outputs:
@@ -67,26 +67,12 @@ jobs:
           
           sed "s/__LOCATION__/westeurope/g;s/__RESOURCE_GROUP__/$RESOURCE_GROUP/g" $TF_TEMPLATE_CONFIGURATION > $TF_CONFIGURATION
 
-          #echo "location= \"westeurope\"" > $TF_CONFIGURATION
-          #echo "resource_group= \"$RESOURCE_GROUP\"" >> $TF_CONFIGURATION
           cat $TF_CONFIGURATION
 
           ./build.sh -a apply -f ./tf
           ./create_passwords.sh
 
-      - uses: actions/upload-artifact@v2
-        if: always()
-        with:
-          name: artifact
-          path: |
-            config.yml
-            playbooks/inventory
-            playbooks/group_vars/*
-            packer/options.json
-            *_id_rsa
-            *_id_rsa.pub
-            tf/terraform.tfstate
-          retention-days: 1
+          ./azhop_state.sh upload ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
 
   configure:
     name: configure
@@ -94,7 +80,7 @@ jobs:
     needs: deploy
 
     container:
-      image: xpillons/hpcrover:2012.0309
+      image: xpillons/hpcrover:latest
       options: --user 0
 
     steps:
@@ -102,10 +88,6 @@ jobs:
         with:
           submodules: true
          
-      - uses: actions/download-artifact@v2
-        with: 
-          name: artifact
-
       - name: Login azure
         run: |
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
@@ -113,10 +95,10 @@ jobs:
 
       - name: Install applications
         run: |
-          # Fix SSH Keys permission as they are not preserved by the artifacts
-          chmod 600 hpcadmin_id_rsa
-          chmod 644 hpcadmin_id_rsa.pub
-          ls -al
+
+          RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
+          sed "s/__LOCATION__/westeurope/g;s/__RESOURCE_GROUP__/$RESOURCE_GROUP/g" $TF_TEMPLATE_CONFIGURATION > $TF_CONFIGURATION
+          ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
           ./install.sh
 
   build_image:
@@ -125,9 +107,9 @@ jobs:
     needs: deploy
     strategy: 
       matrix:
-        packer_file: ["centos-7.7-desktop-3d.json", "centos77-v1-rdma-gpgpu.json", "centos77-v2-rdma-gpgpu.json"]
+        packer_file: ["azhop-centos78-v2-rdma", "centos-7.7-desktop-3d.json", "centos77-v2-rdma-gpgpu.json"]
     container:
-      image: xpillons/hpcrover:2012.0309
+      image: xpillons/hpcrover:latest
       options: --user 0
 
     steps:
@@ -135,10 +117,6 @@ jobs:
         with:
           submodules: true
          
-      - uses: actions/download-artifact@v2
-        with: 
-          name: artifact
-
       - name: Login azure
         run: |
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
@@ -146,6 +124,9 @@ jobs:
 
       - name: Build Images
         run: |
+          RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
+          sed "s/__LOCATION__/westeurope/g;s/__RESOURCE_GROUP__/$RESOURCE_GROUP/g" $TF_TEMPLATE_CONFIGURATION > $TF_CONFIGURATION
+          ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
           cd packer
           ./build_image.sh ${{matrix.packer_file}}
 
@@ -177,7 +158,7 @@ jobs:
     needs: [deploy, configure, build_image]
 
     container:
-      image: xpillons/hpcrover:2012.0309
+      image: xpillons/hpcrover:latest
       options: --user 0
 
     steps:
@@ -185,10 +166,6 @@ jobs:
         with:
           submodules: true
          
-      - uses: actions/download-artifact@v2
-        with: 
-          name: artifact
-
       - name: Login azure
         if: always()
         run: |
@@ -199,6 +176,9 @@ jobs:
         run: |
           ls -al
 
+          RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
+          sed "s/__LOCATION__/westeurope/g;s/__RESOURCE_GROUP__/$RESOURCE_GROUP/g" $TF_TEMPLATE_CONFIGURATION > $TF_CONFIGURATION
+          ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
           ./build.sh -a destroy -f ./tf
 
       - name: Cleanup
