@@ -130,9 +130,10 @@ if [ "$img_def_id" == "" ]; then
   eval_str=".images[] | select(.name == "\"$image_name"\") | .os_type"
   os_type=$(yq eval "$eval_str" $CONFIG_FILE)
 
-  img_def_id=$(az sig image-definition create -r $sig_name -i $image_name -g $resource_group \
+  az sig image-definition create -r $sig_name -i $image_name -g $resource_group \
                 -f $offer --os-type $os_type -p $publisher -s $sku --hyper-v-generation $hyper_v \
-                --query 'id' -o tsv)
+                --query 'id' -o tsv
+  img_def_id=$(az sig image-definition list -r $sig_name -g $resource_group --query "[?name=='$image_name'].id" -o tsv)
 else
   echo "Image definition for $image_name found in gallery $sig_name"
 fi
