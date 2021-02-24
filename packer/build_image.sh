@@ -115,6 +115,7 @@ img_def_id=$(az sig image-definition list -r $sig_name -g $resource_group --quer
 if [ "$img_def_id" == "" ]; then
   echo "Creating an image definition for $image_name"
   # Get the image definition from the config file
+  echo "Read image definition from $CONFIG_FILE"
   eval_str=".images[] | select(.name == "\"$image_name"\") | .offer"
   offer=$(yq eval "$eval_str" $CONFIG_FILE)
   eval_str=".images[] | select(.name == "\"$image_name"\") | .publisher"
@@ -129,9 +130,10 @@ if [ "$img_def_id" == "" ]; then
   eval_str=".images[] | select(.name == "\"$image_name"\") | .os_type"
   os_type=$(yq eval "$eval_str" $CONFIG_FILE)
 
-  img_def_id=$(az sig image-definition create -r $sig_name -i $image_name -g $resource_group \
+  az sig image-definition create -r $sig_name -i $image_name -g $resource_group \
                 -f $offer --os-type $os_type -p $publisher -s $sku --hyper-v-generation $hyper_v \
-                --query 'id' -o tsv)
+                --query 'id' -o tsv
+  img_def_id=$(az sig image-definition list -r $sig_name -g $resource_group --query "[?name=='$image_name'].id" -o tsv)
 else
   echo "Image definition for $image_name found in gallery $sig_name"
 fi
@@ -152,6 +154,7 @@ if [ "$img_version_id" == "" ] || [ $FORCE -eq 1 ]; then
   version+=".$patch"
   echo "Pushing version $version of $image_name in $sig_name"
 
+  storage_type=$(az image show --id $image_id --query "storageProfile.osDisk.storageAccountType" -o tsv)
   location=$(jq -r '.var_location' $OPTIONS_FILE)
 
   az sig image-version create \
@@ -159,7 +162,7 @@ if [ "$img_version_id" == "" ] || [ $FORCE -eq 1 ]; then
     --gallery-name $sig_name \
     --gallery-image-definition $image_name \
     --gallery-image-version $version \
-    --storage-account-type "Premium_LRS" \
+    --storage-account-type $storage_type \
     --location $location \
     --replica-count 1 \
     --managed-image $image_id \
