@@ -166,33 +166,35 @@ jobs:
       options: --user 0
 
     steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
+      # - uses: actions/checkout@v2
+      #   with:
+      #     submodules: true
          
-      - name: Login azure
-        if: always()
-        run: |
-          az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
-          az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
+      # - name: Login azure
+      #   if: always()
+      #   run: |
+      #     az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
+      #     az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
-      - name: Remove Resources
-        run: |
-          ls -al
+      # - name: Remove Resources
+      #   run: |
+      #     ls -al
 
-          RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
-          sed "s/__LOCATION__/westeurope/g;s/__RESOURCE_GROUP__/$RESOURCE_GROUP/g" $TF_TEMPLATE_CONFIGURATION > $TF_CONFIGURATION
-          ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
-          ./build.sh -a destroy -f ./tf
+      #     RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
+      #     sed "s/__LOCATION__/westeurope/g;s/__RESOURCE_GROUP__/$RESOURCE_GROUP/g" $TF_TEMPLATE_CONFIGURATION > $TF_CONFIGURATION
+      #     ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
+      #     ./build.sh -a destroy -f ./tf
 
       - name: Cleanup
         if: always()
         run: |
+          az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
+          az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
           # If resource group is still there after destroy remove it
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           rg_exists=$(az group exists -n $RESOURCE_GROUP)
           if [ "$rg_exists" = "true" ]; then
             echo "removing resource group $RESOURCE_GROUP"
-            az group delete -n $RESOURCE_GROUP -y --no-wait
+            az group delete -n $RESOURCE_GROUP -y 
           fi
