@@ -5,6 +5,8 @@
 #     * ARM_CLIENT_ID, ARM_CLIENT_SECRET and ARM_TENANT_ID
 #  - Thru the spn.json config file
 set -e
+set -o pipefail
+
 OPTIONS_FILE=options.json
 FORCE=0
 SPN_FILE=spn.json
