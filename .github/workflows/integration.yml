@@ -62,6 +62,8 @@ jobs:
           cp $AZHOP_CONFIGURATION config.yml
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
 
+          cat config.yml
+
           ./build.sh -a apply -f ./tf
           ./create_passwords.sh
 
