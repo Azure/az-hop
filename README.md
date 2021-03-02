@@ -73,7 +73,7 @@ pip3 install pypsrp
 pip3 install pysocks
 
 # install yq
-VERSION=v4.2.0
+VERSION=v4.6.1
 BINARY=yq_linux_amd64
 sudo wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY} -O /usr/bin/yq && sudo chmod +x /usr/bin/yq
 ```
