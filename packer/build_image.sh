@@ -7,7 +7,6 @@
 set -e
 OPTIONS_FILE=options.json
 FORCE=0
-IMAGE_CHECKSUM_CHANGED=0
 SPN_FILE=spn.json
 CONFIG_FILE=../config.yml
 
@@ -105,7 +104,8 @@ if [ "$image_id" != "" ]; then
   image_checksum=$(az image show --id $image_id --query "tags.checksum" -o tsv)
   echo "Image checksum is $image_checksum"
   if [ "$packer_md5" != "$image_checksum" ]; then
-    IMAGE_CHECKSUM_CHANGED=1
+    FORCE=1
+    PACKER_OPTIONS+=" -force"
   fi
 fi
 
@@ -113,10 +113,10 @@ fi
 #   - Image doesn't exists
 #   - Scripts to build the image have changed
 #   - The force option is used
-if [ "$image_id" == "" ] || [ $IMAGE_CHECKSUM_CHANGED -eq 1 ] || [ $FORCE -eq 1 ]; then
+if [ "$image_id" == "" ] || [ $FORCE -eq 1 ]; then
   logfile="${PACKER_FILE%.*}.log"
 
-  echo "Image $image_name not found in $resource_group, building it (writing log to $logfile)"
+  echo "Build or Rebuid $image_name in $resource_group (writing log to $logfile)"
   packer build $PACKER_OPTIONS -var-file $OPTIONS_FILE \
     -var "var_tenant_id=$tenantId" \
     -var "var_client_id=$appId" \
@@ -167,7 +167,7 @@ image_version=$(az image show --id $image_id --query "tags.Version" -o tsv)
 echo "Looking for image $image_name version $image_version ..."
 img_version_id=$(az sig image-version list  -r $sig_name -i $image_name -g $resource_group --query "[?name=='$image_version'].id" -o tsv)
 
-if [ "$img_version_id" == "" ] || [ $IMAGE_CHECKSUM_CHANGED -eq 1 ] || [ $FORCE -eq 1 ]; then
+if [ "$img_version_id" == "" ] || [ $FORCE -eq 1 ]; then
   # Create an image version Major.Minor.Patch with Patch=YYmmddHHMM
   patch=$(date +"%g%m%d%H%M")
   eval_str=".images[] | select(.name == "\"$image_name"\") | .version"
