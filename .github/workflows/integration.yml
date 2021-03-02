@@ -99,7 +99,7 @@ jobs:
     needs: deploy
     strategy: 
       matrix:
-        packer_file: ["azhop-centos78-v2-rdma", "centos-7.7-desktop-3d.json"]
+        packer_file: ["azhop-centos78-v2-rdma.json", "centos-7.7-desktop-3d.json"]
     container:
       image: xpillons/hpcrover:latest
       options: --user 0
