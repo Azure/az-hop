@@ -95,7 +95,7 @@ resource_group=$(jq -r '.var_resource_group' $OPTIONS_FILE)
 image_id=$(az image list -g $resource_group --query "[?name=='$image_name'].id" -o tsv)
 
 # Generate install script checksum
-md5sum packer/scripts/* > md5sum.txt
+md5sum ./scripts/* > md5sum.txt
 md5sum $PACKER_FILE >> md5sum.txt
 packer_md5=$(md5sum md5sum.txt | cut -d' ' -f 1)
 echo "scripts checksum is $packer_md5"
