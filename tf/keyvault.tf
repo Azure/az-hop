@@ -1,4 +1,7 @@
 data "azurerm_client_config" "current" {}
+data "azurerm_role_definition" "owner" {
+  name = "Owner"
+}
 
 resource "azurerm_key_vault" "azhop" {
   name                        = format("%s%s", "kv", random_string.resource_postfix.result)
@@ -34,13 +37,31 @@ resource "azurerm_key_vault_access_policy" "admin" {
     ]
 }
 
-resource "azurerm_key_vault_access_policy" "get_secret" {
+resource "azurerm_key_vault_access_policy" "owner" {
+
+  key_vault_id = azurerm_key_vault.azhop.id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = data.azurerm_role_definition.owner.id
+
+  secret_permissions = [
+      "get",
+      "set",
+      "list",
+      "delete",
+      "purge",
+      "recover",
+      "restore"
+    ]
+}
+
+resource "azurerm_key_vault_access_policy" "reader" {
 
   key_vault_id = azurerm_key_vault.azhop.id
   tenant_id    = data.azurerm_client_config.current.tenant_id
   object_id    = local.key_vault_readers != null ? local.key_vault_readers : data.azurerm_client_config.current.object_id
 
   secret_permissions = [
-    "get", "list"
-  ]
+      "get",
+      "list"
+    ]
 }
