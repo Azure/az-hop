@@ -41,6 +41,6 @@ resource "azurerm_key_vault_access_policy" "get_secret" {
   object_id    = local.key_vault_readers != null ? local.key_vault_readers : data.azurerm_client_config.current.object_id
 
   secret_permissions = [
-    "get"
+    "get", "list"
   ]
 }
