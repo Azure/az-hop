@@ -12,31 +12,35 @@ resource "azurerm_key_vault" "azhop" {
   # TODO => Add the option to enable VMs to keep secrets in KV
   sku_name = "standard"
 
-  access_policy {
-    tenant_id    = data.azurerm_client_config.current.tenant_id
-    object_id    = data.azurerm_client_config.current.object_id
-
-    secret_permissions = [
-        "get",
-        "set",
-        "list",
-        "delete",
-        "purge",
-        "recover",
-        "restore"
-      ]
-  }
-  access_policy {
-    tenant_id    = data.azurerm_client_config.current.tenant_id
-    object_id    = local.key_vault_readers != null ? local.key_vault_readers : data.azurerm_client_config.current.object_id
-
-    secret_permissions = [
-        "get"
-      ]
-  }
-
   network_acls {
     default_action = "Allow"
     bypass         = "AzureServices"
   }
+}
+
+resource "azurerm_key_vault_access_policy" "admin" {
+  key_vault_id = azurerm_key_vault.azhop.id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = data.azurerm_client_config.current.object_id
+
+  secret_permissions = [
+      "get",
+      "set",
+      "list",
+      "delete",
+      "purge",
+      "recover",
+      "restore"
+    ]
+}
+
+resource "azurerm_key_vault_access_policy" "get_secret" {
+
+  key_vault_id = azurerm_key_vault.azhop.id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = local.key_vault_readers != null ? local.key_vault_readers : data.azurerm_client_config.current.object_id
+
+  secret_permissions = [
+    "get"
+  ]
 }
