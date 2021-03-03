@@ -66,3 +66,15 @@ resource "azurerm_key_vault_access_policy" "reader" {
       "list"
     ]
 }
+
+resource "azurerm_key_vault_secret" "admin_password" {
+  name         = format("%s-password", local.admin_username)
+  value        = random_password.password.result
+  key_vault_id = azurerm_key_vault.azhop.id
+
+  lifecycle {
+    ignore_changes = [
+      value
+    ]
+  }
+}
