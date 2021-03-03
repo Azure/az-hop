@@ -4,6 +4,7 @@ resource_group: azhop
 homefs_size_tb: 4
 homedir_mountpoint: /anfhome
 admin_user: hpcadmin
+key_vault_readers: <object_id> # Object ID to grant key vault reade access
 users:
   - name: user1
     uid: 10001
