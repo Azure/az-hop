@@ -64,11 +64,14 @@ jobs:
 
           cat config.yml
 
+          set +e
+          build_error=0
           ./build.sh -a apply -f ./tf
-          ./create_passwords.sh
-
+          build_error=$?
           ./azhop_state.sh upload ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
-
+          set -e
+          ./create_passwords.sh
+          exit $build_error
 
   configure:
     name: configure
