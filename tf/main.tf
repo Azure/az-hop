@@ -70,3 +70,7 @@ resource "azurerm_storage_account" "azhop" {
   account_tier             = "Standard"
   account_replication_type = "LRS"
 }
+
+resource "time_sleep" "delay_create" {
+  create_duration = "20s"
+}

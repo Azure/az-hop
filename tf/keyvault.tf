@@ -68,6 +68,7 @@ resource "azurerm_key_vault_access_policy" "reader" {
 }
 
 resource "azurerm_key_vault_secret" "admin_password" {
+  depends_on   = [time_sleep.delay_create, azurerm_key_vault_access_policy.admin] # As policies are created in the same deployment add some delays to propagate
   name         = format("%s-password", local.admin_username)
   value        = random_password.password.result
   key_vault_id = azurerm_key_vault.azhop.id
