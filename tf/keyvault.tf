@@ -1,3 +1,8 @@
+resource "time_sleep" "delay_create" {
+  depends_on   = [azurerm_key_vault_access_policy.admin] # As policies are created in the same deployment add some delays to propagate
+  create_duration = "20s"
+}
+
 data "azurerm_client_config" "current" {}
 # data "azurerm_role_definition" "owner" {
 #   name = "Owner"
