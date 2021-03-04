@@ -16,7 +16,8 @@ Autoscale = true
     SubnetId = {{ cc_subnetid }}
     Region = {{ cc_region }}
     KeyPairLocation = ~/.ssh/cyclecloud.pem
-    
+    EnableAcceleratedNetworking = false
+
         [[[configuration]]]
         cyclecloud.converge_on_boot = true
 
@@ -29,12 +30,14 @@ Autoscale = true
         cyclecloud.exports.shared.samba.enabled = false
         cyclecloud.exports.defaults.samba.enabled = false      
         cshared.server.legacy_links_disabled = true
-        EnableAcceleratedNetworking = false
 
 {% for queue in cc_queues %}
     [[nodearray {{ queue.name }}]]
     MachineType = {{ queue.vm_size }} 
     MaxCoreCount = {{ queue.max_core_count }}
+  {% if queue.EnableAcceleratedNetworking is defined %}        
+    EnableAcceleratedNetworking = {{ queue.EnableAcceleratedNetworking }}
+  {% endif %}
     Interruptible = false
     # Lookup image version for that queue
   {% if cc_image_lookup is defined and queue.name in cc_image_lookup %}
@@ -45,9 +48,6 @@ Autoscale = true
     AdditionalClusterInitSpecs = $ExecuteClusterInitSpecs
         [[[configuration]]]
         pbspro.slot_type = {{ queue.name }}
-    {% if queue.EnableAcceleratedNetworking is defined %}        
-        EnableAcceleratedNetworking = {{ queue.EnableAcceleratedNetworking }}
-    {% endif %}
 {% endfor %}
 
 [parameters Advanced Settings]
