@@ -130,7 +130,7 @@ jobs:
   run_tests:
     name: run_tests
     runs-on: ubuntu-latest
-    needs: [deploy, build_image]
+    needs: [configure, build_image]
     container:
       image: xpillons/hpcrover:latest
       options: --user 0
