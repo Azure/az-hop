@@ -8,7 +8,6 @@ name : integration test suite
 on:
   workflow_dispatch: 
 
-
 env:
   AZHOP_CONFIGURATION: '.github/workflows/configs/integration.yml'
   ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
@@ -19,10 +18,9 @@ env:
   AZHOP_STATE_ACCOUNT: ${{ secrets.STATE_ACCOUNT }}
 
 jobs:
-  configure:
-    name: configure
+  run_tests:
+    name: run_tests
     runs-on: ubuntu-latest
-
     container:
       image: xpillons/hpcrover:latest
       options: --user 0
@@ -37,9 +35,8 @@ jobs:
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
-      - name: Install applications
+      - name: Run test playbook
         run: |
           cp $AZHOP_CONFIGURATION config.yml
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
-          ./install.sh
-
+          ansible-playbook -vvvv -i playbooks/inventory ./playbooks/tests.yml 
