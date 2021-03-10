@@ -34,7 +34,7 @@
 
   - name: Create AD-Domain
     ansible.windows.win_domain:
-      dns_domain_name: hpc.azure
+      dns_domain_name: '{{ad_join_domain}}'
       safe_mode_password: '{{ad_join_password.stdout}}'
     register: ad_promotion
 
