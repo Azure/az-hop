@@ -1,6 +1,5 @@
 - hosts: ondemand
   become: true
-  become_user: hpcuser
 
   tasks:
   - name: Run the tests

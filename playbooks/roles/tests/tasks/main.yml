@@ -19,5 +19,5 @@
     mode: '0755'
 
 - name: Run tests
+  become_user: hpcuser
   shell: ~/test.sh
-
