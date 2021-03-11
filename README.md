@@ -71,7 +71,7 @@ ansible-galaxy collection install ansible.posix
 ansible-galaxy collection install community.general
 
 # install python packages
-sudo apt-get install python3-pip
+sudo apt-get install python3-pip -y
 pip3 install pypsrp
 pip3 install pysocks
 
