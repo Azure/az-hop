@@ -5,7 +5,7 @@ resource "local_file" "AnsibleInventory" {
       jumpbox-user      = azurerm_linux_virtual_machine.jumpbox.admin_username
       scheduler-ip      = azurerm_network_interface.scheduler-nic.private_ip_address
       scheduler-user    = azurerm_linux_virtual_machine.scheduler.admin_username
-      ondemand-ip       = azurerm_network_interface.ondemand-nic.private_ip_address
+      ondemand-pip      = azurerm_public_ip.ondemand-pip.ip_address
       ondemand-user     = azurerm_linux_virtual_machine.ondemand.admin_username
       ccportal-ip       = azurerm_network_interface.ccportal-nic.private_ip_address
       ad-ip             = azurerm_network_interface.ad-nic.private_ip_address
