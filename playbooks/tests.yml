@@ -4,29 +4,7 @@
   become: true
 
   tasks:
-  - name: Upload pbs helpers
-    copy:
-      src: '{{role_path}}/files/pbs_helpers.sh'
-      dest: ~/pbs_helpers.sh
-      mode: '0755'
-
-  - name: Upload test script
-    copy:
-      src: '{{role_path}}/files/test.sh'
-      dest: ~/test.sh
-      mode: '0755'
-
-  - name: Upload job script
-    copy:
-      src: '{{role_path}}/files/job.sh'
-      dest: ~/job.sh
-      mode: '0755'
-
-  - name: Run tests
-    become_user: hpcuser
-    shell: ~/test.sh
-
-  # - name: Call tests role
-  #   include_role:
-  #     name: tests
+  - name: Call tests role
+    include_role:
+      name: tests
 
