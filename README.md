@@ -71,6 +71,7 @@ ansible-galaxy collection install ansible.posix
 ansible-galaxy collection install community.general
 
 # install python packages
+curl https://sh.rustup.rs -sSf | sh
 sudo apt-get install python3-pip -y
 pip3 install pypsrp
 pip3 install pysocks
