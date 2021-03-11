@@ -40,4 +40,6 @@ jobs:
           cp $AZHOP_CONFIGURATION config.yml
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
           ls -al
+          cat hpcadmin_id_rsa
+          cat hpcadmin_id_rsa.pub
           ansible-playbook -vvvv -i playbooks/inventory ./playbooks/tests.yml 
