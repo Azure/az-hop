@@ -149,4 +149,4 @@ jobs:
         run: |
           cp $AZHOP_CONFIGURATION config.yml
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
-          ansible-playbook -vvvv -i playbooks/inventory ./playbooks/tests.yml 
+          ansible-playbook -v -i playbooks/inventory ./playbooks/tests.yml 
