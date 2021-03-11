@@ -59,6 +59,9 @@ sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(l
 sudo apt-get update && sudo apt-get install terraform
 
 # install ansible
+sudo apt install software-properties-common -y
+sudo apt-add-repository ppa:ansible/ansible
+sudo apt update
 sudo apt-get install ansible -y
 # These are needed for AD
 ansible-galaxy collection install ansible.windows
