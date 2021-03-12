@@ -34,43 +34,43 @@
 
 - name: download pbs cc autoscale script 1 
   get_url: 
-    url: "https://raw.githubusercontent.com/Azure/cyclecloud-pbspro/master/specs/default/chef/site-cookbooks/pbspro/files/default/autostart.py"
+    url: "https://raw.githubusercontent.com/Azure/cyclecloud-pbspro/{{cc_pbs_version}}/specs/default/chef/site-cookbooks/pbspro/files/default/autostart.py"
     dest: /opt/cycle/jetpack/system/bootstrap/pbs/autostart.py
     mode: '755'
 
 - name: download pbs cc autoscale script 2 
   get_url: 
-    url: "https://raw.githubusercontent.com/Azure/cyclecloud-pbspro/master/specs/default/chef/site-cookbooks/pbspro/files/default/autostart_hook.py"
+    url: "https://raw.githubusercontent.com/Azure/cyclecloud-pbspro/{{cc_pbs_version}}/specs/default/chef/site-cookbooks/pbspro/files/default/autostart_hook.py"
     dest: /opt/cycle/jetpack/system/bootstrap/pbs/autostart_hook.py
     mode: '755'
 
 - name: download pbs cc autoscale script 3
   get_url: 
-    url: "https://raw.githubusercontent.com/Azure/cyclecloud-pbspro/master/specs/default/chef/site-cookbooks/pbspro/files/default/logging_init.py"
+    url: "https://raw.githubusercontent.com/Azure/cyclecloud-pbspro/{{cc_pbs_version}}/specs/default/chef/site-cookbooks/pbspro/files/default/logging_init.py"
     dest: /opt/cycle/jetpack/system/bootstrap/pbs/logging_init.py
     mode: '755'
 
 - name: download pbs cc autoscale script 4 
   get_url: 
-    url: "https://raw.githubusercontent.com/Azure/cyclecloud-pbspro/master/specs/default/chef/site-cookbooks/pbspro/files/default/mockpbs.py"
+    url: "https://raw.githubusercontent.com/Azure/cyclecloud-pbspro/{{cc_pbs_version}}/specs/default/chef/site-cookbooks/pbspro/files/default/mockpbs.py"
     dest: /opt/cycle/jetpack/system/bootstrap/pbs/mockpbs.py
     mode: '755'
 
 - name: download pbs cc autoscale script 5
   get_url: 
-    url: "https://raw.githubusercontent.com/Azure/cyclecloud-pbspro/master/specs/default/chef/site-cookbooks/pbspro/files/default/pbscc.py"
+    url: "https://raw.githubusercontent.com/Azure/cyclecloud-pbspro/{{cc_pbs_version}}/specs/default/chef/site-cookbooks/pbspro/files/default/pbscc.py"
     dest: /opt/cycle/jetpack/system/bootstrap/pbs/pbscc.py
     mode: '755'
     
 - name: download pbs cc autoscale script 6 
   get_url: 
-    url: "https://raw.githubusercontent.com/Azure/cyclecloud-pbspro/master/specs/default/chef/site-cookbooks/pbspro/files/default/submit_hook.py"
+    url: "https://raw.githubusercontent.com/Azure/cyclecloud-pbspro/{{cc_pbs_version}}/specs/default/chef/site-cookbooks/pbspro/files/default/submit_hook.py"
     dest: /opt/cycle/jetpack/system/bootstrap/pbs/submit_hook.py
     mode: '755'
 
 - name: download pbs cc autoscale script 7 
   get_url: 
-    url: "https://raw.githubusercontent.com/Azure/cyclecloud-pbspro/master/specs/default/chef/site-cookbooks/pbspro/files/default/pbs_driver.py"
+    url: "https://raw.githubusercontent.com/Azure/cyclecloud-pbspro/{{cc_pbs_version}}/specs/default/chef/site-cookbooks/pbspro/files/default/pbs_driver.py"
     dest: /opt/cycle/jetpack/system/bootstrap/pbs/pbs_driver.py
     mode: '755'
 
