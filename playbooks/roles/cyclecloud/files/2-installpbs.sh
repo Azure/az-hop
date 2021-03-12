@@ -1,5 +1,27 @@
 #!/bin/bash
 
+function fail {
+  echo $1 >&2
+  exit 1
+}
+
+function retry {
+  local n=1
+  local max=5
+  local delay=10
+  while true; do
+    "$@" && break || {
+      if [[ $n -lt $max ]]; then
+        ((n++))
+        echo "Command failed. Attempt $n/$max:"
+        sleep $delay;
+      else
+        fail "The command has failed after $n attempts."
+      fi
+    }
+  done
+}
+
 # install pbs rpms when not in custom image
 if [ ! -f "/etc/pbs.conf" ]; then
   echo "Downloading PBS RPMs"
@@ -15,9 +37,9 @@ echo "Configuring PBS"
 sed -i 's/CHANGE_THIS_TO_PBS_PRO_SERVER_HOSTNAME/scheduler/' /etc/pbs.conf
 sed -i 's/CHANGE_THIS_TO_PBS_PRO_SERVER_HOSTNAME/scheduler/' /var/spool/pbs/mom_priv/config
 
-# Retrieve the VMSS name to be used as the pool name for multiple VMSS support
 echo "Register node"
-/opt/pbs/bin/qmgr -c "c n $(hostname)" 
+retry /opt/pbs/bin/qmgr -c "c n $(hostname)"
+
 echo "Set slot_type"
 /opt/pbs/bin/qmgr -c "s n $(hostname) resources_available.slot_type=$(jetpack config pbspro.slot_type)" || exit 1
 
@@ -33,5 +55,5 @@ echo "Set the group_id with the vmScaleSetName"
 poolName=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2018-10-01" | jq -r '.compute.vmScaleSetName')
 /opt/pbs/bin/qmgr -c "s n $(hostname) resources_available.group_id=${poolName}" || exit 1
 
-systemctl restart pbs
+systemctl restart pbs || exit 1
 echo "PBS Restarted"
