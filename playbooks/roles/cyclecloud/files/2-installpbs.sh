@@ -12,9 +12,10 @@ function retry {
   while true; do
     "$@" && break || {
       if [[ $n -lt $max ]]; then
+        sleep_time=$((delay*n))
+        echo "Command failed. Attempt $n/$max. Wait for $sleep_time seconds"
+        sleep $sleep_time;
         ((n++))
-        echo "Command failed. Attempt $n/$max:"
-        sleep $delay;
       else
         fail "The command has failed after $n attempts."
       fi
