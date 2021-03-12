@@ -52,6 +52,8 @@ Install
 
 ## Setup on Ubuntu (e.g. WSL2)
 
+For Terraform to work properly on WSL2, on the C drive, make sure to have the metadata mount option enabled.
+
 ```
 # install terraform
 curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
