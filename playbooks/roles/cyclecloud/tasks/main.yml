@@ -9,6 +9,11 @@
 - name: Configure AD domain to connect to
   script: '{{role_path}}/files/configure_ad.py --url "ldap://{{cc_ad_server}}" --domain "@{{cc_domain}}"'
 
+- name: Add User Role Record 
+  copy:
+    src: '{{role_path}}/files/user_role_record.txt'
+    dest: /opt/cycle_server/config/data/user_role_record.txt
+
 - name: Configure CycleCloud CLI
   command: '/usr/local/bin/cyclecloud initialize --force --batch --name ccportal --url=https://localhost:9443 --verify-ssl=false --username={{cc_admin_user}} --password="{{cc_password}}"'
   args:
