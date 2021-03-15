@@ -197,7 +197,8 @@ def cyclecloud_account_setup(vm_metadata, use_managed_identity, tenant_id, appli
             ["/opt/cycle_server/cycle_server", "execute", sql_statement])
 
     # set the permissions so that the first login works.
-    perms_sql_statement = 'update Application.Setting set Value = false where Name == \"authorization.check_datastore_permissions\"'
+    # Set to True so that roles can permission are checked and integration with AD works 
+    perms_sql_statement = 'update Application.Setting set Value = true where Name == \"authorization.check_datastore_permissions\"'
     _catch_sys_error(
         ["/opt/cycle_server/cycle_server", "execute", perms_sql_statement])
 
