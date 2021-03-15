@@ -18,9 +18,6 @@ playbooks/image_lookup.yml
 *id_rsa*
 *.pem
 
-# datafiles
-*.txt
-
 # bin
 bin/*
 
