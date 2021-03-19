@@ -82,7 +82,7 @@
       pbs_server: scheduler
   - name: setup cyclecloud proxy
     shell: |
-        if grep -q ccportal /opt/ood/ood-portal-generator/templates/ood-portal.conf.erb; then
+        if ! grep -q ccportal /opt/ood/ood-portal-generator/templates/ood-portal.conf.erb; then
           cd /root
           cat << EOF > cyclecloud_proxy
           SetEnv OOD_CC_URI "/cyclecloud"
