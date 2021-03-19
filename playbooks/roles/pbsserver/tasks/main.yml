@@ -95,7 +95,7 @@
             "name": "pbs1"
          },
          "config": {
-           "web_server": "https://ccportal:9443",
+           "web_server": "https://ccportal:9443/cyclecloud",
            "username": "{{ cc_admin }}",
            "password": "{{ cc_password }}"
          }
