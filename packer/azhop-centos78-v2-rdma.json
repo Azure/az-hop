@@ -32,7 +32,6 @@
                 "/tmp/scripts/linux-setup.sh",
                 "/tmp/scripts/rdma-udev-rules.sh",
                 "/tmp/scripts/pbspro.sh",
-                "/tmp/scripts/cyclecloud-jetpack.sh",
                 "/tmp/scripts/telegraf.sh",
                 "rm -rf /tmp/scripts",
                 "yum history sync",

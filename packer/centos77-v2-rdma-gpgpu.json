@@ -34,7 +34,6 @@
                 "/tmp/scripts/nvidia-gpgpu.sh",
                 "/tmp/scripts/mellanox-ib.sh",
                 "/tmp/scripts/pbspro.sh",
-                "/tmp/scripts/cyclecloud-jetpack.sh",
                 "rm -rf /tmp/scripts",
                 "yum history sync",
                 "lscpu",

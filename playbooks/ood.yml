@@ -80,6 +80,28 @@
         become: true
     vars:
       pbs_server: scheduler
+  - name: setup cyclecloud proxy
+    shell: |
+        if grep -q ccportal /opt/ood/ood-portal-generator/templates/ood-portal.conf.erb; then
+          cd /root
+          cat << EOF > cyclecloud_proxy
+          SetEnv OOD_CC_URI "/cyclecloud"
+          <Location "/cyclecloud">
+            AuthType Basic
+            AuthName "Open OnDemand"
+            AuthBasicProvider PAM
+            AuthPAMService ood
+            Require valid-user
+
+            ProxyPass http://ccportal:80/cyclecloud
+            ProxyPassReverse http://ccportal:80/cyclecloud
+          </Location>
+        EOF
+          sed -i '$e cat cyclecloud_proxy' /opt/ood/ood-portal-generator/templates/ood-portal.conf.erb
+          rm cyclecloud_proxy
+          /opt/ood/ood-portal-generator/sbin/update_ood_portal
+          systemctl try-restart httpd24-httpd.service httpd24-htcacheclean.service
+        fi
   - name: add cvmfs repo
     yum: 
       name: https://ecsft.cern.ch/dist/cvmfs/cvmfs-release/cvmfs-release-latest.noarch.rpm
