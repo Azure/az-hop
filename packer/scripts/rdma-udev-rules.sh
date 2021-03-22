@@ -9,8 +9,8 @@ bash build.sh
 cp build/bin/rdma_rename /usr/lib/udev/
 
 cat <<EOF >/etc/udev/rules.d/60-ib.rules
-ACTION=="add", ATTR{board_id}=="MSF0010110035", SUBSYSTEM=="infiniband", PROGRAM="rdma_rename %k NAME_FIXED mlx5_an0"
-ACTION=="add", ATTR{board_id}=="MT_0000000223", SUBSYSTEM=="infiniband", PROGRAM="rdma_rename %k NAME_FIXED mlx5_ib0"
+ACTION=="add", ATTR{board_id}=="MSF*", SUBSYSTEM=="infiniband", PROGRAM="rdma_rename %k NAME_FIXED mlx5_an0"
+ACTION=="add", ATTR{board_id}=="MT_*", SUBSYSTEM=="infiniband", PROGRAM="rdma_rename %k NAME_FIXED mlx5_ib0"
 EOF
 
 #an_index=0
