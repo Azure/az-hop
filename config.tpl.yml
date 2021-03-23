@@ -6,15 +6,15 @@ homedir_mountpoint: /anfhome
 admin_user: hpcadmin
 key_vault_readers: <object_id> # Object ID to grant key vault reade access
 cyclecloud:
-  image:
-    publisher: "azurecyclecloud"
-    offer:     "azure-cyclecloud"
-    sku:       "cyclecloud-81"
-    version:   "8.1.0"
-  plan:
-    name:      "cyclecloud-81"
-    publisher: "azurecyclecloud"
-    product:   "azure-cyclecloud"
+#  image: # Azure Image Reference for CycleCloud. Default to 8.1.0 if not present
+#    publisher: "azurecyclecloud"
+#    offer:     "azure-cyclecloud"
+#    sku:       "cyclecloud-81"
+#    version:   "8.1.0"
+#  plan: # Azure Image Plan for CycleCloud. Default to 8.1 if not present
+#    name:      "cyclecloud-81"
+#    publisher: "azurecyclecloud"
+#    product:   "azure-cyclecloud"
 users:
   - name: user1
     uid: 10001
