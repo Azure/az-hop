@@ -47,6 +47,16 @@
     include_vars:
       file: '{{lookup_img_file}}'
 
+  - name: debug
+    debug:
+      msg:
+        - "cyclecloud={{cyclecloud}}"
+        - "cyclecloud.image={{cyclecloud.image}}"
+        - "cyclecloud.plan={{cyclecloud.plan}}"
+        - "cyclecloud.rpms={{cyclecloud.rpms}}"
+        - "cyclecloud.rpms.cyclecloud={{cyclecloud.rpms.cyclecloud}}"
+        - "cyclecloud.rpms.jetpack={{cyclecloud.rpms.jetpack}}"
+
   - include_role: 
       name: cyclecloud
       apply: 
@@ -62,8 +72,8 @@
       cc_image_lookup: '{{image_lookup}}'
       cc_domain: '{{ad_join_domain}}'
       cc_ad_server: '{{ad_dns}}'
-      cc_jetpack_url: '{{cyclecloud.update.cyclecloud_url}}'
-      cc_update_url: '{{cyclecloud.update.jetpack_url}}'
+      cc_rpms_jetpack: '{{cyclecloud.rpms.jetpack}}'
+      cc_rpms_cycle: '{{cyclecloud.rpms.cyclecloud}} '
       influxdb_database_name: "telegraf"
       telegraf_influxdb_urls: 
         - "http://jumpbox:8086"

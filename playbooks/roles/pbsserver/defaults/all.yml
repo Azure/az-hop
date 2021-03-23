@@ -1,4 +1,4 @@
 cc_admin: hpcadmin
 cc_password: 
 cc_pbs_version : 1.4.0
-cc_jetpack_url: 
+cc_rpms_jetpack: 

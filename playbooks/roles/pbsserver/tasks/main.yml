@@ -18,7 +18,7 @@
 
 - name: Install CC Jetpack
   yum:
-    name: "{{cc_jetpack_url}}"
+    name: "{{cc_rpms_jetpack}}"
     state: present
 
 - name: Ensure pbs-server is running.

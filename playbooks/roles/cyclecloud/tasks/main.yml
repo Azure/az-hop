@@ -3,17 +3,23 @@
   selinux:
     state: disabled
 
+- name: debug
+  debug:
+    msg:
+      - "cc_jetpack_url={{cc_rpms_jetpack}}"
+      - "cc_update_url={{cc_rpms_cycle}}"
+
 - name: Update CC CycleCloud
   yum:
-    name: "{{cc_update_url}}"
+    name: "{{cc_rpms_cycle}}"
     state: present
-  when: cc_update_url is defined
+  when: cc_rpms_cycle is defined
 
 - name: Update CC Jetpack
   yum:
-    name: "{{cc_jetpack_url}}"
+    name: "{{cc_rpms_jetpack}}"
     state: present
-  when: cc_jetpack_url is defined
+  when: cc_rpms_jetpack is defined
 
 - name: Update cycle server properties
   shell: |
