@@ -67,7 +67,6 @@ jobs:
           # Set CYCLE RPMs
           sed -i "s/__JETPACK_RPM__/${{ env.JETPACK_RPM }}/g;s/__CYCLECLOUD_RPM__/${{ env.CYCLECLOUD_RPM }}/g" config.yml
 
-          sed -i 
           cat config.yml
 
           set +e
