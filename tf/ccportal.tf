@@ -42,16 +42,16 @@ resource "azurerm_virtual_machine" "ccportal" {
   }
 
   storage_image_reference {
-    publisher = "azurecyclecloud"
-    offer     = "azure-cyclecloud"
-    sku       = "cyclecloud-81"
-    version   = "8.1.0"
+    publisher = try(local.configuration_yml["cyclecloud"].image.publisher,"azurecyclecloud")
+    offer     = try(local.configuration_yml["cyclecloud"].image.offer, "azure-cyclecloud")
+    sku       = try(local.configuration_yml["cyclecloud"].image.sku, "cyclecloud-81")
+    version   = try(local.configuration_yml["cyclecloud"].image.version, "8.1.0")
   }
 
   plan {
-    name      = "cyclecloud-81"
-    publisher = "azurecyclecloud"
-    product   = "azure-cyclecloud"
+    name      = try(local.configuration_yml["cyclecloud"].plan.name, "cyclecloud-81")
+    publisher = try(local.configuration_yml["cyclecloud"].plan.publisher, "azurecyclecloud")
+    product   = try(local.configuration_yml["cyclecloud"].plan.product, "azure-cyclecloud")
   }
 
   storage_data_disk {

@@ -4,6 +4,16 @@ resource_group: __RESOURCE_GROUP__
 homefs_size_tb: 4
 admin_user: hpcadmin
 homedir_mountpoint: /anfhome
+cyclecloud:
+  image:
+    publisher: "azurecyclecloud"
+    offer:     "azure-cyclecloud"
+    sku:       "cyclecloud-81"
+    version:   "8.1.0"
+  plan:
+    name: "cyclecloud-81"
+    publisher:  "azurecyclecloud"
+    product:    "azure-cyclecloud"
 users: # TODO
   - name: user1
     uid: 10001

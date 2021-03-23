@@ -31,6 +31,8 @@ env:
   ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
   AZHOP_STATE_CONTAINER: environments
   AZHOP_STATE_ACCOUNT: ${{ secrets.STATE_ACCOUNT }}
+  JETPACK_RPM: "${{ secrets.JETPACK_RPM }}"
+  CYCLECLOUD_RPM: "${{ secrets.CYCLECLOUD_RPM }}"
 
 jobs:
   deploy:
@@ -61,6 +63,13 @@ jobs:
           set -e
           cp $AZHOP_CONFIGURATION config.yml
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
+
+          ls -al 
+          # Set CYCLE RPMs
+          echo "JETPACK_RPM=${{ env.JETPACK_RPM }}"
+          echo "CYCLECLOUD_RPM=${{ env.CYCLECLOUD_RPM }}"
+          echo "Updating config file with Cycle RPMs"
+          sed -i 's#__JETPACK_RPM__#${{ env.JETPACK_RPM }}#g;s#__CYCLECLOUD_RPM__#${{ env.CYCLECLOUD_RPM }}#g' config.yml
 
           cat config.yml
 

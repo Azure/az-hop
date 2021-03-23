@@ -18,7 +18,8 @@
 
 - name: Install CC Jetpack
   yum:
-    name: https://packages.microsoft.com/yumrepos/cyclecloud/jetpack8-8.1.0-1275.x86_64.rpm 
+    name: "{{cc_rpms_jetpack}}"
+    state: present
 
 - name: Ensure pbs-server is running.
   service: 
@@ -95,7 +96,7 @@
             "name": "pbs1"
          },
          "config": {
-           "web_server": "https://ccportal:9443",
+           "web_server": "https://ccportal:9443/cyclecloud",
            "username": "{{ cc_admin }}",
            "password": "{{ cc_password }}"
          }

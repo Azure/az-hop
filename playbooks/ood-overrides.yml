@@ -50,7 +50,7 @@ host_regex: '[^./]+'
 node_uri: '/node'
 rnode_uri: '/rnode'
 pun_custom_env:
-  OOD_DASHBOARD_TITLE: "AzureHPC OnDemand"
+  OOD_DASHBOARD_TITLE: "Azure HPC On-Demand Platform"
   OOD_DASHBOARD_LOGO: "/public/logo.png"
   OOD_BRAND_BG_COLOR: "#0078d4"
   OOD_BRAND_LINK_ACTIVE_BG_COLOR: "#fff"

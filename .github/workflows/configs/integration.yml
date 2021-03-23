@@ -5,6 +5,19 @@ homefs_size_tb: 4
 admin_user: hpcadmin
 key_vault_readers: 0bf2513b-59fe-4018-bfd6-5d4844a9a3b9
 homedir_mountpoint: /anfhome
+cyclecloud:
+  image:
+    publisher: "azurecyclecloud"
+    offer:     "azure-cyclecloud"
+    sku:       "cyclecloud-81"
+    version:   "8.1.0"
+  plan:
+    name: "cyclecloud-81"
+    publisher:  "azurecyclecloud"
+    product:    "azure-cyclecloud"
+  rpms:
+    jetpack: "__JETPACK_RPM__"
+    cyclecloud: "__CYCLECLOUD_RPM__"
 users:
   - name: xavier
     uid: 10001
