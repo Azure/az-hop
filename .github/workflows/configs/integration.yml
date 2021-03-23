@@ -15,6 +15,9 @@ cyclecloud:
     name: "cyclecloud-81"
     publisher:  "azurecyclecloud"
     product:    "azure-cyclecloud"
+  rpms:
+    jetpack: "__JETPACK_RPM__"
+    cyclecloud: "__CYCLECLOUD_RPM__"
 users:
   - name: xavier
     uid: 10001
