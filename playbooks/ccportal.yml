@@ -62,6 +62,8 @@
       cc_image_lookup: '{{image_lookup}}'
       cc_domain: '{{ad_join_domain}}'
       cc_ad_server: '{{ad_dns}}'
+      cc_jetpack_url: '{{cyclecloud.update.cyclecloud_url}}'
+      cc_update_url: '{{cyclecloud.update.jetpack_url}}'
       influxdb_database_name: "telegraf"
       telegraf_influxdb_urls: 
         - "http://jumpbox:8086"

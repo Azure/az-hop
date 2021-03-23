@@ -18,7 +18,8 @@
 
 - name: Install CC Jetpack
   yum:
-    name: "https://lfswe.blob.core.windows.net/cycle/jetpack8-8.1.1-1423.x86_64.rpm?sp=r&st=2021-03-18T12:20:36Z&se=2021-03-19T20:20:36Z&spr=https&sv=2020-02-10&sr=b&sig=Qgn08ofcEn6VhnpREWnHgalN4VzbN5y9eW6M3al9psg%3D"
+    name: "{{cc_jetpack_url}}"
+    state: present
 
 - name: Ensure pbs-server is running.
   service: 

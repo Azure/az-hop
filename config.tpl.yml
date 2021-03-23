@@ -4,17 +4,28 @@ resource_group: azhop
 homefs_size_tb: 4
 homedir_mountpoint: /anfhome
 admin_user: hpcadmin
-key_vault_readers: <object_id> # Object ID to grant key vault reade access
+# Object ID to grant key vault read access
+key_vault_readers: <object_id> 
+
+# CycleCloud image reference, plan and update URL for CC and JetPack to apply fixes on the marketplace image
 cyclecloud:
-#  image: # Azure Image Reference for CycleCloud. Default to 8.1.0 if not present
+  # Azure Image Reference for CycleCloud. Default to 8.1.0 if not present
+#  image: 
 #    publisher: "azurecyclecloud"
 #    offer:     "azure-cyclecloud"
 #    sku:       "cyclecloud-81"
 #    version:   "8.1.0"
-#  plan: # Azure Image Plan for CycleCloud. Default to 8.1 if not present
+  # Azure Image Plan for CycleCloud. Default to 8.1 if not present
+#  plan: 
 #    name:      "cyclecloud-81"
 #    publisher: "azurecyclecloud"
 #    product:   "azure-cyclecloud"
+  update:
+    # optional URL to apply a fix on the marketplace image deployed on the ccportal
+#    cyclecloud_url: "" 
+    # mandatory URL on the jetpack RPM to be installed on the ccportal and the scheduler
+    jetpack_url: "https://packages.microsoft.com/yumrepos/cyclecloud/jetpack8-8.1.0-1275.x86_64.rpm"
+
 users:
   - name: user1
     uid: 10001

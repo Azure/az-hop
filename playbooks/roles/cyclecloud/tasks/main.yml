@@ -5,11 +5,15 @@
 
 - name: Update CC CycleCloud
   yum:
-    name: "https://lfswe.blob.core.windows.net/cycle/cyclecloud8-8.1.1-1423.x86_64.rpm?sp=r&st=2021-03-18T14:54:06Z&se=2021-08-03T21:54:06Z&spr=https&sv=2020-02-10&sr=b&sig=XZdLxsWS6Xr9a16H7sfFy9Kid3XxuPOVRfts7Bf4oEg%3D"
+    name: "{{cc_update_url}}"
+    state: present
+  when: cc_update_url is defined
 
 - name: Update CC Jetpack
   yum:
-    name: "https://lfswe.blob.core.windows.net/cycle/jetpack8-8.1.1-1423.x86_64.rpm?sp=r&st=2021-03-18T12:20:36Z&se=2021-03-19T20:20:36Z&spr=https&sv=2020-02-10&sr=b&sig=Qgn08ofcEn6VhnpREWnHgalN4VzbN5y9eW6M3al9psg%3D"
+    name: "{{cc_jetpack_url}}"
+    state: present
+  when: cc_jetpack_url is defined
 
 - name: Update cycle server properties
   shell: |
