@@ -47,16 +47,6 @@
     include_vars:
       file: '{{lookup_img_file}}'
 
-  - name: debug
-    debug:
-      msg:
-        - "cyclecloud={{cyclecloud}}"
-        - "cyclecloud.image={{cyclecloud.image}}"
-        - "cyclecloud.plan={{cyclecloud.plan}}"
-        - "cyclecloud.rpms={{cyclecloud.rpms}}"
-        - "cyclecloud.rpms.cyclecloud={{cyclecloud.rpms.cyclecloud}}"
-        - "cyclecloud.rpms.jetpack={{cyclecloud.rpms.jetpack}}"
-
   - include_role: 
       name: cyclecloud
       apply: 
