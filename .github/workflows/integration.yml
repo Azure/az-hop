@@ -65,6 +65,8 @@ jobs:
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
 
           # Set CYCLE RPMs
+          echo ${{ env.JETPACK_RPM }}
+          echo ${{ env.CYCLECLOUD_RPM }}
           sed -i "s/__JETPACK_RPM__/'${{ env.JETPACK_RPM }}'/g;s/__CYCLECLOUD_RPM__/'${{ env.CYCLECLOUD_RPM }}'/g" config.yml
 
           cat config.yml
