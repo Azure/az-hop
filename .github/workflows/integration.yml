@@ -31,8 +31,8 @@ env:
   ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
   AZHOP_STATE_CONTAINER: environments
   AZHOP_STATE_ACCOUNT: ${{ secrets.STATE_ACCOUNT }}
-  JETPACK_RPM: ${{ secrets.JETPACK_RPM }}
-  CYCLECLOUD_RPM: ${{ secrets.CYCLECLOUD_RPM }}
+  JETPACK_RPM: "${{ secrets.JETPACK_RPM }}"
+  CYCLECLOUD_RPM: "${{ secrets.CYCLECLOUD_RPM }}"
 
 jobs:
   deploy:
