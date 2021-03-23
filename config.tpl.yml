@@ -6,7 +6,6 @@ homedir_mountpoint: /anfhome
 admin_user: hpcadmin
 # Object ID to grant key vault read access
 key_vault_readers: <object_id> 
-
 # CycleCloud image reference, plan and update URL for CC and JetPack to apply fixes on the marketplace image
 cyclecloud:
   # Azure Image Reference for CycleCloud. Default to 8.1.0 if not present
@@ -25,7 +24,6 @@ cyclecloud:
 #    cyclecloud: "" 
     # mandatory URL on the jetpack RPM to be installed on the ccportal and the scheduler
     jetpack: "https://packages.microsoft.com/yumrepos/cyclecloud/jetpack8-8.1.0-1275.x86_64.rpm"
-
 users:
   - name: user1
     uid: 10001
