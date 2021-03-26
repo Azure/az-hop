@@ -31,6 +31,7 @@ resource "local_file" "global_variables" {
       ondemand-fqdn       = azurerm_public_ip.ondemand-pip.fqdn
       subscription_id     = data.azurerm_subscription.primary.subscription_id
       key_vault           = azurerm_key_vault.azhop.name
+      sig_name            = azurerm_shared_image_gallery.sig.name
     }
   )
   filename = "${local.playbook_root_dir}/group_vars/all.yml"
