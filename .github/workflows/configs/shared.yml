@@ -4,6 +4,16 @@ resource_group: azhop_shared
 homefs_size_tb: 16
 admin_user: hpcadmin
 homedir_mountpoint: /anfhome
+cyclecloud:
+  image:
+    publisher: "azurecyclecloud"
+    offer:     "azure-cyclecloud"
+    sku:       "cyclecloud-81"
+    version:   "8.1.0"
+  plan:
+    name: "cyclecloud-81"
+    publisher:  "azurecyclecloud"
+    product:    "azure-cyclecloud"
 users:
   - name: xavier
     uid: 10001

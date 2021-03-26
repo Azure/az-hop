@@ -1,0 +1,10 @@
+---
+- name: Run test suite
+  hosts: ondemand
+  become: true
+
+  tasks:
+  - name: Call tests role
+    include_role:
+      name: tests
+

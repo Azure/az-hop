@@ -34,6 +34,8 @@ The `HPC Rover` is a docker container acting as a sandbox toolchain development 
 
 You can learn more about the Visual Studio Code Remote on this [link](https://code.visualstudio.com/docs/remote/remote-overview).
 
+To start the container in VS Code, simply open the cloned repository directory (from the **File** menu or by using `code .` from the cloned directory in a separate WSL instance) and click on **Reopen in Container** in the pop-up notification in the bottom right corner.
+
 ### Pre-requisites
 
 The Visual Studio Code system requirements describe the steps to follow to get your development environment ready -> [link](https://code.visualstudio.com/docs/remote/containers#_system-requirements)
@@ -50,6 +52,8 @@ Install
 
 ## Setup on Ubuntu (e.g. WSL2)
 
+For Terraform to work properly on WSL2, on the C drive, make sure to have the metadata mount option enabled.
+
 ```
 # install terraform
 curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
@@ -57,7 +61,10 @@ sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(l
 sudo apt-get update && sudo apt-get install terraform
 
 # install ansible
-sudo apt-get install ansible
+sudo apt install software-properties-common -y
+sudo apt-add-repository ppa:ansible/ansible
+sudo apt update
+sudo apt-get install ansible -y
 # These are needed for AD
 ansible-galaxy collection install ansible.windows
 ansible-galaxy collection install community.windows
@@ -66,14 +73,16 @@ ansible-galaxy collection install ansible.posix
 ansible-galaxy collection install community.general
 
 # install python packages
-sudo apt-get install python3-pip
+curl https://sh.rustup.rs -sSf | sh
+sudo apt-get install libssl-dev -y
+sudo apt-get install python3-pip -y
 pip3 install pypsrp
 pip3 install pysocks
 
 # install yq
-VERSION=v4.2.0
+VERSION=v4.6.1
 BINARY=yq_linux_amd64
-wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY} -O /usr/bin/yq && chmod +x /usr/bin/yq
+sudo wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY} -O /usr/bin/yq && sudo chmod +x /usr/bin/yq
 ```
 
 ## Deploying
@@ -81,6 +90,12 @@ wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY} -O /
 ```bash
 # Login to Azure
 az login
+
+# Review the current subscription
+az account show
+
+# Change your default subscription if needed
+az account set -s <subid>
 
 # Use the **config.tpl.yml** as a template to create the **config.yml** file.
 
@@ -133,7 +148,21 @@ qstat
 To access the grafana dashboard, browse to **https://<ondemand_fqdn>/rnode/jumpbox/3000/**
 On the grafana page, to view the default dashboard, in the left menu select dashboard/manage and then select _Telegraf: system dashboard_
 
+### SSH-ing to VMs on the az-hop vnet
+The `bin/connect` command will be created by terraform.  In addition to the specific `cyclecloud` and `ad` commands it can be a general wrapper for `ssh` in order to access resources on the vnet.  This will handle proxy-ing through the jumpbox and so you can connect directly to the resources on the vnet.  For example, to connect to the ondemand, you can run the following:
 
+```bash
+./bin/connect hpcadmin@ondemand
+```
+
+### Accessing the AD VM
+You need to create an ssh tunnel in order to access the AD VM. From the outside of the container if you run the toolchain from inside a container.
+
+```bash
+./bin/connect ad
+```
+
+Now, with the tunnel, you are able to connect using RDP to the AD VM via `localhost` on port `3390`.
 
 # Delete all
 ```bash 

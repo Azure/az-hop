@@ -3,11 +3,42 @@
   selinux:
     state: disabled
 
+- name: debug
+  debug:
+    msg:
+      - "cc_jetpack_url={{cc_rpms_jetpack}}"
+      - "cc_update_url={{cc_rpms_cycle}}"
+
+- name: Update CC CycleCloud
+  yum:
+    name: "{{cc_rpms_cycle}}"
+    state: present
+  when: cc_rpms_cycle is defined
+
+- name: Update CC Jetpack
+  yum:
+    name: "{{cc_rpms_jetpack}}"
+    state: present
+  when: cc_rpms_jetpack is defined
+
+- name: Update cycle server properties
+  shell: |
+    sed -i 's/^webServerContextPath=.*$/webServerContextPath=\/cyclecloud/g;s/^webServerRedirectHttp=.*$/webServerRedirectHttp=false/g' /opt/cycle_server/config/cycle_server.properties
+    /opt/cycle_server/cycle_server restart
+
 - name: Configure Cycle Cloud portal host
   script: '{{role_path}}/files/configure.py --useManagedIdentity --username {{cc_admin_user}} --acceptTerms --publickey "{{cc_public_key}}" --password "{{cc_password}}" --storageAccount {{cc_storage}}'
 
+- name: Configure AD domain to connect to
+  script: '{{role_path}}/files/configure_ad.py --url "ldap://{{cc_ad_server}}" --domain "@{{cc_domain}}"'
+
+- name: Add User Role Record 
+  copy:
+    src: '{{role_path}}/files/user_role_record.txt'
+    dest: /opt/cycle_server/config/data/user_role_record.txt
+
 - name: Configure CycleCloud CLI
-  command: '/usr/local/bin/cyclecloud initialize --force --batch --name ccportal --url=https://localhost:9443 --verify-ssl=false --username={{cc_admin_user}} --password="{{cc_password}}"'
+  command: '/usr/local/bin/cyclecloud initialize --force --batch --name ccportal --url=https://localhost:9443/cyclecloud --verify-ssl=false --username={{cc_admin_user}} --password="{{cc_password}}"'
   args:
     creates: /root/.cycle/config.ini
 
@@ -106,4 +137,3 @@
 
 - name: Start PBS Cluster
   command: '/usr/local/bin/cyclecloud start_cluster pbs1'
-

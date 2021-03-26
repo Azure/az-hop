@@ -1,4 +1,12 @@
+resource "time_sleep" "delay_create" {
+  depends_on   = [azurerm_key_vault_access_policy.admin] # As policies are created in the same deployment add some delays to propagate
+  create_duration = "20s"
+}
+
 data "azurerm_client_config" "current" {}
+# data "azurerm_role_definition" "owner" {
+#   name = "Owner"
+# }
 
 resource "azurerm_key_vault" "azhop" {
   name                        = format("%s%s", "kv", random_string.resource_postfix.result)
@@ -12,22 +20,18 @@ resource "azurerm_key_vault" "azhop" {
   # TODO => Add the option to enable VMs to keep secrets in KV
   sku_name = "standard"
 
-  access_policy {
-    tenant_id = data.azurerm_client_config.current.tenant_id
-    object_id = data.azurerm_client_config.current.object_id
+  network_acls {
+    default_action = "Allow"
+    bypass         = "AzureServices"
+  }
+}
 
-    # QUESTION => Do we need this ?
-    certificate_permissions = [
-      "get",
-      "managecontacts", 
-    ]
+resource "azurerm_key_vault_access_policy" "admin" {
+  key_vault_id = azurerm_key_vault.azhop.id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = data.azurerm_client_config.current.object_id
 
-    # QUESTION => Do we need this ?
-    key_permissions = [
-      "get",
-    ]
-
-    secret_permissions = [
+  secret_permissions = [
       "get",
       "set",
       "list",
@@ -36,15 +40,47 @@ resource "azurerm_key_vault" "azhop" {
       "recover",
       "restore"
     ]
+}
 
-    # QUESTION => Do we need this ?
-    storage_permissions = [
+# Access Policy can only be granted on Principals and not Roles
+# resource "azurerm_key_vault_access_policy" "owner" {
+
+#   key_vault_id = azurerm_key_vault.azhop.id
+#   tenant_id    = data.azurerm_client_config.current.tenant_id
+#   object_id    = regex("[0-9a-f-]{36}.?", data.azurerm_role_definition.owner.id)
+
+#   secret_permissions = [
+#       "get",
+#       "set",
+#       "list",
+#       "delete",
+#       "purge",
+#       "recover",
+#       "restore"
+#     ]
+# }
+
+resource "azurerm_key_vault_access_policy" "reader" {
+
+  key_vault_id = azurerm_key_vault.azhop.id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = local.key_vault_readers != null ? local.key_vault_readers : data.azurerm_client_config.current.object_id
+
+  secret_permissions = [
       "get",
+      "list"
     ]
-  }
+}
 
-  network_acls {
-    default_action = "Allow"
-    bypass         = "AzureServices"
+resource "azurerm_key_vault_secret" "admin_password" {
+  depends_on   = [time_sleep.delay_create, azurerm_key_vault_access_policy.admin] # As policies are created in the same deployment add some delays to propagate
+  name         = format("%s-password", local.admin_username)
+  value        = random_password.password.result
+  key_vault_id = azurerm_key_vault.azhop.id
+
+  lifecycle {
+    ignore_changes = [
+      value
+    ]
   }
 }

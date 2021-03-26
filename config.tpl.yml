@@ -4,6 +4,26 @@ resource_group: azhop
 homefs_size_tb: 4
 homedir_mountpoint: /anfhome
 admin_user: hpcadmin
+# Object ID to grant key vault read access
+key_vault_readers: <object_id> 
+# CycleCloud image reference, plan and update URL for CC and JetPack to apply fixes on the marketplace image
+cyclecloud:
+  # Azure Image Reference for CycleCloud. Default to 8.1.0 if not present
+#  image: 
+#    publisher: "azurecyclecloud"
+#    offer:     "azure-cyclecloud"
+#    sku:       "cyclecloud-81"
+#    version:   "8.1.0"
+  # Azure Image Plan for CycleCloud. Default to 8.1 if not present
+#  plan: 
+#    name:      "cyclecloud-81"
+#    publisher: "azurecyclecloud"
+#    product:   "azure-cyclecloud"
+  rpms:
+    # optional URL to apply a fix on the marketplace image deployed on the ccportal
+#    cyclecloud: "" 
+    # mandatory URL on the jetpack RPM to be installed on the ccportal and the scheduler
+    jetpack: "https://packages.microsoft.com/yumrepos/cyclecloud/jetpack8-8.1.0-1275.x86_64.rpm"
 users:
   - name: user1
     uid: 10001
@@ -20,6 +40,13 @@ users:
 groups: # TODO
   - name: users
     gid: 5000
+images:
+  - name: image_definition_name # Should match the packer configuration file name, one per packer file
+    publisher: azhop
+    offer: CentOS
+    sku: 7.8-gen2
+    hyper_v: V2 # V1 or V2 (V1 is the default)
+    os_type: Linux # Linux or Windows
 queues:
   - name: execute
     vm_size: Standard_F2s_v2
@@ -30,6 +57,7 @@ queues:
     vm_size: Standard_HC44rs
     max_core_count: 1024
     image: OpenLogic:CentOS-HPC:7.7:latest
+    #image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos78-v2-rdma/latest
   - name: hb60rs
     vm_size: Standard_HB60rs
     max_core_count: 1024

@@ -6,18 +6,17 @@
 config.yml
 packer/options.json
 packer/spn.json
+packer/*.log
 
 # Ansible auto-generated inventory
 playbooks/inventory
 playbooks/group_vars/*
+playbooks/image_lookup.yml
 
 # ssk keys
 *.pub
 *id_rsa*
 *.pem
-
-# datafiles
-*.txt
 
 # bin
 bin/*

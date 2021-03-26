@@ -2,6 +2,7 @@
 - hosts: ccportal
   vars:
     - ansible_python_interpreter: /usr/bin/python3
+    - lookup_img_file: image_lookup.yml
   vars_files:
     - '{{global_config_file}}'
 
@@ -12,6 +13,39 @@
     connection: local
     register: password
     become: false
+
+  - name: Init image lookup file
+    shell: |
+        echo "image_lookup:" > {{lookup_img_file}}
+    args:
+      executable: /bin/bash
+      warn: false
+    delegate_to: localhost
+    connection: local
+    become: false
+
+# Rewrite queue.image propertie to include the image version number for images stored in the SIG
+  - name: Ovewrite image version when needed
+    shell: |
+      # If image name end with /latest, then retrieve the image version from the SIG
+      image={{item.image}}
+      version=${image##*/}
+      if [ "$version" == "latest" ]; then
+        img_def=${image%/*}
+        img_name=${img_def##*/}
+        img_id=$(az sig image-version list -g {{ resource_group }} -r {{ sig_name }} -i $img_name --query "[].id" -o tsv | sort | tail -n 1)
+        echo "  {{item.name}}: $img_id" >> {{lookup_img_file}}
+      fi
+    args:
+      executable: /bin/bash
+    delegate_to: localhost
+    connection: local
+    become: false
+    with_items: "{{queues}}"
+
+  - name: Load lookup image version
+    include_vars:
+      file: '{{lookup_img_file}}'
 
   - include_role: 
       name: cyclecloud
@@ -25,6 +59,11 @@
       cc_password: '{{password.stdout}}'
       cc_storage: '{{global_cc_storage}}'
       cc_queues: '{{queues}}'
+      cc_image_lookup: '{{image_lookup}}'
+      cc_domain: '{{ad_join_domain}}'
+      cc_ad_server: '{{ad_dns}}'
+      cc_rpms_jetpack: '{{cyclecloud.rpms.jetpack}}'
+      cc_rpms_cycle: '{{cyclecloud.rpms.cyclecloud}} '
       influxdb_database_name: "telegraf"
       telegraf_influxdb_urls: 
         - "http://jumpbox:8086"
