@@ -39,6 +39,8 @@
     /tmp/cyclecloud-pbspro/install.sh  --venv /opt/cycle/pbspro/venv --install-venv
     /tmp/cyclecloud-pbspro/generate_autoscale_json.sh  --install-dir /opt/cycle/pbspro --username {{ cc_admin }} --password {{ cc_password }} --url https://ccportal:9443 --cluster-name pbs1
     sed -i '280s/resources:.*/resources: \"ncpus, mem, arch, host, vnode, aoe, slot_type, group_id, ungrouped, disk, ngpus, nodearray\"/' /var/spool/pbs/sched_priv/sched_config 
+  args:
+    chdir: /tmp/cyclecloud-pbspro
 
 - name: Restart pbs-server 
   service: 
