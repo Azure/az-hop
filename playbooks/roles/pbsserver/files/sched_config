@@ -1,3 +1,6 @@
+# All values are the same than the default PBS installtion.
+# Only the resources is updated
+
 round_robin: False	all
 by_queue: True		prime
 by_queue: True		non_prime
@@ -11,7 +14,7 @@ nonprimetime_prefix: np_
 node_sort_key: "sort_priority HIGH"	ALL
 provision_policy: "aggressive_provision"
 sort_queues:	true	ALL
-resources: "ncpus, mem, arch, host, vnode, aoe, slot_type, group_id, ungrouped, instance_id, machinetype, disk, ngpus, nodearray"
+resources: "ncpus, mem, arch, host, vnode, aoe, slot_type, group_id, ungrouped, disk, ngpus, nodearray, instance_id, machinetype"
 load_balancing: false	ALL
 smp_cluster_dist: pack
 fair_share: false	ALL
