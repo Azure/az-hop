@@ -104,9 +104,9 @@ def cyclecloud_account_setup(vm_metadata, use_managed_identity, tenant_id, appli
 
     print("Setting up azure account in CycleCloud and initializing cyclecloud CLI")
 
-    if not accept_terms:
-        print("Accept terms was FALSE !!!!!  Over-riding for now...")
-        accept_terms = True
+    # if not accept_terms:
+    #     print("Accept terms was FALSE !!!!!  Over-riding for now...")
+    accept_terms = True
 
     # if path.isfile(cycle_root + "/config/data/account_data.json.imported"):
     #     print 'Azure account is already configured in CycleCloud. Skipping...'
@@ -222,12 +222,12 @@ def cyclecloud_account_setup(vm_metadata, use_managed_identity, tenant_id, appli
 
 
 def initialize_cyclecloud_cli(admin_user, cyclecloud_admin_pw):
-    print("Setting up azure account in CycleCloud and initializing cyclecloud CLI")
+    # wait for the website to be ready
+    sleep(30)
 
+    print("Setting up azure account in CycleCloud and initializing cyclecloud CLI")
     # wait for the data to be imported
     password_flag = ("--password=%s" % cyclecloud_admin_pw)
-    sleep(5)
-
     print("Initializing cylcecloud CLI")
     _catch_sys_error(["/usr/local/bin/cyclecloud", "initialize", "--loglevel=debug", "--batch",
                       "--url=https://localhost/cyclecloud", "--verify-ssl=false", "--username=%s" % admin_user, password_flag])
