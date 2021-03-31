@@ -222,13 +222,10 @@ def cyclecloud_account_setup(vm_metadata, use_managed_identity, tenant_id, appli
 
 
 def initialize_cyclecloud_cli(admin_user, cyclecloud_admin_pw):
-    # wait for the website to be ready
-    sleep(30)
-
     print("Setting up azure account in CycleCloud and initializing cyclecloud CLI")
-    # wait for the data to be imported
+    
     password_flag = ("--password=%s" % cyclecloud_admin_pw)
-    print("Initializing cylcecloud CLI")
+    print("Initializing cyclecloud CLI")
     _catch_sys_error(["/usr/local/bin/cyclecloud", "initialize", "--loglevel=debug", "--batch",
                       "--url=https://localhost/cyclecloud", "--verify-ssl=false", "--username=%s" % admin_user, password_flag])
 
@@ -357,6 +354,24 @@ def main():
         print("CycleCloud created in resource group: %s" % vm_metadata["compute"]["resourceGroupName"])
         print("Cluster resources will be created in resource group: %s" %  args.resourceGroup)
         vm_metadata["compute"]["resourceGroupName"] = args.resourceGroup
+
+    # Retry await_startup in case it takes much longer than expected 
+    # (this is common in local testing with limited compute resources)
+    max_tries = 5
+    started = False
+    while not started:
+        try:
+            max_tries -= 1
+            _catch_sys_error([cs_cmd, "await_startup"])
+            started = True
+        except:
+            if max_tries >  0:
+                # Wait 30s seconds before retrying
+                _catch_sys_error([sleep, "30"])
+                print("Retrying...")
+            else:
+                print("CycleServer is not started")
+                raise 
 
     cyclecloud_account_setup(vm_metadata, args.useManagedIdentity, args.tenantId, args.applicationId,
                              args.applicationSecret, args.username, args.azureSovereignCloud,
