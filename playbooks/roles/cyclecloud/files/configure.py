@@ -230,7 +230,7 @@ def initialize_cyclecloud_cli(admin_user, cyclecloud_admin_pw):
 
     print("Initializing cylcecloud CLI")
     _catch_sys_error(["/usr/local/bin/cyclecloud", "initialize", "--loglevel=debug", "--batch",
-                      "--url=https://localhost:9443/cyclecloud", "--verify-ssl=false", "--username=%s" % admin_user, password_flag])
+                      "--url=https://localhost/cyclecloud", "--verify-ssl=false", "--username=%s" % admin_user, password_flag])
 
 
 # def letsEncrypt(fqdn, location):
