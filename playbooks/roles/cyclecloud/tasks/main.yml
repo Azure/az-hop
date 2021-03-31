@@ -72,11 +72,6 @@
     dest: /root/pbs/specs/default/cluster-init/scripts/1-joindomain.sh
     mode: 0777
 
-- name: Add installpbs script 
-  copy:
-    src: '{{role_path}}/files/2-installpbs.sh'
-    dest: /root/pbs/specs/default/cluster-init/scripts/2-installpbs.sh
-
 - name: Add cvmfs script 
   copy:
     src: '{{role_path}}/files/3-installcvmfs.sh'
@@ -121,6 +116,11 @@
   copy:
     src: '{{role_path}}/files/6-default.sh'
     dest: /root/pbs/specs/default/cluster-init/scripts/6-default.sh
+
+- name: Add installpbs script 
+  copy:
+    src: '{{role_path}}/files/9-installpbs.sh'
+    dest: /root/pbs/specs/default/cluster-init/scripts/9-installpbs.sh
 
 - name: Create CycleCloud project
   command: '/usr/local/bin/cyclecloud project upload'
