@@ -2,7 +2,7 @@
 
 - name: Install dependencies
   yum:
-    name: python3, nfs-utils
+    name: python3, nfs-utils, jq
 
 - name: Download pbspro 
   unarchive:
