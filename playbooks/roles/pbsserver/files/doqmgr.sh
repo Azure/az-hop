@@ -52,7 +52,7 @@ create_resource machinetype string
 # /opt/pbs/bin/qmgr -c "import hook autoscale application/x-python default /opt/cycle/jetpack/system/bootstrap/pbs/autostart_hook.py"
 # /opt/pbs/bin/qmgr -c "import hook autoscale application/x-config default /opt/cycle/jetpack/system/bootstrap/pbs/autostart.json"
 # /opt/pbs/bin/qmgr -c "set hook autoscale event = periodic"
-# /opt/pbs/bin/qmgr -c "set hook autoscale freq = 15"
+/opt/pbs/bin/qmgr -c "set hook autoscale freq = 60"
 # /opt/pbs/bin/qmgr -c "create hook cycle_sub_hook"
 # /opt/pbs/bin/qmgr -c "set hook cycle_sub_hook event = queuejob"
 # /opt/pbs/bin/qmgr -c "create hook cycle_sub_periodic_hook"
