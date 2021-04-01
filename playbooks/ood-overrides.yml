@@ -3,7 +3,7 @@ clusters:
   ondemand:
     v2:
       metadata:
-        title: my_cluster
+        title: AZHOP - Cluster
       login:
         host: ondemand
       job:
