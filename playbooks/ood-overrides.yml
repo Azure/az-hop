@@ -31,7 +31,7 @@ ood_apps:
     attributes:
       desktop: xfce
       hours:
-        value: 1
+        value: 2
     submit: |
       ---
       script:
@@ -40,6 +40,8 @@ ood_apps:
           - "slot_type=viz3d"
           - "-l"
           - "ncpus=6"
+          - "-l"
+          - "walltime=<%= '%02d:00:00' % hours %>"
 httpd_auth:
 - AuthType Basic
 - AuthName "Open OnDemand"
