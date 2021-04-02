@@ -31,7 +31,15 @@ ood_apps:
     attributes:
       desktop: xfce
       hours:
-        value: 2
+        widget: "number_field"
+        label: "Maximum duration of your remote session"
+        value: 1
+        help: |
+          This is the maximum duration of your remote session once started. Enter a value between 1 and 8
+        min: 1
+        max: 8
+        step: 1
+        id: 'hours'
     submit: |
       ---
       script:
