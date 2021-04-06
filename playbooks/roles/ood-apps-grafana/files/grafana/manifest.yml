@@ -1,0 +1,4 @@
+name: Grafana Dashboard
+description: Cluster performance monitoring with Grafana
+icon: fa://chart-line
+category: Monitoring

@@ -1,0 +1,11 @@
+---
+
+- name: install Flask
+  yum:
+    name: python-flask
+    state: present
+
+- name: Copy application files
+  copy:
+    src: '{{role_path}}/files/cyclecloud'
+    dest: /var/www/ood/apps/sys

@@ -126,3 +126,12 @@
         Host *
           StrictHostKeyChecking=No
       dest: /etc/ssh/ssh_config
+
+  - include_role: 
+      name: ood-apps-cyclecloud
+      apply: 
+        become: true
+  - include_role: 
+      name: ood-apps-grafana
+      apply: 
+        become: true
