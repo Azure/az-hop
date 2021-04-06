@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 # Prepare an Azure provider account for CycleCloud usage.
+import sys
 import os
 import argparse
 import json
@@ -103,9 +104,9 @@ def cyclecloud_account_setup(vm_metadata, use_managed_identity, tenant_id, appli
 
     print("Setting up azure account in CycleCloud and initializing cyclecloud CLI")
 
-    if not accept_terms:
-        print("Accept terms was FALSE !!!!!  Over-riding for now...")
-        accept_terms = True
+    # if not accept_terms:
+    #     print("Accept terms was FALSE !!!!!  Over-riding for now...")
+    accept_terms = True
 
     # if path.isfile(cycle_root + "/config/data/account_data.json.imported"):
     #     print 'Azure account is already configured in CycleCloud. Skipping...'
@@ -188,19 +189,21 @@ def cyclecloud_account_setup(vm_metadata, use_managed_identity, tenant_id, appli
     print(json.dumps(azure_data))
 
     copy2(account_data_file, cycle_root + "/config/data/")
+    # Wait for the data to be imported
+    sleep(5)
 
-    if not accept_terms:
-        # reset the installation status so the splash screen re-appears
-        print("Resetting installation")
-        sql_statement = 'update Application.Setting set Value = false where name ==\"cycleserver.installation.complete\"'
-        _catch_sys_error(
-            ["/opt/cycle_server/cycle_server", "execute", sql_statement])
+    # if not accept_terms:
+    #     # reset the installation status so the splash screen re-appears
+    #     print("Resetting installation")
+    #     sql_statement = 'update Application.Setting set Value = false where name ==\"cycleserver.installation.complete\"'
+    #     _catch_sys_error(
+    #         ["/opt/cycle_server/cycle_server", "execute", sql_statement])
 
     # set the permissions so that the first login works.
     # Set to True so that roles can permission are checked and integration with AD works 
-    perms_sql_statement = 'update Application.Setting set Value = true where Name == \"authorization.check_datastore_permissions\"'
-    _catch_sys_error(
-        ["/opt/cycle_server/cycle_server", "execute", perms_sql_statement])
+    # perms_sql_statement = 'update Application.Setting set Value = true where Name == \"authorization.check_datastore_permissions\"'
+    # _catch_sys_error(
+    #     ["/opt/cycle_server/cycle_server", "execute", perms_sql_statement])
 
     initialize_cyclecloud_cli(admin_user, cyclecloud_admin_pw)
 
@@ -220,28 +223,25 @@ def cyclecloud_account_setup(vm_metadata, use_managed_identity, tenant_id, appli
 
 def initialize_cyclecloud_cli(admin_user, cyclecloud_admin_pw):
     print("Setting up azure account in CycleCloud and initializing cyclecloud CLI")
-
-    # wait for the data to be imported
+    
     password_flag = ("--password=%s" % cyclecloud_admin_pw)
-    sleep(5)
-
-    print("Initializing cylcecloud CLI")
+    print("Initializing cyclecloud CLI")
     _catch_sys_error(["/usr/local/bin/cyclecloud", "initialize", "--loglevel=debug", "--batch",
-                      "--url=https://localhost", "--verify-ssl=false", "--username=%s" % admin_user, password_flag])
+                      "--url=https://localhost/cyclecloud", "--verify-ssl=false", "--username=%s" % admin_user, password_flag])
 
 
-def letsEncrypt(fqdn, location):
-    # FQDN is assumed to be in the form: hostname.location.cloudapp.azure.com
-    # fqdn = hostname + "." + location + ".cloudapp.azure.com"
-    sleep(60)
-    try:
-        cmd_list = [cs_cmd, "keystore", "automatic", "--accept-terms", fqdn]
-        output = check_output(cmd_list)
-        print(cmd_list)
-        print(output)
-    except CalledProcessError as e:
-        print("Error getting SSL cert from Lets Encrypt")
-        print("Proceeding with self-signed cert")
+# def letsEncrypt(fqdn, location):
+#     # FQDN is assumed to be in the form: hostname.location.cloudapp.azure.com
+#     # fqdn = hostname + "." + location + ".cloudapp.azure.com"
+#     sleep(60)
+#     try:
+#         cmd_list = [cs_cmd, "keystore", "automatic", "--accept-terms", fqdn]
+#         output = check_output(cmd_list)
+#         print(cmd_list)
+#         print(output)
+#     except CalledProcessError as e:
+#         print("Error getting SSL cert from Lets Encrypt")
+#         print("Proceeding with self-signed cert")
 
 
 def get_vm_metadata():
@@ -355,12 +355,30 @@ def main():
         print("Cluster resources will be created in resource group: %s" %  args.resourceGroup)
         vm_metadata["compute"]["resourceGroupName"] = args.resourceGroup
 
+    # Retry await_startup in case it takes much longer than expected 
+    # (this is common in local testing with limited compute resources)
+    max_tries = 5
+    started = False
+    while not started:
+        try:
+            max_tries -= 1
+            _catch_sys_error([cs_cmd, "await_startup"])
+            started = True
+        except:
+            if max_tries >  0:
+                # Wait 30s seconds before retrying
+                _catch_sys_error([sleep, "30"])
+                print("Retrying...")
+            else:
+                print("CycleServer is not started")
+                raise 
+
     cyclecloud_account_setup(vm_metadata, args.useManagedIdentity, args.tenantId, args.applicationId,
                              args.applicationSecret, args.username, args.azureSovereignCloud,
                              args.acceptTerms, args.password, args.storageAccount)
 
-    if args.useLetsEncrypt:
-        letsEncrypt(args.hostname, vm_metadata["compute"]["location"])
+    # if args.useLetsEncrypt:
+    #     letsEncrypt(args.hostname, vm_metadata["compute"]["location"])
 
     #  Create user requires root privileges
     create_user_credential(args.username, args.publickey)
@@ -372,4 +390,4 @@ if __name__ == "__main__":
     try:
         main()
     except:
-        print("Deployment failed...   Staying alive for DEBUGGING")
+        sys.exit("Deployment failed...")

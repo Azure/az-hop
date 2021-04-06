@@ -1,18 +1,21 @@
 ---
 
 - name: Upload pbs helpers
+  become_user: hpcuser
   copy:
     src: '{{role_path}}/files/pbs_helpers.sh'
     dest: ~/pbs_helpers.sh
     mode: '0755'
 
 - name: Upload test script
+  become_user: hpcuser
   copy:
     src: '{{role_path}}/files/test.sh'
     dest: ~/test.sh
     mode: '0755'
 
 - name: Upload job script
+  become_user: hpcuser
   copy:
     src: '{{role_path}}/files/job.sh'
     dest: ~/job.sh

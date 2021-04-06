@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 # Configure Cycle to use Active Directory for Auth
+import sys
 import os
 import argparse
 import json
@@ -36,10 +37,19 @@ def create_ad_settings(url, domain):
         "Order": 100,
         "URL": url
     }
-    data_file = os.path.join(tmpdir, "authenticator.json")
+    app_setting_installation = {
+        "AdType": "Application.Setting",
+        "Name": "authorization.check_datastore_permissions",
+        "Value": True
+    }
+    configure_ad_data = [
+        authenticator,
+        app_setting_installation
+    ]
+    data_file = os.path.join(tmpdir, "configure_ad.json")
     print("Creating record file: {}".format(data_file))
     with open(data_file, 'w') as fp:
-        json.dump(authenticator, fp)
+        json.dump(configure_ad_data, fp)
 
     config_path = os.path.join(cycle_root, "config/data/")
     print("Copying config to {}".format(config_path))
@@ -60,4 +70,7 @@ def main():
     clean_up()
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except:
+        sys.exit("Deployment failed...")

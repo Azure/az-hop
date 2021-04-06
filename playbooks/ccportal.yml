@@ -25,7 +25,7 @@
     become: false
 
 # Rewrite queue.image propertie to include the image version number for images stored in the SIG
-  - name: Ovewrite image version when needed
+  - name: Overwrite image version when needed
     shell: |
       # If image name end with /latest, then retrieve the image version from the SIG
       image={{item.image}}
@@ -63,7 +63,7 @@
       cc_domain: '{{ad_join_domain}}'
       cc_ad_server: '{{ad_dns}}'
       cc_rpms_jetpack: '{{cyclecloud.rpms.jetpack}}'
-      cc_rpms_cycle: '{{cyclecloud.rpms.cyclecloud}} '
+      cc_rpms_cycle: '{{cyclecloud.rpms.cyclecloud}}'
       influxdb_database_name: "telegraf"
       telegraf_influxdb_urls: 
         - "http://jumpbox:8086"

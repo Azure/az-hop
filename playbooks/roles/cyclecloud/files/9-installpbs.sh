@@ -38,23 +38,23 @@ echo "Configuring PBS"
 sed -i 's/CHANGE_THIS_TO_PBS_PRO_SERVER_HOSTNAME/scheduler/' /etc/pbs.conf
 sed -i 's/CHANGE_THIS_TO_PBS_PRO_SERVER_HOSTNAME/scheduler/' /var/spool/pbs/mom_priv/config
 
-echo "Register node"
-retry /opt/pbs/bin/qmgr -c "c n $(hostname)"
+# echo "Register node"
+# retry /opt/pbs/bin/qmgr -c "c n $(hostname)"
 
-echo "Set slot_type"
-/opt/pbs/bin/qmgr -c "s n $(hostname) resources_available.slot_type=$(jetpack config pbspro.slot_type)" || exit 1
+# echo "Set slot_type"
+# /opt/pbs/bin/qmgr -c "s n $(hostname) resources_available.slot_type=$(jetpack config pbspro.slot_type)" || exit 1
 
-# properly set grouping for pcs/htc jobs
-echo "properly set grouping for pcs/htc jobs"
-if [ `jetpack config pbspro.is_grouped` == "False" ]; then
-  /opt/pbs/bin/qmgr -c "s n $(hostname) resources_available.ungrouped=true" || exit 1
-else
-  /opt/pbs/bin/qmgr -c "s n $(hostname) resources_available.ungrouped=false" || exit 1
-fi
+# # properly set grouping for pcs/htc jobs
+# echo "properly set grouping for pcs/htc jobs"
+# if [ `jetpack config pbspro.is_grouped` == "False" ]; then
+#   /opt/pbs/bin/qmgr -c "s n $(hostname) resources_available.ungrouped=true" || exit 1
+# else
+#   /opt/pbs/bin/qmgr -c "s n $(hostname) resources_available.ungrouped=false" || exit 1
+# fi
 
-echo "Set the group_id with the vmScaleSetName"
-poolName=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2018-10-01" | jq -r '.compute.vmScaleSetName')
-/opt/pbs/bin/qmgr -c "s n $(hostname) resources_available.group_id=${poolName}" || exit 1
+# echo "Set the group_id with the vmScaleSetName"
+# poolName=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2018-10-01" | jq -r '.compute.vmScaleSetName')
+# /opt/pbs/bin/qmgr -c "s n $(hostname) resources_available.group_id=${poolName}" || exit 1
 
 systemctl restart pbs || exit 1
 echo "PBS Restarted"
