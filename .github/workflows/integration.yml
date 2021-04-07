@@ -158,7 +158,8 @@ jobs:
           cp $AZHOP_CONFIGURATION config.yml
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
           ./ansible_prereqs.sh
-          ansible-playbook -i playbooks/inventory ./playbooks/ccportal.yml
+          cat playbooks/inventory
+          ansible-playbook -vvv -i playbooks/inventory ./playbooks/ccportal.yml
 
   run_tests:
     name: run_tests
