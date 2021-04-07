@@ -135,6 +135,10 @@ jobs:
           cd packer
           ./build_image.sh -i ${{matrix.packer_file}}
 
+      - name: Update Cycle to use the latest images
+        run: |
+          ./ansible_prereqs.sh
+          ansible-playbook -i playbooks/inventory ./playbooks/ccportal.yml
 
   run_tests:
     name: run_tests
