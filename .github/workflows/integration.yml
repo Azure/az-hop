@@ -158,7 +158,12 @@ jobs:
           cp $AZHOP_CONFIGURATION config.yml
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
           ./ansible_prereqs.sh
+          echo "dump playbooks/inventory"
           cat playbooks/inventory
+          echo "dump hpcadmin_id_rsa"
+          cat hpcadmin_id_rsa
+          echo "dump hpcadmin_id_rsa.pub"
+          cat hpcadmin_id_rsa.pub
           ansible-playbook -vvv -i playbooks/inventory ./playbooks/ccportal.yml
 
   run_tests:
