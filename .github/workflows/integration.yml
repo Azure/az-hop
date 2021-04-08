@@ -64,8 +64,6 @@ jobs:
           cp $AZHOP_CONFIGURATION config.yml
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
 
-          ssh -vvv -C -o ControlMaster=auto -o ControlPersist=60s -o StrictHostKeyChecking=no -o 'IdentityFile="hpcadmin_id_rsa"' -o KbdInteractiveAuthentication=no -o PreferredAuthentications=gssapi-with-mic,gssapi-keyex,hostbased,publickey -o PasswordAuthentication=no -o 'User="hpcadmin"' -o ConnectTimeout=30 -o 'ProxyCommand=ssh -i hpcadmin_id_rsa -W %h:%p hpcadmin@13.81.100.122' -o ControlPath=/dev/shm/cp%h-%p-%r 10.0.1.6 '/bin/sh -c '"'"'echo ~hpcadmin && sleep 0'"'"''
-
           ls -al 
           # Set CYCLE RPMs
           echo "JETPACK_RPM=${{ env.JETPACK_RPM }}"
@@ -108,6 +106,7 @@ jobs:
           cp $AZHOP_CONFIGURATION config.yml
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
           ./install.sh
+          ansible-playbook -vvv -i playbooks/inventory ./playbooks/ccportal.yml
 
   build_image:
     name: build_image
@@ -134,8 +133,6 @@ jobs:
         run: |
           cp $AZHOP_CONFIGURATION config.yml
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
-          ssh -vvv -C -o ControlMaster=auto -o ControlPersist=60s -o StrictHostKeyChecking=no -o 'IdentityFile="hpcadmin_id_rsa"' -o KbdInteractiveAuthentication=no -o PreferredAuthentications=gssapi-with-mic,gssapi-keyex,hostbased,publickey -o PasswordAuthentication=no -o 'User="hpcadmin"' -o ConnectTimeout=30 -o 'ProxyCommand=ssh -i hpcadmin_id_rsa -W %h:%p hpcadmin@13.81.100.122' -o ControlPath=/dev/shm/cp%h-%p-%r 10.0.1.6 '/bin/sh -c '"'"'echo ~hpcadmin && sleep 0'"'"''
-
           cd packer
           ./build_image.sh -i ${{matrix.packer_file}}
 
