@@ -14,7 +14,6 @@ on:
   push:
     branches:
       - main
-      - feature/200
     paths:
       - .devcontainer
       - 'packer/**'
@@ -162,7 +161,6 @@ jobs:
         run: |
           cp $AZHOP_CONFIGURATION config.yml
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
-#          ./install.sh linux
           ./install.sh ccportal
 
   run_tests:
