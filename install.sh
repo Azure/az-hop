@@ -1,32 +1,29 @@
 #!/bin/bash
+TARGET=${1:-all}
 set -e
+THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-if [[ `pip3 list pypsrp` == *"pypsrp"* ]]; then 
-  echo pypsrp is already installed 
-else
-  pip3 install pypsrp
-fi
-if [[ `pip3 list PySocks` == *"PySocks"* ]]; then 
-  echo PySocks is already installed 
-else
-  pip3 install PySocks
-fi
-ansible-galaxy collection install ansible.windows
-ansible-galaxy collection install community.windows
-ansible-galaxy collection install ansible.posix
-ansible-galaxy collection install community.general
+$THIS_DIR/ansible_prereqs.sh
 
-# This is to fix an issue when using delegate_to
-if [ -f /usr/bin/python3 ] && [ ! -f /usr/bin/python ]; then 
-  sudo ln --symbolic /usr/bin/python3 /usr/bin/python; 
-fi
-
-ansible-playbook -i playbooks/inventory ./playbooks/ad.yml
-ansible-playbook -i playbooks/inventory ./playbooks/linux.yml
-ansible-playbook -i playbooks/inventory ./playbooks/add_users.yml
-ansible-playbook -i playbooks/inventory ./playbooks/ccportal.yml
-ansible-playbook -i playbooks/inventory ./playbooks/scheduler.yml
-ansible-playbook -i playbooks/inventory ./playbooks/ood.yml --extra-vars=@playbooks/ood-overrides.yml
-ansible-playbook -i playbooks/inventory ./playbooks/grafana.yml 
-ansible-playbook -i playbooks/inventory ./playbooks/telegraf.yml 
-
+case $TARGET in
+  all)
+    ansible-playbook -i playbooks/inventory ./playbooks/ad.yml
+    ansible-playbook -i playbooks/inventory ./playbooks/linux.yml
+    ansible-playbook -i playbooks/inventory ./playbooks/add_users.yml
+    ansible-playbook -i playbooks/inventory ./playbooks/ccportal.yml
+    ansible-playbook -i playbooks/inventory ./playbooks/scheduler.yml
+    ansible-playbook -i playbooks/inventory ./playbooks/ood.yml --extra-vars=@playbooks/ood-overrides.yml
+    ansible-playbook -i playbooks/inventory ./playbooks/grafana.yml 
+    ansible-playbook -i playbooks/inventory ./playbooks/telegraf.yml 
+  ;;
+  ad | linux | add_users | ccportal | scheduler | grafana | telegraf)
+    ansible-playbook -i playbooks/inventory ./playbooks/$TARGET.yml
+  ;;
+  ood)
+    ansible-playbook -i playbooks/inventory ./playbooks/ood.yml --extra-vars=@playbooks/ood-overrides.yml
+  ;;
+  *)
+    echo "unknown target"
+    exit 1
+  ;;
+esac
