@@ -1,4 +1,10 @@
 ---
+- name: jumpbox dummy
+  hosts: jumpbox
+  become: true
+  vars_files:
+    - '{{global_config_file}}'
+
 - name: Setup cyclecloud
   hosts: ccportal
   become: true
