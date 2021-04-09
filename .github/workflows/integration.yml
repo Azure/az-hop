@@ -5,7 +5,12 @@
 name : integration
 
 on:
-  workflow_dispatch: 
+  workflow_dispatch:
+    inputs:
+      name:
+        description: 'Configuration to use'
+        required: false
+        default: 'config.yml'
   push:
     branches:
       - main
