@@ -21,9 +21,9 @@ cyclecloud:
 #    product:   "azure-cyclecloud"
   rpms:
     # optional URL to apply a fix on the marketplace image deployed on the ccportal
-#    cyclecloud: "" 
+    cyclecloud: "https://packages.microsoft.com/yumrepos/cyclecloud/cyclecloud8-8.1.1-1451.x86_64.rpm"
     # mandatory URL on the jetpack RPM to be installed on the ccportal and the scheduler
-    jetpack: "https://packages.microsoft.com/yumrepos/cyclecloud/jetpack8-8.1.0-1275.x86_64.rpm"
+    jetpack: "https://packages.microsoft.com/yumrepos/cyclecloud/jetpack8-8.1.1-1451.x86_64.rpm"
 users:
   - name: user1
     uid: 10001
