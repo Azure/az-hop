@@ -50,18 +50,4 @@ create_resource machinetype string
 #/opt/pbs/bin/qmgr -c "set sched only_explicit_psets=True"
 #/opt/pbs/bin/qmgr -c "set sched do_not_span_psets=True"
 
-# /opt/pbs/bin/qmgr -c "create hook autoscale"
-# /opt/pbs/bin/qmgr -c "import hook autoscale application/x-python default /opt/cycle/jetpack/system/bootstrap/pbs/autostart_hook.py"
-# /opt/pbs/bin/qmgr -c "import hook autoscale application/x-config default /opt/cycle/jetpack/system/bootstrap/pbs/autostart.json"
-# /opt/pbs/bin/qmgr -c "set hook autoscale event = periodic"
 /opt/pbs/bin/qmgr -c "set hook autoscale freq = 60"
-# /opt/pbs/bin/qmgr -c "create hook cycle_sub_hook"
-# /opt/pbs/bin/qmgr -c "set hook cycle_sub_hook event = queuejob"
-# /opt/pbs/bin/qmgr -c "create hook cycle_sub_periodic_hook"
-# /opt/pbs/bin/qmgr -c "set hook cycle_sub_periodic_hook event = periodic"
-# /opt/pbs/bin/qmgr -c "set hook cycle_sub_periodic_hook freq = 15"
-# /opt/pbs/bin/qmgr -c "import hook cycle_sub_hook application/x-python default /opt/cycle/jetpack/system/bootstrap/pbs/submit_hook.py"
-# /opt/pbs/bin/qmgr -c "import hook cycle_sub_hook application/x-config default /opt/cycle/jetpack/system/bootstrap/pbs/submit_hook.json"
-# /opt/pbs/bin/qmgr -c "import hook cycle_sub_periodic_hook application/x-python default /opt/cycle/jetpack/system/bootstrap/pbs/submit_hook.py"
-# /opt/pbs/bin/qmgr -c "import hook cycle_sub_periodic_hook application/x-config default /opt/cycle/jetpack/system/bootstrap/pbs/submit_hook.json"
-
