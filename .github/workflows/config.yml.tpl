@@ -14,13 +14,16 @@ cyclecloud:
     name: "cyclecloud-81"
     publisher:  "azurecyclecloud"
     product:    "azure-cyclecloud"
+  rpms:
+    cyclecloud: "https://packages.microsoft.com/yumrepos/cyclecloud/cyclecloud8-8.1.1-1451.x86_64.rpm"
+    jetpack: "https://packages.microsoft.com/yumrepos/cyclecloud/jetpack8-8.1.1-1451.x86_64.rpm"
 users: # TODO
-  - name: user1
+  - name: hpcuser
     uid: 10001
     gid: 5000
     shell: /bin/bash
-    home: /anfhome/user1
-    admin: true
+    home: /anfhome/hpcuser
+    admin: false
   - name: user2
     uid: 10002
     gid: 5000
@@ -45,32 +48,24 @@ images:
     hyper_v: V1
     os_type: Linux
     version: 7.7
-  - name: centos77-v2-rdma-gpgpu
-    publisher: azhop
-    offer: CentOS-GPU
-    sku: 7.7
-    hyper_v: V2
-    os_type: Linux
-    version: 7.7
 queues:
   - name: execute
     vm_size: Standard_F2s_v2
     max_core_count: 1024
-    image: OpenLogic:CentOS-HPC:7.7:latest
+    image: OpenLogic:CentOS-HPC:7_8:latest
   - name: hc44rs
     vm_size: Standard_HC44rs
-    max_core_count: 1024
+    max_core_count: 1056
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos78-v2-rdma/latest
-    EnableAcceleratedNetworking: true
   - name: hb60rs
     vm_size: Standard_HB60rs
-    max_core_count: 1024
+    max_core_count: 1440
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos78-v2-rdma/latest
   - name: hb120rs_v2
     vm_size: Standard_HB120rs_v2
-    max_core_count: 1024
+    max_core_count: 2880
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos78-v2-rdma/latest
   - name: viz3d
     vm_size: Standard_NV6
-    max_core_count: 1024
+    max_core_count: 24
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.7-desktop-3d/latest

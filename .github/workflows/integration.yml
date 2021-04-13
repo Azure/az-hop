@@ -10,7 +10,7 @@ on:
       name:
         description: 'Configuration to use'
         required: false
-        default: 'config.yml'
+        default: 'integration'
   push:
     branches:
       - main
