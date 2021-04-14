@@ -209,7 +209,7 @@ jobs:
     name: cleanup
     runs-on: ubuntu-latest
     if: always()
-    needs: [configure, run_tests]
+    needs: [deploy, configure, run_tests]
 
     container:
       image: xpillons/hpcrover:latest
