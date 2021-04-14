@@ -35,7 +35,7 @@ function get_resource_group()
     fi
 }
 
-if [ "$COMMAND" != "upload" ] && [ "$COMMAND" != "download" ]; then
+if [ "$COMMAND" != "upload" ] && [ "$COMMAND" != "download" ] && [ "$COMMAND" != "delete" ]; then
   usage
 fi
 
