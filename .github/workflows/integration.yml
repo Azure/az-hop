@@ -7,8 +7,8 @@ name : integration
 on:
   workflow_dispatch:
     inputs:
-      configuration:
-        description: 'Configuration to use'
+      azhop_configuration:
+        description: 'az-hop configuration to use. The pipeline will load the $azhop_configuration.yml file.'
         required: false
         default: 'integration' # use it with ${{ github.event.inputs.configuration }}
   push:
@@ -27,7 +27,7 @@ env:
   TF_CLI_ARGS: '-no-color'
   TF_CLI_ARGS_destroy: '-auto-approve -refresh=false'
   TF_CLI_ARGS_apply: '-auto-approve'
-  AZHOP_CONFIGURATION: '.github/workflows/configs/integration.yml'
+  AZHOP_CONFIGURATION: '.github/workflows/configs/${{ github.event.inputs.azhop_configuration }}.yml'
   ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
   ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
   ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
@@ -36,6 +36,7 @@ env:
   AZHOP_STATE_ACCOUNT: ${{ secrets.STATE_ACCOUNT }}
   JETPACK_RPM: "${{ secrets.JETPACK_RPM }}"
   CYCLECLOUD_RPM: "${{ secrets.CYCLECLOUD_RPM }}"
+  ANSIBLE_VERBOSITY: 2 # From 0 to 4 based on the level of logs needed in Ansible
 
 jobs:
   deploy:

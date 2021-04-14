@@ -9,7 +9,7 @@
   community.windows.win_domain_user:
     name: "{{ user.name }}"
     firstname: "{{ user.name }}"
-    password: '{{password.stdout}}' 
+    password: '{{password.stdout}}'
     state: present
     groups:
       - Domain Users
