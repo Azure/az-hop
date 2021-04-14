@@ -11,11 +11,28 @@ STATE_DIR=.state
 function usage()
 {
   echo "azhop_state command account container resource_group"
-  echo "    command        = download or upload"
+  echo "    command        = download, upload, delete"
   echo "    account        = azure storage account to read/write state"
   echo "    container      = container to use"
   echo "    resource group = resource group to use (only for download)"
   exit 1
+}
+
+function get_resource_group()
+{
+    # If resource group is empty, read it from the configuration file
+    if [ -z $RESOURCE_GROUP ]; then
+        if [ ! -e $AZHOP_CONFIG ]; then
+          echo "$AZHOP_CONFIG doesn't exist, exiting"
+          exit 1
+        fi
+
+        RESOURCE_GROUP=$(yq eval '.resource_group' $AZHOP_CONFIG)
+        if [ -z $RESOURCE_GROUP ]; then
+          echo "Resource group is empty, exiting"
+          exit 1
+        fi
+    fi
 }
 
 if [ "$COMMAND" != "upload" ] && [ "$COMMAND" != "download" ]; then
@@ -29,19 +46,9 @@ expiry=$(date -u -d "60 minutes" '+%Y-%m-%dT%H:%MZ')
 
 case $COMMAND in 
   download)
-    # If resource group is empty, read it from the configuration file
-    if [ -z $RESOURCE_GROUP ]; then
-        if [ ! -e $AZHOP_CONFIG ]; then
-          echo "$AZHOP_CONFIG doesn't exist, exiting"
-          exit
-        fi
 
-        RESOURCE_GROUP=$(yq eval '.resource_group' $AZHOP_CONFIG)
-        if [ -z $RESOURCE_GROUP ]; then
-          echo "Resource group is empty, exiting"
-          exit
-        fi
-    fi
+    get_resource_group
+    echo "Download state for $RESOURCE_GROUP"
     sas=$(az storage container generate-sas --account-name $SA_ACCOUNT --name $SA_CONTAINER --permissions rl --start $start --expiry $expiry --output tsv)
     azcopy copy "https://$SA_ACCOUNT.blob.core.windows.net/$SA_CONTAINER/$RESOURCE_GROUP/*?$sas" "$STATE_DIR" --recursive --overwrite=ifSourceNewer
 
@@ -67,9 +74,10 @@ case $COMMAND in
     fi
 
     RESOURCE_GROUP=$(yq eval '.resource_group' $AZHOP_CONFIG)
+    echo "Upload state for $RESOURCE_GROUP"
     if [ -z $RESOURCE_GROUP ]; then
       echo "Resource group is empty, exiting"
-      exit
+      exit 1
     fi
     # Copy state files into the state directory
     mkdir -p $STATE_DIR
@@ -89,6 +97,13 @@ case $COMMAND in
 
     sas=$(az storage container generate-sas --account-name $SA_ACCOUNT --name $SA_CONTAINER --permissions rwdl --start $start --expiry $expiry --output tsv)
     azcopy copy "$STATE_DIR/*" "https://$SA_ACCOUNT.blob.core.windows.net/$SA_CONTAINER/$RESOURCE_GROUP?$sas"  --recursive --overwrite=ifSourceNewer
+  ;;
+
+  delete)
+    get_resource_group
+    echo "Delete state for $RESOURCE_GROUP"
+    sas=$(az storage container generate-sas --account-name $SA_ACCOUNT --name $SA_CONTAINER --permissions dl --start $start --expiry $expiry --output tsv)
+    azcopy remove "https://$SA_ACCOUNT.blob.core.windows.net/$SA_CONTAINER/$RESOURCE_GROUP?$sas"
   ;;
 esac
 
