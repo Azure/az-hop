@@ -7,10 +7,10 @@ name : integration
 on:
   workflow_dispatch:
     inputs:
-      name:
+      configuration:
         description: 'Configuration to use'
         required: false
-        default: 'integration'
+        default: 'integration' # use it with ${{ github.event.inputs.configuration }}
   push:
     branches:
       - main
@@ -22,7 +22,6 @@ on:
       - build.sh
       - install.sh
       - '!**.md'
-
 
 env:
   TF_CLI_ARGS: '-no-color'
