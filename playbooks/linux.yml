@@ -17,7 +17,7 @@
 
   - name: reboot 
     reboot:
-    post_reboot_delay: 30 # Wait 30s for machine to settle before moving forward
+      post_reboot_delay: 30 # Wait 30s for machine to settle before moving forward
     when: selinux.reboot_required 
 
   - name: Restart service dbus
