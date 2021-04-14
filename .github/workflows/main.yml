@@ -58,12 +58,8 @@ jobs:
         id: deploy
         run: |
           set -e
-          VERSION_TAG=$(date +"%g%m.%d%H")
-          echo "VERSION_TAG=${VERSION_TAG}" >> $GITHUB_ENV
-
           UUID="$(cat /proc/sys/kernel/random/uuid | tr -d '\n-' | tr '[:upper:]' '[:lower:]' | cut -c 1-6)"
           RESOURCE_GROUP="azhop_$UUID"
-          #echo "RESOURCE_GROUP=$RESOURCE_GROUP" >> $GITHUB_ENV
           echo "::set-output name=RESOURCE_GROUP::$RESOURCE_GROUP"
           
           sed "s/__LOCATION__/westeurope/g;s/__RESOURCE_GROUP__/$RESOURCE_GROUP/g" $TF_TEMPLATE_CONFIGURATION > $TF_CONFIGURATION
@@ -101,7 +97,6 @@ jobs:
         run: |
 
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
-          #sed "s/__LOCATION__/westeurope/g;s/__RESOURCE_GROUP__/$RESOURCE_GROUP/g" $TF_TEMPLATE_CONFIGURATION > $TF_CONFIGURATION
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           ./install.sh
 
@@ -129,7 +124,6 @@ jobs:
       - name: Build Images
         run: |
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
-          #sed "s/__LOCATION__/westeurope/g;s/__RESOURCE_GROUP__/$RESOURCE_GROUP/g" $TF_TEMPLATE_CONFIGURATION > $TF_CONFIGURATION
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           cd packer
           ./build_image.sh -i ${{matrix.packer_file}}
@@ -216,16 +210,18 @@ jobs:
       options: --user 0
 
     steps:
-      - name: Cleanup
-        if: always()
+      - name: Login azure
         run: |
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
-          # If resource group is still there after destroy remove it
+      - name: Cleanup
+        run: |
+
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           rg_exists=$(az group exists -n $RESOURCE_GROUP)
           if [ "$rg_exists" = "true" ]; then
             echo "removing resource group $RESOURCE_GROUP"
-            az group delete -n $RESOURCE_GROUP -y 
+            az group delete -n $RESOURCE_GROUP -y
+            ./azhop_state.sh delete ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           fi
