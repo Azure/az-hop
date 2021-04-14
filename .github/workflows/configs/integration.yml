@@ -16,8 +16,8 @@ cyclecloud:
     publisher:  "azurecyclecloud"
     product:    "azure-cyclecloud"
   rpms:
-    jetpack: "__JETPACK_RPM__"
-    cyclecloud: "__CYCLECLOUD_RPM__"
+    cyclecloud: "https://packages.microsoft.com/yumrepos/cyclecloud/cyclecloud8-8.1.1-1451.x86_64.rpm"
+    jetpack: "https://packages.microsoft.com/yumrepos/cyclecloud/jetpack8-8.1.1-1451.x86_64.rpm"
 users:
   - name: xavier
     uid: 10001
