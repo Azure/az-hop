@@ -36,6 +36,7 @@ env:
   AZHOP_STATE_ACCOUNT: ${{ secrets.STATE_ACCOUNT }}
   JETPACK_RPM: "${{ secrets.JETPACK_RPM }}"
   CYCLECLOUD_RPM: "${{ secrets.CYCLECLOUD_RPM }}"
+  ANSIBLE_VERBOSITY: 2 # From 0 to 4 based on the level of logs needed in Ansible
 
 jobs:
   deploy:
