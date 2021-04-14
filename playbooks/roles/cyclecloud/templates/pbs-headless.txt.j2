@@ -33,6 +33,9 @@ Autoscale = true
         cyclecloud.exports.defaults.samba.enabled = false      
         cshared.server.legacy_links_disabled = true
 
+        [[[volume boot]]] 
+        StorageAccountType = StandardSSD_LRS
+
 {% for queue in cc_queues %}
     [[nodearray {{ queue.name }}]]
     MachineType = {{ queue.vm_size }} 
