@@ -21,7 +21,7 @@ Autoscale = true
         [[[configuration]]]
         cyclecloud.converge_on_boot = true
         # This is to avoid hostnames to be renamed ip-XXXXXXXX, waiting for a fix from PBSPro with scalelib integration
-        #cyclecloud.hosts.standalone_dns.enabled = false
+        cyclecloud.hosts.standalone_dns.enabled = false
 
         # Disable normal NFS exports and mounts
         cyclecloud.mounts.sched.disabled = true
@@ -33,8 +33,8 @@ Autoscale = true
         cyclecloud.exports.defaults.samba.enabled = false      
         cshared.server.legacy_links_disabled = true
 
-        [[[volume boot]]] 
-        StorageAccountType = StandardSSD_LRS
+#        [[[volume boot]]] 
+#        StorageAccountType = StandardSSD_LRS
 
 {% for queue in cc_queues %}
     [[nodearray {{ queue.name }}]]
