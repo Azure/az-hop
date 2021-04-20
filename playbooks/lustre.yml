@@ -1,0 +1,35 @@
+---
+- name: Lustre setup
+  hosts: lustre, lustre-oss-*, robinhood
+  become: true
+  vars_files:
+    - '{{global_config_file}}'
+
+  tasks:
+  - name: Disable SELinux
+    selinux:
+      state: disabled
+  - name: Add Lustre server repo
+    yum_repository:
+        name: lustreserver
+        description: Lustre repo
+        baseurl: https://downloads.whamcloud.com/public/lustre/${lustre_version}/el7/patchless-ldiskfs-server/
+        file: LustrePack
+        enabled: yes
+        gpgcheck: no
+  - name: Add Lustre client repo
+    yum_repository:
+        name: lustreclient
+        description: Lustre repo
+        baseurl: https://downloads.whamcloud.com/public/lustre/${lustre_version}/el7/client/
+        file: LustrePack
+        enabled: yes
+        gpgcheck: no
+  - name: Add e2fs repo
+    yum_repository:
+        name: e2fs
+        description: Lustre repo
+        baseurl: https://downloads.whamcloud.com/public/e2fsprogs/latest/el7/
+        file: LustrePack
+        enabled: yes
+        gpgcheck: no

@@ -9,6 +9,7 @@ locals {
         sku       = "7_7-gen2"
         version   = "7.7.2020062401"
     }
+    lustre_version = "2.12.4"
 }
 
 #

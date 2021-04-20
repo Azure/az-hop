@@ -10,6 +10,8 @@ resource "local_file" "AnsibleInventory" {
       ccportal-ip       = azurerm_network_interface.ccportal-nic.private_ip_address
       ad-ip             = azurerm_network_interface.ad-nic.private_ip_address
       ad-passwd         = azurerm_windows_virtual_machine.ad.admin_password
+      lustre-user       = azurerm_linux_virtual_machine.lustre.admin_username
+      lustre-oss-count  = local.lustre_oss_count
     }
   )
   filename = "${local.playbook_root_dir}/inventory"
@@ -32,6 +34,7 @@ resource "local_file" "global_variables" {
       subscription_id     = data.azurerm_subscription.primary.subscription_id
       key_vault           = azurerm_key_vault.azhop.name
       sig_name            = azurerm_shared_image_gallery.sig.name
+      lustre_version      = local.lustre_version
     }
   )
   filename = "${local.playbook_root_dir}/group_vars/all.yml"

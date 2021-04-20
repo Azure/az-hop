@@ -23,4 +23,18 @@ all:
       ansible_user: ${jumpbox-user}
       ansible_password: "${ad-passwd}"
       ansible_psrp_proxy: socks5h://localhost:5985
+    lustre:
+      ansible_host: lustre
+      ansible_ssh_user: ${lustre-user}
+      ansible_ssh_common_args: '-o ProxyCommand="ssh -i ${jumpbox-user}_id_rsa -W %h:%p ${jumpbox-user}@${jumpbox-pip}"'
+%{ for count in range(lustre-oss-count) }
+    lustre-oss-${count}:
+      ansible_host: lustre-oss-${count}
+      ansible_ssh_user: ${lustre-user}
+      ansible_ssh_common_args: '-o ProxyCommand="ssh -i ${jumpbox-user}_id_rsa -W %h:%p ${jumpbox-user}@${jumpbox-pip}"'
+%{ endfor }
+    robinhood:
+      ansible_host: robinhood
+      ansible_ssh_user: ${lustre-user}
+      ansible_ssh_common_args: '-o ProxyCommand="ssh -i ${jumpbox-user}_id_rsa -W %h:%p ${jumpbox-user}@${jumpbox-pip}"'
 #  vars: all moved into global_variables and in group_vars/all.yml
