@@ -31,6 +31,19 @@
       include_management_tools: yes
       include_sub_features: yes
       state: present
+    ignore_errors: true
+    register: ad_ds
+
+# For an unknown reason, sometime installing AD-DS is failing, and a retry succeed. 
+# So in case of failure, do a retry and really failed after the second attempt
+  - name: Retry Install AD-Domain-Services in case of failure
+    win_feature:
+      name: AD-Domain-Services
+      include_management_tools: yes
+      include_sub_features: yes
+      state: present
+    when: ad_ds.failed
+    register: ad_ds
 
   - name: Create AD-Domain
     ansible.windows.win_domain:
