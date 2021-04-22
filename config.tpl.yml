@@ -2,6 +2,7 @@
 location: westeurope
 resource_group: azhop
 homefs_size_tb: 4
+homefs_service_level: Standard, Premium, Ultra
 homedir_mountpoint: /anfhome
 admin_user: hpcadmin
 # Object ID to grant key vault read access

@@ -7,7 +7,8 @@ locals {
     
     location = local.configuration_yml["location"]
     resource_group = local.configuration_yml["resource_group"]
-    homefs_size_tb = local.configuration_yml["homefs_size_tb"]
+    homefs_size_tb = try(local.configuration_yml["homefs_size_tb"], 4)
+    homefs_service_level = try(local.configuration_yml["homefs_service_level"], "Standard")
     admin_username = local.configuration_yml["admin_user"]
     homedir_mountpoint = local.configuration_yml["homedir_mountpoint"]
     key_vault_readers = try(local.configuration_yml["key_vault_readers"], null)
