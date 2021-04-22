@@ -9,7 +9,6 @@ locals {
         sku       = "7_7-gen2"
         version   = "7.7.2020062401"
     }
-    lustre_version = "2.12.4"
 }
 
 #
@@ -61,6 +60,13 @@ resource "azurerm_linux_virtual_machine" "lustre" {
 # lustre OSS VMs
 #
 
+resource "azurerm_user_assigned_identity" "lustre-oss" {
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+
+  name = "lustre-oss"
+}
+
 resource "azurerm_network_interface" "lustre-oss-nic" {
   count               = local.lustre_oss_count
   name                = "lustre-oss-nic-${count.index}"
@@ -104,8 +110,32 @@ resource "azurerm_linux_virtual_machine" "lustre-oss" {
   }
 
   identity {
-    type = "SystemAssigned"
+    type         = "UserAssigned"
+    identity_ids = [ azurerm_user_assigned_identity.lustre-oss.id ]
   }
+}
+
+# add contributor to the subscription
+# (using the data below from the ccportal.tf)
+#data "azurerm_subscription" "primary" {}
+#data "azurerm_role_definition" "contributor" {
+#  name = "Contributor"
+#}
+resource "azurerm_role_assignment" "lustre-oss" {
+  name               = azurerm_user_assigned_identity.lustre-oss.principal_id
+  scope              = data.azurerm_subscription.primary.id
+  role_definition_id = "${data.azurerm_subscription.primary.id}${data.azurerm_role_definition.contributor.id}"
+  principal_id       = azurerm_user_assigned_identity.lustre-oss.principal_id
+}
+# (using this from keyvault.tf)
+#data "azurerm_client_config" "current" {}
+resource "azurerm_key_vault_access_policy" "lustre-oss" {
+  key_vault_id = azurerm_key_vault.azhop.id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = azurerm_user_assigned_identity.lustre-oss.principal_id
+
+  key_permissions = [ "get", "list" ]
+  secret_permissions = [ "get", "list" ]
 }
 
 #

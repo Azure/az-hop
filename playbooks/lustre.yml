@@ -9,27 +9,144 @@
   - name: Disable SELinux
     selinux:
       state: disabled
+    register: selinux
+  - name: reboot 
+    reboot:
+    when: selinux.reboot_required 
   - name: Add Lustre server repo
     yum_repository:
-        name: lustreserver
-        description: Lustre repo
-        baseurl: https://downloads.whamcloud.com/public/lustre/${lustre_version}/el7/patchless-ldiskfs-server/
-        file: LustrePack
-        enabled: yes
-        gpgcheck: no
+      name: lustreserver
+      description: Lustre repo
+      baseurl: https://downloads.whamcloud.com/public/lustre/lustre-{{ lustre.version }}/el7/patchless-ldiskfs-server/
+      file: LustrePack
+      enabled: yes
+      gpgcheck: no
   - name: Add Lustre client repo
     yum_repository:
-        name: lustreclient
-        description: Lustre repo
-        baseurl: https://downloads.whamcloud.com/public/lustre/${lustre_version}/el7/client/
-        file: LustrePack
-        enabled: yes
-        gpgcheck: no
+      name: lustreclient
+      description: Lustre repo
+      baseurl: https://downloads.whamcloud.com/public/lustre/lustre-{{ lustre.version }}/el7/client/
+      file: LustrePack
+      enabled: yes
+      gpgcheck: no
   - name: Add e2fs repo
     yum_repository:
-        name: e2fs
-        description: Lustre repo
-        baseurl: https://downloads.whamcloud.com/public/e2fsprogs/latest/el7/
-        file: LustrePack
-        enabled: yes
-        gpgcheck: no
+      name: e2fs
+      description: Lustre repo
+      baseurl: https://downloads.whamcloud.com/public/e2fsprogs/latest/el7/
+      file: LustrePack
+      enabled: yes
+      gpgcheck: no
+  - name: Install lustre packages
+    yum:
+      name:
+        - lustre
+        - kmod-lustre-osd-ldiskfs
+        - lustre-osd-ldiskfs-mount
+        - lustre-resource-agents
+        - e2fsprogs
+        - lustre-tests
+      state: present
+    register: install_rpms
+  - name: disable resource disk
+    lineinfile: 
+      path: /etc/waagent.conf 
+      regexp: '^ResourceDisk\.Format=y$' 
+      line: 'ResourceDisk.Format=n'
+      backrefs: yes
+    register: disable_resource_disk
+  - name: restart waagent if config changed
+    service:
+      name: waagent
+      state: restarted
+    when: disable_resource_disk.changed
+  - name: ensure temp-disk-swapdile is stopped
+    service:
+      name: temp-disk-swapfile
+      state: stopped
+  - name: run weak-modules
+    command: weak-modules --add-kernel --no-initramfs
+    when: install_rpms.changed
+  - name: ensure resource disk is not mounted
+    mount:
+      path: /mnt/resource
+      state: unmounted
+
+- name: Lustre MDS setup
+  hosts: lustre
+  become: true
+  vars_files:
+    - '{{global_config_file}}'
+  
+  tasks:
+  - name: get mdt device info
+    command: lsblk -f {{ lustre.mdt_device }}
+    changed_when: false
+    register: lsblk_mdt
+  - name: format mdt
+    shell: >
+      mkfs.lustre 
+      --fsname=LustreFS --mgs --mdt
+      --mountfsoptions="user_xattr,errors=remount-ro"
+      --backfstype=ldiskfs
+      --reformat {{ lustre.mdt_device }}
+      --index 0
+    when: not lsblk_mdt.stdout is search('LustreFS')
+  - name: create mdt mount directory
+    file:
+      path: /mnt/mgsmds
+      state: directory
+  - name: mount mdt
+    mount:
+      path: /mnt/mgsmds
+      src: '{{ lustre.mdt_device }}'
+      opts: noatime,nodiratime,nobarrier
+      passno: '2'
+      state: mounted
+      fstype: lustre
+  - name: set mdt params
+    shell: |
+      lctl set_param -P mdt.*-MDT0000.hsm_control=enabled
+      lctl set_param -P mdt.*-MDT0000.hsm.default_archive_id=1
+      lctl set_param mdt.*-MDT0000.hsm.max_requests={{ lustre.hsm_max_requests }}
+      lctl set_param mdt.*-MDT0000.identity_upcall=NONE
+
+- name: Lustre OSS setup
+  hosts: lustre-oss-*
+  become: true
+  vars_files:
+    - '{{global_config_file}}'
+  
+  tasks:
+  - name: get ost device info
+    command: lsblk -f {{ lustre.ost_device }}
+    changed_when: false
+    register: lsblk_ost
+  - name: get ost index
+    shell: hostname | sed 's/lustre-oss-//g'
+    changed_when: false
+    register: ost_index
+  - name: format ost
+    shell: >
+      mkfs.lustre 
+      --fsname=LustreFS
+      --backfstype=ldiskfs
+      --reformat
+      --ost
+      --mgsnode=lustre
+      --index={{ ost_index.stdout }}
+      --mountfsoptions="errors=remount-ro"
+      {{ lustre.ost_device }}
+    when: not lsblk_ost.stdout is search('LustreFS')
+  - name: create ost mount directory
+    file:
+      path: /mnt/oss
+      state: directory
+  - name: mount ost
+    mount:
+      path: /mnt/oss
+      src: '{{ lustre.ost_device }}'
+      opts: noatime,nodiratime,nobarrier
+      passno: '2'
+      state: mounted
+      fstype: lustre

@@ -24,6 +24,11 @@ cyclecloud:
     cyclecloud: "https://packages.microsoft.com/yumrepos/cyclecloud/cyclecloud8-8.1.1-1451.x86_64.rpm"
     # mandatory URL on the jetpack RPM to be installed on the ccportal and the scheduler
     jetpack: "https://packages.microsoft.com/yumrepos/cyclecloud/jetpack8-8.1.1-1451.x86_64.rpm"
+lustre:
+  version: "2.12.4"
+  hsm_max_requests: 8
+  mdt_device: "/dev/sdb"
+  oss_device: "/dev/sdb"
 users:
   - name: user1
     uid: 10001
