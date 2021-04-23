@@ -14,7 +14,7 @@ resource "azurerm_linux_virtual_machine" "scheduler" {
   name                = "scheduler"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-  size                = "Standard_D2s_v3"
+  size                = try(local.configuration_yml["scheduler"].vm_size, "Standard_D2s_v3")
   admin_username      = local.admin_username
   network_interface_ids = [
     azurerm_network_interface.scheduler-nic.id,

@@ -6,7 +6,14 @@ homefs_service_level: Premium
 admin_user: hpcadmin
 key_vault_readers: 0bf2513b-59fe-4018-bfd6-5d4844a9a3b9
 homedir_mountpoint: /anfhome
+ad:
+  vm_size: Standard_D2s_v3
+ondemand:
+  vm_size: Standard_D16s_v3
+scheduler:
+  vm_size: Standard_D2s_v3
 cyclecloud:
+  vm_size: Standard_D2s_v3
   image:
     publisher: "azurecyclecloud"
     offer:     "azure-cyclecloud"
