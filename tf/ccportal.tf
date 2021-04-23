@@ -16,7 +16,7 @@ resource "azurerm_virtual_machine" "ccportal" {
   name                  = "ccportal"
   resource_group_name   = azurerm_resource_group.rg.name
   location              = azurerm_resource_group.rg.location
-  vm_size               = "Standard_d2s_v3"
+  vm_size               = try(local.configuration_yml["cyclecloud"].vm_size, "Standard_D2s_v3")
   network_interface_ids = [
     azurerm_network_interface.ccportal-nic.id,
   ]
