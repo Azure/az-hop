@@ -150,3 +150,157 @@
       passno: '2'
       state: mounted
       fstype: lustre
+
+- name: Lustre HSM setup
+  hosts: lustre-oss-*
+  become: true
+  vars_files:
+    - '{{global_config_file}}'
+  
+  tasks:
+  - name: install hsm rpms
+    yum:
+      name:
+        - https://azurehpc.azureedge.net/rpms/lemur-azure-hsm-agent-1.0.0_28_centos77_fileidfix.x86_64.rpm
+        - https://azurehpc.azureedge.net/rpms/lemur-azure-data-movers-1.0.0_28_centos77_fileidfix.x86_64.rpm
+      state: present
+  - name: create var/run/lhsmd
+    file: 
+      path: /var/run/lhsmd
+      state: directory
+      mode: 0755
+  - name: create /etc/lhsmd
+    file: 
+      path: /etc/lhsmd
+      state: directory
+      mode: 0755
+  - name: create agent config
+    copy:
+      dest: /etc/lhsmd/agent
+      mode: 0600
+      content: |
+        client_device="lustre@tcp:/LustreFS"
+        enabled_plugins=["lhsm-plugin-az"]
+        plugin_dir="/usr/libexec/lhsmd"
+        handler_count=16
+        snapshots {
+          enabled = false
+        }
+  - name: create lhsm-plugin-az config
+    copy:
+      dest: /etc/lhsmd/lhsm-plugin-az
+      mode: 0600
+      content: |
+        num_threads=128
+        az_storage_account="{{ lustre.hsm.storage_account }}"
+        az_kv_name="{{ lustre.hsm.keyvault_name }}"
+        az_kv_secret_name="{{ lustre.hsm.keyvault_secret }}"
+        region="westeurope"
+        bandwidth=0
+        exportprefix=""
+        archive "archive1" {
+            id=1
+            num_threads=128
+            root=""
+            compression="off"
+            container="{{ lustre.hsm.storage_container }}"
+            region="westeurope"
+        }
+  - name: create lhsmd service
+    copy:
+      dest: /etc/systemd/system/lhsmd.service
+      mode: 0600
+      content: |
+        [Unit]
+        Description=The lhsmd server
+        After=syslog.target network.target remote-fs.target nss-lookup.target
+        [Service]
+        Type=simple
+        PIDFile=/run/lhsmd.pid
+        ExecStartPre=/bin/mkdir -p /var/run/lhsmd
+        ExecStart=/sbin/lhsmd -config /etc/lhsmd/agent
+        Restart=always
+        [Install]
+        WantedBy=multi-user.target
+  - name: systemd daemon reload
+    systemd:
+      daemon_reload: yes
+  - name: enable and start lhsmd service
+    service:
+      name: lhsmd
+      enabled: yes
+      state: started
+  
+- name: Lustre client setup
+  hosts: robinhood
+  become: true
+  vars_files:
+    - '{{global_config_file}}'
+  
+  tasks:  
+  - name: create lustre mount directory
+    file:
+      path: /lustre
+      state: directory
+  - name: mount lustre
+    mount:
+      path: /lustre
+      src: lustre@tcp0:/LustreFS
+      opts: flock,defaults,_netdev
+      state: mounted
+      fstype: lustre
+
+- name: Install hydrator
+  hosts: robinhood
+  become: true
+  vars_files:
+    - '{{global_config_file}}'
+  
+  tasks:
+  - name: check for python 3.7
+    stat:
+      path: /usr/local/bin/python3.7
+    register: stat_python_result
+  - name: install python 3.7
+    shell: |
+      export PATH=/usr/local/bin:$PATH
+      # install python 3.7
+      yum -y install git gcc openssl-devel bzip2-devel libffi-devel zlib-devel
+      cd /usr/src
+      wget https://www.python.org/ftp/python/3.7.9/Python-3.7.9.tgz
+      tar xzf Python-3.7.9.tgz
+      cd Python-3.7.9
+      ./configure --enable-optimizations
+      make altinstall
+    when: not stat_python_result.stat.exists
+  - name: check for hydrator
+    stat:
+      path: /opt/amlFilesystem-hydrator/laaso/hydrator.py
+    register: stat_hydrator
+  - name: install lustre hydrator
+    shell: |
+      export PATH=/usr/local/bin:$PATH
+      # set up hydrator
+      pip3.7 install virtualenv
+      cd /opt
+      git clone https://github.com/microsoft/amlFilesystem-hydrator.git
+      cd amlFilesystem-hydrator/
+      git checkout 5d7818165feb0ff2dfd1bb10e964670900e75ed6
+      python3.7 -m venv venv
+      rm -rf venv
+      python3.7 build/venv_create.py venv laaso/requirements.txt
+    when: not stat_hydrator.stat.exists
+  - name: check to see if lustre is hydrated
+    stat:
+      path: /lustre.hydrated
+    register: stat_hydrated
+  - name: hydrate lustre
+    shell: |
+      export PATH=/usr/local/bin:$PATH
+      cd /opt/amlFilesystem-hydrator
+      VENV=$(pwd)/venv
+      REPO_DIR=.
+      source $VENV/bin/activate
+      PYTHONPATH=. python3.7 laaso/hydrator.py "{{ lustre.hsm.storage_account }}" "{{ lustre.hsm.storage_container }}" "{{ lustre.hsm.storage_sas }}" -a /lustre --lemur
+      touch /lustre.hydrated
+    when: not stat_hydrated.stat.exists
