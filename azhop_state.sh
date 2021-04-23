@@ -103,7 +103,7 @@ case $COMMAND in
     get_resource_group
     echo "Delete state for $RESOURCE_GROUP"
     sas=$(az storage container generate-sas --account-name $SA_ACCOUNT --name $SA_CONTAINER --permissions dl --start $start --expiry $expiry --output tsv)
-    azcopy remove "https://$SA_ACCOUNT.blob.core.windows.net/$SA_CONTAINER/$RESOURCE_GROUP?$sas"
+    azcopy remove "https://$SA_ACCOUNT.blob.core.windows.net/$SA_CONTAINER/$RESOURCE_GROUP?$sas" --recursive=true
   ;;
 esac
 
