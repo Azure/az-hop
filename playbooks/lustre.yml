@@ -743,3 +743,24 @@
       name: httpd
       enabled: yes
       state: started
+  - name: replace name
+    lineinfile: 
+      path: /var/www/robinhood/config.php
+      regexp: '"DB_NAME"     => "",' 
+      line: '"DB_NAME"     => "lustre",'
+      backrefs: yes
+  - name: replace user
+    lineinfile: 
+      path: /var/www/robinhood/config.php
+      regexp: '"DB_USER"     => "",' 
+      line: '"DB_USER"     => "robinhood",'
+      backrefs: yes
+  - name: get password
+    command: cat /etc/robinhood.d/.dbpassword
+    register: dbpasswd
+  - name: replace password
+    lineinfile: 
+      path: /var/www/robinhood/config.php
+      regexp: '"DB_PASSWD"   => "",' 
+      line: '"DB_PASSWD"   => "{{ dbpasswd.stdout }}",'
+      backrefs: yes
