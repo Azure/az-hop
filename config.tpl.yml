@@ -2,12 +2,20 @@
 location: westeurope
 resource_group: azhop
 homefs_size_tb: 4
+homefs_service_level: Standard, Premium, Ultra
 homedir_mountpoint: /anfhome
 admin_user: hpcadmin
 # Object ID to grant key vault read access
-key_vault_readers: <object_id> 
+key_vault_readers: <object_id>
+ad:
+  vm_size: Standard_D2s_v3
+ondemand:
+  vm_size: Standard_D2s_v3
+scheduler:
+  vm_size: Standard_D2s_v3
 # CycleCloud image reference, plan and update URL for CC and JetPack to apply fixes on the marketplace image
 cyclecloud:
+  vm_size: Standard_D2s_v3
   # Azure Image Reference for CycleCloud. Default to 8.1.0 if not present
 #  image: 
 #    publisher: "azurecyclecloud"

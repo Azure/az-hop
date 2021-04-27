@@ -1,13 +1,19 @@
 ---
-location: westeurope
-resource_group: azhop_integration
-homefs_size_tb: 4
+location: southcentralus
+resource_group: azhop_production
+homefs_size_tb: 8
+homefs_service_level: Premium
 admin_user: hpcadmin
 key_vault_readers: 0bf2513b-59fe-4018-bfd6-5d4844a9a3b9
 homedir_mountpoint: /anfhome
+ad:
+  vm_size: Standard_D2s_v3
 ondemand:
-  vm_size: Standard_D8s_v3
+  vm_size: Standard_D16s_v3
+scheduler:
+  vm_size: Standard_D2s_v3
 cyclecloud:
+  vm_size: Standard_D2s_v3
   image:
     publisher: "azurecyclecloud"
     offer:     "azure-cyclecloud"
@@ -21,32 +27,8 @@ cyclecloud:
     cyclecloud: "https://packages.microsoft.com/yumrepos/cyclecloud/cyclecloud8-8.1.1-1451.x86_64.rpm"
     jetpack: "https://packages.microsoft.com/yumrepos/cyclecloud/jetpack8-8.1.1-1451.x86_64.rpm"
 users:
-  - name: xavier
-    uid: 10001
-    gid: 5000
-    shell: /bin/bash
-    home: /anfhome/xavier
-    admin: true
-  - name: hugo
-    uid: 10002
-    gid: 5000
-    shell: /bin/bash
-    home: /anfhome/hugo
-    admin: true
-  - name: paul
-    uid: 10003
-    gid: 5000
-    shell: /bin/bash
-    home: /anfhome/paul
-    admin: true
-  - name: cormac
-    uid: 10004
-    gid: 5000
-    shell: /bin/bash
-    home: /anfhome/cormac
-    admin: true
   - name: hpcuser
-    uid: 10005
+    uid: 10001
     gid: 5000
     shell: /bin/bash
     home: /anfhome/hpcuser
@@ -76,17 +58,17 @@ queues:
     image: OpenLogic:CentOS-HPC:7_8:latest
   - name: hc44rs
     vm_size: Standard_HC44rs
-    max_core_count: 1056
+    max_core_count: 1408
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos78-v2-rdma/latest
   - name: hb60rs
     vm_size: Standard_HB60rs
-    max_core_count: 1440
+    max_core_count: 1920
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos78-v2-rdma/latest
   - name: hb120rs_v2
     vm_size: Standard_HB120rs_v2
-    max_core_count: 2880
+    max_core_count: 3840
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos78-v2-rdma/latest
   - name: viz3d
     vm_size: Standard_NV6
-    max_core_count: 24
+    max_core_count: 48
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.7-desktop-3d/latest

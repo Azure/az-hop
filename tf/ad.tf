@@ -14,7 +14,7 @@ resource "azurerm_windows_virtual_machine" "ad" {
   name                = "ad"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-  size                = "Standard_D2s_v3"
+  size                = try(local.configuration_yml["ad"].vm_size, "Standard_D2s_v3")
   admin_username      = local.admin_username
   admin_password      = random_password.password.result 
   network_interface_ids = [
@@ -27,7 +27,7 @@ resource "azurerm_windows_virtual_machine" "ad" {
 
   os_disk {
     caching              = "ReadWrite"
-    storage_account_type = "Standard_LRS"
+    storage_account_type = "StandardSSD_LRS"
   }
 
   source_image_reference {

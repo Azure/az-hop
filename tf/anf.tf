@@ -8,7 +8,7 @@ resource "azurerm_netapp_pool" "anfpool" {
   account_name        = azurerm_netapp_account.azhop.name
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  service_level       = "Standard"
+  service_level       = local.homefs_service_level
   size_in_tb          = local.homefs_size_tb
 }
 resource "azurerm_netapp_volume" "home" {
@@ -22,7 +22,7 @@ resource "azurerm_netapp_volume" "home" {
   account_name        = azurerm_netapp_account.azhop.name
   pool_name           = azurerm_netapp_pool.anfpool.name
   volume_path         = "home-${random_string.resource_postfix.result}"
-  service_level       = "Standard"
+  service_level       = local.homefs_service_level
   subnet_id           = azurerm_subnet.netapp.id
   protocols           = ["NFSv3"]
   storage_quota_in_gb = local.homefs_size_tb * 1024

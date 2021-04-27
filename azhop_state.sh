@@ -50,7 +50,7 @@ case $COMMAND in
     get_resource_group
     echo "Download state for $RESOURCE_GROUP"
     sas=$(az storage container generate-sas --account-name $SA_ACCOUNT --name $SA_CONTAINER --permissions rl --start $start --expiry $expiry --output tsv)
-    azcopy copy "https://$SA_ACCOUNT.blob.core.windows.net/$SA_CONTAINER/$RESOURCE_GROUP/*?$sas" "$STATE_DIR" --recursive --overwrite=ifSourceNewer
+    azcopy copy "https://$SA_ACCOUNT.blob.core.windows.net/$SA_CONTAINER/$RESOURCE_GROUP/*?$sas" "$STATE_DIR" --recursive 
 
     if [ -d $STATE_DIR ]; then
       # Use a local state directory as azcopy swallow the prefix file name if this one is the same that the directory name !!! 
@@ -96,14 +96,14 @@ case $COMMAND in
     cp bin/* $STATE_DIR/bin
 
     sas=$(az storage container generate-sas --account-name $SA_ACCOUNT --name $SA_CONTAINER --permissions rwdl --start $start --expiry $expiry --output tsv)
-    azcopy copy "$STATE_DIR/*" "https://$SA_ACCOUNT.blob.core.windows.net/$SA_CONTAINER/$RESOURCE_GROUP?$sas"  --recursive --overwrite=ifSourceNewer
+    azcopy copy "$STATE_DIR/*" "https://$SA_ACCOUNT.blob.core.windows.net/$SA_CONTAINER/$RESOURCE_GROUP?$sas"  --recursive
   ;;
 
   delete)
     get_resource_group
     echo "Delete state for $RESOURCE_GROUP"
     sas=$(az storage container generate-sas --account-name $SA_ACCOUNT --name $SA_CONTAINER --permissions dl --start $start --expiry $expiry --output tsv)
-    azcopy remove "https://$SA_ACCOUNT.blob.core.windows.net/$SA_CONTAINER/$RESOURCE_GROUP?$sas"
+    azcopy remove "https://$SA_ACCOUNT.blob.core.windows.net/$SA_CONTAINER/$RESOURCE_GROUP?$sas" --recursive=true
   ;;
 esac
 
