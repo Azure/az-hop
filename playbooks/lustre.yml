@@ -294,6 +294,18 @@
     stat:
       path: /lustre.hydrated
     register: stat_hydrated
+  - name: Read Password from KV
+    command: |
+      az keyvault secret show
+      --vault-name {{ lustre.hsm.keyvault_name }}
+      --name {{ lustre.hsm.keyvault_secret }}
+      --query "value"
+      -o tsv
+    delegate_to: localhost
+    connection: local
+    register: lustre_sas
+    become: false
+    when: not stat_hydrated.stat.exists
   - name: hydrate lustre
     shell: |
       export PATH=/usr/local/bin:$PATH
@@ -301,7 +313,7 @@
       VENV=$(pwd)/venv
       REPO_DIR=.
       source $VENV/bin/activate
-      PYTHONPATH=. python3.7 laaso/hydrator.py "{{ lustre.hsm.storage_account }}" "{{ lustre.hsm.storage_container }}" "{{ lustre.hsm.storage_sas }}" -a /lustre --lemur
+      PYTHONPATH=. python3.7 laaso/hydrator.py "{{ lustre.hsm.storage_account }}" "{{ lustre.hsm.storage_container }}" "{{ lustre_sas.stdout }}" -a /lustre --lemur
       touch /lustre.hydrated
     when: not stat_hydrated.stat.exists
 
