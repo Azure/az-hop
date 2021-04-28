@@ -77,11 +77,6 @@
     dest: /root/pbs/specs/default/cluster-init/scripts/1-joindomain.sh
     mode: 0777
 
-- name: Add cvmfs script 
-  copy:
-    src: '{{role_path}}/files/3-installcvmfs.sh'
-    dest: /root/pbs/specs/default/cluster-init/scripts/3-installcvmfs.sh
-
 - name: Add autostop script 
   copy:
     src: '{{role_path}}/files/4-autostop.sh'

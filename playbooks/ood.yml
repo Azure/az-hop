@@ -102,24 +102,10 @@
           /opt/ood/ood-portal-generator/sbin/update_ood_portal
           systemctl try-restart httpd24-httpd.service httpd24-htcacheclean.service
         fi
-  - name: add cvmfs repo
+  - name: add modules for job submission
     yum: 
-      name: https://ecsft.cern.ch/dist/cvmfs/cvmfs-release/cvmfs-release-latest.noarch.rpm
-  - name: add cvmfs
-    yum: 
-      name: cvmfs, Lmod, hwloc, numactl 
-  - name: configure cvmfs
-    command: cvmfs_config setup
-  - name: cvmfs generic.azure config 
-    get_url:
-      url: "https://cvmfs.blob.core.windows.net/generic/generic.azure.conf"
-      dest: /etc/cvmfs/config.d/generic.azure.conf 
-      mode: '644'
-  - name: cvmfs generic.azure public key 
-    get_url:
-      url: "https://cvmfs.blob.core.windows.net/generic/generic.azure.pub"
-      dest: /etc/cvmfs/keys/generic.azure.pub 
-      mode: '644'
+      name: Lmod, hwloc, numactl 
+
   - name: create ssh_config file
     copy:
       content: |
