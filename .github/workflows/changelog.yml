@@ -28,6 +28,7 @@ jobs:
         with:
           configuration: ".github/workflows/changelog_configuration.json"
           ignorePreReleases: "false"
+          fromTag: "v0.1.0"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
