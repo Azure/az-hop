@@ -26,11 +26,11 @@ systemctl set-default graphical.target
 systemctl isolate graphical.target
 
 # install CUDA
-
+NVIDIA_DRIVER_VERSION=460.32.03
 yum-config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-rhel7.repo
 yum clean all
-yum -y install nvidia-driver-branch-460 cuda-11-2
-yum -y install cuda-driver-devel-11-2
+yum -y install nvidia-driver-latest-dkms-$NVIDIA_DRIVER_VERSION cuda
+yum -y install cuda-drivers-$NVIDIA_DRIVER_VERSION
 
 # browser and codecs
 yum -y localinstall --nogpgcheck https://download1.rpmfusion.org/free/el/rpmfusion-free-release-7.noarch.rpm
@@ -45,8 +45,8 @@ EOF
 ################### INSTALL NVIDIA DRIVERS
 
 init 3
-
-wget -O NVIDIA-Linux-x86_64-grid.run https://go.microsoft.com/fwlink/?linkid=874272  
+# Use the direct link which contains the clear version number
+wget -O NVIDIA-Linux-x86_64-grid.run https://download.microsoft.com/download/9/5/c/95c667ff-ab95-4c56-89e0-e13e9a76782d/NVIDIA-Linux-x86_64-460.32.03-grid-azure.run
 chmod +x NVIDIA-Linux-x86_64-grid.run
 sudo ./NVIDIA-Linux-x86_64-grid.run -s
 # Answers are: yes, yes, yes
