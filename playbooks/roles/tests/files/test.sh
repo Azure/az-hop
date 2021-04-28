@@ -36,6 +36,9 @@ submit_job $job_group 1 1 hb60rs ~/job.sh Standard_HB60rs
 submit_job $job_group 1 1 hc44rs ~/job.sh Standard_HC44rs
 submit_job $job_group 1 1 hb120rs_v2 ~/job.sh Standard_HB120rs_v2
 
+echo "Test GPU node"
+submit_job $job_group 1 1 viz3d ~/job_gpu.sh
+
 echo "Submit single node on default"
 qsub -l walltime=$PBS_MAX_WALLTIME -N $job_group -k oe -j oe -l select=1 -- ~/job.sh any 
 
