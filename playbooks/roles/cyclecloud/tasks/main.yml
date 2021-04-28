@@ -71,9 +71,15 @@
     dest: /root/pbs/specs/default/cluster-init/scripts/0-mountnfs.sh
     mode: 0777
 
+- name: Add lustre script 
+  template:
+    src: 1-mountlustre.sh.j2
+    dest: /root/pbs/specs/default/cluster-init/scripts/1-mountlustre.sh
+    mode: 0777
+
 - name: Add joindomain script 
   template:
-    src: 1-joindomain.sh.j2
+    src: 2-joindomain.sh.j2
     dest: /root/pbs/specs/default/cluster-init/scripts/1-joindomain.sh
     mode: 0777
 
