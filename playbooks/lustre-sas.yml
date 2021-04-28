@@ -13,7 +13,7 @@
     command: |
       az storage account generate-sas
       --services bfqt --resource-types sco
-      --account-name {{ lustre.hsm.storage_account }}
+      --account-name {{ lustre_hsm_storage_account }}
       --permissions rwdlacup
       --expiry {{ sas_end_date.stdout }}
     register: storage_sas_key
@@ -21,5 +21,5 @@
     command: |
       az keyvault secret set 
       --vault-name {{ key_vault }}
-      --name {{ lustre.hsm.keyvault_secret }}
-      --value "?{{storage_sas_key.stdout}}"
+      --name lustre-{{ lustre_hsm_storage_account }}-{{ lustre_hsm_storage_container }}-sas
+      --value "?{{ storage_sas_key.stdout }}"

@@ -22,5 +22,5 @@ enabled=1
 gpgcheck=0
 EOF
 
-yum -y install lustre-client lustre-client-dkms
+yum -y install lustre-client
 weak-modules --add-kernel $(uname -r)

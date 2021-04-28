@@ -29,8 +29,8 @@ systemctl isolate graphical.target
 
 yum-config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-rhel7.repo
 yum clean all
-yum -y install nvidia-driver-latest-dkms cuda
-yum -y install cuda-drivers
+yum -y install nvidia-driver-branch-460 cuda-11-2
+yum -y install cuda-driver-devel-11-2
 
 # browser and codecs
 yum -y localinstall --nogpgcheck https://download1.rpmfusion.org/free/el/rpmfusion-free-release-7.noarch.rpm

@@ -8,7 +8,7 @@
             "client_secret": "{{user `var_client_secret`}}",
             "image_publisher": "OpenLogic",
             "image_offer": "CentOS-HPC",
-            "image_sku": "7.7",
+            "image_sku": "7_8",
             "image_version": "latest",
             "managed_image_resource_group_name": "{{user `var_resource_group`}}",
             "managed_image_name": "{{user `var_image`}}",

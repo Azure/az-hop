@@ -37,6 +37,11 @@ lustre:
   hsm_max_requests: 8
   mdt_device: "/dev/sdb"
   oss_device: "/dev/sdb"
+  hsm:
+    # optional to use existing storage for the archive
+    # if not included it will use the azhop storage account that is created
+    storage_account: "existing_storage_account_name"
+    storage_container: "only_used_with_existing_storage_account"
 users:
   - name: user1
     uid: 10001
@@ -82,7 +87,7 @@ queues:
   - name: viz3d
     vm_size: Standard_NV6
     max_core_count: 1024
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/images/centos-7.7-desktop-3d
+    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/images/centos-7.8-desktop-3d
   # - name: compute
   #   vm_size: Standard_HB120rs_v2
   #   image: centos-77-v1-rdma-gpgpu

@@ -12,4 +12,6 @@ locals {
     admin_username = local.configuration_yml["admin_user"]
     homedir_mountpoint = local.configuration_yml["homedir_mountpoint"]
     key_vault_readers = try(local.configuration_yml["key_vault_readers"], null)
+
+    lustre_archive_account = try(local.configuration_yml["lustre"]["hsm"]["storage_account"], null)
 }

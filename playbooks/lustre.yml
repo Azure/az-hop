@@ -192,9 +192,9 @@
       mode: 0600
       content: |
         num_threads=128
-        az_storage_account="{{ lustre.hsm.storage_account }}"
+        az_storage_account="{{ lustre_hsm_storage_account }}"
         az_kv_name="{{ key_vault }}"
-        az_kv_secret_name="{{ lustre.hsm.keyvault_secret }}"
+        az_kv_secret_name="lustre-{{ lustre_hsm_storage_account }}-{{ lustre_hsm_storage_container }}-sas"
         region="westeurope"
         bandwidth=0
         exportprefix=""
@@ -203,7 +203,7 @@
             num_threads=128
             root=""
             compression="off"
-            container="{{ lustre.hsm.storage_container }}"
+            container="{{ lustre_hsm_storage_container }}"
             region="westeurope"
         }
   - name: create lhsmd service
@@ -298,7 +298,7 @@
     command: |
       az keyvault secret show
       --vault-name {{ key_vault }}
-      --name {{ lustre.hsm.keyvault_secret }}
+      --name lustre-{{ lustre_hsm_storage_account }}-{{ lustre_hsm_storage_container }}-sas
       --query "value"
       -o tsv
     delegate_to: localhost
@@ -313,7 +313,7 @@
       VENV=$(pwd)/venv
       REPO_DIR=.
       source $VENV/bin/activate
-      PYTHONPATH=. python3.7 laaso/hydrator.py "{{ lustre.hsm.storage_account }}" "{{ lustre.hsm.storage_container }}" "{{ lustre_sas.stdout }}" -a /lustre --lemur
+      PYTHONPATH=. python3.7 laaso/hydrator.py "{{ lustre_hsm_storage_account }}" "{{ lustre_hsm_storage_container }}" "{{ lustre_sas.stdout }}" -a /lustre --lemur
       touch /lustre.hydrated
     when: not stat_hydrated.stat.exists
 
