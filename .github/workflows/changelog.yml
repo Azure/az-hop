@@ -8,8 +8,6 @@ on:
   # manual only
   workflow_dispatch:
 
-env:
-
 jobs:
   changelog:
     name: changelog
