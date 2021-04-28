@@ -1,0 +1,35 @@
+#
+# Copyright (c) Microsoft Corporation
+# Licensed under the MIT License.
+#
+name : changelog
+
+on:
+  # manual only
+  workflow_dispatch:
+
+env:
+
+jobs:
+  changelog:
+    name: changelog
+    runs-on: ubuntu-latest
+
+    container:
+      image: xpillons/hpcrover:latest
+      options: --user 0
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+         
+      - name: "Build Changelog"
+        id: build_changelog
+        uses: mikepenz/release-changelog-builder-action@{latest-release}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "Dump Changelog"
+        run: |
+          echo ${{steps.build_changelog.outputs.changelog}}
