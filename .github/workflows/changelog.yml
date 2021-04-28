@@ -5,34 +5,32 @@
 name : changelog
 
 on:
+  push:
+    tags:
+      - '*'
   # manual only
   workflow_dispatch:
 
 jobs:
-  changelog:
-    name: changelog
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
-
-    container:
-      image: xpillons/hpcrover:latest
-      options: --user 0
 
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: true
          
-      - name: "Build Changelog"
-        id: build_changelog
+      - name: Build Changelog
+        id: github_release
         uses: mikepenz/release-changelog-builder-action@v1.7.3
         with:
-          configuration: ".github/workflows/changelog_configuration.json"
+          #configuration: ".github/workflows/changelog_configuration.json"
           ignorePreReleases: "false"
-          toTag: "v0.1.1-alpha"
           fromTag: "v0.1.0"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: "Dump Changelog"
         run: |
-          echo ${{steps.build_changelog.outputs.changelog}}
+          echo ${{steps.github_release.outputs.changelog}}
