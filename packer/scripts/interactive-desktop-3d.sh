@@ -78,3 +78,7 @@ fi
 EOF
 chmod +x /etc/rc.d/rc3.d/busidupdate.sh
 /etc/rc.d/rc3.d/busidupdate.sh
+
+echo "Test if nvidia-smi is working"
+set -e
+nvidia-smi
