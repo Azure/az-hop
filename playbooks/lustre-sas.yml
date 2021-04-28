@@ -20,6 +20,6 @@
   - name: Upload to keyvault
     command: |
       az keyvault secret set 
-      --vault-name {{ lustre.hsm.keyvault_name }} 
-      --name {{ lustre.hsm.keyvault_secret }} 
+      --vault-name {{ key_vault }}
+      --name {{ lustre.hsm.keyvault_secret }}
       --value "?{{storage_sas_key.stdout}}"

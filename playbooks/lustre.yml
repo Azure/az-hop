@@ -193,7 +193,7 @@
       content: |
         num_threads=128
         az_storage_account="{{ lustre.hsm.storage_account }}"
-        az_kv_name="{{ lustre.hsm.keyvault_name }}"
+        az_kv_name="{{ key_vault }}"
         az_kv_secret_name="{{ lustre.hsm.keyvault_secret }}"
         region="westeurope"
         bandwidth=0
@@ -297,7 +297,7 @@
   - name: Read Password from KV
     command: |
       az keyvault secret show
-      --vault-name {{ lustre.hsm.keyvault_name }}
+      --vault-name {{ key_vault }}
       --name {{ lustre.hsm.keyvault_secret }}
       --query "value"
       -o tsv
