@@ -1,8 +1,4 @@
 locals {
-    lustre_rbh_sku = "Standard_D8d_v4"
-    lustre_mds_sku = "Standard_D8d_v4"
-    lustre_oss_sku = "Standard_D32d_v4"
-    lustre_oss_count = 2
     lustre_image_reference = {
         publisher = "OpenLogic"
         offer     = "CentOS"
