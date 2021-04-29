@@ -18,6 +18,10 @@ case $TARGET in
     ansible-playbook -i playbooks/inventory ./playbooks/grafana.yml 
     ansible-playbook -i playbooks/inventory ./playbooks/telegraf.yml 
   ;;
+  lustre)
+    ansible-playbook -i playbooks/inventory ./playbooks/lustre-sas.yml
+    ansible-playbook -i playbooks/inventory ./playbooks/lustre.yml
+  ;;
   ad | linux | add_users | ccportal | scheduler | grafana | telegraf)
     ansible-playbook -i playbooks/inventory ./playbooks/$TARGET.yml
   ;;
