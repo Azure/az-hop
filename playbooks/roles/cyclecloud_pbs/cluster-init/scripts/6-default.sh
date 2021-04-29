@@ -12,7 +12,6 @@ AZHPC_VMSIZE=$(curl -s --noproxy "*" -H Metadata:true "http://169.254.169.254/me
 case $AZHPC_VMSIZE in
   standard_nv*)
     echo "Enabling GUI"
-    init 3
-    init 5
+    systemctl restart gdm
   ;;
 esac

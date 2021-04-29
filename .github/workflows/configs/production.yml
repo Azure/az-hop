@@ -26,6 +26,15 @@ cyclecloud:
   rpms:
     cyclecloud: "https://packages.microsoft.com/yumrepos/cyclecloud/cyclecloud8-8.1.1-1451.x86_64.rpm"
     jetpack: "https://packages.microsoft.com/yumrepos/cyclecloud/jetpack8-8.1.1-1451.x86_64.rpm"
+lustre:
+  rbh_sku: "Standard_D8d_v4"
+  mds_sku: "Standard_D8d_v4"
+  oss_sku: "Standard_D32d_v4"
+  oss_count: 2
+  version: "2.12.4"
+  hsm_max_requests: 8
+  mdt_device: "/dev/sdb"
+  ost_device: "/dev/sdb"
 users:
   - name: hpcuser
     uid: 10001

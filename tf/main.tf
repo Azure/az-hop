@@ -64,9 +64,17 @@ resource "local_file" "public_key" {
 #   - CycleCloud projects
 #   - Terraform states
 resource "azurerm_storage_account" "azhop" {
-  name                      = "azhop${random_string.resource_postfix.result}"
-  resource_group_name       = azurerm_resource_group.rg.name
-  location                  = azurerm_resource_group.rg.location
+  name                     = "azhop${random_string.resource_postfix.result}"
+  resource_group_name      = azurerm_resource_group.rg.name
+  location                 = azurerm_resource_group.rg.location
   account_tier             = "Standard"
   account_replication_type = "LRS"
+}
+
+# create a container for the lustre archive if not using an existing account
+resource "azurerm_storage_container" "lustre_archive" {
+  count                 = (local.lustre_archive_account == null ? 1 : 0)
+  name                  = "lustre"
+  storage_account_name  = azurerm_storage_account.azhop.name
+  container_access_type = "private"
 }

@@ -1,0 +1,778 @@
+---
+- name: Lustre setup
+  hosts: lustre, lustre-oss-*, robinhood
+  become: true
+  vars_files:
+    - '{{global_config_file}}'
+
+  tasks:
+  - name: Disable SELinux
+    selinux:
+      state: disabled
+    register: selinux
+  - name: reboot 
+    reboot:
+    when: selinux.reboot_required 
+  - name: Add Lustre server repo
+    yum_repository:
+      name: lustreserver
+      description: Lustre repo
+      baseurl: https://downloads.whamcloud.com/public/lustre/lustre-{{ lustre.version }}/el7/patchless-ldiskfs-server/
+      file: LustrePack
+      enabled: yes
+      gpgcheck: no
+  - name: Add Lustre client repo
+    yum_repository:
+      name: lustreclient
+      description: Lustre repo
+      baseurl: https://downloads.whamcloud.com/public/lustre/lustre-{{ lustre.version }}/el7/client/
+      file: LustrePack
+      enabled: yes
+      gpgcheck: no
+  - name: Add e2fs repo
+    yum_repository:
+      name: e2fs
+      description: Lustre repo
+      baseurl: https://downloads.whamcloud.com/public/e2fsprogs/latest/el7/
+      file: LustrePack
+      enabled: yes
+      gpgcheck: no
+  - name: Install lustre packages
+    yum:
+      name:
+        - lustre
+        - kmod-lustre-osd-ldiskfs
+        - lustre-osd-ldiskfs-mount
+        - lustre-resource-agents
+        - e2fsprogs
+        - lustre-tests
+      state: present
+    register: install_rpms
+  - name: disable resource disk
+    lineinfile: 
+      path: /etc/waagent.conf 
+      regexp: '^ResourceDisk\.Format=y$' 
+      line: 'ResourceDisk.Format=n'
+      backrefs: yes
+    register: disable_resource_disk
+  - name: restart waagent if config changed
+    service:
+      name: waagent
+      state: restarted
+    when: disable_resource_disk.changed
+  - name: ensure temp-disk-swapdile is stopped
+    service:
+      name: temp-disk-swapfile
+      state: stopped
+  - name: run weak-modules
+    command: weak-modules --add-kernel --no-initramfs
+    when: install_rpms.changed
+  - name: ensure resource disk is not mounted
+    mount:
+      path: /mnt/resource
+      state: unmounted
+
+- name: Lustre MDS setup
+  hosts: lustre
+  become: true
+  vars_files:
+    - '{{global_config_file}}'
+  
+  tasks:
+  - name: get mdt device info
+    command: lsblk -f {{ lustre.mdt_device }}
+    changed_when: false
+    register: lsblk_mdt
+  - name: format mdt
+    shell: >
+      mkfs.lustre 
+      --fsname=LustreFS --mgs --mdt
+      --mountfsoptions="user_xattr,errors=remount-ro"
+      --backfstype=ldiskfs
+      --reformat {{ lustre.mdt_device }}
+      --index 0
+    when: not lsblk_mdt.stdout is search('LustreFS')
+  - name: create mdt mount directory
+    file:
+      path: /mnt/mgsmds
+      state: directory
+  - name: mount mdt
+    mount:
+      path: /mnt/mgsmds
+      src: '{{ lustre.mdt_device }}'
+      opts: noatime,nodiratime,nobarrier
+      passno: '2'
+      state: mounted
+      fstype: lustre
+  - name: set mdt params
+    shell: |
+      lctl set_param -P mdt.*-MDT0000.hsm_control=enabled
+      lctl set_param -P mdt.*-MDT0000.hsm.default_archive_id=1
+      lctl set_param mdt.*-MDT0000.hsm.max_requests={{ lustre.hsm_max_requests }}
+      lctl set_param mdt.*-MDT0000.identity_upcall=NONE
+
+- name: Lustre OSS setup
+  hosts: lustre-oss-*
+  become: true
+  vars_files:
+    - '{{global_config_file}}'
+  
+  tasks:
+  - name: get ost device info
+    command: lsblk -f {{ lustre.ost_device }}
+    changed_when: false
+    register: lsblk_ost
+  - name: get ost index
+    shell: hostname | sed 's/lustre-oss-//g'
+    changed_when: false
+    register: ost_index
+  - name: format ost
+    shell: >
+      mkfs.lustre 
+      --fsname=LustreFS
+      --backfstype=ldiskfs
+      --reformat
+      --ost
+      --mgsnode=lustre
+      --index={{ ost_index.stdout }}
+      --mountfsoptions="errors=remount-ro"
+      {{ lustre.ost_device }}
+    when: not lsblk_ost.stdout is search('LustreFS')
+  - name: create ost mount directory
+    file:
+      path: /mnt/oss
+      state: directory
+  - name: mount ost
+    mount:
+      path: /mnt/oss
+      src: '{{ lustre.ost_device }}'
+      opts: noatime,nodiratime,nobarrier
+      passno: '2'
+      state: mounted
+      fstype: lustre
+
+- name: Lustre HSM setup
+  hosts: lustre-oss-*
+  become: true
+  vars_files:
+    - '{{global_config_file}}'
+  
+  tasks:
+  - name: install hsm rpms
+    yum:
+      name:
+        - https://azurehpc.azureedge.net/rpms/lemur-azure-hsm-agent-1.0.0_28_centos77_fileidfix.x86_64.rpm
+        - https://azurehpc.azureedge.net/rpms/lemur-azure-data-movers-1.0.0_28_centos77_fileidfix.x86_64.rpm
+      state: present
+  - name: create var/run/lhsmd
+    file: 
+      path: /var/run/lhsmd
+      state: directory
+      mode: 0755
+  - name: create /etc/lhsmd
+    file: 
+      path: /etc/lhsmd
+      state: directory
+      mode: 0755
+  - name: create agent config
+    copy:
+      dest: /etc/lhsmd/agent
+      mode: 0600
+      content: |
+        client_device="lustre@tcp:/LustreFS"
+        enabled_plugins=["lhsm-plugin-az"]
+        plugin_dir="/usr/libexec/lhsmd"
+        handler_count=16
+        snapshots {
+          enabled = false
+        }
+  - name: create lhsm-plugin-az config
+    copy:
+      dest: /etc/lhsmd/lhsm-plugin-az
+      mode: 0600
+      content: |
+        num_threads=128
+        az_storage_account="{{ lustre_hsm_storage_account }}"
+        az_kv_name="{{ key_vault }}"
+        az_kv_secret_name="lustre-{{ lustre_hsm_storage_account }}-{{ lustre_hsm_storage_container }}-sas"
+        region="westeurope"
+        bandwidth=0
+        exportprefix=""
+        archive "archive1" {
+            id=1
+            num_threads=128
+            root=""
+            compression="off"
+            container="{{ lustre_hsm_storage_container }}"
+            region="westeurope"
+        }
+  - name: create lhsmd service
+    copy:
+      dest: /etc/systemd/system/lhsmd.service
+      mode: 0600
+      content: |
+        [Unit]
+        Description=The lhsmd server
+        After=syslog.target network.target remote-fs.target nss-lookup.target
+        [Service]
+        Type=simple
+        PIDFile=/run/lhsmd.pid
+        ExecStartPre=/bin/mkdir -p /var/run/lhsmd
+        ExecStart=/sbin/lhsmd -config /etc/lhsmd/agent
+        Restart=always
+        [Install]
+        WantedBy=multi-user.target
+  - name: systemd daemon reload
+    systemd:
+      daemon_reload: yes
+  - name: enable and start lhsmd service
+    service:
+      name: lhsmd
+      enabled: yes
+      state: started
+  
+- name: Lustre client setup
+  hosts: robinhood
+  become: true
+  vars_files:
+    - '{{global_config_file}}'
+  
+  tasks:  
+  - name: create lustre mount directory
+    file:
+      path: /lustre
+      state: directory
+  - name: mount lustre
+    mount:
+      path: /lustre
+      src: lustre@tcp0:/LustreFS
+      opts: flock,defaults,_netdev
+      state: mounted
+      fstype: lustre
+
+- name: Install hydrator
+  hosts: robinhood
+  become: true
+  vars_files:
+    - '{{global_config_file}}'
+  
+  tasks:
+  - name: check for python 3.7
+    stat:
+      path: /usr/local/bin/python3.7
+    register: stat_python_result
+  - name: install python 3.7
+    shell: |
+      export PATH=/usr/local/bin:$PATH
+      # install python 3.7
+      yum -y install git gcc openssl-devel bzip2-devel libffi-devel zlib-devel
+      cd /usr/src
+      wget https://www.python.org/ftp/python/3.7.9/Python-3.7.9.tgz
+      tar xzf Python-3.7.9.tgz
+      cd Python-3.7.9
+      ./configure --enable-optimizations
+      make altinstall
+    when: not stat_python_result.stat.exists
+  - name: check for hydrator
+    stat:
+      path: /opt/amlFilesystem-hydrator/laaso/hydrator.py
+    register: stat_hydrator
+  - name: install lustre hydrator
+    shell: |
+      export PATH=/usr/local/bin:$PATH
+      # set up hydrator
+      pip3.7 install virtualenv
+      cd /opt
+      git clone https://github.com/microsoft/amlFilesystem-hydrator.git
+      cd amlFilesystem-hydrator/
+      git checkout 5d7818165feb0ff2dfd1bb10e964670900e75ed6
+      python3.7 -m venv venv
+      rm -rf venv
+      python3.7 build/venv_create.py venv laaso/requirements.txt
+    when: not stat_hydrator.stat.exists
+  - name: check to see if lustre is hydrated
+    stat:
+      path: /lustre.hydrated
+    register: stat_hydrated
+  - name: Read Password from KV
+    command: |
+      az keyvault secret show
+      --vault-name {{ key_vault }}
+      --name lustre-{{ lustre_hsm_storage_account }}-{{ lustre_hsm_storage_container }}-sas
+      --query "value"
+      -o tsv
+    delegate_to: localhost
+    connection: local
+    register: lustre_sas
+    become: false
+    when: not stat_hydrated.stat.exists
+  - name: hydrate lustre
+    shell: |
+      export PATH=/usr/local/bin:$PATH
+      cd /opt/amlFilesystem-hydrator
+      VENV=$(pwd)/venv
+      REPO_DIR=.
+      source $VENV/bin/activate
+      PYTHONPATH=. python3.7 laaso/hydrator.py "{{ lustre_hsm_storage_account }}" "{{ lustre_hsm_storage_container }}" "{{ lustre_sas.stdout }}" -a /lustre --lemur
+      touch /lustre.hydrated
+    when: not stat_hydrated.stat.exists
+
+- name: Enable chglogs on MDS
+  hosts: lustre
+  become: true
+  vars_files:
+    - '{{global_config_file}}'
+  
+  tasks:
+  - name: install robinhood-adm rpm
+    yum:
+      name:
+        - https://azurehpc.azureedge.net/rpms/robinhood-adm-3.1.6-1.x86_64.rpm
+      state: present
+  - name: enable chglogs for lustre
+    command: rbh-config enable_chglogs LustreFS
+
+- name: Install robinhood
+  hosts: robinhood
+  become: true
+  vars_files:
+    - '{{global_config_file}}'
+  
+  tasks:
+  - name: install epel-release (for jemalloc)
+    yum:
+      name:
+        - epel-release
+      state: present
+  - name: install robinhood dependencies
+    yum:
+      name:
+        - mariadb-server
+        - mariadb-devel
+        - jemalloc
+        - expect
+      state: present
+  - name: install robinhood rpms
+    yum:
+      name:
+        - https://azurehpc.azureedge.net/rpms/robinhood-adm-3.1.6-1.x86_64.rpm
+        - https://azurehpc.azureedge.net/rpms/robinhood-tools-3.1.6-1.lustre2.12.el7.x86_64.rpm
+        - https://azurehpc.azureedge.net/rpms/robinhood-lustre-3.1.6-1.lustre2.12.el7.x86_64.rpm
+      state: present
+  - name: enable and start mariadb service
+    service:
+      name: mariadb
+      enabled: yes
+      state: started
+  - name: check for db password file
+    stat:
+      path: /etc/robinhood.d/.dbpassword
+    register: stat_dbpassword
+  - name: create robinhood database
+    shell: |
+      rbhpass=$(mkpasswd)
+      rbh-config create_db lustre "%" "$rbhpass"
+      echo "$rbhpass" > /etc/robinhood.d/.dbpassword
+      chmod 600 /etc/robinhood.d/.dbpassword
+    when: not stat_dbpassword.stat.exists
+  - name: create robinhood lustre config
+    copy:
+      dest: /etc/robinhood.d/lustre.conf
+      mode: 0600
+      content: |
+        # -*- mode: c; c-basic-offset: 4; indent-tabs-mode: nil; -*-
+        # vim:expandtab:shiftwidth=4:tabstop=4:
+
+        General
+        {
+            fs_path = "/lustre";
+            fs_type = lustre;
+            stay_in_fs = yes;
+            check_mounted = yes;
+            last_access_only_atime = no;
+            uid_gid_as_numbers = no;
+        }
+
+        # logs configuration
+        Log
+        {
+            # log levels: CRIT, MAJOR, EVENT, VERB, DEBUG, FULL
+            debug_level = FULL;
+
+            # Log file
+            log_file = "/var/log/robinhood.log";
+
+            # File for reporting purge events
+            report_file = "/var/log/robinhood_actions.log";
+            alert_file = "/var/log/robinhood_alerts.log";
+            changelogs_file = "/var/log/robinhood_cl.log";
+
+            stats_interval = 5min;
+
+            batch_alert_max = 5000;
+            alert_show_attrs = yes;
+            log_procname = yes;
+            log_hostname = yes;
+        }
+
+        # updt params configuration
+        db_update_params
+        {
+            # possible policies for refreshing metadata and path in database:
+            #   never: get the information once, then never refresh it
+            #   always: always update entry info when processing it
+            #   on_event: only update on related event
+            #   periodic(interval): only update periodically
+            #   on_event_periodic(min_interval,max_interval)= on_event + periodic
+
+            # Updating of file metadata
+            md_update = always ;
+            # Updating file path in database
+            path_update = on_event_periodic(0,1h) ;
+            # File classes matching
+            fileclass_update = always ;
+        }
+
+        # list manager configuration
+        ListManager
+        {
+            # Method for committing information to database.
+            # Possible values are:
+            # - "autocommit": weak transactions (more efficient, but database inconsistencies may occur)
+            # - "transaction": manage operations in transactions (best consistency, lower performance)
+            # - "periodic(<nb_transaction>)": periodically commit (every <n> transactions).
+            commit_behavior = transaction ;
+
+            # Minimum time (in seconds) to wait before trying to reestablish a lost connection.
+            # Then this time is multiplied by 2 until reaching connect_retry_interval_max
+            connect_retry_interval_min = 1 ;
+            connect_retry_interval_max = 30 ;
+            # disable the following options if you are not interested in
+            # user or group stats (to speed up scan)
+            accounting  = enabled ;
+
+            MySQL
+            {
+                server = "localhost" ;
+                db     = "lustre" ;
+                user   = "robinhood" ;
+                password_file = "/etc/robinhood.d/.dbpassword" ;
+                # port   = 3306 ;
+                # socket = "/tmp/mysql.sock" ;
+                engine = InnoDB ;
+            }
+        }
+
+        # entry processor configuration
+        EntryProcessor
+        {
+            # nbr of worker threads for processing pipeline tasks
+            nb_threads = 16 ;
+
+            # Max number of operations in the Entry Processor pipeline.
+            # If the number of pending operations exceeds this limit, 
+            # info collectors are suspended until this count decreases
+            max_pending_operations = 100 ;
+
+            # max batched DB operations (1=no batching)
+            max_batch_size = 100;
+
+            # Optionnaly specify a maximum thread count for each stage of the pipeline:
+            # <stagename>_threads_max = <n> (0: use default)
+            # STAGE_GET_FID_threads_max = 4 ;
+            # STAGE_GET_INFO_DB_threads_max     = 4 ;
+            # STAGE_GET_INFO_FS_threads_max     = 4 ;
+            # STAGE_PRE_APPLY_threads_max       = 4 ;
+            # Disable batching (max_batch_size=1) or accounting (accounting=no)
+            # to allow parallelizing the following step:
+            # STAGE_DB_APPLY_threads_max        = 4 ;
+
+            # if set to 'no', classes will only be matched
+            # at policy application time (not during a scan or reading changelog)
+            match_classes = yes;
+
+            # Faking mtime to an old time causes the file to be migrated
+            # with top priority. Enabling this parameter detect this behavior
+            # and doesn't allow  mtime < creation_time
+            detect_fake_mtime = no;
+        }
+
+        # FS scan configuration
+        FS_Scan
+        {
+            # simple scan interval (fixed)
+            scan_interval      =   2d ;
+
+            # min/max for adaptive scan interval:
+            # the more the filesystem is full, the more frequently it is scanned.
+            #min_scan_interval      =   24h ;
+            #max_scan_interval      =    7d ;
+
+            # number of threads used for scanning the filesystem
+            nb_threads_scan        =     2 ;
+
+            # when a scan fails, this is the delay before retrying
+            scan_retry_delay       =    1h ;
+
+            # timeout for operations on the filesystem
+            scan_op_timeout        =    1h ;
+            # exit if operation timeout is reached?
+            exit_on_timeout        =    yes ;
+            # external command called on scan termination
+            # special arguments can be specified: {cfg} = config file path,
+            # {fspath} = path to managed filesystem
+            #completion_command     =    "/path/to/my/script.sh -f {cfg} -p {fspath}" ;
+
+            # Internal scheduler granularity (for testing and of scan, hangs, ...)
+            spooler_check_interval =  1min ;
+
+            # Memory preallocation parameters
+            nb_prealloc_tasks      =   256 ;
+
+            Ignore
+            {
+                # ignore ".snapshot" and ".snapdir" directories (don't scan them)
+                type == directory
+                and
+                ( name == ".snapdir" or name == ".snapshot" )
+            }
+        }
+
+        # changelog reader configuration
+        # Parameters for processing MDT changelogs :
+        ChangeLog
+        {
+            # 1 MDT block for each MDT :
+            MDT
+            {
+                # name of the first MDT
+                mdt_name  = "MDT0000" ;
+
+                # id of the persistent changelog reader
+                # as returned by "lctl changelog_register" command
+                reader_id = "cl1" ;
+            }
+
+            # clear changelog every 1024 records:
+            batch_ack_count = 1024 ;
+
+            force_polling    = yes ;
+            polling_interval = 1s ;
+            # changelog batching parameters
+            queue_max_size   = 1000 ;
+            queue_max_age    = 5s ;
+            queue_check_interval = 1s ;
+            # delays to update last committed record in the DB
+            commit_update_max_delay = 5s ;
+            commit_update_max_delta = 10k ;
+
+            # uncomment to dump all changelog records to the file
+        }
+
+        # policies configuration
+        # Load policy definitions for Lustre/HSM
+        %include "includes/lhsm.inc"
+
+        #### Fileclasses definitions ####
+
+        FileClass small_files {
+            definition { type == file and size > 0 and size <= 16MB }
+            # report = yes (default)
+        }
+        FileClass std_files {
+            definition { type == file and size > 16MB and size <= 1GB }
+        }
+        FileClass big_files {
+            definition { type == file and size > 1GB }
+        }
+
+        lhsm_config {
+            # used for 'undelete': command to change the fid of an entry in archive
+            rebind_cmd = "/usr/sbin/lhsmtool_posix --hsm_root=/tmp/backend --archive {archive_id} --rebind {oldfid} {newfid} {fsroot}";
+        }
+
+        lhsm_archive_parameters {
+            nb_threads = 1;
+
+            # limit archive rate to avoid flooding the MDT coordinator
+            schedulers = common.rate_limit;
+            rate_limit {
+                # max count per period
+                max_count = 1000;
+                # max size per period: 1GB/s
+                #max_size = 10GB;
+                # period, in milliseconds: 10s
+                period_ms = 10000;
+            }
+
+            # suspend policy run if action error rate > 50% (after 100 errors)
+            suspend_error_pct = 50%;
+            suspend_error_min= 100;
+
+            # overrides policy default action
+            action = cmd("lfs hsm_archive --archive {archive_id} /lustre/.lustre/fid/{fid}");
+
+            # default action parameters
+            action_params {
+                archive_id = 1;
+            }
+        }
+
+        lhsm_archive_rules {
+            rule archive_small {
+                target_fileclass = small_files;
+                condition { last_mod >= 30min }
+            }
+
+            rule archive_std {
+                target_fileclass = std_files;
+                target_fileclass = big_files;
+                condition { last_mod >= 30min }
+            }
+
+            # fallback rule
+            rule default {
+                condition { last_mod >= 30min }
+            }
+        }
+
+        # run every 5 min
+        lhsm_archive_trigger {
+            trigger_on = periodic;
+            check_interval = 5min;
+        }
+
+        #### Lustre/HSM release configuration ####
+
+        lhsm_release_rules {
+            # keep small files on disk as long as possible
+            rule release_small {
+                target_fileclass = small_files;
+                condition { last_access > 1y }
+            }
+
+            rule release_std {
+                target_fileclass = std_files;
+                target_fileclass = big_files;
+                condition { last_access > 1d }
+            }
+
+            # fallback rule
+            rule default {
+                condition { last_access > 6h }
+            }
+        }
+
+        # run 'lhsm_release' on full OSTs
+        lhsm_release_trigger {
+            trigger_on = ost_usage;
+            high_threshold_pct = 85%;
+            low_threshold_pct  = 80%;
+            check_interval     = 5min;
+        }
+
+        lhsm_release_parameters {
+            nb_threads = 4;
+        ## purge 1000 files max at once
+        #    max_action_count = 1000;
+        #    max_action_volume = 1TB;
+
+            # suspend policy run if action error rate > 50% (after 100 errors)
+            suspend_error_pct = 50%;
+            suspend_error_min= 100;
+        }
+
+        lhsm_remove_parameters
+        {
+            # overrides policy default action
+            action = cmd("/usr/sbin/lfs_hsm_remove.sh {fsroot} {fullpath} {archive_id} {fid}");
+
+            # default action parameters
+            action_params {
+                archive_id = 1;
+            } 
+        }
+
+        #### Lustre/HSM remove configuration ####
+        lhsm_remove_rules
+        {
+            # cleanup backend files after 5m
+            rule default {
+                condition { rm_time >= 5m }
+            }
+        }
+
+        # run daily
+        lhsm_remove_trigger
+        {
+            trigger_on = periodic;
+            check_interval = 5m;
+        }
+  - name: create lfs_hsm_remove script
+    copy:
+      dest: /usr/sbin/lfs_hsm_remove.sh
+      mode: 0755
+      content: |
+        #!/bin/bash
+
+        fsroot="$1"
+        fullpath="$2"
+        archive_id="$3"
+        fid="$4"
+
+        lfs hsm_remove --data '{"file_id":"'${fullpath#${fsroot}/}'"}' --archive ${archive_id} --mntpath ${fsroot} ${fid}
+  - name: start robinhood service
+    service:
+      name: robinhood
+      enabled: yes
+      state: started
+  - name: scan filesystem
+    command: robinhood --scan --once
+
+- name: Install robinhood UI
+  hosts: robinhood
+  become: true
+  vars_files:
+    - '{{global_config_file}}'
+  
+  tasks:
+  - name: install robinhood web ui dependencies
+    yum:
+      name:
+        - php
+        - php-mysql
+        - php-xml
+        - php-pdo
+        - php-gd
+      state: present  
+  - name: install robinhood web ui rpm
+    yum:
+      name:
+        - https://azurehpc.azureedge.net/rpms/robinhood-webgui-3.1.6-1.x86_64.rpm
+      state: present
+  - name: start webserver
+    service:
+      name: httpd
+      enabled: yes
+      state: started
+  - name: replace name
+    lineinfile: 
+      path: /var/www/robinhood/config.php
+      regexp: '"DB_NAME"     => "",' 
+      line: '"DB_NAME"     => "lustre",'
+      backrefs: yes
+  - name: replace user
+    lineinfile: 
+      path: /var/www/robinhood/config.php
+      regexp: '"DB_USER"     => "",' 
+      line: '"DB_USER"     => "robinhood",'
+      backrefs: yes
+  - name: get password
+    command: cat /etc/robinhood.d/.dbpassword
+    register: dbpasswd
+  - name: replace password
+    lineinfile: 
+      path: /var/www/robinhood/config.php
+      regexp: '"DB_PASSWD"   => "",' 
+      line: '"DB_PASSWD"   => "{{ dbpasswd.stdout }}",'
+      backrefs: yes
