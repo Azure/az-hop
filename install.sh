@@ -11,12 +11,13 @@ case $TARGET in
     ansible-playbook -i playbooks/inventory ./playbooks/linux.yml
     ansible-playbook -i playbooks/inventory ./playbooks/add_users.yml
     ansible-playbook -i playbooks/inventory ./playbooks/ccportal.yml
+    ansible-playbook -i playbooks/inventory ./playbooks/ccpbs.yml
     ansible-playbook -i playbooks/inventory ./playbooks/scheduler.yml
     ansible-playbook -i playbooks/inventory ./playbooks/ood.yml --extra-vars=@playbooks/ood-overrides.yml
     ansible-playbook -i playbooks/inventory ./playbooks/grafana.yml 
     ansible-playbook -i playbooks/inventory ./playbooks/telegraf.yml 
   ;;
-  ad | linux | add_users | ccportal | scheduler | grafana | telegraf)
+  ad | linux | add_users | ccportal | ccpbs | scheduler | grafana | telegraf)
     ansible-playbook -i playbooks/inventory ./playbooks/$TARGET.yml
   ;;
   ood)
