@@ -8,8 +8,6 @@ on:
   push:
     tags:
       - '*'
-  # manual only
-  workflow_dispatch:
 
 jobs:
   release:
@@ -18,19 +16,20 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-        with:
-          submodules: true
-         
+
       - name: Build Changelog
         id: github_release
-        uses: mikepenz/release-changelog-builder-action@v1.7.3
-        with:
-          #configuration: ".github/workflows/changelog_configuration.json"
-          ignorePreReleases: "false"
-          fromTag: "v0.1.0"
+        uses: mikepenz/release-changelog-builder-action@latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: "Dump Changelog"
-        run: |
-          echo ${{steps.github_release.outputs.changelog}}
+      - name: Create Release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          body: ${{steps.github_release.outputs.changelog}}
+          prerelease: ${{ contains(github.ref, '-rc') || contains(github.ref, '-b') || contains(github.ref, '-a') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
