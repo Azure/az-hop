@@ -40,7 +40,7 @@ lustre:
   version: "2.12.4"
   hsm_max_requests: 8
   mdt_device: "/dev/sdb"
-  oss_device: "/dev/sdb"
+  ost_device: "/dev/sdb"
   hsm:
     # optional to use existing storage for the archive
     # if not included it will use the azhop storage account that is created
