@@ -59,6 +59,11 @@
     block: |
       default_project_locker = azure-storage
 
+- name: Drop project files if they exists
+  file:
+    path: /root/pbs
+    state: absent
+
 - name: Create CycleCloud project
   command: '/usr/local/bin/cyclecloud project init pbs'
   args:
@@ -82,11 +87,6 @@
     src: 2-joindomain.sh.j2
     dest: /root/pbs/specs/default/cluster-init/scripts/1-joindomain.sh
     mode: 0777
-
-- name: Add cvmfs script 
-  copy:
-    src: '{{role_path}}/files/3-installcvmfs.sh'
-    dest: /root/pbs/specs/default/cluster-init/scripts/3-installcvmfs.sh
 
 - name: Add autostop script 
   copy:
