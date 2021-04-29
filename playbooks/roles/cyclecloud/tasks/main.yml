@@ -59,6 +59,11 @@
     block: |
       default_project_locker = azure-storage
 
+- name: Drop project files if they exists
+  file:
+    path: /root/pbs
+    state: absent
+
 - name: Create CycleCloud project
   command: '/usr/local/bin/cyclecloud project init pbs'
   args:
