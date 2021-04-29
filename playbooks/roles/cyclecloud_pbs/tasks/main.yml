@@ -17,14 +17,20 @@
 
 - name: Copy mountnfs file.
   template:
-    src: '{{role_path}}/cluster-init/scripts/0-mountnfs.sh.j2'
-    dest: /root/pbs/specs/default/cluster-init/scripts/0-mountnfs.sh
+    src: '{{role_path}}/cluster-init/scripts/1-mountnfs.sh.j2'
+    dest: /root/pbs/specs/default/cluster-init/scripts/1-mountnfs.sh
+    mode: 0777
+
+- name: Add lustre script 
+  template:
+    src: '{{role_path}}/cluster-init/scripts/2-mountlustre.sh.j2'
+    dest: /root/pbs/specs/default/cluster-init/scripts/2-mountlustre.sh
     mode: 0777
 
 - name: Add joindomain script 
   template:
-    src: '{{role_path}}/cluster-init/scripts/1-joindomain.sh.j2'
-    dest: /root/pbs/specs/default/cluster-init/scripts/1-joindomain.sh
+    src: '{{role_path}}/cluster-init/scripts/3-joindomain.sh.j2'
+    dest: /root/pbs/specs/default/cluster-init/scripts/3-joindomain.sh
     mode: 0777
 
 - name: Add telegraf configuration file  
@@ -38,10 +44,10 @@
     state: absent
   with_items:
     - /root/pbs/specs/default/cluster-init/files/telegraf.conf.j2
-    - /root/pbs/specs/default/cluster-init/scripts/1-joindomain.sh.j2
-    - /root/pbs/specs/default/cluster-init/scripts/0-mountnfs.sh.j2
-    - /root/pbs/specs/default/cluster-init/scripts/1-mountlustre.sh.j2
-
+    - /root/pbs/specs/default/cluster-init/scripts/1-mountnfs.sh.j2
+    - /root/pbs/specs/default/cluster-init/scripts/2-mountlustre.sh.j2
+    - /root/pbs/specs/default/cluster-init/scripts/3-joindomain.sh.j2
+    
 - name: Create CycleCloud project
   command: '/usr/local/bin/cyclecloud project upload'
   args:
