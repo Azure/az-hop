@@ -768,7 +768,7 @@
       line: '"DB_USER"     => "robinhood",'
       backrefs: yes
   - name: get password
-    command: cat /etc/robinhood.d/.dbpassword
+    shell: cat /etc/robinhood.d/testpw | sed 's/"/\\"/g'
     register: dbpasswd
   - name: replace password
     lineinfile: 
