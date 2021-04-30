@@ -1,10 +1,8 @@
 name : container
 
 on:
-  push:
-    paths:
-      - 'toolset/**'
-      - .github/workflows/container.yml
+  # manual only
+  workflow_dispatch:
 
 jobs:
   build:
