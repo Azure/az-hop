@@ -32,6 +32,8 @@
                 "/tmp/scripts/lustreclient2.12.5_centos7.8.sh",
                 "/tmp/scripts/interactive-desktop-3d.sh",
                 "/tmp/scripts/desktop-packages.sh",
+                "/tmp/scripts/pbspro.sh",
+                "/tmp/scripts/telegraf.sh",
                 "rm -rf /tmp/scripts",
                 "/usr/sbin/waagent -force -deprovision+user && export HISTSIZE=0 && sync"
             ],
