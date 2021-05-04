@@ -1,8 +1,5 @@
 #!/bin/bash
 
-echo "Temporary disabling telegraf while a fix is produce"
-exit 0
-
 if [ ! -e /etc/yum.repos.d/influxdb.repo ]; then
 echo "#### Configuration repo for InfluxDB:"
 cat <<EOF | tee /etc/yum.repos.d/influxdb.repo
@@ -17,12 +14,14 @@ fi
 
 if ! rpm -q telegraf; then
   echo "#### Telegraf Installation:"
-  yum -y install telegraf
+  yum -y install https://dl.influxdata.com/telegraf/releases/telegraf-1.18.2-1.x86_64.rpm
 fi
 
 echo "Copy configuration file to use"
 TELEGRAF_CONF_DIR=/etc/telegraf
 cp ../files/telegraf.conf $TELEGRAF_CONF_DIR/telegraf.conf
+chown telegraf:root $TELEGRAF_CONF_DIR/telegraf.conf
+chmod 600 $TELEGRAF_CONF_DIR/telegraf.conf
 
 echo "#### Starting Telegraf services:"
 systemctl start telegraf

@@ -11,14 +11,15 @@
 
 - name: Install telegraf
   yum: 
-    name:
-      - telegraf
+    name: https://dl.influxdata.com/telegraf/releases/telegraf-1.18.2-1.x86_64.rpm
     state: present
 
 - name: Configure telegraf
   template:
     src: telegraf.conf.j2
     dest: /etc/telegraf/telegraf.conf
+    owner: telegraf
+    mode: 0600
   notify: restart telegraf
 
 - name: Start and enable the telegraf service
