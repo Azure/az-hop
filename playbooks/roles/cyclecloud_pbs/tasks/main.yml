@@ -37,6 +37,7 @@
   template:
     src: '{{role_path}}/cluster-init/files/telegraf.conf.j2'
     dest: /root/pbs/specs/default/cluster-init/files/telegraf.conf
+    mode: 0600
 
 - name: Remove Jinja files
   file:
