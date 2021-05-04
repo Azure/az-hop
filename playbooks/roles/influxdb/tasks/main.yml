@@ -12,7 +12,7 @@
 - name: Install Influxdb
   yum: 
     name:
-      - influxdb
+      - https://dl.influxdata.com/influxdb/releases/influxdb-1.8.5.x86_64.rpm
       - python-pip
     state: present
 
