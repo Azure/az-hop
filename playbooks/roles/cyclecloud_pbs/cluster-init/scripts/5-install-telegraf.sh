@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo "Temporary disabling telegraf while a fix is produce"
+exit 0
+
 if [ ! -e /etc/yum.repos.d/influxdb.repo ]; then
 echo "#### Configuration repo for InfluxDB:"
 cat <<EOF | tee /etc/yum.repos.d/influxdb.repo
