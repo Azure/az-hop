@@ -285,9 +285,9 @@
       cd /opt
       git clone https://github.com/microsoft/amlFilesystem-hydrator.git
       cd amlFilesystem-hydrator/
-      git checkout 5d7818165feb0ff2dfd1bb10e964670900e75ed6
       python3.7 -m venv venv
       rm -rf venv
+      export LAASO_VENV_CREATE_ANSIBLE_GALAXY_REQUIREMENTS=
       python3.7 build/venv_create.py venv laaso/requirements.txt
     when: not stat_hydrator.stat.exists
   - name: check to see if lustre is hydrated
