@@ -21,6 +21,11 @@ clusters:
             export PATH="/opt/TurboVNC/bin:$PATH"
             export WEBSOCKIFY_CMD="/usr/bin/websockify"
             %s
+ood_install_apps:
+  codeserver:
+    repo: https://github.com/edwardsp/bc_osc_codeserver.git
+    dest: "{{ ood_sys_app_dir }}"
+    version: master
 ood_apps:
   bc_desktop:
     title: "remote desktop"
