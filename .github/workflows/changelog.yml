@@ -19,7 +19,7 @@ jobs:
 
       - name: Build Changelog
         id: github_release
-        uses: mikepenz/release-changelog-builder-action@v1.8.0
+        uses: mikepenz/release-changelog-builder-action@v1.8.1
         with:
           configuration: ".github/workflows/changelog_configuration.json"
         env:
