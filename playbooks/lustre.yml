@@ -397,7 +397,7 @@
         Log
         {
             # log levels: CRIT, MAJOR, EVENT, VERB, DEBUG, FULL
-            debug_level = FULL;
+            debug_level = EVENT;
 
             # Log file
             log_file = "/var/log/robinhood.log";
