@@ -165,6 +165,7 @@
     register: install_rpms
   - name: run weak-modules
     command: weak-modules --add-kernel --no-initramfs
+    when: install_rpms.changed
   - name: create lustre mount directory
     file:
       path: /lustre
