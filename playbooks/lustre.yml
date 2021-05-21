@@ -708,6 +708,18 @@
             trigger_on = periodic;
             check_interval = 5m;
         }
+  - name: setup log rotation for robinhood
+    copy:
+      dest: /etc/logrotate.d/robinhood
+      mode: 0644
+      content: |
+        /var/log/robinhood*.log {
+            compress
+            weekly
+            rotate 6
+            notifempty
+            missingok
+        }
   - name: create lfs_hsm_remove script
     copy:
       dest: /usr/sbin/lfs_hsm_remove.sh
