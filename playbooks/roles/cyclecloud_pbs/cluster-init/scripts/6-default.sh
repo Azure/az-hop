@@ -1,5 +1,7 @@
 #!/bin/bash
 # Apply default configuration to the node
+# Remote read access to the cluster init script files for all users
+chmod 700 -R /mnt/cluster-init
 
 # change access to resource so that temp jobs can be written there
 chmod 777 /mnt/resource
