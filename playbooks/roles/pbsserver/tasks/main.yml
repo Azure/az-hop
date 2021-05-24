@@ -46,11 +46,16 @@
   args:
     chdir: /opt/cycle/pbspro
 
-- name: change log level to INFO
-  replace : 
-    path: /opt/cycle/pbspro/logging.conf
-    regexp: 'level=DEBUG'
-    replace: 'level=INFO'
+- name: Add logging.conf
+  copy:
+    src: '{{role_path}}/files/logging.conf'
+    dest: /opt/cycle/pbspro/logging.conf
+
+# - name: change log level to INFO
+#   replace : 
+#     path: /opt/cycle/pbspro/logging.conf
+#     regexp: 'level=DEBUG'
+#     replace: 'level=INFO'
 
 - name: Add doqmgr pbs configuration script
   copy:
