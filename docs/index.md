@@ -11,13 +11,7 @@ Azure HPC OnDemand Platform or **azhop**, deliver an end-2-end deployment mechan
 - [Grafana](https://grafana.com/) dashboards to monitor your cluster
 
 # Deployment Guide
- - [Configure the toolchain](deploy/configure_toolchain.md)
- - [Azure Prerequisites](deploy/azure_prereqs.md)
- - [Define the environment to deploy](deploy/define_environment.md)
- - [Deploy](deploy/deploy.md)
- - [Install](deploy/install.md)
- - [Build Images](deploy/build_images.md)
- - [Add Users](deploy/add_users.md)
+Follow the steps [here](deploy/index.md) for configuring and deploying your AZHOP environmment.
 
 # User Guide
 User guide us available [here](user_guide/user_guide.md)
