@@ -6,7 +6,4 @@ plugins:
 relative_links:
   enabled: true
   collections: true
-include:
-  - index.md
-  - deployment_guide.md
-  - user_guide.md
+

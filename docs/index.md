@@ -11,4 +11,6 @@ Azure HPC OnDemand Platform or **azhop**, deliver an end-2-end deployment mechan
 - [Grafana](https://grafana.com/) dashboards to monitor your cluster
 
 ## Deployment Guide
+Deployment guide is available [here](deployment_guide.md) 
 ## User Guide
+User guide us available [here](user_guide.md)
