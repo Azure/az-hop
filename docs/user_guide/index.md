@@ -1,5 +1,9 @@
 - [Files](files.md)
-- [Jobs](jobs.md)
-- [CycleCloud](cycle_cloud.md)
-- [Remote Desktop](remote_desktop.md)
-- [Code Server](code_server.md)
+- [Running Jobs](jobs.md)
+- Interactive Applications
+  - [Remote Desktop](remote_desktop.md)
+  - [Code Server](code_server.md)
+- Monitoring
+  - [CycleCloud](cycle_cloud.md)
+  - [Grafana Dashboards](grafana.md)
+  - [Lustre HSM monitoring](robinhood.md)
