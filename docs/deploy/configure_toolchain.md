@@ -1,3 +1,4 @@
+# Configure the toolchain
 The toolchain can be setup either from a docker container or locally. See below for instructions regarding the installation.
 
 ## Clone the repo
