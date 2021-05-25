@@ -1,4 +1,3 @@
-# Build Images
 Describe here the image building process
  - image definition in the config file
  - image configuration files and scripts

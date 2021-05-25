@@ -14,4 +14,4 @@ Azure HPC OnDemand Platform or **azhop**, deliver an end-2-end deployment mechan
 Follow the steps [here](deploy/index.md) for configuring and deploying your AZHOP environmment.
 
 # User Guide
-User guide us available [here](user_guide/user_guide.md)
+The User guide is available [here](user_guide/index.md)
