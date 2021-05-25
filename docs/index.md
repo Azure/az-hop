@@ -17,7 +17,7 @@ Azure HPC OnDemand Platform or **azhop**, deliver an end-2-end deployment mechan
  - [Deploy](deploy/deploy.md)
  - [Install](deploy/install.md)
  - [Build Images](deploy/build_images.md)
- - [Add Users][deploy/add_users.md]
+ - [Add Users](deploy/add_users.md)
 
 # User Guide
 User guide us available [here](user_guide/user_guide.md)
