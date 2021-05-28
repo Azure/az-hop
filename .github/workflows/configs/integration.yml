@@ -1,7 +1,8 @@
 ---
 location: westeurope
-resource_group: azhop_integration
+resource_group: __RESOURCE_GROUP__
 homefs_size_tb: 4
+homefs_service_level: Standard
 admin_user: hpcadmin
 key_vault_readers: 0bf2513b-59fe-4018-bfd6-5d4844a9a3b9
 homedir_mountpoint: /anfhome
@@ -35,32 +36,8 @@ lustre:
   mdt_device: "/dev/sdb"
   ost_device: "/dev/sdb"
 users:
-  - name: xavier
-    uid: 10001
-    gid: 5000
-    shell: /bin/bash
-    home: /anfhome/xavier
-    admin: true
-  - name: hugo
-    uid: 10002
-    gid: 5000
-    shell: /bin/bash
-    home: /anfhome/hugo
-    admin: true
-  - name: paul
-    uid: 10003
-    gid: 5000
-    shell: /bin/bash
-    home: /anfhome/paul
-    admin: true
-  - name: cormac
-    uid: 10004
-    gid: 5000
-    shell: /bin/bash
-    home: /anfhome/cormac
-    admin: true
   - name: hpcuser
-    uid: 10005
+    uid: 10001
     gid: 5000
     shell: /bin/bash
     home: /anfhome/hpcuser
