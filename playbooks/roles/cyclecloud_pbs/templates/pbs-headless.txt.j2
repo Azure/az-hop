@@ -45,7 +45,7 @@ Autoscale = true
   {% endif %}
     Interruptible = false
     # Lookup image version for that queue
-  {% if cc_image_lookup is defined and queue.name in cc_image_lookup %}
+  {% if cc_image_lookup is iterable and queue.name in cc_image_lookup %}
     ImageName = {{ cc_image_lookup[queue.name] }}
   {% else %}
     ImageName = {{ queue.image }}
