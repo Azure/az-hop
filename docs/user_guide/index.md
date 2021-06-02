@@ -1,4 +1,5 @@
 - [Files](files.md)
+  - [Lustre HSM](lustre_hsm.md)
 - [Running Jobs](jobs.md)
 - Interactive Applications
   - [Remote Desktop](remote_desktop.md)
