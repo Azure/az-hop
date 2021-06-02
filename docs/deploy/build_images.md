@@ -5,25 +5,7 @@
 ## Pre-requisites
 As packer used a Service Principal Name to create the azure resources, you need to create one upfront, store the password in a keyvault secret, and configure the `spn.json` parameter file used by the `build_image.sh` script.
 
-### Create a Service Principal Name
-
-Run this command to generate a Service Principal Name. Keep the password value somewhere safe as it won't be shown again.
-```bash
-az ad sp create-for-rbac --name azhop-packer-spn
-{
-  "appId": "<some-generated-guid>",
-  "displayName": "azhop-packer-spn",
-  "name": "http://azhop-packer-spn",
-  "password": "<generated-password>",
-  "tenant": "<your-tenant-id>"
-}
-```
-
-### Add the password in a keyvault secret
-
-```bash
-az keyvault secret set --value <generated-password> --name azhop-packer-spn --vault-name <your-keyvault>
-```
+See the [Azure Pre-requisites](azure_prereqs.md) page for more details.
 
 ### Create the spn.json parameter file
 
@@ -31,7 +13,7 @@ In the `packer` directory create a file named `spn.json` and add this content
 
 ```
 {
-  "spn_name": "azhop-packer-spn",
+  "spn_name": "<your-spn-name>",
   "key_vault": "<your-keyvault>"
 }
 ```
