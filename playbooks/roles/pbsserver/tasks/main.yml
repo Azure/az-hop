@@ -37,6 +37,21 @@
   args:
     chdir: /tmp/cyclecloud-pbspro
 
+- name: Add resources.json
+  copy:
+    src: '{{role_path}}/files/resources.json'
+    dest: /opt/cycle/pbspro/resources.json
+
+- name: Add additional resources definition
+  shell: |
+    jq '.default_resources' autoscale.json > default_resources.json
+    jq '. | del(.default_resources) | .default_resources+=$add | .default_resources+=$resources' --argjson add "$(cat resources.json)" autoscale.json --argjson resources "$(cat default_resources.json)" > tmp_autoscale.json || exit 1
+    cp tmp_autoscale.json autoscale.json
+    jq '.' autoscale.json || exit 1
+    rm tmp_autoscale.json
+  args:
+    chdir: /opt/cycle/pbspro
+
 - name: change node timeout to 15mn instead of 5mn
   shell: |
     jq '.idle_timeout=900' autoscale.json > tmp_autoscale.json || exit 1

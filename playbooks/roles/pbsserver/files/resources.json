@@ -1,0 +1,16 @@
+[
+    {
+      "name": "ncpus",
+      "select": {
+        "node.vm_size": "Standard_HB120rs_v3"
+      },
+      "value": 120
+    },
+    {
+      "name": "mem",
+      "select": {
+        "node.vm_size": "Standard_HB120rs_v3"
+      },
+      "value": "memory::448g"
+    }
+]
