@@ -62,6 +62,13 @@
       attributes:
         gidnumber: 5000
 
+  - name: Disable password expiration
+    win_domain_user:
+      name: '{{admin_user}}'
+      state: present
+      password_never_expires: true
+      update_password: on_create
+
 - name: close socks tunnel
   hosts: localhost
   connection: local
