@@ -11,7 +11,7 @@ lfs hsm_restore <file>
 - How to restore all files below a directory
 find . -type f -exec sudo lfs hsm_restore {} \;
 
-- How to archibe all files below a directory
+- How to archive all files below a directory
 find . -type f -exec sudo lfs hsm_archive {} \;
 
-- How to add files into blobs and then in lustre
+- How to add files into blobs and then restore them in lustre ?
