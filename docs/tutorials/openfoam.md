@@ -4,7 +4,7 @@
 
 These instructions build OpenFOAM with spack.  This assumes the installation has been setup as described [here](spack.md).
 
-Build time is improved if a local disk is used.  This can be added to the spack `config.yaml` with the following command: 
+Build time is improved if a local disk is used. Check if your local `~/.spack/config.yaml` contains a *build_stage* entry for `/mnt/resource/$user/spack-stage` otherwise add it with the following command: 
 
 ```bash
 sed '/^  build_stage:$/a \ \ \ \ - /mnt/resource/$user/spack-stage' $HOME/spack/etc/spack/defaults/config.yaml
