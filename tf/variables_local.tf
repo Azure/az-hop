@@ -19,4 +19,9 @@ locals {
     lustre_mds_sku = try(local.configuration_yml["lustre"]["mds_sku"], "Standard_D8d_v4")
     lustre_oss_sku = try(local.configuration_yml["lustre"]["oss_sku"], "Standard_D32d_v4")
     lustre_oss_count = try(local.configuration_yml["lustre"]["oss_count"], 2)
+
+    create_peering = try(length(local.peering_vnet_name) > 0 ? 1 : 0, 0)
+    peering_vnet_name = try(local.configuration_yml["network"]["peering"]["vnet_name"], null)
+    peering_vnet_resource_group = try(local.configuration_yml["network"]["peering"]["vnet_resource_group"], null)
+
 }
