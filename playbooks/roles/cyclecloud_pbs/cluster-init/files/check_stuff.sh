@@ -21,7 +21,7 @@ function check_ib_device()
             fi
         ;;
 
-        standard_hc44rs|standard_hb60rs|standard_hb120rs_v2)
+        standard_hc44rs|standard_hb60rs|standard_hb120rs_v2|standard_hb120*rs_v3)
             # Retrieve IB info
             ib_device=$(ifconfig | grep ib0 -A1 | grep inet | tr -s ' ' | cut -d' ' -f 3)
             if [ -n "$ib_device" ]; then
