@@ -22,7 +22,6 @@ AZHPC_VMSIZE=$(curl -s --noproxy "*" -H Metadata:true "http://169.254.169.254/me
 PHYSICAL_HOST=$(strings /var/lib/hyperv/.kvp_pool_3 | grep -A1 PhysicalHostName | head -n 2 | tail -1)
 VMSS=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2018-10-01" | jq -r '.compute.vmScaleSetName')
 
-
 sed -i "s/__SKU__/${AZHPC_VMSIZE}/g" ../files/telegraf.conf
 sed -i "s/__PHYS_HOST__/${PHYSICAL_HOST}/g" ../files/telegraf.conf
 sed -i "s/__VMSS__/${VMSS}/g" ../files/telegraf.conf
@@ -34,6 +33,7 @@ chown telegraf:root $TELEGRAF_CONF_DIR/telegraf.conf
 chmod 600 $TELEGRAF_CONF_DIR/telegraf.conf
 
 echo "#### Starting Telegraf services:"
-systemctl start telegraf
 systemctl enable telegraf
+systemctl restart telegraf
+
 
