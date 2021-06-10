@@ -74,6 +74,7 @@ images:
     sku: 7.8-gen2
     hyper_v: V2 # V1 or V2 (V1 is the default)
     os_type: Linux # Linux or Windows
+    version: 7.8 # Version of the image to create the image definition in SIG
 queues:
   - name: execute
     vm_size: Standard_F2s_v2
