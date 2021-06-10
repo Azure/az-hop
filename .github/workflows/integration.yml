@@ -179,7 +179,7 @@ jobs:
   cleanup:
     name: cleanup
     runs-on: ubuntu-latest
-    if: always() and github.event.inputs.clean == 'true'
+    if: always() && github.event.inputs.clean == 'true'
     needs: [deploy, run_tests]
 
     container:
