@@ -6,7 +6,11 @@ name : integration
 
 on:
   workflow_dispatch:
-
+    inputs:
+      clean:
+        description: 'Clean all resources'
+        required: false
+        default: 'true' # use it with ${{ github.event.inputs.clean }}
 env:
   TF_CLI_ARGS: '-no-color'
   TF_CLI_ARGS_destroy: '-auto-approve -refresh=false'
@@ -175,7 +179,7 @@ jobs:
   cleanup:
     name: cleanup
     runs-on: ubuntu-latest
-    if: always()
+    if: always() and github.event.inputs.clean == 'true'
     needs: [deploy, run_tests]
 
     container:
