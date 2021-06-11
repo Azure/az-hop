@@ -12,8 +12,8 @@
       }
     ]
   },
-  "description": "InfluxDB dashboards for telegraf metrics",
-  "editable": true,
+  "description": "CPU Load of compute nodes",
+  "editable": false,
   "gnetId": 928,
   "graphTooltip": 1,
   "id": 9,

@@ -13,7 +13,7 @@
     ]
   },
   "description": "Monitor the infrastructure servers",
-  "editable": true,
+  "editable": false,
   "gnetId": 10581,
   "graphTooltip": 0,
   "id": 13,
@@ -4263,7 +4263,7 @@
             "value": "ccportal"
           }
         ],
-        "query": "scheduler, ondemand, ccportal",
+        "query": "scheduler, ondemand, ccportal, robinhood, lustre",
         "queryValue": "",
         "skipUrlSync": false,
         "type": "custom"

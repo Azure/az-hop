@@ -1,4 +1,4 @@
-- hosts: jumpbox, scheduler, ondemand, ccportal
+- hosts: jumpbox, scheduler, ondemand, ccportal, lustre, lustre-oss-*, robinhood 
   become: true
   vars_files:
     - '{{global_config_file}}'
@@ -21,3 +21,4 @@
       influxdb_database_name: "telegraf"
       telegraf_influxdb_urls: 
         - "http://jumpbox:8086"
+
