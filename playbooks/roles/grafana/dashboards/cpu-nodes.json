@@ -16,8 +16,8 @@
   "editable": false,
   "gnetId": 928,
   "graphTooltip": 1,
-  "id": 9,
-  "iteration": 1623348138360,
+  "id": 17,
+  "iteration": 1623426976294,
   "links": [],
   "panels": [
     {
@@ -62,7 +62,7 @@
               }
             ]
           },
-          "unit": "percentunit"
+          "unit": "percent"
         },
         "overrides": []
       },
@@ -79,16 +79,18 @@
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "lastNotNull"
+            "last"
           ],
           "fields": "",
           "values": false
         },
         "showThresholdLabels": false,
         "showThresholdMarkers": true,
-        "text": {}
+        "text": {
+          "titleSize": 12
+        }
       },
-      "pluginVersion": "8.0.0",
+      "pluginVersion": "7.5.4",
       "repeat": "server",
       "repeatDirection": "h",
       "targets": [
@@ -160,7 +162,7 @@
     }
   ],
   "refresh": "10s",
-  "schemaVersion": 30,
+  "schemaVersion": 27,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -261,9 +263,10 @@
       {
         "allValue": null,
         "current": {
-          "selected": false,
-          "text": "arewg000002",
-          "value": "arewg000002"
+          "selected": true,
+          "tags": [],
+          "text": [],
+          "value": []
         },
         "datasource": "$datasource",
         "definition": "SHOW TAG VALUES FROM system WITH KEY = \"host\" WHERE sku =~ /$sku/",
@@ -281,6 +284,7 @@
         "skipUrlSync": false,
         "sort": 1,
         "tagValuesQuery": "",
+        "tags": [],
         "tagsQuery": "",
         "type": "query",
         "useTags": false
@@ -288,13 +292,10 @@
       {
         "allValue": null,
         "current": {
-          "selected": false,
-          "text": [
-            "standard_hb120rs_v2"
-          ],
-          "value": [
-            "standard_hb120rs_v2"
-          ]
+          "selected": true,
+          "tags": [],
+          "text": [],
+          "value": []
         },
         "datasource": "${datasource}",
         "definition": "SHOW TAG VALUES FROM system WITH KEY = \"sku\"",
@@ -311,14 +312,19 @@
         "regex": "",
         "skipUrlSync": false,
         "sort": 1,
-        "type": "query"
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       },
       {
         "allValue": null,
         "current": {
-          "selected": false,
-          "text": "hb120rs_v2-rdw7dlegkjfj5",
-          "value": "hb120rs_v2-rdw7dlegkjfj5"
+          "selected": true,
+          "tags": [],
+          "text": [],
+          "value": []
         },
         "datasource": "${datasource}",
         "definition": "SHOW TAG VALUES FROM system WITH KEY = \"vmss\" WHERE sku =~ /$sku/",
@@ -335,7 +341,11 @@
         "regex": "",
         "skipUrlSync": false,
         "sort": 1,
-        "type": "query"
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       }
     ]
   },
@@ -371,5 +381,5 @@
   "timezone": "browser",
   "title": "Heatmap",
   "uid": "_KXsN36Mz",
-  "version": 10
+  "version": 2
 }
