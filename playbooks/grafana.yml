@@ -51,8 +51,3 @@
             path: /etc/grafana/provisioning/dashboards
             foldersFromFilesStructure: true
 
-  - name: Copy dashboard
-    copy:
-      src: 'dashboard.json'
-      dest: '/etc/grafana/provisioning/dashboards/dashboard.json'
-

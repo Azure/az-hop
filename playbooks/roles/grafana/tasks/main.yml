@@ -13,6 +13,11 @@
 - include: configure.yml
 - include: provisioning.yml
 
+- name: Copy dashboards files
+  copy:
+    src: '{{role_path}}/dashboards'
+    dest: '{{ grafana_paths_provisioning }}/dashboards'
+
 - name: Start and enable the Grafana service
   service:
     name: grafana-server
