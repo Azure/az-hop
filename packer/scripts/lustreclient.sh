@@ -1,5 +1,5 @@
 #!/bin/bash
-lustre_version=${1:2.12.5}
+lustre_version=${1-2.12.5}
 lustre_dir="lustre-$lustre_version"
 
 cat << EOF >/etc/yum.repos.d/LustrePack.repo
@@ -22,5 +22,5 @@ enabled=1
 gpgcheck=0
 EOF
 
-yum -y install lustre-client
-weak-modules --add-kernel $(uname -r)
+yum -y install lustre-client || exit 1
+weak-modules --add-kernel $(uname -r) || exit 1
