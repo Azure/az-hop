@@ -13,6 +13,7 @@
     msg:
       - "cc_jetpack_url={{cc_rpms_jetpack}}"
       - "cc_update_url={{cc_rpms_cycle}}"
+  when: cc_rpms_cycle is defined
 
 - name: Update CC CycleCloud
   yum:
