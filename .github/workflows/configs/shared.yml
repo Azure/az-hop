@@ -10,14 +10,14 @@ cyclecloud:
     publisher: "azurecyclecloud"
     offer:     "azure-cyclecloud"
     sku:       "cyclecloud-81"
-    version:   "8.1.0"
+    version:   "8.1.120210607"
   plan:
     name: "cyclecloud-81"
     publisher:  "azurecyclecloud"
     product:    "azure-cyclecloud"
   rpms:
-    cyclecloud: "https://packages.microsoft.com/yumrepos/cyclecloud/cyclecloud8-8.1.1-1451.x86_64.rpm"
-    jetpack: "https://packages.microsoft.com/yumrepos/cyclecloud/jetpack8-8.1.1-1451.x86_64.rpm"
+    cyclecloud: 
+    jetpack: 
 users:
   - name: hpcuser
     uid: 10001

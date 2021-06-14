@@ -22,21 +22,21 @@ scheduler:
 cyclecloud:
   vm_size: Standard_D2s_v3
   # Azure Image Reference for CycleCloud. Default to 8.1.0 if not present
-#  image: 
-#    publisher: "azurecyclecloud"
-#    offer:     "azure-cyclecloud"
-#    sku:       "cyclecloud-81"
-#    version:   "8.1.0"
+ image: 
+   publisher: "azurecyclecloud"
+   offer:     "azure-cyclecloud"
+   sku:       "cyclecloud-81"
+   version:   "8.1.120210607"
   # Azure Image Plan for CycleCloud. Default to 8.1 if not present
-#  plan: 
-#    name:      "cyclecloud-81"
-#    publisher: "azurecyclecloud"
-#    product:   "azure-cyclecloud"
+ plan: 
+   name:      "cyclecloud-81"
+   publisher: "azurecyclecloud"
+   product:   "azure-cyclecloud"
   rpms:
     # optional URL to apply a fix on the marketplace image deployed on the ccportal
-    cyclecloud: "https://packages.microsoft.com/yumrepos/cyclecloud/cyclecloud8-8.1.1-1451.x86_64.rpm"
+    cyclecloud:
     # mandatory URL on the jetpack RPM to be installed on the ccportal and the scheduler
-    jetpack: "https://packages.microsoft.com/yumrepos/cyclecloud/jetpack8-8.1.1-1451.x86_64.rpm"
+    jetpack:
 lustre:
   rbh_sku: "Standard_D8d_v4"
   mds_sku: "Standard_D8d_v4"
