@@ -25,6 +25,7 @@
 - name: download CycleCloud ScaleLib PBSPro  
   unarchive: 
     src: "https://github.com/Azure/cyclecloud-pbspro/releases/download/2.0.0/cyclecloud-pbspro-pkg-2.0.0.tar.gz"
+#    src: "https://github.com/Azure/cyclecloud-pbspro/releases/download/2.0.1/cyclecloud-pbspro-pkg-2.0.1.tar.gz"
     dest: /tmp/
     remote_src: yes
 
