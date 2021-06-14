@@ -1,11 +1,12 @@
 #!/bin/bash
-
+set -e
 CURRENT_DATE=`date`
 AZHPC_VMSIZE=$(curl -s --noproxy "*" -H Metadata:true "http://169.254.169.254/metadata/instance/compute?api-version=2019-08-15" | jq -r '.vmSize' | tr '[:upper:]' '[:lower:]')
-PHYSICAL_HOST=$(strings /var/lib/hyperv/.kvp_pool_3 | grep -A1 PhysicalHostName | head -n 2 | tail -1)
+THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 function check_ib_device()
 {
+    bad_node=0
     case $AZHPC_VMSIZE in
         standard_h16mr|standard_h16r)
             ib_device=$(ifconfig | grep eth1 -A1 | grep inet | tr -s ' ' | cut -d' ' -f 3)
@@ -58,29 +59,25 @@ function check_ib_values()
     phys_state=$5
 
     # Read the expected values from the dictionary config file
-    dictionary=$(jq '.infiniband[] | select(.sku==$vmsize)' --arg vmsize $vmsize $DIR/../healthchecks.json)
+    dictionary=$(jq '.infiniband[] | select(.sku==$vmsize)' --arg vmsize $vmsize $THIS_DIR/../healthchecks.json)
     expected=$(echo $dictionary | jq -r '.state')
     if [ "$state" != "$expected" ]; then
         echo "ERROR : IB state is $state while expected is $expected"
-        bad_node=1
         exit 12
     fi
     expected=$(echo $dictionary | jq -r '.rate')
     if [ "$rate" != "$expected" ]; then
         echo "ERROR : IB rate is $rate while expected is $expected"
-        bad_node=1
         exit 13
     fi
     expected=$(echo $dictionary | jq -r '.speed')
     if [ "$speed" != "$expected" ]; then
         echo "ERROR : IB speed is $speed while expected is $expected"
-        bad_node=1
         exit 14
     fi
     expected=$(echo $dictionary | jq -r '.phys_state')
     if [ "$phys_state" != "$expected" ]; then
         echo "ERROR : IB physical state is $phys_state while expected is $expected"
-        bad_node=1
         exit 15
     fi
 
