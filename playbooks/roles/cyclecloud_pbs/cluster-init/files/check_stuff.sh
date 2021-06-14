@@ -18,7 +18,7 @@ function check_ib_device()
             else
                 echo "ERROR : No IB devices found"
                 bad_node=1
-                exit 10
+                exit 254
             fi
         ;;
 
@@ -33,7 +33,7 @@ function check_ib_device()
             else
                 echo "ERROR : No IB devices found"
                 bad_node=1
-                exit 11
+                exit 254
             fi
         ;;
 
@@ -63,22 +63,22 @@ function check_ib_values()
     expected=$(echo $dictionary | jq -r '.state')
     if [ "$state" != "$expected" ]; then
         echo "ERROR : IB state is $state while expected is $expected"
-        exit 12
+        exit 254
     fi
     expected=$(echo $dictionary | jq -r '.rate')
     if [ "$rate" != "$expected" ]; then
         echo "ERROR : IB rate is $rate while expected is $expected"
-        exit 13
+        exit 254
     fi
     expected=$(echo $dictionary | jq -r '.speed')
     if [ "$speed" != "$expected" ]; then
         echo "ERROR : IB speed is $speed while expected is $expected"
-        exit 14
+        exit 254
     fi
     expected=$(echo $dictionary | jq -r '.phys_state')
     if [ "$phys_state" != "$expected" ]; then
         echo "ERROR : IB physical state is $phys_state while expected is $expected"
-        exit 15
+        exit 254
     fi
 
 }
