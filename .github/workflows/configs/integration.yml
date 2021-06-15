@@ -53,6 +53,13 @@ images:
     hyper_v: V2
     os_type: Linux
     version: 7.8 
+  - name: azhop-centos79-v2-rdma-gpgpu
+    publisher: azhop
+    offer: CentOS
+    sku: 7.9-gen2
+    hyper_v: V2
+    os_type: Linux
+    version: 7.9 
   - name: centos-7.8-desktop-3d
     publisher: azhop
     offer: CentOS
@@ -85,3 +92,7 @@ queues:
     vm_size: Standard_NV6
     max_core_count: 24
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
+  - name: nc24rs_v3
+    vm_size: Standard_NC24rs_v3
+    max_core_count: 96
+    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest

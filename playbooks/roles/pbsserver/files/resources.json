@@ -12,5 +12,47 @@
         "node.vm_size": "Standard_HB120rs_v3"
       },
       "value": "memory::448g"
+    },
+    {
+      "name": "ncpus",
+      "select": {
+        "node.vm_size": "Standard_HB120-96rs_v3"
+      },
+      "value": 96
+    },
+    {
+      "name": "mem",
+      "select": {
+        "node.vm_size": "Standard_HB120-96rs_v3"
+      },
+      "value": "memory::448g"
+    },
+    {
+      "name": "ncpus",
+      "select": {
+        "node.vm_size": "Standard_HB120-64rs_v3"
+      },
+      "value": 64
+    },
+    {
+      "name": "mem",
+      "select": {
+        "node.vm_size": "Standard_HB120-64rs_v3"
+      },
+      "value": "memory::448g"
+    },
+    {
+      "name": "ncpus",
+      "select": {
+        "node.vm_size": "Standard_HB120-32rs_v3"
+      },
+      "value": 32
+    },
+    {
+      "name": "mem",
+      "select": {
+        "node.vm_size": "Standard_HB120-32rs_v3"
+      },
+      "value": "memory::448g"
     }
 ]
