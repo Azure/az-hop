@@ -22,7 +22,7 @@ function check_ib_device()
             fi
         ;;
 
-        standard_hc44rs|standard_hb60rs|standard_hb120rs_v2|standard_hb120*rs_v3)
+        standard_hc44rs|standard_hb60rs|standard_hb120rs_v2|standard_hb120*rs_v3|standard_nd96asr_v4)
             # Retrieve IB info
             ib_device=$(ifconfig | grep ib0 -A1 | grep inet | tr -s ' ' | cut -d' ' -f 3)
             if [ -n "$ib_device" ]; then
@@ -83,9 +83,20 @@ function check_ib_values()
 
 }
 
+function check_gpu()
+{
+    case $AZHPC_VMSIZE in
+        standard_nc*|standard_nv*|standard_nd*)
+            nvidia-smi || exit 254
+        ;;
+    esac
+}
+
 # Check IB device only if IB tools are installed
 if [ -e /usr/bin/ibv_devinfo ]; then
     check_ib_device
 fi
+
+check_gpu
 
 exit 0
