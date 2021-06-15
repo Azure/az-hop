@@ -16,6 +16,8 @@ cat << EOF >> /etc/security/limits.conf
 *               soft    memlock         unlimited
 *               hard    nofile          65535
 *               soft    nofile          65535
+*               hard    stack           unlimited
+*               soft    stack           unlimited
 EOF
 
 # Install azcopy
