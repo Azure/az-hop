@@ -83,9 +83,20 @@ function check_ib_values()
 
 }
 
+function check_gpu()
+{
+    case $AZHPC_VMSIZE in
+        standard_nc*|standard_nv*|standard_nd*)
+            nvidia-smi || exit 254
+        ;;
+    esac
+}
+
 # Check IB device only if IB tools are installed
 if [ -e /usr/bin/ibv_devinfo ]; then
     check_ib_device
 fi
+
+check_gpu
 
 exit 0
