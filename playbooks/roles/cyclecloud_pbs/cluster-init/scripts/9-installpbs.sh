@@ -1,28 +1,5 @@
 #!/bin/bash
 
-function fail {
-  echo $1 >&2
-  exit 1
-}
-
-function retry {
-  local n=1
-  local max=5
-  local delay=10
-  while true; do
-    "$@" && break || {
-      if [[ $n -lt $max ]]; then
-        sleep_time=$((delay*n))
-        echo "Command failed. Attempt $n/$max. Wait for $sleep_time seconds"
-        sleep $sleep_time;
-        ((n++))
-      else
-        fail "The command has failed after $n attempts."
-      fi
-    }
-  done
-}
-
 # install pbs rpms when not in custom image
 if [ ! -f "/etc/pbs.conf" ]; then
   echo "Downloading PBS RPMs"
