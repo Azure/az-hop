@@ -16,7 +16,7 @@ function check_ib_device()
                 IB_RATE=$(cat /sys/class/infiniband/*/ports/1/rate)  2>/dev/null
                 IB_SPEED=$(/sbin/ethtool eth1 | grep "Speed:" | awk '{print $2}'| xargs)  2>/dev/null
             else
-                echo "ERROR : No IB devices found"
+                1>&2 echo "ERROR : No IB devices found"
                 bad_node=1
                 exit 254
             fi
@@ -24,14 +24,14 @@ function check_ib_device()
 
         standard_hc44rs|standard_hb60rs|standard_hb120rs_v2|standard_hb120*rs_v3|standard_nd96asr_v4)
             # Retrieve IB info
-            ib_device=$(ifconfig | grep ib0 -A1 | grep inet | tr -s ' ' | cut -d' ' -f 3)
+            ib_device=$(ifconfig 2>/dev/null | grep ib0 -A1 | grep inet | tr -s ' ' | cut -d' ' -f 3)
             if [ -n "$ib_device" ]; then
                 IB_STATE=$(ibv_devinfo | grep state | xargs | cut -d' ' -f2)
                 IB_RATE=$(ibv_devinfo -v | grep active_width | cut -d':' -f2 | xargs | cut -d' ' -f1)
                 IB_SPEED=$(ibv_devinfo -v | grep active_speed | cut -d':' -f2 | xargs | cut -d'(' -f1 | xargs)
                 IB_PHYS_STATE=$(ibv_devinfo -v | grep phys_state | cut -d':' -f2 | xargs | cut -d' ' -f1)
             else
-                echo "ERROR : No IB devices found"
+                1>&2 echo "ERROR : No IB devices found"
                 bad_node=1
                 exit 254
             fi
@@ -62,22 +62,22 @@ function check_ib_values()
     dictionary=$(jq '.infiniband[] | select(.sku==$vmsize)' --arg vmsize $vmsize $THIS_DIR/../healthchecks.json)
     expected=$(echo $dictionary | jq -r '.state')
     if [ "$state" != "$expected" ]; then
-        echo "ERROR : IB state is $state while expected is $expected"
+        1>&2 echo "ERROR : IB state is $state while expected is $expected"
         exit 254
     fi
     expected=$(echo $dictionary | jq -r '.rate')
     if [ "$rate" != "$expected" ]; then
-        echo "ERROR : IB rate is $rate while expected is $expected"
+        1>&2 echo "ERROR : IB rate is $rate while expected is $expected"
         exit 254
     fi
     expected=$(echo $dictionary | jq -r '.speed')
     if [ "$speed" != "$expected" ]; then
-        echo "ERROR : IB speed is $speed while expected is $expected"
+        1>&2 echo "ERROR : IB speed is $speed while expected is $expected"
         exit 254
     fi
     expected=$(echo $dictionary | jq -r '.phys_state')
     if [ "$phys_state" != "$expected" ]; then
-        echo "ERROR : IB physical state is $phys_state while expected is $expected"
+        1>&2 echo "ERROR : IB physical state is $phys_state while expected is $expected"
         exit 254
     fi
 
