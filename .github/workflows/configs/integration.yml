@@ -72,6 +72,7 @@ queues:
     vm_size: Standard_F2s_v2
     max_core_count: 1024
     image: OpenLogic:CentOS-HPC:7_8:latest
+    spot: true
   - name: hc44rs
     vm_size: Standard_HC44rs
     max_core_count: 1056
