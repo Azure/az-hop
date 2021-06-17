@@ -9,7 +9,7 @@ cyclecloud:
     publisher: "azurecyclecloud"
     offer:     "azure-cyclecloud"
     sku:       "cyclecloud-81"
-    version:   "8.1.120210607"
+    version:   "8.1.120210614"
   plan:
     name: "cyclecloud-81"
     publisher:  "azurecyclecloud"
