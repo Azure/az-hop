@@ -76,11 +76,17 @@ images:
     os_type: Linux # Linux or Windows
     version: 7.8 # Version of the image to create the image definition in SIG
 queues:
-  - name: execute
+  - name: execute # name of the Cycle Cloud node array
+    # Azure VM Instance type
     vm_size: Standard_F2s_v2
+    # maximum number of cores that can be instanciated
     max_core_count: 1024
+    # marketplace image name or custom image id
     image: OpenLogic:CentOS-HPC:7.7:latest
-    #EnableAcceleratedNetworking: true or false # false is the default value
+    # Set to true if AccelNet need to be enabled. false is the default value
+    EnableAcceleratedNetworking: false
+    # spot instance support. Default is false
+    spot: true
   - name: hc44rs
     vm_size: Standard_HC44rs
     max_core_count: 1024

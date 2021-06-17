@@ -17,6 +17,7 @@ Autoscale = true
     Region = {{ cc_region }}
     KeyPairLocation = ~/.ssh/cyclecloud.pem
     EnableAcceleratedNetworking = false
+    Interruptible = false
 
         [[[configuration]]]
         keepalive.timeout = 1800 # The amount of time in seconds to keep a node "alive" if it has not finished installing/configuring software.
@@ -42,10 +43,12 @@ Autoscale = true
     [[nodearray {{ queue.name }}]]
     MachineType = {{ queue.vm_size }} 
     MaxCoreCount = {{ queue.max_core_count }}
-  {% if queue.EnableAcceleratedNetworking is defined %}        
+  {% if queue.EnableAcceleratedNetworking is defined %}
     EnableAcceleratedNetworking = {{ queue.EnableAcceleratedNetworking }}
   {% endif %}
-    Interruptible = false
+  {% if queue.spot is defined %}
+    Interruptible = {{queue.spot}}
+  {% endif %}
     # Lookup image version for that queue
   {% if cc_image_lookup is iterable and queue.name in cc_image_lookup %}
     ImageName = {{ cc_image_lookup[queue.name] }}
