@@ -2,16 +2,17 @@
 location: westeurope
 resource_group: azhop
 homefs_size_tb: 4
-homefs_service_level: Standard, Premium, Ultra
+# ANF can be Standard, Premium, Ultra
+homefs_service_level: Standard
 homedir_mountpoint: /anfhome
 admin_user: hpcadmin
 # Object ID to grant key vault read access
-key_vault_readers: <object_id>
+key_vault_readers: #<object_id>
 # Network
 network:
   peering: # This is optional, and can be used to create a VNet Peering in the same subscription.
-    vnet_name: "VNET Name to Peer to"
-    vnet_resource_group: "Resource Group of the VNET to peer to"
+    vnet_name: #"VNET Name to Peer to"
+    vnet_resource_group: #"Resource Group of the VNET to peer to"
 ad:
   vm_size: Standard_D2s_v3
 ondemand:
