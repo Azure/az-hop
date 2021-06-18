@@ -3,6 +3,7 @@ set -e
 CURRENT_DATE=`date`
 AZHPC_VMSIZE=$(curl -s --noproxy "*" -H Metadata:true "http://169.254.169.254/metadata/instance/compute?api-version=2019-08-15" | jq -r '.vmSize' | tr '[:upper:]' '[:lower:]')
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PHYSICAL_HOST=$(strings /var/lib/hyperv/.kvp_pool_3 | grep -A1 PhysicalHostName | head -n 2 | tail -1)
 
 function check_ib_device()
 {
@@ -16,7 +17,7 @@ function check_ib_device()
                 IB_RATE=$(cat /sys/class/infiniband/*/ports/1/rate)  2>/dev/null
                 IB_SPEED=$(/sbin/ethtool eth1 | grep "Speed:" | awk '{print $2}'| xargs)  2>/dev/null
             else
-                1>&2 echo "ERROR : No IB devices found"
+                1>&2 echo "ERROR : No IB devices found - $(hostname) - $PHYSICAL_HOST"
                 bad_node=1
                 exit 254
             fi
@@ -31,7 +32,7 @@ function check_ib_device()
                 IB_SPEED=$(ibv_devinfo -v | grep active_speed | cut -d':' -f2 | xargs | cut -d'(' -f1 | xargs)
                 IB_PHYS_STATE=$(ibv_devinfo -v | grep phys_state | cut -d':' -f2 | xargs | cut -d' ' -f1)
             else
-                1>&2 echo "ERROR : No IB devices found"
+                1>&2 echo "ERROR : No IB devices found - $(hostname) - $PHYSICAL_HOST"
                 bad_node=1
                 exit 254
             fi
@@ -62,22 +63,22 @@ function check_ib_values()
     dictionary=$(jq '.infiniband[] | select(.sku==$vmsize)' --arg vmsize $vmsize $THIS_DIR/../healthchecks.json)
     expected=$(echo $dictionary | jq -r '.state')
     if [ "$state" != "$expected" ]; then
-        1>&2 echo "ERROR : IB state is $state while expected is $expected"
+        1>&2 echo "ERROR : IB state is $state while expected is $expected - $(hostname) - $PHYSICAL_HOST"
         exit 254
     fi
     expected=$(echo $dictionary | jq -r '.rate')
     if [ "$rate" != "$expected" ]; then
-        1>&2 echo "ERROR : IB rate is $rate while expected is $expected"
+        1>&2 echo "ERROR : IB rate is $rate while expected is $expected - $(hostname) - $PHYSICAL_HOST"
         exit 254
     fi
     expected=$(echo $dictionary | jq -r '.speed')
     if [ "$speed" != "$expected" ]; then
-        1>&2 echo "ERROR : IB speed is $speed while expected is $expected"
+        1>&2 echo "ERROR : IB speed is $speed while expected is $expected - $(hostname) - $PHYSICAL_HOST"
         exit 254
     fi
     expected=$(echo $dictionary | jq -r '.phys_state')
     if [ "$phys_state" != "$expected" ]; then
-        1>&2 echo "ERROR : IB physical state is $phys_state while expected is $expected"
+        1>&2 echo "ERROR : IB physical state is $phys_state while expected is $expected - $(hostname) - $PHYSICAL_HOST"
         exit 254
     fi
 
