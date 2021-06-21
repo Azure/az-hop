@@ -1,12 +1,18 @@
 #!/bin/bash
-set -e
 CURRENT_DATE=`date`
 AZHPC_VMSIZE=$(curl -s --noproxy "*" -H Metadata:true "http://169.254.169.254/metadata/instance/compute?api-version=2019-08-15" | jq -r '.vmSize' | tr '[:upper:]' '[:lower:]')
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PHYSICAL_HOST=$(strings /var/lib/hyperv/.kvp_pool_3 | grep -A1 PhysicalHostName | head -n 2 | tail -1)
 
+function log()
+{
+    timestamp=$(date -u "+%Y-%m-%d %H:%M:%S")
+    echo "$timestamp $1" >> /opt/cycle/jetpack/logs/check_stuff.log 
+}
+
 function check_ib_device()
 {
+    log "Checking IB Devices"
     bad_node=0
     case $AZHPC_VMSIZE in
         standard_h16mr|standard_h16r)
@@ -86,11 +92,46 @@ function check_ib_values()
 
 function check_gpu()
 {
+    log "Checking GPU"
     case $AZHPC_VMSIZE in
         standard_nc*|standard_nv*|standard_nd*)
             nvidia-smi || exit 254
         ;;
     esac
+}
+
+# This function check if the node can resolve reverse DNS on his hostname
+# If not and if Cycle is renaming the host (standalone DNS), then run a jetpack converge
+function check_hostname()
+{
+    log "Check Hostname - start"
+    local name=$(hostname)
+    name=${name,,}
+    local standalone_dns=$(/opt/cycle/jetpack/bin/jetpack config cyclecloud.hosts.standalone_dns.enabled)
+    # Check if hostname has been renamed correctly
+    log "hostname is $name; standalone_dns=$standalone_dns"
+    if [ "${standalone_dns,,}" == "true" ]; then
+        # Check if hostname start with ip
+        if [ "${name:0:3}" != "ip-" ]; then
+            # Rerun jetpack converge
+            log "hostname doesn't start with ip-"
+            /opt/cycle/jetpack/bin/jetpack converge > /dev/null
+            1>&2 echo "$name was not renamed correctly - rerunning jetpack converge"
+        fi
+    fi
+    # Check if hostname can be resolved
+    name=$(hostname)
+    log "hostname is $name - testing nslookup"
+    nslookup $name > /dev/null
+    if [ $? -ne 0 ]; then
+        if [ "${standalone_dns,,}" == "true" ]; then
+            log "failed to resove hostname rerun jetpack converge"
+            # Rerun jetpack converge
+            /opt/cycle/jetpack/bin/jetpack converge > /dev/null
+            1>&2 echo "$name was unable to resolve it's name - rerunning jetpack converge"
+        fi
+    fi
+    log "Check Hostname - end"
 }
 
 # Check IB device only if IB tools are installed
@@ -99,5 +140,6 @@ if [ -e /usr/bin/ibv_devinfo ]; then
 fi
 
 check_gpu
+#check_hostname
 
 exit 0
