@@ -10,5 +10,3 @@ systemctl restart healthcheck
 # force run once on startup
 source /opt/cycle/jetpack/system/bin/cyclecloud-env.sh
 healthcheck
-
-
