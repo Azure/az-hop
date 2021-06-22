@@ -68,19 +68,19 @@
     args:
       creates: /etc/sssd/sssd.conf
 
-  - name: configure sssd - use_fully_qualified_names
-    lineinfile:
-      path: /etc/sssd/sssd.conf
-      regexp: '^use_fully_qualified_names'
-      line: 'use_fully_qualified_names = False'
+  # - name: configure sssd - use_fully_qualified_names
+  #   lineinfile:
+  #     path: /etc/sssd/sssd.conf
+  #     regexp: '^use_fully_qualified_names'
+  #     line: 'use_fully_qualified_names = False'
 
-  - name: configure sssd - ldap_id_mapping
-    lineinfile:
-      path: /etc/sssd/sssd.conf
-      regexp: '^ldap_id_mapping'
-      line: 'ldap_id_mapping = False'
+  # - name: configure sssd - ldap_id_mapping
+  #   lineinfile:
+  #     path: /etc/sssd/sssd.conf
+  #     regexp: '^ldap_id_mapping'
+  #     line: 'ldap_id_mapping = False'
 
-  - name: Restart sssd
-    service:
-      name: sssd 
-      state: restarted
+  # - name: Restart sssd
+  #   service:
+  #     name: sssd 
+  #     state: restarted
