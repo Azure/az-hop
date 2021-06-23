@@ -11,3 +11,18 @@ resource "azurerm_private_dns_zone_virtual_network_link" "azhop_dns_link" {
   virtual_network_id    = azurerm_virtual_network.azhop.id
   registration_enabled  = true
 }
+
+# resource "azurerm_private_dns_srv_record" "ldap_record" {
+#   name                = "_ldap._tcp"
+#   resource_group_name = azurerm_resource_group.rg.name
+#   zone_name           = azurerm_private_dns_zone.azhop_private_dns.name
+#   ttl                 = 3600
+
+#   record {
+#     priority = 1
+#     weight   = 100
+#     port     = 389
+#     target   = azurerm_network_interface.ad-nic.private_ip_address
+#   }
+
+# }
