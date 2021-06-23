@@ -8,7 +8,7 @@
 #/opt/pbs/bin/qmgr -c 'set server query_other_jobs = true'
 #/opt/pbs/bin/qmgr -c 'set server scheduler_iteration = 15'
 #/opt/pbs/bin/qmgr -c 'set server flatuid = true'
-/opt/pbs/bin/qmgr -c 'set server job_history_enable=true'
+#/opt/pbs/bin/qmgr -c 'set server job_history_enable=true' # fixed in 2.0.2
 
 function create_resource() {
 	/opt/pbs/bin/qmgr -c "list resource $1" >/dev/null  2>/dev/null   || \
