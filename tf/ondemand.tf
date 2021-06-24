@@ -42,7 +42,7 @@ resource "azurerm_linux_virtual_machine" "ondemand" {
   source_image_reference {
     publisher = "OpenLogic"
     offer     = "CentOS"
-    sku       = "7_8"
+    sku       = "7_9-gen2"
     version   = "latest"
   }
 }

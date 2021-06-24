@@ -41,7 +41,7 @@ resource "azurerm_linux_virtual_machine" "jumpbox" {
   source_image_reference {
     publisher = "OpenLogic"
     offer     = "CentOS"
-    sku       = "7.7"
+    sku       = "7.9"
     version   = "latest"
   }
 }
