@@ -177,3 +177,18 @@
       opts: flock,defaults,_netdev
       state: mounted
       fstype: lustre
+  - name: create ood initialiser directory
+    file:
+      path: /etc/ood/config/apps/dashboard/initializers
+      state: directory
+  - name: create ood lustre menu option
+    copy:
+      dest: /etc/ood/config/apps/dashboard/initializers/ood.rb
+      content: |
+        # /etc/ood/config/apps/dashboard/initializers/ood.rb
+
+        OodFilesApp.candidate_favorite_paths.tap do |paths|
+          paths << FavoritePath.new("/lustre", title: "Lustre")
+        end
+  - name: restart ood
+    shell: systemctl try-restart httpd24-httpd.service httpd24-htcacheclean.service
