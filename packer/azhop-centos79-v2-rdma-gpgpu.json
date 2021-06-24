@@ -30,7 +30,6 @@
             "inline": [
                 "chmod +x /tmp/scripts/*.sh",
                 "/tmp/scripts/linux-setup.sh",
-                "/tmp/scripts/rdma-udev-rules.sh",
                 "/tmp/scripts/pbspro.sh",
                 "/tmp/scripts/telegraf.sh",
                 "/tmp/scripts/lustreclient.sh 2.12.6",
