@@ -137,7 +137,7 @@
     yum_repository:
       name: lustreserver
       description: Lustre repo
-      baseurl: https://downloads.whamcloud.com/public/lustre/lustre-2.12.5/el7/patchless-ldiskfs-server/
+      baseurl: https://downloads.whamcloud.com/public/lustre/lustre-2.12.6/el7/patchless-ldiskfs-server/
       file: LustrePack
       enabled: yes
       gpgcheck: no
@@ -145,7 +145,7 @@
     yum_repository:
       name: lustreclient
       description: Lustre repo
-      baseurl: https://downloads.whamcloud.com/public/lustre/lustre-2.12.5/el7/client/
+      baseurl: https://downloads.whamcloud.com/public/lustre/lustre-2.12.6/el7/client/
       file: LustrePack
       enabled: yes
       gpgcheck: no
