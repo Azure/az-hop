@@ -25,7 +25,7 @@
       enabled: yes
       state: started
 
-- hosts: jumpbox, scheduler, ondemand, ccportal, lustre, lustre-oss-*, robinhood
+- hosts: jumpbox, scheduler, ccportal, lustre, lustre-oss-*, robinhood
   become: true
   vars_files:
     - '{{global_config_file}}'
