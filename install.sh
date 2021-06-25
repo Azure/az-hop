@@ -24,7 +24,7 @@ case $TARGET in
     ansible-playbook -i playbooks/inventory ./playbooks/lustre-sas.yml
     ansible-playbook -i playbooks/inventory ./playbooks/lustre.yml
   ;;
-  ad | linux | add_users | ccportal | ccpbs | scheduler | grafana | telegraf)
+  ad | linux | add_users | ccportal | chrony | ccpbs | scheduler | grafana | telegraf)
     ansible-playbook -i playbooks/inventory ./playbooks/$TARGET.yml
   ;;
   ood)
