@@ -228,6 +228,7 @@ jobs:
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           ./install.sh telegraf
+          ./install.sh chrony
 
   build_image:
     name: build_image
