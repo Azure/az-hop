@@ -18,6 +18,8 @@ function make_uuid_str {
 # Check homedir
 echo "Check if /anfhome is mounted"
 df | grep anfhome || exit 1
+echo "Check if /lustre is mounted"
+df | grep lustre || exit 1
 
 # Check PBS
 export PBS_MAX_WALLTIME="00:20:00"
