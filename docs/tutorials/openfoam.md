@@ -55,7 +55,7 @@ cp -r $WM_PROJECT_DIR/tutorials/incompressible/simpleFoam/motorBike .
 Run the tutorial:
 
 ```
-cd motorbike
+cd motorBike
 ./Allrun
 ```
 
