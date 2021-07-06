@@ -1,8 +1,7 @@
 # Azure Pre-requisites
 
-> TODO :
-> describe here all the azure pre-requisites
-> which role the user deploying should have ?
+You need to be owner of your subscription in order to deploy.
+
 ## Packer
 Packer needs a Service Principal Name to deploy resources in your subscription
 ### Create a Service Principal Name

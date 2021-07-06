@@ -1,1 +1,2 @@
 # Grafana Dashboards
+A set of predefined dashboards have been created for **az-hop**. The main Grafana web page can be accessed thru the `Monitoring/Grafana` menu. Once there browse in the `Manage/Dashboards` Grafana page and pickup one of the dashboard listed in the `dashboards` folder.
