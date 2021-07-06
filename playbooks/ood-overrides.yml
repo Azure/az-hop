@@ -54,14 +54,24 @@ ood_apps:
           - "-l"
           - "walltime=<%= '%02d:00:00' % hours %>"
 httpd_auth:
-- AuthType Basic
-- AuthName "Open OnDemand"
-- AuthBasicProvider PAM
-- AuthPAMService ood
+- AuthType openid-connect
 - Require valid-user
+user_map_cmd: "/opt/ood/ood_auth_map/bin/ood_auth_map.regex --regex=''^(\\w+)@microsoft.com$''"
 host_regex: '[^./]+'
 node_uri: '/node'
 rnode_uri: '/rnode'
+logout_redirect: '/oidc?logout=https%3A%2F%2F{{ ondemand_fqdn }}'
+oidc_uri: /oidc
+oidc_provider_metadata_url: https://sts.windows.net/{{tenant_id}}/.well-known/openid-configuration
+oidc_settings_samefile: true
+oidc_client_id: '{{aad_app_id}}'
+oidc_remote_user_claim: upn
+oidc_scope: 'openid profile email groups'
+oidc_settings:
+  OIDCPassIDTokenAs: 'serialized'
+  OIDCPassRefreshToken: 'On'
+  OIDCPassClaimsAs: 'environment'
+
 pun_custom_env:
   OOD_DASHBOARD_TITLE: "Azure HPC On-Demand Platform"
   OOD_DASHBOARD_LOGO: "/public/logo.png"

@@ -32,6 +32,7 @@ resource "local_file" "global_variables" {
       anf-home-path       = azurerm_netapp_volume.home.volume_path
       ondemand-fqdn       = azurerm_public_ip.ondemand-pip.fqdn
       subscription_id     = data.azurerm_subscription.primary.subscription_id
+      tenant_id           = data.azurerm_subscription.primary.tenant_id
       key_vault           = azurerm_key_vault.azhop.name
       sig_name            = azurerm_shared_image_gallery.sig.name
       lustre_hsm_storage_account = ( local.lustre_archive_account != null ? local.lustre_archive_account : azurerm_storage_account.azhop.name )
@@ -39,7 +40,6 @@ resource "local_file" "global_variables" {
     }
   )
   filename = "${local.playbook_root_dir}/group_vars/all.yml"
-
 }
 
 resource "local_file" "connect_script" {

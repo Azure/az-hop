@@ -17,11 +17,13 @@
       chgrp apache /etc/shadow
     args:
       creates: /etc/pam.d/ood
+
   - name: Check if we need to register HTTPS
     stat:
       path: /etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.crt
     register: sslcert
-  - name: Run the ood-anisible role to get certificate
+
+  - name: Run the ood-ansible role to get certificate
     include_role:
       name: ood-ansible
     vars:
@@ -30,6 +32,7 @@
       httpd_public_uri: /.well-known
       httpd_public_root: /var/www/ood/.well-known
     when: sslcert.stat.exists == False
+
   - name: Setup HTTPS certificate
     shell: |
       cd /root
@@ -55,6 +58,15 @@
     args:
       creates: /etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.crt
     when: sslcert.stat.exists == False
+
+  - name: Read Password from KV
+    command: az keyvault secret show --vault-name {{key_vault}} -n azhop-aad-secret --query "value" -o tsv
+    delegate_to: localhost
+    connection: local
+    register: password
+    become: false
+    run_once: true
+
   - name: Run the ood-ansible role for HTTPS
     include_role:
       name: ood-ansible
@@ -65,14 +77,26 @@
       - SSLCertificateFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.crt"
       - SSLCertificateKeyFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.key"
       - SSLCertificateChainFile "/etc/ssl/{{ ondemand_fqdn }}/letsencryptauthorityx3.pem.txt"
+      oidc_client_secret: '{{password.stdout}}'
+
+  # FIX : issue 116 open https://github.com/OSC/ood-ansible/issues/116
+  - name: Fix wrong OIDCPassRefreshToken value set in /opt/rh/httpd24/root/etc/httpd/conf.d/ood-portal.conf
+    lineinfile: 
+      path: /opt/rh/httpd24/root/etc/httpd/conf.d/ood-portal.conf 
+      regexp: 'OIDCPassRefreshToken true' 
+      line: 'OIDCPassRefreshToken On'
+      backrefs: yes
+
   - name: Copy logo
     copy: 
       src: logo.png
       dest: /var/www/ood/public
+
   - name: Copy favicon
     copy: 
       src: favicon.ico
       dest: /var/www/ood/public
+
   - name: Run the pbsclient role
     include_role:
       name: pbsclient
@@ -80,6 +104,7 @@
         become: true
     vars:
       pbs_server: scheduler
+
   - name: setup cyclecloud proxy
     shell: |
         if ! grep -q ccportal /opt/ood/ood-portal-generator/templates/ood-portal.conf.erb; then
@@ -102,6 +127,7 @@
           /opt/ood/ood-portal-generator/sbin/update_ood_portal
           systemctl try-restart httpd24-httpd.service httpd24-htcacheclean.service
         fi
+
   - name: add modules for job submission
     yum: 
       name: Lmod, hwloc, numactl 
@@ -117,14 +143,17 @@
       name: ood-apps-cyclecloud
       apply: 
         become: true
+
   - include_role: 
       name: ood-apps-grafana
       apply: 
         become: true
+
   - include_role: 
       name: ood-apps-robinhood
       apply: 
         become: true
+
   - name: setup azcopy
     shell: |
       # Install azcopy
@@ -133,6 +162,7 @@
       chmod 755 /usr/local/bin/azcopy
     args:
       creates: /usr/local/bin/azcopy
+
   - name: Add Lustre server repo
     yum_repository:
       name: lustreserver
@@ -141,6 +171,7 @@
       file: LustrePack
       enabled: yes
       gpgcheck: no
+
   - name: Add Lustre client repo
     yum_repository:
       name: lustreclient
@@ -149,6 +180,7 @@
       file: LustrePack
       enabled: yes
       gpgcheck: no
+
   - name: Add e2fs repo
     yum_repository:
       name: e2fs
@@ -157,19 +189,23 @@
       file: LustrePack
       enabled: yes
       gpgcheck: no
+
   - name: Install lustre packages
     yum:
       name:
         - lustre-client
       state: present
     register: install_rpms
+
   - name: run weak-modules
     command: weak-modules --add-kernel --no-initramfs
     when: install_rpms.changed
+
   - name: create lustre mount directory
     file:
       path: /lustre
       state: directory
+
   - name: mount lustre
     mount:
       path: /lustre
@@ -177,10 +213,12 @@
       opts: flock,defaults,_netdev
       state: mounted
       fstype: lustre
+
   - name: create ood initialiser directory
     file:
       path: /etc/ood/config/apps/dashboard/initializers
       state: directory
+
   - name: create ood lustre menu option
     copy:
       dest: /etc/ood/config/apps/dashboard/initializers/ood.rb
@@ -190,5 +228,6 @@
         OodFilesApp.candidate_favorite_paths.tap do |paths|
           paths << FavoritePath.new("/lustre", title: "Lustre")
         end
+
   - name: restart ood
     shell: systemctl try-restart httpd24-httpd.service httpd24-htcacheclean.service
