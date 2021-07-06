@@ -105,6 +105,9 @@ az account set -s <subid>
 # Create users passwords for all users defined in the config.yml file
 ./create_passwords.sh
 
+# Register an Azure AD Application for authentication
+./configure_aad.sh
+
 # install
 ./install.sh
 ```

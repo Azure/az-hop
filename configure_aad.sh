@@ -28,19 +28,19 @@ if [ "$azhop_uri" == "" ]; then
   exit 1
 fi
 
-current_password=$(az keyvault secret list --vault-name $key_vault --query "[?name=='azhop-aad-secret'].name" -o tsv)
+current_password=$(az keyvault secret list --vault-name $key_vault --query "[?name=='azhop-aad-password'].name" -o tsv)
 if [ "$current_password" == "" ] ; then
   password=$(openssl rand -base64 20)
   current_password=$password
-  az keyvault secret set --value "$password" --name azhop-aad-secret --vault-name $key_vault -o table > /dev/null
-  echo "Generating a password for $aadName and storing it as secret azhop-aad-secret in keyvault $key_vault"
+  az keyvault secret set --value "$password" --name azhop-aad-password --vault-name $key_vault -o table > /dev/null
+  echo "Generating a password for $aadName and storing it as secret azhop-aad-password in keyvault $key_vault"
 else
   echo "azhop-aad has already a secret stored in keyvault $key_vault"
-  current_password=$(az keyvault secret show --vault-name $key_vault -n azhop-aad-secret --query "value" -o tsv)
+  current_password=$(az keyvault secret show --vault-name $key_vault -n azhop-aad-password --query "value" -o tsv)
 fi
 
 appId=$(az ad app list --display-name $aadName --query [].appId -o tsv)
-if [ "appId" == "" ]; then
+if [ "$appId" == "" ]; then
   az ad app create --display-name $aadName \
           --identifier-uris "https://$azhop_uri" \
           --reply-urls "https://$azhop_uri/oidc" \

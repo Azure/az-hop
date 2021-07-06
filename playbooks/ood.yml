@@ -60,7 +60,7 @@
     when: sslcert.stat.exists == False
 
   - name: Read Password from KV
-    command: az keyvault secret show --vault-name {{key_vault}} -n azhop-aad-secret --query "value" -o tsv
+    command: az keyvault secret show --vault-name {{key_vault}} -n azhop-aad-password --query "value" -o tsv
     delegate_to: localhost
     connection: local
     register: password
@@ -80,12 +80,12 @@
       oidc_client_secret: '{{password.stdout}}'
 
   # FIX : issue 116 open https://github.com/OSC/ood-ansible/issues/116
-  - name: Fix wrong OIDCPassRefreshToken value set in /opt/rh/httpd24/root/etc/httpd/conf.d/ood-portal.conf
-    lineinfile: 
-      path: /opt/rh/httpd24/root/etc/httpd/conf.d/ood-portal.conf 
-      regexp: 'OIDCPassRefreshToken true' 
-      line: 'OIDCPassRefreshToken On'
-      backrefs: yes
+  # - name: Fix wrong OIDCPassRefreshToken value set in /opt/rh/httpd24/root/etc/httpd/conf.d/ood-portal.conf
+  #   lineinfile: 
+  #     path: /opt/rh/httpd24/root/etc/httpd/conf.d/ood-portal.conf 
+  #     regexp: 'OIDCPassRefreshToken true' 
+  #     line: 'OIDCPassRefreshToken On'
+  #     backrefs: yes
 
   - name: Copy logo
     copy: 
