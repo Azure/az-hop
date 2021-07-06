@@ -24,18 +24,18 @@ Image definitions have to be specified in the `config.yml` configuration file. T
 
 ```yml
 images:
-  - name: azhop-centos78-v2-rdma
+  - name: azhop-centos79-v2-rdma
     publisher: azhop
     offer: CentOS
-    sku: 7.8-gen2
+    sku: 7.9-gen2
     hyper_v: V2
     os_type: Linux
-    version: 7.8 
+    version: 7.9 
 ```
 
 ## Build an image
 Building an image is done by the utility script `packer/build_image.sh` and requires a packer input file. az-hop provides a set of pre-defined image files like :
-- `azhop-centos78-v2-rdma.json` this is an CentOS 7.8 HPC image with the az-hop additions for compute nodes  
+- `azhop-centos79-v2-rdma.json` this is an CentOS 7.9 HPC image with the az-hop additions for compute nodes  
 - `centos-7.8.desktop-3d.json` this is an CentOS 7.8 HPC image with the right GPU drivers configured for remote visualization nodes
 
 ```bash

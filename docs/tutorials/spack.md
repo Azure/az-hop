@@ -4,8 +4,6 @@
 
 ```bash
 git clone https://github.com/Azure/azurehpc.git 
-cd azurehpc
-git checkout azhop/spack
 ```
 
 ### Start an interactive job on a compute node
