@@ -37,6 +37,13 @@ At the end of the build, there are several files created, which produce the stat
  - Packer option file `packer/options.json`
  - Utility scripts `bin/*`
 
+
+The URL to access the **azhop** web portal is in the inventory file, locate the **ondemand_fqdn** variable
+
+```bash
+grep ondemand_fqdn playbooks/group_vars/all.yml
+```
+
 State files can be uploaded to and downloaded from an existing azure storage account with the `azhop_state.sh` utility script. The files will be stored under a folder named with the resource group used to deploy the environment.
 
 > Note : make sure that the storage account and the container exists.

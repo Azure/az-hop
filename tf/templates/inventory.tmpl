@@ -37,4 +37,3 @@ all:
       ansible_host: robinhood
       ansible_ssh_user: ${lustre-user}
       ansible_ssh_common_args: '-o ProxyCommand="ssh -i ${jumpbox-user}_id_rsa -W %h:%p ${jumpbox-user}@${jumpbox-pip}"'
-#  vars: all moved into global_variables and in group_vars/all.yml
