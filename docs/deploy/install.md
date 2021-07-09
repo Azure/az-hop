@@ -22,7 +22,7 @@ and let it go
 
 If you need to apply only a subset then run 
 ```bash
-./install.sh <target> # with target in the list above
+./install.sh <target> # with a single target in the list above
 ```
 
-In case of a transient failure, the install script can be reapplied as most of its settings are idempotent.
+In case of a transient failure, the install script can be reapplied as most of the settings are idempotent.

@@ -5,3 +5,5 @@
  - [Install](install.md)
  - [Build Images](build_images.md)
  - [Add Users](add_users.md)
+ - [Admin Access](admin_access.md)
+ - [Helper Scripts](helper_scripts)

@@ -1,5 +1,5 @@
 # Configure the toolchain
-The toolchain can be setup either from a docker container or locally. See below for instructions regarding the installation.
+The toolchain can be setup either from a docker container or locally, the docker container being the prefered way as it contains a fully tested environment. See below for instructions regarding the installation.
 
 ## Clone the repo
 It's important to clone the repo with it's submodule. You can do this with one of these two options.
@@ -41,9 +41,9 @@ Install
 * Install Visual Studio Code Extension - Remote Development - [link](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack)
 
 ## Setup on Ubuntu (e.g. WSL2)
-This is not the recommended way, prefer using the container method.
-For Terraform to work properly on WSL2, on the C drive, make sure to have the metadata mount option enabled.
-Run the `install.sh` from the _toolset/scripts_ directory
+This is not the recommended way, but still remain a doable way.
+For Terraform to work properly on  WSL2, on the C drive, make sure to have the metadata mount option enabled.
+Run the `install.sh` from the _toolset/scripts_ directory in Ubuntu 20.04.
 
 ```bash
 ./toolset/scripts/install.sh
