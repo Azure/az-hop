@@ -1,5 +1,5 @@
 # Azure HPC OnDemand Platform
-Azure HPC OnDemand Platform or **azhop**, deliver an end-2-end deployment mechanism for a complete HPC cluster solution in Azure. Industry standard tools like [Terraform](https://www.terraform.io/), [Ansible](https://www.ansible.com/) and [Packer](https://www.packer.io/) are used to provision and configure this environment containing :
+Azure HPC OnDemand Platform or **azhop**, delivers an end-2-end deployment mechanism for a complete HPC cluster solution in Azure. Industry standard tools like [Terraform](https://www.terraform.io/), [Ansible](https://www.ansible.com/) and [Packer](https://www.packer.io/) are used to provision and configure this environment containing :
 
 - An [OpenOn Demand Portal](https://osc.github.io/ood-documentation/master/) for a unified user access, remote shell access, remote visualization access, job submission, file access and more,
 - An Active Directory for user authentication and domain control,
