@@ -5,7 +5,7 @@ location: westeurope
 resource_group: azhop
 # Size of the ANF pool and unique volume
 homefs_size_tb: 4
-# Servive levle of the ANF volume, can be: Standard, Premium, Ultra
+# Service level of the ANF volume, can be: Standard, Premium, Ultra
 homefs_service_level: Standard
 # name of the homedir on the ANF volume
 homedir_mountpoint: /anfhome
