@@ -3,8 +3,6 @@
 If not done, clone the azurehpc repo and use the azhop/spack branch
 ```bash
 git clone https://github.com/Azure/azurehpc.git 
-cd azurehpc
-git checkout azhop/spack
 ```
 
 ### Start an interactive job on a compute node
