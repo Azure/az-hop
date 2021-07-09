@@ -1,16 +1,17 @@
 # Azure HPC On-Demand Platform, your deployment to be HPC-Ready! 
 
-Azure HPC On-Demand Platform, provides the end-2-end deployment mechanism for a base HPC infrastructure on Azure. Industry standard tools like Terraform, Ansible and Packer are used to provision and configure this environment containing :
-- An OpenOn Demand Portal for all user access, remote shell access, remote visualization access, job submission, file access and more,
+Azure HPC On-Demand Platform, provides the end to end deployment mechanism for a base HPC infrastructure on Azure. Industry standard tools like Terraform, Ansible and Packer are used to provision and configure this environment containing :
+- An [HPC OnDemand Portal](https://osc.github.io/ood-documentation/master/index.html) for all user access, remote shell access, remote visualization access, job submission, file access and more,
 - An Active Directory for user authentication and domain control,
-- Open PBS as a Job Scheduler,
-- Cycle Cloud 8.1 to handle autoscaling of PBS Nodes thru the scalelib integration,
+- [Open PBS](https://openpbs.org/) as a Job Scheduler,
+- Dynamic resources provisioning and autoscaling is done by [Azure Cycle Cloud](https://docs.microsoft.com/en-us/azure/cyclecloud/?view=cyclecloud-8) pre-configured job queues and integrated health-checks to quickly avoid non-optimal nodes,
 - A Jumpbox to provide admin access,
-- Azure Netapp Files for home directory and data storage,
-- A Lustre cluster as a parallel file system,
-- Grafana dashboards to monitor your cluster
+- A common shared file system for home directory and applications is delivered by [Azure Netapp Files](https://azure.microsoft.com/en-us/services/netapp/),
+- A Lustre parallel filesystem using local NVME for high performance that automatically archives to [Azure Blob Storage](https://azure.microsoft.com/en-gb/services/storage/blobs/) using the [Robinhood Policy Engine](https://github.com/cea-hpc/robinhood) and [Azure Storage data mover](https://github.com/wastore/lemur),
+- [Grafana](https://grafana.com/) dashboards to monitor your cluster,
+- Remote Visualization with [noVNC](https://novnc.com/info.html) and GPU acceleration with [VirtualGL](https://www.virtualgl.org/).
 
-Please check the whole **azhop** [documentation here]().
+Please check the whole **azhop** [documentation here](https://azure.github.io/az-hop/).
 
 ## Contributing
 
