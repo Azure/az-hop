@@ -15,3 +15,6 @@ Follow the steps [here](deploy/index.md) for configuring and deploying your AZHO
 
 # User Guide
 The User guide is available [here](user_guide/index.md)
+
+# Operation Guide
+The User guide is available [here](operate/index.md)
