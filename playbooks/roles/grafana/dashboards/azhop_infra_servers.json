@@ -4261,9 +4261,14 @@
             "selected": false,
             "text": "ccportal",
             "value": "ccportal"
+          },
+          {
+            "selected": false,
+            "text": "robinhood",
+            "value": "robinhood"
           }
         ],
-        "query": "scheduler, ondemand, ccportal, robinhood, lustre",
+        "query": "scheduler, ondemand, ccportal, robinhood",
         "queryValue": "",
         "skipUrlSync": false,
         "type": "custom"
