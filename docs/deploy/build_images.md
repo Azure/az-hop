@@ -7,7 +7,9 @@ As packer used a Service Principal Name to create the azure resources, you need 
 
 See the [Azure Pre-requisites](azure_prereqs.md) page for more details.
 
-### Create the spn.json parameter file
+### Using an existing Service Principal Name
+If you have already an existing Service Principal Name, make sure it's granted the `contributor` role. 
+### Using an spn.json parameter file
 
 In the `packer` directory create a file named `spn.json` and add this content
 
@@ -16,6 +18,16 @@ In the `packer` directory create a file named `spn.json` and add this content
   "spn_name": "<your-spn-name>",
   "key_vault": "<your-keyvault>"
 }
+```
+
+If you have not created the SPN, then you need to have read permission in the Azure Directory in order for the build_image script to retrieve the Application ID and the Tenant ID.
+
+### Using environment variables
+If your account can't read the SPN details from the Active Directory then set these environment variables instead :
+```bash
+  export ARM_CLIENT_ID=<spn_add_id>
+  export ARM_TENANT_ID=<spn_tenant_id>
+  export ARM_CLIENT_SECRET="<spn_secret>"
 ```
 
 ## Image definition in the configuration file
