@@ -81,7 +81,13 @@ cc_plan=$(yq eval '.cyclecloud.plan.name' $AZHOP_CONFIG)
 if [ "$cc_plan" == "" ]; then
   cc_plan="cyclecloud-81"
 fi
-az vm image terms accept --offer azure-cyclecloud --publisher azurecyclecloud --plan $cc_plan -o tsv
+accepted=$(az vm image terms show --offer azure-cyclecloud --publisher azurecyclecloud --plan $cc_plan --query 'accepted' -o tsv)
+if [ "$accepted" != "true" ]; then
+  echo "Azure CycleCloud marketplace image terms are not accepted, accepting them now"
+  az vm image terms accept --offer azure-cyclecloud --publisher azurecyclecloud --plan $cc_plan -o tsv
+else
+  echo "Azure CycleCloud marketplace image terms already accepted"
+fi
 
 # Get the current logged user
 azure_user=$(az account show --query user.name -o tsv)
