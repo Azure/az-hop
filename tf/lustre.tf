@@ -12,9 +12,10 @@ locals {
 #
 
 resource "azurerm_network_interface" "lustre-nic" {
-  name                = "lustre-nic"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  name                           = "lustre-nic"
+  location                       = azurerm_resource_group.rg.location
+  resource_group_name            = azurerm_resource_group.rg.name
+  enable_accelerated_networking = true
 
   ip_configuration {
     name                          = "internal"
@@ -64,10 +65,11 @@ resource "azurerm_user_assigned_identity" "lustre-oss" {
 }
 
 resource "azurerm_network_interface" "lustre-oss-nic" {
-  count               = local.lustre_oss_count
-  name                = "lustre-oss-nic-${count.index}"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  count                         = local.lustre_oss_count
+  name                          = "lustre-oss-nic-${count.index}"
+  location                      = azurerm_resource_group.rg.location
+  resource_group_name           = azurerm_resource_group.rg.name
+  enable_accelerated_networking = true
 
   ip_configuration {
     name                          = "internal"
@@ -139,9 +141,10 @@ resource "azurerm_key_vault_access_policy" "lustre-oss" {
 #
 
 resource "azurerm_network_interface" "robinhood-nic" {
-  name                = "robinhood-nic"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  name                          = "robinhood-nic"
+  location                      = azurerm_resource_group.rg.location
+  resource_group_name           = azurerm_resource_group.rg.name
+  enable_accelerated_networking = true
 
   ip_configuration {
     name                          = "internal"
