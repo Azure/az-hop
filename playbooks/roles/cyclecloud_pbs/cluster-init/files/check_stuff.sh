@@ -33,10 +33,10 @@ function check_ib_device()
             # Retrieve IB info
             ib_device=$(ifconfig 2>/dev/null | grep ib0 -A1 | grep inet | tr -s ' ' | cut -d' ' -f 3)
             if [ -n "$ib_device" ]; then
-                IB_STATE=$(ibv_devinfo | grep state | xargs | cut -d' ' -f2)
-                IB_RATE=$(ibv_devinfo -v | grep active_width | cut -d':' -f2 | xargs | cut -d' ' -f1)
-                IB_SPEED=$(ibv_devinfo -v | grep active_speed | cut -d':' -f2 | xargs | cut -d'(' -f1 | xargs)
-                IB_PHYS_STATE=$(ibv_devinfo -v | grep phys_state | cut -d':' -f2 | xargs | cut -d' ' -f1)
+                IB_STATE=$(ibv_devinfo -d mlx5_ib0 | grep state | xargs | cut -d' ' -f2)
+                IB_RATE=$(ibv_devinfo -d mlx5_ib0 -v | grep active_width | cut -d':' -f2 | xargs | cut -d' ' -f1)
+                IB_SPEED=$(ibv_devinfo -d mlx5_ib0 -v | grep active_speed | cut -d':' -f2 | xargs | cut -d'(' -f1 | xargs)
+                IB_PHYS_STATE=$(ibv_devinfo -d mlx5_ib0 -v | grep phys_state | cut -d':' -f2 | xargs | cut -d' ' -f1)
             else
                 1>&2 echo "ERROR : No IB devices found - $(hostname) - $PHYSICAL_HOST"
                 bad_node=1
