@@ -34,7 +34,14 @@ resource "random_password" "password" {
   override_special  = "_%@"
 }
 
+data "azurerm_resource_group" "rg" {
+  count    = local.create_rg ? 0 : 1
+  name     = local.resource_group
+}
+
+
 resource "azurerm_resource_group" "rg" {
+  count    = local.create_rg ? 1 : 0
   name     = local.resource_group
   location = local.location
   tags = {
@@ -65,8 +72,8 @@ resource "local_file" "public_key" {
 #   - Terraform states
 resource "azurerm_storage_account" "azhop" {
   name                     = "azhop${random_string.resource_postfix.result}"
-  resource_group_name      = azurerm_resource_group.rg.name
-  location                 = azurerm_resource_group.rg.location
+  resource_group_name      = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
+  location                 = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   account_tier             = "Standard"
   account_replication_type = "LRS"
 }

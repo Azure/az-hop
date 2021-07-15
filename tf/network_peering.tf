@@ -9,7 +9,7 @@ data "azurerm_virtual_network" "peernetwork" {
 resource "azurerm_virtual_network_peering" "azhop-to-peer" {
   count                         = local.create_peering
   name                          = "azhop-to-peer"
-  resource_group_name           = azurerm_resource_group.rg.name
+  resource_group_name           = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   virtual_network_name          = azurerm_virtual_network.azhop[0].name
   remote_virtual_network_id     = data.azurerm_virtual_network.peernetwork[count.index].id
   allow_virtual_network_access  = true

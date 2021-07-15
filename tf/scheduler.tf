@@ -1,7 +1,7 @@
 resource "azurerm_network_interface" "scheduler-nic" {
   name                = "scheduler-nic"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
 
   ip_configuration {
     name                          = "internal"
@@ -12,8 +12,8 @@ resource "azurerm_network_interface" "scheduler-nic" {
 
 resource "azurerm_linux_virtual_machine" "scheduler" {
   name                = "scheduler"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   size                = try(local.configuration_yml["scheduler"].vm_size, "Standard_D2s_v3")
   admin_username      = local.admin_username
   network_interface_ids = [

@@ -8,8 +8,8 @@ data "azurerm_virtual_network" "azhop" {
 resource "azurerm_virtual_network" "azhop" {
   count               = local.create_vnet ? 1 : 0
   name                = try(local.configuration_yml["network"]["vnet"]["name"], "hpcvnet")
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg[0].name
+  location            = azurerm_resource_group.rg[0].location
   address_space       = [try(local.configuration_yml["network"]["vnet"]["address_space"], "10.0.0.0/16")]
 }
 
@@ -95,8 +95,8 @@ resource "azurerm_subnet" "compute" {
 resource "azurerm_network_security_group" "frontend" {
   count                = local.create_vnet ? 1 : 0
   name                = "frontendnsg"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg[0].location
+  resource_group_name = azurerm_resource_group.rg[0].name
 
   security_rule {
         name                       = "ssh-in-allow-22"

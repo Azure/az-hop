@@ -13,8 +13,8 @@ locals {
 
 resource "azurerm_network_interface" "lustre-nic" {
   name                = "lustre-nic"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
 
   ip_configuration {
     name                          = "internal"
@@ -25,8 +25,8 @@ resource "azurerm_network_interface" "lustre-nic" {
 
 resource "azurerm_linux_virtual_machine" "lustre" {
   name                  = "lustre"
-  resource_group_name   = azurerm_resource_group.rg.name
-  location              = azurerm_resource_group.rg.location
+  location              = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+  resource_group_name   = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   size                  = local.lustre_mds_sku
   network_interface_ids = [
     azurerm_network_interface.lustre-nic.id,
@@ -57,8 +57,8 @@ resource "azurerm_linux_virtual_machine" "lustre" {
 #
 
 resource "azurerm_user_assigned_identity" "lustre-oss" {
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
 
   name = "lustre-oss"
 }
@@ -66,8 +66,8 @@ resource "azurerm_user_assigned_identity" "lustre-oss" {
 resource "azurerm_network_interface" "lustre-oss-nic" {
   count               = local.lustre_oss_count
   name                = "lustre-oss-nic-${count.index}"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
 
   ip_configuration {
     name                          = "internal"
@@ -79,8 +79,8 @@ resource "azurerm_network_interface" "lustre-oss-nic" {
 resource "azurerm_linux_virtual_machine" "lustre-oss" {
   count                 = local.lustre_oss_count
   name                  = "lustre-oss-${count.index}"
-  resource_group_name   = azurerm_resource_group.rg.name
-  location              = azurerm_resource_group.rg.location
+  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   size                  = local.lustre_oss_sku
   network_interface_ids = [
     element(azurerm_network_interface.lustre-oss-nic.*.id, count.index)
@@ -140,8 +140,8 @@ resource "azurerm_key_vault_access_policy" "lustre-oss" {
 
 resource "azurerm_network_interface" "robinhood-nic" {
   name                = "robinhood-nic"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
 
   ip_configuration {
     name                          = "internal"
@@ -152,8 +152,8 @@ resource "azurerm_network_interface" "robinhood-nic" {
 
 resource "azurerm_linux_virtual_machine" "robinhood" {
   name                  = "robinhood"
-  resource_group_name   = azurerm_resource_group.rg.name
-  location              = azurerm_resource_group.rg.location
+  location              = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+  resource_group_name   = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   size                  = local.lustre_mds_sku
   network_interface_ids = [
     azurerm_network_interface.robinhood-nic.id,

@@ -2,8 +2,8 @@ data "azurerm_subscription" "primary" {}
 
 resource "azurerm_network_interface" "ccportal-nic" {
   name                = "ccportal-nic"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
 
   ip_configuration {
     name                          = "internal"
@@ -14,8 +14,8 @@ resource "azurerm_network_interface" "ccportal-nic" {
 
 resource "azurerm_virtual_machine" "ccportal" {
   name                  = "ccportal"
-  resource_group_name   = azurerm_resource_group.rg.name
-  location              = azurerm_resource_group.rg.location
+  location              = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+  resource_group_name   = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   vm_size               = try(local.configuration_yml["cyclecloud"].vm_size, "Standard_D2s_v3")
   network_interface_ids = [
     azurerm_network_interface.ccportal-nic.id,

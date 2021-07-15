@@ -1,7 +1,7 @@
 resource "azurerm_network_interface" "ad-nic" {
   name                = "ad-nic"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
+  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
 
   ip_configuration {
     name                          = "internal"
@@ -12,8 +12,8 @@ resource "azurerm_network_interface" "ad-nic" {
 
 resource "azurerm_windows_virtual_machine" "ad" {
   name                = "ad"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
+  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   size                = try(local.configuration_yml["ad"].vm_size, "Standard_D2s_v3")
   admin_username      = local.admin_username
   admin_password      = random_password.password.result 
