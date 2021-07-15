@@ -20,6 +20,11 @@ locals {
     lustre_oss_sku = try(local.configuration_yml["lustre"]["oss_sku"], "Standard_D32d_v4")
     lustre_oss_count = try(local.configuration_yml["lustre"]["oss_count"], 2)
 
+    # VNET
+    create_vnet = try(length(local.vnet_id) > 0 ? false : true, true)
+    vnet_id = try(local.configuration_yml["network"]["vnet"]["id"], null)
+
+    # VNET Peering
     create_peering = try(length(local.peering_vnet_name) > 0 ? 1 : 0, 0)
     peering_vnet_name = try(local.configuration_yml["network"]["peering"]["vnet_name"], null)
     peering_vnet_resource_group = try(local.configuration_yml["network"]["peering"]["vnet_resource_group"], null)

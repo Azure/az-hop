@@ -62,7 +62,7 @@
         become: true
     vars:
       cc_region: '{{location}}'
-      cc_subnetid: '{{ resource_group }}/hpcvnet/compute'
+      cc_subnetid: '{{cc_subnetid}}'
       cc_admin_user: '{{admin_user}}'
       cc_password: '{{password.stdout}}'
       cc_queues: '{{queues}}'

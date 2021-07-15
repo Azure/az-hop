@@ -13,7 +13,7 @@ resource "azurerm_network_interface" "ondemand-nic" {
 
   ip_configuration {
     name                          = "internal"
-    subnet_id                     = azurerm_subnet.frontend.id
+    subnet_id                     = local.create_vnet ? azurerm_subnet.frontend[0].id : data.azurerm_subnet.frontend[0].id
     private_ip_address_allocation = "Dynamic"
     public_ip_address_id          = azurerm_public_ip.ondemand-pip.id
   }
