@@ -8,6 +8,7 @@ set -e
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 #TFVARS_FILE=""
 TF_FOLDER=$THIS_DIR/tf
+TF_TARGET=
 if [ $# -eq 0 ]; then
   echo "Usage build.sh "
   echo "  Required arguments:"
@@ -15,6 +16,7 @@ if [ $# -eq 0 ]; then
   echo "   "
   echo "  Optional arguments:"
   echo "    -f|-folder <relative path> - relative folder name containing the terraform files, default is ./tf"
+#  echo "    -t|--target <target_resource> - Terraform target resource and dependencies to deploy" 
 
   exit 1
 fi
@@ -28,6 +30,10 @@ while (( "$#" )); do
     ;;
     -f|-folder)
       TF_FOLDER=${THIS_DIR}/${2}
+      shift 2
+    ;;
+    -t|--target)
+      TF_TARGET=${2}
       shift 2
     ;;
     *)
@@ -93,6 +99,8 @@ fi
 azure_user=$(az account show --query user.name -o tsv)
 created_on=$(date -u)
 echo "terraform -chdir=$TF_FOLDER $TF_COMMAND -parallelism=30 $PARAMS"
+#  -target=$TF_TARGET \
+
 terraform -chdir=$TF_FOLDER $TF_COMMAND -parallelism=30 \
   -var "CreatedBy=$azure_user" \
   -var "CreatedOn=$created_on" \
