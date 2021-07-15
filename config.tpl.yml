@@ -79,8 +79,8 @@ lustre:
   hsm:
     # optional to use existing storage for the archive
     # if not included it will use the azhop storage account that is created
-    storage_account: "existing_storage_account_name"
-    storage_container: "only_used_with_existing_storage_account"
+    storage_account: #existing_storage_account_name
+    storage_container: #only_used_with_existing_storage_account
 # List of users to be created on this environment
 users:
   - name: user1
