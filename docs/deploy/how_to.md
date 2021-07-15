@@ -2,6 +2,7 @@
 
 - [How to use an existing VNET ?](#how-to-use-an-existing-vnet)
   - [Pre-requisities for using an existing VNET](#pre-requisities-for-using-an-existing-vnet)
+  - [Creating a standalone VNET for AZ-HOP](#creating-a-standalone-vnet-for-az-hop)
 
 ## How to use an existing VNET ?
 Using an existing VNET can be done by specifying in the `config.yml` file the VNET ID that needs to be used as shown below.
@@ -38,3 +39,9 @@ network:
   - HTTPS/443 In => this is used by the OnDemand web portal and all end users
   - SSH/22 In => This is used when doing the deployment and by admins only
 
+### Creating a standalone VNET for AZ-HOP
+There is a way to easily create a standalone VNET for **azhop** without doing a full deployment by following these steps :
+- Create a configuration file with all the required values for creating a VNET
+- run the build command specify the *tf/network* subdirectory `./build -a [plan, apply, destroy] -tf ./tf/network`
+- Save your config file and create a new one in which you now specify the VNET ID created above
+- Build your **azhop** environment
