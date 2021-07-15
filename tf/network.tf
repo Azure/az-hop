@@ -39,7 +39,7 @@ data "azurerm_subnet" "admin" {
 
 resource "azurerm_subnet" "admin" {
   count                = local.create_vnet ? 1 : 0
-  name                 = "admin"
+  name                 = try(local.configuration_yml["network"]["vnet"]["subnets"]["admin"]["name"], "admin")
   virtual_network_name = azurerm_virtual_network.azhop[count.index].name
   resource_group_name  = azurerm_virtual_network.azhop[count.index].resource_group_name
   address_prefixes     = [try(local.configuration_yml["network"]["vnet"]["subnets"]["admin"]["address_prefixes"], "10.0.1.0/24")]
@@ -55,7 +55,7 @@ data "azurerm_subnet" "netapp" {
 
 resource "azurerm_subnet" "netapp" {
   count                = local.create_vnet ? 1 : 0
-  name                 = "netapp"
+  name                 = try(local.configuration_yml["network"]["vnet"]["subnets"]["netapp"]["name"], "netapp")
   virtual_network_name = azurerm_virtual_network.azhop[count.index].name
   resource_group_name  = azurerm_virtual_network.azhop[count.index].resource_group_name
   address_prefixes     = [try(local.configuration_yml["network"]["vnet"]["subnets"]["netapp"]["address_prefixes"], "10.0.2.0/24")]
@@ -85,7 +85,7 @@ data "azurerm_subnet" "compute" {
 
 resource "azurerm_subnet" "compute" {
   count                = local.create_vnet ? 1 : 0
-  name                 = "compute"
+  name                 = try(local.configuration_yml["network"]["vnet"]["subnets"]["compute"]["name"], "compute")
   virtual_network_name = azurerm_virtual_network.azhop[count.index].name
   resource_group_name  = azurerm_virtual_network.azhop[count.index].resource_group_name
   address_prefixes     = [try(local.configuration_yml["network"]["vnet"]["subnets"]["compute"]["address_prefixes"], "10.0.16.0/20")]
