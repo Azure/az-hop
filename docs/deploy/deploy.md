@@ -11,9 +11,10 @@ Usage build.sh
   Optional arguments:
     -f|-folder <relative path> - relative folder name containing the terraform files, default is ./tf
 ```
-
-Before deploying, make sure your are logged in to Azure.
+Before deploying, make sure your are logged in to Azure, which will be done differently if you are logged in as a user or with a Service Principal Name.
 The build script will use the `config.yml` file which will define the environment to be deployed.
+
+### Deploy with a user account 
 
 ```bash
 # Login to Azure
@@ -24,8 +25,27 @@ az account show
 
 # Change your default subscription if needed
 az account set -s <subid>
+```
+### Deploy with a Service Principal Name 
+When using a Service Principal Name (SPN), you have to login to Azure with this SPN but also set the environment variables used by Terraform to build resources as explained [here](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/service_principal_client_secret).
 
-# Build the whole infrastructure
+> Note : The SPN need to have contributor access on the subscription
+
+```bash
+# Login to Azure 
+az login --service-principal -u http://<spn_name> -p <spn_secret> --tenant <tenant_id>
+
+# Set Terraform Environment variables
+export ARM_CLIENT_ID=<spn_id>
+export ARM_CLIENT_SECRET=<spn_secret>
+export ARM_SUBSCRIPTION_ID=<subscription_id>
+export ARM_TENANT_ID=<tenant_id>
+
+```
+
+### Build the whole infrastructure
+
+```bash
 ./build.sh -f ./tf -a apply
 ```
 
