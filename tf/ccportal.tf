@@ -85,6 +85,7 @@ resource "azurerm_user_assigned_identity" "ccportal" {
 # resource "random_uuid" "role" {
 # }
 
+
 # resource "azurerm_role_definition" "cyclecloud" {
 #   role_definition_id = random_uuid.role.result
 #   name               = "CycleCloud-${random_string.resource_postfix.result}"
@@ -138,7 +139,7 @@ resource "azurerm_user_assigned_identity" "ccportal" {
 
 resource "azurerm_role_assignment" "ccportal" {
   name               = azurerm_user_assigned_identity.ccportal.principal_id
-  scope              = azurerm_resource_group.rg.id #data.azurerm_subscription.primary.id
+  scope              = data.azurerm_subscription.primary.id
   role_definition_id = "${data.azurerm_subscription.primary.id}${data.azurerm_role_definition.contributor.id}"
   #role_definition_id = azurerm_role_definition.cyclecloud.role_definition_resource_id
   principal_id       = azurerm_user_assigned_identity.ccportal.principal_id
