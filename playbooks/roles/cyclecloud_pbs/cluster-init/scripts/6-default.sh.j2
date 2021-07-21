@@ -9,6 +9,13 @@ chmod 777 /mnt/resource
 # Grant domain users sudo with no password
 #echo "\"%domain users\" ALL=(ALL) NOPASSWD: ALL" | tee -a /etc/sudoers
 
+# Grant sudo for users with sudo privilege
+{% for user in users %}
+  {% if user.sudo is defined and user.sudo %}
+echo "{{user.name}} ALL=(ALL) NOPASSWD: ALL" | tee -a /etc/sudoers.d/{{user.name}}
+  {% endif %}
+{% endfor %}
+
 # For any NV instances, reinit the session
 AZHPC_VMSIZE=$(curl -s --noproxy "*" -H Metadata:true "http://169.254.169.254/metadata/instance/compute?api-version=2019-08-15" | jq -r '.vmSize' | tr '[:upper:]' '[:lower:]')
 case $AZHPC_VMSIZE in

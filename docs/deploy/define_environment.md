@@ -94,6 +94,7 @@ users:
     shell: /bin/bash
     home: /anfhome/user1
     admin: false # Not used today
+    sudo: true # Allow sudo access - false by default
   - name: user2
     uid: 10002
     gid: 5000
