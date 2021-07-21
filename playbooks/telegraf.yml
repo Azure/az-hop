@@ -73,3 +73,97 @@
     service:
       name: telegraf
       state: restarted
+
+- name: PBS metrics
+  hosts: scheduler
+  become: true
+  vars_files:
+    - '{{global_config_file}}'
+  
+  tasks:
+  - name: create telegraf plugin directory
+    file:
+      path: /opt/telegraf/scripts
+      state: directory
+  - name: create collect_pbs_stats script
+    copy:
+      dest: /opt/telegraf/scripts/collect_pbs_stats.py
+      mode: 0755
+      content: |
+        #!/usr/bin/env python
+
+        # How to run in telegraf
+        #
+        # [[inputs.execd]]
+        #  command = ["/opt/telegraf/scripts/collect_pbs_stats.py"]
+        #  signal = "STDIN"
+
+        import json
+        import subprocess
+        import sys
+
+        def read_pbsnodes():
+                # output:
+                # nodes,slot_type=<slot_type>,state=<state> <count>
+                
+                data = {}
+                res = json.loads(subprocess.check_output(["/opt/pbs/bin/pbsnodes", "-a", "-F", "json"]))
+                for node in res.get("nodes", {}).keys():
+                        details = res["nodes"][node]
+                        slot_type = details["resources_available"]["slot_type"]
+                        state = details["state"].replace("-", "_")
+                        key = ":".join([state, slot_type])
+                        if key not in data: data[key] = 0
+                        data[key] += 1
+                
+                for key in data.keys():
+                        state, slot_type = key.split(":")
+                        print("pbsnodes,slot_type="+slot_type+",state="+state+" nodes="+str(data[key])+"i")
+
+        def read_pbsqueue():
+                # output:
+                # jobs,slot_type=<slot_type>,state=<job_state>,user=<user> <count>
+                #
+                # ["Job_Owner"]:"paedwar"
+                # ["job_state"]:"R"
+                # ["Resource_List"]["select"]:"1:ncpus=1:slot_type=execute:ungrouped=false"
+                #     require: count,slot_type
+                data = {}
+                res = json.loads(subprocess.check_output(["/opt/pbs/bin/qstat", "-f", "-F", "json"]))
+                for job in res.get("Jobs", {}).keys():
+                        details = res["Jobs"][job]
+                        owner = details["Job_Owner"].split("@")[0]
+                        state = details["job_state"]
+                        sel = details["Resource_List"]["select"]
+                        count = sel.split(":")[0]
+                        m_str = "slot_type="
+                        m_beg = sel.find(m_str) + len(m_str)
+                        m_end = sel.find(":", m_beg)
+                        if m_end != -1:
+                                slot_type = sel[m_beg:m_end]
+                        else:
+                                slot_type = sel[m_beg:]
+
+                        key = ":".join([state, slot_type, owner])
+                        if key not in data: data[key] = 0
+                        data[key] += int(count)
+                
+                for key in data.keys():
+                        state, slot_type, owner = key.split(":")
+                        print("pbsjobs,slot_type="+slot_type+",state="+state+",owner="+owner+" nodes="+str(data[key])+"i")
+
+        if __name__ == "__main__":
+                for _ in iter(sys.stdin.readline, ''):
+                        read_pbsnodes()
+                        read_pbsqueue()
+  - name: add pbs metrics to telegraf config
+    blockinfile:
+      path: /etc/telegraf/telegraf.conf
+      block: |
+        [[inputs.execd]]
+          command = ["/opt/telegraf/scripts/collect_pbs_stats.py"]
+          signal = "STDIN"
+  - name: restart telegraf
+    service:
+      name: telegraf
+      state: restarted
