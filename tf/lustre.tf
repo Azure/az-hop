@@ -117,12 +117,12 @@ resource "azurerm_linux_virtual_machine" "lustre-oss" {
 #data "azurerm_role_definition" "contributor" {
 #  name = "Contributor"
 #}
-resource "azurerm_role_assignment" "lustre-oss" {
-  name               = azurerm_user_assigned_identity.lustre-oss.principal_id
-  scope              = data.azurerm_subscription.primary.id
-  role_definition_id = "${data.azurerm_subscription.primary.id}${data.azurerm_role_definition.contributor.id}"
-  principal_id       = azurerm_user_assigned_identity.lustre-oss.principal_id
-}
+# resource "azurerm_role_assignment" "lustre-oss" {
+#   name               = azurerm_user_assigned_identity.lustre-oss.principal_id
+#   scope              = data.azurerm_subscription.primary.id
+#   role_definition_id = "${data.azurerm_subscription.primary.id}${data.azurerm_role_definition.contributor.id}"
+#   principal_id       = azurerm_user_assigned_identity.lustre-oss.principal_id
+# }
 # (using this from keyvault.tf)
 #data "azurerm_client_config" "current" {}
 resource "azurerm_key_vault_access_policy" "lustre-oss" {
