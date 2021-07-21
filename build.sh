@@ -8,6 +8,7 @@ set -e
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 #TFVARS_FILE=""
 TF_FOLDER=$THIS_DIR/tf
+TF_TARGET=
 if [ $# -eq 0 ]; then
   echo "Usage build.sh "
   echo "  Required arguments:"
@@ -93,6 +94,7 @@ fi
 azure_user=$(az account show --query user.name -o tsv)
 created_on=$(date -u)
 echo "terraform -chdir=$TF_FOLDER $TF_COMMAND -parallelism=30 $PARAMS"
+
 terraform -chdir=$TF_FOLDER $TF_COMMAND -parallelism=30 \
   -var "CreatedBy=$azure_user" \
   -var "CreatedOn=$created_on" \

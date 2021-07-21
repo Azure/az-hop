@@ -7,3 +7,4 @@
  - [Add Users](add_users.md)
  - [Admin Access](admin_access.md)
  - [Helper Scripts](helper_scripts)
+ - [How to](how_to.md)

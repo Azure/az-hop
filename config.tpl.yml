@@ -15,6 +15,26 @@ admin_user: hpcadmin
 key_vault_readers: #<object_id>
 # Network
 network:
+  vnet:
+    name: hpcvnet # Optional - default to hpcvnet
+    id: # If a vnet id is set then no network will be created and the provided vnet will be used
+    address_space: "10.0.0.0/16" # Optional - default to "10.0.0.0/16"
+    # When using an existing VNET, only the subnet names will be used and not the adress_prefixes
+    subnets: # all subnets are optionals
+    # name values can be used to rename the default to specific names, address_prefixes to change the IP ranges to be used
+    # All values below are the default values
+      frontend: 
+        name: frontend
+        address_prefixes: "10.0.0.0/24"
+      admin:
+        name: admin
+        address_prefixes: "10.0.1.0/24"
+      netapp:
+        name: netapp
+        address_prefixes: "10.0.2.0/24"
+      compute:
+        name: compute
+        address_prefixes: "10.0.16.0/20"
   peering: # This is optional, and can be used to create a VNet Peering in the same subscription.
     vnet_name: #"VNET Name to Peer to"
     vnet_resource_group: #"Resource Group of the VNET to peer to"
@@ -59,8 +79,8 @@ lustre:
   hsm:
     # optional to use existing storage for the archive
     # if not included it will use the azhop storage account that is created
-    storage_account: "existing_storage_account_name"
-    storage_container: "only_used_with_existing_storage_account"
+    storage_account: #existing_storage_account_name
+    storage_container: #only_used_with_existing_storage_account
 # List of users to be created on this environment
 users:
   - name: user1
