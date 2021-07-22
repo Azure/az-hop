@@ -29,7 +29,7 @@ az account set -s <subid>
 ### Deploy with a Service Principal Name 
 When using a Service Principal Name (SPN), you have to login to Azure with this SPN but also set the environment variables used by Terraform to build resources as explained [here](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/service_principal_client_secret).
 
-> Note : The SPN need to have contributor access on the subscription
+> Note : The SPN need to have **contributor** and **User Access Administrator** roles on the subscription
 
 ```bash
 # Login to Azure 

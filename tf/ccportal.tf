@@ -77,8 +77,8 @@ data "azurerm_role_definition" "contributor" {
 }
 
 resource "azurerm_user_assigned_identity" "ccportal" {
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg[0].name
+  location            = azurerm_resource_group.rg[0].location
   name = "ccportal"
 }
 
@@ -137,11 +137,23 @@ resource "azurerm_user_assigned_identity" "ccportal" {
 #   }
 # }
 
-resource "azurerm_role_assignment" "ccportal" {
+# Grant Contributor access to Cycle in the az-hop resource group
+resource "azurerm_role_assignment" "ccportal_rg" {
   name               = azurerm_user_assigned_identity.ccportal.principal_id
-  scope              = data.azurerm_subscription.primary.id
+  scope              = azurerm_resource_group.rg[0].id
   role_definition_id = "${data.azurerm_subscription.primary.id}${data.azurerm_role_definition.contributor.id}"
   #role_definition_id = azurerm_role_definition.cyclecloud.role_definition_resource_id
+  principal_id       = azurerm_user_assigned_identity.ccportal.principal_id
+}
+
+# Grant Contributor access to Cycle in the resource group of the existing VNET
+resource "random_uuid" "ccportal_existing_vnet_rg" {}
+
+resource "azurerm_role_assignment" "ccportal_existing_vnet_rg" {
+  count              = local.create_vnet ? 0 : 1
+  name               = random_uuid.ccportal_existing_vnet_rg.result
+  scope              = data.azurerm_resource_group.rg_vnet[0].id
+  role_definition_id = "${data.azurerm_subscription.primary.id}${data.azurerm_role_definition.contributor.id}"
   principal_id       = azurerm_user_assigned_identity.ccportal.principal_id
 }
 
