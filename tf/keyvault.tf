@@ -60,8 +60,9 @@ resource "azurerm_key_vault_access_policy" "admin" {
 #     ]
 # }
 
+# Only create the reader access policy when the key_vault_reader is set
 resource "azurerm_key_vault_access_policy" "reader" {
-
+  count = local.key_vault_readers != null ? 1 : 0
   key_vault_id = azurerm_key_vault.azhop.id
   tenant_id    = data.azurerm_client_config.current.tenant_id
   object_id    = local.key_vault_readers != null ? local.key_vault_readers : data.azurerm_client_config.current.object_id
