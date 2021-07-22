@@ -61,9 +61,6 @@ resource "azurerm_virtual_machine" "ccportal" {
     disk_size_gb      = 128
   }
 
-  # identity {
-  #   type = "SystemAssigned"
-  # }
   identity {
     type         = "UserAssigned"
     identity_ids = [ azurerm_user_assigned_identity.ccportal.id ]
@@ -140,27 +137,6 @@ resource "azurerm_role_assignment" "ccportal_rg" {
   name               = azurerm_user_assigned_identity.ccportal.principal_id
   scope              = azurerm_resource_group.rg[0].id
   role_definition_id = "${data.azurerm_subscription.primary.id}${data.azurerm_role_definition.contributor.id}"
-  #role_definition_id = azurerm_role_definition.cyclecloud.role_definition_resource_id
   principal_id       = azurerm_user_assigned_identity.ccportal.principal_id
 }
-
-# Grant Contributor access to Cycle in the resource group of the existing VNET
-resource "random_uuid" "ccportal_existing_vnet_rg" {}
-
-resource "azurerm_role_assignment" "ccportal_existing_vnet_rg" {
-  count              = local.create_vnet ? 0 : 1
-  name               = random_uuid.ccportal_existing_vnet_rg.result
-  scope              = data.azurerm_resource_group.rg_vnet[0].id
-  role_definition_id = "${data.azurerm_subscription.primary.id}${data.azurerm_role_definition.contributor.id}"
-  principal_id       = azurerm_user_assigned_identity.ccportal.principal_id
-}
-
-# Original role assignment when doing SystemAssignment and Contributor role
-
-# resource "azurerm_role_assignment" "ccportal" {
-#   name               = lookup(azurerm_virtual_machine.ccportal.identity[0], "principal_id")
-#   scope              = data.azurerm_subscription.primary.id
-#   role_definition_id = "${data.azurerm_subscription.primary.id}${data.azurerm_role_definition.contributor.id}"
-#   principal_id       = lookup(azurerm_virtual_machine.ccportal.identity[0], "principal_id")
-# }
 
