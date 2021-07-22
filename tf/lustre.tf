@@ -81,8 +81,8 @@ resource "azurerm_network_interface" "lustre-oss-nic" {
 resource "azurerm_linux_virtual_machine" "lustre-oss" {
   count                 = local.lustre_oss_count
   name                  = "lustre-oss-${count.index}"
-  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
-  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
+  location              = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+  resource_group_name   = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   size                  = local.lustre_oss_sku
   network_interface_ids = [
     element(azurerm_network_interface.lustre-oss-nic.*.id, count.index)
@@ -113,20 +113,7 @@ resource "azurerm_linux_virtual_machine" "lustre-oss" {
   }
 }
 
-# add contributor to the subscription
-# (using the data below from the ccportal.tf)
-#data "azurerm_subscription" "primary" {}
-#data "azurerm_role_definition" "contributor" {
-#  name = "Contributor"
-#}
-# resource "azurerm_role_assignment" "lustre-oss" {
-#   name               = azurerm_user_assigned_identity.lustre-oss.principal_id
-#   scope              = data.azurerm_subscription.primary.id
-#   role_definition_id = "${data.azurerm_subscription.primary.id}${data.azurerm_role_definition.contributor.id}"
-#   principal_id       = azurerm_user_assigned_identity.lustre-oss.principal_id
-# }
-# (using this from keyvault.tf)
-#data "azurerm_client_config" "current" {}
+# Grant read access to the Keyvault for the lustre-oss identity
 resource "azurerm_key_vault_access_policy" "lustre-oss" {
   key_vault_id = azurerm_key_vault.azhop.id
   tenant_id    = data.azurerm_client_config.current.tenant_id
