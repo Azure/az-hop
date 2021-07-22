@@ -1,18 +1,18 @@
 resource "azurerm_public_ip" "jumpbox-pip" {
   name                = "jumpbox-pip"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   allocation_method   = "Static"
 }
 
 resource "azurerm_network_interface" "jumpbox-nic" {
   name                = "jumpbox-nic"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
 
   ip_configuration {
     name                          = "internal"
-    subnet_id                     = azurerm_subnet.frontend.id
+    subnet_id                     = local.create_vnet ? azurerm_subnet.frontend[0].id : data.azurerm_subnet.frontend[0].id
     private_ip_address_allocation = "Dynamic"
     public_ip_address_id          = azurerm_public_ip.jumpbox-pip.id
   }
@@ -20,8 +20,8 @@ resource "azurerm_network_interface" "jumpbox-nic" {
 
 resource "azurerm_linux_virtual_machine" "jumpbox" {
   name                = "jumpbox"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   size                = "Standard_D2s_v3"
   admin_username      = local.admin_username
   network_interface_ids = [
