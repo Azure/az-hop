@@ -3,8 +3,6 @@ resource "time_sleep" "delay_create" {
   create_duration = "20s"
 }
 
-data "azurerm_client_config" "current" {}
-
 resource "azurerm_key_vault" "azhop" {
   name                        = format("%s%s", "kv", random_string.resource_postfix.result)
   location                    = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location

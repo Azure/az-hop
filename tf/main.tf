@@ -17,6 +17,9 @@ provider "azurerm" {
   features {}
 }
 
+data "azurerm_subscription" "primary" {}
+data "azurerm_client_config" "current" {}
+
 resource "random_string" "resource_postfix" {
   length = 8
   special = false

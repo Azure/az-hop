@@ -1,5 +1,3 @@
-data "azurerm_subscription" "primary" {}
-
 resource "azurerm_network_interface" "ccportal-nic" {
   name                = "ccportal-nic"
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
