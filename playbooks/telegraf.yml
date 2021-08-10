@@ -1,4 +1,4 @@
-- hosts: jumpbox, scheduler, ondemand, ccportal, lustre, lustre-oss-*, robinhood 
+- hosts: jumpbox, scheduler, ondemand, ccportal, lustre, lustre-oss-*, robinhood, grafana
   become: true
   vars_files:
     - '{{global_config_file}}'
@@ -20,7 +20,7 @@
       influxdb_password: "{{password.stdout}}"
       influxdb_database_name: "telegraf"
       telegraf_influxdb_urls: 
-        - "http://jumpbox:8086"
+        - "http://grafana:8086"
 
 - name: Robinhood metrics
   hosts: robinhood
