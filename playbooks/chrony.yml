@@ -25,12 +25,18 @@
       enabled: yes
       state: started
 
-- hosts: jumpbox, scheduler, lustre, lustre-oss-*, robinhood, grafana
+# chrony.conf for different OS versions https://docs.microsoft.com/en-us/azure/virtual-machines/linux/time-sync
+- hosts: jumpbox, scheduler, lustre, lustre-oss-*, robinhood, grafana, ccportal
   become: true
   vars_files:
     - '{{global_config_file}}'
-  
+
   tasks:
+  - name: check if /dev/ptp_hyperv file exists
+    stat: 
+      path: /dev/ptp_hyperv
+    register: ptp_hyperv
+
   - name: set node chrony conf file
     copy:
       dest: /etc/chrony.conf
@@ -42,19 +48,8 @@
         rtcsync
         logdir /var/log/chrony
         refclock PHC /dev/ptp_hyperv poll 3 dpoll -2 offset 0
-  - name: enable and start chronyd
-    service:
-      name: chronyd
-      enabled: yes
-      state: started
+    when: ptp_hyperv.stat.exists == True
 
-# chrony.conf is different for CentOS 8.x https://docs.microsoft.com/en-us/azure/virtual-machines/linux/time-sync
-- hosts: ccportal
-  become: true
-  vars_files:
-    - '{{global_config_file}}'
-  
-  tasks:
   - name: set node chrony conf file
     copy:
       dest: /etc/chrony.conf
@@ -66,6 +61,8 @@
         rtcsync
         logdir /var/log/chrony
         refclock PHC /dev/ptp0 poll 3 dpoll -2 offset 0
+    when: ptp_hyperv.stat.exists == False
+
   - name: enable and start chronyd
     service:
       name: chronyd
