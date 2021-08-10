@@ -4266,9 +4266,14 @@
             "selected": false,
             "text": "robinhood",
             "value": "robinhood"
+          },
+          {
+            "selected": false,
+            "text": "grafana",
+            "value": "grafana"
           }
         ],
-        "query": "scheduler, ondemand, ccportal, robinhood",
+        "query": "scheduler, ondemand, ccportal, robinhood, grafana",
         "queryValue": "",
         "skipUrlSync": false,
         "type": "custom"
