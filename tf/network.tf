@@ -12,6 +12,11 @@ resource "azurerm_virtual_network" "azhop" {
   location            = azurerm_resource_group.rg[0].location
   address_space       = [try(local.configuration_yml["network"]["vnet"]["address_space"], "10.0.0.0/16")]
 }
+# Resource group of the existing vnet
+data "azurerm_resource_group" "rg_vnet" {
+  count    = local.create_vnet ? 0 : 1
+  name     = try(split("/", local.vnet_id)[4], "foo")
+}
 
 # Frontend Subnet
 data "azurerm_subnet" "frontend" {

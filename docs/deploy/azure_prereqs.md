@@ -1,6 +1,7 @@
 # Azure Pre-requisites
 
-- You need to be owner of your subscription
+- When using a user account you need to be **Owner** of the subscription
+- When using a Service Principal Name, it need to be **Contributor** and **User Access Administrator** on the subscription
 - Your subscription need to be registered for NetApp resource provider as explained [here](https://docs.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-register#waitlist)
 - The CycleCloud marketplace image need to be allowed, this is the default unless your subscription have a policy blocking it. The EULA terms need to be accepted, this is done in the build script, but if you are not granted to do so, ask your adimnistrator to run this command :
 ```bash
