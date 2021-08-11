@@ -55,12 +55,12 @@ scheduler:
 # CycleCloud VM configuration
 cyclecloud:
   vm_size: Standard_D2s_v3
-  # Azure Image Reference for CycleCloud. Default to 8.1.0 if not present
+  # Azure Image Reference for CycleCloud. Default to 8.2.020210809 if not present
   image: 
     publisher: "azurecyclecloud"
     offer:     "azure-cyclecloud"
     sku:       "cyclecloud-81"
-    version:   "8.1.120210614"
+    version:   "8.2.020210809"
   # Azure Image Plan for CycleCloud. Default to 8.1 if not present
   plan: 
     name:      "cyclecloud-81"

@@ -43,7 +43,7 @@ resource "azurerm_virtual_machine" "ccportal" {
     publisher = try(local.configuration_yml["cyclecloud"].image.publisher,"azurecyclecloud")
     offer     = try(local.configuration_yml["cyclecloud"].image.offer, "azure-cyclecloud")
     sku       = try(local.configuration_yml["cyclecloud"].image.sku, "cyclecloud-81")
-    version   = try(local.configuration_yml["cyclecloud"].image.version, "8.1.0")
+    version   = try(local.configuration_yml["cyclecloud"].image.version, "8.2.020210809")
   }
 
   plan {
