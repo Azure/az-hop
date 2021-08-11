@@ -15,9 +15,6 @@ cyclecloud:
     name: "cyclecloud-81"
     publisher:  "azurecyclecloud"
     product:    "azure-cyclecloud"
-  rpms:
-    cyclecloud: 
-    jetpack: 
 users:
   - name: hpcuser
     uid: 10001

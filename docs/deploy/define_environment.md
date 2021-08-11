@@ -66,11 +66,12 @@ cyclecloud:
     name:      "cyclecloud-81"
     publisher: "azurecyclecloud"
     product:   "azure-cyclecloud"
-  rpms:
+# uncomment if updated RPMS need to be applied
+#  rpms:
     # optional URL to apply a fix on the marketplace image deployed on the ccportal
-    cyclecloud:
+#    cyclecloud:
     # mandatory URL on the jetpack RPM to be installed on the ccportal and the scheduler
-    jetpack:
+#    jetpack:
 # Lustre cluster configuration
 lustre:
   rbh_sku: "Standard_D8d_v4"

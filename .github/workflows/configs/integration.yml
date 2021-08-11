@@ -23,9 +23,6 @@ cyclecloud:
     name: "cyclecloud-81"
     publisher:  "azurecyclecloud"
     product:    "azure-cyclecloud"
-  rpms:
-    cyclecloud: 
-    jetpack: 
 lustre:
   rbh_sku: "Standard_D8d_v4"
   mds_sku: "Standard_D8d_v4"

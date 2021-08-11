@@ -36,6 +36,6 @@
       cc_storage: '{{global_cc_storage}}'
       cc_domain: '{{ad_join_domain}}'
       cc_ad_server: '{{ad_dns}}'
-      cc_rpms_jetpack: '{{cyclecloud.rpms.jetpack}}'
-      cc_rpms_cycle: '{{cyclecloud.rpms.cyclecloud}}'
+      cc_rpms_jetpack: '{{ cyclecloud.rpms.jetpack | default(None) }}'
+      cc_rpms_cycle: '{{ cyclecloud.rpms.cyclecloud | default(None) }}'
 
