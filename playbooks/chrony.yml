@@ -16,7 +16,7 @@
         driftfile /var/lib/chrony/drift
         makestep 1.0 -1
         rtcsync
-        allow 10.0.0.0/16
+        allow {{network.vnet.address_space | default("10.0.0.0/16")}}
         logdir /var/log/chrony
         refclock PHC /dev/ptp_hyperv poll 3 dpoll -2 offset 0
   - name: enable and start chronyd
