@@ -44,6 +44,9 @@ ad:
 # On demand VM configuration
 ondemand:
   vm_size: Standard_D2s_v3
+# Grafana VM configuration
+grafana:
+  vm_size: Standard_D2s_v3
 # Scheduler VM configuration
 scheduler:
   vm_size: Standard_D2s_v3

@@ -8,6 +8,7 @@ resource "local_file" "AnsibleInventory" {
       ondemand-pip      = azurerm_public_ip.ondemand-pip.ip_address
       ondemand-user     = azurerm_linux_virtual_machine.ondemand.admin_username
       ccportal-ip       = azurerm_network_interface.ccportal-nic.private_ip_address
+      grafana-ip        = azurerm_network_interface.grafana-nic.private_ip_address
       ad-ip             = azurerm_network_interface.ad-nic.private_ip_address
       ad-passwd         = azurerm_windows_virtual_machine.ad.admin_password
       lustre-user       = azurerm_linux_virtual_machine.lustre.admin_username
