@@ -14,9 +14,27 @@
     state: present
     groups:
       - Domain Users
+      - Domain Admins
     attributes:
       uidNumber: "{{ user.uid }}"
       uid: "{{ user.name }}"
       loginShell: "{{ user.shell }}"
       unixhomedirectory: "{{ user.home }}"
       gidnumber: "{{user.gid}}"
+
+- name: add Admin
+  community.windows.win_domain_user:
+    name: "{{ user.name }}"
+    firstname: "{{ user.name }}"
+    password: '{{password.stdout}}'
+    password_never_expires: true
+    state: present
+    groups:
+      - Domain Admins
+    attributes:
+      uidNumber: "{{ user.uid }}"
+      uid: "{{ user.name }}"
+      loginShell: "{{ user.shell }}"
+      unixhomedirectory: "{{ user.home }}"
+      gidnumber: "{{user.gid}}"
+  when: user.admin
