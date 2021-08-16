@@ -17,6 +17,7 @@ users:
     shell: /bin/bash
     home: /anfhome/user1
     admin: false
+    sudo: true
   - name: user2
     uid: 10002
     gid: 5000

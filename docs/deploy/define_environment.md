@@ -94,14 +94,14 @@ users:
     gid: 5000
     shell: /bin/bash
     home: /anfhome/user1
-    admin: false # Not used today
+    admin: false # true will allow user to have admin privilege like updating dashboards
     sudo: true # Allow sudo access - false by default
   - name: user2
     uid: 10002
     gid: 5000
     shell: /bin/bash
     home: /anfhome/user2
-    admin: false # Not used today
+    admin: false
 groups: # Not used today => To be used in the future
   - name: users
     gid: 5000
