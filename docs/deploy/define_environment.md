@@ -48,7 +48,7 @@ ad:
   vm_size: Standard_D2s_v3
 # On demand VM configuration
 ondemand:
-  vm_size: Standard_D2s_v3
+  vm_size: Standard_D4s_v3
 # Scheduler VM configuration
 scheduler:
   vm_size: Standard_D2s_v3

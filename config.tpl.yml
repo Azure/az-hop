@@ -43,7 +43,7 @@ ad:
   vm_size: Standard_D2s_v3
 # On demand VM configuration
 ondemand:
-  vm_size: Standard_D2s_v3
+  vm_size: Standard_D4s_v3
 # Grafana VM configuration
 grafana:
   vm_size: Standard_D2s_v3
