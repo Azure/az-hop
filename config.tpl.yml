@@ -105,13 +105,28 @@ groups: # Not used today => To be used in the future
     gid: 5000
 # List of images to be defined
 images:
-  - name: image_definition_name # Should match the packer configuration file name, one per packer file
+  # - name: image_definition_name # Should match the packer configuration file name, one per packer file
+  #   publisher: azhop
+  #   offer: CentOS
+  #   sku: 7_9-gen2
+  #   hyper_v: V2 # V1 or V2 (V1 is the default)
+  #   os_type: Linux # Linux or Windows
+  #   version: 7.9 # Version of the image to create the image definition in SIG
+# Pre-defined images
+  - name: azhop-centos79-v2-rdma-gpgpu
     publisher: azhop
     offer: CentOS
-    sku: 7_9-gen2
-    hyper_v: V2 # V1 or V2 (V1 is the default)
-    os_type: Linux # Linux or Windows
-    version: 7.9 # Version of the image to create the image definition in SIG
+    sku: 7.9-gen2
+    hyper_v: V2
+    os_type: Linux
+    version: 7.9 
+  - name: centos-7.8-desktop-3d
+    publisher: azhop
+    offer: CentOS
+    sku: 7_8
+    hyper_v: V1
+    os_type: Linux
+    version: 7.8
 # List of queues (node arays in Cycle) to be defined
 queues:
   - name: execute # name of the Cycle Cloud node array
