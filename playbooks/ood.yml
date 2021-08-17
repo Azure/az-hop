@@ -21,7 +21,7 @@
     stat:
       path: /etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.crt
     register: sslcert
-  - name: Run the ood-anisible role to get certificate
+  - name: Run the ood-ansible role to get certificate
     include_role:
       name: ood-ansible
     vars:
