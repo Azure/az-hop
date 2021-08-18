@@ -22,6 +22,22 @@
     state: started
     enabled: yes
 
+- name: check if cyclecloud-pbspro-pkg-2.0.5.tar.gz file exists
+  stat: 
+    path: /tmp/cyclecloud-pbspro/cyclecloud-pbspro-pkg-2.0.5.tar.gz
+  register: pbs_cycle_package
+
+- name: check if /tmp/cyclecloud-pbspro/packages exists
+  stat: 
+    path: /tmp/cyclecloud-pbspro/packages
+  register: packages
+
+- name: remove old packages directory if a new version is applied
+  file:
+    path: /tmp/cyclecloud-pbspro/packages
+    state: absent
+  when: packages.stat.exists == True and pbs_cycle_package.stat.exists == False
+
 - name: download CycleCloud ScaleLib PBSPro  
   unarchive: 
     src: "https://github.com/Azure/cyclecloud-pbspro/releases/download/2.0.5/cyclecloud-pbspro-pkg-2.0.5.tar.gz"
