@@ -5,14 +5,16 @@ The toolchain can be setup either from a docker container or locally, the docker
 ### Clone the repo
 It's important to clone the repo with it's submodule. You can do this with one of these two options.
 
+> Note : # pickup the latest stable release from [https://github.com/Azure/az-hop/releases](https://github.com/Azure/az-hop/releases) and replace `<version>`
+
 - Option 1
 ```bash
-git clone --recursive https://github.com/Azure/az-hop.git
+git clone --recursive https://github.com/Azure/az-hop.git -b <version>
 ```
  
 - Option 2
 ```bash
-git clone https://github.com/Azure/az-hop.git 
+git clone https://github.com/Azure/az-hop.git -b <version>
 git submodule init
 git submodule update
 ```
