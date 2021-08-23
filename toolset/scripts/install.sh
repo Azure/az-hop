@@ -13,9 +13,9 @@ apt install -y \
      apt-utils \
      jq \
      wget \
-     git
+     git \
+     dnsutils
 #     ca-certificates \
-#     dnsutils \
 #     file \
 #     ftp \
 #     gettext-base \
