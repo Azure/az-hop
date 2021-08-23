@@ -8,8 +8,11 @@ mkdir -p ./tf/stage0
 pushd tf/stage0
 ln -sf ../main.tf
 ln -sf ../network.tf
+ln -sf ../keyvault.tf
 ln -sf ../variables.tf
 ln -sf ../variables_local.tf
 popd
 terraform -chdir=./tf/stage0 init
 terraform -chdir=./tf/stage0 apply
+cp tf/hpcadmin_id_rsa* .
+
