@@ -170,6 +170,7 @@
     file:
       path: /lustre
       state: directory
+      mode: 0777
   - name: mount lustre
     mount:
       path: /lustre
