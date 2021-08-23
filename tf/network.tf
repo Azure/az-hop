@@ -48,6 +48,7 @@ resource "azurerm_subnet" "admin" {
   virtual_network_name = azurerm_virtual_network.azhop[count.index].name
   resource_group_name  = azurerm_virtual_network.azhop[count.index].resource_group_name
   address_prefixes     = [try(local.configuration_yml["network"]["vnet"]["subnets"]["admin"]["address_prefixes"], "10.0.1.0/24")]
+  service_endpoints    = ["Microsoft.Storage"]
 }
 
 # netapp subnet
@@ -94,6 +95,7 @@ resource "azurerm_subnet" "compute" {
   virtual_network_name = azurerm_virtual_network.azhop[count.index].name
   resource_group_name  = azurerm_virtual_network.azhop[count.index].resource_group_name
   address_prefixes     = [try(local.configuration_yml["network"]["vnet"]["subnets"]["compute"]["address_prefixes"], "10.0.16.0/20")]
+  service_endpoints    = ["Microsoft.Storage"]
 }
 
 # Network security group for the FrontEnd subnet
