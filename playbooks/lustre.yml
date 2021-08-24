@@ -739,7 +739,7 @@
         archive_id="$3"
         fid="$4"
 
-        lfs hsm_remove --data '{"file_id":"'${fullpath#${fsroot}/}'"}' --archive ${archive_id} --mntpath ${fsroot} ${fid}
+        lfs hsm_remove --data "{\"file_id\":\"${fullpath#${fsroot}/}\"}" --archive ${archive_id} --mntpath ${fsroot} ${fid}
   - name: start robinhood service
     service:
       name: robinhood
