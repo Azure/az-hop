@@ -1,7 +1,7 @@
 resource "azurerm_netapp_account" "azhop" {
   name                = "hpcanf-${random_string.resource_postfix.result}"
-  resource_group_name = azurerm_resource_group.rg[0].name
-  location            = azurerm_resource_group.rg[0].location
+  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   active_directory {
     username            = local.admin_username 
     password            = azurerm_windows_virtual_machine.ad.admin_password 
@@ -13,8 +13,8 @@ resource "azurerm_netapp_account" "azhop" {
 resource "azurerm_netapp_pool" "anfpool" {
   name                = "anfpool-${random_string.resource_postfix.result}"
   account_name        = azurerm_netapp_account.azhop.name
-  location            = azurerm_resource_group.rg[0].location
-  resource_group_name = azurerm_resource_group.rg[0].name
+  location            = azurerm_netapp_account.azhop.location
+  resource_group_name = azurerm_netapp_account.azhop.resource_group_name
   service_level       = local.homefs_service_level
   size_in_tb          = local.homefs_size_tb
 }
@@ -24,13 +24,13 @@ resource "azurerm_netapp_volume" "home" {
 #  }
 
   name                = "anfhome"
-  location            = azurerm_resource_group.rg[0].location
-  resource_group_name = azurerm_resource_group.rg[0].name
+  location            = azurerm_netapp_account.azhop.location
+  resource_group_name = azurerm_netapp_account.azhop.resource_group_name
   account_name        = azurerm_netapp_account.azhop.name
   pool_name           = azurerm_netapp_pool.anfpool.name
   volume_path         = "home-${random_string.resource_postfix.result}"
   service_level       = local.homefs_service_level
-  subnet_id           = azurerm_subnet.netapp[0].id
+  subnet_id           = local.create_vnet ? azurerm_subnet.netapp[0].id : data.azurerm_subnet.netapp[0].id
   protocols           = [ "NFSv3", "CIFS" ]
   security_style      = "Unix"
   storage_quota_in_gb = local.homefs_size_tb * 1024
