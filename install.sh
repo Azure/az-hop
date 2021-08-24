@@ -48,6 +48,9 @@ case $TARGET in
   stage5)
     ./toolset/stages/stage5.sh
   ;;
+  stage6)
+    ./toolset/stages/stage6.sh
+  ;;
   *)
     echo "unknown target"
     exit 1
