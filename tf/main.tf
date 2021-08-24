@@ -74,17 +74,28 @@ resource "local_file" "public_key" {
 #   - CycleCloud projects
 #   - Terraform states
 resource "azurerm_storage_account" "azhop" {
-  name                     = "azhop${random_string.resource_postfix.result}"
-  resource_group_name      = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
-  location                 = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
+    name                     = "azhop${random_string.resource_postfix.result}"
+    resource_group_name      = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
+    location                 = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+    account_tier             = "Standard"
+    account_replication_type = "LRS"
+}
+
+# Grant acccess only from the admin and compute subnets
+resource "azurerm_storage_account_network_rules" "storage_rules" {
+    count                      = (local.locked_down_network ? 1 : 0)
+    resource_group_name        = azurerm_storage_account.azhop.resource_group_name
+    storage_account_name       = azurerm_storage_account.azhop.name
+    default_action             = "Deny"
+    ip_rules                   = local.grant_access_from
+    virtual_network_subnet_ids = [local.create_vnet ? azurerm_subnet.admin[0].id : data.azurerm_subnet.admin[0].id,
+                                  local.create_vnet ? azurerm_subnet.compute[0].id : data.azurerm_subnet.compute[0].id]
 }
 
 # create a container for the lustre archive if not using an existing account
 resource "azurerm_storage_container" "lustre_archive" {
-  count                 = (local.lustre_archive_account == null ? 1 : 0)
-  name                  = "lustre"
-  storage_account_name  = azurerm_storage_account.azhop.name
-  container_access_type = "private"
+    count                 = (local.lustre_archive_account == null ? 1 : 0)
+    name                  = "lustre"
+    storage_account_name  = azurerm_storage_account.azhop.name
+    container_access_type = "private"
 }
