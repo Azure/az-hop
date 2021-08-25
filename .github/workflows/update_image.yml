@@ -46,6 +46,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2.3.4
+        with:
+          submodules: true
          
       - name: Login azure
         run: |
@@ -69,6 +71,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2.3.4
+        with:
+          submodules: true
 
       - name: Login azure
         run: |
@@ -91,7 +95,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2.3.4
-         
+        with:
+          submodules: true
+
       - name: Login azure
         run: |
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
