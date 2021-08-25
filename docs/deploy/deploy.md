@@ -49,6 +49,8 @@ export ARM_TENANT_ID=<tenant_id>
 ./build.sh -f ./tf -a apply
 ```
 
+> Note : If you need ANF to be configured for Dual Protocol (NFS+SMB) please see the [how_to](how_to.md) section
+
 At the end of the build, there are several files created, which produce the state of a deployment. These are :
  - az-hop config file `config.yml`
  - Terraform state file `tf/terraform.tfstate`

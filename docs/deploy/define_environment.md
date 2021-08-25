@@ -14,6 +14,8 @@ homefs_size_tb: 4
 homefs_service_level: Standard
 # name of the homedir on the ANF volume
 homedir_mountpoint: /anfhome
+# dual protocol
+dual_protocol: false # true to enable SMB support. false by default
 # name of the admin account
 admin_user: hpcadmin
 # Object ID to grant key vault read access
