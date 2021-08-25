@@ -4,7 +4,7 @@ export TF_BACKEND_FILE=$TF_FOLDER/backend.tf
 export TF_CLI_ARGS_apply="-auto-approve"
 
 echo Stage 5: creating ondemand
-mkdir -p ./tf/stage5
+mkdir -p ./tf/stage5/templates
 pushd tf/stage5
 ln -sf ../main.tf
 ln -sf ../network.tf
@@ -20,6 +20,12 @@ ln -sf ../lustre.tf
 ln -sf ../ondemand.tf
 ln -sf ../grafana.tf
 ln -sf ../stage2/anf.tf
+popd
+pushd tf/stage5/templates
+ln -sf ../../templates/connect.tmpl  
+ln -sf ../../templates/get_secret.tmpl
+ln -sf ../../templates/global_variables.tmpl
+ln -sf ../../templates/inventory.tmpl
 popd
 mv tf/stage4/terraform.tfstate tf/stage5/
 terraform -chdir=./tf/stage5 init || exit 1
