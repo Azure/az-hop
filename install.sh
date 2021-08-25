@@ -30,27 +30,6 @@ case $TARGET in
   ood)
     ansible-playbook -i playbooks/inventory ./playbooks/ood.yml --extra-vars=@playbooks/ood-overrides.yml
   ;;
-  stage0)
-    ./toolset/stages/stage0.sh
-  ;;
-  stage1)
-    ./toolset/stages/stage1.sh
-  ;;
-  stage2)
-    ./toolset/stages/stage2.sh
-  ;;
-  stage3)
-    ./toolset/stages/stage3.sh
-  ;;
-  stage4)
-    ./toolset/stages/stage4.sh
-  ;;
-  stage5)
-    ./toolset/stages/stage5.sh
-  ;;
-  stage6)
-    ./toolset/stages/stage6.sh
-  ;;
   *)
     echo "unknown target"
     exit 1

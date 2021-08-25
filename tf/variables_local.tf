@@ -1,7 +1,7 @@
 locals {
     # config files and directories
-    packer_root_dir = "${path.root}/../packer"
-    playbook_root_dir = "${path.root}/../playbooks"
+    packer_root_dir = "${path.cwd}/packer"
+    playbook_root_dir = "${path.cwd}/playbooks"
     playbooks_template_dir = "${path.root}/templates"
     configuration_file="${path.cwd}/config.yml"
     configuration_yml=yamldecode(file(local.configuration_file))
@@ -12,10 +12,13 @@ locals {
     # Create the RG if creating a VNET or when reusing a VNET in another resource group
     create_rg = local.create_vnet || try(split("/", local.vnet_id)[4], local.resource_group) != local.resource_group
 
+    # ANF
     homefs_size_tb = try(local.configuration_yml["homefs_size_tb"], 4)
     homefs_service_level = try(local.configuration_yml["homefs_service_level"], "Standard")
+    anf_dual_protocol = try(local.configuration_yml["dual_protocol"], false)
+    homedir_mountpoint = try(local.configuration_yml["homedir_mountpoint"], "/anfhome")
+
     admin_username = local.configuration_yml["admin_user"]
-    homedir_mountpoint = local.configuration_yml["homedir_mountpoint"]
     key_vault_readers = try(local.configuration_yml["key_vault_readers"], null)
 
     # Lustre
