@@ -24,10 +24,6 @@ resource "azurerm_netapp_pool" "anfpool" {
   size_in_tb          = local.homefs_size_tb
 }
 resource "azurerm_netapp_volume" "home" {
-#  lifecycle {
-#    prevent_destroy = true
-#  }
-
   name                = "anfhome"
   location            = azurerm_netapp_account.azhop.location
   resource_group_name = azurerm_netapp_account.azhop.resource_group_name
