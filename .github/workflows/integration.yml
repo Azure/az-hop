@@ -76,27 +76,32 @@ jobs:
 
           # Check if we need to build with dual protocol
           #dual_protocol=$(yq eval '.dual_protocol' config.yml | tr '[:upper:]' '[:lower:]')
-          set +e
           build_error=0
           if [ "$ANF_DUAL" == "false" ]; then
-            ./build.sh -a apply -f ./tf
+            set +e
+            ./build.sh -a apply -f tf
             build_error=$?
+            set -e
             ./azhop_state.sh upload ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
           else
             # Build the AD intrastructure
-            ./build.sh -a apply -f ./tf/active_directory
+            set +e
+            ./build.sh -a apply -f tf/active_directory
+            build_error=$?
+            set -e
             ./azhop_state.sh upload ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
-            
+
             # Configure AD
             ./install.sh ad
             
             # Build the remaining infrastructure
-            ./build.sh -a apply -f ./tf
-            ./azhop_state.sh upload ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
+            set +e
+            ./build.sh -a apply -f tf
             build_error=$?
+            set -e
+            ./azhop_state.sh upload ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
           fi
 
-          set -e
           ./create_passwords.sh
           exit $build_error
 
