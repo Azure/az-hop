@@ -6,7 +6,7 @@ locals {
     configuration_file="${path.cwd}/config.yml"
     configuration_yml=yamldecode(file(local.configuration_file))
     
-    # Load pamareters from the configuration file
+    # Load parameters from the configuration file
     location = local.configuration_yml["location"]
     resource_group = local.configuration_yml["resource_group"]
     # Create the RG if creating a VNET or when reusing a VNET in another resource group
@@ -37,4 +37,7 @@ locals {
     peering_vnet_name = try(local.configuration_yml["network"]["peering"]["vnet_name"], null)
     peering_vnet_resource_group = try(local.configuration_yml["network"]["peering"]["vnet_resource_group"], null)
 
+    # Lockdown scenario
+    locked_down_network = try(local.configuration_yml["locked_down_network"]["enforce"], false)
+    grant_access_from   = try(local.configuration_yml["locked_down_network"]["grant_access_from"], [])
 }

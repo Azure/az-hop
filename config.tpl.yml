@@ -40,6 +40,10 @@ network:
   peering: # This is optional, and can be used to create a VNet Peering in the same subscription.
     vnet_name: #"VNET Name to Peer to"
     vnet_resource_group: #"Resource Group of the VNET to peer to"
+# When working in a locked down network, uncomment and fill out this section
+# locked_down_network: 
+#   enforce: true
+#   grant_access_from: [a.b.c.d] # Array of CIDR to grant access from, see https://docs.microsoft.com/en-us/azure/storage/common/storage-network-security?tabs=azure-portal#grant-access-from-an-internet-ip-range
 # Active directory VM configuration
 ad:
   vm_size: Standard_D2s_v3

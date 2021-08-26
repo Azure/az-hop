@@ -17,8 +17,10 @@ resource "azurerm_key_vault" "azhop" {
   sku_name = "standard"
 
   network_acls {
-    default_action = "Allow"
-    bypass         = "AzureServices"
+    default_action             = local.locked_down_network ? "Deny" : "Allow"
+    bypass                     = "AzureServices"
+    ip_rules                   = local.grant_access_from
+    virtual_network_subnet_ids = [local.create_vnet ? azurerm_subnet.admin[0].id : data.azurerm_subnet.admin[0].id]
   }
 }
 
