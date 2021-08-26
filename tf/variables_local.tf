@@ -40,4 +40,19 @@ locals {
     # Lockdown scenario
     locked_down_network = try(local.configuration_yml["locked_down_network"]["enforce"], false)
     grant_access_from   = try(local.configuration_yml["locked_down_network"]["grant_access_from"], [])
+
+    # Application Security Groups
+    default_asgs = local.create_vnet ? ["ad-server", "ad-client", "lustre-server", "lustre-client", "pbs-server", "pbs-client", "cyclecloud-server", "cyclecloud-client", "nfs-client", "telegraf", "grafana", "robinhood", "ondemand"] : []
+    asgs = { for v in local.default_asgs : v => v }
+
+    asg_associations = {
+        ad        = local.create_vnet ? ["ad-server"] : []
+        ccportal  = local.create_vnet ? ["cyclecloud-server", "telegraf"] : []
+        grafana   = local.create_vnet ? ["grafana", "ad-client", "telegraf"] : []
+        jumpbox   = local.create_vnet ? ["ad-client", "telegraf", "nfs-client"] : []
+        lustre    = local.create_vnet ? ["lustre-server", "telegraf"] : []
+        ondemand  = local.create_vnet ? ["ondemand", "ad-client", "nfs-client", "pbs-client", "lustre-client", "telegraf"] : []
+        robinhood = local.create_vnet ? ["robinhood", "lustre-client", "telegraf"] : []
+        scheduler = local.create_vnet ? ["pbs-server", "ad-client", "cyclecloud-client", "nfs-client", "telegraf"] : []
+    }
 }

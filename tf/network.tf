@@ -98,6 +98,14 @@ resource "azurerm_subnet" "compute" {
   service_endpoints    = ["Microsoft.Storage"]
 }
 
+# Application security groups
+resource "azurerm_application_security_group" "asg" {
+  for_each = local.asgs
+  name                = "${each.key}"
+  resource_group_name = azurerm_resource_group.rg[0].name
+  location            = azurerm_resource_group.rg[0].location
+}
+
 # Network security group for the FrontEnd subnet
 resource "azurerm_network_security_group" "frontend" {
   count                = local.create_vnet ? 1 : 0

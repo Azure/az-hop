@@ -37,3 +37,9 @@ resource "azurerm_linux_virtual_machine" "scheduler" {
     version   = "latest"
   }
 }
+
+resource "azurerm_network_interface_application_security_group_association" "scheduler-asg-asso" {
+  for_each = toset(local.asg_associations["scheduler"])
+  network_interface_id          = azurerm_network_interface.scheduler-nic.id
+  application_security_group_id = azurerm_application_security_group.asg["${each.key}"].id
+}
