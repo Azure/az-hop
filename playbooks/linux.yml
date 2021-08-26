@@ -38,7 +38,7 @@
     file:
       path: '{{homedir_mountpoint}}'
       state: directory
-      mode: 0755
+      mode: '0755'
 
   - name: Mount an NFS volume
     mount:

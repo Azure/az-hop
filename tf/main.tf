@@ -2,7 +2,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 2.41.0"
+      version = "~> 2.61.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -60,13 +60,13 @@ resource "tls_private_key" "internal" {
 
 resource "local_file" "private_key" {
     content     = tls_private_key.internal.private_key_pem
-    filename = "${path.root}/../${local.admin_username}_id_rsa"
+    filename = "${path.cwd}/${local.admin_username}_id_rsa"
     file_permission = "0600"
 }
 
 resource "local_file" "public_key" {
     content     = tls_private_key.internal.public_key_openssh
-    filename = "${path.root}/../${local.admin_username}_id_rsa.pub"
+    filename = "${path.cwd}/${local.admin_username}_id_rsa.pub"
     file_permission = "0644"
 }
 
