@@ -11,6 +11,11 @@ on:
         description: 'Clean all resources'
         required: false
         default: 'true' # use it with ${{ github.event.inputs.clean }}
+      anf_dual:
+        description: 'Use ANF Dual Protocol'
+        required: false
+        default: 'false' # use it with ${{ github.event.inputs.anf_dual }}
+
 env:
   TF_CLI_ARGS: '-no-color'
   TF_CLI_ARGS_destroy: '-auto-approve -refresh=false'
@@ -59,6 +64,9 @@ jobs:
           echo "::set-output name=RESOURCE_GROUP::$RESOURCE_GROUP"
           
           sed "s/__RESOURCE_GROUP__/$RESOURCE_GROUP/g" $AZHOP_CONFIGURATION > config.yml
+          ANF_DUAL=${{ github.event.inputs.anf_dual }}
+
+          sed -i "s/__ANF_DUAL__/$ANF_DUAL/g" config.yml
 
           cat config.yml
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
@@ -66,11 +74,28 @@ jobs:
           ls -al 
           cat config.yml
 
+          # Check if we need to build with dual protocol
+          #dual_protocol=$(yq eval '.dual_protocol' config.yml | tr '[:upper:]' '[:lower:]')
           set +e
           build_error=0
-          ./build.sh -a apply -f ./tf
-          build_error=$?
-          ./azhop_state.sh upload ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
+          if [ "$ANF_DUAL" == "false" ]; then
+            ./build.sh -a apply -f ./tf
+            build_error=$?
+            ./azhop_state.sh upload ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
+          else
+            # Build the AD intrastructure
+            ./build.sh -a apply -f ./tf/active_directory
+            ./azhop_state.sh upload ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
+            
+            # Configure AD
+            ./install.sh ad
+            
+            # Build the remaining infrastructure
+            ./build.sh -a apply -f ./tf
+            ./azhop_state.sh upload ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
+            build_error=$?
+          fi
+
           set -e
           ./create_passwords.sh
           exit $build_error

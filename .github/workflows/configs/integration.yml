@@ -6,6 +6,7 @@ homefs_service_level: Standard
 admin_user: hpcadmin
 key_vault_readers: 0bf2513b-59fe-4018-bfd6-5d4844a9a3b9
 homedir_mountpoint: /anfhome
+dual_protocol: __ANF_DUAL__
 ad:
   vm_size: Standard_D2s_v3
 ondemand:
