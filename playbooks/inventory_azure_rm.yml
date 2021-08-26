@@ -1,0 +1,10 @@
+plugin: azure_rm
+include_vm_resource_groups:
+- azhop_validation
+
+conditional_groups:
+  lustre_oss: "'lustre-oss' in name"
+
+auth_source: auto
+
+plain_host_names: yes

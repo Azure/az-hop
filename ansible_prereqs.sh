@@ -30,3 +30,16 @@ else
     echo "$OOD_ANSIBLE is empty. Please git clone this repo using the --recursive option or run 'git submodule init && git submodule update'"
     exit 1
 fi
+
+# Setup for dynamic inventory
+
+# Install Ansible modules and plugins for interacting with Azure.
+ansible-galaxy collection install azure.azcollection
+
+sudo apt install -y wget python3-pip
+
+# Install required modules for Ansible on Azure
+wget https://raw.githubusercontent.com/ansible-collections/azure/dev/requirements-azure.txt -O requirements-azure.txt
+
+# Install Ansible modules
+sudo pip3 install -r requirements-azure.txt
