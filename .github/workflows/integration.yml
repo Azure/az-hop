@@ -68,9 +68,6 @@ jobs:
 
           sed -i "s/__ANF_DUAL__/$ANF_DUAL/g" config.yml
 
-          cat config.yml
-          ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
-
           ls -al 
           cat config.yml
 
