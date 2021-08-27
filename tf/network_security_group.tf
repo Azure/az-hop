@@ -267,7 +267,7 @@ resource "azurerm_network_security_group" "frontend" {
         protocol                   = "tcp"
         source_port_range          = "*"
         destination_port_ranges    = local.nsg_destination_ports["Ssh"]
-        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ondemand"].id]
+        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ondemand"].id, azurerm_application_security_group.asg["asg-jumpbox"].id]
         destination_address_prefixes = azurerm_subnet.compute[0].address_prefixes
   }
 
