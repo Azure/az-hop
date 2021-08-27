@@ -42,17 +42,39 @@ locals {
     grant_access_from   = try(local.configuration_yml["locked_down_network"]["grant_access_from"], [])
 
     # Application Security Groups
-    default_asgs = local.create_vnet ? ["ad-server", "ad-client", "lustre-server", "lustre-client", "pbs-server", "pbs-client", "cyclecloud-server", "cyclecloud-client", "nfs-client", "telegraf", "grafana", "robinhood", "ondemand"] : []
+    default_asgs = local.create_vnet ? ["asg-ssh", "asg-rdp", "asg-jumpbox", "asg-ad", "asg-ad-client", "asg-lustre", "asg-lustre-client", "asg-pbs", "asg-pbs-client", "asg-cyclecloud", "asg-cyclecloud-client", "asg-nfs-client", "asg-telegraf", "asg-grafana", "asg-robinhood", "asg-ondemand", "asg-chrony"] : []
     asgs = { for v in local.default_asgs : v => v }
 
+    # VM name to list of ASGs associations
     asg_associations = {
-        ad        = local.create_vnet ? ["ad-server"] : []
-        ccportal  = local.create_vnet ? ["cyclecloud-server", "telegraf"] : []
-        grafana   = local.create_vnet ? ["grafana", "ad-client", "telegraf"] : []
-        jumpbox   = local.create_vnet ? ["ad-client", "telegraf", "nfs-client"] : []
-        lustre    = local.create_vnet ? ["lustre-server", "telegraf"] : []
-        ondemand  = local.create_vnet ? ["ondemand", "ad-client", "nfs-client", "pbs-client", "lustre-client", "telegraf"] : []
-        robinhood = local.create_vnet ? ["robinhood", "lustre-client", "telegraf"] : []
-        scheduler = local.create_vnet ? ["pbs-server", "ad-client", "cyclecloud-client", "nfs-client", "telegraf"] : []
+        ad        = local.create_vnet ? ["asg-ad", "asg-rdp"] : []
+        ccportal  = local.create_vnet ? ["asg-ssh", "asg-cyclecloud", "asg-telegraf", "asg-chrony", "asg-ad-client"] : []
+        grafana   = local.create_vnet ? ["asg-ssh", "asg-grafana", "asg-ad-client", "asg-telegraf", "asg-chrony"] : []
+        jumpbox   = local.create_vnet ? ["asg-ssh", "asg-jumpbox", "asg-ad-client", "asg-telegraf", "asg-nfs-client", "asg-chrony"] : []
+        lustre    = local.create_vnet ? ["asg-ssh", "asg-lustre", "asg-telegraf", "asg-chrony"] : []
+        ondemand  = local.create_vnet ? ["asg-ssh", "asg-ondemand", "asg-ad-client", "asg-nfs-client", "asg-pbs-client", "asg-lustre-client", "asg-telegraf", "asg-chrony"] : []
+        robinhood = local.create_vnet ? ["asg-ssh", "asg-robinhood", "asg-lustre-client", "asg-telegraf", "asg-chrony"] : []
+        scheduler = local.create_vnet ? ["asg-ssh", "asg-pbs", "asg-ad-client", "asg-cyclecloud-client", "asg-nfs-client", "asg-telegraf", "asg-chrony"] : []
+    }
+
+    # Open ports for NSG TCP rules
+    nsg_destination_ports = {
+        Web = ["443", "80"]
+        Ssh    = ["22"]
+        Chrony = ["123"]
+        # DNS, Kerberos, RpcMapper, Ldap, Smb, KerberosPass, LdapSsl, LdapGc, LdapGcSsl, RpcSam
+        DomainControlerTcp = ["53", "88", "135", "389", "445", "464", "686", "3268", "3269", "49152-65535"]
+        # DNS, Kerberos, W32Time, Ldap, KerberosPass, LdapSsl
+        DomainControlerUdp = ["53", "88", "123", "389", "464", "686"]
+        NoVnc = ["5900-5910"]
+        Dns = ["53"]
+        Rdp = ["3389"]
+        Pbs = ["15001-15007", "32768-61000", "6200"]
+        Lustre = ["988"]
+        Nfs = ["2049", "111"]
+        Telegraf = ["8086"]
+        Grafana = ["3000"]
+        # HTTPS, AMQP
+        CycleCloud = ["9443", "5672"]
     }
 }
