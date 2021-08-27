@@ -132,7 +132,7 @@ resource "azurerm_network_security_group" "frontend" {
         priority                   = "120"
         direction                  = "Outbound"
         access                     = "Allow"
-        protocol                   = "tcp"
+        protocol                   = "*"
         source_port_range          = "*"
         destination_port_ranges    = local.nsg_destination_ports["Pbs"]
         source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-pbs-client"].id]
@@ -248,8 +248,20 @@ resource "azurerm_network_security_group" "frontend" {
   }
 
   security_rule {
-        name                       = "AllowSshComputeOut"
+        name                       = "AllowNoVncComputeOut"
         priority                   = "220"
+        direction                  = "Outbound"
+        access                     = "Allow"
+        protocol                   = "tcp"
+        source_port_range          = "*"
+        destination_port_ranges    = local.nsg_destination_ports["NoVnc"]
+        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ondemand"].id]
+        destination_address_prefixes = azurerm_subnet.compute[0].address_prefixes
+  }
+
+  security_rule {
+        name                       = "AllowSshComputeOut"
+        priority                   = "230"
         direction                  = "Outbound"
         access                     = "Allow"
         protocol                   = "tcp"
@@ -450,7 +462,7 @@ resource "azurerm_network_security_group" "admin" {
         priority                   = "180"
         direction                  = "Inbound"
         access                     = "Allow"
-        protocol                   = "tcp"
+        protocol                   = "*"
         source_port_range          = "*"
         destination_port_ranges    = local.nsg_destination_ports["Pbs"]
         source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-pbs-client"].id]
@@ -462,7 +474,7 @@ resource "azurerm_network_security_group" "admin" {
         priority                   = "185"
         direction                  = "Inbound"
         access                     = "Allow"
-        protocol                   = "tcp"
+        protocol                   = "*"
         source_port_range          = "*"
         destination_port_ranges    = local.nsg_destination_ports["Pbs"]
         source_address_prefixes    = azurerm_subnet.compute[0].address_prefixes
@@ -612,7 +624,7 @@ resource "azurerm_network_security_group" "admin" {
         priority                   = "140"
         direction                  = "Outbound"
         access                     = "Allow"
-        protocol                   = "tcp"
+        protocol                   = "*"
         source_port_range          = "*"
         destination_port_ranges    = local.nsg_destination_ports["Pbs"]
         # Multiple ASGs to allow communication in the subnet
@@ -625,7 +637,7 @@ resource "azurerm_network_security_group" "admin" {
         priority                   = "145"
         direction                  = "Outbound"
         access                     = "Allow"
-        protocol                   = "tcp"
+        protocol                   = "*"
         source_port_range          = "*"
         destination_port_ranges    = local.nsg_destination_ports["Pbs"]
         source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-pbs"].id]
@@ -712,7 +724,7 @@ resource "azurerm_subnet_network_security_group_association" "admin" {
   network_security_group_id = azurerm_network_security_group.admin[count.index].id
 }
 
-# Network security group for the Admin subnet
+# Network security group for the Compute subnet
 resource "azurerm_network_security_group" "compute" {
   count                = local.create_vnet ? 1 : 0
   name                = "nsg-${local.create_vnet ? azurerm_subnet.compute[0].name : data.azurerm_subnet.compute[0].name}"
@@ -763,7 +775,7 @@ resource "azurerm_network_security_group" "compute" {
         priority                   = "130"
         direction                  = "Inbound"
         access                     = "Allow"
-        protocol                   = "tcp"
+        protocol                   = "*"
         source_port_range          = "*"
         destination_port_ranges    = local.nsg_destination_ports["Pbs"]
         source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-pbs"].id]
@@ -850,7 +862,7 @@ resource "azurerm_network_security_group" "compute" {
         priority                   = "140"
         direction                  = "Outbound"
         access                     = "Allow"
-        protocol                   = "tcp"
+        protocol                   = "*"
         source_port_range          = "*"
         destination_port_ranges    = local.nsg_destination_ports["Pbs"]
         source_address_prefixes = azurerm_subnet.compute[0].address_prefixes
