@@ -696,7 +696,6 @@ resource "azurerm_network_security_group" "admin" {
         protocol                   = "tcp"
         source_port_range          = "*"
         destination_port_ranges    = local.nsg_destination_ports["CycleCloud"]
-        # Multiple ASGs to allow communication in the subnet
         source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-cyclecloud-client"].id]
         destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-cyclecloud"].id]
   }
@@ -807,6 +806,18 @@ resource "azurerm_network_security_group" "admin" {
         destination_port_ranges    = local.nsg_destination_ports["Chrony"]
         source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-chrony"].id]
         destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ondemand"].id]
+  }
+
+  security_rule {
+        name                       = "AllowTelegrafOut"
+        priority                   = "280"
+        direction                  = "Outbound"
+        access                     = "Allow"
+        protocol                   = "tcp"
+        source_port_range          = "*"
+        destination_port_ranges    = local.nsg_destination_ports["Telegraf"]
+        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-telegraf"].id]
+        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-grafana"].id]
   }
 
   security_rule {
