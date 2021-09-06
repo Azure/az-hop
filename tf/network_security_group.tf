@@ -351,7 +351,7 @@ resource "azurerm_network_security_group" "admin" {
 
   security_rule {
         name                       = "AllowAdServerInComputeTcp"
-        priority                   = "125"
+        priority                   = "130"
         direction                  = "Inbound"
         access                     = "Allow"
         protocol                   = "tcp"
@@ -362,8 +362,20 @@ resource "azurerm_network_security_group" "admin" {
   }
 
   security_rule {
+        name                       = "AllowAdServerInNetAppTcp"
+        priority                   = "140"
+        direction                  = "Inbound"
+        access                     = "Allow"
+        protocol                   = "tcp"
+        source_port_range          = "*"
+        destination_port_ranges    = local.nsg_destination_ports["DomainControlerTcp"]
+        source_address_prefixes    = azurerm_subnet.netapp[0].address_prefixes
+        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
+  }
+
+  security_rule {
         name                       = "AllowAdServerInUdp"
-        priority                   = "130"
+        priority                   = "150"
         direction                  = "Inbound"
         access                     = "Allow"
         protocol                   = "udp"
@@ -375,7 +387,7 @@ resource "azurerm_network_security_group" "admin" {
 
   security_rule {
         name                       = "AllowAdServerInComputeUdp"
-        priority                   = "135"
+        priority                   = "160"
         direction                  = "Inbound"
         access                     = "Allow"
         protocol                   = "udp"
@@ -386,8 +398,20 @@ resource "azurerm_network_security_group" "admin" {
   }
 
   security_rule {
+        name                       = "AllowAdServerInNetAppUdp"
+        priority                   = "170"
+        direction                  = "Inbound"
+        access                     = "Allow"
+        protocol                   = "udp"
+        source_port_range          = "*"
+        destination_port_ranges    = local.nsg_destination_ports["DomainControlerUdp"]
+        source_address_prefixes    = azurerm_subnet.netapp[0].address_prefixes
+        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
+  }
+
+  security_rule {
         name                       = "AllowTelegrafIn"
-        priority                   = "140"
+        priority                   = "180"
         direction                  = "Inbound"
         access                     = "Allow"
         protocol                   = "tcp"
@@ -399,7 +423,7 @@ resource "azurerm_network_security_group" "admin" {
 
   security_rule {
         name                       = "AllowTelegrafComputeIn"
-        priority                   = "145"
+        priority                   = "190"
         direction                  = "Inbound"
         access                     = "Allow"
         protocol                   = "tcp"
@@ -411,7 +435,7 @@ resource "azurerm_network_security_group" "admin" {
 
   security_rule {
         name                       = "AllowGrafanaIn"
-        priority                   = "150"
+        priority                   = "200"
         direction                  = "Inbound"
         access                     = "Allow"
         protocol                   = "tcp"
@@ -423,7 +447,7 @@ resource "azurerm_network_security_group" "admin" {
 
   security_rule {
         name                       = "AllowCycleWebIn"
-        priority                   = "160"
+        priority                   = "210"
         direction                  = "Inbound"
         access                     = "Allow"
         protocol                   = "tcp"
@@ -435,7 +459,7 @@ resource "azurerm_network_security_group" "admin" {
 
   security_rule {
         name                       = "AllowCycleClientIn"
-        priority                   = "170"
+        priority                   = "220"
         direction                  = "Inbound"
         access                     = "Allow"
         protocol                   = "tcp"
@@ -447,7 +471,7 @@ resource "azurerm_network_security_group" "admin" {
 
   security_rule {
         name                       = "AllowCycleClientComputeIn"
-        priority                   = "175"
+        priority                   = "230"
         direction                  = "Inbound"
         access                     = "Allow"
         protocol                   = "tcp"
@@ -459,7 +483,7 @@ resource "azurerm_network_security_group" "admin" {
 
   security_rule {
         name                       = "AllowPbsIn"
-        priority                   = "180"
+        priority                   = "240"
         direction                  = "Inbound"
         access                     = "Allow"
         protocol                   = "*"
@@ -471,7 +495,7 @@ resource "azurerm_network_security_group" "admin" {
 
   security_rule {
         name                       = "AllowPbsComputeIn"
-        priority                   = "185"
+        priority                   = "250"
         direction                  = "Inbound"
         access                     = "Allow"
         protocol                   = "*"
@@ -483,7 +507,7 @@ resource "azurerm_network_security_group" "admin" {
 
   security_rule {
         name                       = "AllowLustreIn"
-        priority                   = "190"
+        priority                   = "260"
         direction                  = "Inbound"
         access                     = "Allow"
         protocol                   = "tcp"
@@ -495,7 +519,7 @@ resource "azurerm_network_security_group" "admin" {
 
   security_rule {
         name                       = "AllowLustreComputeIn"
-        priority                   = "195"
+        priority                   = "270"
         direction                  = "Inbound"
         access                     = "Allow"
         protocol                   = "tcp"
@@ -507,7 +531,7 @@ resource "azurerm_network_security_group" "admin" {
 
   security_rule {
         name                       = "AllowRobinhoodIn"
-        priority                   = "200"
+        priority                   = "280"
         direction                  = "Inbound"
         access                     = "Allow"
         protocol                   = "tcp"
@@ -540,14 +564,25 @@ resource "azurerm_network_security_group" "admin" {
         protocol                   = "tcp"
         source_port_range          = "*"
         destination_port_ranges    = local.nsg_destination_ports["DomainControlerTcp"]
-        # Multiple ASGs to allow communication in the subnet
-        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ad"].id, azurerm_application_security_group.asg["asg-ad-client"].id]
-        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad-client"].id, azurerm_application_security_group.asg["asg-ad"].id]
+        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ad"].id]
+        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad-client"].id]
+  }
+
+  security_rule {
+        name                       = "AllowAdClientOutTcp"
+        priority                   = "110"
+        direction                  = "Outbound"
+        access                     = "Allow"
+        protocol                   = "tcp"
+        source_port_range          = "*"
+        destination_port_ranges    = local.nsg_destination_ports["DomainControlerTcp"]
+        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ad-client"].id]
+        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
   }
 
   security_rule {
         name                       = "AllowAdServerComputeOutTcp"
-        priority                   = "105"
+        priority                   = "120"
         direction                  = "Outbound"
         access                     = "Allow"
         protocol                   = "tcp"
@@ -559,20 +594,31 @@ resource "azurerm_network_security_group" "admin" {
 
   security_rule {
         name                       = "AllowAdServerOutUdp"
-        priority                   = "110"
+        priority                   = "130"
         direction                  = "Outbound"
         access                     = "Allow"
         protocol                   = "udp"
         source_port_range          = "*"
         destination_port_ranges    = local.nsg_destination_ports["DomainControlerUdp"]
-        # Multiple ASGs to allow communication in the subnet
-        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ad"].id, azurerm_application_security_group.asg["asg-ad-client"].id]
-        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad-client"].id, azurerm_application_security_group.asg["asg-ad"].id]
+        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ad"].id]
+        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad-client"].id]
+  }
+
+  security_rule {
+        name                       = "AllowAdClientOutUdp"
+        priority                   = "140"
+        direction                  = "Outbound"
+        access                     = "Allow"
+        protocol                   = "udp"
+        source_port_range          = "*"
+        destination_port_ranges    = local.nsg_destination_ports["DomainControlerUdp"]
+        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ad-client"].id]
+        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
   }
 
   security_rule {
         name                       = "AllowAdServerComputeOutUdp"
-        priority                   = "115"
+        priority                   = "150"
         direction                  = "Outbound"
         access                     = "Allow"
         protocol                   = "udp"
@@ -584,7 +630,7 @@ resource "azurerm_network_security_group" "admin" {
 
   security_rule {
         name                       = "AllowDnsOut"
-        priority                   = "120"
+        priority                   = "160"
         direction                  = "Outbound"
         access                     = "Allow"
         protocol                   = "*"
@@ -595,21 +641,33 @@ resource "azurerm_network_security_group" "admin" {
   }
 
   security_rule {
+        name                       = "AllowCycleServerOut"
+        priority                   = "170"
+        direction                  = "Outbound"
+        access                     = "Allow"
+        protocol                   = "tcp"
+        source_port_range          = "*"
+        destination_port_ranges    = local.nsg_destination_ports["CycleCloud"]
+        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-cyclecloud"].id]
+        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-cyclecloud-client"].id]
+  }
+
+  security_rule {
         name                       = "AllowCycleClientOut"
-        priority                   = "130"
+        priority                   = "180"
         direction                  = "Outbound"
         access                     = "Allow"
         protocol                   = "tcp"
         source_port_range          = "*"
         destination_port_ranges    = local.nsg_destination_ports["CycleCloud"]
         # Multiple ASGs to allow communication in the subnet
-        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-cyclecloud"].id, azurerm_application_security_group.asg["asg-cyclecloud-client"].id]
-        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-cyclecloud-client"].id, azurerm_application_security_group.asg["asg-cyclecloud"].id]
+        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-cyclecloud-client"].id]
+        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-cyclecloud"].id]
   }
 
   security_rule {
         name                       = "AllowCycleClientComputeOut"
-        priority                   = "135"
+        priority                   = "190"
         direction                  = "Outbound"
         access                     = "Allow"
         protocol                   = "tcp"
@@ -621,20 +679,31 @@ resource "azurerm_network_security_group" "admin" {
 
   security_rule {
         name                       = "AllowPbsOut"
-        priority                   = "140"
+        priority                   = "200"
         direction                  = "Outbound"
         access                     = "Allow"
         protocol                   = "*"
         source_port_range          = "*"
         destination_port_ranges    = local.nsg_destination_ports["Pbs"]
-        # Multiple ASGs to allow communication in the subnet
-        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-pbs"].id, azurerm_application_security_group.asg["asg-pbs-client"].id]
-        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-pbs-client"].id, azurerm_application_security_group.asg["asg-pbs"].id]
+        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-pbs"].id]
+        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-pbs-client"].id]
+  }
+
+  security_rule {
+        name                       = "AllowPbsClientOut"
+        priority                   = "210"
+        direction                  = "Outbound"
+        access                     = "Allow"
+        protocol                   = "*"
+        source_port_range          = "*"
+        destination_port_ranges    = local.nsg_destination_ports["Pbs"]
+        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-pbs-client"].id]
+        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-pbs"].id]
   }
 
   security_rule {
         name                       = "AllowPbsComputeOut"
-        priority                   = "145"
+        priority                   = "220"
         direction                  = "Outbound"
         access                     = "Allow"
         protocol                   = "*"
@@ -646,20 +715,31 @@ resource "azurerm_network_security_group" "admin" {
 
   security_rule {
         name                       = "AllowLustreOut"
-        priority                   = "150"
+        priority                   = "230"
         direction                  = "Outbound"
         access                     = "Allow"
         protocol                   = "tcp"
         source_port_range          = "*"
         destination_port_ranges    = local.nsg_destination_ports["Lustre"]
-        # Multiple ASGs to allow communication in the subnet
-        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-lustre"].id, azurerm_application_security_group.asg["asg-lustre-client"].id]
-        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-lustre-client"].id, azurerm_application_security_group.asg["asg-lustre"].id]
+        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-lustre"].id]
+        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-lustre-client"].id]
+  }
+
+  security_rule {
+        name                       = "AllowLustreClientOut"
+        priority                   = "240"
+        direction                  = "Outbound"
+        access                     = "Allow"
+        protocol                   = "tcp"
+        source_port_range          = "*"
+        destination_port_ranges    = local.nsg_destination_ports["Lustre"]
+        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-lustre-client"].id]
+        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-lustre"].id]
   }
 
   security_rule {
         name                       = "AllowLustreComputeOut"
-        priority                   = "155"
+        priority                   = "250"
         direction                  = "Outbound"
         access                     = "Allow"
         protocol                   = "tcp"
@@ -671,7 +751,7 @@ resource "azurerm_network_security_group" "admin" {
 
   security_rule {
         name                       = "AllowNFSOut"
-        priority                   = "160"
+        priority                   = "260"
         direction                  = "Outbound"
         access                     = "Allow"
         protocol                   = "tcp"
@@ -683,7 +763,7 @@ resource "azurerm_network_security_group" "admin" {
 
   security_rule {
         name                       = "AllowChronyOut"
-        priority                   = "170"
+        priority                   = "270"
         direction                  = "Outbound"
         access                     = "Allow"
         protocol                   = "*"
@@ -948,3 +1028,19 @@ resource "azurerm_subnet_network_security_group_association" "compute" {
   subnet_id                 = azurerm_subnet.compute[count.index].id
   network_security_group_id = azurerm_network_security_group.compute[count.index].id
 }
+
+# NSG cannot be applied on a delegated subnet for Azure Netapp files https://docs.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-delegate-subnet
+# # Network security group for the netapp subnet
+# resource "azurerm_network_security_group" "netapp" {
+#   count                = local.create_vnet ? 1 : 0
+#   name                = "nsg-${local.create_vnet ? azurerm_subnet.netapp[0].name : data.azurerm_subnet.netapp[0].name}"
+#   location            = azurerm_resource_group.rg[0].location
+#   resource_group_name = azurerm_resource_group.rg[0].name
+
+# }
+
+# resource "azurerm_subnet_network_security_group_association" "netapp" {
+#   count                     = local.create_vnet ? 1 : 0
+#   subnet_id                 = azurerm_subnet.netapp[count.index].id
+#   network_security_group_id = azurerm_network_security_group.netapp[count.index].id
+# }
