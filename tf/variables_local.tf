@@ -58,14 +58,15 @@ locals {
     }
 
     # Open ports for NSG TCP rules
+    # ANF and SMB https://docs.microsoft.com/en-us/azure/azure-netapp-files/create-active-directory-connections
     nsg_destination_ports = {
         Web = ["443", "80"]
         Ssh    = ["22"]
         Chrony = ["123"]
-        # DNS, Kerberos, RpcMapper, Ldap, Smb, KerberosPass, LdapSsl, LdapGc, LdapGcSsl, RpcSam
-        DomainControlerTcp = ["53", "88", "135", "389", "445", "464", "686", "3268", "3269", "49152-65535"]
-        # DNS, Kerberos, W32Time, Ldap, KerberosPass, LdapSsl
-        DomainControlerUdp = ["53", "88", "123", "389", "464", "686"]
+        # DNS, Kerberos, RpcMapper, Ldap, Smb, KerberosPass, LdapSsl, LdapGc, LdapGcSsl, AD Web Services, RpcSam
+        DomainControlerTcp = ["53", "88", "135", "389", "445", "464", "686", "3268", "3269", "9389", "49152-65535"]
+        # DNS, Kerberos, W32Time, NetBIOS, Ldap, KerberosPass, LdapSsl
+        DomainControlerUdp = ["53", "88", "123", "138", "389", "464", "686"]
         NoVnc = ["5900-5910"]
         Dns = ["53"]
         Rdp = ["3389"]
