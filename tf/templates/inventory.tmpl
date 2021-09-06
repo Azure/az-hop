@@ -10,8 +10,9 @@ all:
       ansible_ssh_user: ${scheduler-user}
       ansible_ssh_common_args: '-o ProxyCommand="ssh -i ${jumpbox-user}_id_rsa -W %h:%p ${jumpbox-user}@${jumpbox-pip}"'
     ondemand:
-      ansible_host: ${ondemand-pip}
+      ansible_host: ${ondemand-ip}
       ansible_ssh_user: ${ondemand-user}
+      ansible_ssh_common_args: '-o ProxyCommand="ssh -i ${jumpbox-user}_id_rsa -W %h:%p ${jumpbox-user}@${jumpbox-pip}"'
     ccportal:
       ansible_host: ${ccportal-ip}
       ansible_ssh_user: ${ondemand-user}
