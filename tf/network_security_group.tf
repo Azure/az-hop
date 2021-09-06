@@ -272,6 +272,18 @@ resource "azurerm_network_security_group" "frontend" {
   }
 
   security_rule {
+        name                       = "AllowSocksOut"
+        priority                   = "240"
+        direction                  = "Outbound"
+        access                     = "Allow"
+        protocol                   = "tcp"
+        source_port_range          = "*"
+        destination_port_ranges    = local.nsg_destination_ports["Socks"]
+        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-jumpbox"].id]
+        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
+  }
+
+  security_rule {
         name                       = "AllowInternetOutBound"
         priority                   = "3000"
         direction                  = "Outbound"
@@ -539,6 +551,18 @@ resource "azurerm_network_security_group" "admin" {
         destination_port_ranges    = local.nsg_destination_ports["Web"]
         source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ondemand"].id]
         destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-robinhood"].id]
+  }
+
+  security_rule {
+        name                       = "AllowSocksIn"
+        priority                   = "290"
+        direction                  = "Inbound"
+        access                     = "Allow"
+        protocol                   = "tcp"
+        source_port_range          = "*"
+        destination_port_ranges    = local.nsg_destination_ports["Socks"]
+        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-jumpbox"].id]
+        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
   }
 
   security_rule {

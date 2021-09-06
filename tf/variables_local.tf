@@ -63,6 +63,7 @@ locals {
         Web = ["443", "80"]
         Ssh    = ["22"]
         Chrony = ["123"]
+        Socks = ["5985"]
         # DNS, Kerberos, RpcMapper, Ldap, Smb, KerberosPass, LdapSsl, LdapGc, LdapGcSsl, AD Web Services, RpcSam
         DomainControlerTcp = ["53", "88", "135", "389", "445", "464", "686", "3268", "3269", "9389", "49152-65535"]
         # DNS, Kerberos, W32Time, NetBIOS, Ldap, KerberosPass, LdapSsl
