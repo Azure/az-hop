@@ -49,7 +49,7 @@ locals {
     asg_associations = {
         ad        = local.create_vnet ? ["asg-ad", "asg-rdp"] : []
         ccportal  = local.create_vnet ? ["asg-ssh", "asg-cyclecloud", "asg-telegraf", "asg-chrony", "asg-ad-client"] : []
-        grafana   = local.create_vnet ? ["asg-ssh", "asg-grafana", "asg-ad-client", "asg-telegraf", "asg-chrony"] : []
+        grafana   = local.create_vnet ? ["asg-ssh", "asg-grafana", "asg-ad-client", "asg-telegraf", "asg-nfs-client", "asg-chrony"] : []
         jumpbox   = local.create_vnet ? ["asg-ssh", "asg-jumpbox", "asg-ad-client", "asg-telegraf", "asg-nfs-client", "asg-chrony"] : []
         lustre    = local.create_vnet ? ["asg-ssh", "asg-lustre", "asg-telegraf", "asg-chrony"] : []
         ondemand  = local.create_vnet ? ["asg-ssh", "asg-ondemand", "asg-ad-client", "asg-nfs-client", "asg-pbs-client", "asg-lustre-client", "asg-telegraf", "asg-chrony"] : []
