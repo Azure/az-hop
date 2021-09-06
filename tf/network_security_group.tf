@@ -168,7 +168,7 @@ resource "azurerm_network_security_group" "frontend" {
         priority                   = "140"
         direction                  = "Outbound"
         access                     = "Allow"
-        protocol                   = "tcp"
+        protocol                   = "*"
         source_port_range          = "*"
         destination_port_ranges    = local.nsg_destination_ports["Nfs"]
         source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-nfs-client"].id]
@@ -790,7 +790,7 @@ resource "azurerm_network_security_group" "admin" {
         priority                   = "260"
         direction                  = "Outbound"
         access                     = "Allow"
-        protocol                   = "tcp"
+        protocol                   = "*"
         source_port_range          = "*"
         destination_port_ranges    = local.nsg_destination_ports["Nfs"]
         source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-nfs-client"].id]
@@ -1002,7 +1002,7 @@ resource "azurerm_network_security_group" "compute" {
         priority                   = "160"
         direction                  = "Outbound"
         access                     = "Allow"
-        protocol                   = "tcp"
+        protocol                   = "*"
         source_port_range          = "*"
         destination_port_ranges    = local.nsg_destination_ports["Nfs"]
         source_address_prefixes = azurerm_subnet.compute[0].address_prefixes
