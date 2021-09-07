@@ -125,6 +125,18 @@ resource "azurerm_network_security_group" "frontend" {
   }
 
   security_rule {
+        name                       = "AllowPbsComputeIn"
+        priority                   = "190"
+        direction                  = "Inbound"
+        access                     = "Allow"
+        protocol                   = "*"
+        source_port_range          = "*"
+        destination_port_ranges    = local.nsg_destination_ports["Pbs"]
+        source_address_prefixes    = azurerm_subnet.compute[0].address_prefixes
+        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ondemand"].id]
+  }
+
+  security_rule {
         name                       = "DenyVnetInbound"
         priority                   = "3100"
         direction                  = "Inbound"
@@ -613,7 +625,6 @@ resource "azurerm_network_security_group" "admin" {
         destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
   }
 
-  # TODO : Need to understand which ports needs to be open when refreshing the OOD webpage
   security_rule {
         name                       = "AllowOnDemandToAd"
         priority                   = "300"
@@ -1115,6 +1126,18 @@ resource "azurerm_network_security_group" "compute" {
         destination_port_ranges    = local.nsg_destination_ports["Ssh"]
         source_address_prefixes    = azurerm_subnet.compute[0].address_prefixes
         destination_address_prefixes = azurerm_subnet.compute[0].address_prefixes
+  }
+
+  security_rule {
+        name                       = "AllowPbsOnDemandOut"
+        priority                   = "210"
+        direction                  = "Outbound"
+        access                     = "Allow"
+        protocol                   = "*"
+        source_port_range          = "*"
+        destination_port_ranges    = local.nsg_destination_ports["Pbs"]
+        source_address_prefixes = azurerm_subnet.compute[0].address_prefixes
+        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ondemand"].id]
   }
 
   security_rule {
