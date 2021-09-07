@@ -331,17 +331,17 @@ resource "azurerm_network_security_group" "frontend" {
         destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
   }
 
-  security_rule {
-        name                       = "AllowOnDemandToAd"
-        priority                   = "250"
-        direction                  = "Outbound"
-        access                     = "Allow"
-        protocol                   = "*"
-        source_port_range          = "*"
-        destination_port_range     = "*"
-        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ondemand"].id]
-        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
-  }
+  # security_rule {
+  #       name                       = "AllowOnDemandToAd"
+  #       priority                   = "250"
+  #       direction                  = "Outbound"
+  #       access                     = "Allow"
+  #       protocol                   = "*"
+  #       source_port_range          = "*"
+  #       destination_port_range     = "*"
+  #       source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ondemand"].id]
+  #       destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
+  # }
 
   security_rule {
         name                       = "AllowInternetOutBound"
@@ -625,17 +625,17 @@ resource "azurerm_network_security_group" "admin" {
         destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
   }
 
-  security_rule {
-        name                       = "AllowOnDemandToAd"
-        priority                   = "300"
-        direction                  = "Inbound"
-        access                     = "Allow"
-        protocol                   = "*"
-        source_port_range          = "*"
-        destination_port_range     = "*"
-        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ondemand"].id]
-        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
-  }
+  # security_rule {
+  #       name                       = "AllowOnDemandToAd"
+  #       priority                   = "300"
+  #       direction                  = "Inbound"
+  #       access                     = "Allow"
+  #       protocol                   = "*"
+  #       source_port_range          = "*"
+  #       destination_port_range     = "*"
+  #       source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ondemand"].id]
+  #       destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
+  # }
 
   security_rule {
         name                       = "DenyVnetInbound"
