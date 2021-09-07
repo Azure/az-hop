@@ -11,11 +11,17 @@ clusters:
         host: scheduler
         exec: /opt/pbs
       batch_connect:
+        min_port: 61001
+        max_port: 61010
         basic:
+          min_port: 61001
+          max_port: 61010
           script_wrapper: |
             module purge
             %s
         vnc:
+          min_port: 61001
+          max_port: 61010
           script_wrapper: |
             module purge
             export PATH="/opt/TurboVNC/bin:$PATH"

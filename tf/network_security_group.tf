@@ -101,6 +101,30 @@ resource "azurerm_network_security_group" "frontend" {
   }
 
   security_rule {
+        name                       = "AllowSshInCompute"
+        priority                   = "170"
+        direction                  = "Inbound"
+        access                     = "Allow"
+        protocol                   = "tcp"
+        source_port_range          = "*"
+        destination_port_ranges    = local.nsg_destination_ports["Ssh"]
+        source_address_prefixes    = azurerm_subnet.compute[0].address_prefixes
+        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ssh"].id]
+  }
+
+  security_rule {
+        name                       = "AllowNoVncComputeIn"
+        priority                   = "180"
+        direction                  = "Inbound"
+        access                     = "Allow"
+        protocol                   = "tcp"
+        source_port_range          = "*"
+        destination_port_ranges    = local.nsg_destination_ports["NoVnc"]
+        source_address_prefixes    = azurerm_subnet.compute[0].address_prefixes
+        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ondemand"].id]
+  }
+
+  security_rule {
         name                       = "DenyVnetInbound"
         priority                   = "3100"
         direction                  = "Inbound"
@@ -279,7 +303,7 @@ resource "azurerm_network_security_group" "frontend" {
         protocol                   = "tcp"
         source_port_range          = "*"
         destination_port_ranges    = local.nsg_destination_ports["Ssh"]
-        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ondemand"].id, azurerm_application_security_group.asg["asg-jumpbox"].id]
+        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ssh"].id]
         destination_address_prefixes = azurerm_subnet.compute[0].address_prefixes
   }
 
@@ -292,6 +316,18 @@ resource "azurerm_network_security_group" "frontend" {
         source_port_range          = "*"
         destination_port_ranges    = local.nsg_destination_ports["Socks"]
         source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-jumpbox"].id]
+        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
+  }
+
+  security_rule {
+        name                       = "AllowOnDemandToAd"
+        priority                   = "250"
+        direction                  = "Outbound"
+        access                     = "Allow"
+        protocol                   = "*"
+        source_port_range          = "*"
+        destination_port_range     = "*"
+        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ondemand"].id]
         destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
   }
 
@@ -574,6 +610,19 @@ resource "azurerm_network_security_group" "admin" {
         source_port_range          = "*"
         destination_port_ranges    = local.nsg_destination_ports["Socks"]
         source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-jumpbox"].id]
+        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
+  }
+
+  # TODO : Need to understand which ports needs to be open when refreshing the OOD webpage
+  security_rule {
+        name                       = "AllowOnDemandToAd"
+        priority                   = "300"
+        direction                  = "Inbound"
+        access                     = "Allow"
+        protocol                   = "*"
+        source_port_range          = "*"
+        destination_port_range     = "*"
+        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ondemand"].id]
         destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
   }
 
@@ -1042,6 +1091,30 @@ resource "azurerm_network_security_group" "compute" {
         destination_port_ranges    = local.nsg_destination_ports["NoVnc"]
         source_address_prefixes = azurerm_subnet.compute[0].address_prefixes
         destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ondemand"].id]
+  }
+
+  security_rule {
+        name                       = "AllowSshOutCompute"
+        priority                   = "190"
+        direction                  = "Outbound"
+        access                     = "Allow"
+        protocol                   = "tcp"
+        source_port_range          = "*"
+        destination_port_ranges    = local.nsg_destination_ports["Ssh"]
+        source_address_prefixes    = azurerm_subnet.compute[0].address_prefixes
+        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ssh"].id]
+  }
+
+  security_rule {
+        name                       = "AllowSshBetweenCompute"
+        priority                   = "200"
+        direction                  = "Outbound"
+        access                     = "Allow"
+        protocol                   = "tcp"
+        source_port_range          = "*"
+        destination_port_ranges    = local.nsg_destination_ports["Ssh"]
+        source_address_prefixes    = azurerm_subnet.compute[0].address_prefixes
+        destination_address_prefixes = azurerm_subnet.compute[0].address_prefixes
   }
 
   security_rule {
