@@ -148,7 +148,7 @@ resource "azurerm_network_interface_application_security_group_association" "lus
   # We need a map to use for_each, so we convert our list into a map by adding a unique key:
   for_each = { for entry in local.lustre_oss_asgs: "${entry.oss}.${entry.asg}" => entry }
   network_interface_id          = azurerm_network_interface.lustre-oss-nic[each.value.oss].id
-  application_security_group_id = local.create_vnet ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
+  application_security_group_id = local.create_vnet ? azurerm_application_security_group.asg[each.value.asg].id : data.azurerm_application_security_group.asg[each.value.asg].id
 }
 
 #
