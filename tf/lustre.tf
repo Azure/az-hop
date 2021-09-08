@@ -53,6 +53,12 @@ resource "azurerm_linux_virtual_machine" "lustre" {
   }
 }
 
+resource "azurerm_network_interface_application_security_group_association" "lustre-asg-asso" {
+  for_each = toset(local.asg_associations["lustre"])
+  network_interface_id          = azurerm_network_interface.lustre-nic.id
+  application_security_group_id = local.create_vnet ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
+}
+
 #
 # lustre OSS VMs
 #
@@ -123,6 +129,28 @@ resource "azurerm_key_vault_access_policy" "lustre-oss" {
   secret_permissions = [ "get", "list" ]
 }
 
+# Problem : How to generate associations for all OSS instances as we can't mix count and for_each ???
+# Solution : Use a combined flatten list
+locals {
+  # https://www.daveperrett.com/articles/2021/08/19/nested-for-each-with-terraform/
+  # Nested loop over both lists, and flatten the result.
+  lustre_oss_asgs = distinct(flatten([
+    for oss in range(0, local.lustre_oss_count) : [
+      for asg in local.asg_associations["lustre"] : {
+        oss = oss
+        asg = asg
+      }
+    ]
+  ]))
+}
+
+resource "azurerm_network_interface_application_security_group_association" "lustre-oss-asg-asso" {
+  # We need a map to use for_each, so we convert our list into a map by adding a unique key:
+  for_each = { for entry in local.lustre_oss_asgs: "${entry.oss}.${entry.asg}" => entry }
+  network_interface_id          = azurerm_network_interface.lustre-oss-nic[each.value.oss].id
+  application_security_group_id = local.create_vnet ? azurerm_application_security_group.asg[each.value.asg].id : data.azurerm_application_security_group.asg[each.value.asg].id
+}
+
 #
 # Robinhood VM
 #
@@ -167,4 +195,10 @@ resource "azurerm_linux_virtual_machine" "robinhood" {
       sku       = local.lustre_image_reference.sku
       version   = local.lustre_image_reference.version
   }
+}
+
+resource "azurerm_network_interface_application_security_group_association" "robinhood-asg-asso" {
+  for_each = toset(local.asg_associations["robinhood"])
+  network_interface_id          = azurerm_network_interface.robinhood-nic.id
+  application_security_group_id = local.create_vnet ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
 }

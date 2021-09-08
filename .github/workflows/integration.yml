@@ -74,7 +74,7 @@ jobs:
           # Check if we need to build with dual protocol
           #dual_protocol=$(yq eval '.dual_protocol' config.yml | tr '[:upper:]' '[:lower:]')
           build_error=0
-          if [ "$ANF_DUAL" == "false" ]; then
+          if [ "$ANF_DUAL" = "false" ]; then
             set +e
             ./build.sh -a apply -f tf
             build_error=$?

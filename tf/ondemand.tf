@@ -47,3 +47,9 @@ resource "azurerm_linux_virtual_machine" "ondemand" {
     version   = "latest"
   }
 }
+
+resource "azurerm_network_interface_application_security_group_association" "ondemand-asg-asso" {
+  for_each = toset(local.asg_associations["ondemand"])
+  network_interface_id          = azurerm_network_interface.ondemand-nic.id
+  application_security_group_id = local.create_vnet ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
+}

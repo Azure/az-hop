@@ -44,7 +44,7 @@ network:
 ### Creating a standalone VNET for AZ-HOP
 There is a way to easily create a standalone VNET for **azhop** without doing a full deployment by following these steps :
 - Create a configuration file with all the required values for creating a VNET
-- run the build command specify the *tf/network* subdirectory `./build -a [plan, apply, destroy] -tf ./tf/network`
+- run the build command specify the *tf/network* subdirectory `./build -a [plan, apply, destroy] -f ./tf/network`
 - Save your config file and create a new one in which you now specify the VNET ID created above
 - Build your **azhop** environment
 
