@@ -79,6 +79,7 @@ resource "azurerm_storage_account" "azhop" {
     location                 = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
     account_tier             = "Standard"
     account_replication_type = "LRS"
+    min_tls_version          = "TLS1_2"
 }
 
 # Grant acccess only from the admin and compute subnets
