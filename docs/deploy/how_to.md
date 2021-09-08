@@ -29,6 +29,8 @@ network:
         name: itonly
       netapp:
         name: storage
+      ad:
+        name: domaincontroler
       compute:
         name: dynamic
 ```
@@ -37,9 +39,7 @@ network:
 - There is a need of a minimum of 5 IP addresses for the infrastructure VMs
 - Allow enough IP addresses for the Lustre cluster, default being 4 : Robinhood + Lustre + 2*OSS
 - Delegate a subnet to Azure NetApp Files like documented [here](https://docs.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-delegate-subnet)
-- The *frontend* subnet needs to allow this traffic :
-  - HTTPS/443 In => this is used by the OnDemand web portal and all end users
-  - SSH/22 In => This is used when doing the deployment and by admins only
+- Look at the `tf/network_security_group.tf` and `tf/variables_local.tf` to get the list of all ports and rules define bewteen subnets
 
 ### Creating a standalone VNET for AZ-HOP
 There is a way to easily create a standalone VNET for **azhop** without doing a full deployment by following these steps :

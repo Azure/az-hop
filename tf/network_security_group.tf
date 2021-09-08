@@ -403,17 +403,17 @@ resource "azurerm_network_security_group" "admin" {
         destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ssh"].id]
   }
 
-  security_rule {
-        name                       = "AllowRdpIn"
-        priority                   = "110"
-        direction                  = "Inbound"
-        access                     = "Allow"
-        protocol                   = "tcp"
-        source_port_range          = "*"
-        destination_port_ranges    = local.nsg_destination_ports["Rdp"]
-        source_application_security_group_ids  = [azurerm_application_security_group.asg["asg-jumpbox"].id]
-        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
-  }
+#   security_rule {
+#         name                       = "AllowRdpIn"
+#         priority                   = "110"
+#         direction                  = "Inbound"
+#         access                     = "Allow"
+#         protocol                   = "tcp"
+#         source_port_range          = "*"
+#         destination_port_ranges    = local.nsg_destination_ports["Rdp"]
+#         source_application_security_group_ids  = [azurerm_application_security_group.asg["asg-jumpbox"].id]
+#         destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
+#   }
 
   security_rule {
         name                       = "AllowAdServerInTcp"
@@ -423,33 +423,33 @@ resource "azurerm_network_security_group" "admin" {
         protocol                   = "tcp"
         source_port_range          = "*"
         destination_port_ranges    = local.nsg_destination_ports["DomainControlerTcp"]
-        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ad-client"].id]
-        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
+        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ad"].id]
+        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad-client"].id]
   }
 
-  security_rule {
-        name                       = "AllowAdServerInComputeTcp"
-        priority                   = "130"
-        direction                  = "Inbound"
-        access                     = "Allow"
-        protocol                   = "tcp"
-        source_port_range          = "*"
-        destination_port_ranges    = local.nsg_destination_ports["DomainControlerTcp"]
-        source_address_prefixes    = azurerm_subnet.compute[0].address_prefixes
-        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
-  }
+#   security_rule {
+#         name                       = "AllowAdServerInComputeTcp"
+#         priority                   = "130"
+#         direction                  = "Inbound"
+#         access                     = "Allow"
+#         protocol                   = "tcp"
+#         source_port_range          = "*"
+#         destination_port_ranges    = local.nsg_destination_ports["DomainControlerTcp"]
+#         source_address_prefixes    = azurerm_subnet.compute[0].address_prefixes
+#         destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
+#   }
 
-  security_rule {
-        name                       = "AllowAdServerInNetAppTcp"
-        priority                   = "140"
-        direction                  = "Inbound"
-        access                     = "Allow"
-        protocol                   = "tcp"
-        source_port_range          = "*"
-        destination_port_ranges    = local.nsg_destination_ports["DomainControlerTcp"]
-        source_address_prefixes    = azurerm_subnet.netapp[0].address_prefixes
-        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
-  }
+#   security_rule {
+#         name                       = "AllowAdServerInNetAppTcp"
+#         priority                   = "140"
+#         direction                  = "Inbound"
+#         access                     = "Allow"
+#         protocol                   = "tcp"
+#         source_port_range          = "*"
+#         destination_port_ranges    = local.nsg_destination_ports["DomainControlerTcp"]
+#         source_address_prefixes    = azurerm_subnet.netapp[0].address_prefixes
+#         destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
+#   }
 
   security_rule {
         name                       = "AllowAdServerInUdp"
@@ -459,33 +459,33 @@ resource "azurerm_network_security_group" "admin" {
         protocol                   = "udp"
         source_port_range          = "*"
         destination_port_ranges    = local.nsg_destination_ports["DomainControlerUdp"]
-        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ad-client"].id]
-        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
+        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ad"].id]
+        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad-client"].id]
   }
 
-  security_rule {
-        name                       = "AllowAdServerInComputeUdp"
-        priority                   = "160"
-        direction                  = "Inbound"
-        access                     = "Allow"
-        protocol                   = "udp"
-        source_port_range          = "*"
-        destination_port_ranges    = local.nsg_destination_ports["DomainControlerUdp"]
-        source_address_prefixes    = azurerm_subnet.compute[0].address_prefixes
-        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
-  }
+#   security_rule {
+#         name                       = "AllowAdServerInComputeUdp"
+#         priority                   = "160"
+#         direction                  = "Inbound"
+#         access                     = "Allow"
+#         protocol                   = "udp"
+#         source_port_range          = "*"
+#         destination_port_ranges    = local.nsg_destination_ports["DomainControlerUdp"]
+#         source_address_prefixes    = azurerm_subnet.compute[0].address_prefixes
+#         destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
+#   }
 
-  security_rule {
-        name                       = "AllowAdServerInNetAppUdp"
-        priority                   = "170"
-        direction                  = "Inbound"
-        access                     = "Allow"
-        protocol                   = "udp"
-        source_port_range          = "*"
-        destination_port_ranges    = local.nsg_destination_ports["DomainControlerUdp"]
-        source_address_prefixes    = azurerm_subnet.netapp[0].address_prefixes
-        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
-  }
+#   security_rule {
+#         name                       = "AllowAdServerInNetAppUdp"
+#         priority                   = "170"
+#         direction                  = "Inbound"
+#         access                     = "Allow"
+#         protocol                   = "udp"
+#         source_port_range          = "*"
+#         destination_port_ranges    = local.nsg_destination_ports["DomainControlerUdp"]
+#         source_address_prefixes    = azurerm_subnet.netapp[0].address_prefixes
+#         destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
+#   }
 
   security_rule {
         name                       = "AllowTelegrafIn"
@@ -619,17 +619,17 @@ resource "azurerm_network_security_group" "admin" {
         destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-robinhood"].id]
   }
 
-  security_rule {
-        name                       = "AllowSocksIn"
-        priority                   = "290"
-        direction                  = "Inbound"
-        access                     = "Allow"
-        protocol                   = "tcp"
-        source_port_range          = "*"
-        destination_port_ranges    = local.nsg_destination_ports["Socks"]
-        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-jumpbox"].id]
-        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
-  }
+#   security_rule {
+#         name                       = "AllowSocksIn"
+#         priority                   = "290"
+#         direction                  = "Inbound"
+#         access                     = "Allow"
+#         protocol                   = "tcp"
+#         source_port_range          = "*"
+#         destination_port_ranges    = local.nsg_destination_ports["Socks"]
+#         source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-jumpbox"].id]
+#         destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
+#   }
 
   # security_rule {
   #       name                       = "AllowOnDemandToAd"
@@ -658,17 +658,17 @@ resource "azurerm_network_security_group" "admin" {
   #
   #         OUTBOUND
   #
-  security_rule {
-        name                       = "AllowAdServerOutTcp"
-        priority                   = "100"
-        direction                  = "Outbound"
-        access                     = "Allow"
-        protocol                   = "tcp"
-        source_port_range          = "*"
-        destination_port_ranges    = local.nsg_destination_ports["DomainControlerTcp"]
-        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ad"].id]
-        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad-client"].id]
-  }
+#   security_rule {
+#         name                       = "AllowAdServerOutTcp"
+#         priority                   = "100"
+#         direction                  = "Outbound"
+#         access                     = "Allow"
+#         protocol                   = "tcp"
+#         source_port_range          = "*"
+#         destination_port_ranges    = local.nsg_destination_ports["DomainControlerTcp"]
+#         source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ad"].id]
+#         destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad-client"].id]
+#   }
 
   security_rule {
         name                       = "AllowAdClientOutTcp"
@@ -682,29 +682,29 @@ resource "azurerm_network_security_group" "admin" {
         destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
   }
 
-  security_rule {
-        name                       = "AllowAdServerComputeOutTcp"
-        priority                   = "120"
-        direction                  = "Outbound"
-        access                     = "Allow"
-        protocol                   = "tcp"
-        source_port_range          = "*"
-        destination_port_ranges    = local.nsg_destination_ports["DomainControlerTcp"]
-        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ad"].id]
-        destination_address_prefixes    = azurerm_subnet.compute[0].address_prefixes
-  }
+#   security_rule {
+#         name                       = "AllowAdServerComputeOutTcp"
+#         priority                   = "120"
+#         direction                  = "Outbound"
+#         access                     = "Allow"
+#         protocol                   = "tcp"
+#         source_port_range          = "*"
+#         destination_port_ranges    = local.nsg_destination_ports["DomainControlerTcp"]
+#         source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ad"].id]
+#         destination_address_prefixes    = azurerm_subnet.compute[0].address_prefixes
+#   }
 
-  security_rule {
-        name                       = "AllowAdServerOutUdp"
-        priority                   = "130"
-        direction                  = "Outbound"
-        access                     = "Allow"
-        protocol                   = "udp"
-        source_port_range          = "*"
-        destination_port_ranges    = local.nsg_destination_ports["DomainControlerUdp"]
-        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ad"].id]
-        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad-client"].id]
-  }
+#   security_rule {
+#         name                       = "AllowAdServerOutUdp"
+#         priority                   = "130"
+#         direction                  = "Outbound"
+#         access                     = "Allow"
+#         protocol                   = "udp"
+#         source_port_range          = "*"
+#         destination_port_ranges    = local.nsg_destination_ports["DomainControlerUdp"]
+#         source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ad"].id]
+#         destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad-client"].id]
+#   }
 
   security_rule {
         name                       = "AllowAdClientOutUdp"
@@ -718,17 +718,17 @@ resource "azurerm_network_security_group" "admin" {
         destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
   }
 
-  security_rule {
-        name                       = "AllowAdServerComputeOutUdp"
-        priority                   = "150"
-        direction                  = "Outbound"
-        access                     = "Allow"
-        protocol                   = "udp"
-        source_port_range          = "*"
-        destination_port_ranges    = local.nsg_destination_ports["DomainControlerUdp"]
-        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ad"].id]
-        destination_address_prefixes    = azurerm_subnet.compute[0].address_prefixes
-  }
+#   security_rule {
+#         name                       = "AllowAdServerComputeOutUdp"
+#         priority                   = "150"
+#         direction                  = "Outbound"
+#         access                     = "Allow"
+#         protocol                   = "udp"
+#         source_port_range          = "*"
+#         destination_port_ranges    = local.nsg_destination_ports["DomainControlerUdp"]
+#         source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ad"].id]
+#         destination_address_prefixes    = azurerm_subnet.compute[0].address_prefixes
+#   }
 
   security_rule {
         name                       = "AllowDnsOut"
@@ -1171,11 +1171,223 @@ resource "azurerm_network_security_group" "compute" {
   }
 }
 
-
 resource "azurerm_subnet_network_security_group_association" "compute" {
   count                     = local.create_vnet ? 1 : 0
   subnet_id                 = azurerm_subnet.compute[count.index].id
   network_security_group_id = azurerm_network_security_group.compute[count.index].id
+}
+
+# Network security group for the ad subnet
+resource "azurerm_network_security_group" "ad" {
+  count                = local.create_vnet ? 1 : 0
+  name                = "nsg-${local.create_vnet ? azurerm_subnet.ad[0].name : data.azurerm_subnet.ad[0].name}"
+  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
+  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+
+  #
+  #         INBOUND
+  #
+  security_rule {
+        name                       = "AllowAdServerInTcp"
+        priority                   = "100"
+        direction                  = "Inbound"
+        access                     = "Allow"
+        protocol                   = "tcp"
+        source_port_range          = "*"
+        destination_port_ranges    = local.nsg_destination_ports["DomainControlerTcp"]
+        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ad-client"].id]
+        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
+  }
+
+  security_rule {
+        name                       = "AllowAdServerInUdp"
+        priority                   = "110"
+        direction                  = "Inbound"
+        access                     = "Allow"
+        protocol                   = "udp"
+        source_port_range          = "*"
+        destination_port_ranges    = local.nsg_destination_ports["DomainControlerUdp"]
+        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ad-client"].id]
+        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
+  }
+
+  security_rule {
+        name                       = "AllowAdServerComputeInTcp"
+        priority                   = "120"
+        direction                  = "Inbound"
+        access                     = "Allow"
+        protocol                   = "tcp"
+        source_port_range          = "*"
+        destination_port_ranges    = local.nsg_destination_ports["DomainControlerTcp"]
+        source_address_prefixes = azurerm_subnet.compute[0].address_prefixes
+        destination_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ad"].id]
+  }
+
+  security_rule {
+        name                       = "AllowAdServerComputeInUdp"
+        priority                   = "130"
+        direction                  = "Inbound"
+        access                     = "Allow"
+        protocol                   = "udp"
+        source_port_range          = "*"
+        destination_port_ranges    = local.nsg_destination_ports["DomainControlerUdp"]
+        source_address_prefixes = azurerm_subnet.compute[0].address_prefixes
+        destination_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ad"].id]
+  }
+
+  security_rule {
+        name                       = "AllowSocksIn"
+        priority                   = "140"
+        direction                  = "Inbound"
+        access                     = "Allow"
+        protocol                   = "tcp"
+        source_port_range          = "*"
+        destination_port_ranges    = local.nsg_destination_ports["Socks"]
+        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-jumpbox"].id]
+        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
+  }
+
+  security_rule {
+        name                       = "AllowAdServerInNetAppUdp"
+        priority                   = "150"
+        direction                  = "Inbound"
+        access                     = "Allow"
+        protocol                   = "udp"
+        source_port_range          = "*"
+        destination_port_ranges    = local.nsg_destination_ports["DomainControlerUdp"]
+        source_address_prefixes    = azurerm_subnet.netapp[0].address_prefixes
+        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
+  }
+
+  security_rule {
+        name                       = "AllowAdServerInNetAppTcp"
+        priority                   = "160"
+        direction                  = "Inbound"
+        access                     = "Allow"
+        protocol                   = "tcp"
+        source_port_range          = "*"
+        destination_port_ranges    = local.nsg_destination_ports["DomainControlerTcp"]
+        source_address_prefixes    = azurerm_subnet.netapp[0].address_prefixes
+        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
+  }
+
+  security_rule {
+        name                       = "AllowRdpIn"
+        priority                   = "170"
+        direction                  = "Inbound"
+        access                     = "Allow"
+        protocol                   = "tcp"
+        source_port_range          = "*"
+        destination_port_ranges    = local.nsg_destination_ports["Rdp"]
+        source_application_security_group_ids  = [azurerm_application_security_group.asg["asg-jumpbox"].id]
+        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad"].id]
+  }
+
+  security_rule {
+        name                       = "DenyVnetInbound"
+        priority                   = "3100"
+        direction                  = "Inbound"
+        access                     = "Deny"
+        protocol                   = "*"
+        source_port_range          = "*"
+        destination_port_range     = "*"
+        source_address_prefix      = "VirtualNetwork"
+        destination_address_prefix = "VirtualNetwork"
+  }
+
+
+  #
+  #         OUTBOUND
+  #
+  security_rule {
+        name                       = "AllowAdServerOutTcp"
+        priority                   = "100"
+        direction                  = "Outbound"
+        access                     = "Allow"
+        protocol                   = "tcp"
+        source_port_range          = "*"
+        destination_port_ranges    = local.nsg_destination_ports["DomainControlerTcp"]
+        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ad"].id]
+        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad-client"].id]
+  }
+
+  security_rule {
+        name                       = "AllowAdServerOutUdp"
+        priority                   = "110"
+        direction                  = "Outbound"
+        access                     = "Allow"
+        protocol                   = "udp"
+        source_port_range          = "*"
+        destination_port_ranges    = local.nsg_destination_ports["DomainControlerUdp"]
+        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ad"].id]
+        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ad-client"].id]
+  }
+
+  security_rule {
+        name                       = "AllowDnsOut"
+        priority                   = "120"
+        direction                  = "Outbound"
+        access                     = "Allow"
+        protocol                   = "*"
+        source_port_range          = "*"
+        destination_port_ranges    = local.nsg_destination_ports["Dns"]
+        source_address_prefix      = "VirtualNetwork"
+        destination_address_prefix = "VirtualNetwork"
+  }
+
+  security_rule {
+        name                       = "AllowAdServerComputeOutTcp"
+        priority                   = "130"
+        direction                  = "Outbound"
+        access                     = "Allow"
+        protocol                   = "tcp"
+        source_port_range          = "*"
+        destination_port_ranges    = local.nsg_destination_ports["DomainControlerTcp"]
+        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ad"].id]
+        destination_address_prefixes = azurerm_subnet.compute[0].address_prefixes
+  }
+
+  security_rule {
+        name                       = "AllowAdServerComputeOutUdp"
+        priority                   = "140"
+        direction                  = "Outbound"
+        access                     = "Allow"
+        protocol                   = "udp"
+        source_port_range          = "*"
+        destination_port_ranges    = local.nsg_destination_ports["DomainControlerUdp"]
+        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ad"].id]
+        destination_address_prefixes = azurerm_subnet.compute[0].address_prefixes
+  }
+
+  security_rule {
+        name                       = "AllowInternetOutBound"
+        priority                   = "3000"
+        direction                  = "Outbound"
+        access                     = "Allow"
+        protocol                   = "*"
+        source_port_range          = "*"
+        destination_port_range     = "*"
+        source_address_prefix      = "*"
+        destination_address_prefix = "Internet"
+  }
+
+  security_rule {
+        name                       = "DenyVnetOutBound"
+        priority                   = "3100"
+        direction                  = "Outbound"
+        access                     = "Deny"
+        protocol                   = "*"
+        source_port_range          = "*"
+        destination_port_range     = "*"
+        source_address_prefix      = "VirtualNetwork"
+        destination_address_prefix = "VirtualNetwork"
+  }
+}
+
+resource "azurerm_subnet_network_security_group_association" "ad" {
+  count                     = local.create_vnet ? 1 : 0
+  subnet_id                 = azurerm_subnet.ad[count.index].id
+  network_security_group_id = azurerm_network_security_group.ad[count.index].id
 }
 
 # NSG cannot be applied on a delegated subnet for Azure Netapp files https://docs.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-delegate-subnet
