@@ -49,5 +49,5 @@ resource "azurerm_linux_virtual_machine" "jumpbox" {
 resource "azurerm_network_interface_application_security_group_association" "jumpbox-asg-asso" {
   for_each = toset(local.asg_associations["jumpbox"])
   network_interface_id          = azurerm_network_interface.jumpbox-nic.id
-  application_security_group_id = azurerm_application_security_group.asg["${each.key}"].id
+  application_security_group_id = local.create_vnet ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
 }

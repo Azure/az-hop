@@ -41,5 +41,5 @@ resource "azurerm_linux_virtual_machine" "grafana" {
 resource "azurerm_network_interface_application_security_group_association" "grafana-asg-asso" {
   for_each = toset(local.asg_associations["grafana"])
   network_interface_id          = azurerm_network_interface.grafana-nic.id
-  application_security_group_id = azurerm_application_security_group.asg["${each.key}"].id
+  application_security_group_id = local.create_vnet ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
 }

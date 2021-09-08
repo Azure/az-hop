@@ -1,17 +1,23 @@
 # Application security groups
 resource "azurerm_application_security_group" "asg" {
-  for_each = local.asgs
-  name                = "${each.key}"
-  resource_group_name = azurerm_resource_group.rg[0].name
-  location            = azurerm_resource_group.rg[0].location
+  for_each = local.create_vnet ? local.asgs : local.empty_map
+  name                = each.key
+  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
+  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+}
+
+data "azurerm_application_security_group" "asg" {
+  for_each = local.create_vnet ? local.empty_map : local.asgs
+  name                = each.key
+  resource_group_name = local.create_vnet ? azurerm_resource_group.rg[0].name : data.azurerm_virtual_network.azhop[0].resource_group_name
 }
 
 # Network security group for the FrontEnd subnet
 resource "azurerm_network_security_group" "frontend" {
   count                = local.create_vnet ? 1 : 0
   name                = "nsg-${local.create_vnet ? azurerm_subnet.frontend[0].name : data.azurerm_subnet.frontend[0].name}"
-  location            = azurerm_resource_group.rg[0].location
-  resource_group_name = azurerm_resource_group.rg[0].name
+  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
+  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
 
   #
   #         INBOUND
@@ -379,8 +385,8 @@ resource "azurerm_subnet_network_security_group_association" "frontend" {
 resource "azurerm_network_security_group" "admin" {
   count                = local.create_vnet ? 1 : 0
   name                = "nsg-${local.create_vnet ? azurerm_subnet.admin[0].name : data.azurerm_subnet.admin[0].name}"
-  location            = azurerm_resource_group.rg[0].location
-  resource_group_name = azurerm_resource_group.rg[0].name
+  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
+  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
 
   #
   #         INBOUND
@@ -915,8 +921,8 @@ resource "azurerm_subnet_network_security_group_association" "admin" {
 resource "azurerm_network_security_group" "compute" {
   count                = local.create_vnet ? 1 : 0
   name                = "nsg-${local.create_vnet ? azurerm_subnet.compute[0].name : data.azurerm_subnet.compute[0].name}"
-  location            = azurerm_resource_group.rg[0].location
-  resource_group_name = azurerm_resource_group.rg[0].name
+  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
+  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
 
   #
   #         INBOUND

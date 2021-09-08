@@ -42,19 +42,21 @@ locals {
     grant_access_from   = try(local.configuration_yml["locked_down_network"]["grant_access_from"], [])
 
     # Application Security Groups
-    default_asgs = local.create_vnet ? ["asg-ssh", "asg-rdp", "asg-jumpbox", "asg-ad", "asg-ad-client", "asg-lustre", "asg-lustre-client", "asg-pbs", "asg-pbs-client", "asg-cyclecloud", "asg-cyclecloud-client", "asg-nfs-client", "asg-telegraf", "asg-grafana", "asg-robinhood", "asg-ondemand", "asg-chrony"] : []
+    default_asgs = ["asg-ssh", "asg-rdp", "asg-jumpbox", "asg-ad", "asg-ad-client", "asg-lustre", "asg-lustre-client", "asg-pbs", "asg-pbs-client", "asg-cyclecloud", "asg-cyclecloud-client", "asg-nfs-client", "asg-telegraf", "asg-grafana", "asg-robinhood", "asg-ondemand", "asg-chrony"]
     asgs = { for v in local.default_asgs : v => v }
+    empty_array = []
+    empty_map = { for v in local.empty_array : v => v }
 
     # VM name to list of ASGs associations
     asg_associations = {
-        ad        = local.create_vnet ? ["asg-ad", "asg-rdp"] : []
-        ccportal  = local.create_vnet ? ["asg-ssh", "asg-cyclecloud", "asg-telegraf", "asg-chrony", "asg-ad-client"] : []
-        grafana   = local.create_vnet ? ["asg-ssh", "asg-grafana", "asg-ad-client", "asg-telegraf", "asg-nfs-client", "asg-chrony"] : []
-        jumpbox   = local.create_vnet ? ["asg-ssh", "asg-jumpbox", "asg-ad-client", "asg-telegraf", "asg-nfs-client", "asg-chrony"] : []
-        lustre    = local.create_vnet ? ["asg-ssh", "asg-lustre", "asg-lustre-client", "asg-telegraf", "asg-chrony"] : []
-        ondemand  = local.create_vnet ? ["asg-ssh", "asg-ondemand", "asg-ad-client", "asg-nfs-client", "asg-pbs-client", "asg-lustre-client", "asg-telegraf", "asg-chrony"] : []
-        robinhood = local.create_vnet ? ["asg-ssh", "asg-robinhood", "asg-lustre-client", "asg-telegraf", "asg-chrony"] : []
-        scheduler = local.create_vnet ? ["asg-ssh", "asg-pbs", "asg-ad-client", "asg-cyclecloud-client", "asg-nfs-client", "asg-telegraf", "asg-chrony"] : []
+        ad        = ["asg-ad", "asg-rdp"]
+        ccportal  = ["asg-ssh", "asg-cyclecloud", "asg-telegraf", "asg-chrony", "asg-ad-client"]
+        grafana   = ["asg-ssh", "asg-grafana", "asg-ad-client", "asg-telegraf", "asg-nfs-client", "asg-chrony"]
+        jumpbox   = ["asg-ssh", "asg-jumpbox", "asg-ad-client", "asg-telegraf", "asg-nfs-client", "asg-chrony"]
+        lustre    = ["asg-ssh", "asg-lustre", "asg-lustre-client", "asg-telegraf", "asg-chrony"]
+        ondemand  = ["asg-ssh", "asg-ondemand", "asg-ad-client", "asg-nfs-client", "asg-pbs-client", "asg-lustre-client", "asg-telegraf", "asg-chrony"]
+        robinhood = ["asg-ssh", "asg-robinhood", "asg-lustre-client", "asg-telegraf", "asg-chrony"]
+        scheduler = ["asg-ssh", "asg-pbs", "asg-ad-client", "asg-cyclecloud-client", "asg-nfs-client", "asg-telegraf", "asg-chrony"]
     }
 
     # Open ports for NSG TCP rules

@@ -143,5 +143,5 @@ resource "azurerm_role_assignment" "ccportal_rg" {
 resource "azurerm_network_interface_application_security_group_association" "ccportal-asg-asso" {
   for_each = toset(local.asg_associations["ccportal"])
   network_interface_id          = azurerm_network_interface.ccportal-nic.id
-  application_security_group_id = azurerm_application_security_group.asg["${each.key}"].id
+  application_security_group_id = local.create_vnet ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
 }
