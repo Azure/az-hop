@@ -3,8 +3,8 @@
 - [How to use an existing VNET ?](#how-to-use-an-existing-vnet)
   - [Pre-requisities for using an existing VNET](#pre-requisities-for-using-an-existing-vnet)
   - [Creating a standalone VNET for AZ-HOP](#creating-a-standalone-vnet-for-az-hop)
-  - [How to deploy ANF with Dual protocol ?](#how_to_deploy_anf_with_dual_protocol)
-  - [How to deploy in a locked down network environment ?](#deploy_in_a_locked_down_network_environment)
+  - [How to deploy ANF with Dual protocol ?](#how-to-deploy-anf-with-dual-protocol)
+  - [How to deploy in a locked down network environment ?](#deploy-in-a-locked-down-network-environment)
 
 ## How to use an existing VNET ?
 Using an existing VNET can be done by specifying in the `config.yml` file the VNET ID that needs to be used as shown below.
@@ -48,7 +48,7 @@ There is a way to easily create a standalone VNET for **azhop** without doing a 
 - Save your config file and create a new one in which you now specify the VNET ID created above
 - Build your **azhop** environment
 
-## How to deploy ANF with Dual protocol 
+## How to deploy ANF with Dual protocol
 When using Windows nodes you may want to use SMB to mount ANF volumes, as a result ANF need to be configure to use dual protocol and the ANF account need to be domain joined. This imply to break out the deployment in two main steps because the Active Directory need to be configured before provisioning ANF. Follow the steps below to deploy ANF with Dual Protocol enabled :
 
  - Dual protocol must be enabled in the configuration file with this value :
