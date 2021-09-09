@@ -3,6 +3,10 @@
 location: westeurope
 # Name of the resource group to create all resources
 resource_group: azhop
+# Additional tags to be added on the Resource Group
+tags:
+  env: dev
+  project: azhop
 # Size of the ANF pool and unique volume
 homefs_size_tb: 4
 # Service level of the ANF volume, can be: Standard, Premium, Ultra
