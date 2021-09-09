@@ -1360,6 +1360,30 @@ resource "azurerm_network_security_group" "ad" {
   }
 
   security_rule {
+        name                       = "AllowAdServerNetappOutTcp"
+        priority                   = "150"
+        direction                  = "Outbound"
+        access                     = "Allow"
+        protocol                   = "tcp"
+        source_port_range          = "*"
+        destination_port_ranges    = local.nsg_destination_ports["DomainControlerTcp"]
+        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ad"].id]
+        destination_address_prefixes = azurerm_subnet.netapp[0].address_prefixes
+  }
+
+  security_rule {
+        name                       = "AllowAdServerNetappOutUdp"
+        priority                   = "160"
+        direction                  = "Outbound"
+        access                     = "Allow"
+        protocol                   = "udp"
+        source_port_range          = "*"
+        destination_port_ranges    = local.nsg_destination_ports["DomainControlerUdp"]
+        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-ad"].id]
+        destination_address_prefixes = azurerm_subnet.netapp[0].address_prefixes
+  }
+
+  security_rule {
         name                       = "AllowInternetOutBound"
         priority                   = "3000"
         direction                  = "Outbound"
