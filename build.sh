@@ -96,12 +96,10 @@ fi
 
 # Get the current logged user
 azure_user=$(az account show --query user.name -o tsv)
-created_on=$(date -u)
 echo "terraform -chdir=$TF_FOLDER $TF_COMMAND -parallelism=30 $PARAMS"
 
 terraform -chdir=$TF_FOLDER $TF_COMMAND -parallelism=30 \
   -var "CreatedBy=$azure_user" \
-  -var "CreatedOn=$created_on" \
   $PARAMS
 
 if [ -e $TF_FOLDER/terraform.tfstate ] && [ $TF_FOLDER != $THIS_DIR/tf ]; then

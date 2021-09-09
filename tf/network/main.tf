@@ -27,9 +27,12 @@ resource "azurerm_resource_group" "rg" {
   count    = local.create_rg ? 1 : 0
   name     = local.resource_group
   location = local.location
-  tags = {
-    CreatedBy = var.CreatedBy
-    CreatedOn = var.CreatedOn
+  tags = merge( local.common_tags, local.extra_tags)
+
+  lifecycle {
+    ignore_changes = [
+      tags["CreatedOn"]
+    ]
   }
 }
 

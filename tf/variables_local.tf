@@ -9,6 +9,12 @@ locals {
     # Load parameters from the configuration file
     location = local.configuration_yml["location"]
     resource_group = local.configuration_yml["resource_group"]
+    extra_tags = try(local.configuration_yml["tags"], null)
+    common_tags = {
+        CreatedBy = var.CreatedBy
+        CreatedOn = timestamp()
+    }
+
     # Create the RG if creating a VNET or when reusing a VNET in another resource group
     create_rg = local.create_vnet || try(split("/", local.vnet_id)[4], local.resource_group) != local.resource_group
 
