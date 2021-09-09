@@ -1,6 +1,9 @@
 ---
 location: southcentralus
 resource_group: azhop_production
+tags:
+  env: production
+  project: azhop
 homefs_size_tb: 8
 homefs_service_level: Premium
 admin_user: hpcadmin

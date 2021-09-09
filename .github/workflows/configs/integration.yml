@@ -1,6 +1,9 @@
 ---
 location: westeurope
 resource_group: __RESOURCE_GROUP__
+tags:
+  env: dev
+  project: azhop
 homefs_size_tb: 4
 homefs_service_level: Standard
 admin_user: hpcadmin
