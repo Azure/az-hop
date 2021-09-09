@@ -39,6 +39,9 @@ network:
       netapp:
         name: netapp
         address_prefixes: "10.0.2.0/24"
+      ad:
+        name: ad
+        address_prefixes: "10.0.3.0/28"
       compute:
         name: compute
         address_prefixes: "10.0.16.0/20"

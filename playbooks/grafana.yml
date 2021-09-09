@@ -33,7 +33,7 @@
       grafana_fqdn: localhost
       grafana_admin_user: "{{admin_user}}"
       grafana_admin_password: "{{password.stdout}}"
-      grafana_ldap_server: "{{ad_dns}}"
+      grafana_ldap_server: "{{ldap_server}}"
       grafana_server_root_url: "%(protocol)s://%(domain)s:%(http_port)s/rnode/grafana/%(http_port)s/"
       grafana_auth_ldap_enabled: true
       grafana_public_facing_domain_name: localhost

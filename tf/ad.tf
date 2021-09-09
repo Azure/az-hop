@@ -5,7 +5,7 @@ resource "azurerm_network_interface" "ad-nic" {
 
   ip_configuration {
     name                          = "internal"
-    subnet_id                     = local.create_vnet ? azurerm_subnet.admin[0].id : data.azurerm_subnet.admin[0].id
+    subnet_id                     = local.create_vnet ? azurerm_subnet.ad[0].id : data.azurerm_subnet.ad[0].id
     private_ip_address_allocation = "Dynamic"
   }
 }
