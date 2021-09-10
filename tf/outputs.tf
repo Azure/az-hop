@@ -74,7 +74,7 @@ resource "local_file" "packer" {
       sig_name        = azurerm_shared_image_gallery.sig.name
       private_virtual_network_with_public_ip = local.allow_public_ip
       virtual_network_name                   = local.create_vnet ? azurerm_virtual_network.azhop[0].name : data.azurerm_virtual_network.azhop[0].name
-      virtual_network_subnet_name            = local.create_vnet ? azurerm_subnet.admin[0].name : data.local.create_vnet ? azurerm_subnet.admin[0].name
+      virtual_network_subnet_name            = local.create_vnet ? azurerm_subnet.admin[0].name : data.azurerm_subnet.admin[0].name
       virtual_network_resource_group_name    = local.create_vnet ? azurerm_virtual_network.azhop[0].resource_group_name : data.azurerm_virtual_network.azhop[0].resource_group_name
     }
   )
