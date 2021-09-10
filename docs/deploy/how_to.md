@@ -5,6 +5,7 @@
   - [Creating a standalone VNET for AZ-HOP](#creating-a-standalone-vnet-for-az-hop)
   - [How to deploy ANF with Dual protocol ?](#how-to-deploy-anf-with-dual-protocol)
   - [How to deploy in a locked down network environment ?](#deploy-in-a-locked-down-network-environment)
+  - [Disable Public IP scenario](#disable-public-ip-scenario)
 
 ## How to use an existing VNET ?
 Using an existing VNET can be done by specifying in the `config.yml` file the VNET ID that needs to be used as shown below.
@@ -91,3 +92,14 @@ locked_down_network:
   grant_access_from: [a.b.c.d] # Array of CIDR to grant access from.
 ```
 
+### Disable Public IP scenario
+To deploy `az-hop` in a no public IP scenario you have to set the `locked_down_network:public_ip` value to `false`. The default value being `true`.
+
+```yml
+locked_down_network: 
+  public_ip: false
+```
+
+In such scenario you need to use a `deployer` VM, make sure that this VM can access the `jumpbox` over SSH and the keyvault created. 
+
+> Note: One option is to provision that VM in the `admin` subnet and open an NSG rule for allowing SSH from that machine to the `jumbox`.
