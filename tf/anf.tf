@@ -13,6 +13,11 @@ resource "azurerm_netapp_account" "azhop" {
       domain              = "hpc.azure"
     }
   }
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
 }
 
 resource "azurerm_netapp_pool" "anfpool" {
@@ -22,6 +27,11 @@ resource "azurerm_netapp_pool" "anfpool" {
   resource_group_name = azurerm_netapp_account.azhop.resource_group_name
   service_level       = local.homefs_service_level
   size_in_tb          = local.homefs_size_tb
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
 }
 resource "azurerm_netapp_volume" "home" {
   name                = "anfhome"
@@ -42,5 +52,10 @@ resource "azurerm_netapp_volume" "home" {
     unix_read_write   = true
     protocols_enabled = [ "NFSv3" ]
     root_access_enabled = true
+  }
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
   }
 }
