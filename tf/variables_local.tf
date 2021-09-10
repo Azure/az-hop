@@ -46,7 +46,7 @@ locals {
     # Lockdown scenario
     locked_down_network = try(local.configuration_yml["locked_down_network"]["enforce"], false)
     grant_access_from   = try(local.configuration_yml["locked_down_network"]["grant_access_from"], [])
-    locked_down_public_ip = try(local.configuration_yml["locked_down_network"]["public_ip"], false)
+    allow_public_ip = try(local.configuration_yml["locked_down_network"]["public_ip"], true)
 
 
     # Application Security Groups

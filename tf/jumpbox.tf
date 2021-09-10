@@ -1,5 +1,5 @@
 resource "azurerm_public_ip" "jumpbox-pip" {
-  count               = local.locked_down_public_ip ? 0 : 1
+  count               = local.allow_public_ip ? 1 : 0
   name                = "jumpbox-pip"
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
@@ -15,7 +15,7 @@ resource "azurerm_network_interface" "jumpbox-nic" {
     name                          = "internal"
     subnet_id                     = local.create_vnet ? azurerm_subnet.frontend[0].id : data.azurerm_subnet.frontend[0].id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = local.locked_down_public_ip ? null : azurerm_public_ip.jumpbox-pip[0].id
+    public_ip_address_id          = local.allow_public_ip ? azurerm_public_ip.jumpbox-pip[0].id : null
   }
 }
 

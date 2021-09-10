@@ -1,7 +1,7 @@
 resource "local_file" "AnsibleInventory" { 
   content = templatefile("${local.playbooks_template_dir}/inventory.tmpl",
    {
-      jumpbox-pip       = local.locked_down_public_ip ? azurerm_network_interface.jumpbox-nic.private_ip_address : azurerm_public_ip.jumpbox-pip[0].ip_address
+      jumpbox-pip       = local.allow_public_ip ? azurerm_public_ip.jumpbox-pip[0].ip_address : azurerm_network_interface.jumpbox-nic.private_ip_address
       jumpbox-user      = azurerm_linux_virtual_machine.jumpbox.admin_username
       scheduler-ip      = azurerm_network_interface.scheduler-nic.private_ip_address
       scheduler-user    = azurerm_linux_virtual_machine.scheduler.admin_username
@@ -32,7 +32,7 @@ resource "local_file" "global_variables" {
       ad-ip               = azurerm_network_interface.ad-nic.private_ip_address
       anf-home-ip         = element(azurerm_netapp_volume.home.mount_ip_addresses, 0)
       anf-home-path       = azurerm_netapp_volume.home.volume_path
-      ondemand-fqdn       = local.locked_down_public_ip ? azurerm_network_interface.ondemand-nic.private_ip_address : azurerm_public_ip.ondemand-pip[0].fqdn
+      ondemand-fqdn       = local.allow_public_ip ? azurerm_public_ip.ondemand-pip[0].fqdn : azurerm_network_interface.ondemand-nic.private_ip_address
       subscription_id     = data.azurerm_subscription.primary.subscription_id
       key_vault           = azurerm_key_vault.azhop.name
       sig_name            = azurerm_shared_image_gallery.sig.name
@@ -47,7 +47,7 @@ resource "local_file" "global_variables" {
 resource "local_file" "connect_script" {
   sensitive_content = templatefile("${local.playbooks_template_dir}/connect.tmpl",
     {
-      jumpbox-pip       = local.locked_down_public_ip ? azurerm_network_interface.jumpbox-nic.private_ip_address : azurerm_public_ip.jumpbox-pip[0].ip_address
+      jumpbox-pip       = local.allow_public_ip ? azurerm_public_ip.jumpbox-pip[0].ip_address :  azurerm_network_interface.jumpbox-nic.private_ip_address
       jumpbox-user      = azurerm_linux_virtual_machine.jumpbox.admin_username,
     }
   )
