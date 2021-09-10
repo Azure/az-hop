@@ -1,4 +1,5 @@
 resource "azurerm_public_ip" "ondemand-pip" {
+  count               = local.locked_down_public_ip ? 0 : 1
   name                = "ondemand-pip"
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
@@ -16,7 +17,7 @@ resource "azurerm_network_interface" "ondemand-nic" {
     name                          = "internal"
     subnet_id                     = local.create_vnet ? azurerm_subnet.frontend[0].id : data.azurerm_subnet.frontend[0].id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.ondemand-pip.id
+    public_ip_address_id          = local.locked_down_public_ip ? null : azurerm_public_ip.ondemand-pip[0].id
   }
 }
 
