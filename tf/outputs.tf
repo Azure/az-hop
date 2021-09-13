@@ -65,8 +65,20 @@ resource "local_file" "get_secret_script" {
   file_permission = 0755
 }
 
-resource "local_file" "packer" {
+resource "local_file" "packer_pip" {
   content = templatefile("${local.packer_root_dir}/templates/options.json.tmpl",
+    {
+      subscription_id = data.azurerm_subscription.primary.subscription_id
+      resource_group  = local.resource_group
+      location        = local.location
+      sig_name        = azurerm_shared_image_gallery.sig.name
+    }
+  )
+  filename = "${local.packer_root_dir}/options.json"
+}
+
+resource "local_file" "packer_nopip" {
+  content = templatefile("${local.packer_root_dir}/templates/options_nopip.json.tmpl",
     {
       subscription_id = data.azurerm_subscription.primary.subscription_id
       resource_group  = local.resource_group
@@ -78,6 +90,5 @@ resource "local_file" "packer" {
       virtual_network_resource_group_name    = local.create_vnet ? azurerm_virtual_network.azhop[0].resource_group_name : data.azurerm_virtual_network.azhop[0].resource_group_name
     }
   )
-  filename = "${local.packer_root_dir}/options.json"
+  filename = "${local.packer_root_dir}/options_nopip.json"
 }
-
