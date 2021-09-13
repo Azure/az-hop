@@ -23,6 +23,13 @@ if [ $# -lt 2 ]; then
   exit 1
 fi
 
+nopip=$(yq eval .locked_down_network.public_ip $CONFIG_FILE)
+if [ "$nopip" == "false" ]; then
+  OPTIONS_FILE=options_nopip.json
+else
+  OPTIONS_FILE=options.json
+fi
+
 PACKER_OPTIONS="-timestamp-ui"
 while (( "$#" )); do
   case "${1}" in
