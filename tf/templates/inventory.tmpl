@@ -22,6 +22,7 @@ all:
       ansible_ssh_user: ${ondemand-user}
       ansible_ssh_common_args: '-o ProxyCommand="ssh -i ${jumpbox-user}_id_rsa -W %h:%p ${jumpbox-user}@${jumpbox-pip}"'
     ad:
+      psrp_ssh_proxy: ${jumpbox-pip}
       ansible_host: ${ad-ip}
       ansible_connection: psrp
       ansible_psrp_protocol: http
