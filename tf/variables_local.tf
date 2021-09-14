@@ -70,6 +70,7 @@ locals {
     # Open ports for NSG TCP rules
     # ANF and SMB https://docs.microsoft.com/en-us/azure/azure-netapp-files/create-active-directory-connections
     nsg_destination_ports = {
+        Bastion = ["22", "3389"]
         Web = ["443", "80"]
         Ssh    = ["22"]
         Chrony = ["123"]
