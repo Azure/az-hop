@@ -24,25 +24,27 @@
       chgrp apache /etc/shadow
     args:
       creates: /etc/pam.d/ood
+
+  - name: Check if we need to register HTTPS
+    stat:
+      path: /etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.crt
+    register: sslcert
+  - name: Run the ood-ansible role to get certificate
+    include_role:
+      name: ood-ansible
+    vars:
+      servername: null
+      httpd_port: 80
+      httpd_public_uri: /.well-known
+      httpd_public_root: /var/www/ood/.well-known
+    when: sslcert.stat.exists == False
+
   #
   # Block to generate a certificate when using a public IP
   #
   - name: Generate Let's Encrypt Certificate
     block:
-      - name: Check if we need to register HTTPS
-        stat:
-          path: /etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.crt
-        register: sslcert
-      - name: Run the ood-ansible role to get certificate
-        include_role:
-          name: ood-ansible
-        vars:
-          servername: null
-          httpd_port: 80
-          httpd_public_uri: /.well-known
-          httpd_public_root: /var/www/ood/.well-known
-        when: sslcert.stat.exists == False
-      - name: Setup HTTPS certificate
+      - name: Generate HTTPS certificate
         shell: |
           cd /root
 
@@ -67,19 +69,47 @@
         args:
           creates: /etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.crt
         when: sslcert.stat.exists == False
+
+      - name: Run the ood-ansible role for HTTPS
+        include_role:
+          name: ood-ansible
+        vars:
+          servername: "{{ ondemand_fqdn }}"
+          httpd_port: 443
+          ssl:
+          - SSLCertificateFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.crt"
+          - SSLCertificateKeyFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.key"
+          - SSLCertificateChainFile "/etc/ssl/{{ ondemand_fqdn }}/letsencryptauthorityx3.pem.txt"
+
     when: (locked_down_network.public_ip is not defined) or 
           (locked_down_network.public_ip is defined and locked_down_network.public_ip)
 
-  - name: Run the ood-ansible role for HTTPS
-    include_role:
-      name: ood-ansible
-    vars:
-      servername: "{{ ondemand_fqdn }}"
-      httpd_port: 443
-      ssl:
-      - SSLCertificateFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.crt"
-      - SSLCertificateKeyFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.key"
-      - SSLCertificateChainFile "/etc/ssl/{{ ondemand_fqdn }}/letsencryptauthorityx3.pem.txt"
+  #
+  # Block to Generate a self signed certificate
+  #
+  - name: Generate a self signed certificate
+    block:
+      - name: Generate a Self Signed OpenSSL certificate
+        openssl_certificate:
+          path: /etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.crt
+          privatekey_path: "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.key"
+          csr_path: "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.csr"
+          provider: selfsigned
+
+      - name: Run the ood-ansible role for HTTPS
+        include_role:
+          name: ood-ansible
+        vars:
+          servername: "{{ ondemand_fqdn }}"
+          httpd_port: 443
+          ssl:
+          - SSLCertificateFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.crt"
+          - SSLCertificateKeyFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.key"
+
+    when: (locked_down_network.public_ip is not defined) or 
+          (locked_down_network.public_ip is defined and locked_down_network.public_ip)
+
+      
   - name: Copy logo
     copy: 
       src: logo.png
