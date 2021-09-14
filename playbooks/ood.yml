@@ -93,7 +93,6 @@
         openssl_certificate:
           path: '{{ ondemand_fqdn }}.crt'
           privatekey_path: '{{ ondemand_fqdn }}.key'
-          csr_path: '{{ ondemand_fqdn }}.csr'
           provider: selfsigned
         delegate_to: localhost
         connection: local
@@ -106,7 +105,6 @@
         with_items:
           - '{{ ondemand_fqdn }}.crt'
           - '{{ ondemand_fqdn }}.key'
-          - '{{ ondemand_fqdn }}.csr'
         when: sslcert.stat.exists == False
 
       - name: Run the ood-ansible role for HTTPS
