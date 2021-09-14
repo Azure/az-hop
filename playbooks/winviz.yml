@@ -47,3 +47,4 @@
   tasks:
   - name: close session on local port
     shell: ps aux | grep 5985 | grep ssh | awk '{print "kill -9 " $2}' | sh
+    ignore_errors: true
