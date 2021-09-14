@@ -91,12 +91,21 @@ resource "azurerm_subnet" "ad" {
   address_prefixes     = [try(local.configuration_yml["network"]["vnet"]["subnets"]["ad"]["address_prefixes"], "10.0.3.0/28")]
 }
 
-# resource "azurerm_subnet" "bastion" {
-#  name                 = "AzureBastionSubnet"
-#  virtual_network_name = azurerm_virtual_network.azhop.name
-#  resource_group_name  = azurerm_resource_group.rg.name
-#  address_prefixes     = ["10.0.3.0/24"]
-#}
+# bastion subnet
+data "azurerm_subnet" "bastion" {
+  count                = local.create_vnet ? 0 : 1
+  name                 = "AzureBastionSubnet"
+  resource_group_name  = try(split("/", local.vnet_id)[4], "foo")
+  virtual_network_name = try(split("/", local.vnet_id)[8], "foo")
+}
+
+resource "azurerm_subnet" "bastion" {
+  count                = local.create_vnet ? 1 : 0
+  name                 = "AzureBastionSubnet"
+  virtual_network_name = azurerm_virtual_network.azhop[count.index].name
+  resource_group_name  = azurerm_virtual_network.azhop[count.index].resource_group_name
+  address_prefixes     = [try(local.configuration_yml["network"]["vnet"]["subnets"]["bastion"]["address_prefixes"], "10.0.4.0/27")]
+}
 
 # compute subnet
 data "azurerm_subnet" "compute" {
