@@ -106,10 +106,8 @@
           - SSLCertificateFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.crt"
           - SSLCertificateKeyFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.key"
 
-    when: (locked_down_network.public_ip is not defined) or 
-          (locked_down_network.public_ip is defined and locked_down_network.public_ip)
+    when: (locked_down_network.public_ip is defined and locked_down_network.public_ip)
 
-      
   - name: Copy logo
     copy: 
       src: logo.png
