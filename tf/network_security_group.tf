@@ -155,6 +155,18 @@ resource "azurerm_network_security_group" "frontend" {
   }
 
   security_rule {
+        name                       = "AllowSshInFromDeployer"
+        priority                   = "210"
+        direction                  = "Inbound"
+        access                     = "Allow"
+        protocol                   = "tcp"
+        source_port_range          = "*"
+        destination_port_ranges    = local.nsg_destination_ports["Ssh"]
+        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-deployer"].id]
+        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ssh"].id]
+  }
+
+  security_rule {
         name                       = "DenyVnetInbound"
         priority                   = "3100"
         direction                  = "Inbound"
@@ -764,6 +776,18 @@ resource "azurerm_network_security_group" "admin" {
         destination_port_ranges    = local.nsg_destination_ports["Telegraf"]
         source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-telegraf"].id]
         destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-grafana"].id]
+  }
+
+  security_rule {
+        name                       = "AllowSshOutDeployer"
+        priority                   = "290"
+        direction                  = "Outbound"
+        access                     = "Allow"
+        protocol                   = "tcp"
+        source_port_range          = "*"
+        destination_port_ranges    = local.nsg_destination_ports["Ssh"]
+        source_application_security_group_ids      = [azurerm_application_security_group.asg["asg-deployer"].id]
+        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ssh"].id]
   }
 
   security_rule {
