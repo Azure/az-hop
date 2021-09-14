@@ -95,6 +95,18 @@
           privatekey_path: "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.key"
           csr_path: "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.csr"
           provider: selfsigned
+        delegate_to: localhost
+        connection: local
+        when: sslcert.stat.exists == False
+
+      - name: copy cert files
+        copy:
+          src: '{{item}}'
+          dest: '/etc/ssl/{{ ondemand_fqdn }}/'
+        with_items:
+          - '{{ ondemand_fqdn }}.crt'
+          - '{{ ondemand_fqdn }}.key'
+          - '{{ ondemand_fqdn }}.csr'
         when: sslcert.stat.exists == False
 
       - name: Run the ood-ansible role for HTTPS
