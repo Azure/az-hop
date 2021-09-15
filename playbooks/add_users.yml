@@ -25,7 +25,7 @@
   gather_facts: no
   tasks:
   - name: close session on local port
-    shell: ps aux | grep 5985 | grep ssh | awk '{print "kill -9 " $2}' | sh
+    shell: ps aux | grep localhost:5985 | grep -v grep | awk '{print "kill -9 " $2}' | sh
     ignore_errors: true
 
 - name: Configure Users
