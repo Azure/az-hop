@@ -85,18 +85,18 @@
           (locked_down_network.public_ip is defined and locked_down_network.public_ip)
 
   #
-  # Block to Generate a self signed certificate
+  # Block to use an existing certificate
   #
-  - name: Generate a self signed certificate
+  - name: use an existing certificate
     block:
-      - name: Generate a Self Signed OpenSSL certificate
-        openssl_certificate:
-          path: '{{ ondemand_fqdn }}.crt'
-          privatekey_path: '{{ ondemand_fqdn }}.key'
-          provider: selfsigned
-        delegate_to: localhost
-        connection: local
-        when: sslcert.stat.exists == False
+      # - name: Generate a Self Signed OpenSSL certificate
+      #   openssl_certificate:
+      #     path: '{{ ondemand_fqdn }}.crt'
+      #     privatekey_path: '{{ ondemand_fqdn }}.key'
+      #     provider: selfsigned
+      #   delegate_to: localhost
+      #   connection: local
+      #   when: sslcert.stat.exists == False
 
       - name: copy cert files
         copy:
