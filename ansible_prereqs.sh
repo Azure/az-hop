@@ -13,12 +13,6 @@ else
   pip3 install PySocks
 fi
 
-if [[ `pip3 list pyOpenSSL` == *"pyOpenSSL"* ]]; then 
-  echo pyOpenSSL is already installed 
-else
-  pip3 install pyOpenSSL
-fi
-
 ansible-galaxy collection install ansible.windows
 ansible-galaxy collection install community.windows
 ansible-galaxy collection install ansible.posix
