@@ -167,6 +167,18 @@ resource "azurerm_network_security_group" "frontend" {
   }
 
   security_rule {
+        name                       = "AllowInternalWebUsers"
+        priority                   = "220"
+        direction                  = "Inbound"
+        access                     = "Allow"
+        protocol                   = "tcp"
+        source_port_range          = "*"
+        destination_port_ranges    = local.nsg_destination_ports["Web"]
+        source_address_prefixes    = azurerm_subnet.gateway[0].address_prefixes
+        destination_application_security_group_ids = [azurerm_application_security_group.asg["asg-ondemand"].id]
+  }
+
+  security_rule {
         name                       = "DenyVnetInbound"
         priority                   = "3100"
         direction                  = "Inbound"

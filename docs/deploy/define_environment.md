@@ -48,6 +48,8 @@ network:
         address_prefixes: "10.0.3.0/28"
       bastion: # Bastion subnet name is always fixed to AzureBastionSubnet
         address_prefixes: "10.0.4.0/27" # CIDR minimal range must be /27
+      gateway: # Gateway subnet name is always fixed to GatewaySubnet
+        address_prefixes: "10.0.4.32/27" # Recommendation is to use /27 or /28 network
       compute:
         name: compute
         address_prefixes: "10.0.16.0/20"
