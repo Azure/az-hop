@@ -107,6 +107,22 @@ resource "azurerm_subnet" "bastion" {
   address_prefixes     = [try(local.configuration_yml["network"]["vnet"]["subnets"]["bastion"]["address_prefixes"], "10.0.4.0/27")]
 }
 
+# Gateway subnet
+data "azurerm_subnet" "gateway" {
+  count                = local.create_vnet ? 0 : 1
+  name                 = "GatewaySubnet"
+  resource_group_name  = try(split("/", local.vnet_id)[4], "foo")
+  virtual_network_name = try(split("/", local.vnet_id)[8], "foo")
+}
+
+resource "azurerm_subnet" "gateway" {
+  count                = local.create_vnet ? 1 : 0
+  name                 = "GatewaySubnet"
+  virtual_network_name = azurerm_virtual_network.azhop[count.index].name
+  resource_group_name  = azurerm_virtual_network.azhop[count.index].resource_group_name
+  address_prefixes     = [try(local.configuration_yml["network"]["vnet"]["subnets"]["gateway"]["address_prefixes"], "10.0.4.32/27")]
+}
+
 # compute subnet
 data "azurerm_subnet" "compute" {
   count                = local.create_vnet ? 0 : 1
