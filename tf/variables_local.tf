@@ -143,23 +143,27 @@ locals {
         AllowSshFromComputeIn       = ["330", "Inbound", "Allow", "tcp", "Ssh",                "subnet/compute",    "asg/asg-ssh"],
         AllowSshFromDeployerIn      = ["340", "Inbound", "Allow", "tcp", "Ssh",                "asg/asg-deployer",  "asg/asg-ssh"], # Only in a deployer VM scenario
         AllowDeployerToPackerSshIn  = ["350", "Inbound", "Allow", "tcp", "Ssh",                "asg/asg-deployer",  "subnet/admin"], # Only in a deployer VM scenario
-        AllowSshToComputeIn         = ["360", "Inbound", "Allow", "tcp", "Ssh",                "asg/asg-ondemand",  "subnet/compute"],
+        AllowSshToComputeIn         = ["360", "Inbound", "Allow", "tcp", "Ssh",                "asg/asg-ssh",       "subnet/compute"],
+        AllowSshComputeComputeIn    = ["365", "Inbound", "Allow", "tcp", "Ssh",                "subnet/compute",    "subnet/compute"],
 
         # PBS
+        AllowPbsIn                  = ["369", "Inbound", "Allow", "*",   "Pbs",                "asg/asg-pbs",        "asg/asg-pbs-client"],
         AllowPbsClientIn            = ["370", "Inbound", "Allow", "*",   "Pbs",                "asg/asg-pbs-client", "asg/asg-pbs"],
         AllowPbsComputeIn           = ["380", "Inbound", "Allow", "*",   "Pbs",                "asg/asg-pbs",        "subnet/compute"],
         AllowComputePbsClientIn     = ["390", "Inbound", "Allow", "*",   "Pbs",                "subnet/compute",     "asg/asg-pbs-client"],
         AllowComputePbsIn           = ["400", "Inbound", "Allow", "*",   "Pbs",                "subnet/compute",     "asg/asg-pbs"],
 
         # Lustre
+        AllowLustreIn               = ["409", "Inbound", "Allow", "tcp", "Lustre",             "asg/asg-lustre",        "asg/asg-lustre-client"],
         AllowLustreClientIn         = ["410", "Inbound", "Allow", "tcp", "Lustre",             "asg/asg-lustre-client", "asg/asg-lustre"],
-        AllowComputeLustreIn        = ["420", "Inbound", "Allow", "tcp", "Lustre",             "subnet/compute",        "asg/asg-lustre"],
+        AllowLustreClientComputeIn  = ["420", "Inbound", "Allow", "tcp", "Lustre",             "subnet/compute",        "asg/asg-lustre"],
         AllowRobinhoodIn            = ["430", "Inbound", "Allow", "tcp", "Web",                "asg/asg-ondemand",      "asg/asg-robinhood"],
 
         # CycleCloud
         AllowCycleWebIn             = ["440", "Inbound", "Allow", "tcp", "Web",                "asg/asg-ondemand",          "asg/asg-cyclecloud"],
         AllowCycleClientIn          = ["450", "Inbound", "Allow", "tcp", "CycleCloud",         "asg/asg-cyclecloud-client", "asg/asg-cyclecloud"],
-        AllowComputeCycleClientIn   = ["460", "Inbound", "Allow", "tcp", "CycleCloud",         "subnet/compute",            "asg/asg-cyclecloud"],
+        AllowCycleClientComputeIn   = ["460", "Inbound", "Allow", "tcp", "CycleCloud",         "subnet/compute",            "asg/asg-cyclecloud"],
+        AllowCycleServerIn          = ["465", "Inbound", "Allow", "tcp", "CycleCloud",         "asg/asg-cyclecloud",        "asg/asg-cyclecloud-client"],
 
         # OnDemand NoVNC
         AllowComputeNoVncIn         = ["470", "Inbound", "Allow", "tcp", "NoVnc",              "subnet/compute",            "asg/asg-ondemand"],
@@ -211,12 +215,12 @@ locals {
         AllowPbsClientOut           = ["350", "Outbound", "Allow", "*",   "Pbs",                "asg/asg-pbs-client", "asg/asg-pbs"],
         AllowPbsComputeOut          = ["360", "Outbound", "Allow", "*",   "Pbs",                "asg/asg-pbs",        "subnet/compute"],
         AllowPbsClientComputeOut    = ["370", "Outbound", "Allow", "*",   "Pbs",                "subnet/compute",     "asg/asg-pbs"],
-        AllowPbsOnDemandOut         = ["380", "Outbound", "Allow", "*",   "Pbs",                "subnet/compute",     "asg/asg-pbs-client"],
+        AllowComputePbsClientOut    = ["380", "Outbound", "Allow", "*",   "Pbs",                "subnet/compute",     "asg/asg-pbs-client"],
 
         # Lustre
         AllowLustreOut              = ["390", "Outbound", "Allow", "tcp", "Lustre",             "asg/asg-lustre",           "asg/asg-lustre-client"],
         AllowLustreClientOut        = ["400", "Outbound", "Allow", "tcp", "Lustre",             "asg/asg-lustre-client",    "asg/asg-lustre"],
-        AllowLustreComputeOut       = ["410", "Outbound", "Allow", "tcp", "Lustre",             "asg/asg-lustre",           "subnet/compute"],
+#        AllowLustreComputeOut       = ["410", "Outbound", "Allow", "tcp", "Lustre",             "asg/asg-lustre",           "subnet/compute"],
         AllowLustreClientComputeOut = ["420", "Outbound", "Allow", "tcp", "Lustre",             "subnet/compute",           "asg/asg-lustre"],
         AllowRobinhoodOut           = ["430", "Outbound", "Allow", "tcp", "Web",                "asg/asg-ondemand",         "asg/asg-robinhood"],
 
@@ -230,11 +234,11 @@ locals {
         AllowGrafanaOut             = ["480", "Outbound", "Allow", "tcp", "Grafana",            "asg/asg-ondemand",          "asg/asg-grafana"],
 
         # SSH internal rules
-        AllowSshOut                 = ["490", "Outbound", "Allow", "tcp", "Ssh",                "asg/asg-jumpbox",          "asg/asg-ssh"],
+        AllowSshFromJumpboxOut      = ["490", "Outbound", "Allow", "tcp", "Ssh",                "asg/asg-jumpbox",          "asg/asg-ssh"],
         AllowSshComputeOut          = ["500", "Outbound", "Allow", "tcp", "Ssh",                "asg/asg-ssh",              "subnet/compute"],
         AllowSshDeployerOut         = ["510", "Outbound", "Allow", "tcp", "Ssh",                "asg/asg-deployer",         "asg/asg-ssh"],
         AllowSshDeployerPackerOut   = ["520", "Outbound", "Allow", "tcp", "Ssh",                "asg/asg-deployer",         "subnet/admin"],
-        AllowSshComputeSshOut       = ["530", "Outbound", "Allow", "tcp", "Ssh",                "subnet/compute",           "asg/asg-ssh"],
+        AllowSshFromComputeOut      = ["530", "Outbound", "Allow", "tcp", "Ssh",                "subnet/compute",           "asg/asg-ssh"],
         AllowSshComputeComputeOut   = ["540", "Outbound", "Allow", "tcp", "Ssh",                "subnet/compute",           "subnet/compute"],
 
         # OnDemand NoVNC
