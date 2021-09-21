@@ -1,32 +1,6 @@
-- hosts: ondemand 
-  become: true
-  vars_files:
-    - '{{global_config_file}}'
-  
-  tasks:
-  - name: set main chrony conf file
-    copy:
-      dest: /etc/chrony.conf
-      mode: 0644
-      content: |
-        server 0.centos.pool.ntp.org iburst
-        server 1.centos.pool.ntp.org iburst
-        server 2.centos.pool.ntp.org iburst
-        server 3.centos.pool.ntp.org iburst
-        driftfile /var/lib/chrony/drift
-        makestep 1.0 -1
-        rtcsync
-        allow {{network.vnet.address_space | default("10.0.0.0/16")}}
-        logdir /var/log/chrony
-        refclock PHC /dev/ptp_hyperv poll 3 dpoll -2 offset 0
-  - name: enable and start chronyd
-    service:
-      name: chronyd
-      enabled: yes
-      state: started
-
+---
 # chrony.conf for different OS versions https://docs.microsoft.com/en-us/azure/virtual-machines/linux/time-sync
-- hosts: jumpbox, scheduler, lustre, lustre-oss-*, robinhood, grafana, ccportal
+- hosts: jumpbox, ondemand, scheduler, lustre, lustre-oss-*, robinhood, grafana, ccportal
   become: true
   vars_files:
     - '{{global_config_file}}'
@@ -42,7 +16,6 @@
       dest: /etc/chrony.conf
       mode: 0644
       content: |
-        server ondemand
         driftfile /var/lib/chrony/drift
         makestep 1.0 -1
         rtcsync
@@ -55,7 +28,6 @@
       dest: /etc/chrony.conf
       mode: 0644
       content: |
-        server ondemand
         driftfile /var/lib/chrony/drift
         makestep 1.0 -1
         rtcsync
