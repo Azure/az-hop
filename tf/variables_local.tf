@@ -225,8 +225,8 @@ locals {
         AllowRobinhoodOut           = ["430", "Outbound", "Allow", "tcp", "Web",                "asg/asg-ondemand",         "asg/asg-robinhood"],
 
         # NFS
-        AllowNfsOut                 = ["440", "Outbound", "Allow", "tcp", "Nfs",                "asg/asg-nfs-client",       "subnet/netapp"],
-        AllowNfsComputeOut          = ["450", "Outbound", "Allow", "tcp", "Nfs",                "subnet/compute",           "subnet/netapp"],
+        AllowNfsOut                 = ["440", "Outbound", "Allow", "*",   "Nfs",                "asg/asg-nfs-client",       "subnet/netapp"],
+        AllowNfsComputeOut          = ["450", "Outbound", "Allow", "*",   "Nfs",                "subnet/compute",           "subnet/netapp"],
 
         # Telegraf / Grafana
         AllowTelegrafOut            = ["460", "Outbound", "Allow", "tcp", "Telegraf",           "asg/asg-telegraf",          "asg/asg-grafana"],
@@ -248,7 +248,7 @@ locals {
         # Admin and Deployment
         AllowRdpOut                 = ["570", "Outbound", "Allow", "tcp", "Rdp",                "asg/asg-jumpbox",          "asg/asg-rdp"],
         AllowSocksOut               = ["580", "Outbound", "Allow", "tcp", "Socks",              "asg/asg-jumpbox",          "asg/asg-ad"],
-        AllowDnsOut                 = ["590", "Outbound", "Allow", "tcp", "Dns",                "tag/VirtualNetwork",       "tag/VirtualNetwork"],
+        AllowDnsOut                 = ["590", "Outbound", "Allow", "*",   "Dns",                "tag/VirtualNetwork",       "tag/VirtualNetwork"],
 
         # Deny all remaining traffic and allow Internet access
         AllowInternetOutBound       = ["3000", "Outbound", "Allow", "tcp", "All",               "tag/VirtualNetwork",       "tag/Internet"],
