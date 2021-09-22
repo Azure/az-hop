@@ -245,7 +245,7 @@ def initialize_cyclecloud_cli(admin_user, cyclecloud_admin_pw):
 
 
 def get_vm_metadata():
-    metadata_url = "http://169.254.169.254/metadata/instance?api-version=2017-08-01"
+    metadata_url = "http://169.254.169.254/metadata/instance?api-version=2019-08-15"
     metadata_req = Request(metadata_url, headers={"Metadata": True})
 
     for _ in range(30):
@@ -373,7 +373,7 @@ def main():
                 print("CycleServer is not started")
                 raise 
 
-    azEnvironment = ["compute"]["azEnvironment"]
+    azEnvironment = vm_metadata["compute"]["azEnvironment"]
     azEnvironment = azEnvironment.lower()
     print("azEnvironment=%s" % azEnvironment)
 
