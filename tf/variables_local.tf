@@ -68,7 +68,7 @@ locals {
     # VM name to list of ASGs associations
     asg_associations = {
         ad        = ["asg-ad", "asg-rdp"]
-        ccportal  = ["asg-ssh", "asg-cyclecloud", "asg-telegraf", "asg-chrony", "asg-ad-client"]
+        ccportal  = ["asg-ssh", "asg-cyclecloud", "asg-telegraf", "asg-ad-client"]
         grafana   = ["asg-ssh", "asg-grafana", "asg-ad-client", "asg-telegraf", "asg-nfs-client"]
         jumpbox   = ["asg-ssh", "asg-jumpbox", "asg-ad-client", "asg-telegraf", "asg-nfs-client"]
         lustre    = ["asg-ssh", "asg-lustre", "asg-lustre-client", "asg-telegraf"]
