@@ -6,6 +6,7 @@
   - [How to deploy ANF with Dual protocol ?](#how-to-deploy-anf-with-dual-protocol)
   - [How to deploy in a locked down network environment ?](#deploy-in-a-locked-down-network-environment)
   - [Disable Public IP scenario](#disable-public-ip-scenario)
+  - [Use your own SSL certificate](#use-your-own-ssl-certificate)
 
 ## How to use an existing VNET ?
 Using an existing VNET can be done by specifying in the `config.yml` file the VNET ID that needs to be used as shown below.
@@ -100,6 +101,18 @@ locked_down_network:
   public_ip: false
 ```
 
-In such scenario you need to use a `deployer` VM, make sure that this VM can access the `jumpbox` over SSH and the keyvault created. 
+In such scenario you need to use a `deployer` VM, make sure that this VM can access the `jumpbox` over SSH and the keyvault created. As there will be no public IP, the SSL Let's Encrypt certificate used for the OnDemand portal can't be generate, which means that you have to provide your own certificate.
 
 > Note: One option is to provision that VM in the `admin` subnet and open an NSG rule for allowing SSH from that machine to the `jumbox`.
+
+### Use your own SSL certificate
+In a no public IP scenario, you will have to provide your own SSL certificate. If you want to generate your own self signed certificate here is how to proceed
+
+```bash
+openssl req -nodes -new -x509 -keyout certificate.key -out certificate.crt
+```
+
+Copy both files `certificate.key` and `certificate.crt` in the `./playbooks` directory and renamed them with the `ondemand_fqdn` variable value defined in the `./playbooks/group_vars/all.yml` file.
+
+The playbook configuring OnDemand is expecting to find these files and will copy them in the ondemand VM when the no PIP option is set.
+
