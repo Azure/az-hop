@@ -47,7 +47,7 @@ images:
 
 ## Build an image
 Building an image is done by the utility script `packer/build_image.sh` and requires a packer input file. az-hop provides a set of pre-defined image files like :
-- `azhop-centos79-v2-rdma.json` this is an CentOS 7.9 HPC image with the az-hop additions for compute nodes  
+- `azhop-centos79-v2-rdma-gpgpu.json` this is an CentOS 7.9 HPC image with the az-hop additions for compute nodes  
 - `centos-7.8.desktop-3d.json` this is an CentOS 7.8 HPC image with the right GPU drivers configured for remote visualization nodes
 
 ```bash
@@ -72,7 +72,7 @@ Overall this can take between 30 and 45 minutes and sometimes more.
 For example, to build the compute nodes image, run this command
 ```bash
 cd packer
-./build_image.sh -i azhop-centos78-v2-rdma.json
+./build_image.sh -i azhop-centos79-v2-rdma-gpgpu.json
 ```
 
 ## Update the Cycle cluster template
