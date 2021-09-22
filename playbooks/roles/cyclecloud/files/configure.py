@@ -377,15 +377,15 @@ def main():
     print("azEnvironment=%s" % azEnvironment)
 
     if azEnvironment == 'azurepubliccloud':
-        azureSovereignCloud = "public"
+        azureSovereignCloud = 'public'
     elif azEnvironment == 'azureusgovernmentcloud':
-        azureSovereignCloud = "usgov"
+        azureSovereignCloud = 'usgov'
     elif azEnvironment == 'azurechinacloud':
-        azureSovereignCloud = "china"
+        azureSovereignCloud = 'china'
     elif azEnvironment == 'azuregermancloud':
-        azureSovereignCloud = "germany"
+        azureSovereignCloud = 'germany'
     else:
-        azureSovereignCloud = "public"
+        azureSovereignCloud = 'public'
 
     cyclecloud_account_setup(vm_metadata, args.useManagedIdentity, args.tenantId, args.applicationId,
                              args.applicationSecret, args.username, azureSovereignCloud,
