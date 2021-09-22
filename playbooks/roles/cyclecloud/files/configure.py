@@ -373,7 +373,8 @@ def main():
                 print("CycleServer is not started")
                 raise 
 
-    azEnvironment = ["compute"]["azEnvironment"].lower()
+    azEnvironment = ["compute"]["azEnvironment"]
+    azEnvironment = azEnvironment.lower()
     print("azEnvironment=%s" % azEnvironment)
 
     if azEnvironment == 'azurepubliccloud':
