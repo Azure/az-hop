@@ -46,7 +46,7 @@ export ARM_TENANT_ID=<tenant_id>
 ### Build the whole infrastructure
 
 ```bash
-./build.sh -f ./tf -a apply
+./build.sh -a apply
 ```
 
 > Note : If you need ANF to be configured for Dual Protocol (NFS+SMB) please see the [how_to](how_to.md) section
