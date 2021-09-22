@@ -288,10 +288,10 @@ def main():
 
     parser = argparse.ArgumentParser(description="usage: %prog [options]")
 
-    parser.add_argument("--azureSovereignCloud",
-                        dest="azureSovereignCloud",
-                        default="public",
-                        help="Azure Region [china|germany|public|usgov]")
+    # parser.add_argument("--azureSovereignCloud",
+    #                     dest="azureSovereignCloud",
+    #                     default="public",
+    #                     help="Azure Region [china|germany|public|usgov]")
 
     parser.add_argument("--tenantId",
                         dest="tenantId",
@@ -373,8 +373,22 @@ def main():
                 print("CycleServer is not started")
                 raise 
 
+    azEnvironment = ["compute"]["azEnvironment"].lower()
+    print("azEnvironment=%s" % azEnvironment)
+
+    if azEnvironment == 'azurepubliccloud':
+        azureSovereignCloud = "public"
+    elif azEnvironment == 'azureusgovernmentcloud':
+        azureSovereignCloud = "usgov"
+    elif azEnvironment == 'azurechinacloud':
+        azureSovereignCloud = "china"
+    elif azEnvironment == 'azuregermancloud':
+        azureSovereignCloud = "germany"
+    else:
+        azureSovereignCloud = "public"
+
     cyclecloud_account_setup(vm_metadata, args.useManagedIdentity, args.tenantId, args.applicationId,
-                             args.applicationSecret, args.username, args.azureSovereignCloud,
+                             args.applicationSecret, args.username, azureSovereignCloud,
                              args.acceptTerms, args.password, args.storageAccount)
 
     # if args.useLetsEncrypt:
