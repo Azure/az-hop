@@ -36,7 +36,7 @@ resource "azurerm_network_security_group" "common" {
 }
 
 resource "azurerm_network_security_rule" "all_rules"  {
-    for_each = local.nsg_rules
+    for_each = local.create_vnet ? local.nsg_rules : local.empty_map
     resource_group_name = azurerm_network_security_group.common[0].resource_group_name
     network_security_group_name = azurerm_network_security_group.common[0].name
     name                       = each.key
