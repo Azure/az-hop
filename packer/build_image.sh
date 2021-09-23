@@ -125,6 +125,21 @@ fi
 if [ "$image_id" == "" ] || [ $FORCE -eq 1 ]; then
   logfile="${PACKER_FILE%.*}.log"
 
+  # Retrieve on which cloud environment we run on
+  cloud_env="Public"
+  account_env=$(az account show | jq '.environmentName' -r)
+  case "$account_env" in
+    AzureUSGovernment)
+      cloud_env="USGovernment"
+      ;;
+    AzureCloud)
+      cloud_env="Public"
+      ;;
+    *)
+      cloud_env="Public"
+      ;;
+  esac
+
   echo "Build or Rebuid $image_name in $resource_group (writing log to $logfile)"
   packer build $PACKER_OPTIONS -var-file $OPTIONS_FILE \
     -var "var_tenant_id=$tenantId" \
@@ -132,6 +147,7 @@ if [ "$image_id" == "" ] || [ $FORCE -eq 1 ]; then
     -var "var_client_secret=$secret" \
     -var "var_image=$image_name" \
     -var "var_img_version=$version" \
+    -var "var_cloud_env=$cloud_env" \
     $PACKER_FILE | tee $logfile
 
 else
