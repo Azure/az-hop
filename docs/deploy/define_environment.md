@@ -12,14 +12,24 @@ resource_group: azhop
 tags:
   env: dev
   project: azhop
-# Size of the ANF pool and unique volume
-homefs_size_tb: 4
-# Service level of the ANF volume, can be: Standard, Premium, Ultra
-homefs_service_level: Standard
-# name of the homedir on the ANF volume
-homedir_mountpoint: /anfhome
-# dual protocol
-dual_protocol: false # true to enable SMB support. false by default
+
+# Define an ANF account, single pool and volume
+# If not present assume that there is an existing NFS share for the users home directory
+anf:
+  # Size of the ANF pool and unique volume
+  homefs_size_tb: 4
+  # Service level of the ANF volume, can be: Standard, Premium, Ultra
+  homefs_service_level: Standard
+  # dual protocol
+  dual_protocol: false # true to enable SMB support. false by default
+
+mounts:
+  # mount settings for the user home directory
+  home:
+    mountpoint: /anfhome # /sharedhome for example
+    server: '{{anf_home_ip}}' # Specify an existing NFS server name or IP, when using the ANF built in use '{{anf_home_ip}}'
+    export: '{{anf_home_path}}' # Specify an existing NFS export directory, when using the ANF built in use '{{anf_home_path}}'
+
 # name of the admin account
 admin_user: hpcadmin
 # Object ID to grant key vault read access
@@ -125,13 +135,28 @@ groups: # Not used today => To be used in the future
     gid: 5000
 # List of images to be defined
 images:
-  - name: image_definition_name # Should match the packer configuration file name, one per packer file
+  # - name: image_definition_name # Should match the packer configuration file name, one per packer file
+  #   publisher: azhop
+  #   offer: CentOS
+  #   sku: 7_9-gen2
+  #   hyper_v: V2 # V1 or V2 (V1 is the default)
+  #   os_type: Linux # Linux or Windows
+  #   version: 7.9 # Version of the image to create the image definition in SIG
+# Pre-defined images
+  - name: azhop-centos79-v2-rdma-gpgpu
     publisher: azhop
     offer: CentOS
-    sku: 7_9-gen2
-    hyper_v: V2 # V1 or V2 (V1 is the default)
-    os_type: Linux # Linux or Windows
-    version: 7.9 # Version of the image to create the image definition in SIG
+    sku: 7.9-gen2
+    hyper_v: V2
+    os_type: Linux
+    version: 7.9 
+  - name: centos-7.8-desktop-3d
+    publisher: azhop
+    offer: CentOS
+    sku: 7_8
+    hyper_v: V1
+    os_type: Linux
+    version: 7.8
 # List of queues (node arays in Cycle) to be defined
 queues:
   - name: execute # name of the Cycle Cloud node array
@@ -152,7 +177,7 @@ queues:
   - name: hb60rs
     vm_size: Standard_HB60rs
     max_core_count: 1024
-    # The image ID is here built by reusing global ansible variables
+    # The image ID is here built by reusing the global ansible variables inside the {{}}, don't remove them or change with fix values
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
   - name: hb120rs_v2
     vm_size: Standard_HB120rs_v2
