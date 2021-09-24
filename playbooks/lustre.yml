@@ -6,79 +6,6 @@
   vars_files:
     - '{{global_config_file}}'
 
-- name: Lustre setup
-  hosts: lustre, lustre-oss-*, robinhood
-  become: true
-  vars_files:
-    - '{{global_config_file}}'
-
-  tasks:
-  - name: Disable SELinux
-    selinux:
-      state: disabled
-    register: selinux
-  - name: reboot 
-    reboot:
-    when: selinux.reboot_required 
-  - name: Add Lustre server repo
-    yum_repository:
-      name: lustreserver
-      description: Lustre repo
-      baseurl: https://downloads.whamcloud.com/public/lustre/lustre-{{ lustre.version }}/el7/patchless-ldiskfs-server/
-      file: LustrePack
-      enabled: yes
-      gpgcheck: no
-  - name: Add Lustre client repo
-    yum_repository:
-      name: lustreclient
-      description: Lustre repo
-      baseurl: https://downloads.whamcloud.com/public/lustre/lustre-{{ lustre.version }}/el7/client/
-      file: LustrePack
-      enabled: yes
-      gpgcheck: no
-  - name: Add e2fs repo
-    yum_repository:
-      name: e2fs
-      description: Lustre repo
-      baseurl: https://downloads.whamcloud.com/public/e2fsprogs/latest/el7/
-      file: LustrePack
-      enabled: yes
-      gpgcheck: no
-  - name: Install lustre packages
-    yum:
-      name:
-        - lustre
-        - kmod-lustre-osd-ldiskfs
-        - lustre-osd-ldiskfs-mount
-        - lustre-resource-agents
-        - e2fsprogs
-        - lustre-tests
-      state: present
-    register: install_rpms
-  - name: disable resource disk
-    lineinfile: 
-      path: /etc/waagent.conf 
-      regexp: '^ResourceDisk\.Format=y$' 
-      line: 'ResourceDisk.Format=n'
-      backrefs: yes
-    register: disable_resource_disk
-  - name: restart waagent if config changed
-    service:
-      name: waagent
-      state: restarted
-    when: disable_resource_disk.changed
-  - name: ensure temp-disk-swapdile is stopped
-    service:
-      name: temp-disk-swapfile
-      state: stopped
-  - name: run weak-modules
-    command: weak-modules --add-kernel --no-initramfs
-    when: install_rpms.changed
-  - name: ensure resource disk is not mounted
-    mount:
-      path: /mnt/resource
-      state: unmounted
-
 - name: Lustre MDS setup
   hosts: lustre
   become: true
@@ -165,13 +92,7 @@
     - '{{global_config_file}}'
   
   tasks:
-  - name: install hsm rpms
-    yum:
-      name:
-        - https://azurehpc.azureedge.net/rpms/lemur-azure-hsm-agent-1.0.0_28_centos77_fileidfix.x86_64.rpm
-        - https://azurehpc.azureedge.net/rpms/lemur-azure-data-movers-1.0.0_28_centos77_fileidfix.x86_64.rpm
-      state: present
-  - name: create var/run/lhsmd
+  - name: create /var/run/lhsmd
     file: 
       path: /var/run/lhsmd
       state: directory
@@ -198,7 +119,7 @@
       dest: /etc/lhsmd/lhsm-plugin-az
       mode: 0600
       content: |
-        num_threads=128
+        num_threads=16
         az_storage_account="{{ lustre_hsm_storage_account }}"
         az_kv_name="{{ key_vault }}"
         az_kv_secret_name="lustre-{{ lustre_hsm_storage_account }}-{{ lustre_hsm_storage_container }}-sas"
@@ -207,7 +128,7 @@
         exportprefix=""
         archive "archive1" {
             id=1
-            num_threads=128
+            num_threads=16
             root=""
             compression="off"
             container="{{ lustre_hsm_storage_container }}"
