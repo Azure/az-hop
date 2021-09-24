@@ -6,12 +6,13 @@ ad_dns                        : ${ad-ip}
 ad_join_user                  : ${admin_username}
 ad_join_domain                : hpc.azure
 ldap_server                   : ad
-anf_home_ip                   : ${ anf-home-ip }
-anf_home_path                 : ${ anf-home-path }
-ondemand_fqdn                 : ${ ondemand-fqdn }
+anf_home_ip                   : ${anf-home-ip}
+homedir_mountpoint            : ${homedir_mountpoint}
+anf_home_path                 : ${anf-home-path}
+ondemand_fqdn                 : ${ondemand-fqdn}
 ansible_ssh_private_key_file  : ${admin_username}_id_rsa
 subscription_id               : ${subscription_id}
 key_vault                     : ${key_vault}
 sig_name                      : ${sig_name}
-lustre_hsm_storage_account    : ${ lustre_hsm_storage_account }
-lustre_hsm_storage_container  : ${ lustre_hsm_storage_container }
+lustre_hsm_storage_account    : ${lustre_hsm_storage_account}
+lustre_hsm_storage_container  : ${lustre_hsm_storage_container}
