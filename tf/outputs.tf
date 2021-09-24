@@ -30,8 +30,8 @@ resource "local_file" "global_variables" {
       config_file         = local.configuration_file
       homedir_mountpoint  = local.homedir_mountpoint
       ad-ip               = azurerm_network_interface.ad-nic.private_ip_address
-      anf-home-ip         = element(azurerm_netapp_volume.home.mount_ip_addresses, 0)
-      anf-home-path       = azurerm_netapp_volume.home.volume_path
+      anf-home-ip         = local.create_anf ? element(azurerm_netapp_volume.home[0].mount_ip_addresses, 0) : local.configuration_yml["mounts"]["home"]["server"]
+      anf-home-path       = local.create_anf ? azurerm_netapp_volume.home[0].volume_path : local.configuration_yml["mounts"]["home"]["export"]
       ondemand-fqdn       = local.allow_public_ip ? azurerm_public_ip.ondemand-pip[0].fqdn : azurerm_network_interface.ondemand-nic.private_ip_address
       subscription_id     = data.azurerm_subscription.primary.subscription_id
       key_vault           = azurerm_key_vault.azhop.name

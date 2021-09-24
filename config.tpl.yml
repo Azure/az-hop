@@ -7,14 +7,23 @@ resource_group: azhop
 tags:
   env: dev
   project: azhop
-# Size of the ANF pool and unique volume
-homefs_size_tb: 4
-# Service level of the ANF volume, can be: Standard, Premium, Ultra
-homefs_service_level: Standard
-# name of the homedir on the ANF volume
-homedir_mountpoint: /anfhome
-# dual protocol
-dual_protocol: false # true to enable SMB support. false by default
+# Define an ANF account, single pool and volume
+# If not present assume that there is an existing NFS share for the users home directory
+anf:
+  # Size of the ANF pool and unique volume
+  homefs_size_tb: 4
+  # Service level of the ANF volume, can be: Standard, Premium, Ultra
+  homefs_service_level: Standard
+  # dual protocol
+  dual_protocol: false # true to enable SMB support. false by default
+
+mounts:
+  # mount settings for the user home directory
+  home:
+    mountpoint: /anfhome
+    server: '{{anf_home_ip}}' # Specify an existing NFS server name or IP, when using the ANF built in use '{{anf_home_ip}}'
+    export: '{{anf_home_path}}' # Specify an existing NFS export directory, when using the ANF built in use '{{anf_home_path}}'
+
 # name of the admin account
 admin_user: hpcadmin
 # Object ID to grant key vault read access

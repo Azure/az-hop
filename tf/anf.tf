@@ -1,4 +1,5 @@
 resource "azurerm_netapp_account" "azhop" {
+  count = local.create_anf ? 1 : 0
   name                = "azhop-${random_string.resource_postfix.result}"
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
@@ -21,10 +22,11 @@ resource "azurerm_netapp_account" "azhop" {
 }
 
 resource "azurerm_netapp_pool" "anfpool" {
+  count = local.create_anf ? 1 : 0
   name                = "anfpool-${random_string.resource_postfix.result}"
-  account_name        = azurerm_netapp_account.azhop.name
-  location            = azurerm_netapp_account.azhop.location
-  resource_group_name = azurerm_netapp_account.azhop.resource_group_name
+  account_name        = azurerm_netapp_account.azhop[0].name
+  location            = azurerm_netapp_account.azhop[0].location
+  resource_group_name = azurerm_netapp_account.azhop[0].resource_group_name
   service_level       = local.homefs_service_level
   size_in_tb          = local.homefs_size_tb
   lifecycle {
@@ -34,11 +36,12 @@ resource "azurerm_netapp_pool" "anfpool" {
   }
 }
 resource "azurerm_netapp_volume" "home" {
+  count = local.create_anf ? 1 : 0
   name                = "anfhome"
-  location            = azurerm_netapp_account.azhop.location
-  resource_group_name = azurerm_netapp_account.azhop.resource_group_name
-  account_name        = azurerm_netapp_account.azhop.name
-  pool_name           = azurerm_netapp_pool.anfpool.name
+  location            = azurerm_netapp_account.azhop[0].location
+  resource_group_name = azurerm_netapp_account.azhop[0].resource_group_name
+  account_name        = azurerm_netapp_account.azhop[0].name
+  pool_name           = azurerm_netapp_pool.anfpool[0].name
   volume_path         = "home-${random_string.resource_postfix.result}"
   service_level       = local.homefs_service_level
   subnet_id           = local.create_vnet ? azurerm_subnet.netapp[0].id : data.azurerm_subnet.netapp[0].id
