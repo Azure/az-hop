@@ -57,4 +57,4 @@
       loginShell: "{{ user_shell }}"
       unixhomedirectory: "{{ user_home }}"
       gidnumber: "{{user.gid}}"
-  when: user.admin
+  when: user.admin | default(false)

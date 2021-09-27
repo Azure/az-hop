@@ -39,9 +39,6 @@ users:
   - name: hpcuser
     uid: 10001
     gid: 5000
-    shell: /bin/bash
-    home: /anfhome/hpcuser
-    admin: false
 groups:
   - name: users
     gid: 5000
