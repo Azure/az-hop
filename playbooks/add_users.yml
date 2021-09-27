@@ -35,20 +35,5 @@
     - '{{global_config_file}}'
 
   tasks:
-  - name: init user context for {{item.name}}
-    command: ssh-keygen -t rsa -f ~/.ssh/id_rsa -q -N ""
-    become_user: '{{item.name}}'
-    args: 
-      creates: "{{item.home}}/.ssh/id_rsa"
-    with_items: "{{users}}"
-
-  - name: Copy file with owner and permissions
-    copy:
-      src: "{{item.home}}/.ssh/id_rsa.pub"
-      dest: "{{item.home}}/.ssh/authorized_keys"
-      remote_src: yes
-      mode: '0600'
-      owner: '{{item.name}}'
-      group: "domain users" 
-      force: no
+  - include: init_user.yml user="{{item}}"
     with_items: "{{users}}"
