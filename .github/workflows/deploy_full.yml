@@ -79,7 +79,7 @@ jobs:
 
           set +e
           build_error=0
-          ./build.sh -a apply -f ./tf
+          ./build.sh -a apply
           build_error=$?
           ./azhop_state.sh upload ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
           set -e
