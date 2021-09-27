@@ -137,8 +137,8 @@ locals {
         AllowAdServerComputeUdpIn   = ["270", "Inbound", "Allow", "udp", "DomainControlerUdp", "asg/asg-ad",        "subnet/compute"],
         AllowAdClientComputeTcpIn   = ["280", "Inbound", "Allow", "tcp", "DomainControlerTcp", "subnet/compute",    "asg/asg-ad"],
         AllowAdClientComputeUdpIn   = ["290", "Inbound", "Allow", "udp", "DomainControlerUdp", "subnet/compute",    "asg/asg-ad"],
-        AllowAdServerNetappTcpIn    = ["300", "Inbound", "Allow", "tcp", "DomainControlerTcp", "asg/asg-ad",        "subnet/netapp"],
-        AllowAdServerNetappUdpIn    = ["310", "Inbound", "Allow", "udp", "DomainControlerUdp", "asg/asg-ad",        "subnet/netapp"],
+        AllowAdServerNetappTcpIn    = ["300", "Inbound", "Allow", "tcp", "DomainControlerTcp", "subnet/netapp",      "asg/asg-ad"],
+        AllowAdServerNetappUdpIn    = ["310", "Inbound", "Allow", "udp", "DomainControlerUdp", "subnet/netapp",      "asg/asg-ad"],
 
         # SSH internal rules
         AllowSshFromJumpboxIn       = ["320", "Inbound", "Allow", "tcp", "Ssh",                "asg/asg-jumpbox",   "asg/asg-ssh"],
