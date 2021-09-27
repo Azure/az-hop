@@ -3,10 +3,12 @@
 - [How to use an existing VNET ?](#how-to-use-an-existing-vnet)
   - [Pre-requisities for using an existing VNET](#pre-requisities-for-using-an-existing-vnet)
   - [Creating a standalone VNET for AZ-HOP](#creating-a-standalone-vnet-for-az-hop)
-  - [How to deploy ANF with Dual protocol ?](#how-to-deploy-anf-with-dual-protocol)
-  - [How to deploy in a locked down network environment ?](#deploy-in-a-locked-down-network-environment)
-  - [Disable Public IP scenario](#disable-public-ip-scenario)
-  - [Use your own SSL certificate](#use-your-own-ssl-certificate)
+- [How to deploy ANF with Dual protocol ?](#how-to-deploy-anf-with-dual-protocol)
+- [How to deploy in a locked down network environment ?](#deploy-in-a-locked-down-network-environment)
+- [Disable Public IP scenario](#disable-public-ip-scenario)
+- [Use your own SSL certificate](#use-your-own-ssl-certificate)
+- [Not deploy ANF](#not-deploy-anf)
+- [Use an existing NFS mount point](#use-an-existing-nfs-mount-point)
 
 ## How to use an existing VNET ?
 Using an existing VNET can be done by specifying in the `config.yml` file the VNET ID that needs to be used as shown below.
@@ -84,7 +86,7 @@ dual_protocol: true # true to enable SMB support. false by default
 ```bash
 ./install.sh
 ```
-### Deploy in a locked down network environment
+## Deploy in a locked down network environment
 A locked down network environemnt avoid access from public IPs to the resources used by az-hop like storage accounts and key vault for example. To enable such configuration, uncomment and fill out the `locked_down_network` settings. Use the `grant_access_from` to grant access to specific internet public IPs as documented from [here](https://docs.microsoft.com/en-us/azure/storage/common/storage-network-security?tabs=azure-portal#grant-access-from-an-internet-ip-range)
 
 ```yml
@@ -93,7 +95,7 @@ locked_down_network:
   grant_access_from: [a.b.c.d] # Array of CIDR to grant access from.
 ```
 
-### Disable Public IP scenario
+## Disable Public IP scenario
 To deploy `az-hop` in a no public IP scenario you have to set the `locked_down_network:public_ip` value to `false`. The default value being `true`.
 
 ```yml
@@ -105,7 +107,7 @@ In such scenario you need to use a `deployer` VM, make sure that this VM can acc
 
 > Note: One option is to provision that VM in the `admin` subnet and open an NSG rule for allowing SSH from that machine to the `jumbox`.
 
-### Use your own SSL certificate
+## Use your own SSL certificate
 In a no public IP scenario, you will have to provide your own SSL certificate. If you want to generate your own self signed certificate here is how to proceed
 
 ```bash
@@ -116,3 +118,30 @@ Copy both files `certificate.key` and `certificate.crt` in the `./playbooks` dir
 
 The playbook configuring OnDemand is expecting to find these files and will copy them in the ondemand VM when the no PIP option is set.
 
+## Not deploy ANF
+By default an Azure Netapp File account, pool and volume are created to host the users home directories, if you don't need to deploy such resources then comment or remove the `anf` section of the configuration file like this. In this case you will have to provide an NSF share for the users home directories see [Use an existing NFS mount point](#use-an-existing-nfs-mount-point)
+
+```yml
+# Define an ANF account, single pool and volume
+# If not present assume that there is an existing NFS share for the users home directory
+#anf:
+  # Size of the ANF pool and unique volume
+#  homefs_size_tb: 4
+  # Service level of the ANF volume, can be: Standard, Premium, Ultra
+#  homefs_service_level: Standard
+  # dual protocol
+#  dual_protocol: false # true to enable SMB support. false by default
+
+```
+
+## Use an existing NFS mount point
+If you already have an existing NFS share, then it can be used for the users home directories, you can specify this one in the `mounts` section of the configuration file like below.
+
+```yml
+mounts:
+  # mount settings for the user home directory
+  home:
+    mountpoint: <mount point name> # /sharedhome for example
+    server: <server name or IP> # Specify an existing NFS server name or IP, when using the ANF built in use '{{anf_home_ip}}'
+    export: <export directory> # Specify an existing NFS export directory, when using the ANF built in use '{{anf_home_path}}'
+```
