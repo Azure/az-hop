@@ -172,7 +172,7 @@ resource "azurerm_linux_virtual_machine" "robinhood" {
   name                  = "robinhood"
   location              = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name   = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
-  size                  = local.lustre_mds_sku
+  size                  = local.lustre_rbh_sku
   network_interface_ids = [
     azurerm_network_interface.robinhood-nic.id,
   ]
