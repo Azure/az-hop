@@ -56,7 +56,7 @@ ood_apps:
       script:
         native:
           - "-l"
-          - "select=1:ncpus=6:slot_type=viz3d"
+          - "select=1:slot_type=viz3d"
           - "-l"
           - "walltime=<%= '%02d:00:00' % hours %>"
 httpd_auth:
