@@ -19,7 +19,7 @@ locals {
     create_rg = local.create_vnet || try(split("/", local.vnet_id)[4], local.resource_group) != local.resource_group
 
     # ANF
-    create_anf = try(local.configuration_yml["anf"], false) || try(local.configuration_yml["homefs_size_tb"] > 0, false)
+    create_anf = try(local.configuration_yml["anf"]["homefs_size_tb"] > 0, false) || try(local.configuration_yml["homefs_size_tb"] > 0, false)
 
     homefs_size_tb = try(local.configuration_yml["anf"]["homefs_size_tb"], try(local.configuration_yml["homefs_size_tb"], 4))
     homefs_service_level = try(local.configuration_yml["anf"]["homefs_service_level"], try(local.configuration_yml["homefs_service_level"], "Standard"))
