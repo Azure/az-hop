@@ -124,9 +124,9 @@ users:
     #home: /anfhome/user1 # default to /homedir_mountpoint/user_name
     admin: false # true will allow user to have admin privilege like updating dashboards - false by default
     sudo: true # Allow sudo access - false by default
-  - name: user2
-    uid: 10002
-    gid: 5000
+  # compact format for user entry
+  - { name: user2, uid: 10002, gid: 5000 }
+
 groups: # Not used today => To be used in the future
   - name: users
     gid: 5000
