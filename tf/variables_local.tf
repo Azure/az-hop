@@ -154,6 +154,7 @@ locals {
         AllowPbsComputeIn           = ["380", "Inbound", "Allow", "*",   "Pbs",                "asg/asg-pbs",        "subnet/compute"],
         AllowComputePbsClientIn     = ["390", "Inbound", "Allow", "*",   "Pbs",                "subnet/compute",     "asg/asg-pbs-client"],
         AllowComputePbsIn           = ["400", "Inbound", "Allow", "*",   "Pbs",                "subnet/compute",     "asg/asg-pbs"],
+        AllowComputeComputePbsIn    = ["401", "Inbound", "Allow", "*",   "Pbs",                "subnet/compute",     "subnet/compute"],
 
         # Lustre
         AllowLustreIn               = ["409", "Inbound", "Allow", "tcp", "Lustre",             "asg/asg-lustre",        "asg/asg-lustre-client"],
@@ -218,6 +219,7 @@ locals {
         AllowPbsComputeOut          = ["360", "Outbound", "Allow", "*",   "Pbs",                "asg/asg-pbs",        "subnet/compute"],
         AllowPbsClientComputeOut    = ["370", "Outbound", "Allow", "*",   "Pbs",                "subnet/compute",     "asg/asg-pbs"],
         AllowComputePbsClientOut    = ["380", "Outbound", "Allow", "*",   "Pbs",                "subnet/compute",     "asg/asg-pbs-client"],
+        AllowComputeComputePbsOut   = ["381", "Outbound", "Allow", "*",   "Pbs",                "subnet/compute",     "subnet/compute"],
 
         # Lustre
         AllowLustreOut              = ["390", "Outbound", "Allow", "tcp", "Lustre",             "asg/asg-lustre",           "asg/asg-lustre-client"],
