@@ -43,7 +43,12 @@
         img_def=${image%/*}
         img_name=${img_def##*/}
         img_id=$(az sig image-version list -g {{ resource_group }} -r {{ sig_name }} -i $img_name --query "[].id" -o tsv | sort | tail -n 1)
-        echo "  {{item.name}}: $img_id" >> {{lookup_img_file}}
+        if [ "$img_id" == "" ]; then
+          echo "unable to retrieve image id for $img_name"
+          exit 1
+        else
+          echo "  {{item.name}}: $img_id" >> {{lookup_img_file}}
+        fi
       fi
     args:
       executable: /bin/bash
