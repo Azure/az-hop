@@ -213,6 +213,12 @@ resource "azurerm_linux_virtual_machine" "robinhood" {
     product   = local.lustre_image_reference.offer
     name      = local.lustre_image_reference.sku
   }
+  
+  identity {
+    type         = "UserAssigned"
+    identity_ids = [ azurerm_user_assigned_identity.lustre-oss.id ]
+  }
+  
 }
 
 resource "azurerm_network_interface_application_security_group_association" "robinhood-asg-asso" {
