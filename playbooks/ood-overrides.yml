@@ -34,7 +34,7 @@ ood_install_apps:
     version: master
 ood_apps:
   bc_desktop:
-    title: "remote desktop"
+    title: "Remote Desktop"
     cluster: ondemand
     form:
       - desktop
@@ -48,8 +48,8 @@ ood_apps:
         help: |
           Select the resource target for the remote desktop session
         options:
-         - ["viz3d", "viz3d"]
-         - ["viz", "viz"]
+         - ["With GPU", "viz3d"]
+         - ["Without GPU", "viz"]
         id: 'target'
       hours:
         widget: "number_field"
