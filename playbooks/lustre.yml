@@ -185,39 +185,6 @@
     - '{{global_config_file}}'
   
   tasks:
-  - name: check for python 3.7
-    stat:
-      path: /usr/local/bin/python3.7
-    register: stat_python_result
-  - name: install python 3.7
-    shell: |
-      export PATH=/usr/local/bin:$PATH
-      # install python 3.7
-      yum -y install git gcc openssl-devel bzip2-devel libffi-devel zlib-devel
-      cd /usr/src
-      wget https://www.python.org/ftp/python/3.7.9/Python-3.7.9.tgz
-      tar xzf Python-3.7.9.tgz
-      cd Python-3.7.9
-      ./configure --enable-optimizations
-      make altinstall
-    when: not stat_python_result.stat.exists
-  - name: check for hydrator
-    stat:
-      path: /opt/amlFilesystem-hydrator/laaso/hydrator.py
-    register: stat_hydrator
-  - name: install lustre hydrator
-    shell: |
-      export PATH=/usr/local/bin:$PATH
-      # set up hydrator
-      pip3.7 install virtualenv
-      cd /opt
-      git clone https://github.com/microsoft/amlFilesystem-hydrator.git
-      cd amlFilesystem-hydrator/
-      python3.7 -m venv venv
-      rm -rf venv
-      export LAASO_VENV_CREATE_ANSIBLE_GALAXY_REQUIREMENTS=
-      python3.7 build/venv_create.py venv laaso/requirements.txt
-    when: not stat_hydrator.stat.exists
   - name: check to see if lustre is hydrated
     stat:
       path: /lustre.hydrated
@@ -236,12 +203,9 @@
     when: not stat_hydrated.stat.exists
   - name: hydrate lustre
     shell: |
-      export PATH=/usr/local/bin:$PATH
-      cd /opt/amlFilesystem-hydrator
-      VENV=$(pwd)/venv
-      REPO_DIR=.
-      source $VENV/bin/activate
-      PYTHONPATH=. python3.7 laaso/hydrator.py "{{ lustre_hsm_storage_account }}" "{{ lustre_hsm_storage_container }}" "{{ lustre_sas.stdout }}" -a /lustre --lemur
+      export STORAGE_SAS="{{ lustre_sas.stdout }}"
+      cd /lustre
+      azure-import -account "{{ lustre_hsm_storage_account }}" -container "{{ lustre_hsm_storage_container }}"
       touch /lustre.hydrated
     when: not stat_hydrated.stat.exists
 
@@ -716,3 +680,56 @@
       regexp: '"DB_PASSWD"   => "",' 
       line: '"DB_PASSWD"   => "{{ dbpasswd.stdout }}",'
       backrefs: yes
+
+
+- name: Enable chglogs on MDS for changelog reader
+  hosts: lustre
+  become: true
+  vars_files:
+    - '{{global_config_file}}'
+  
+  tasks:
+  - name: check to cl2 exists
+    shell: lctl get_param  mdd.LustreFS-MDT0000.changelog_users | grep "cl2"
+    register: cl2_exists
+  - name: enable cl2 user
+    command: lctl --device LustreFS-MDT0000 changelog_register
+    when: cl2_exists.stdout == ""
+  
+- name: Enable changelog_reader on robinhood
+  hosts: robinhood
+  become: true
+  vars_files:
+    - '{{global_config_file}}'
+  
+  tasks:
+  - name: install lemur rpms
+    yum:
+      name:
+        - https://azurehpc.azureedge.net/rpms/lemur-azure-hsm-agent-2.0.1-lustre_2.12.x86_64.rpm
+        - https://azurehpc.azureedge.net/rpms/lemur-azure-data-movers-2.0.1-lustre_2.12.x86_64.rpm
+      state: present
+  - name: create lustremetasync service
+    copy:
+      dest: /etc/systemd/system/lustremetasync.service
+      mode: 0600
+      content: |
+        [Unit]
+        Description=Handling directory/meta data backup on Lustre filesystem.
+        After=syslog.target network.target remote-fs.target nss-lookup.target
+
+        [Service]
+        Type=simple
+        ExecStart=changelog-reader -account "{{ lustre_hsm_storage_account }}" -container "{{ lustre_hsm_storage_container }}" -kvname "{{ key_vault }}" -kvsecret "lustre-{{ lustre_hsm_storage_account }}-{{ lustre_hsm_storage_container }}-sas" -mdt LustreFS-MDT0000 -userid cl2
+        Restart=always
+
+        [Install]
+        WantedBy=multi-user.target
+  - name: systemd daemon reload
+    systemd:
+      daemon_reload: yes
+  - name: enable and start lustremetasync service
+    service:
+      name: lustremetasync
+      enabled: yes
+      state: started
