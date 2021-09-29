@@ -720,7 +720,7 @@
 
         [Service]
         Type=simple
-        ExecStart=changelog-reader -account "{{ lustre_hsm_storage_account }}" -container "{{ lustre_hsm_storage_container }}" -kvname "{{ key_vault }}" -kvsecret "lustre-{{ lustre_hsm_storage_account }}-{{ lustre_hsm_storage_container }}-sas" -mdt LustreFS-MDT0000 -userid cl2
+        ExecStart=/sbin/changelog-reader -account "{{ lustre_hsm_storage_account }}" -container "{{ lustre_hsm_storage_container }}" -kvname "{{ key_vault }}" -kvsecret "lustre-{{ lustre_hsm_storage_account }}-{{ lustre_hsm_storage_container }}-sas" -mdt LustreFS-MDT0000 -userid cl2
         Restart=always
 
         [Install]
