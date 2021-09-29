@@ -690,8 +690,9 @@
   
   tasks:
   - name: check to cl2 exists
-    shell: lctl get_param  mdd.LustreFS-MDT0000.changelog_users | grep "cl2"
+    shell: lctl get_param mdd.LustreFS-MDT0000.changelog_users | grep "cl2"
     register: cl2_exists
+    ignore_errors: true
   - name: enable cl2 user
     command: lctl --device LustreFS-MDT0000 changelog_register
     when: cl2_exists.stdout == ""
