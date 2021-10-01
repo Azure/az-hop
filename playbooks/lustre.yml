@@ -377,8 +377,8 @@
     register: stat_dbpassword
   - name: create robinhood database
     shell: |
-      rbhpass=$(mkpasswd)
-      rbh-config create_db lustre "%" "$rbhpass"
+      rbhpass=$(openssl rand -base64 12)
+      rbh-config create_db lustre "%" "$rbhpass" || exit 1
       echo "$rbhpass" > /etc/robinhood.d/.dbpassword
       chmod 600 /etc/robinhood.d/.dbpassword
     when: not stat_dbpassword.stat.exists
