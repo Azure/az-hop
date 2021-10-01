@@ -29,11 +29,14 @@ az ad sp create-for-rbac --name azhop-packer-spn
 {
   "appId": "<some-generated-guid>",
   "displayName": "azhop-packer-spn",
-  "name": "http://azhop-packer-spn",
+  "name": "<some-generated-guid>",
   "password": "<generated-password>",
   "tenant": "<your-tenant-id>"
 }
 ```
+
+Then check the application registered, and if not done set the Application ID URI to `http://azhop-packer-spn` or the spn-name if different.
+
 
 ### Add the password in a keyvault secret
 
