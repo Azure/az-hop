@@ -704,12 +704,6 @@
     - '{{global_config_file}}'
   
   tasks:
-  - name: install lemur rpms
-    yum:
-      name:
-        - https://azurehpc.azureedge.net/rpms/lemur-azure-hsm-agent-2.0.1-lustre_2.12.x86_64.rpm
-        - https://azurehpc.azureedge.net/rpms/lemur-azure-data-movers-2.0.1-lustre_2.12.x86_64.rpm
-      state: present
   - name: create lustremetasync service
     copy:
       dest: /etc/systemd/system/lustremetasync.service
