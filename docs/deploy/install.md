@@ -11,8 +11,9 @@ The installation is done with Ansible playbooks and can be applied as a whole or
 - ccpbs
 - scheduler
 - ood
-- grafana 
-- telegraf 
+- grafana
+- telegraf
+- chrony
 
 The simpler is just to run 
 ```bash
