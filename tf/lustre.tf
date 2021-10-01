@@ -1,10 +1,10 @@
 locals {
-    lustre_image_reference = {
-        publisher = "OpenLogic"
-        offer     = "CentOS"
-        sku       = "7_7-gen2"
-        version   = "7.7.2020062401"
-    }
+  lustre_image_reference = {
+    publisher = "azhpc"
+    offer     = "azurehpc-lustre"
+    sku       = "azurehpc-lustre-2_12"
+    version   = "latest"
+  }
 }
 
 #
@@ -50,6 +50,12 @@ resource "azurerm_linux_virtual_machine" "lustre" {
       offer     = local.lustre_image_reference.offer
       sku       = local.lustre_image_reference.sku
       version   = local.lustre_image_reference.version
+  }
+
+  plan {
+    publisher = local.lustre_image_reference.publisher
+    product   = local.lustre_image_reference.offer
+    name      = local.lustre_image_reference.sku
   }
 }
 
@@ -111,6 +117,12 @@ resource "azurerm_linux_virtual_machine" "lustre-oss" {
       offer     = local.lustre_image_reference.offer
       sku       = local.lustre_image_reference.sku
       version   = local.lustre_image_reference.version
+  }
+
+  plan {
+    publisher = local.lustre_image_reference.publisher
+    product   = local.lustre_image_reference.offer
+    name      = local.lustre_image_reference.sku
   }
 
   identity {
@@ -195,6 +207,18 @@ resource "azurerm_linux_virtual_machine" "robinhood" {
       sku       = local.lustre_image_reference.sku
       version   = local.lustre_image_reference.version
   }
+
+  plan {
+    publisher = local.lustre_image_reference.publisher
+    product   = local.lustre_image_reference.offer
+    name      = local.lustre_image_reference.sku
+  }
+  
+  identity {
+    type         = "UserAssigned"
+    identity_ids = [ azurerm_user_assigned_identity.lustre-oss.id ]
+  }
+  
 }
 
 resource "azurerm_network_interface_application_security_group_association" "robinhood-asg-asso" {
