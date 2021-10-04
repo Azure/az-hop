@@ -207,7 +207,7 @@ jobs:
   cycle:
     name: cycle
     runs-on: ubuntu-latest
-    needs: [ad, deploy]
+    needs: [ad, build_image, deploy]
 
     container:
       image: xpillons/hpcrover:latest
