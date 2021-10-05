@@ -4,3 +4,9 @@ OwnerAllow = {"Clusters/Administer","Data/Manage","Clusters/Manage","Clusters/Co
 GroupRole = false
 Name = "User"
 Allow = {"Package.Release/View","System/AccessWebSite","Alerts/Manage","Clusters/View","Clusters/Access"}
+
+AdType = "Application.Role"
+Description = "AZHOP Cluster Admin"
+GroupRole = false
+Name = "azhop Cluster Admin"
+Allow = {"Clusters/Manage"}

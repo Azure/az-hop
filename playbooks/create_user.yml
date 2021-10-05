@@ -1,3 +1,8 @@
+- name: debug
+  debug:
+    msg:
+      - "user={{user}}"
+  
 - name: Read Password from KV
   command: az keyvault secret show --vault-name {{key_vault}} -n {{user.name}}-password --query "value" -o tsv
   delegate_to: localhost

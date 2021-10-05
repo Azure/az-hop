@@ -1,0 +1,13 @@
+{% for user in users %}
+AdType = "AuthenticatedUser"
+Name =  "{{ user.name }}"
+Authentication = "active_directory"
+{% if (user.admin is defined) and user.admin %}
+Roles = {"azhop Cluster Admin"}
+{% else %}
+Roles = {"User"}
+{% endif %}
+UID = {{ user.uid }}
+Superuser = false
+
+{% endfor %}
