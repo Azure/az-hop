@@ -6,7 +6,7 @@ THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 $THIS_DIR/ansible_prereqs.sh
 
 # Check config syntax
-yamllint -d relaxed config.yml
+yamllint config.yml
 
 case $TARGET in
   all)
