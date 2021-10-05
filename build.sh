@@ -77,6 +77,9 @@ get_arm_access_key
 
 terraform -chdir=$TF_FOLDER init
 
+# Check config syntax
+yamllint -d relaxed $AZHOP_CONFIG
+
 # Accept Cycle marketplace image terms
 cc_plan=$(yq eval '.cyclecloud.plan.name' $AZHOP_CONFIG)
 if [ "$cc_plan" == "" ]; then
