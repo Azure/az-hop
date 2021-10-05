@@ -285,34 +285,34 @@ jobs:
           cd packer
           ./build_image.sh -i ${{matrix.packer_file}}
 
-  set_image:
-    name: set_image
-    runs-on: ubuntu-latest
-    needs: [cycle, deploy, build_image]
-    container:
-      image: xpillons/hpcrover:latest
-      options: --user 0
+  # set_image:
+  #   name: set_image
+  #   runs-on: ubuntu-latest
+  #   needs: [cycle, deploy, build_image]
+  #   container:
+  #     image: xpillons/hpcrover:latest
+  #     options: --user 0
 
-    steps:
-      - uses: actions/checkout@v2.3.4
-        with:
-          submodules: true
+  #   steps:
+  #     - uses: actions/checkout@v2.3.4
+  #       with:
+  #         submodules: true
 
-      - name: Login azure
-        run: |
-          az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
-          az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
+  #     - name: Login azure
+  #       run: |
+  #         az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
+  #         az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
-      - name: Update Cycle to use the latest images
-        run: |
-          RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
-          ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
-          ./install.sh ccpbs
+  #     - name: Update Cycle to use the latest images
+  #       run: |
+  #         RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
+  #         ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
+  #         ./install.sh ccpbs
 
   run_tests:
     name: run_tests
     runs-on: ubuntu-latest
-    needs: [deploy, set_image, ood]
+    needs: [deploy, ood]
     container:
       image: xpillons/hpcrover:latest
       options: --user 0
