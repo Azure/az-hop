@@ -24,7 +24,7 @@ if [ $# -lt 2 ]; then
 fi
 
 # Check config syntax
-yamllint -d relaxed $CONFIG_FILE
+yamllint $CONFIG_FILE
 
 nopip=$(yq eval .locked_down_network.public_ip $CONFIG_FILE)
 if [ "$nopip" == "false" ]; then
