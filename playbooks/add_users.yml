@@ -17,7 +17,7 @@
 
   tasks:
   - include: create_user.yml user="{{item}}"
-    with_items: users
+    with_items: '{{users}}'
     when: users is defined
 
 - name: close socks tunnel
@@ -37,5 +37,17 @@
 
   tasks:
   - include: init_user.yml user="{{item}}"
-    with_items: users
+    with_items: '{{users}}'
     when: users is defined
+
+- name: Configure users in CycleCloud
+  hosts: ccportal
+  become: true
+  vars_files:
+    - '{{global_config_file}}'
+
+  tasks:
+  - name: Add users
+    template:
+      src: user_record.txt.j2
+      dest: /opt/cycle_server/config/data/user_record.txt
