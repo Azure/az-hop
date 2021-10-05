@@ -17,7 +17,7 @@
 
   tasks:
   - include: create_user.yml user="{{item}}"
-    with_items: users
+    with_items: '{{users}}'
     when: users is defined
 
 - name: close socks tunnel
@@ -37,5 +37,5 @@
 
   tasks:
   - include: init_user.yml user="{{item}}"
-    with_items: users
+    with_items: '{{users}}'
     when: users is defined
