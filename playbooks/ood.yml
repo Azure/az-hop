@@ -284,5 +284,11 @@
       regexp: 'limit: 1,$'
       replace: 'limit: 1, timeout: 0,'
 
+  - name: create cron entry to make sure the passenger-tmp folder exists
+    cron:
+      name: "create passenger tmp directory and set permissions"
+      minute: "0,10,20,30,40,50"
+      job: "test -e /mnt/resource/passenger-tmp || (mkdir /mnt/resource/passenger-tmp && chmod 777 /mnt/resource/passenger-tmp)"
+
   - name: restart ood
     shell: systemctl try-restart httpd24-httpd.service httpd24-htcacheclean.service
