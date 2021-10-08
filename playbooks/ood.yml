@@ -284,9 +284,5 @@
       regexp: 'limit: 1,$'
       replace: 'limit: 1, timeout: 0,'
 
-  - name: cleanup existing PUN sessions
-    shell: |
-      /opt/ood/nginx_stage/sbin/nginx_stage nginx_clean -f
-
   - name: restart ood
     shell: systemctl try-restart httpd24-httpd.service httpd24-htcacheclean.service
