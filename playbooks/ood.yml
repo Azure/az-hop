@@ -250,5 +250,39 @@
         OodFilesApp.candidate_favorite_paths.tap do |paths|
           paths << FavoritePath.new("/lustre", title: "Lustre")
         end
+
+  # Update file upload staging area to be in /mnt/resource
+  - name: Create passenger temp dir
+    file: 
+      path: /mnt/resource/passenger-tmp
+      state: directory
+      mode: 0777
+  - name: Create tempdir initializer
+    copy:
+      content: |
+        class Dir
+          def self.tmpdir
+            "/mnt/resource/passenger-tmp"
+          end
+        end
+      dest: /var/www/ood/apps/sys/dashboard/config/initializers/tempdir.rb
+  - name: Change pun_tmp_root value
+    replace:
+      path: /etc/ood/config/nginx_stage.yml
+      regexp: '/var/tmp'
+      replace: '/mnt/resource'
+  - name: Uncomment pun_tmp_root
+    replace:
+      path: /etc/ood/config/nginx_stage.yml
+      regexp: '#pun_tmp_root'
+      replace: 'pun_tmp_root'
+
+  # Disable the Uppy timeout when uploading files
+  - name: Disable Uppy file upload timeout
+    replace:
+      path: /var/www/ood/apps/sys/dashboard/app/views/files/index.html.erb
+      regexp: 'limit: 1,$'
+      replace: 'limit: 1, timeout: 0,'
+
   - name: restart ood
     shell: systemctl try-restart httpd24-httpd.service httpd24-htcacheclean.service
