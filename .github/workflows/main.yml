@@ -63,7 +63,9 @@ jobs:
         run: |
           set -e
           # If resource group is not specified, generate a random one
-          if [ "${{ github.event.inputs.resource_group }}" == "AUTO_GENERATED" ]; then
+          RESOURCE_GROUP=${{ github.event.inputs.resource_group }}
+          echo "Resource group name is $RESOURCE_GROUP"
+          if [ "$RESOURCE_GROUP" == "AUTO_GENERATED" ]; then
             UUID="$(cat /proc/sys/kernel/random/uuid | tr -d '\n-' | tr '[:upper:]' '[:lower:]' | cut -c 1-6)"
             RESOURCE_GROUP="azhop_$UUID"
           else
