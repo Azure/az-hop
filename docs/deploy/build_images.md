@@ -83,3 +83,40 @@ Once images have been built you need to update the Cycle cluster template to mat
 ```
 
 Once done your new images are ready to use in azhop.
+
+## Adding new packages in a custom image
+
+Sometimes you need to add missing runtime packages in the custom image built or change some settings. This can be done by either add a new script in the packer JSON configuration files or by updating one of the existing script called by packer.
+
+For example, below is the content of the `centos-7.8-desktop-3d.json` packer file, if you want to add custom packages one way would be to change the `desktop-packages.sh` located in the `./packer/scripts` directory.
+
+```yml
+    "provisioners": [
+        {
+            "type": "file",
+            "source": "scripts",
+            "destination": "/tmp"
+        },
+        {
+            "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E sh '{{ .Path }}'",
+            "inline": [
+                "chmod +x /tmp/scripts/*.sh",
+                "/tmp/scripts/linux-setup.sh",
+                "/tmp/scripts/lustreclient2.12.5_centos7.8.sh",
+                "/tmp/scripts/interactive-desktop-3d.sh",
+                "/tmp/scripts/desktop-packages.sh",
+                "/tmp/scripts/pbspro.sh",
+                "/tmp/scripts/telegraf.sh",
+                "rm -rf /tmp/scripts",
+                "/usr/sbin/waagent -force -deprovision+user && export HISTSIZE=0 && sync"
+            ],
+            "inline_shebang": "/bin/sh -x",
+            "type": "shell",
+            "skip_clean": true
+        }
+    ]
+```
+
+Rebuilding a new image version is done by following the steps above.
+
+> Note: For the new image to be used by new instances, make sure that all the existing one have been drained.
