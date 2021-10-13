@@ -63,13 +63,14 @@ locals {
         compute = "compute"
     }
 
-    create_frontend_subnet = try(local.configuration_yml["network"]["vnet"]["subnets"]["frontend"]["create"], local.create_vnet ? false : true)
-    create_admin_subnet    = try(local.configuration_yml["network"]["vnet"]["subnets"]["admin"]["create"], local.create_vnet ? false : true)
-    create_netapp_subnet   = try(local.configuration_yml["network"]["vnet"]["subnets"]["netapp"]["create"], local.create_vnet ? false : true)
-    create_ad_subnet       = try(local.configuration_yml["network"]["vnet"]["subnets"]["ad"]["create"], local.create_vnet ? false : true)
-    create_compute_subnet  = try(local.configuration_yml["network"]["vnet"]["subnets"]["compute"]["create"], local.create_vnet ? false : true)
-    create_bastion_subnet  = try(local.configuration_yml["network"]["vnet"]["subnets"]["bastion"]["create"], local.create_vnet ? false : true)
-    create_gateway_subnet  = try(local.configuration_yml["network"]["vnet"]["subnets"]["gateway"]["create"], local.create_vnet ? false : true)
+    # Create subnet if required. If not specified create only if vnet is created
+    create_frontend_subnet = try(local.configuration_yml["network"]["vnet"]["subnets"]["frontend"]["create"], local.create_vnet )
+    create_admin_subnet    = try(local.configuration_yml["network"]["vnet"]["subnets"]["admin"]["create"], local.create_vnet )
+    create_netapp_subnet   = try(local.configuration_yml["network"]["vnet"]["subnets"]["netapp"]["create"], local.create_vnet )
+    create_ad_subnet       = try(local.configuration_yml["network"]["vnet"]["subnets"]["ad"]["create"], local.create_vnet )
+    create_compute_subnet  = try(local.configuration_yml["network"]["vnet"]["subnets"]["compute"]["create"], local.create_vnet )
+    create_bastion_subnet  = try(local.configuration_yml["network"]["vnet"]["subnets"]["bastion"]["create"], local.create_vnet )
+    create_gateway_subnet  = try(local.configuration_yml["network"]["vnet"]["subnets"]["gateway"]["create"], local.create_vnet )
 
     # Application Security Groups
     create_nsg = try(local.configuration_yml["network"]["vnet"]["create_nsg"], local.create_vnet ? false : true)
