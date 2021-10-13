@@ -8,8 +8,8 @@ data "azurerm_virtual_network" "azhop" {
 resource "azurerm_virtual_network" "azhop" {
   count               = local.create_vnet ? 1 : 0
   name                = try(local.configuration_yml["network"]["vnet"]["name"], "hpcvnet")
-  resource_group_name = azurerm_resource_group.rg[0].name
-  location            = azurerm_resource_group.rg[0].location
+  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   address_space       = [try(local.configuration_yml["network"]["vnet"]["address_space"], "10.0.0.0/16")]
 }
 # Resource group of the existing vnet

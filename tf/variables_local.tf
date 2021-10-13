@@ -15,8 +15,9 @@ locals {
         CreatedOn = timestamp()
     }
 
-    # Create the RG if creating a VNET or when reusing a VNET in another resource group
-    create_rg = local.create_vnet || try(split("/", local.vnet_id)[4], local.resource_group) != local.resource_group
+    # Create the RG if not using an existing RG and (creating a VNET or when reusing a VNET in another resource group)
+    use_existing_rg = try(local.configuration_yml["use_existing_rg"], false)
+    create_rg = (!local.use_existing_rg) && (local.create_vnet || try(split("/", local.vnet_id)[4], local.resource_group) != local.resource_group)
 
     # ANF
     create_anf = try(local.configuration_yml["anf"]["homefs_size_tb"] > 0, false) || try(local.configuration_yml["homefs_size_tb"] > 0, false)
