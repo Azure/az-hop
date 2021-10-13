@@ -5,7 +5,7 @@ resource "azurerm_network_interface" "ad-nic" {
 
   ip_configuration {
     name                          = "internal"
-    subnet_id                     = local.create_vnet ? azurerm_subnet.ad[0].id : data.azurerm_subnet.ad[0].id
+    subnet_id                     = local.create_ad_subnet ? azurerm_subnet.ad[0].id : data.azurerm_subnet.ad[0].id
     private_ip_address_allocation = "Dynamic"
   }
 }
@@ -41,5 +41,5 @@ resource "azurerm_windows_virtual_machine" "ad" {
 resource "azurerm_network_interface_application_security_group_association" "ad-asg-asso" {
   for_each = toset(local.asg_associations["ad"])
   network_interface_id          = azurerm_network_interface.ad-nic.id
-  application_security_group_id = local.create_vnet ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
+  application_security_group_id = local.create_nsg ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
 }

@@ -24,7 +24,7 @@ resource "local_file" "global_variables" {
       admin_username      = local.admin_username
       ssh_public_key      = tls_private_key.internal.public_key_openssh
       cc_storage          = azurerm_storage_account.azhop.name
-      compute_subnetid    = local.create_vnet ? "${azurerm_subnet.compute[0].resource_group_name}/${azurerm_subnet.compute[0].virtual_network_name}/${azurerm_subnet.compute[0].name}" : "${data.azurerm_subnet.compute[0].resource_group_name}/${data.azurerm_subnet.compute[0].virtual_network_name}/${data.azurerm_subnet.compute[0].name}"
+      compute_subnetid    = local.create_compute_subnet ? "${azurerm_subnet.compute[0].resource_group_name}/${azurerm_subnet.compute[0].virtual_network_name}/${azurerm_subnet.compute[0].name}" : "${data.azurerm_subnet.compute[0].resource_group_name}/${data.azurerm_subnet.compute[0].virtual_network_name}/${data.azurerm_subnet.compute[0].name}"
       region              = local.location
       resource_group      = local.resource_group
       config_file         = local.configuration_file
@@ -86,7 +86,7 @@ resource "local_file" "packer_nopip" {
       sig_name        = azurerm_shared_image_gallery.sig.name
       private_virtual_network_with_public_ip = local.allow_public_ip
       virtual_network_name                   = local.create_vnet ? azurerm_virtual_network.azhop[0].name : data.azurerm_virtual_network.azhop[0].name
-      virtual_network_subnet_name            = local.create_vnet ? azurerm_subnet.admin[0].name : data.azurerm_subnet.admin[0].name
+      virtual_network_subnet_name            = local.create_admin_subnet ? azurerm_subnet.admin[0].name : data.azurerm_subnet.admin[0].name
       virtual_network_resource_group_name    = local.create_vnet ? azurerm_virtual_network.azhop[0].resource_group_name : data.azurerm_virtual_network.azhop[0].resource_group_name
     }
   )

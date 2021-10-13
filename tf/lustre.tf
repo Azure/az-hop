@@ -19,7 +19,7 @@ resource "azurerm_network_interface" "lustre-nic" {
 
   ip_configuration {
     name                          = "internal"
-    subnet_id                     = local.create_vnet ? azurerm_subnet.admin[0].id : data.azurerm_subnet.admin[0].id
+    subnet_id                     = local.create_admin_subnet ? azurerm_subnet.admin[0].id : data.azurerm_subnet.admin[0].id
     private_ip_address_allocation = "Dynamic"
   }
 }
@@ -62,7 +62,7 @@ resource "azurerm_linux_virtual_machine" "lustre" {
 resource "azurerm_network_interface_application_security_group_association" "lustre-asg-asso" {
   for_each = toset(local.asg_associations["lustre"])
   network_interface_id          = azurerm_network_interface.lustre-nic.id
-  application_security_group_id = local.create_vnet ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
+  application_security_group_id = local.create_nsg ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
 }
 
 #
@@ -85,7 +85,7 @@ resource "azurerm_network_interface" "lustre-oss-nic" {
 
   ip_configuration {
     name                          = "internal"
-    subnet_id                     = local.create_vnet ? azurerm_subnet.admin[0].id : data.azurerm_subnet.admin[0].id
+    subnet_id                     = local.create_admin_subnet ? azurerm_subnet.admin[0].id : data.azurerm_subnet.admin[0].id
     private_ip_address_allocation = "Dynamic"
   }
 }
@@ -160,7 +160,7 @@ resource "azurerm_network_interface_application_security_group_association" "lus
   # We need a map to use for_each, so we convert our list into a map by adding a unique key:
   for_each = { for entry in local.lustre_oss_asgs: "${entry.oss}.${entry.asg}" => entry }
   network_interface_id          = azurerm_network_interface.lustre-oss-nic[each.value.oss].id
-  application_security_group_id = local.create_vnet ? azurerm_application_security_group.asg[each.value.asg].id : data.azurerm_application_security_group.asg[each.value.asg].id
+  application_security_group_id = local.create_nsg ? azurerm_application_security_group.asg[each.value.asg].id : data.azurerm_application_security_group.asg[each.value.asg].id
 }
 
 #
@@ -175,7 +175,7 @@ resource "azurerm_network_interface" "robinhood-nic" {
 
   ip_configuration {
     name                          = "internal"
-    subnet_id                     = local.create_vnet ? azurerm_subnet.admin[0].id : data.azurerm_subnet.admin[0].id
+    subnet_id                     = local.create_admin_subnet ? azurerm_subnet.admin[0].id : data.azurerm_subnet.admin[0].id
     private_ip_address_allocation = "Dynamic"
   }
 }
@@ -224,5 +224,5 @@ resource "azurerm_linux_virtual_machine" "robinhood" {
 resource "azurerm_network_interface_application_security_group_association" "robinhood-asg-asso" {
   for_each = toset(local.asg_associations["robinhood"])
   network_interface_id          = azurerm_network_interface.robinhood-nic.id
-  application_security_group_id = local.create_vnet ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
+  application_security_group_id = local.create_nsg ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
 }
