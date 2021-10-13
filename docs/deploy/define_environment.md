@@ -8,6 +8,8 @@ Here is a template for building such configuration file.
 location: westeurope
 # Name of the resource group to create all resources
 resource_group: azhop
+# If using an existing resource group set to true. Default is false
+#use_existing_rg: true
 # Additional tags to be added on the Resource Group
 tags:
   env: dev

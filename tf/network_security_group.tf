@@ -23,7 +23,7 @@ data "azurerm_subnet" "subnets" {
                   azurerm_subnet.gateway] 
   for_each = local.subnets
   name                 = try(local.configuration_yml["network"]["vnet"]["subnets"][each.key]["name"], each.value)
-  resource_group_name  = local.create_vnet ? azurerm_resource_group.rg[0].name : data.azurerm_virtual_network.azhop[0].resource_group_name
+  resource_group_name  = local.create_vnet ? (local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name) : data.azurerm_virtual_network.azhop[0].resource_group_name
   virtual_network_name = local.create_vnet ? azurerm_virtual_network.azhop[0].name : data.azurerm_virtual_network.azhop[0].name
 }
 

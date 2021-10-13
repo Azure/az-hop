@@ -72,8 +72,8 @@ data "azurerm_role_definition" "contributor" {
 }
 
 resource "azurerm_user_assigned_identity" "ccportal" {
-  resource_group_name = azurerm_resource_group.rg[0].name
-  location            = azurerm_resource_group.rg[0].location
+  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   name = "ccportal"
 }
 
@@ -135,7 +135,7 @@ resource "azurerm_user_assigned_identity" "ccportal" {
 # Grant Contributor access to Cycle in the az-hop resource group
 resource "azurerm_role_assignment" "ccportal_rg" {
   name               = azurerm_user_assigned_identity.ccportal.principal_id
-  scope              = azurerm_resource_group.rg[0].id
+  scope              = local.create_rg ? azurerm_resource_group.rg[0].id : data.azurerm_resource_group.rg[0].id
   role_definition_id = "${data.azurerm_subscription.primary.id}${data.azurerm_role_definition.contributor.id}"
   principal_id       = azurerm_user_assigned_identity.ccportal.principal_id
 }
