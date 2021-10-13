@@ -1,6 +1,6 @@
 AdType = "Application.Role"
 Description = "Basic GUI access"
-OwnerAllow = {"Clusters/Administer","Data/Manage","Clusters/Manage","Clusters/Connect"}
+OwnerAllow = {"Package.Release/View","System/AccessWebSite","System.Read","Alerts/Manage","Clusters/View","Clusters/Access"}
 GroupRole = false
 Name = "User"
 Allow = {"Package.Release/View","System/AccessWebSite","Alerts/Manage","Clusters/View","Clusters/Access"}
