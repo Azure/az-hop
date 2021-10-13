@@ -44,7 +44,7 @@ resource "azurerm_netapp_volume" "home" {
   pool_name           = azurerm_netapp_pool.anfpool[0].name
   volume_path         = "home-${random_string.resource_postfix.result}"
   service_level       = local.homefs_service_level
-  subnet_id           = local.create_vnet ? azurerm_subnet.netapp[0].id : data.azurerm_subnet.netapp[0].id
+  subnet_id           = local.create_netapp_subnet ? azurerm_subnet.netapp[0].id : data.azurerm_subnet.netapp[0].id
   protocols           = local.anf_dual_protocol ?  ["NFSv3", "CIFS"] : ["NFSv3"]
   security_style      = "Unix"
   storage_quota_in_gb = local.homefs_size_tb * 1024

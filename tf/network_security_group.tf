@@ -1,15 +1,15 @@
 # Application security groups
 resource "azurerm_application_security_group" "asg" {
-  for_each = local.create_vnet ? local.asgs : local.empty_map
+  for_each = local.create_nsg ? local.asgs : local.empty_map
   name                = each.key
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
 }
 
 data "azurerm_application_security_group" "asg" {
-  for_each = local.create_vnet ? local.empty_map : local.asgs
+  for_each = local.create_nsg ? local.empty_map : local.asgs
   name                = each.key
-  resource_group_name = local.create_vnet ? azurerm_resource_group.rg[0].name : data.azurerm_virtual_network.azhop[0].resource_group_name
+  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
 }
 
 # Read subnets data so we can dynamically retrieve all CIDR for the NSG rules
@@ -29,14 +29,14 @@ data "azurerm_subnet" "subnets" {
 
 # Network security group for all subnet
 resource "azurerm_network_security_group" "common" {
-  count                = local.create_vnet ? 1 : 0
+  count                = local.create_nsg ? 1 : 0
   name                = "nsg-common"
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
 }
 
 resource "azurerm_network_security_rule" "all_rules"  {
-    for_each = local.create_vnet ? local.nsg_rules : local.empty_map
+    for_each = local.create_nsg ? local.nsg_rules : local.empty_map
     resource_group_name = azurerm_network_security_group.common[0].resource_group_name
     network_security_group_name = azurerm_network_security_group.common[0].name
     name                       = each.key
@@ -59,25 +59,25 @@ resource "azurerm_network_security_rule" "all_rules"  {
 # NSG cannot be applied on a delegated subnet for Azure Netapp files https://docs.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-delegate-subnet, nor on Bastion
 
 resource "azurerm_subnet_network_security_group_association" "frontend" {
-  count                     = local.create_vnet ? 1 : 0
+  count                     = local.create_nsg ? 1 : 0
   subnet_id                 = azurerm_subnet.frontend[count.index].id
   network_security_group_id = azurerm_network_security_group.common[count.index].id
 }
 
 resource "azurerm_subnet_network_security_group_association" "ad" {
-  count                     = local.create_vnet ? 1 : 0
+  count                     = local.create_nsg ? 1 : 0
   subnet_id                 = azurerm_subnet.ad[count.index].id
   network_security_group_id = azurerm_network_security_group.common[count.index].id
 }
 
 resource "azurerm_subnet_network_security_group_association" "compute" {
-  count                     = local.create_vnet ? 1 : 0
+  count                     = local.create_nsg ? 1 : 0
   subnet_id                 = azurerm_subnet.compute[count.index].id
   network_security_group_id = azurerm_network_security_group.common[count.index].id
 }
 
 resource "azurerm_subnet_network_security_group_association" "admin" {
-  count                     = local.create_vnet ? 1 : 0
+  count                     = local.create_nsg ? 1 : 0
   subnet_id                 = azurerm_subnet.admin[count.index].id
   network_security_group_id = azurerm_network_security_group.common[count.index].id
 }

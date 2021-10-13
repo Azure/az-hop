@@ -13,7 +13,7 @@ resource "azurerm_network_interface" "jumpbox-nic" {
 
   ip_configuration {
     name                          = "internal"
-    subnet_id                     = local.create_vnet ? azurerm_subnet.frontend[0].id : data.azurerm_subnet.frontend[0].id
+    subnet_id                     = local.create_frontend_subnet ? azurerm_subnet.frontend[0].id : data.azurerm_subnet.frontend[0].id
     private_ip_address_allocation = "Dynamic"
     public_ip_address_id          = local.allow_public_ip ? azurerm_public_ip.jumpbox-pip[0].id : null
   }
@@ -50,5 +50,5 @@ resource "azurerm_linux_virtual_machine" "jumpbox" {
 resource "azurerm_network_interface_application_security_group_association" "jumpbox-asg-asso" {
   for_each = toset(local.asg_associations["jumpbox"])
   network_interface_id          = azurerm_network_interface.jumpbox-nic.id
-  application_security_group_id = local.create_vnet ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
+  application_security_group_id = local.create_nsg ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
 }
