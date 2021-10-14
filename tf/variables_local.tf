@@ -73,7 +73,7 @@ locals {
     create_gateway_subnet  = try(local.configuration_yml["network"]["vnet"]["subnets"]["gateway"]["create"], local.create_vnet )
 
     # Application Security Groups
-    create_nsg = try(local.configuration_yml["network"]["vnet"]["create_nsg"], local.create_vnet )
+    create_nsg = try(local.configuration_yml["network"]["create_nsg"], local.create_vnet )
     default_asgs = ["asg-ssh", "asg-rdp", "asg-jumpbox", "asg-ad", "asg-ad-client", "asg-lustre", "asg-lustre-client", "asg-pbs", "asg-pbs-client", "asg-cyclecloud", "asg-cyclecloud-client", "asg-nfs-client", "asg-telegraf", "asg-grafana", "asg-robinhood", "asg-ondemand", "asg-deployer"]
     asgs = { for v in local.default_asgs : v => v }
     empty_array = []
