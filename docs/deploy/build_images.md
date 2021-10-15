@@ -76,13 +76,51 @@ cd packer
 ```
 
 ## Update the Cycle cluster template
-Once images have been built you need to update the Cycle cluster template to match the exact image ID of the images pushed into the Shared Image Gallery. To do so just run the install step on the ccpbs target.
+Once all images have been built you need to update the configuration file to specify which images to use and then update the Cycle cluster template to match the exact image ID of the images pushed into the Shared Image Gallery. 
+
+To specify the new custom images to use, just comment the default `image: OpenLogic:CentOS-HPC:7_9-gen2:latest` values and uncomment the line below which contains the image definition to use from the Shared Image Gallery.
+
+*Before the update*
+```yml
+queues:
+  - name: hb120rs_v3
+    vm_size: Standard_HB120rs_v3
+    max_core_count: 1200
+    image: OpenLogic:CentOS-HPC:7_9-gen2:latest
+#    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    # Queue dedicated to GPU remote viz nodes. This name is fixed and can't be changed
+  - name: viz3d
+    vm_size: Standard_NV6
+    max_core_count: 24
+    image: OpenLogic:CentOS-HPC:7_9-gen2:latest
+#    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
+    # Queue dedicated to non GPU remote viz nodes. This name is fixed and can't be changed
+```
+
+*After the update*
+```yml
+queues:
+  - name: hb120rs_v3
+    vm_size: Standard_HB120rs_v3
+    max_core_count: 1200
+#    image: OpenLogic:CentOS-HPC:7_9-gen2:latest
+    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    # Queue dedicated to GPU remote viz nodes. This name is fixed and can't be changed
+  - name: viz3d
+    vm_size: Standard_NV6
+    max_core_count: 24
+#    image: OpenLogic:CentOS-HPC:7_9-gen2:latest
+    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
+```
+
+Then update the Cycle project by running this playbook :
 
 ```bash
 ./install.sh ccpbs
 ```
 
-Once done your new images are ready to use in azhop.
+Once done your new images are ready to be used in azhop.
+> Note: For the new image to be used by new instances, make sure that all the existing one have been drained.
 
 ## Adding new packages in a custom image
 
