@@ -57,6 +57,8 @@ resource "azurerm_linux_virtual_machine" "lustre" {
     product   = local.lustre_image_reference.offer
     name      = local.lustre_image_reference.sku
   }
+
+  depends_on = [azurerm_network_interface_application_security_group_association.lustre-asg-asso]
 }
 
 resource "azurerm_network_interface_application_security_group_association" "lustre-asg-asso" {
@@ -129,6 +131,8 @@ resource "azurerm_linux_virtual_machine" "lustre-oss" {
     type         = "UserAssigned"
     identity_ids = [ azurerm_user_assigned_identity.lustre-oss.id ]
   }
+
+  depends_on = [azurerm_network_interface_application_security_group_association.lustre-oss-asg-asso]
 }
 
 # Grant read access to the Keyvault for the lustre-oss identity
@@ -218,7 +222,8 @@ resource "azurerm_linux_virtual_machine" "robinhood" {
     type         = "UserAssigned"
     identity_ids = [ azurerm_user_assigned_identity.lustre-oss.id ]
   }
-  
+
+  depends_on = [azurerm_network_interface_application_security_group_association.robinhood-asg-asso]
 }
 
 resource "azurerm_network_interface_application_security_group_association" "robinhood-asg-asso" {
