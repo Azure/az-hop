@@ -14,7 +14,6 @@ resource_group: azhop
 tags:
   env: dev
   project: azhop
-
 # Define an ANF account, single pool and volume
 # If not present assume that there is an existing NFS share for the users home directory
 anf:
@@ -68,6 +67,7 @@ network:
       compute:
         name: compute
         address_prefixes: "10.0.16.0/20"
+
   peering: # This is optional, and can be used to create a VNet Peering in the same subscription.
     vnet_name: #"VNET Name to Peer to"
     vnet_resource_group: #"Resource Group of the VNET to peer to"
@@ -82,6 +82,9 @@ ad:
 # On demand VM configuration
 ondemand:
   vm_size: Standard_D4s_v3
+# Grafana VM configuration
+grafana:
+  vm_size: Standard_D2s_v3
 # Scheduler VM configuration
 scheduler:
   vm_size: Standard_D2s_v3
@@ -111,14 +114,13 @@ lustre:
   mds_sku: "Standard_D8d_v4"
   oss_sku: "Standard_D32d_v4"
   oss_count: 2
-  version: "2.12.4"
   hsm_max_requests: 8
   mdt_device: "/dev/sdb"
   ost_device: "/dev/sdb"
   hsm:
     # optional to use existing storage for the archive
     # if not included it will use the azhop storage account that is created
-    storage_account: # existing_storage_account_name
+    storage_account: #existing_storage_account_name
     storage_container: #only_used_with_existing_storage_account
 # List of users to be created on this environment
 users:
@@ -131,7 +133,6 @@ users:
     sudo: true # Allow sudo access - false by default
   # compact format for user entry
   - { name: user2, uid: 10002, gid: 5000 }
-
 groups: # Not used today => To be used in the future
   - name: users
     gid: 5000
@@ -151,7 +152,7 @@ images:
     sku: 7.9-gen2
     hyper_v: V2
     os_type: Linux
-    version: 7.9 
+    version: 7.9
   - name: centos-7.8-desktop-3d
     publisher: azhop
     offer: CentOS
@@ -176,22 +177,27 @@ queues:
     vm_size: Standard_HC44rs
     max_core_count: 440
     image: OpenLogic:CentOS-HPC:7_9-gen2:latest
+#    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
   - name: hb120rs_v2
     vm_size: Standard_HB120rs_v2
     max_core_count: 1200
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    image: OpenLogic:CentOS-HPC:7_9-gen2:latest
+#    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
   - name: hb120rs_v3
     vm_size: Standard_HB120rs_v3
     max_core_count: 1200
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    image: OpenLogic:CentOS-HPC:7_9-gen2:latest
+#    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
     # Queue dedicated to GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz3d
     vm_size: Standard_NV6
     max_core_count: 24
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
+    image: OpenLogic:CentOS-HPC:7_9-gen2:latest
+#    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
     # Queue dedicated to non GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz
     vm_size: Standard_D8s_v3
     max_core_count: 200
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
+    image: OpenLogic:CentOS-HPC:7_9-gen2:latest
+#    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
 ```
