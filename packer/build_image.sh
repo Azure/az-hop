@@ -79,50 +79,6 @@ else
   esac
 fi
 
-
-# if [ -z "$ARM_CLIENT_ID" ]; then
-#   # Need the SPN name to use
-#   spn_appname=$(jq -r '.spn_name' $SPN_FILE )
-#   echo "spn_appname=$spn_appname"
-#   # Need keyvault name where the SPN secret is stored
-#   key_vault=$(jq -r '.key_vault' $SPN_FILE )
-#   echo "key_vault=$key_vault"
-
-#   # Check that the key_vault exists
-#   az keyvault show -n $key_vault --output table 2>/dev/null
-#   if [ "$?" = "0" ]; then
-#       echo "keyvault $key_vault exists"
-#   else
-#       echo "keyvault $key_vault doesn't exists"
-#       exit 1
-#   fi
-
-#   # Retrieve the spn appId and tenantId
-#   spn=$(az ad sp show --id http://$spn_appname --query "[appId,appOwnerTenantId]" -o tsv)
-#   if [ "$spn" == "" ]; then
-#     echo "SPN $spn_appname doesn't exists" 
-#     exit 1
-#   fi
-#   appId=$(echo "$spn" | head -n1)
-#   tenantId=$(echo "$spn" | tail -n1)
-
-#   # Retrieve the secret from the keyvault
-#   secret=$(az keyvault secret show --name $spn_appname --vault-name $key_vault -o json | jq -r '.value')
-#   if [ "$secret" == "" ]; then
-#     echo "No secret stored in $key_vault for $spn_appname"
-#     exit 1
-#   fi
-
-# else
-#   echo "Using predefined ARM_* environment variables"
-#   appId=$ARM_CLIENT_ID
-#   tenantId=$ARM_TENANT_ID
-#   secret=$ARM_CLIENT_SECRET
-# fi
-
-#echo "appId=$appId"
-#echo "tenantId=$tenantId"
-
 image_name=$(basename "$PACKER_FILE")
 image_name="${image_name%.*}"
 
