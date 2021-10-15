@@ -107,6 +107,7 @@ if [ ${user_type} == "user" ]; then
   unset ARM_SUBSCRIPTION_ID
   unset ARM_CLIENT_ID
   unset ARM_CLIENT_SECRET
+  unset ARM_USE_MSI
   export TF_VAR_logged_user_objectId=$(az ad signed-in-user show --query objectId -o tsv)
   logged_user_upn=$(az ad signed-in-user show --query userPrincipalName -o tsv)
   echo " - logged in Azure with User ${logged_user_upn}"
@@ -120,6 +121,7 @@ else
           export TF_VAR_logged_user_objectId=$(az resource list -n $vmname --query [*].identity.principalId --out tsv)
           export ARM_TENANT_ID=${TF_VAR_tenant_id}
           export ARM_SUBSCRIPTION_ID=${subscription_id}
+          export ARM_USE_MSI=true
           logged_user_upn="${TF_VAR_logged_user_objectId} from ${vmname}"
           ;;
       "userAssignedIdentity")
