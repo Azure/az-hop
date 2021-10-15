@@ -134,7 +134,7 @@ resource "azurerm_linux_virtual_machine" "lustre-oss" {
 # Grant read access to the Keyvault for the lustre-oss identity
 resource "azurerm_key_vault_access_policy" "lustre-oss" {
   key_vault_id = azurerm_key_vault.azhop.id
-  tenant_id    = data.azurerm_client_config.current.tenant_id
+  tenant_id    = local.tenant_id
   object_id    = azurerm_user_assigned_identity.lustre-oss.principal_id
 
   key_permissions = [ "get", "list" ]
