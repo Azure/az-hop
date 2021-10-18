@@ -99,17 +99,6 @@ resource "azurerm_storage_account" "azhop" {
   }
 }
 
-# # Grant acccess only from the admin and compute subnets
-# resource "azurerm_storage_account_network_rules" "storage_rules" {
-#     count                      = (local.locked_down_network ? 1 : 0)
-#     resource_group_name        = azurerm_storage_account.azhop.resource_group_name
-#     storage_account_id         = azurerm_storage_account.azhop.id
-#     default_action             = "Deny"
-#     ip_rules                   = local.grant_access_from
-#     virtual_network_subnet_ids = [local.create_vnet ? azurerm_subnet.admin[0].id : data.azurerm_subnet.admin[0].id,
-#                                   local.create_vnet ? azurerm_subnet.compute[0].id : data.azurerm_subnet.compute[0].id]
-# }
-
 # create a container for the lustre archive if not using an existing account
 resource "azurerm_storage_container" "lustre_archive" {
     count                 = (local.lustre_archive_account == null ? 1 : 0)
