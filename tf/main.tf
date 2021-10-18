@@ -2,7 +2,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 2.61.0"
+      version = "~> 2.81.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -86,18 +86,29 @@ resource "azurerm_storage_account" "azhop" {
     account_tier             = "Standard"
     account_replication_type = "LRS"
     min_tls_version          = "TLS1_2"
+
+  # Grant acccess only from the admin and compute subnets
+  dynamic "network_rules" {
+    for_each = local.locked_down_network ? [1] : []
+    content {
+      default_action             = "Deny"
+      ip_rules                   = local.grant_access_from
+      virtual_network_subnet_ids = [local.create_vnet ? azurerm_subnet.admin[0].id : data.azurerm_subnet.admin[0].id,
+                                    local.create_vnet ? azurerm_subnet.compute[0].id : data.azurerm_subnet.compute[0].id]
+    }
+  }
 }
 
-# Grant acccess only from the admin and compute subnets
-resource "azurerm_storage_account_network_rules" "storage_rules" {
-    count                      = (local.locked_down_network ? 1 : 0)
-    resource_group_name        = azurerm_storage_account.azhop.resource_group_name
-    storage_account_name       = azurerm_storage_account.azhop.name
-    default_action             = "Deny"
-    ip_rules                   = local.grant_access_from
-    virtual_network_subnet_ids = [local.create_vnet ? azurerm_subnet.admin[0].id : data.azurerm_subnet.admin[0].id,
-                                  local.create_vnet ? azurerm_subnet.compute[0].id : data.azurerm_subnet.compute[0].id]
-}
+# # Grant acccess only from the admin and compute subnets
+# resource "azurerm_storage_account_network_rules" "storage_rules" {
+#     count                      = (local.locked_down_network ? 1 : 0)
+#     resource_group_name        = azurerm_storage_account.azhop.resource_group_name
+#     storage_account_id         = azurerm_storage_account.azhop.id
+#     default_action             = "Deny"
+#     ip_rules                   = local.grant_access_from
+#     virtual_network_subnet_ids = [local.create_vnet ? azurerm_subnet.admin[0].id : data.azurerm_subnet.admin[0].id,
+#                                   local.create_vnet ? azurerm_subnet.compute[0].id : data.azurerm_subnet.compute[0].id]
+# }
 
 # create a container for the lustre archive if not using an existing account
 resource "azurerm_storage_container" "lustre_archive" {

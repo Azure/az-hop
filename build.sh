@@ -75,7 +75,7 @@ function get_arm_access_key {
 
 get_arm_access_key
 
-terraform -chdir=$TF_FOLDER init
+terraform -chdir=$TF_FOLDER init -upgrade
 
 # Check config syntax
 yamllint $AZHOP_CONFIG
