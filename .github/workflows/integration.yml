@@ -44,7 +44,7 @@ jobs:
         resource_group: ${{ steps.deploy.outputs.resource_group }}
 
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.3.5
         with:
           submodules: true
 
@@ -112,7 +112,7 @@ jobs:
       options: --user 0
 
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.3.5
         with:
           submodules: true
          
@@ -139,7 +139,7 @@ jobs:
       options: --user 0
 
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.3.5
         with:
           submodules: true
          
@@ -164,7 +164,7 @@ jobs:
       options: --user 0
 
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.3.5
         with:
           submodules: true
          
@@ -189,7 +189,7 @@ jobs:
       options: --user 0
 
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.3.5
         with:
           submodules: true
          
@@ -214,7 +214,7 @@ jobs:
       options: --user 0
 
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.3.5
         with:
           submodules: true
          
@@ -241,7 +241,7 @@ jobs:
       options: --user 0
 
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.3.5
         with:
           submodules: true
          
@@ -269,7 +269,7 @@ jobs:
       options: --user 0
 
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.3.5
         with:
           submodules: true
          
@@ -294,7 +294,7 @@ jobs:
   #     options: --user 0
 
   #   steps:
-  #     - uses: actions/checkout@v2.3.4
+  #     - uses: actions/checkout@v2.3.5
   #       with:
   #         submodules: true
 
@@ -318,7 +318,7 @@ jobs:
       options: --user 0
 
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.3.5
         with:
           submodules: true
          
@@ -344,7 +344,7 @@ jobs:
       options: --user 0
 
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.3.5
 
       - name: Login azure
         run: |
