@@ -18,7 +18,9 @@ provider "azurerm" {
 }
 
 data "azurerm_subscription" "primary" {}
-data "azurerm_client_config" "current" {}
+# azurerm_client_config is empty when using a managed identity https://github.com/hashicorp/terraform-provider-azurerm/issues/7787
+# using variables instead filled up by the build.sh script
+#data "azurerm_client_config" "current" {}
 
 resource "random_string" "resource_postfix" {
   length = 8
