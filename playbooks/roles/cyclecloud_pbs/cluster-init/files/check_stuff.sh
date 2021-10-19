@@ -164,6 +164,7 @@ fi
 
 check_gpu
 #check_hostname
-check_domain_joined
+# Removing domain join check as it first run before the node is domain joined
+#check_domain_joined
 
 exit 0
