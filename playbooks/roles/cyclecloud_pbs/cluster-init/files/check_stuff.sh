@@ -134,6 +134,15 @@ function check_hostname()
     log "Check Hostname - end"
 }
 
+function check_domain_joined()
+{
+    realm list | grep active-directory
+    if [ $? -eq 1 ]; then
+    echo "Node $(hostname) is not domain joined"
+    exit 254
+    fi
+}
+
 # Check IB device only if IB tools are installed
 if [ -e /usr/bin/ibv_devinfo ]; then
     check_ib_device
@@ -141,5 +150,6 @@ fi
 
 check_gpu
 #check_hostname
+check_domain_joined
 
 exit 0
