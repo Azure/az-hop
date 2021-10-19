@@ -1,8 +1,13 @@
 #!/bin/bash
+packages="nfs-utils"
 
-yum install nfs-utils -y
+if ! rpm -q $packages; then
+  echo "Installing packages $packages"
+  yum install -y $packages
+fi
 
 mkdir {{homedir_mountpoint}}
+echo "mount {{ anf_home_ip }}:/{{ anf_home_path }} {{homedir_mountpoint}}"
 mount {{ anf_home_ip }}:/{{ anf_home_path }} {{homedir_mountpoint}}
 
 setsebool -P use_nfs_home_dirs 1 || true

@@ -136,11 +136,25 @@ function check_hostname()
 
 function check_domain_joined()
 {
-    realm list | grep active-directory
-    if [ $? -eq 1 ]; then
-    echo "Node $(hostname) is not domain joined"
-    exit 254
-    fi
+    local delay=15
+    local n=1
+    local max_retry=3
+
+    while true; do
+        realm list | grep active-directory 2>/dev/null
+        if [ $? -eq 1 ]; then
+            if [[ $n -le $max_retry ]]; then
+                echo "Failed to check if node is domain joined -  Attempt $n/$max_retry:"
+                sleep $delay
+                ((n++))
+            else
+                1>&2 echo "Node $(hostname) is not domain joined"
+                exit 254
+            fi
+        else
+            break
+        fi
+    done
 }
 
 # Check IB device only if IB tools are installed
