@@ -37,7 +37,7 @@ n=1
 max_retry=3
 
 while true; do
-  echo "Domain join on ADMIN_DOMAIN"
+  echo "Domain join on $ADMIN_DOMAIN"
   echo $ADMIN_PASSWORD| realm join -U $ADMIN_NAME $ADMIN_DOMAIN
 
   if [ ! -f "/etc/sssd/sssd.conf" ]; then
@@ -50,6 +50,8 @@ while true; do
       exit 1
     fi
   else
+    echo "Successfully joined domain $ADMIN_DOMAIN"
+    realm list
     break
   fi
 done
@@ -82,7 +84,6 @@ systemctl restart sssd
 systemctl restart sshd
 
 # Check if we are domain joined
-realm list
 realm list | grep active-directory
 if [ $? -eq 1 ]; then
   echo "Node $(hostname) is not domain joined"
