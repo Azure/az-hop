@@ -66,13 +66,13 @@
     src: 'pbs-headless.txt.j2'
     dest: /root/pbs-headless.txt
 
-- name: Add PBS-headless parameters
-  template:
-    src: pbs-headless.json.j2
-    dest: /root/pbs1-parameters.json
+# - name: Add PBS-headless parameters
+#   template:
+#     src: pbs-headless.json.j2
+#     dest: /root/pbs1-parameters.json
 
 - name: Import PBS Cluster
-  command: '/usr/local/bin/cyclecloud import_cluster pbs1 -f /root/pbs-headless.txt -p /root/pbs1-parameters.json -c OpenPBS-headless --force'
+  command: '/usr/local/bin/cyclecloud import_cluster pbs1 -f /root/pbs-headless.txt -c OpenPBS-headless --force'
 
 - name: Start PBS Cluster
   command: '/usr/local/bin/cyclecloud start_cluster pbs1'
