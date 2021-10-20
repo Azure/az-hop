@@ -134,6 +134,29 @@ function check_hostname()
     log "Check Hostname - end"
 }
 
+function check_domain_joined()
+{
+    local delay=15
+    local n=1
+    local max_retry=3
+
+    while true; do
+        realm list | grep active-directory 2>/dev/null
+        if [ $? -eq 1 ]; then
+            if [[ $n -le $max_retry ]]; then
+                echo "Failed to check if node is domain joined -  Attempt $n/$max_retry:"
+                sleep $delay
+                ((n++))
+            else
+                1>&2 echo "Node $(hostname) is not domain joined"
+                exit 254
+            fi
+        else
+            break
+        fi
+    done
+}
+
 # Check IB device only if IB tools are installed
 if [ -e /usr/bin/ibv_devinfo ]; then
     check_ib_device
@@ -141,5 +164,7 @@ fi
 
 check_gpu
 #check_hostname
+# Removing domain join check as it first run before the node is domain joined
+#check_domain_joined
 
 exit 0
