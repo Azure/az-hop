@@ -11,7 +11,7 @@
     connection: local
     register: password
     become: false
-    
+
   - include_role: 
       name: pbsserver
       apply: 
@@ -19,4 +19,4 @@
     vars:
       cc_admin: '{{admin_user}}'
       cc_password: '{{password.stdout}}'
-      cc_pbs_version: 1.4.0
+    when: (schedulers.openpbs is defined or schedulers is not defined)

@@ -132,6 +132,7 @@
     copy: 
       src: favicon.ico
       dest: /var/www/ood/public
+
   - name: Run the pbsclient role
     include_role:
       name: pbsclient
@@ -139,6 +140,8 @@
         become: true
     vars:
       pbs_server: scheduler
+    when: (schedulers.openpbs is defined or schedulers is not defined)
+
   - name: setup cyclecloud proxy
     shell: |
         if ! grep -q ccportal /opt/ood/ood-portal-generator/templates/ood-portal.conf.erb; then
