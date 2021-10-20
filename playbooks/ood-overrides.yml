@@ -1,6 +1,6 @@
 ---
 clusters:
-  ondemand:
+  openpbs:
     v2:
       metadata:
         title: AZHOP - Cluster
@@ -27,6 +27,7 @@ clusters:
             export PATH="/opt/TurboVNC/bin:$PATH"
             export WEBSOCKIFY_CMD="/usr/bin/websockify"
             %s
+
 ood_install_apps:
   codeserver:
     repo: https://github.com/edwardsp/bc_osc_codeserver.git
@@ -35,7 +36,7 @@ ood_install_apps:
 ood_apps:
   bc_desktop:
     title: "Remote Desktop"
-    cluster: ondemand
+    cluster: openpbs
     form:
       - desktop
       - target
