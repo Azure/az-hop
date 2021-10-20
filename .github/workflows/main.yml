@@ -85,7 +85,7 @@ jobs:
           echo "::set-output name=RESOURCE_GROUP::$RESOURCE_GROUP"
           ls -al 
           cat config.yml
-          anf_dual=$(yq eval '.anf.dual_protocol')
+          anf_dual=$(yq eval '.anf.dual_protocol' config.yml)
 
           # Check if we need to build with dual protocol
           build_error=0
