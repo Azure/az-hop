@@ -140,7 +140,7 @@
         become: true
     vars:
       pbs_server: scheduler
-    when: (schedulers.openpbs is defined or schedulers is not defined)
+    when: (queue_manager == "openpbs" or queue_manager is not defined)
 
   - name: setup cyclecloud proxy
     shell: |

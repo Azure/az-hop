@@ -165,7 +165,7 @@
             [[inputs.execd]]
               command = ["/opt/telegraf/scripts/collect_pbs_stats.py"]
               signal = "STDIN"
-    when: (schedulers.openpbs is defined or schedulers is not defined)
+    when: (queue_manager == "openpbs" or queue_manager is not defined)
 
   - name: restart telegraf
     service:

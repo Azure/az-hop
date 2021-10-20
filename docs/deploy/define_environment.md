@@ -136,9 +136,8 @@ users:
 groups: # Not used today => To be used in the future
   - name: users
     gid: 5000
-# schedulers to be installed and configured
-schedulers:
-  openpbs:
+# scheduler to be installed and configured
+scheduler: openpbs
 # List of images to be defined
 images:
   # - name: image_definition_name # Should match the packer configuration file name, one per packer file

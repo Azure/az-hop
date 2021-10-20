@@ -19,4 +19,4 @@
     vars:
       cc_admin: '{{admin_user}}'
       cc_password: '{{password.stdout}}'
-    when: (schedulers.openpbs is defined or schedulers is not defined)
+    when: (queue_manager == "openpbs" or queue_manager is not defined)

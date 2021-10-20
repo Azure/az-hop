@@ -23,11 +23,23 @@ function run_playbook ()
   fi
 }
 
+function get_scheduler ()
+{
+  local scheduler
+  scheduler=$(yq eval '.queue_manager' config.yml)
+  if [ "$scheduler" == "null" ]; then
+    scheduler="openpbs"
+  fi
+
+  SCHEDULER=$scheduler
+}
+
 # Apply pre-reqs
 $THIS_DIR/ansible_prereqs.sh
 
 # Check config syntax
 yamllint config.yml
+get_scheduler
 
 case $TARGET in
   all)
@@ -39,7 +51,7 @@ case $TARGET in
     run_playbook ccportal
     run_playbook ccpbs
     run_playbook scheduler
-    run_playbook ood $PLAYBOOKS_DIR/ood-overrides.yml
+    run_playbook ood $PLAYBOOKS_DIR/ood-overrides-$SCHEDULER.yml
     run_playbook grafana 
     run_playbook telegraf
     run_playbook chrony
@@ -52,7 +64,7 @@ case $TARGET in
     run_playbook $TARGET
   ;;
   ood)
-    run_playbook ood $PLAYBOOKS_DIR/ood-overrides.yml
+    run_playbook ood $PLAYBOOKS_DIR/ood-overrides-$SCHEDULER.yml
   ;;
   *)
     echo "unknown target"
