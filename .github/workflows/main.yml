@@ -85,10 +85,11 @@ jobs:
           echo "::set-output name=RESOURCE_GROUP::$RESOURCE_GROUP"
           ls -al 
           cat config.yml
+          anf_dual=$(yq eval '.anf.dual_protocol')
 
           # Check if we need to build with dual protocol
           build_error=0
-          if [ "$ANF_DUAL" = "false" ]; then
+          if [ "$anf_dual" != "true" ]; then
             set +e
             ./build.sh -a apply -f tf
             build_error=$?
