@@ -293,5 +293,11 @@
       minute: "0,10,20,30,40,50"
       job: "test -e /mnt/resource/passenger-tmp || (mkdir /mnt/resource/passenger-tmp && chmod 777 /mnt/resource/passenger-tmp)"
 
+  - name: update the cluster name for CodeServer
+    replace: 
+      path: /var/www/ood/apps/sys/codeserver/form.yml
+      regexp: '"ondemand"'
+      replace: 'openpbs'
+
   - name: restart ood
     shell: systemctl try-restart httpd24-httpd.service httpd24-htcacheclean.service
