@@ -74,7 +74,7 @@
       cc_image_lookup: '{{image_lookup}}'
       cc_domain: '{{ad_join_domain}}'
       cc_ad_server: '{{ad_dns}}'
-      cc_queue_manager: '{{queue_manager}} | default("openpbs")'
+      cc_queue_manager: '{{ queue_manager | default("openpbs") }}'
       influxdb_database_name: "telegraf"
       telegraf_influxdb_urls: 
         - "http://jumpbox:8086"
