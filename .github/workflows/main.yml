@@ -243,7 +243,7 @@ jobs:
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           ./install.sh ccportal
-          ./install.sh ccpbs
+          ./install.sh cccluster
           ./install.sh scheduler
 
   telegraf:

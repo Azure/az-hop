@@ -91,7 +91,7 @@ queues:
 Then update the Cycle project by running this playbook :
 
 ```bash
-./install.sh ccpbs
+./install.sh cccluster
 ```
 
 Once done your new images are ready to be used in azhop.

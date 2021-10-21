@@ -2,8 +2,6 @@ cc_admin_user:
 cc_public_key:
 cc_password:
 cc_storage:
-cc_region:
-cc_subnetid:
 cc_domain:
 cc_ad_server:
 cc_rpms_jetpack:

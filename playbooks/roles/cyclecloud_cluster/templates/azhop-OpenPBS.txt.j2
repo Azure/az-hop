@@ -3,7 +3,7 @@
 ## Cluster Configuration File ##
 ################################
 
-[cluster OpenPBS-headless]
+[cluster azhop-OpenPBS]
 FormLayout = selectionpanel
 Category = Azure HPC OnDemand Platform 
 
@@ -11,8 +11,8 @@ Autoscale = true
 
     [[node defaults]]
     UsePublicNetwork = false
-    Credentials = $Credentials    
-    ImageName = $ImageName
+    Credentials = azure
+    ImageName = OpenLogic:CentOS-HPC:7_9-gen2:latest
     SubnetId = {{ cc_subnetid }}
     Region = {{ cc_region }}
     KeyPairLocation = ~/.ssh/cyclecloud.pem
@@ -39,6 +39,9 @@ Autoscale = true
         [[[volume boot]]] 
         StorageAccountType = StandardSSD_LRS
 
+        [[[cluster-init common:default:1.0.0]]]
+        [[[cluster-init openpbs:default:1.0.0]]]
+
 {% for queue in cc_queues %}
     [[nodearray {{ queue.name }}]]
     MachineType = {{ queue.vm_size }} 
@@ -55,32 +58,6 @@ Autoscale = true
   {% else %}
     ImageName = {{ queue.image }}
   {% endif %}
-    AdditionalClusterInitSpecs = $ExecuteClusterInitSpecs
         [[[configuration]]]
         pbspro.slot_type = {{ queue.name }}
 {% endfor %}
-
-[parameters Advanced Settings]
-Order = 20
-
-    [[parameters Azure Settings]]
-    Order = 10 
-
-        [[[parameter Credentials]]]
-        Description = The credentials for the cloud provider
-        ParameterType = Cloud.Credentials
-
-        [[[parameter ImageName]]]
-        Label = Compute OS
-        ParameterType = Cloud.Image
-        Config.OS = linux
-        DefaultValue = cycle.image.centos8
-        Config.Filter := Package in {"cycle.image.centos7", "cycle.image.centos8"}
-
-   
-        [[[parameter ExecuteClusterInitSpecs]]]
-        Label = Execute Cluster-Init
-        DefaultValue = =undefined
-        Description = Cluster init specs to apply to execute nodes
-        ParameterType = Cloud.ClusterInitSpecs
-
