@@ -95,4 +95,4 @@
 
     - name: Start OpenPBS Cluster
       command: '/usr/local/bin/cyclecloud start_cluster pbs1'
-  when: queue_manager == "openpbs"
+  when: cc_queue_manager == "openpbs"

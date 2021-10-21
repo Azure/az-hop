@@ -8,7 +8,7 @@ The installation is done with Ansible playbooks and can be applied as a whole or
 - add_users
 - lustre
 - ccportal
-- ccpbs => When using custom images, make sure your images have been pushed into the SIG otherwise this is going to failed
+- cccluster => When using custom images, make sure your images have been pushed into the SIG otherwise this is going to failed
 - scheduler
 - ood
 - grafana
