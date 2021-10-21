@@ -52,6 +52,7 @@ case $TARGET in
     run_playbook cccluster
     run_playbook scheduler
     run_playbook ood $PLAYBOOKS_DIR/ood-overrides-$SCHEDULER.yml
+    run_playbook ood-custom
     run_playbook grafana 
     run_playbook telegraf
     run_playbook chrony
@@ -60,11 +61,12 @@ case $TARGET in
     run_playbook lustre-sas
     run_playbook lustre
   ;;
-  ad | linux | add_users | ccportal | chrony | cccluster | scheduler | grafana | telegraf)
+  ad | linux | add_users | ccportal | chrony | cccluster | scheduler | grafana | telegraf | ood-custom)
     run_playbook $TARGET
   ;;
   ood)
     run_playbook ood $PLAYBOOKS_DIR/ood-overrides-$SCHEDULER.yml
+    run_playbook ood-custom
   ;;
   *)
     echo "unknown target"
