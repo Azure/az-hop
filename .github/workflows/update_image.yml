@@ -83,7 +83,7 @@ jobs:
         run: |
           cp $AZHOP_CONFIGURATION config.yml
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
-          ./install.sh ccpbs
+          ./install.sh cccluster
 
   run_tests:
     name: run_tests

@@ -67,29 +67,32 @@
   args:
     chdir: '{{common_project_root}}'
 
-- name: Create Open PBS CycleCloud project
-  command: '/usr/local/bin/cyclecloud project init openpbs'
-  args:
-    chdir: '{{project_root}}'
-    creates: '{{openpbs_project_root}}/project.ini'
+- name: OpenPBS Cycle Cloud project
+  block:
+    - name: Create Open PBS CycleCloud project
+      command: '/usr/local/bin/cyclecloud project init openpbs'
+      args:
+        chdir: '{{project_root}}'
+        creates: '{{openpbs_project_root}}/project.ini'
 
-- name: Copy OpenPBS cluster-init files
-  copy:
-    src: '{{role_path}}/projects/openpbs/cluster-init'
-    dest: '{{openpbs_project_root}}/specs/default/'
+    - name: Copy OpenPBS cluster-init files
+      copy:
+        src: '{{role_path}}/projects/openpbs/cluster-init'
+        dest: '{{openpbs_project_root}}/specs/default/'
 
-- name: Upload OpenPBS CycleCloud project
-  command: '/usr/local/bin/cyclecloud project upload'
-  args:
-    chdir: '{{openpbs_project_root}}'
+    - name: Upload OpenPBS CycleCloud project
+      command: '/usr/local/bin/cyclecloud project upload'
+      args:
+        chdir: '{{openpbs_project_root}}'
 
-- name: Add azhop-OpenPBS template
-  template:
-    src: 'azhop-OpenPBS.txt.j2'
-    dest: '{{project_root}}/azhop-OpenPBS.txt'
+    - name: Add azhop-OpenPBS template
+      template:
+        src: 'azhop-OpenPBS.txt.j2'
+        dest: '{{project_root}}/azhop-OpenPBS.txt'
 
-- name: Import OpenPBS Cluster
-  command: '/usr/local/bin/cyclecloud import_cluster pbs1 -f {{project_root}}/azhop-OpenPBS.txt -c azhop-OpenPBS --force'
+    - name: Import OpenPBS Cluster
+      command: '/usr/local/bin/cyclecloud import_cluster pbs1 -f {{project_root}}/azhop-OpenPBS.txt -c azhop-OpenPBS --force'
 
-- name: Start OpenPBS Cluster
-  command: '/usr/local/bin/cyclecloud start_cluster pbs1'
+    - name: Start OpenPBS Cluster
+      command: '/usr/local/bin/cyclecloud start_cluster pbs1'
+  when: queue_manager == "openpbs"
