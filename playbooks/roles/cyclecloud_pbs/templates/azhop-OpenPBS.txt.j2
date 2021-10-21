@@ -3,7 +3,7 @@
 ## Cluster Configuration File ##
 ################################
 
-[cluster OpenPBS-headless]
+[cluster azhop-OpenPBS]
 FormLayout = selectionpanel
 Category = Azure HPC OnDemand Platform 
 
@@ -39,7 +39,8 @@ Autoscale = true
         [[[volume boot]]] 
         StorageAccountType = StandardSSD_LRS
 
-        [[[cluster-init pbs:default:1.0.0]]]
+        [[[cluster-init common:default:1.0.0]]]
+        [[[cluster-init openpbs:default:1.0.0]]]
 
 {% for queue in cc_queues %}
     [[nodearray {{ queue.name }}]]

@@ -1,0 +1,3 @@
+project_root: /root/projects
+common_project_root: '{{project_root}}/common'
+openpbs_project_root: '{{project_root}}/openpbs'
