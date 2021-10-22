@@ -1,6 +1,6 @@
 ---
 clusters:
-  openpbs:
+  ondemand:
     v2:
       metadata:
         title: AZHOP - Cluster
@@ -36,7 +36,7 @@ ood_install_apps:
 ood_apps:
   bc_desktop:
     title: "Remote Desktop"
-    cluster: openpbs
+    cluster: ondemand
     form:
       - desktop
       - target
