@@ -20,3 +20,12 @@
       cc_admin: '{{admin_user}}'
       cc_password: '{{password.stdout}}'
       cc_pbs_version: 1.4.0
+
+  - include_role: 
+      name: slurmserver
+      apply: 
+        become: true
+    vars:
+      cc_admin: '{{admin_user}}'
+      cc_password: '{{password.stdout}}'
+      cc_pbs_version: 1.4.0

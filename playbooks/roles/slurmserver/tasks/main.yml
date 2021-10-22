@@ -1,0 +1,122 @@
+---
+
+- name: install dependencies
+  yum:
+    name: python3, python3-pip, munge, munge-devel, rpm-build, readline-devel, pam-devel, perl-ExtUtils-MakeMaker, gcc, mariadb-devel
+
+- name: check local munge dir
+  file:
+    path: /etc/munge
+    owner: munge
+    group: munge
+    mode: 0700
+    state: directory
+
+- name: install munge key
+  copy:
+    content: "12345678901234567890123456789012"
+    dest: /etc/munge/munge.key
+    owner: munge
+    group: munge
+    mode: 0400
+
+- name: ensure munge is running.
+  service:
+    name: munge 
+    state: started
+    enabled: yes
+
+- name: check central slurm dir 
+  file:
+    path: /anfhome/slurm/rpms/
+    mode: 0755
+    state: directory
+
+- name: check slurm config dir 
+  file:
+    path: /etc/slurm/
+    mode: 0755
+    state: directory
+
+- name: check if slurm rpms exist
+  stat:
+    path: /home/hpcadmin/rpmbuild/RPMS/x86_64/slurm-21.08.0-1.el7.x86_64.rpm 
+  register: slurm_rpms
+
+- name: download slurm 
+  get_url:
+    url: https://download.schedmd.com/slurm/slurm-21.08.0.tar.bz2 
+    dest: /mnt/resource
+  when: slurm_rpms.stat.exists == False
+
+- name: build slurm
+  shell: |
+    rpmbuild -ta /mnt/resource/slurm-21.08.0.tar.bz2
+    cp rpmbuild/RPMS/x86_64/slurm-*.rpm /anfhome/slurm/rpms/
+  when: slurm_rpms.stat.exists == False
+
+- name: add slurm group 
+  group:
+    name: slurm
+    gid: 985
+    state: present
+
+- name: add slurm user
+  user:
+    name: slurm 
+    group: slurm
+    uid: 985
+    state: present
+
+- name: check central slurm dir 
+  file:
+    path: /anfhome/slurm/slurmctld/
+    mode: 0755
+    owner: slurm 
+    group: slurm 
+    state: directory
+
+- name: install slurm 
+  yum:
+    name:
+      -  /home/hpcadmin/rpmbuild/RPMS/x86_64/slurm-21.08.0-1.el7.x86_64.rpm
+      -  /home/hpcadmin/rpmbuild/RPMS/x86_64/slurm-perlapi-21.08.0-1.el7.x86_64.rpm
+      -  /home/hpcadmin/rpmbuild/RPMS/x86_64/slurm-slurmctld-21.08.0-1.el7.x86_64.rpm
+    state: present
+
+- name: create slurm config 
+  copy:
+    src: files/slurm.conf
+    dest: /etc/slurm/slurm.conf
+
+- name: ensure slurmctld is running.
+  service:
+    name: slurmctld
+    state: started
+    enabled: yes
+
+- name: download cc autoscale scripts
+  get_url:
+    url: https://raw.githubusercontent.com/Azure/cyclecloud-slurm/master/specs/default/chef/site-cookbooks/slurm/files/default/{{ item }}
+    dest: /mnt/resource
+  with_items:
+    - clusterwrapper.py
+    - cyclecloud_nodeinfo.sh
+    - cyclecloud_slurm.py
+    - cyclecloud_slurm.sh
+    - cyclecloud_slurm_test.py
+    - resume_fail_program.sh
+    - resume_program.sh
+    - return_to_idle.sh
+    - slurm-limits.conf
+    - slurmcc.py
+    - slurmcc_test.py
+    - slurmctld.override
+    - suspend_program.sh
+    - terminate_nodes.sh
+
+
+- name: download cc autoscale api 
+  get_url:
+    url: https://github.com/Azure/cyclecloud-slurm/releases/download/2.4.8/cyclecloud_api-8.1.0-py2.py3-none-any.whl 
+    dest: /mnt/resource
