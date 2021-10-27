@@ -41,7 +41,7 @@ resource "azurerm_windows_virtual_machine" "win" {
 }
 
 resource "azurerm_network_interface_application_security_group_association" "winviz-asg-asso" {
-  for_each = toset(local.asg_associations["winviz"])
-  network_interface_id          = azurerm_network_interface.winviz-nic.id
+  for_each = local.create_winviz ? toset(local.asg_associations["winviz"]) : []
+  network_interface_id          = azurerm_network_interface.winviz-nic[0].id
   application_security_group_id = local.create_nsg ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
 }
