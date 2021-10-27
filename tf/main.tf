@@ -93,8 +93,8 @@ resource "azurerm_storage_account" "azhop" {
     content {
       default_action             = "Deny"
       ip_rules                   = local.grant_access_from
-      virtual_network_subnet_ids = [local.create_vnet ? azurerm_subnet.admin[0].id : data.azurerm_subnet.admin[0].id,
-                                    local.create_vnet ? azurerm_subnet.compute[0].id : data.azurerm_subnet.compute[0].id]
+      virtual_network_subnet_ids = [local.create_admin_subnet ? azurerm_subnet.admin[0].id : data.azurerm_subnet.admin[0].id,
+                                    local.create_compute_subnet ? azurerm_subnet.compute[0].id : data.azurerm_subnet.compute[0].id]
     }
   }
 }
