@@ -1,4 +1,5 @@
 resource "azurerm_network_interface" "winviz-nic" {
+  count = local.create_winviz ? 1 : 0
   name                = "winviz-nic"
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
@@ -11,6 +12,7 @@ resource "azurerm_network_interface" "winviz-nic" {
 }
 
 resource "azurerm_windows_virtual_machine" "win" {
+  count = local.create_winviz ? 1 : 0
   name                = "winviz"
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
@@ -18,7 +20,7 @@ resource "azurerm_windows_virtual_machine" "win" {
   admin_username      = local.admin_username
   admin_password      = random_password.password.result 
   network_interface_ids = [
-    azurerm_network_interface.winviz-nic.id,
+    azurerm_network_interface.winviz-nic[0].id,
   ]
 
   winrm_listener {

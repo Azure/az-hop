@@ -42,6 +42,9 @@ locals {
     lustre_oss_sku = try(local.configuration_yml["lustre"]["oss_sku"], "Standard_D32d_v4")
     lustre_oss_count = try(local.configuration_yml["lustre"]["oss_count"], 2)
 
+    # Winviz
+    create_winviz = try(local.configuration_yml["winviz"].create, false)
+    
     # VNET
     create_vnet = try(length(local.vnet_id) > 0 ? false : true, true)
     vnet_id = try(local.configuration_yml["network"]["vnet"]["id"], null)

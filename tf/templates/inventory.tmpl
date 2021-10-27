@@ -29,6 +29,14 @@ all:
       ansible_user: ${jumpbox-user}
       ansible_password: "${ad-passwd}"
       ansible_psrp_proxy: socks5h://localhost:5985
+    winviz:
+      psrp_ssh_proxy: ${jumpbox-pip}
+      ansible_host: ${winviz-ip}
+      ansible_connection: psrp
+      ansible_psrp_protocol: http
+      ansible_user: ${jumpbox-user}
+      ansible_password: "${ad-passwd}"
+      ansible_psrp_proxy: socks5h://localhost:5985
     lustre:
       ansible_host: lustre
       ansible_ssh_user: ${lustre-user}
