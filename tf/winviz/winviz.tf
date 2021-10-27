@@ -1,24 +1,24 @@
-resource "azurerm_network_interface" "win-nic" {
-  name                = "win-nic"
+resource "azurerm_network_interface" "winviz-nic" {
+  name                = "winviz-nic"
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
 
   ip_configuration {
     name                          = "internal"
-    subnet_id                     = local.create_vnet ? azurerm_subnet.admin[0].id : data.azurerm_subnet.admin[0].id
+    subnet_id                     = local.create_compute_subnet ? azurerm_subnet.compute[0].id : data.azurerm_subnet.compute[0].id
     private_ip_address_allocation = "Dynamic"
   }
 }
 
 resource "azurerm_windows_virtual_machine" "win" {
-  name                = "win"
+  name                = "winviz"
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
-  size                = try(local.configuration_yml["win"].vm_size, "Standard_D2s_v3")
+  size                = try(local.configuration_yml["winviz"].vm_size, "Standard_D4s_v3")
   admin_username      = local.admin_username
   admin_password      = random_password.password.result 
   network_interface_ids = [
-    azurerm_network_interface.win-nic.id,
+    azurerm_network_interface.winviz-nic.id,
   ]
 
   winrm_listener {
@@ -31,9 +31,6 @@ resource "azurerm_windows_virtual_machine" "win" {
   }
 
   source_image_reference {
-    # publisher = "MicrosoftWindowsServer"
-    # offer     = "WindowsServer"
-    # sku       = "2016-Datacenter-smalldisk"
     publisher = "MicrosoftWindowsDesktop"
     offer     = "Windows-10"
     sku       = "21h1-pron-g2"
