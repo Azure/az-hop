@@ -1,6 +1,7 @@
 ---
 location: westeurope
 resource_group: __RESOURCE_GROUP__
+use_existing_rg: false
 tags:
   env: dev
   project: azhop
@@ -12,7 +13,7 @@ anf:
   # Service level of the ANF volume, can be: Standard, Premium, Ultra
   homefs_service_level: Standard
   # dual protocol
-  dual_protocol: false # true to enable SMB support. false by default
+  dual_protocol: __ANF_DUAL__ # true to enable SMB support. false by default
 
 mounts:
   # mount settings for the user home directory
@@ -23,7 +24,53 @@ mounts:
 
 admin_user: hpcadmin
 key_vault_readers: 0bf2513b-59fe-4018-bfd6-5d4844a9a3b9
-dual_protocol: __ANF_DUAL__
+
+network:
+  # Create Network and Application Security Rules, true by default, false when using an existing VNET if not specified
+  create_nsg: true
+  vnet:
+    name: hpcvnet # Optional - default to hpcvnet
+    id: # If a vnet id is set then no network will be created and the provided vnet will be used
+    address_space: "10.0.0.0/16" # Optional - default to "10.0.0.0/16"
+    # When using an existing VNET, only the subnet names will be used and not the adress_prefixes
+    subnets: # all subnets are optionals
+    # name values can be used to rename the default to specific names, address_prefixes to change the IP ranges to be used
+    # All values below are the default values
+      frontend: 
+        name: frontend
+        address_prefixes: "10.0.0.0/24"
+        create: true # create the subnet if true. default to true when not specified, default to false if using an existing VNET when not specified
+      admin:
+        name: admin
+        address_prefixes: "10.0.1.0/24"
+        create: true
+      netapp:
+        name: netapp
+        address_prefixes: "10.0.2.0/24"
+        create: true
+      ad:
+        name: ad
+        address_prefixes: "10.0.3.0/28"
+        create: true
+      bastion: # Bastion subnet name is always fixed to AzureBastionSubnet
+        address_prefixes: "10.0.4.0/27" # CIDR minimal range must be /27
+        create: true
+      gateway: # Gateway subnet name is always fixed to GatewaySubnet
+        address_prefixes: "10.0.4.32/27" # Recommendation is to use /27 or /28 network
+        create: true
+      compute:
+        name: compute
+        address_prefixes: "10.0.16.0/20"
+        create: true
+  peering: # This is optional, and can be used to create a VNet Peering in the same subscription.
+    vnet_name: #"VNET Name to Peer to"
+    vnet_resource_group: #"Resource Group of the VNET to peer to"
+# When working in a locked down network, uncomment and fill out this section
+locked_down_network:
+  enforce: false
+#   grant_access_from: [a.b.c.d] # Array of CIDR to grant access from, see https://docs.microsoft.com/en-us/azure/storage/common/storage-network-security?tabs=azure-portal#grant-access-from-an-internet-ip-range
+  public_ip: true # Enable public IP creation for Jumpbox, OnDemand and create images. Default to true
+
 ad:
   vm_size: Standard_D2s_v3
 ondemand:
@@ -61,6 +108,10 @@ users:
 groups:
   - name: users
     gid: 5000
+
+# scheduler to be installed and configured
+queue_manager: openpbs
+
 images:
   - name: azhop-centos79-v2-rdma-gpgpu
     publisher: azhop

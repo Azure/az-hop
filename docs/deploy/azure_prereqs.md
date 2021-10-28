@@ -2,9 +2,10 @@
 
 - When using a user account you need to be **Owner** of the subscription
 - When using a Service Principal Name, it need to be **Contributor** and **User Access Administrator** on the subscription
+- When using a managed Identity on a deployer VM it needs to be a System Managed Identity with **Contributor** and **User Access Administrator** on the resource group, plus **Reader** on the subscription
 - Your subscription need to be registered for NetApp resource provider as explained [here](https://docs.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-register#waitlist)
-- If using ANF Dual Protocol be aware of th limitation of one ANF account allow to be domain joined per region in the same subscription
-- The CycleCloud marketplace image need to be allowed, this is the default unless your subscription have a policy blocking it. The EULA terms need to be accepted, this is done in the build script, but if you are not granted to do so, ask your adimnistrator to run this command :
+- If using ANF Dual Protocol be aware of the limitation of one ANF account allow to be domain joined per region in the same subscription
+- The CycleCloud marketplace image need to be allowed, this is the default unless your subscription have a policy blocking it. The EULA terms need to be accepted, this is done in the build script, but if you are not granted to do so, ask your administrator to run this command :
 ```bash
 az vm image terms accept --offer azure-cyclecloud --publisher azurecyclecloud --plan cyclecloud-81
 ```
@@ -18,29 +19,4 @@ az vm image terms accept --offer azure-cyclecloud --publisher azurecyclecloud --
   - Standard_HB60rs
   - Standard_HB120rs_v2
   - Standard_NV6
-
-## Packer
-Packer needs a Service Principal Name to deploy resources in your subscription
-### Create a Service Principal Name
-
-Run this command to generate a Service Principal Name. Keep the password value somewhere safe as it won't be shown again.
-```bash
-az ad sp create-for-rbac --name azhop-packer-spn
-{
-  "appId": "<some-generated-guid>",
-  "displayName": "azhop-packer-spn",
-  "name": "<some-generated-guid>",
-  "password": "<generated-password>",
-  "tenant": "<your-tenant-id>"
-}
-```
-
-Then check the application registered, and if not done set the Application ID URI to `http://azhop-packer-spn` or the spn-name if different.
-
-
-### Add the password in a keyvault secret
-
-```bash
-az keyvault secret set --value <generated-password> --name azhop-packer-spn --vault-name <your-keyvault>
-```
 

@@ -3,7 +3,7 @@ Adding users is done in four steps :
 - Update your `config.yml` file
 - run the `create_passwords.sh` script
 - run the `add_users` Ansible playbook
-- run the `ccpbs` playbook to update the Cycle project files
+- run the `cccluster` playbook to update the Cycle project files
 
 
 ## Add users in the configuration file
@@ -35,5 +35,5 @@ $./install.sh add_users
 ## Update the Cycle project files
 
 ```bash
-$./install.sh ccpbs
+$./install.sh cccluster
 ```

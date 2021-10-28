@@ -4,7 +4,7 @@ location: westeurope
 # Name of the resource group to create all resources
 resource_group: azhop
 # If using an existing resource group set to true. Default is false
-#use_existing_rg: true
+use_existing_rg: false
 # Additional tags to be added on the Resource Group
 tags:
   env: dev
@@ -33,7 +33,7 @@ key_vault_readers: #<object_id>
 # Network
 network:
   # Create Network and Application Security Rules, true by default, false when using an existing VNET if not specified
-  #create_nsg: true
+  create_nsg: true
   vnet:
     name: hpcvnet # Optional - default to hpcvnet
     id: # If a vnet id is set then no network will be created and the provided vnet will be used
@@ -49,28 +49,34 @@ network:
       admin:
         name: admin
         address_prefixes: "10.0.1.0/24"
+        create: true
       netapp:
         name: netapp
         address_prefixes: "10.0.2.0/24"
+        create: true
       ad:
         name: ad
         address_prefixes: "10.0.3.0/28"
+        create: true
       bastion: # Bastion subnet name is always fixed to AzureBastionSubnet
         address_prefixes: "10.0.4.0/27" # CIDR minimal range must be /27
+        create: true
       gateway: # Gateway subnet name is always fixed to GatewaySubnet
         address_prefixes: "10.0.4.32/27" # Recommendation is to use /27 or /28 network
+        create: true
       compute:
         name: compute
         address_prefixes: "10.0.16.0/20"
+        create: true
 
   peering: # This is optional, and can be used to create a VNet Peering in the same subscription.
     vnet_name: #"VNET Name to Peer to"
     vnet_resource_group: #"Resource Group of the VNET to peer to"
 # When working in a locked down network, uncomment and fill out this section
-# locked_down_network: 
-#   enforce: true
+locked_down_network:
+  enforce: false
 #   grant_access_from: [a.b.c.d] # Array of CIDR to grant access from, see https://docs.microsoft.com/en-us/azure/storage/common/storage-network-security?tabs=azure-portal#grant-access-from-an-internet-ip-range
-#   public_ip: true # Enable public IP creation for Jumpbox, OnDemand and create images. Default to true
+  public_ip: true # Enable public IP creation for Jumpbox, OnDemand and create images. Default to true
 # Active directory VM configuration
 ad:
   vm_size: Standard_D2s_v3
@@ -124,15 +130,15 @@ lustre:
     storage_container: #only_used_with_existing_storage_account
 # List of users to be created on this environment
 users:
-  - name: user1
-    uid: 10001
-    gid: 5000
-    #shell: /bin/bash # default to /bin/bash
-    #home: /anfhome/user1 # default to /homedir_mountpoint/user_name
-    admin: false # true will allow user to have admin privilege like updating dashboards - false by default
-    sudo: true # Allow sudo access - false by default
-  # compact format for user entry
-  - { name: user2, uid: 10002, gid: 5000 }
+  # name: username
+  # uid: uniqueid
+  # gid: 5000
+  # shell: /bin/bash # default to /bin/bash
+  # home: /anfhome/<user_name> # default to /homedir_mountpoint/user_name
+  # admin: false # true will allow user to have cluster admin privilege - false by default
+  # sudo: true # Allow sudo access - false by default
+  - { name: clusteradmin, uid: 10001, gid: 5000, admin: true, sudo: true }
+  - { name: clusteruser, uid: 10002, gid: 5000 }
 groups: # Not used today => To be used in the future
   - name: users
     gid: 5000
@@ -173,6 +179,7 @@ queues:
     max_core_count: 1024
     # marketplace image name or custom image id
     image: OpenLogic:CentOS-HPC:7_9-gen2:latest
+#    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
     # Set to true if AccelNet need to be enabled. false is the default value
     EnableAcceleratedNetworking: false
     # spot instance support. Default is false
