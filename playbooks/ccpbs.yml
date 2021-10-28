@@ -72,3 +72,20 @@
       influxdb_database_name: "telegraf"
       telegraf_influxdb_urls: 
         - "http://jumpbox:8086"
+
+  - include_role: 
+      name: cyclecloud_slurm
+      apply: 
+        become: true
+    vars:
+      cc_region: '{{location}}'
+      cc_subnetid: '{{compute_subnetid}}'
+      cc_admin_user: '{{admin_user}}'
+      cc_password: '{{password.stdout}}'
+      cc_queues: '{{queues}}'
+      cc_image_lookup: '{{image_lookup}}'
+      cc_domain: '{{ad_join_domain}}'
+      cc_ad_server: '{{ad_dns}}'
+      influxdb_database_name: "telegraf"
+      telegraf_influxdb_urls: 
+        - "http://jumpbox:8086"

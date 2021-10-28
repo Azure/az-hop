@@ -1,0 +1,26 @@
+#!/bin/bash
+# Apply default configuration to the node
+# Remote read access to the cluster init script files for all users
+chmod 700 -R /mnt/cluster-init
+
+# change access to resource so that temp jobs can be written there
+chmod 777 /mnt/resource
+
+# Grant domain users sudo with no password
+#echo "\"%domain users\" ALL=(ALL) NOPASSWD: ALL" | tee -a /etc/sudoers
+
+# Grant sudo for users with sudo privilege
+{% for user in users %}
+  {% if user.sudo is defined and user.sudo %}
+echo "{{user.name}} ALL=(ALL) NOPASSWD: ALL" | tee -a /etc/sudoers.d/{{user.name}}
+  {% endif %}
+{% endfor %}
+
+# For any NV instances, reinit the session
+AZHPC_VMSIZE=$(curl -s --noproxy "*" -H Metadata:true "http://169.254.169.254/metadata/instance/compute?api-version=2019-08-15" | jq -r '.vmSize' | tr '[:upper:]' '[:lower:]')
+case $AZHPC_VMSIZE in
+  standard_nv*)
+    echo "Enabling GUI"
+    systemctl restart gdm
+  ;;
+esac

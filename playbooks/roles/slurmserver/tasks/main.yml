@@ -40,7 +40,7 @@
 
 - name: check if slurm rpms exist
   stat:
-    path: /home/hpcadmin/rpmbuild/RPMS/x86_64/slurm-21.08.0-1.el7.x86_64.rpm 
+    path: /anfhome/slurm/rpms/slurm-21.08.0-1.el7.x86_64.rpm 
   register: slurm_rpms
 
 - name: download slurm 
@@ -52,7 +52,7 @@
 - name: build slurm
   shell: |
     rpmbuild -ta /mnt/resource/slurm-21.08.0.tar.bz2
-    cp rpmbuild/RPMS/x86_64/slurm-*.rpm /anfhome/slurm/rpms/
+    sudo cp rpmbuild/RPMS/x86_64/slurm-*.rpm /anfhome/slurm/rpms/
   when: slurm_rpms.stat.exists == False
 
 - name: add slurm group 
