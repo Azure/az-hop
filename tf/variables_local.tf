@@ -42,6 +42,9 @@ locals {
     lustre_oss_sku = try(local.configuration_yml["lustre"]["oss_sku"], "Standard_D32d_v4")
     lustre_oss_count = try(local.configuration_yml["lustre"]["oss_count"], 2)
 
+    # Winviz
+    create_winviz = try(local.configuration_yml["winviz"].create, false)
+
     # VNET
     create_vnet = try(length(local.vnet_id) > 0 ? false : true, true)
     vnet_id = try(local.configuration_yml["network"]["vnet"]["id"], null)
@@ -93,6 +96,7 @@ locals {
         ondemand  = ["asg-ssh", "asg-ondemand", "asg-ad-client", "asg-nfs-client", "asg-pbs-client", "asg-lustre-client", "asg-telegraf"]
         robinhood = ["asg-ssh", "asg-robinhood", "asg-lustre-client", "asg-telegraf"]
         scheduler = ["asg-ssh", "asg-pbs", "asg-ad-client", "asg-cyclecloud-client", "asg-nfs-client", "asg-telegraf"]
+        winviz    = ["asg-ad-client", "asg-rdp"]
     }
 
     # Open ports for NSG TCP rules
@@ -193,7 +197,7 @@ locals {
         AllowGrafanaIn              = ["510", "Inbound", "Allow", "tcp", "Grafana",            "asg/asg-ondemand",          "asg/asg-grafana"],
 
         # Admin and Deployment
-        AllowSocksIn                = ["520", "Inbound", "Allow", "tcp", "Socks",              "asg/asg-jumpbox",          "asg/asg-ad"],
+        AllowSocksIn                = ["520", "Inbound", "Allow", "tcp", "Socks",              "asg/asg-jumpbox",          "asg/asg-rdp"],
         AllowBastionIn              = ["530", "Inbound", "Allow", "tcp", "Bastion",            "subnet/bastion",           "tag/VirtualNetwork"],
         AllowInternalWebUsersIn     = ["540", "Inbound", "Allow", "tcp", "Web",                "subnet/gateway",           "asg/asg-ondemand"],
         AllowRdpIn                  = ["550", "Inbound", "Allow", "tcp", "Rdp",                "asg/asg-jumpbox",          "asg/asg-rdp"],
@@ -266,7 +270,7 @@ locals {
 
         # Admin and Deployment
         AllowRdpOut                 = ["570", "Outbound", "Allow", "tcp", "Rdp",                "asg/asg-jumpbox",          "asg/asg-rdp"],
-        AllowSocksOut               = ["580", "Outbound", "Allow", "tcp", "Socks",              "asg/asg-jumpbox",          "asg/asg-ad"],
+        AllowSocksOut               = ["580", "Outbound", "Allow", "tcp", "Socks",              "asg/asg-jumpbox",          "asg/asg-rdp"],
         AllowDnsOut                 = ["590", "Outbound", "Allow", "*",   "Dns",                "tag/VirtualNetwork",       "tag/VirtualNetwork"],
 
         # Deny all remaining traffic and allow Internet access

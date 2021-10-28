@@ -61,7 +61,7 @@ case $TARGET in
     run_playbook lustre-sas
     run_playbook lustre
   ;;
-  ad | linux | add_users | ccportal | chrony | cccluster | scheduler | grafana | telegraf | ood-custom)
+  ad | linux | add_users | ccportal | chrony | cccluster | scheduler | grafana | telegraf | ood-custom | winviz)
     run_playbook $TARGET
   ;;
   ood)
