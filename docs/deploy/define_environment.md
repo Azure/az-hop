@@ -115,7 +115,7 @@ cyclecloud:
     # mandatory URL on the jetpack RPM to be installed on the ccportal and the scheduler
 #    jetpack:
 
-  winviz:
+winviz:
   vm_size: Standard_D4s_v3
   create: false # Create an always running windows node, false by default
 
