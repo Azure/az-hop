@@ -57,7 +57,7 @@ Autoscale = true
   {% endif %}
     AdditionalClusterInitSpecs = $ExecuteClusterInitSpecs
         [[[configuration]]]
-        pbspro.slot_type = {{ queue.name }}
+        slurm.autoscale = true 
 {% endfor %}
 
 [parameters Advanced Settings]
