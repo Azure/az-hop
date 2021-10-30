@@ -4,6 +4,19 @@
   yum:
     name: python3, python3-pip, munge, munge-devel, rpm-build, readline-devel, pam-devel, perl-ExtUtils-MakeMaker, gcc, mariadb-devel
 
+- name: add slurm group 
+  group:
+    name: slurm
+    gid: 985
+    state: present
+
+- name: add slurm user
+  user:
+    name: slurm 
+    group: slurm
+    uid: 985
+    state: present
+
 - name: check local munge dir
   file:
     path: /etc/munge
@@ -36,61 +49,59 @@
   file:
     path: /anfhome/slurm/config/
     mode: 0755
+    owner: slurm 
+    group: slurm 
     state: directory
 
 - name: check local slurm config dir 
   file:
     path: /etc/slurm/
     mode: 0755
+    owner: slurm 
+    group: slurm 
     state: directory
 
 - name: create a symbolic link for slurm config dir
   file:
     src: /anfhome/slurm/config
     dest: /sched
+    owner: slurm 
+    group: slurm 
     state: link
 
 - name: check slurmctld log dir 
   file:
     path: /var/log/slurmctld/
     mode: 0755
+    owner: slurm 
+    group: slurm 
     state: directory
 
 - name: check slurmctld log dir 
   file:
     path: /var/spool/slurmd/
     mode: 0755
+    owner: slurm 
+    group: slurm 
     state: directory
 
 - name: check if slurm rpms exist
   stat:
-    path: /anfhome/slurm/rpms/slurm-21.08.0-1.el7.x86_64.rpm 
+    path: /anfhome/slurm/rpms/slurm-20.11.7-1.el7.x86_64.rpm 
   register: slurm_rpms
 
 - name: download slurm 
   get_url:
-    url: https://download.schedmd.com/slurm/slurm-21.08.0.tar.bz2 
+    url: https://download.schedmd.com/slurm/slurm-20.11.7.tar.bz2 
     dest: /mnt/resource
   when: slurm_rpms.stat.exists == False
 
 - name: build slurm
   shell: |
-    rpmbuild -ta /mnt/resource/slurm-21.08.0.tar.bz2
+    rpmbuild -ta /mnt/resource/slurm-20.11.7.tar.bz2 2>&1
     sudo cp rpmbuild/RPMS/x86_64/slurm-*.rpm /anfhome/slurm/rpms/
   when: slurm_rpms.stat.exists == False
 
-- name: add slurm group 
-  group:
-    name: slurm
-    gid: 985
-    state: present
-
-- name: add slurm user
-  user:
-    name: slurm 
-    group: slurm
-    uid: 985
-    state: present
 
 - name: check central slurm dir 
   file:
@@ -103,9 +114,9 @@
 - name: install slurm 
   yum:
     name:
-      -  /anfhome/slurm/rpms/slurm-21.08.0-1.el7.x86_64.rpm
-      -  /anfhome/slurm/rpms/slurm-perlapi-21.08.0-1.el7.x86_64.rpm
-      -  /anfhome/slurm/rpms/slurm-slurmctld-21.08.0-1.el7.x86_64.rpm
+      -  /anfhome/slurm/rpms/slurm-20.11.7-1.el7.x86_64.rpm
+      -  /anfhome/slurm/rpms/slurm-perlapi-20.11.7-1.el7.x86_64.rpm
+      -  /anfhome/slurm/rpms/slurm-slurmctld-20.11.7-1.el7.x86_64.rpm
     state: present
 
 - name: create slurm config 
@@ -144,6 +155,11 @@
     - suspend_program.sh
     - terminate_nodes.sh
 
+- name: check execute bit for cyclecloud_slurm.sh 
+  file:
+    path: /opt/cycle/slurm/cyclecloud_slurm.sh
+    mode: 0755
+
 - name: install jetpack 
   yum:
     name:
@@ -155,33 +171,70 @@
     url: https://github.com/Azure/cyclecloud-slurm/releases/download/2.4.8/cyclecloud_api-8.1.0-py2.py3-none-any.whl 
     dest: /opt/cycle/slurm
 
+- name: download cc jobsubmit plugin
+  get_url:
+    url: https://github.com/Azure/cyclecloud-slurm/releases/download/2.4.7/job_submit_cyclecloud_centos_20.11.7-1.so 
+    dest: /usr/lib64/slurm/job_submit_cyclecloud.so
+
 - name: install cc autoscale api 
   shell: |
-      /opt/cycle/jetpack/system/embedded/bin/pip install /opt/cycle/slurm/cyclecloud_api-8.1.0-py2.py3-none-any.whl
+      /opt/cycle/jetpack/system/embedded/bin/pip install /opt/cycle/slurm/cyclecloud_api-8.1.0-py2.py3-none-any.whl  2>&1
       /opt/cycle/slurm/cyclecloud_slurm.sh initialize --cluster-name slurm1 --username "{{ cc_admin }}" --password "{{ cc_password }}" --url https://ccportal:9443/cyclecloud
   args:
     creates: /opt/cycle/jetpack/config/autoscale.json
 
-- name: initialize slurm autoscale config 
-  shell: |
-      /opt/cycle/slurm/cyclecloud_slurm.sh upgrade_conf 
-      /opt/cycle/slurm/cyclecloud_slurm.sh create_nodes --policy AllowExisting 
-      /opt/cycle/slurm/cyclecloud_slurm.sh slurm_conf > /sched/cyclecloud.conf 
-      /opt/cycle/slurm/cyclecloud_slurm.sh gres_conf > /sched/gres.conf 
-      /opt/cycle/slurm/cyclecloud_slurm.sh topology > /sched/topology.conf
-  args:
-    creates: /opt/cycle/jetpack/config/autoscale.json
-
-- name: symbolic link for slurm.conf 
-  file:
-    src: /sched/slurm.conf
-    dest: /etc/slurm/slurm.conf
-    state: link
+- name: create emtpy cyclecloud.conf
+  copy:
+    content: ""
+    dest: /sched/cyclecloud.conf
+    force: no
 
 - name: symbolic link for cyclecloud.conf 
   file:
     src: /sched/cyclecloud.conf
     dest: /etc/slurm/cyclecloud.conf
+    state: link
+
+- name: initialize slurm autoscale config 
+  shell: |
+      /opt/cycle/slurm/cyclecloud_slurm.sh upgrade_conf 
+  #args:
+      #creates: /opt/cycle/jetpack/config/autoscale.json
+
+- name: initialize slurm autoscale config 
+  shell: |
+      /opt/cycle/slurm/cyclecloud_slurm.sh create_nodes --policy AllowExisting 
+      #/opt/cycle/slurm/cyclecloud_slurm.sh slurm_conf > /sched/cyclecloud.conf 
+      #/opt/cycle/slurm/cyclecloud_slurm.sh gres_conf > /sched/gres.conf 
+      #/opt/cycle/slurm/cyclecloud_slurm.sh topology > /sched/topology.conf
+  #args:
+      #creates: /opt/cycle/jetpack/config/autoscale.json
+
+- name: initialize slurm autoscale config 
+  shell: |
+      /opt/cycle/slurm/cyclecloud_slurm.sh slurm_conf > /sched/cyclecloud.conf 
+      #/opt/cycle/slurm/cyclecloud_slurm.sh gres_conf > /sched/gres.conf 
+      #/opt/cycle/slurm/cyclecloud_slurm.sh topology > /sched/topology.conf
+  #args:
+      #creates: /opt/cycle/jetpack/config/autoscale.json
+
+- name: initialize slurm autoscale config 
+  shell: |
+      /opt/cycle/slurm/cyclecloud_slurm.sh gres_conf > /sched/gres.conf 
+      #/opt/cycle/slurm/cyclecloud_slurm.sh topology > /sched/topology.conf
+  #args:
+      #creates: /opt/cycle/jetpack/config/autoscale.json
+
+- name: initialize slurm autoscale config 
+  shell: |
+      /opt/cycle/slurm/cyclecloud_slurm.sh topology > /sched/topology.conf
+  #args:
+      #creates: /opt/cycle/jetpack/config/autoscale.json
+
+- name: symbolic link for slurm.conf 
+  file:
+    src: /sched/slurm.conf
+    dest: /etc/slurm/slurm.conf
     state: link
 
 - name: symbolic link for gres.conf 
