@@ -98,8 +98,10 @@
 
 - name: build slurm
   shell: |
-    rpmbuild -ta /mnt/resource/slurm-20.11.7.tar.bz2 2>&1
-    sudo cp rpmbuild/RPMS/x86_64/slurm-*.rpm /anfhome/slurm/rpms/
+    rpmbuild --clean -ta /mnt/resource/slurm-20.11.7.tar.bz2 > log.txt
+    sudo cp /root/rpmbuild/RPMS/x86_64/slurm-*.rpm /anfhome/slurm/rpms/
+  args:
+    chdir: "{{ ansible_env.HOME }}/rpmbuild"
   when: slurm_rpms.stat.exists == False
 
 
