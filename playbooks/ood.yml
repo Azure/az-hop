@@ -12,6 +12,10 @@
     - '{{global_config_file}}'
 
   tasks:
+  - name: Install the latest version of the ca-certificates
+    yum:
+      name: ca-certificates.noarch
+      state: latest
   - name: Set up PAM authentication
     shell: |
       yum install -y mod_authnz_pam
@@ -37,6 +41,15 @@
       httpd_public_uri: /.well-known
       httpd_public_root: /var/www/ood/.well-known
     when: sslcert.stat.exists == False
+  - name: mkdir for ssl cert
+    file:
+      path: /etc/ssl/{{ ondemand_fqdn }}/
+      state: directory
+      mode: '0755'
+  - name: download wget ssl chain
+    get_url :
+      url: https://letsencrypt.org/certs/letsencryptauthorityx3.pem.txt 
+      dest: /etc/ssl/{{ ondemand_fqdn }}/letsencryptauthorityx3.pem.txt
   - name: Setup HTTPS certificate
     shell: |
       cd /root
@@ -200,3 +213,65 @@
         end
   - name: restart ood
     shell: systemctl try-restart httpd24-httpd.service httpd24-htcacheclean.service
+  - name: create a symbolic link for slurm config dir
+    file:
+      src: /anfhome/slurm/config
+      dest: /sched
+      state: link
+  - name: Install the latest version of munge
+    yum:
+      name: munge
+      state: latest
+  - name: install munge key
+    copy:
+      src: /anfhome/slurm/config/munge.key
+      remote_src: yes
+      dest: /etc/munge/munge.key
+      owner: munge
+      group: munge
+      mode: 0400
+  - name: ensure munge is running.
+    service:
+      name: munge
+      state: started
+      enabled: yes
+  - name: install slurm
+    yum:
+      name:
+       -  /anfhome/slurm/rpms/slurm-20.11.7-1.el7.x86_64.rpm
+      state: present
+  - name: create slurm directory
+    file:
+      path: /etc/slurm
+      state: directory
+  - name: symbolic link for slurm.conf
+    file:
+      src: /sched/slurm.conf
+      dest: /etc/slurm/slurm.conf
+      state: link
+  - name: symbolic link for cyclecloud.conf
+    file:
+      src: /sched/cyclecloud.conf
+      dest: /etc/slurm/cyclecloud.conf
+      state: link
+  - name: symbolic link for topology.conf
+    file:
+      src: /sched/topology.conf
+      dest: /etc/slurm/topology.conf
+      state: link
+  - name: symbolic link for gres.conf
+    file:
+      src: /sched/gres.conf
+      dest: /etc/slurm/gres.conf
+      state: link
+  - name: add slurm group
+    group:
+      name: slurm
+      gid: 985
+      state: present
+  - name: add slurm user
+    user:
+      name: slurm
+      group: slurm
+      uid: 985
+      state: present
