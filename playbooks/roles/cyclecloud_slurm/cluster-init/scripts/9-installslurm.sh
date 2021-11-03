@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# install pbs rpms when not in custom image
+# install SLURM rpms when not in custom image
 if [ ! -d "/etc/slurm" ]; then
   echo "Installing Slurm RPMs"
   yum install -y epel-release
@@ -14,8 +14,8 @@ chown munge:munge /etc/munge/munge.key
 chmod 400 /etc/munge/munge.key
 systemctl restart munge
 
-groupadd -g 985 slurm
-useradd -g slurm -u 985 slurm
+groupadd -g 983 slurm
+useradd -g slurm -u 983 slurm
 
 ln -s /anfhome/slurm/config /sched
 mkdir -p /etc/slurm/
