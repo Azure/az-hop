@@ -33,10 +33,16 @@
     dest: '{{common_project_root}}/specs/default/cluster-init/scripts/2-mountlustre.sh'
     mode: 0777
 
-- name: Add joindomain script 
+- name: Add Linux joindomain script 
   template:
     src: '{{role_path}}/projects/common/cluster-init/scripts/3-joindomain.sh.j2'
     dest: '{{common_project_root}}/specs/default/cluster-init/scripts/3-joindomain.sh'
+    mode: 0777
+
+- name: Add Windows joindomain script 
+  template:
+    src: '{{role_path}}/projects/common/cluster-init/scripts/3-joindomain.bat.j2'
+    dest: '{{common_project_root}}/specs/default/cluster-init/scripts/3-joindomain.bat'
     mode: 0777
 
 - name: Add default script 
@@ -60,7 +66,8 @@
     - '{{common_project_root}}/specs/default/cluster-init/scripts/1-mountnfs.sh.j2'
     - '{{common_project_root}}/specs/default/cluster-init/scripts/2-mountlustre.sh.j2'
     - '{{common_project_root}}/specs/default/cluster-init/scripts/3-joindomain.sh.j2'
-    - '{{common_project_root}}/specs/default/cluster-init/scripts/5-default.sh.j2  '  
+    - '{{common_project_root}}/specs/default/cluster-init/scripts/3-joindomain.bat.j2'
+    - '{{common_project_root}}/specs/default/cluster-init/scripts/5-default.sh.j2  '
 
 - name: Upload common CycleCloud project
   command: '/usr/local/bin/cyclecloud project upload'
