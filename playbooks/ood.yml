@@ -12,6 +12,11 @@
     - '{{global_config_file}}'
 
   tasks:
+  - name: Make sure we have the latest root certificates
+    yum:
+      name: ca-certificates
+      state: latest
+
   - name: Set up PAM authentication
     shell: |
       yum install -y mod_authnz_pam
