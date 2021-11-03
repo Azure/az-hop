@@ -25,9 +25,23 @@
     mode: 0700
     state: directory
 
+- name: check slurm config dir 
+  file:
+    path: /anfhome/slurm/config/
+    mode: 0755
+    owner: slurm 
+    group: slurm 
+    state: directory
+
 - name: install munge key
   copy:
     content: "12345678901234567890123456789012"
+    dest: /anfhome/slurm/config/munge.key
+
+- name: install munge key
+  copy:
+    src: /anfhome/slurm/config/munge.key
+    remote_src: yes
     dest: /etc/munge/munge.key
     owner: munge
     group: munge
@@ -43,14 +57,6 @@
   file:
     path: /anfhome/slurm/rpms/
     mode: 0755
-    state: directory
-
-- name: check slurm config dir 
-  file:
-    path: /anfhome/slurm/config/
-    mode: 0755
-    owner: slurm 
-    group: slurm 
     state: directory
 
 - name: check local slurm config dir 
@@ -96,6 +102,12 @@
     dest: /mnt/resource
   when: slurm_rpms.stat.exists == False
 
+- name: check slurm build dir 
+  file:
+    path: /root/rpmbuild
+    mode: 0755
+    state: directory
+
 - name: build slurm
   shell: |
     rpmbuild --clean -ta /mnt/resource/slurm-20.11.7.tar.bz2 > log.txt
@@ -125,11 +137,27 @@
   copy:
     src: files/slurm.conf
     dest: /sched/slurm.conf
+    owner: slurm 
+    group: slurm 
 
 - name: create slurm cgroup config 
   copy:
     src: files/cgroup.conf
     dest: /sched/cgroup.conf
+    owner: slurm 
+    group: slurm 
+
+- name: symbolic link for slurm.conf 
+  file:
+    src: /sched/slurm.conf
+    dest: /etc/slurm/slurm.conf
+    state: link
+
+- name: symbolic link for cgroup.conf 
+  file:
+    src: /sched/cgroup.conf
+    dest: /etc/slurm/cgroup.conf
+    state: link
 
 - name: check slurm autoscale dir 
   file:
@@ -161,6 +189,43 @@
   file:
     path: /opt/cycle/slurm/cyclecloud_slurm.sh
     mode: 0755
+    owner: slurm 
+    group: slurm 
+
+- name: check execute bit for return_to_idle.sh 
+  file:
+    path: /opt/cycle/slurm/return_to_idle.sh
+    mode: 0755
+    owner: slurm 
+    group: slurm 
+
+- name: check execute bit for terminate_nodes.sh 
+  file:
+    path: /opt/cycle/slurm/terminate_nodes.sh
+    mode: 0755
+    owner: slurm 
+    group: slurm 
+
+- name: check execute bit for resume_fail_program.sh 
+  file:
+    path: /opt/cycle/slurm/resume_fail_program.sh
+    mode: 0700
+    owner: slurm 
+    group: slurm 
+
+- name: check execute bit for resume_program.sh 
+  file:
+    path: /opt/cycle/slurm/resume_program.sh
+    mode: 0700
+    owner: slurm 
+    group: slurm 
+
+- name: check execute bit for suspend_program.sh 
+  file:
+    path: /opt/cycle/slurm/suspend_program.sh
+    mode: 0700
+    owner: slurm 
+    group: slurm 
 
 - name: install jetpack 
   yum:
@@ -189,6 +254,8 @@
   copy:
     content: ""
     dest: /sched/cyclecloud.conf
+    owner: slurm 
+    group: slurm 
     force: no
 
 - name: symbolic link for cyclecloud.conf 
@@ -200,44 +267,24 @@
 - name: initialize slurm autoscale config 
   shell: |
       /opt/cycle/slurm/cyclecloud_slurm.sh upgrade_conf 
-  #args:
-      #creates: /opt/cycle/jetpack/config/autoscale.json
 
 - name: initialize slurm autoscale config 
   shell: |
       /opt/cycle/slurm/cyclecloud_slurm.sh create_nodes --policy AllowExisting 
-      #/opt/cycle/slurm/cyclecloud_slurm.sh slurm_conf > /sched/cyclecloud.conf 
-      #/opt/cycle/slurm/cyclecloud_slurm.sh gres_conf > /sched/gres.conf 
-      #/opt/cycle/slurm/cyclecloud_slurm.sh topology > /sched/topology.conf
-  #args:
-      #creates: /opt/cycle/jetpack/config/autoscale.json
 
 - name: initialize slurm autoscale config 
   shell: |
       /opt/cycle/slurm/cyclecloud_slurm.sh slurm_conf > /sched/cyclecloud.conf 
-      #/opt/cycle/slurm/cyclecloud_slurm.sh gres_conf > /sched/gres.conf 
-      #/opt/cycle/slurm/cyclecloud_slurm.sh topology > /sched/topology.conf
-  #args:
-      #creates: /opt/cycle/jetpack/config/autoscale.json
 
 - name: initialize slurm autoscale config 
   shell: |
       /opt/cycle/slurm/cyclecloud_slurm.sh gres_conf > /sched/gres.conf 
-      #/opt/cycle/slurm/cyclecloud_slurm.sh topology > /sched/topology.conf
-  #args:
-      #creates: /opt/cycle/jetpack/config/autoscale.json
 
 - name: initialize slurm autoscale config 
   shell: |
       /opt/cycle/slurm/cyclecloud_slurm.sh topology > /sched/topology.conf
   #args:
       #creates: /opt/cycle/jetpack/config/autoscale.json
-
-- name: symbolic link for slurm.conf 
-  file:
-    src: /sched/slurm.conf
-    dest: /etc/slurm/slurm.conf
-    state: link
 
 - name: symbolic link for gres.conf 
   file:
