@@ -93,6 +93,15 @@ else
   echo "Azure CycleCloud marketplace image terms already accepted"
 fi
 
+# Accept Lustre marketplace image terms
+accepted=$(az vm image terms show --offer azurehpc-lustre --publisher azhpc --plan azurehpc-lustre-2_12 --query 'accepted' -o tsv)
+if [ "$accepted" != "true" ]; then
+  echo "Azure Lustre marketplace image terms are not accepted, accepting them now"
+  az vm image terms accept --offer azurehpc-lustre --publisher azhpc --plan azurehpc-lustre-2_12 -o tsv
+else
+  echo "Azure Lustre marketplace image terms already accepted"
+fi
+
 if [ -e $THIS_DIR/tf/terraform.tfstate ] && [ $TF_FOLDER != $THIS_DIR/tf ]; then
   cp -u -f $THIS_DIR/tf/terraform.tfstate $TF_FOLDER
 fi

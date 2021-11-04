@@ -9,14 +9,20 @@
 ```bash
 az vm image terms accept --offer azure-cyclecloud --publisher azurecyclecloud --plan cyclecloud-81
 ```
+- The Azure HPC Lustre marketplace image terms need to be accepted
+```bash
+az vm image terms accept --offer azurehpc-lustre --publisher azhpc --plan azurehpc-lustre-2_12
+```
+
 - When using the default configurations in order to build your environment, make sure you have enough quota for :
   - 5 x Standard_D2s_v3 
   - 2 x Standard_D8d_v4 
   - 2 x Standard_D32d_v4
-- For the compute and visualization nodes, you can adjust the maximum quota in your configuration file but make sure you have quota for these instances :
+- For the compute and visualization nodes, you can adjust the maximum quota in your configuration file but make sure you have quota for these instances too :
   - Standard_F2s_v2
   - Standard_HC44rs
   - Standard_HB60rs
   - Standard_HB120rs_v2
+  - Standard_HB120rs_v3
   - Standard_NV6
 
