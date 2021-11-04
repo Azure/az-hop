@@ -116,6 +116,7 @@ locals {
         Dns = ["53"]
         Rdp = ["3389"]
         Pbs = ["6200", "15001-15009", "17001", "32768-61000", "6817-6819"]
+        Slurmd = ["6818"]
         Lustre = ["635", "988"]
         Nfs = ["111", "635", "2049", "4045", "4046"]
         Telegraf = ["8086"]
@@ -174,6 +175,9 @@ locals {
         AllowComputePbsClientIn     = ["390", "Inbound", "Allow", "*",   "Pbs",                "subnet/compute",     "asg/asg-pbs-client"],
         AllowComputePbsIn           = ["400", "Inbound", "Allow", "*",   "Pbs",                "subnet/compute",     "asg/asg-pbs"],
         AllowComputeComputePbsIn    = ["401", "Inbound", "Allow", "*",   "Pbs",                "subnet/compute",     "subnet/compute"],
+
+        # SLURM
+        AllowComputeSlurmIn         = ["405", "Inbound", "Allow", "*",   "Slurmd",             "asg/asg-ondemand",    "subnet/compute"],
 
         # Lustre
         AllowLustreIn               = ["409", "Inbound", "Allow", "tcp", "Lustre",             "asg/asg-lustre",        "asg/asg-lustre-client"],
@@ -239,6 +243,9 @@ locals {
         AllowPbsClientComputeOut    = ["370", "Outbound", "Allow", "*",   "Pbs",                "subnet/compute",     "asg/asg-pbs"],
         AllowComputePbsClientOut    = ["380", "Outbound", "Allow", "*",   "Pbs",                "subnet/compute",     "asg/asg-pbs-client"],
         AllowComputeComputePbsOut   = ["381", "Outbound", "Allow", "*",   "Pbs",                "subnet/compute",     "subnet/compute"],
+
+        # SLURM
+        AllowSlurmComputeOut        = ["385", "Outbound", "Allow", "*",   "Slurmd",             "asg/asg-ondemand",        "subnet/compute"],
 
         # Lustre
         AllowLustreOut              = ["390", "Outbound", "Allow", "tcp", "Lustre",             "asg/asg-lustre",           "asg/asg-lustre-client"],
