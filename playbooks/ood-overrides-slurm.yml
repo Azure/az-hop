@@ -7,9 +7,8 @@ clusters:
       login:
         host: ondemand
       job:
-        adapter: pbspro
+        adapter: slurm
         host: scheduler
-        exec: /opt/pbs
       batch_connect:
         min_port: 61001
         max_port: 61010
@@ -30,7 +29,7 @@ clusters:
 
 ood_install_apps:
   codeserver:
-    repo: https://github.com/edwardsp/bc_osc_codeserver.git
+    repo: https://github.com/vgamayunov/bc_osc_codeserver.git
     dest: "{{ ood_sys_app_dir }}"
     version: master
 ood_apps:
@@ -66,10 +65,10 @@ ood_apps:
       ---
       script:
         native:
-          - "-l"
-          - "select=1:slot_type=<%= target %>"
-          - "-l"
-          - "walltime=<%= '%02d:00:00' % hours %>"
+          - "-p"
+          - "<%= target %>"
+          - "-t"
+          - "<%= '%02d:00:00' % hours %>"
 httpd_auth:
 - AuthType Basic
 - AuthName "Open OnDemand"
