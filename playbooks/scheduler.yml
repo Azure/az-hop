@@ -11,7 +11,7 @@
     connection: local
     register: password
     become: false
-    
+
   - include_role: 
       name: pbsserver
       apply: 
@@ -20,6 +20,7 @@
       cc_admin: '{{admin_user}}'
       cc_password: '{{password.stdout}}'
       cc_pbs_version: 1.4.0
+    when: (queue_manager == "openpbs" or queue_manager is not defined)
 
   - include_role: 
       name: slurmserver

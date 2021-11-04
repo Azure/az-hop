@@ -75,7 +75,10 @@ function get_arm_access_key {
 
 get_arm_access_key
 
-terraform -chdir=$TF_FOLDER init
+terraform -chdir=$TF_FOLDER init -upgrade
+
+# Check config syntax
+yamllint $AZHOP_CONFIG
 
 # Accept Cycle marketplace image terms
 cc_plan=$(yq eval '.cyclecloud.plan.name' $AZHOP_CONFIG)
@@ -94,13 +97,50 @@ if [ -e $THIS_DIR/tf/terraform.tfstate ] && [ $TF_FOLDER != $THIS_DIR/tf ]; then
   cp -u -f $THIS_DIR/tf/terraform.tfstate $TF_FOLDER
 fi
 
-# Get the current logged user
-azure_user=$(az account show --query user.name -o tsv)
+# Inspired from https://github.com/aztfmod/rover/blob/4098ce32e46f854445ac85839125f21410b439fc/scripts/functions.sh#L807
+# Retrieve under which identity we run
+user_type=$(az account show --query user.type -o tsv)
+export TF_VAR_tenant_id=$(az account show -o json | jq -r .tenantId)
+subscription_id=$(az account show --query id -o tsv)
+if [ ${user_type} == "user" ]; then
+  unset ARM_TENANT_ID
+  unset ARM_SUBSCRIPTION_ID
+  unset ARM_CLIENT_ID
+  unset ARM_CLIENT_SECRET
+  unset ARM_USE_MSI
+  export TF_VAR_logged_user_objectId=$(az ad signed-in-user show --query objectId -o tsv)
+  logged_user_upn=$(az ad signed-in-user show --query userPrincipalName -o tsv)
+  echo " - logged in Azure with User ${logged_user_upn}"
+else
+  unset TF_VAR_logged_user_objectId
+  export clientId=$(az account show --query user.name -o tsv)
+  case "${clientId}" in
+      "systemAssignedIdentity")
+          vmname=$(curl -s --noproxy "*" -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2019-08-15" | jq -r '.compute.name')
+          echo " - logged in Azure with System Assigned Identity from ${vmname}"
+          export TF_VAR_logged_user_objectId=$(az resource list -n $vmname --query [*].identity.principalId --out tsv)
+          export ARM_TENANT_ID=${TF_VAR_tenant_id}
+          export ARM_SUBSCRIPTION_ID=${subscription_id}
+          export ARM_USE_MSI=true
+          logged_user_upn="${TF_VAR_logged_user_objectId} from ${vmname}"
+          ;;
+      "userAssignedIdentity")
+          echo "userAssignedIdentity not supported; please use a systemAssignedIdentity or a Service Principal Name instead"
+          exit 1
+          ;;
+      *)
+          export TF_VAR_logged_user_objectId=$(az ad sp show --id ${clientId} --query objectId -o tsv)
+          logged_user_upn=$(az ad sp show --id ${clientId} --query displayName -o tsv)
+          echo " - logged in Azure with Service Principal Name ${logged_user_upn}"
+          export ARM_TENANT_ID=${TF_VAR_tenant_id}
+          export ARM_SUBSCRIPTION_ID=${subscription_id}
+          ;;
+  esac
+fi
+export TF_VAR_CreatedBy=${logged_user_upn}
 echo "terraform -chdir=$TF_FOLDER $TF_COMMAND -parallelism=30 $PARAMS"
 
-terraform -chdir=$TF_FOLDER $TF_COMMAND -parallelism=30 \
-  -var "CreatedBy=$azure_user" \
-  $PARAMS
+terraform -chdir=$TF_FOLDER $TF_COMMAND -parallelism=30 $PARAMS
 
 if [ -e $TF_FOLDER/terraform.tfstate ] && [ $TF_FOLDER != $THIS_DIR/tf ]; then
   cp -u -f $TF_FOLDER/terraform.tfstate $THIS_DIR/tf/terraform.tfstate

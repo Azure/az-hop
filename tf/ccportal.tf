@@ -5,7 +5,7 @@ resource "azurerm_network_interface" "ccportal-nic" {
 
   ip_configuration {
     name                          = "internal"
-    subnet_id                     = local.create_vnet ? azurerm_subnet.admin[0].id : data.azurerm_subnet.admin[0].id
+    subnet_id                     = local.create_admin_subnet ? azurerm_subnet.admin[0].id : data.azurerm_subnet.admin[0].id
     private_ip_address_allocation = "Dynamic"
   }
 }
@@ -65,6 +65,8 @@ resource "azurerm_virtual_machine" "ccportal" {
     type         = "UserAssigned"
     identity_ids = [ azurerm_user_assigned_identity.ccportal.id ]
   }
+
+  depends_on = [azurerm_network_interface_application_security_group_association.ccportal-asg-asso]
 }
 
 data "azurerm_role_definition" "contributor" {
@@ -72,8 +74,8 @@ data "azurerm_role_definition" "contributor" {
 }
 
 resource "azurerm_user_assigned_identity" "ccportal" {
-  resource_group_name = azurerm_resource_group.rg[0].name
-  location            = azurerm_resource_group.rg[0].location
+  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   name = "ccportal"
 }
 
@@ -135,7 +137,7 @@ resource "azurerm_user_assigned_identity" "ccportal" {
 # Grant Contributor access to Cycle in the az-hop resource group
 resource "azurerm_role_assignment" "ccportal_rg" {
   name               = azurerm_user_assigned_identity.ccportal.principal_id
-  scope              = azurerm_resource_group.rg[0].id
+  scope              = local.create_rg ? azurerm_resource_group.rg[0].id : data.azurerm_resource_group.rg[0].id
   role_definition_id = "${data.azurerm_subscription.primary.id}${data.azurerm_role_definition.contributor.id}"
   principal_id       = azurerm_user_assigned_identity.ccportal.principal_id
 }
@@ -143,5 +145,5 @@ resource "azurerm_role_assignment" "ccportal_rg" {
 resource "azurerm_network_interface_application_security_group_association" "ccportal-asg-asso" {
   for_each = toset(local.asg_associations["ccportal"])
   network_interface_id          = azurerm_network_interface.ccportal-nic.id
-  application_security_group_id = local.create_vnet ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
+  application_security_group_id = local.create_nsg ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
 }

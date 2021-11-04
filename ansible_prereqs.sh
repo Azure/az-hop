@@ -12,6 +12,7 @@ if [[ `pip3 list PySocks` == *"PySocks"* ]]; then
 else
   pip3 install PySocks
 fi
+
 ansible-galaxy collection install ansible.windows
 ansible-galaxy collection install community.windows
 ansible-galaxy collection install ansible.posix

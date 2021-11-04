@@ -8,7 +8,7 @@ resource "azurerm_key_vault" "azhop" {
   location                    = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name         = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   enabled_for_disk_encryption = true
-  tenant_id                   = data.azurerm_client_config.current.tenant_id
+  tenant_id                   = local.tenant_id
   # soft delete is enabled by default now (2021-8-25), with 90 days retention
   # soft_delete_enabled         = true
   soft_delete_retention_days  = 7
@@ -20,14 +20,14 @@ resource "azurerm_key_vault" "azhop" {
     default_action             = local.locked_down_network ? "Deny" : "Allow"
     bypass                     = "AzureServices"
     ip_rules                   = local.grant_access_from
-    virtual_network_subnet_ids = [local.create_vnet ? azurerm_subnet.admin[0].id : data.azurerm_subnet.admin[0].id]
+    virtual_network_subnet_ids = [local.create_admin_subnet ? azurerm_subnet.admin[0].id : data.azurerm_subnet.admin[0].id]
   }
 }
 
 resource "azurerm_key_vault_access_policy" "admin" {
   key_vault_id = azurerm_key_vault.azhop.id
-  tenant_id    = data.azurerm_client_config.current.tenant_id
-  object_id    = data.azurerm_client_config.current.object_id
+  tenant_id    = local.tenant_id
+  object_id    = local.logged_user_objectId
 
   secret_permissions = [
       "get",
@@ -44,8 +44,8 @@ resource "azurerm_key_vault_access_policy" "admin" {
 resource "azurerm_key_vault_access_policy" "reader" {
   count = local.key_vault_readers != null ? 1 : 0
   key_vault_id = azurerm_key_vault.azhop.id
-  tenant_id    = data.azurerm_client_config.current.tenant_id
-  object_id    = local.key_vault_readers != null ? local.key_vault_readers : data.azurerm_client_config.current.object_id
+  tenant_id    = local.tenant_id
+  object_id    = local.key_vault_readers != null ? local.key_vault_readers : local.logged_user_objectId
 
   secret_permissions = [
       "get",

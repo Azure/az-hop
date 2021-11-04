@@ -8,24 +8,37 @@ Here is a template for building such configuration file.
 location: westeurope
 # Name of the resource group to create all resources
 resource_group: azhop
+# If using an existing resource group set to true. Default is false
+use_existing_rg: false
 # Additional tags to be added on the Resource Group
 tags:
   env: dev
   project: azhop
-# Size of the ANF pool and unique volume
-homefs_size_tb: 4
-# Service level of the ANF volume, can be: Standard, Premium, Ultra
-homefs_service_level: Standard
-# name of the homedir on the ANF volume
-homedir_mountpoint: /anfhome
-# dual protocol
-dual_protocol: false # true to enable SMB support. false by default
+# Define an ANF account, single pool and volume
+# If not present assume that there is an existing NFS share for the users home directory
+anf:
+  # Size of the ANF pool and unique volume
+  homefs_size_tb: 4
+  # Service level of the ANF volume, can be: Standard, Premium, Ultra
+  homefs_service_level: Standard
+  # dual protocol
+  dual_protocol: false # true to enable SMB support. false by default
+
+mounts:
+  # mount settings for the user home directory
+  home:
+    mountpoint: /anfhome # /sharedhome for example
+    server: '{{anf_home_ip}}' # Specify an existing NFS server name or IP, when using the ANF built in use '{{anf_home_ip}}'
+    export: '{{anf_home_path}}' # Specify an existing NFS export directory, when using the ANF built in use '{{anf_home_path}}'
+
 # name of the admin account
 admin_user: hpcadmin
 # Object ID to grant key vault read access
 key_vault_readers: #<object_id>
 # Network
 network:
+  # Create Network and Application Security Rules, true by default, false when using an existing VNET if not specified
+  create_nsg: true
   vnet:
     name: hpcvnet # Optional - default to hpcvnet
     id: # If a vnet id is set then no network will be created and the provided vnet will be used
@@ -37,31 +50,47 @@ network:
       frontend: 
         name: frontend
         address_prefixes: "10.0.0.0/24"
+        create: true # create the subnet if true. default to true when not specified, default to false if using an existing VNET when not specified
       admin:
         name: admin
         address_prefixes: "10.0.1.0/24"
+        create: true
       netapp:
         name: netapp
         address_prefixes: "10.0.2.0/24"
+        create: true
       ad:
         name: ad
         address_prefixes: "10.0.3.0/28"
+        create: true
+      bastion: # Bastion subnet name is always fixed to AzureBastionSubnet
+        address_prefixes: "10.0.4.0/27" # CIDR minimal range must be /27
+        create: true
+      gateway: # Gateway subnet name is always fixed to GatewaySubnet
+        address_prefixes: "10.0.4.32/27" # Recommendation is to use /27 or /28 network
+        create: true
       compute:
         name: compute
         address_prefixes: "10.0.16.0/20"
+        create: true
+
   peering: # This is optional, and can be used to create a VNet Peering in the same subscription.
     vnet_name: #"VNET Name to Peer to"
     vnet_resource_group: #"Resource Group of the VNET to peer to"
 # When working in a locked down network, uncomment and fill out this section
-# locked_down_network: 
-#   enforce: true
+locked_down_network:
+  enforce: false
 #   grant_access_from: [a.b.c.d] # Array of CIDR to grant access from, see https://docs.microsoft.com/en-us/azure/storage/common/storage-network-security?tabs=azure-portal#grant-access-from-an-internet-ip-range
+  public_ip: true # Enable public IP creation for Jumpbox, OnDemand and create images. Default to true
 # Active directory VM configuration
 ad:
   vm_size: Standard_D2s_v3
 # On demand VM configuration
 ondemand:
   vm_size: Standard_D4s_v3
+# Grafana VM configuration
+grafana:
+  vm_size: Standard_D2s_v3
 # Scheduler VM configuration
 scheduler:
   vm_size: Standard_D2s_v3
@@ -85,48 +114,67 @@ cyclecloud:
 #    cyclecloud:
     # mandatory URL on the jetpack RPM to be installed on the ccportal and the scheduler
 #    jetpack:
+
+winviz:
+  vm_size: Standard_D4s_v3
+  create: false # Create an always running windows node, false by default
+
 # Lustre cluster configuration
 lustre:
   rbh_sku: "Standard_D8d_v4"
   mds_sku: "Standard_D8d_v4"
   oss_sku: "Standard_D32d_v4"
   oss_count: 2
-  version: "2.12.4"
   hsm_max_requests: 8
   mdt_device: "/dev/sdb"
   ost_device: "/dev/sdb"
   hsm:
     # optional to use existing storage for the archive
     # if not included it will use the azhop storage account that is created
-    storage_account: # existing_storage_account_name
+    storage_account: #existing_storage_account_name
     storage_container: #only_used_with_existing_storage_account
 # List of users to be created on this environment
 users:
-  - name: user1
-    uid: 10001
-    gid: 5000
-    shell: /bin/bash
-    home: /anfhome/user1
-    admin: false # true will allow user to have admin privilege like updating dashboards
-    sudo: true # Allow sudo access - false by default
-  - name: user2
-    uid: 10002
-    gid: 5000
-    shell: /bin/bash
-    home: /anfhome/user2
-    admin: false
+  # name: username
+  # uid: uniqueid
+  # gid: 5000
+  # shell: /bin/bash # default to /bin/bash
+  # home: /anfhome/<user_name> # default to /homedir_mountpoint/user_name
+  # admin: false # true will allow user to have cluster admin privilege - false by default
+  # sudo: true # Allow sudo access - false by default
+  - { name: clusteradmin, uid: 10001, gid: 5000, admin: true, sudo: true }
+  - { name: clusteruser, uid: 10002, gid: 5000 }
 groups: # Not used today => To be used in the future
   - name: users
     gid: 5000
+
+# scheduler to be installed and configured
+queue_manager: openpbs
+
 # List of images to be defined
 images:
-  - name: image_definition_name # Should match the packer configuration file name, one per packer file
+  # - name: image_definition_name # Should match the packer configuration file name, one per packer file
+  #   publisher: azhop
+  #   offer: CentOS
+  #   sku: 7_9-gen2
+  #   hyper_v: V2 # V1 or V2 (V1 is the default)
+  #   os_type: Linux # Linux or Windows
+  #   version: 7.9 # Version of the image to create the image definition in SIG
+# Pre-defined images
+  - name: azhop-centos79-v2-rdma-gpgpu
     publisher: azhop
     offer: CentOS
-    sku: 7_9-gen2
-    hyper_v: V2 # V1 or V2 (V1 is the default)
-    os_type: Linux # Linux or Windows
-    version: 7.9 # Version of the image to create the image definition in SIG
+    sku: 7.9-gen2
+    hyper_v: V2
+    os_type: Linux
+    version: 7.9
+  - name: centos-7.8-desktop-3d
+    publisher: azhop
+    offer: CentOS
+    sku: 7_8
+    hyper_v: V1
+    os_type: Linux
+    version: 7.8
 # List of queues (node arays in Cycle) to be defined
 queues:
   - name: execute # name of the Cycle Cloud node array
@@ -136,25 +184,36 @@ queues:
     max_core_count: 1024
     # marketplace image name or custom image id
     image: OpenLogic:CentOS-HPC:7_9-gen2:latest
+#    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
     # Set to true if AccelNet need to be enabled. false is the default value
     EnableAcceleratedNetworking: false
     # spot instance support. Default is false
     spot: true
   - name: hc44rs
     vm_size: Standard_HC44rs
-    max_core_count: 1024
+    max_core_count: 440
     image: OpenLogic:CentOS-HPC:7_9-gen2:latest
-  - name: hb60rs
-    vm_size: Standard_HB60rs
-    max_core_count: 1024
-    # The image ID is here built by reusing global ansible variables
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+#    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
   - name: hb120rs_v2
     vm_size: Standard_HB120rs_v2
-    max_core_count: 1024
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    max_core_count: 1200
+    image: OpenLogic:CentOS-HPC:7_9-gen2:latest
+#    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+  - name: hb120rs_v3
+    vm_size: Standard_HB120rs_v3
+    max_core_count: 1200
+    image: OpenLogic:CentOS-HPC:7_9-gen2:latest
+#    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    # Queue dedicated to GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz3d
     vm_size: Standard_NV6
-    max_core_count: 1024
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
+    max_core_count: 24
+    image: OpenLogic:CentOS-HPC:7_9-gen2:latest
+#    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
+    # Queue dedicated to non GPU remote viz nodes. This name is fixed and can't be changed
+  - name: viz
+    vm_size: Standard_D8s_v3
+    max_core_count: 200
+    image: OpenLogic:CentOS-HPC:7_9-gen2:latest
+#    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
 ```

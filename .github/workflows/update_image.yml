@@ -45,7 +45,7 @@ jobs:
       options: --user 0
 
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.4.0
         with:
           submodules: true
          
@@ -70,7 +70,7 @@ jobs:
       options: --user 0
 
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.4.0
         with:
           submodules: true
 
@@ -83,7 +83,7 @@ jobs:
         run: |
           cp $AZHOP_CONFIGURATION config.yml
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
-          ./install.sh ccpbs
+          ./install.sh cccluster
 
   run_tests:
     name: run_tests
@@ -94,7 +94,7 @@ jobs:
       options: --user 0
 
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.4.0
         with:
           submodules: true
 

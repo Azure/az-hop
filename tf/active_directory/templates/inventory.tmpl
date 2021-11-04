@@ -6,6 +6,7 @@ all:
       ansible_host: ${jumpbox-pip}
       ansible_ssh_user: ${jumpbox-user}
     ad:
+      psrp_ssh_proxy: ${jumpbox-pip}
       ansible_host: ${ad-ip}
       ansible_connection: psrp
       ansible_psrp_protocol: http

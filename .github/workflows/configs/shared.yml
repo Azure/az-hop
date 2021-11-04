@@ -32,7 +32,7 @@ images:
     sku: 7.9-gen2
     hyper_v: V2
     os_type: Linux
-    version: 7.9 
+    version: 7.9
   - name: centos-7.7-desktop-3d
     publisher: azhop
     offer: CentOS

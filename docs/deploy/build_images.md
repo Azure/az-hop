@@ -3,32 +3,7 @@
 **az-hop** provides a set of pre-configured packer configuration files that can be used to build custom images. The utility script `./packer/build_image.sh` is in charge of building these images with packer and push them into the Shared Image Gallery of the environment.
 
 ## Pre-requisites
-As packer used a Service Principal Name to create the azure resources, you need to create one upfront, store the password in a keyvault secret, and configure the `spn.json` parameter file used by the `build_image.sh` script.
-
-See the [Azure Pre-requisites](azure_prereqs.md) page for more details.
-
-### Using an existing Service Principal Name
-If you have already an existing Service Principal Name, make sure it's granted the `contributor` role. 
-### Using an spn.json parameter file
-
-In the `packer` directory create a file named `spn.json` and add this content
-
-```
-{
-  "spn_name": "<your-spn-name>",
-  "key_vault": "<your-keyvault>"
-}
-```
-
-If you have not created the SPN, then you need to have read permission in the Azure Directory in order for the build_image script to retrieve the Application ID and the Tenant ID.
-
-### Using environment variables
-If your account can't read the SPN details from the Active Directory then set these environment variables instead :
-```bash
-  export ARM_CLIENT_ID=<spn_add_id>
-  export ARM_TENANT_ID=<spn_tenant_id>
-  export ARM_CLIENT_SECRET="<spn_secret>"
-```
+You need to be authenticated thru `az login` or from a VM with a System Assigned managed identity in order to build images. The script will automatically detect in which mode and will set the required values needed by Packer.
 
 ## Image definition in the configuration file
 
@@ -47,7 +22,7 @@ images:
 
 ## Build an image
 Building an image is done by the utility script `packer/build_image.sh` and requires a packer input file. az-hop provides a set of pre-defined image files like :
-- `azhop-centos79-v2-rdma.json` this is an CentOS 7.9 HPC image with the az-hop additions for compute nodes  
+- `azhop-centos79-v2-rdma-gpgpu.json` this is an CentOS 7.9 HPC image with the az-hop additions for compute nodes  
 - `centos-7.8.desktop-3d.json` this is an CentOS 7.8 HPC image with the right GPU drivers configured for remote visualization nodes
 
 ```bash
@@ -72,14 +47,89 @@ Overall this can take between 30 and 45 minutes and sometimes more.
 For example, to build the compute nodes image, run this command
 ```bash
 cd packer
-./build_image.sh -i azhop-centos78-v2-rdma.json
+./build_image.sh -i azhop-centos79-v2-rdma-gpgpu.json
 ```
 
 ## Update the Cycle cluster template
-Once images have been built you need to update the Cycle cluster template to match the exact image ID of the images pushed into the Shared Image Gallery. To do so just run the install step on the ccpbs target.
+Once all images have been built you need to update the configuration file to specify which images to use and then update the Cycle cluster template to match the exact image ID of the images pushed into the Shared Image Gallery. 
 
-```bash
-./install.sh ccpbs
+To specify the new custom images to use, just comment the default `image: OpenLogic:CentOS-HPC:7_9-gen2:latest` values and uncomment the line below which contains the image definition to use from the Shared Image Gallery.
+
+*Before the update*
+```yml
+queues:
+  - name: hb120rs_v3
+    vm_size: Standard_HB120rs_v3
+    max_core_count: 1200
+    image: OpenLogic:CentOS-HPC:7_9-gen2:latest
+#    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    # Queue dedicated to GPU remote viz nodes. This name is fixed and can't be changed
+  - name: viz3d
+    vm_size: Standard_NV6
+    max_core_count: 24
+    image: OpenLogic:CentOS-HPC:7_9-gen2:latest
+#    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
+    # Queue dedicated to non GPU remote viz nodes. This name is fixed and can't be changed
 ```
 
-Once done your new images are ready to use in azhop.
+*After the update*
+```yml
+queues:
+  - name: hb120rs_v3
+    vm_size: Standard_HB120rs_v3
+    max_core_count: 1200
+#    image: OpenLogic:CentOS-HPC:7_9-gen2:latest
+    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    # Queue dedicated to GPU remote viz nodes. This name is fixed and can't be changed
+  - name: viz3d
+    vm_size: Standard_NV6
+    max_core_count: 24
+#    image: OpenLogic:CentOS-HPC:7_9-gen2:latest
+    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
+```
+
+Then update the Cycle project by running this playbook :
+
+```bash
+./install.sh cccluster
+```
+
+Once done your new images are ready to be used in azhop.
+> Note: For the new image to be used by new instances, make sure that all the existing one have been drained.
+
+## Adding new packages in a custom image
+
+Sometimes you need to add missing runtime packages in the custom image built or change some settings. This can be done by either add a new script in the packer JSON configuration files or by updating one of the existing script called by packer.
+
+For example, below is the content of the `centos-7.8-desktop-3d.json` packer file, if you want to add custom packages one way would be to change the `desktop-packages.sh` located in the `./packer/scripts` directory.
+
+```yml
+    "provisioners": [
+        {
+            "type": "file",
+            "source": "scripts",
+            "destination": "/tmp"
+        },
+        {
+            "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E sh '{{ .Path }}'",
+            "inline": [
+                "chmod +x /tmp/scripts/*.sh",
+                "/tmp/scripts/linux-setup.sh",
+                "/tmp/scripts/lustreclient2.12.5_centos7.8.sh",
+                "/tmp/scripts/interactive-desktop-3d.sh",
+                "/tmp/scripts/desktop-packages.sh",
+                "/tmp/scripts/pbspro.sh",
+                "/tmp/scripts/telegraf.sh",
+                "rm -rf /tmp/scripts",
+                "/usr/sbin/waagent -force -deprovision+user && export HISTSIZE=0 && sync"
+            ],
+            "inline_shebang": "/bin/sh -x",
+            "type": "shell",
+            "skip_clean": true
+        }
+    ]
+```
+
+Rebuilding a new image version is done by following the steps above.
+
+> Note: For the new image to be used by new instances, make sure that all the existing one have been drained.

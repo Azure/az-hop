@@ -8,11 +8,12 @@ The installation is done with Ansible playbooks and can be applied as a whole or
 - add_users
 - lustre
 - ccportal
-- ccpbs
+- cccluster => When using custom images, make sure your images have been pushed into the SIG otherwise this is going to failed
 - scheduler
 - ood
-- grafana 
-- telegraf 
+- grafana
+- telegraf
+- chrony
 
 The simpler is just to run 
 ```bash
@@ -25,4 +26,4 @@ If you need to apply only a subset then run
 ./install.sh <target> # with a single target in the list above
 ```
 
-In case of a transient failure, the install script can be reapplied as most of the settings are idempotent.
+In case of a transient failure, the install script can be reapplied as most of the settings are idempotent. The script contains a checkpointing mechanism, each sucessfully applied target will have a `.ok` file created in the playbooks directory. If you want to re-apply a target, delete this file and rerun the install script.

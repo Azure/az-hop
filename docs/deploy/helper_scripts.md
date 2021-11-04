@@ -55,11 +55,12 @@ This script apply the applications configuration and settings on the **azhop** e
 - add_users
 - lustre
 - ccportal
-- ccpbs
+- cccluster
 - scheduler
 - ood
 - grafana 
-- telegraf 
+- telegraf
+- chrony
 
 The simpler is just to run 
 ```bash

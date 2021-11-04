@@ -1,8 +1,0 @@
-#!/bin/bash
-
-yum install nfs-utils -y
-
-mkdir {{homedir_mountpoint}}
-mount {{ anf_home_ip }}:/{{ anf_home_path }} {{homedir_mountpoint}}
-
-setsebool -P use_nfs_home_dirs 1 || true

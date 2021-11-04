@@ -1,10 +1,10 @@
 locals {
-    lustre_image_reference = {
-        publisher = "OpenLogic"
-        offer     = "CentOS"
-        sku       = "7_7-gen2"
-        version   = "7.7.2020062401"
-    }
+  lustre_image_reference = {
+    publisher = "azhpc"
+    offer     = "azurehpc-lustre"
+    sku       = "azurehpc-lustre-2_12"
+    version   = "latest"
+  }
 }
 
 #
@@ -19,7 +19,7 @@ resource "azurerm_network_interface" "lustre-nic" {
 
   ip_configuration {
     name                          = "internal"
-    subnet_id                     = local.create_vnet ? azurerm_subnet.admin[0].id : data.azurerm_subnet.admin[0].id
+    subnet_id                     = local.create_admin_subnet ? azurerm_subnet.admin[0].id : data.azurerm_subnet.admin[0].id
     private_ip_address_allocation = "Dynamic"
   }
 }
@@ -51,12 +51,20 @@ resource "azurerm_linux_virtual_machine" "lustre" {
       sku       = local.lustre_image_reference.sku
       version   = local.lustre_image_reference.version
   }
+
+  plan {
+    publisher = local.lustre_image_reference.publisher
+    product   = local.lustre_image_reference.offer
+    name      = local.lustre_image_reference.sku
+  }
+
+  depends_on = [azurerm_network_interface_application_security_group_association.lustre-asg-asso]
 }
 
 resource "azurerm_network_interface_application_security_group_association" "lustre-asg-asso" {
   for_each = toset(local.asg_associations["lustre"])
   network_interface_id          = azurerm_network_interface.lustre-nic.id
-  application_security_group_id = local.create_vnet ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
+  application_security_group_id = local.create_nsg ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
 }
 
 #
@@ -79,7 +87,7 @@ resource "azurerm_network_interface" "lustre-oss-nic" {
 
   ip_configuration {
     name                          = "internal"
-    subnet_id                     = local.create_vnet ? azurerm_subnet.admin[0].id : data.azurerm_subnet.admin[0].id
+    subnet_id                     = local.create_admin_subnet ? azurerm_subnet.admin[0].id : data.azurerm_subnet.admin[0].id
     private_ip_address_allocation = "Dynamic"
   }
 }
@@ -113,16 +121,24 @@ resource "azurerm_linux_virtual_machine" "lustre-oss" {
       version   = local.lustre_image_reference.version
   }
 
+  plan {
+    publisher = local.lustre_image_reference.publisher
+    product   = local.lustre_image_reference.offer
+    name      = local.lustre_image_reference.sku
+  }
+
   identity {
     type         = "UserAssigned"
     identity_ids = [ azurerm_user_assigned_identity.lustre-oss.id ]
   }
+
+  depends_on = [azurerm_network_interface_application_security_group_association.lustre-oss-asg-asso]
 }
 
 # Grant read access to the Keyvault for the lustre-oss identity
 resource "azurerm_key_vault_access_policy" "lustre-oss" {
   key_vault_id = azurerm_key_vault.azhop.id
-  tenant_id    = data.azurerm_client_config.current.tenant_id
+  tenant_id    = local.tenant_id
   object_id    = azurerm_user_assigned_identity.lustre-oss.principal_id
 
   key_permissions = [ "get", "list" ]
@@ -148,7 +164,7 @@ resource "azurerm_network_interface_application_security_group_association" "lus
   # We need a map to use for_each, so we convert our list into a map by adding a unique key:
   for_each = { for entry in local.lustre_oss_asgs: "${entry.oss}.${entry.asg}" => entry }
   network_interface_id          = azurerm_network_interface.lustre-oss-nic[each.value.oss].id
-  application_security_group_id = local.create_vnet ? azurerm_application_security_group.asg[each.value.asg].id : data.azurerm_application_security_group.asg[each.value.asg].id
+  application_security_group_id = local.create_nsg ? azurerm_application_security_group.asg[each.value.asg].id : data.azurerm_application_security_group.asg[each.value.asg].id
 }
 
 #
@@ -163,7 +179,7 @@ resource "azurerm_network_interface" "robinhood-nic" {
 
   ip_configuration {
     name                          = "internal"
-    subnet_id                     = local.create_vnet ? azurerm_subnet.admin[0].id : data.azurerm_subnet.admin[0].id
+    subnet_id                     = local.create_admin_subnet ? azurerm_subnet.admin[0].id : data.azurerm_subnet.admin[0].id
     private_ip_address_allocation = "Dynamic"
   }
 }
@@ -172,7 +188,7 @@ resource "azurerm_linux_virtual_machine" "robinhood" {
   name                  = "robinhood"
   location              = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name   = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
-  size                  = local.lustre_mds_sku
+  size                  = local.lustre_rbh_sku
   network_interface_ids = [
     azurerm_network_interface.robinhood-nic.id,
   ]
@@ -195,10 +211,23 @@ resource "azurerm_linux_virtual_machine" "robinhood" {
       sku       = local.lustre_image_reference.sku
       version   = local.lustre_image_reference.version
   }
+
+  plan {
+    publisher = local.lustre_image_reference.publisher
+    product   = local.lustre_image_reference.offer
+    name      = local.lustre_image_reference.sku
+  }
+  
+  identity {
+    type         = "UserAssigned"
+    identity_ids = [ azurerm_user_assigned_identity.lustre-oss.id ]
+  }
+
+  depends_on = [azurerm_network_interface_application_security_group_association.robinhood-asg-asso]
 }
 
 resource "azurerm_network_interface_application_security_group_association" "robinhood-asg-asso" {
   for_each = toset(local.asg_associations["robinhood"])
   network_interface_id          = azurerm_network_interface.robinhood-nic.id
-  application_security_group_id = local.create_vnet ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
+  application_security_group_id = local.create_nsg ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
 }

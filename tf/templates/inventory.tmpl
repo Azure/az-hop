@@ -22,7 +22,16 @@ all:
       ansible_ssh_user: ${ondemand-user}
       ansible_ssh_common_args: '-o ProxyCommand="ssh -i ${jumpbox-user}_id_rsa -W %h:%p ${jumpbox-user}@${jumpbox-pip}"'
     ad:
+      psrp_ssh_proxy: ${jumpbox-pip}
       ansible_host: ${ad-ip}
+      ansible_connection: psrp
+      ansible_psrp_protocol: http
+      ansible_user: ${jumpbox-user}
+      ansible_password: "${ad-passwd}"
+      ansible_psrp_proxy: socks5h://localhost:5985
+    winviz:
+      psrp_ssh_proxy: ${jumpbox-pip}
+      ansible_host: ${winviz-ip}
       ansible_connection: psrp
       ansible_psrp_protocol: http
       ansible_user: ${jumpbox-user}

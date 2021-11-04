@@ -23,6 +23,16 @@ if [ $# -lt 2 ]; then
   exit 1
 fi
 
+# Check config syntax
+yamllint $CONFIG_FILE
+
+nopip=$(yq eval .locked_down_network.public_ip $CONFIG_FILE)
+if [ "$nopip" == "false" ]; then
+  OPTIONS_FILE=options_nopip.json
+else
+  OPTIONS_FILE=options.json
+fi
+
 PACKER_OPTIONS="-timestamp-ui"
 while (( "$#" )); do
   case "${1}" in
@@ -45,48 +55,29 @@ while (( "$#" )); do
   esac
 done
 
-if [ -z "$ARM_CLIENT_ID" ]; then
-  # Need the SPN name to use
-  spn_appname=$(jq -r '.spn_name' $SPN_FILE )
-  echo "spn_appname=$spn_appname"
-  # Need keyvault name where the SPN secret is stored
-  key_vault=$(jq -r '.key_vault' $SPN_FILE )
-  echo "key_vault=$key_vault"
-
-  # Check that the key_vault exists
-  az keyvault show -n $key_vault --output table 2>/dev/null
-  if [ "$?" = "0" ]; then
-      echo "keyvault $key_vault exists"
-  else
-      echo "keyvault $key_vault doesn't exists"
-      exit 1
-  fi
-
-  # Retrieve the spn appId and tenantId
-  spn=$(az ad sp show --id http://$spn_appname --query "[appId,appOwnerTenantId]" -o tsv)
-  if [ "$spn" == "" ]; then
-    echo "SPN $spn_appname doesn't exists" 
-    exit 1
-  fi
-  appId=$(echo "$spn" | head -n1)
-  tenantId=$(echo "$spn" | tail -n1)
-
-  # Retrieve the secret from the keyvault
-  secret=$(az keyvault secret show --name $spn_appname --vault-name $key_vault -o json | jq -r '.value')
-  if [ "$secret" == "" ]; then
-    echo "No secret stored in $key_vault for $spn_appname"
-    exit 1
-  fi
-
+tenant_id=$(az account show -o json | jq -r .tenantId)
+user_type=$(az account show --query user.type -o tsv)
+if [ ${user_type} == "user" ]; then
+  use_azure_cli_auth=true
 else
-  echo "Using predefined ARM_* environment variables"
-  appId=$ARM_CLIENT_ID
-  tenantId=$ARM_TENANT_ID
-  secret=$ARM_CLIENT_SECRET
+  export clientId=$(az account show --query user.name -o tsv)
+  case "${clientId}" in
+      "systemAssignedIdentity")
+          vmname=$(curl -s --noproxy "*" -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2019-08-15" | jq -r '.compute.name')
+          echo " - logged in Azure with System Assigned Identity from ${vmname}"
+          use_azure_cli_auth=false
+          ;;
+      "userAssignedIdentity")
+          echo "userAssignedIdentity not supported; please use a systemAssignedIdentity or a Service Principal Name instead"
+          exit 1
+          ;;
+      *)
+          use_azure_cli_auth=true
+          logged_user_upn=$(az ad sp show --id ${clientId} --query displayName -o tsv)
+          echo " - logged in Azure with Service Principal Name ${logged_user_upn}"
+          ;;
+  esac
 fi
-
-echo "appId=$appId"
-echo "tenantId=$tenantId"
 
 image_name=$(basename "$PACKER_FILE")
 image_name="${image_name%.*}"
@@ -118,13 +109,31 @@ fi
 if [ "$image_id" == "" ] || [ $FORCE -eq 1 ]; then
   logfile="${PACKER_FILE%.*}.log"
 
+  # Retrieve on which cloud environment we run on
+  cloud_env="Public"
+  account_env=$(az account show | jq '.environmentName' -r)
+  case "$account_env" in
+    AzureUSGovernment)
+      cloud_env="USGovernment"
+      ;;
+    AzureCloud)
+      cloud_env="Public"
+      ;;
+    *)
+      cloud_env="Public"
+      ;;
+  esac
+
   echo "Build or Rebuid $image_name in $resource_group (writing log to $logfile)"
+    # -var "var_tenant_id=$tenantId" \
+    # -var "var_client_id=$appId" \
+    # -var "var_client_secret=$secret" \
+
   packer build $PACKER_OPTIONS -var-file $OPTIONS_FILE \
-    -var "var_tenant_id=$tenantId" \
-    -var "var_client_id=$appId" \
-    -var "var_client_secret=$secret" \
+    -var "var_use_azure_cli_auth=$use_azure_cli_auth" \
     -var "var_image=$image_name" \
     -var "var_img_version=$version" \
+    -var "var_cloud_env=$cloud_env" \
     $PACKER_FILE | tee $logfile
 
 else

@@ -5,7 +5,7 @@ resource "azurerm_network_interface" "scheduler-nic" {
 
   ip_configuration {
     name                          = "internal"
-    subnet_id                     = local.create_vnet ? azurerm_subnet.admin[0].id : data.azurerm_subnet.admin[0].id
+    subnet_id                     = local.create_admin_subnet ? azurerm_subnet.admin[0].id : data.azurerm_subnet.admin[0].id
     private_ip_address_allocation = "Dynamic"
   }
 }
@@ -36,10 +36,12 @@ resource "azurerm_linux_virtual_machine" "scheduler" {
     sku       = "7_9-gen2"
     version   = "latest"
   }
+
+  depends_on = [azurerm_network_interface_application_security_group_association.scheduler-asg-asso]
 }
 
 resource "azurerm_network_interface_application_security_group_association" "scheduler-asg-asso" {
   for_each = toset(local.asg_associations["scheduler"])
   network_interface_id          = azurerm_network_interface.scheduler-nic.id
-  application_security_group_id = local.create_vnet ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
+  application_security_group_id = local.create_nsg ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
 }
