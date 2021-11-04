@@ -7,14 +7,14 @@
 - name: add slurm group 
   group:
     name: slurm
-    gid: 985
+    gid: 983
     state: present
 
 - name: add slurm user
   user:
     name: slurm 
     group: slurm
-    uid: 985
+    uid: 983
     state: present
 
 - name: check local munge dir

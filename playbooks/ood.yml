@@ -100,6 +100,11 @@
         become: true
     vars:
       pbs_server: scheduler
+  - name: Run the slurmclient role
+    include_role:
+      name: slurmclient
+      apply:
+        become: true
   - name: setup cyclecloud proxy
     shell: |
         if ! grep -q ccportal /opt/ood/ood-portal-generator/templates/ood-portal.conf.erb; then
