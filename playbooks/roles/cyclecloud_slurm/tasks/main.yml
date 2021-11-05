@@ -39,11 +39,7 @@
     dest: /root/slurm/specs/default/cluster-init/scripts/6-default.sh
     mode: 0777
 
-<<<<<<< HEAD
-- name: Add installslurm script
-=======
 - name: Add slurm install script 
->>>>>>> a306f8b00c6920603dd9b90db6f837ff72b81e26
   template:
     src: '{{role_path}}/cluster-init/scripts/9-installslurm.sh.j2'
     dest: /root/slurm/specs/default/cluster-init/scripts/9-installslurm.sh
