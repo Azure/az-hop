@@ -5,11 +5,19 @@ if [ ! -d "/etc/slurm" ]; then
   echo "Installing Slurm RPMs"
   yum install -y epel-release
   yum install -y munge jq
+<<<<<<< HEAD:playbooks/roles/cyclecloud_slurm/cluster-init/scripts/9-installslurm.sh.j2
   yum install -y {{ homedir_mountpoint }}/slurm/rpms/slurm-2*.rpm {{ homedir_mountpoint }}/slurm/rpms/slurm-slurmd-*.rpm
 fi
 
 mkdir -p /etc/munge/
 cp {{ homedir_mountpoint }}/slurm/config/munge.key /etc/munge/munge.key
+=======
+  yum install -y /{{homedir_mountpoint}}/slurm/rpms/slurm-2*.rpm /{{homedir_mountpoint}}/slurm/rpms/slurm-slurmd-*.rpm
+fi
+
+mkdir -p /etc/munge/
+cp /{{homedir_mountpoint}}/slurm/config/munge.key /etc/munge/munge.key
+>>>>>>> a306f8b00c6920603dd9b90db6f837ff72b81e26:playbooks/roles/cyclecloud_slurm/cluster-init/scripts/9-installslurm.sh
 chown munge:munge /etc/munge/munge.key
 chmod 400 /etc/munge/munge.key
 systemctl restart munge
@@ -17,7 +25,11 @@ systemctl restart munge
 groupadd -g 983 slurm
 useradd -g slurm -u 983 slurm
 
+<<<<<<< HEAD:playbooks/roles/cyclecloud_slurm/cluster-init/scripts/9-installslurm.sh.j2
 ln -s {{ homedir_mountpoint }}/slurm/config /sched
+=======
+ln -s /{{homedir_mountpoint}}/slurm/config /sched
+>>>>>>> a306f8b00c6920603dd9b90db6f837ff72b81e26:playbooks/roles/cyclecloud_slurm/cluster-init/scripts/9-installslurm.sh
 mkdir -p /etc/slurm/
 mkdir -p /var/spool/slurmd/
 mkdir -p /var/log/slurmd/
