@@ -39,6 +39,12 @@
     dest: /root/slurm/specs/default/cluster-init/scripts/6-default.sh
     mode: 0777
 
+- name: Add installslurm script
+  template:
+    src: '{{role_path}}/cluster-init/scripts/9-installslurm.sh.j2'
+    dest: /root/slurm/specs/default/cluster-init/scripts/9-installslurm.sh
+    mode: 0777
+
 - name: Add telegraf configuration file  
   template:
     src: '{{role_path}}/cluster-init/files/telegraf.conf.j2'
@@ -55,6 +61,7 @@
     - /root/slurm/specs/default/cluster-init/scripts/2-mountlustre.sh.j2
     - /root/slurm/specs/default/cluster-init/scripts/3-joindomain.sh.j2
     - /root/slurm/specs/default/cluster-init/scripts/6-default.sh.j2
+    - /root/slurm/specs/default/cluster-init/scripts/9-installslurm.sh.j2
 
 - name: Create CycleCloud project
   command: '/usr/local/bin/cyclecloud project upload'

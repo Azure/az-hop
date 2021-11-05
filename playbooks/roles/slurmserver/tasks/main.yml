@@ -27,7 +27,7 @@
 
 - name: check slurm config dir 
   file:
-    path: /anfhome/slurm/config/
+    path: '{{homedir_mountpoint}}/slurm/config/'
     mode: 0755
     owner: slurm 
     group: slurm 
@@ -36,11 +36,11 @@
 - name: install munge key
   copy:
     content: "12345678901234567890123456789012"
-    dest: /anfhome/slurm/config/munge.key
+    dest: '{{homedir_mountpoint}}/slurm/config/munge.key'
 
 - name: install munge key
   copy:
-    src: /anfhome/slurm/config/munge.key
+    src: '{{homedir_mountpoint}}/slurm/config/munge.key'
     remote_src: yes
     dest: /etc/munge/munge.key
     owner: munge
@@ -55,7 +55,7 @@
 
 - name: check slurm rpm dir 
   file:
-    path: /anfhome/slurm/rpms/
+    path: '{{homedir_mountpoint}}/slurm/rpms/'
     mode: 0755
     state: directory
 
@@ -69,7 +69,7 @@
 
 - name: create a symbolic link for slurm config dir
   file:
-    src: /anfhome/slurm/config
+    src: '{{homedir_mountpoint}}/slurm/config'
     dest: /sched
     owner: slurm 
     group: slurm 
@@ -93,7 +93,7 @@
 
 - name: check if slurm rpms exist
   stat:
-    path: /anfhome/slurm/rpms/slurm-20.11.7-1.el7.x86_64.rpm 
+    path: '{{homedir_mountpoint}}/slurm/rpms/slurm-20.11.7-1.el7.x86_64.rpm'
   register: slurm_rpms
 
 - name: download slurm 
@@ -111,7 +111,7 @@
 - name: build slurm
   shell: |
     rpmbuild --clean -ta /mnt/resource/slurm-20.11.7.tar.bz2 > log.txt
-    sudo cp /root/rpmbuild/RPMS/x86_64/slurm-*.rpm /anfhome/slurm/rpms/
+    sudo cp /root/rpmbuild/RPMS/x86_64/slurm-*.rpm '{{homedir_mountpoint}}/slurm/rpms/'
   args:
     chdir: "{{ ansible_env.HOME }}/rpmbuild"
   when: slurm_rpms.stat.exists == False
@@ -119,7 +119,7 @@
 
 - name: check central slurm dir 
   file:
-    path: /anfhome/slurm/slurmctld/
+    path: '{{homedir_mountpoint}}/slurm/slurmctld/'
     mode: 0755
     owner: slurm 
     group: slurm 
@@ -128,9 +128,9 @@
 - name: install slurm 
   yum:
     name:
-      -  /anfhome/slurm/rpms/slurm-20.11.7-1.el7.x86_64.rpm
-      -  /anfhome/slurm/rpms/slurm-perlapi-20.11.7-1.el7.x86_64.rpm
-      -  /anfhome/slurm/rpms/slurm-slurmctld-20.11.7-1.el7.x86_64.rpm
+      -  '{{homedir_mountpoint}}/slurm/rpms/slurm-20.11.7-1.el7.x86_64.rpm'
+      -  '{{homedir_mountpoint}}/slurm/rpms/slurm-perlapi-20.11.7-1.el7.x86_64.rpm'
+      -  '{{homedir_mountpoint}}/slurm/rpms/slurm-slurmctld-20.11.7-1.el7.x86_64.rpm'
     state: present
 
 - name: create slurm config 
