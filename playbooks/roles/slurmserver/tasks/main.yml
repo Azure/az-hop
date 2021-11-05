@@ -33,10 +33,8 @@
     group: slurm 
     state: directory
 
-- name: install munge key
-  copy:
-    content: "12345678901234567890123456789012"
-    dest: '{{homedir_mountpoint}}/slurm/config/munge.key'
+- name: generate munge key
+  shell: openssl rand -base64 24 > '{{homedir_mountpoint}}/slurm/config/munge.key'
 
 - name: install munge key
   copy:
