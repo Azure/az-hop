@@ -15,7 +15,7 @@
 - name: install slurmd client utilities
   yum:
     name:
-      -  /anfhome/slurm/rpms/slurm-20.11.7-1.el7.x86_64.rpm
+      -  /{{homedir_mountpoint}}/slurm/rpms/slurm-20.11.7-1.el7.x86_64.rpm
     state: present
 
 - name: check slurm config directory
@@ -46,7 +46,7 @@
 
 - name: install munge key
   copy:
-    src: /anfhome/slurm/config/munge.key
+    src: /{{homedir_mountpoint}}/slurm/config/munge.key
     remote_src: yes
     dest: /etc/munge/munge.key
     owner: munge
@@ -61,7 +61,7 @@
 
 - name: create a symbolic link for slurm config dir
   file:
-    src: /anfhome/slurm/config
+    src: /{{homedir_mountpoint}}/slurm/config
     dest: /sched
     owner: slurm 
     group: slurm 
