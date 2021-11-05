@@ -82,6 +82,9 @@ locked_down_network:
   enforce: false
 #   grant_access_from: [a.b.c.d] # Array of CIDR to grant access from, see https://docs.microsoft.com/en-us/azure/storage/common/storage-network-security?tabs=azure-portal#grant-access-from-an-internet-ip-range
   public_ip: true # Enable public IP creation for Jumpbox, OnDemand and create images. Default to true
+# Jumpbox VM configuration
+jumpbox:
+  vm_size: Standard_D2s_v3
 # Active directory VM configuration
 ad:
   vm_size: Standard_D2s_v3
