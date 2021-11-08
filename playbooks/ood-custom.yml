@@ -13,3 +13,14 @@
       copy:
         src: 'files/ood_templates/' # inside directories are copied
         dest: '/var/www/ood/apps/sys/myjobs/templates/'
+
+# The next two downloads are to fix the wrong style of the slider of the novnc connection page
+    - name: download sessions.scss
+      get_url:
+        url: https://raw.githubusercontent.com/OSC/ondemand/aae5aefa00f2cd674eb309a327e1f168950b1cb3/apps/dashboard/app/assets/stylesheets/batch_connect/sessions.scss
+        dest: /var/www/ood/apps/sys/dashboard/app/assets/stylesheets/batch_connect/sessions.scss
+
+    - name: download _novnc.html.erb
+      get_url:
+        url: https://raw.githubusercontent.com/OSC/ondemand/aae5aefa00f2cd674eb309a327e1f168950b1cb3/apps/dashboard/app/views/batch_connect/sessions/connections/_novnc.html.erb
+        dest: /var/www/ood/apps/sys/dashboard/app/views/batch_connect/sessions/connections/_novnc.html.erb
