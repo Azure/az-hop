@@ -4,7 +4,7 @@ lustre_vm=lustre
 lustre_mount=/lustre
 
 # exit if lustre module is not installed
-#modinfo lustre >&/dev/null || exit 0
+modinfo lustre >&/dev/null || exit 0
 
 max_retry=5
 delay=1
