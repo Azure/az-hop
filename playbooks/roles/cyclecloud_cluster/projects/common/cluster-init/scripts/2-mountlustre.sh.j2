@@ -3,21 +3,27 @@
 lustre_vm=lustre
 lustre_mount=/lustre
 
-success=0
-for retry in {1..10} ; do
-    if ! modprobe lustre; then
-        echo "Unable to mount lustre. Retrying..."
-        sleep 5
-    else
-        success=1
+# exit if lustre module is not installed
+#modinfo lustre >&/dev/null || exit 0
+
+max_retry=5
+delay=1
+
+attempt=1
+while true; do
+    if modprobe lustre; then
         break
+    else
+        if (( attempt <= max_retry )) ; then
+            echo "Unable to mount lustre. Retry $attempt of $max_retry ..."
+            (( attempt++ ))
+            sleep $delay
+        else
+            echo "Unable to mount lustre. Exiting..."
+            exit 0
+        fi
     fi
 done
-
-if [ $success -eq 0 ]; then
-    echo "ERROR Unable to mount lustre"
-    exit 1
-fi
 
 mkdir $lustre_mount
 echo "${lustre_vm}@tcp0:/LustreFS $lustre_mount lustre flock,defaults,_netdev 0 0" >> /etc/fstab
