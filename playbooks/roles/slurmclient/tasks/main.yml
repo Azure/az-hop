@@ -15,7 +15,7 @@
 - name: install slurmd client utilities
   yum:
     name:
-      -  '{{homedir_mountpoint}}/slurm/rpms/slurm-20.11.7-1.el7.x86_64.rpm'
+      -  '{{homedir_mountpoint}}/slurm/rpms/slurm-{{slurm_version}}.el7.x86_64.rpm'
     state: present
 
 - name: check slurm config directory

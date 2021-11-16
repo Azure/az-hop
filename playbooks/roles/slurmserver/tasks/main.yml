@@ -89,14 +89,18 @@
     group: slurm 
     state: directory
 
+- name: extract slurm tarball version number
+  set_fact:
+    slurm_version_short: "{{cc_slurm_version | regex_replace('-.*$', '')}}"
+
 - name: check if slurm rpms exist
   stat:
-    path: '{{homedir_mountpoint}}/slurm/rpms/slurm-20.11.7-1.el7.x86_64.rpm'
+    path: '{{homedir_mountpoint}}/slurm/rpms/slurm-{{cc_slurm_version}}.el7.x86_64.rpm'
   register: slurm_rpms
 
 - name: download slurm 
   get_url:
-    url: https://download.schedmd.com/slurm/slurm-20.11.7.tar.bz2 
+    url: 'https://download.schedmd.com/slurm/slurm-{{slurm_version_short}}.tar.bz2'
     dest: /mnt/resource
   when: slurm_rpms.stat.exists == False
 
@@ -108,12 +112,11 @@
 
 - name: build slurm
   shell: |
-    rpmbuild --clean -ta /mnt/resource/slurm-20.11.7.tar.bz2 > log.txt
-    sudo cp /root/rpmbuild/RPMS/x86_64/slurm-*.rpm '{{homedir_mountpoint}}/slurm/rpms/'
+    rpmbuild --clean -ta /mnt/resource/slurm-{{slurm_version_short}}.tar.bz2 > log.txt
+    sudo cp /root/rpmbuild/RPMS/x86_64/slurm-*.rpm {{homedir_mountpoint}}/slurm/rpms/
   args:
     chdir: "{{ ansible_env.HOME }}/rpmbuild"
   when: slurm_rpms.stat.exists == False
-
 
 - name: check central slurm dir 
   file:
@@ -126,9 +129,9 @@
 - name: install slurm 
   yum:
     name:
-      -  '{{homedir_mountpoint}}/slurm/rpms/slurm-20.11.7-1.el7.x86_64.rpm'
-      -  '{{homedir_mountpoint}}/slurm/rpms/slurm-perlapi-20.11.7-1.el7.x86_64.rpm'
-      -  '{{homedir_mountpoint}}/slurm/rpms/slurm-slurmctld-20.11.7-1.el7.x86_64.rpm'
+      -  '{{homedir_mountpoint}}/slurm/rpms/slurm-{{cc_slurm_version}}.el7.x86_64.rpm'
+      -  '{{homedir_mountpoint}}/slurm/rpms/slurm-perlapi-{{cc_slurm_version}}.el7.x86_64.rpm'
+      -  '{{homedir_mountpoint}}/slurm/rpms/slurm-slurmctld-{{cc_slurm_version}}.el7.x86_64.rpm'
     state: present
 
 - name: create slurm config 
@@ -165,7 +168,7 @@
 
 - name: download cc autoscale scripts
   get_url:
-    url: https://raw.githubusercontent.com/Azure/cyclecloud-slurm/master/specs/default/chef/site-cookbooks/slurm/files/default/{{ item }}
+    url: https://raw.githubusercontent.com/Azure/cyclecloud-slurm/2.4.7/specs/default/chef/site-cookbooks/slurm/files/default/{{ item }}
     dest: /opt/cycle/slurm
   with_items:
     - clusterwrapper.py
@@ -228,12 +231,12 @@
 - name: install jetpack 
   yum:
     name:
-    -  https://packages.microsoft.com/yumrepos/cyclecloud/jetpack8-8.2.0-1616.x86_64.rpm
+    -  https://packages.microsoft.com/yumrepos/cyclecloud/jetpack8-8.1.0-1275.x86_64.rpm
     state: present
 
 - name: download cc autoscale api 
   get_url:
-    url: https://github.com/Azure/cyclecloud-slurm/releases/download/2.4.8/cyclecloud_api-8.1.0-py2.py3-none-any.whl 
+    url: https://github.com/Azure/cyclecloud-slurm/releases/download/2.4.7/cyclecloud_api-8.1.0-py2.py3-none-any.whl 
     dest: /opt/cycle/slurm
 
 - name: download cc jobsubmit plugin
