@@ -231,8 +231,14 @@
 - name: install jetpack 
   yum:
     name:
-    -  https://packages.microsoft.com/yumrepos/cyclecloud/jetpack8-8.1.0-1275.x86_64.rpm
+    -  https://packages.microsoft.com/yumrepos/cyclecloud/jetpack8-8.2.0-1616.x86_64.rpm
     state: present
+
+- name: fix jetpack permissions
+  file:
+    path: /opt/cycle/jetpack
+    mode: u=rwX,g=rX,o=rX
+    recurse: yes
 
 - name: download cc autoscale api 
   get_url:
