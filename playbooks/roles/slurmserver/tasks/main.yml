@@ -7,14 +7,14 @@
 - name: add slurm group 
   group:
     name: slurm
-    gid: 983
+    gid: '{{ slurm_gid }}'
     state: present
 
 - name: add slurm user
   user:
     name: slurm 
     group: slurm
-    uid: 983
+    uid: '{{ slurm_uid }}'
     state: present
 
 - name: check local munge dir
@@ -48,7 +48,7 @@
 - name: ensure munge is running.
   service:
     name: munge 
-    state: started
+    state: restarted
     enabled: yes
 
 - name: check slurm rpm dir 

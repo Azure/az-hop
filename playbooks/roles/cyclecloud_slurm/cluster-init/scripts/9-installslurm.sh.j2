@@ -5,7 +5,7 @@ if [ ! -d "/etc/slurm" ]; then
   echo "Installing Slurm RPMs"
   yum install -y epel-release
   yum install -y munge jq
-  yum install -y {{ homedir_mountpoint }}/slurm/rpms/slurm-2*.rpm {{ homedir_mountpoint }}/slurm/rpms/slurm-slurmd-*.rpm
+  yum install -y {{ homedir_mountpoint }}/slurm/rpms/slurm-{{ cc_slurm_version }}.el7.x86_64.rpm {{ homedir_mountpoint }}/slurm/rpms/slurm-slurmd-{{ cc_slurm_version }}.el7.x86_64.rpm
 fi
 
 mkdir -p /etc/munge/
@@ -14,8 +14,8 @@ chown munge:munge /etc/munge/munge.key
 chmod 400 /etc/munge/munge.key
 systemctl restart munge
 
-groupadd -g 983 slurm
-useradd -g slurm -u 983 slurm
+groupadd -g {{ slurm_uid }} slurm
+useradd -g slurm -u {{ slurm_gid }} slurm
 
 ln -s {{ homedir_mountpoint }}/slurm/config /sched
 mkdir -p /etc/slurm/

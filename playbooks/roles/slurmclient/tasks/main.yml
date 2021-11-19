@@ -15,7 +15,7 @@
 - name: install slurmd client utilities
   yum:
     name:
-      -  '{{homedir_mountpoint}}/slurm/rpms/slurm-{{slurm_version}}.el7.x86_64.rpm'
+      -  '{{homedir_mountpoint}}/slurm/rpms/slurm-{{cc_slurm_version}}.el7.x86_64.rpm'
     state: present
 
 - name: check slurm config directory
@@ -26,14 +26,14 @@
 - name: add slurm group 
   group:
     name: slurm
-    gid: 983
+    gid: '{{ slurm_uid }}'
     state: present
 
 - name: add slurm user
   user:
     name: slurm 
     group: slurm
-    uid: 983
+    uid: '{{ slurm_gid }}'
     state: present
 
 - name: check local munge dir

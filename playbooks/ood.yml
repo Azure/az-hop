@@ -147,7 +147,10 @@
       apply:
         become: true
     vars:
-      slurm_version: 20.11.7-1
+      cc_slurm_version: 20.11.7-1
+      slurm_uid: 971
+      slurm_gid: 971
+
     when: (queue_manager == "slurm")
 
   - name: setup cyclecloud proxy
