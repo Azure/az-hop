@@ -10,6 +10,7 @@ max_retry=5
 delay=5
 
 # Check if the lustre kernel modules can be loaded
+echo "Check if the lustre kernel modules can be loaded"
 attempt=1
 while true; do
     if modprobe lustre; then
@@ -27,6 +28,7 @@ while true; do
 done
 
 # Mount the lustre filesystem
+echo "Mount the lustre filesystem"
 mkdir $lustre_mount
 echo "${lustre_vm}@tcp0:/LustreFS $lustre_mount lustre flock,defaults,_netdev 0 0" >> /etc/fstab
 mount $lustre_mount 
