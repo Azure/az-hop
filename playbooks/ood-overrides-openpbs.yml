@@ -85,3 +85,6 @@ pun_custom_env:
   OOD_BRAND_BG_COLOR: "#0078d4"
   OOD_BRAND_LINK_ACTIVE_BG_COLOR: "#212529"
   OOD_JOB_NAME_ILLEGAL_CHARS: "/"
+
+pinned_apps:
+  - category: 'Interactive Apps'
