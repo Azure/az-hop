@@ -63,7 +63,8 @@ sed -i 's@ldap_id_mapping.*@ldap_id_mapping = False@' /etc/sssd/sssd.conf
 echo "ensure the correct hostname (update if necessary)"
 ipaddr=$(hostname -i)
 system_hostname=$(hostname)
-target_hostname="ip-$(printf '%02X' ${ipaddr//./ })"
+#target_hostname="ip-$(printf '%02X' ${ipaddr//./ })"
+target_hostname=$(jetpack config cyclecloud.node.name)
 if [ "$system_hostname" != "$target_hostname" ]; then
   logger -s "Warning: incorrect hostname ($system_hostname), it should be $target_hostname, updating"
   hostname $target_hostname
