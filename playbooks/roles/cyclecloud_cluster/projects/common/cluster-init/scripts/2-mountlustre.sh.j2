@@ -3,13 +3,39 @@
 lustre_vm=lustre
 lustre_mount=/lustre
 
-if ! modprobe lustre; then
-    echo "Unable to mount lustre"
-    # silently fail here
-    exit 0
-fi
+# exit if lustre module is not installed
+modinfo lustre >&/dev/null || exit 0
 
+max_retry=5
+delay=5
+
+# Check if the lustre kernel modules can be loaded
+echo "Check if the lustre kernel modules can be loaded"
+attempt=1
+while true; do
+    if modprobe lustre; then
+        break
+    else
+        if (( attempt <= max_retry )) ; then
+            echo "Unable to load lustre kernel module. Retry $attempt of $max_retry ..."
+            (( attempt++ ))
+            sleep $delay
+        else
+            echo "Unable to load lustre kernel module. Exiting..."
+            exit 1
+        fi
+    fi
+done
+
+# Mount the lustre filesystem
+echo "Mount the lustre filesystem"
 mkdir $lustre_mount
 echo "${lustre_vm}@tcp0:/LustreFS $lustre_mount lustre flock,defaults,_netdev 0 0" >> /etc/fstab
-mount -a
+mount $lustre_mount 
+if [ $? -eq 1 ]; then
+  echo "Unable to mount lustre"
+  exit 1
+fi
+
+# TODO : don't chmod 777, but instead reorganize lustre directories structure and permissions
 chmod 777 $lustre_mount
