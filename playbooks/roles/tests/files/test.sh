@@ -36,8 +36,8 @@ job_group=$uuid_str
 echo "Submit single mpicore single node jobs"
 submit_job $job_group 1 1 hb60rs ~/job.sh Standard_HB60rs
 submit_job $job_group 1 1 hc44rs ~/job.sh Standard_HC44rs
-submit_job $job_group 1 1 hb120rs_v2 ~/job.sh Standard_HB120rs_v2
-submit_job $job_group 1 1 hb120rs_v3 ~/job.sh Standard_HB120rs_v3
+submit_job $job_group 1 1 hb120v2 ~/job.sh Standard_HB120rs_v2
+submit_job $job_group 1 1 hb120v3 ~/job.sh Standard_HB120rs_v3
 
 echo "Test GPU node"
 submit_job $job_group 1 1 viz3d ~/job_gpu.sh
@@ -63,8 +63,8 @@ job_group=$uuid_str
 echo "Submit single mpicore two nodes jobs"
 submit_job $job_group 2 1 hb60rs ~/job.sh Standard_HB60rs
 submit_job $job_group 2 1 hc44rs ~/job.sh Standard_HC44rs
-submit_job $job_group 2 1 hb120rs_v2 ~/job.sh Standard_HB120rs_v2
-submit_job $job_group 2 1 hb120rs_v3 ~/job.sh Standard_HB120rs_v3
+submit_job $job_group 2 1 hb120v2 ~/job.sh Standard_HB120rs_v2
+submit_job $job_group 2 1 hb120v3 ~/job.sh Standard_HB120rs_v3
 
 echo "Submit two nodes on default"
 qsub -l walltime=$PBS_MAX_WALLTIME -N $job_group -k oe -j oe -l select=2 -- ~/job.sh any 
