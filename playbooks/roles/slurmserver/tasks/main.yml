@@ -168,7 +168,7 @@
 
 - name: download cc autoscale scripts
   get_url:
-    url: https://raw.githubusercontent.com/Azure/cyclecloud-slurm/2.4.7/specs/default/chef/site-cookbooks/slurm/files/default/{{ item }}
+    url: https://raw.githubusercontent.com/Azure/cyclecloud-slurm/2.5.0/specs/default/chef/site-cookbooks/slurm/files/default/{{ item }}
     dest: /opt/cycle/slurm
   with_items:
     - clusterwrapper.py
@@ -242,12 +242,12 @@
 
 - name: download cc autoscale api 
   get_url:
-    url: https://github.com/Azure/cyclecloud-slurm/releases/download/2.4.7/cyclecloud_api-8.1.0-py2.py3-none-any.whl 
+    url: https://github.com/Azure/cyclecloud-slurm/releases/download/2.5.0/cyclecloud_api-8.1.0-py2.py3-none-any.whl
     dest: /opt/cycle/slurm
 
 - name: download cc jobsubmit plugin
   get_url:
-    url: https://github.com/Azure/cyclecloud-slurm/releases/download/2.4.7/job_submit_cyclecloud_centos_20.11.7-1.so 
+    url: https://github.com/Azure/cyclecloud-slurm/releases/download/2.5.0/job_submit_cyclecloud_ubuntu_20.11.7-1.so
     dest: /usr/lib64/slurm/job_submit_cyclecloud.so
 
 - name: install cc autoscale api 
