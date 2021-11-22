@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# install SLURM rpms when not in custom image
+if [ ! -d "/etc/slurm" ]; then
+  echo "Installing Slurm RPMs"
+  yum install -y epel-release
+  yum install -y munge jq
+  yum install -y {{ homedir_mountpoint }}/slurm/rpms/slurm-{{ cc_slurm_version }}.el7.x86_64.rpm {{ homedir_mountpoint }}/slurm/rpms/slurm-slurmd-{{ cc_slurm_version }}.el7.x86_64.rpm
+fi
+
+mkdir -p /etc/munge/
+cp {{ homedir_mountpoint }}/slurm/config/munge.key /etc/munge/munge.key
+chown munge:munge /etc/munge/munge.key
+chmod 400 /etc/munge/munge.key
+systemctl restart munge
+
+groupadd -g {{ slurm_uid }} slurm
+useradd -g slurm -u {{ slurm_gid }} slurm
+
+ln -s {{ homedir_mountpoint }}/slurm/config /sched
+mkdir -p /etc/slurm/
+mkdir -p /var/spool/slurmd/
+mkdir -p /var/log/slurmd/
+chown slurm:slurm /var/spool/slurmd
+chown slurm:slurm /var/log/slurmd
+ln -s /sched/slurm.conf /etc/slurm/slurm.conf
+ln -s /sched/cyclecloud.conf /etc/slurm/cyclecloud.conf
+ln -s /sched/cgroup.conf /etc/slurm/cgroup.conf
+ln -s /sched/gres.conf /etc/slurm/gres.conf
+ln -s /sched/topology.conf /etc/slurm/topology.conf
+
+systemctl restart slurmd
