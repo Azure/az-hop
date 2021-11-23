@@ -192,6 +192,8 @@ queues:
     EnableAcceleratedNetworking: false
     # spot instance support. Default is false
     spot: true
+    # Set to false to disable creation of placement groups. Default is true
+    ColocateNodes: false
   - name: hc44rs
     vm_size: Standard_HC44rs
     max_core_count: 440
@@ -213,10 +215,14 @@ queues:
     max_core_count: 24
     image: OpenLogic:CentOS-HPC:7_9-gen2:latest
 #    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
+    # Set to false to disable creation of placement groups. Default is true
+    ColocateNodes: false
     # Queue dedicated to non GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz
     vm_size: Standard_D8s_v3
     max_core_count: 200
     image: OpenLogic:CentOS-HPC:7_9-gen2:latest
 #    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
+    # Set to false to disable creation of placement groups. Default is true
+    ColocateNodes: false
 ```
