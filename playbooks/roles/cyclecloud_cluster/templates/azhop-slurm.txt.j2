@@ -59,5 +59,8 @@ Autoscale = true
     ImageName = {{ queue.image }}
   {% endif %}
         [[[configuration]]]
-        slurm.autoscale = true 
+        slurm.autoscale = true
+      {% if loop.index == 1 %}
+        slurm.default_partition = true
+      {% endif %}
 {% endfor %}
