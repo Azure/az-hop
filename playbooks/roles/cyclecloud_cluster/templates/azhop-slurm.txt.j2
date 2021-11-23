@@ -63,4 +63,7 @@ Autoscale = true
       {% if loop.index == 1 %}
         slurm.default_partition = true
       {% endif %}
+      {% if queue.ColocateNodes is defined %}
+        slurm.hpc = {{ queue.ColocateNodes }}
+      {% endif %}
 {% endfor %}

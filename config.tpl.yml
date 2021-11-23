@@ -187,6 +187,8 @@ queues:
     EnableAcceleratedNetworking: false
     # spot instance support. Default is false
     spot: true
+    # Set to false to disable creation of placement groups. Default is true
+    ColocateNodes: false
   - name: hc44rs
     vm_size: Standard_HC44rs
     max_core_count: 440
