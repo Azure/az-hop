@@ -11,7 +11,7 @@
   tasks:
     - name: Copy Job templates files
       copy:
-        src: 'files/ood_templates/' # inside directories are copied
+        src: 'files/ood_templates/{{queue_manager}}/' # inside directories are copied
         dest: '/var/www/ood/apps/sys/myjobs/templates/'
 
 # The next two downloads are to fix the wrong style of the slider of the novnc connection page
