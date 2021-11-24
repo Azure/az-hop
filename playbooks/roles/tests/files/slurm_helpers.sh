@@ -35,7 +35,7 @@ function wait_alljobs()
 function check_jobstatus()
 {
     local jobgroup=$1
-    local failed_jobs=$(grep "ERROR" $jobgroup*.out | wc -l)
+    local failed_jobs=$(grep "ERROR" $jobgroup* | wc -l)
     if [ $failed_jobs != 0 ]; then
         echo "ERROR : Failure while running jobs"
         grep "ERROR" $jobgroup*.out
@@ -56,7 +56,11 @@ function submit_job()
     local slot_type=$4
     shift; shift; shift; shift
     local script=$@
+    local slurm_options=""
 
+    if [ "$slot_type" == "viz3d" ]; then
+        slurm_options=" --gpus=1"
+    fi
     echo "job_name=$job_name; node_count=$node_count; ppn=$ppn; slot_type=$slot_type; script=$script"
     sbatch --job-name=$job_name \
            --nodes=$node_count \
@@ -65,6 +69,7 @@ function submit_job()
            --partition=$slot_type \
            --output="%x-%j.out" \
            --error="%x-%j.out" \
+           $slurm_options \
            $script
 
     if [ "$?" -ne "0" ]; then
