@@ -9,5 +9,6 @@ if [ "$VM_SIZE" != "$EXPECTED_VM_SIZE" ] && [ "$EXPECTED_VM_SIZE" != "any" ]; th
   exit 1
 fi
 
+echo "Running on $VM_SIZE"
 sleep 60
 echo "PASSED"
