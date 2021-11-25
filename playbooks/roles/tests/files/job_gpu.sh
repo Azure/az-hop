@@ -1,6 +1,6 @@
 #!/bin/bash
 
-nvidia-smi 
+nvidia-smi | grep NVIDIA
 if [ $? -eq 1 ]; then 
     echo "ERROR"
     exit 1
