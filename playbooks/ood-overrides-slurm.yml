@@ -69,9 +69,7 @@ ood_apps:
           - "<%= target %>"
           - "-t"
           - "<%= '%02d:00:00' % hours %>"
-          <%- if target == 'viz3d' -%>
-          - "--gpus=1"
-          <%- end -%>
+          - "--exclusive"
 httpd_auth:
 - AuthType Basic
 - AuthName "Open OnDemand"
