@@ -83,7 +83,7 @@ yamllint $AZHOP_CONFIG
 # Accept Cycle marketplace image terms
 cc_plan=$(yq eval '.cyclecloud.plan.name' $AZHOP_CONFIG)
 if [ "$cc_plan" == "" ]; then
-  cc_plan="cyclecloud-81"
+  cc_plan="cyclecloud8"
 fi
 accepted=$(az vm image terms show --offer azure-cyclecloud --publisher azurecyclecloud --plan $cc_plan --query 'accepted' -o tsv)
 if [ "$accepted" != "true" ]; then
