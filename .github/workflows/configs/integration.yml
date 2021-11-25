@@ -82,10 +82,10 @@ cyclecloud:
   image:
     publisher: "azurecyclecloud"
     offer:     "azure-cyclecloud"
-    sku:       "cyclecloud-81"
-    version:   "8.2.020210809"
+    sku:       "cyclecloud8"
+    version:   "8.2.120211111"
   plan:
-    name: "cyclecloud-81"
+    name: "cyclecloud8"
     publisher:  "azurecyclecloud"
     product:    "azure-cyclecloud"
 
