@@ -77,27 +77,7 @@
       cc_queue_manager: '{{ queue_manager | default("openpbs") }}'
       influxdb_database_name: "telegraf"
       telegraf_influxdb_urls: 
-        - "http://jumpbox:8086"
+        - "http://grafana:8086"
       cc_slurm_version: 20.11.7-1
       slurm_uid: 971
       slurm_gid: 971
-
-  # - include_role: 
-  #     name: cyclecloud_slurm
-  #     apply: 
-  #       become: true
-  #   vars:
-  #     cc_region: '{{location}}'
-  #     cc_subnetid: '{{compute_subnetid}}'
-  #     cc_admin_user: '{{admin_user}}'
-  #     cc_password: '{{password.stdout}}'
-  #     cc_queues: '{{queues}}'
-  #     cc_image_lookup: '{{image_lookup}}'
-  #     cc_domain: '{{ad_join_domain}}'
-  #     cc_ad_server: '{{ad_dns}}'
-  #     influxdb_database_name: "telegraf"
-  #     telegraf_influxdb_urls: 
-  #       - "http://jumpbox:8086"
-  #     cc_slurm_version: 20.11.7-1
-  #     slurm_uid: 971
-  #     slurm_gid: 971
