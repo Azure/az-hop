@@ -77,4 +77,4 @@
       cc_queue_manager: '{{ queue_manager | default("openpbs") }}'
       influxdb_database_name: "telegraf"
       telegraf_influxdb_urls: 
-        - "http://jumpbox:8086"
+        - "http://grafana:8086"
