@@ -46,7 +46,7 @@
 
 - name: install munge key
   copy:
-    src: '{{homedir_mountpoint}}/slurm/config/munge.key'
+    src: '{{homedir_mountpoint}}/slurm/config/munge/munge.key'
     remote_src: yes
     dest: /etc/munge/munge.key
     owner: munge

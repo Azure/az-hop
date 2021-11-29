@@ -35,14 +35,15 @@
 
 - name: generate munge key
   shell: |
-    openssl rand -base64 24 > '{{homedir_mountpoint}}/slurm/config/munge.key'
-    chmod 600 '{{homedir_mountpoint}}/slurm/config/munge.key'
+    mkdir -p '{{homedir_mountpoint}}/slurm/config/munge'
+    openssl rand -base64 24 > '{{homedir_mountpoint}}/slurm/config/munge/munge.key'
+    chmod 600 '{{homedir_mountpoint}}/slurm/config/munge/munge.key'
   args:
-    creates: '{{homedir_mountpoint}}/slurm/config/munge.key'
+    creates: '{{homedir_mountpoint}}/slurm/config/munge/munge.key'
 
 - name: install munge key
   copy:
-    src: '{{homedir_mountpoint}}/slurm/config/munge.key'
+    src: '{{homedir_mountpoint}}/slurm/config/munge/munge.key'
     remote_src: yes
     dest: /etc/munge/munge.key
     owner: munge
