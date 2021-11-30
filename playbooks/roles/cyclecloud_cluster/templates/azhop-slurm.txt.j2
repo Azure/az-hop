@@ -19,10 +19,24 @@ Autoscale = true
     EnableAcceleratedNetworking = false
     Interruptible = false
 
+    # Slurm autoscaling supports both Terminate and Deallocate shutdown policies
+    ShutdownPolicy = Terminate
+
         [[[configuration]]]
+        slurm.version = "20.11.7-1"
+        #slurm.user.uid = 11000
+        #slurm.user.gid = 11000
+        #munge.user.uid = 11101
+        #munge.user.gid = 11101
+        slurm.accounting.enabled = false
+        #slurm.accounting.url = $configuration_slurm_accounting_url
+        #slurm.accounting.user = $configuration_slurm_accounting_user
+        #slurm.accounting.password = $configuration_slurm_accounting_password
+        #slurm.additional.config = $additional_slurm_config
+
         keepalive.timeout = 3600 # The amount of time in seconds to keep a node "alive" if it has not finished installing/configuring software.
         cyclecloud.converge_on_boot = true
-        # False => This is to avoid hostnames to be renamed ip-XXXXXXXX
+        # Disable ip-XXXXXXXX hostname generation
         cyclecloud.hosts.standalone_dns.enabled = false
         cyclecloud.hosts.simple_vpc_dns.enabled = false
         #cyclecloud.dns.domain = {{ad_join_domain}}
@@ -40,11 +54,35 @@ Autoscale = true
         [[[volume boot]]] 
         StorageAccountType = StandardSSD_LRS
 
+        [[[cluster-init cyclecloud/slurm:default:2.5.0]]]
         [[[cluster-init common:default:1.0.0]]]
-        [[[cluster-init slurm:default:1.0.0]]]
+
+        [[[configuration cyclecloud.mounts.nfs_sched]]]
+        type = nfs
+        mountpoint = /sched
+        export_path = {{mounts.home.export}}/slurm/config
+        address = {{mounts.home.server}}
+        #options =
+
+        [[[configuration cyclecloud.mounts.nfs_anfhome]]]
+        type = nfs
+        mountpoint = /anfhome
+        export_path = {{mounts.home.export}}
+        address = {{mounts.home.server}}
+        #options =
+
+    [[node nodearraybase]]
+    Abstract = true
+        [[[configuration]]]
+        slurm.autoscale = true
+        #slurm.node_prefix = ${ifThenElse(NodeNamePrefix=="Cluster Prefix", StrJoin("-", ClusterName, ""), NodeNamePrefix)}
+        slurm.use_nodename_as_hostname = true
+
+        [[[cluster-init cyclecloud/slurm:execute:2.5.0]]]
 
 {% for queue in cc_queues %}
     [[nodearray {{ queue.name }}]]
+    Extends = nodearraybase
     MachineType = {{ queue.vm_size }} 
     MaxCoreCount = {{ queue.max_core_count }}
   {% if queue.EnableAcceleratedNetworking is defined %}
@@ -60,12 +98,13 @@ Autoscale = true
     ImageName = {{ queue.image }}
   {% endif %}
         [[[configuration]]]
-        slurm.autoscale = true
-        slurm.use_nodename_as_hostname = true
+        slurm.partition = {{ queue.name }}
       {% if loop.index == 1 %}
         slurm.default_partition = true
       {% endif %}
       {% if queue.ColocateNodes is defined %}
         slurm.hpc = {{ queue.ColocateNodes }}
+      {% else %}
+        slurm.hpc = false
       {% endif %}
 {% endfor %}

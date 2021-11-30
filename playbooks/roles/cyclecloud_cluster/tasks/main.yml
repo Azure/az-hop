@@ -106,23 +106,6 @@
 
 - name: Slurm Cycle Cloud project
   block:
-    - name: Create Slurm CycleCloud project
-      command: '/usr/local/bin/cyclecloud project init slurm'
-      args:
-        chdir: '{{project_root}}'
-        creates: '{{slurm_project_root}}/project.ini'
-
-    - name: Add install slurm script 
-      template:
-        src: '{{role_path}}/projects/slurm/cluster-init/scripts/1-installslurm.sh.j2'
-        dest: '{{slurm_project_root}}/specs/default/cluster-init/scripts/1-installslurm.sh'
-        mode: 0777
-
-    - name: Upload Slurm CycleCloud project
-      command: '/usr/local/bin/cyclecloud project upload'
-      args:
-        chdir: '{{slurm_project_root}}'
-
     - name: Add azhop-Slurm template
       template:
         src: 'azhop-slurm.txt.j2'

@@ -1,0 +1,70 @@
+---
+- name: debug
+  debug:
+    msg:
+      - "munge_gid={{munge_gid}}"
+      - "munge_uid={{munge_uid}}"
+  
+# need to add munge user and groups before installing munge
+- name: add munge group
+  group:
+    name: munge
+    gid: '{{ munge_gid }}'
+    state: present
+
+- name: add munge user
+  user:
+    comment: 'User to run munge service'
+    name: munge
+    group: munge
+    shell: /bin/false
+    uid: '{{ munge_uid }}'
+    state: present
+
+- name: install epel
+  yum: 
+    name:
+      - epel-release
+    state: present
+
+- name: install munge
+  yum:
+    name: munge, munge-libs, munge-devel
+
+- name: check local munge dir
+  file:
+    path: /etc/munge
+    owner: munge
+    group: munge
+    mode: 0700
+    state: directory
+
+- name: check shared munge dir
+  file:
+    path: '{{homedir_mountpoint}}/slurm/config/munge'
+    owner: munge
+    group: munge
+    mode: 0700
+    state: directory
+
+- name: generate munge key
+  shell: |
+    openssl rand -base64 24 > '{{homedir_mountpoint}}/slurm/config/munge/munge.key'
+    chmod 600 '{{homedir_mountpoint}}/slurm/config/munge/munge.key'
+  args:
+    creates: '{{homedir_mountpoint}}/slurm/config/munge/munge.key'
+
+- name: install munge key
+  copy:
+    src: '{{homedir_mountpoint}}/slurm/config/munge/munge.key'
+    remote_src: yes
+    dest: /etc/munge/munge.key
+    owner: munge
+    group: munge
+    mode: 0400
+
+- name: ensure munge is running.
+  service:
+    name: munge 
+    state: restarted
+    enabled: yes
