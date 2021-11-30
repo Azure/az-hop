@@ -51,6 +51,8 @@ cd packer
 ```
 
 ## Update the Cycle cluster template
+>NOTE: To be done only when updating a system already configured
+
 Once all images have been built you need to update the configuration file to specify which images to use and then update the Cycle cluster template to match the exact image ID of the images pushed into the Shared Image Gallery. 
 
 To specify the new custom images to use, just comment the default `image: OpenLogic:CentOS-HPC:7_9-gen2:latest` values and uncomment the line below which contains the image definition to use from the Shared Image Gallery.
