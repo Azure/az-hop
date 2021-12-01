@@ -31,9 +31,13 @@ ResumeProgram=/opt/cycle/slurm/resume_program.sh
 ResumeFailProgram=/opt/cycle/slurm/resume_fail_program.sh
 SuspendProgram=/opt/cycle/slurm/suspend_program.sh
 SchedulerParameters=max_switch_wait=24:00:00
+{% if accounting_enabled %}
 JobAcctGatherType=jobacct_gather/linux
 AccountingStorageType=accounting_storage/slurmdbd
 AccountingStorageHost="scheduler"
-#AccountingStorageType=accounting_storage/none
+{% else %}
+AccountingStorageType=accounting_storage/none
+JobAcctGatherType=jobacct_gather/none
+{% endif %}
 SrunPortRange=59000-61000
 Include cyclecloud.conf

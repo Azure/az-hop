@@ -136,12 +136,12 @@
       - '{{homedir_mountpoint}}/slurm/rpms/slurm-perlapi-{{slurm_version}}.el7.x86_64.rpm'
       - '{{homedir_mountpoint}}/slurm/rpms/slurm-torque-{{slurm_version}}.el7.x86_64.rpm'
       - '{{homedir_mountpoint}}/slurm/rpms/slurm-openlava-{{slurm_version}}.el7.x86_64.rpm'
-      - '{{homedir_mountpoint}}/slurm/rpms/slurm-slurmdbd-{{cc_slurm_version}}.el7.x86_64.rpm'
+      - '{{homedir_mountpoint}}/slurm/rpms/slurm-slurmdbd-{{slurm_version}}.el7.x86_64.rpm'
     state: present
 
 - name: create slurm config 
-  copy:
-    src: files/slurm.conf
+  template:
+    src: slurm.conf.j2
     dest: /sched/slurm.conf
     owner: slurm 
     group: slurm 
@@ -165,23 +165,6 @@
     dest: /etc/slurm/cgroup.conf
     state: link
 
-- name: Read slurmdb Password from KV
-  command: az keyvault secret show --vault-name {{key_vault}} -n {{slurmdb_user}}-password --query "value" -o tsv
-  delegate_to: localhost
-  connection: local
-  register: slurmdb_password_out
-  become: false
-
-- name: configure slurmdbd
-  template:
-    src: templates/slurmdbd.conf.j2
-    dest: /etc/slurm/slurmdbd.conf
-    owner: slurm 
-    group: slurm
-    mode: 0600
-  vars:
-    slurmdb_password: "{{slurmdb_password_out.stdout}}"
-  
 - name: check slurm autoscale dir 
   file:
     path: /opt/cycle/slurm/
@@ -331,22 +314,13 @@
     dest: /etc/slurm/topology.conf
     state: link
 
-- name: ensure slurmdbd is running.
-  service:
-    name: slurmdbd
-    state: restarted
-    enabled: yes
-
 - name: ensure slurmctld is running.
   service:
     name: slurmctld
     state: started
     enabled: yes
 
-- name: check if cluster exists in the accounting database
-  shell: sacctmgr -np show cluster slurm|wc -l
-  register: cluster_exists
-
-- name: add cluster to slurm accounting DB
-  shell: sacctmgr -i add cluster slurm
-  when: cluster_exists.stdout == 0
+- include: accounting.yml
+  become: true
+  tags: [ 'accounting' ]
+  when: accounting_enabled
