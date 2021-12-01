@@ -312,7 +312,7 @@
 - name: ensure slurmctld is running.
   service:
     name: slurmctld
-    state: restarted
+    state: started
     enabled: yes
 
 - name: check if cluster exists in the accounting database
