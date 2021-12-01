@@ -23,6 +23,12 @@
     when: (queue_manager == "openpbs" or queue_manager is not defined)
 
   - include_role: 
+      name: munge
+      apply: 
+        become: true
+    when: queue_manager == "slurm"
+
+  - include_role: 
       name: slurmserver
       apply: 
         become: true
@@ -30,6 +36,4 @@
       cc_admin: '{{admin_user}}'
       cc_password: '{{password.stdout}}'
       cc_slurm_version: 20.11.7-1
-      slurm_uid: 971
-      slurm_gid: 971
     when: queue_manager == "slurm"

@@ -4,7 +4,7 @@
 
 # Config files and generated options files
 config.yml
-packer/options.json
+packer/options*.json
 packer/spn.json
 packer/*.log
 packer/md5sum.txt

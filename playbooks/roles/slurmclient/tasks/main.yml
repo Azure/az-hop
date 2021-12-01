@@ -6,12 +6,6 @@
       - epel-release
     state: present
 
-- name: install dependencies
-  yum: 
-    name:
-      - jq, munge
-    state: present
-
 - name: install slurmd client utilities
   yum:
     name:
@@ -35,29 +29,6 @@
     group: slurm
     uid: '{{ slurm_gid }}'
     state: present
-
-- name: check local munge dir
-  file:
-    path: /etc/munge
-    owner: munge
-    group: munge
-    mode: 0700
-    state: directory
-
-- name: install munge key
-  copy:
-    src: '{{homedir_mountpoint}}/slurm/config/munge.key'
-    remote_src: yes
-    dest: /etc/munge/munge.key
-    owner: munge
-    group: munge
-    mode: 0400
-
-- name: ensure munge is running.
-  service:
-    name: munge 
-    state: restarted
-    enabled: yes
 
 - name: create a symbolic link for slurm config dir
   file:
