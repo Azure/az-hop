@@ -247,27 +247,31 @@
     dest: /etc/slurm/cyclecloud.conf
     state: link
 
-- name: initialize slurm autoscale config 
+- name: cyclecloud_slurm.sh upgrade_conf
   shell: |
-      /opt/cycle/slurm/cyclecloud_slurm.sh upgrade_conf 
+    /opt/cycle/slurm/cyclecloud_slurm.sh upgrade_conf
 
-- name: initialize slurm autoscale config 
+- name: cyclecloud_slurm.sh create_nodes
   shell: |
-      /opt/cycle/slurm/cyclecloud_slurm.sh create_nodes --policy AllowExisting 
+    /opt/cycle/slurm/cyclecloud_slurm.sh create_nodes --policy AllowExisting 
 
-- name: initialize slurm autoscale config 
+- name: cyclecloud_slurm.sh slurm_conf
   shell: |
-      /opt/cycle/slurm/cyclecloud_slurm.sh slurm_conf > /sched/cyclecloud.conf 
+    /opt/cycle/slurm/cyclecloud_slurm.sh slurm_conf > /sched/cyclecloud.conf 
 
-- name: initialize slurm autoscale config 
+- name: cyclecloud_slurm.sh gres_conf
   shell: |
-      /opt/cycle/slurm/cyclecloud_slurm.sh gres_conf > /sched/gres.conf 
+    /opt/cycle/slurm/cyclecloud_slurm.sh gres_conf > /sched/gres.conf 
 
-- name: initialize slurm autoscale config 
+- name: cyclecloud_slurm.sh topology
   shell: |
-      /opt/cycle/slurm/cyclecloud_slurm.sh topology > /sched/topology.conf
-  #args:
-      #creates: /opt/cycle/jetpack/config/autoscale.json
+    /opt/cycle/slurm/cyclecloud_slurm.sh topology > /sched/topology.conf
+
+- name: create cron entry to update idle nodes
+  cron:
+    name: "return_to_idle"
+    minute: "*/5"
+    job: "/opt/cycle/slurm/return_to_idle.sh 1>&2 >> /opt/cycle/jetpack/logs/return_to_idle.log"
 
 - name: symbolic link for gres.conf 
   file:
