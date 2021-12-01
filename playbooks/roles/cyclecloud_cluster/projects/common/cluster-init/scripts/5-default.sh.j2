@@ -1,4 +1,12 @@
 #!/bin/bash
+
+if which dpkg; then
+  if ! dpkg -l jq; then
+    sudo apt-get install -y jq
+  fi
+fi
+
+
 # Apply default configuration to the node
 # Remote read access to the cluster init script files for all users
 chmod 700 -R /mnt/cluster-init

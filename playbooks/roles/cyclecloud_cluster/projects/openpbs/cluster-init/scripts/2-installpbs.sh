@@ -1,5 +1,21 @@
 #!/bin/bash
 
+if which dpkg; then
+
+  wget https://github.com/openpbs/openpbs/releases/download/v19.1.1/pbspro-19.1.1.tar.gz
+  tar -xzf pbspro-19.1.1.tar.gz
+  cd pbspro-19.1.1/
+  sudo apt-get install -y gcc make libtool libhwloc-dev libx11-dev       libxt-dev libedit-dev libical-dev ncurses-dev perl       postgresql-server-dev-all postgresql-contrib python-dev tcl-dev tk-dev swig       libexpat-dev libssl-dev libxext-dev libxft-dev autoconf       automake
+  ./autogen.sh
+  ./configure --prefix=/opt/pbs
+  make
+  make install
+  /opt/pbs/libexec/pbs_postinstall
+  chmod 4755 /opt/pbs/sbin/pbs_iff /opt/pbs/sbin/pbs_rcp
+  /etc/init.d/pbs start
+
+fi
+
 # install pbs rpms when not in custom image
 if [ ! -f "/etc/pbs.conf" ]; then
   echo "Downloading PBS RPMs"

@@ -1,13 +1,24 @@
 #!/bin/bash
-packages="nfs-utils"
 
-if ! rpm -q $packages; then
-  echo "Installing packages $packages"
-  yum install -y $packages
+rpm_packages="nfs-utils"
+apt_packages="nfs-common"
+
+if which rpm 2>/dev/null; then
+  if ! rpm -q $rpm_packages; then
+    echo "Installing packages $rpm_packages"
+    yum install -y $rpm_packages
+  fi
+elif which dpkg 2>/dev/null; then
+  if ! dpkg -l $apt_packages | grep -q installed; then
+    echo "Installing packages $apt_packages"
+    apt-get install -y $apt_packages
+  fi
 fi
 
 mkdir {{homedir_mountpoint}}
 echo "mount {{ anf_home_ip }}:/{{ anf_home_path }} {{homedir_mountpoint}}"
 mount {{ anf_home_ip }}:/{{ anf_home_path }} {{homedir_mountpoint}}
 
-setsebool -P use_nfs_home_dirs 1 || true
+if which setsebool; then
+  setsebool -P use_nfs_home_dirs 1 || true
+fi

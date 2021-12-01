@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if which dpkg; then
+  if ! dpkg -l chrony; then
+    apt-get install -y chrony
+  fi
+fi
+
 if [ -e /dev/ptp_hyperv ]; then
   PTP="ptp_hyperv"
 else

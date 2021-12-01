@@ -1,17 +1,38 @@
 #!/bin/bash
-packages="sssd realmd oddjob oddjob-mkhomedir adcli samba-common samba-common-tools krb5-workstation openldap-clients policycoreutils-python"
+rpm_packages="sssd realmd oddjob oddjob-mkhomedir adcli samba-common samba-common-tools krb5-workstation openldap-clients policycoreutils-python"
+apt_packages="sssd libsss-simpleifp0 python-sss sssd-dbus sssd-tools realmd oddjob oddjob-mkhomedir adcli samba-common krb5-user ldap-utils packagekit resolvconf"
 
-if ! rpm -q $packages; then
-  echo "Installing packages $packages" 
-  yum install -y $packages
-  echo "Restart dbus systemd-logind"
-  systemctl restart dbus
-  systemctl restart systemd-logind
+if which rpm; then
+
+  if ! rpm -q $rpm_packages; then
+    echo "Installing packages $rpm_packages" 
+    yum install -y $rpm_packages
+  fi
+
+  # https://docs.microsoft.com/en-us/azure/virtual-machines/linux/azure-dns
+  echo "RES_OPTIONS=\"timeout:1 attempts:5\"" >> /etc/sysconfig/network 
+
+elif which dpkg; then
+
+  if ! dpkg -l $apt_packages ; then
+    echo "Installing packages $apt_packages" 
+    # this export is needed to stop input for krb5-user
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get install -y $apt_packages
+  fi
+
+  # https://docs.microsoft.com/en-us/azure/virtual-machines/linux/azure-dns
+  if grep "^options " /etc/resolv.conf; then
+    sed -i 's/^options /options timeout:1 attempts:5 /' /etc/resolv.conf
+  else
+    echo "options timeout:1 attempts:5" >> /etc/resolv.conf
+  fi
+
 fi
 
-echo "Update nameserver"
-# https://docs.microsoft.com/en-us/azure/virtual-machines/linux/azure-dns
-echo "RES_OPTIONS=\"timeout:1 attempts:5\"" >> /etc/sysconfig/network 
+echo "Restart dbus systemd-logind"
+systemctl restart dbus
+systemctl restart systemd-logind
 
 NAMESERVER={{ ad_dns }}
 
@@ -31,6 +52,9 @@ EOF
 ADMIN_DOMAIN={{ ad_join_domain }}
 ADMIN_NAME={{ ad_join_user }}
 ADMIN_PASSWORD={{ cc_password }}
+
+# needed for ubuntu
+echo "{{ ad_dns }} {{ ldap_server }}.{{ ad_join_domain }} {{ ldap_server }}" >> /etc/hosts
 
 delay=15
 n=1
