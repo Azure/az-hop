@@ -39,6 +39,8 @@ resource "local_file" "global_variables" {
       sig_name            = azurerm_shared_image_gallery.sig.name
       lustre_hsm_storage_account = ( local.lustre_archive_account != null ? local.lustre_archive_account : azurerm_storage_account.azhop.name )
       lustre_hsm_storage_container = ( local.lustre_archive_account != null ? local.configuration_yml["lustre"]["hsm"]["storage_container"] : azurerm_storage_container.lustre_archive[0].name )
+      slurmdb-fqdn        = azurerm_mysql_flexible_server.slurmdb.fqdn
+      slurmdb-user        = azurerm_mysql_flexible_server.slurmdb.administrator_login    
     }
   )
   filename = "${local.playbook_root_dir}/group_vars/all.yml"
