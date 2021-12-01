@@ -1,9 +1,4 @@
 ---
-
-- name: install dependencies
-  yum:
-    name: python3, python3-pip, rpm-build, readline-devel, pam-devel, perl-ExtUtils-MakeMaker, gcc, mariadb-devel
-
 - name: add slurm group
   group:
     name: slurm
@@ -65,35 +60,7 @@
     group: slurm 
     state: directory
 
-- name: extract slurm tarball version number
-  set_fact:
-    slurm_version_short: "{{cc_slurm_version | regex_replace('-.*$', '')}}"
-
-- name: check if slurm rpms exist
-  stat:
-    path: '{{homedir_mountpoint}}/slurm/rpms/slurm-{{cc_slurm_version}}.el7.x86_64.rpm'
-  register: slurm_rpms
-
-- name: download slurm 
-  get_url:
-    url: 'https://download.schedmd.com/slurm/slurm-{{slurm_version_short}}.tar.bz2'
-    dest: /mnt/resource
-  when: slurm_rpms.stat.exists == False
-
-- name: check slurm build dir 
-  file:
-    path: /root/rpmbuild
-    mode: 0755
-    state: directory
-
-- name: build slurm
-  shell: |
-    rpmbuild --clean -ta /mnt/resource/slurm-{{slurm_version_short}}.tar.bz2 > log.txt
-    sudo cp /root/rpmbuild/RPMS/x86_64/slurm-*.rpm {{homedir_mountpoint}}/slurm/rpms/
-  args:
-    chdir: "{{ ansible_env.HOME }}/rpmbuild"
-  when: slurm_rpms.stat.exists == False
-
+# TODO : What is this for ?
 - name: check central slurm dir 
   file:
     path: '{{homedir_mountpoint}}/slurm/slurmctld/'
@@ -102,12 +69,72 @@
     group: slurm 
     state: directory
 
+- name: Build SLURM RPMs
+  block:
+
+  - name: install dependencies
+    yum:
+      name: python3, python3-pip, rpm-build, readline-devel, pam-devel, perl-ExtUtils-MakeMaker, gcc, mariadb-devel
+
+  - name: extract slurm tarball version number
+    set_fact:
+      slurm_version_short: "{{slurm_version | regex_replace('-.*$', '')}}"
+
+  - name: check if slurm rpms exist
+    stat:
+      path: '{{homedir_mountpoint}}/slurm/rpms/slurm-{{slurm_version}}.el7.x86_64.rpm'
+    register: slurm_rpms
+
+  - name: download slurm 
+    get_url:
+      url: 'https://download.schedmd.com/slurm/slurm-{{slurm_version_short}}.tar.bz2'
+      dest: /mnt/resource
+    when: slurm_rpms.stat.exists == False
+
+  - name: check slurm build dir 
+    file:
+      path: /root/rpmbuild
+      mode: 0755
+      state: directory
+
+  - name: build slurm
+    shell: |
+      rpmbuild --clean -ta /mnt/resource/slurm-{{slurm_version_short}}.tar.bz2 > log.txt
+      sudo cp /root/rpmbuild/RPMS/x86_64/slurm-*.rpm {{homedir_mountpoint}}/slurm/rpms/
+    args:
+      chdir: "{{ ansible_env.HOME }}/rpmbuild"
+    when: slurm_rpms.stat.exists == False
+  when: build_rpms
+
+- name: Use CycleCloud pre-built SLURM RPMs
+  block:
+
+  - name: download cc slurm RPMs
+    get_url:
+      url: https://github.com/Azure/cyclecloud-slurm/releases/download/{{cyclecloud_slurm_release}}/{{ item }}
+      dest: '{{homedir_mountpoint}}/slurm/rpms'
+    with_items:
+      - 'slurm-{{slurm_version}}.el7.x86_64.rpm'
+      - 'slurm-devel-{{slurm_version}}.el7.x86_64.rpm'
+      - 'slurm-example-configs-{{slurm_version}}.el7.x86_64.rpm'
+      - 'slurm-slurmctld-{{slurm_version}}.el7.x86_64.rpm'
+      - 'slurm-slurmd-{{slurm_version}}.el7.x86_64.rpm'
+      - 'slurm-perlapi-{{slurm_version}}.el7.x86_64.rpm'
+      - 'slurm-torque-{{slurm_version}}.el7.x86_64.rpm'
+      - 'slurm-openlava-{{slurm_version}}.el7.x86_64.rpm'
+  when: not build_rpms
+
 - name: install slurm 
   yum:
     name:
-      -  '{{homedir_mountpoint}}/slurm/rpms/slurm-{{cc_slurm_version}}.el7.x86_64.rpm'
-      -  '{{homedir_mountpoint}}/slurm/rpms/slurm-perlapi-{{cc_slurm_version}}.el7.x86_64.rpm'
-      -  '{{homedir_mountpoint}}/slurm/rpms/slurm-slurmctld-{{cc_slurm_version}}.el7.x86_64.rpm'
+      - '{{homedir_mountpoint}}/slurm/rpms/slurm-{{slurm_version}}.el7.x86_64.rpm'
+      - '{{homedir_mountpoint}}/slurm/rpms/slurm-devel-{{slurm_version}}.el7.x86_64.rpm'
+      - '{{homedir_mountpoint}}/slurm/rpms/slurm-example-configs-{{slurm_version}}.el7.x86_64.rpm'
+      - '{{homedir_mountpoint}}/slurm/rpms/slurm-slurmctld-{{slurm_version}}.el7.x86_64.rpm'
+      - '{{homedir_mountpoint}}/slurm/rpms/slurm-slurmd-{{slurm_version}}.el7.x86_64.rpm'
+      - '{{homedir_mountpoint}}/slurm/rpms/slurm-perlapi-{{slurm_version}}.el7.x86_64.rpm'
+      - '{{homedir_mountpoint}}/slurm/rpms/slurm-torque-{{slurm_version}}.el7.x86_64.rpm'
+      - '{{homedir_mountpoint}}/slurm/rpms/slurm-openlava-{{slurm_version}}.el7.x86_64.rpm'
     state: present
 
 - name: create slurm config 
@@ -117,14 +144,14 @@
     owner: slurm 
     group: slurm 
 
-- name: create slurm cgroup config 
+- name: create slurm cgroup config
   copy:
     src: files/cgroup.conf
     dest: /sched/cgroup.conf
     owner: slurm 
     group: slurm 
 
-- name: symbolic link for slurm.conf 
+- name: symbolic link for slurm.conf
   file:
     src: /sched/slurm.conf
     dest: /etc/slurm/slurm.conf
@@ -136,7 +163,7 @@
     dest: /etc/slurm/cgroup.conf
     state: link
 
-- name: check slurm autoscale dir 
+- name: check slurm autoscale dir
   file:
     path: /opt/cycle/slurm/
     mode: 0755
@@ -144,7 +171,7 @@
 
 - name: download cc autoscale scripts
   get_url:
-    url: https://raw.githubusercontent.com/Azure/cyclecloud-slurm/2.5.0/specs/default/chef/site-cookbooks/slurm/files/default/{{ item }}
+    url: https://raw.githubusercontent.com/Azure/cyclecloud-slurm/{{cyclecloud_slurm_release}}/specs/default/chef/site-cookbooks/slurm/files/default/{{ item }}
     dest: /opt/cycle/slurm
   with_items:
     - clusterwrapper.py
@@ -218,12 +245,12 @@
 
 - name: download cc autoscale api 
   get_url:
-    url: https://github.com/Azure/cyclecloud-slurm/releases/download/2.5.0/cyclecloud_api-8.1.0-py2.py3-none-any.whl
+    url: https://github.com/Azure/cyclecloud-slurm/releases/download/{{cyclecloud_slurm_release}}/cyclecloud_api-8.1.0-py2.py3-none-any.whl
     dest: /opt/cycle/slurm
 
 - name: download cc jobsubmit plugin
   get_url:
-    url: https://github.com/Azure/cyclecloud-slurm/releases/download/2.5.0/job_submit_cyclecloud_ubuntu_20.11.7-1.so
+    url: https://github.com/Azure/cyclecloud-slurm/releases/download/{{cyclecloud_slurm_release}}/job_submit_cyclecloud_centos_{{slurm_version}}.so
     dest: /usr/lib64/slurm/job_submit_cyclecloud.so
 
 - name: install cc autoscale api 

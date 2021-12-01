@@ -35,5 +35,5 @@
     vars:
       cc_admin: '{{admin_user}}'
       cc_password: '{{password.stdout}}'
-      cc_slurm_version: 20.11.7-1
+      slurm_version: 20.11.7-1
     when: queue_manager == "slurm"
