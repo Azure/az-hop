@@ -67,7 +67,8 @@ locals {
         netapp = "netapp",
         bastion = "AzureBastionSubnet",
         gateway = "GatewaySubnet",
-        compute = "compute"
+        compute = "compute",
+        slurmdb = "slurmdb"
     }
 
     # Create subnet if required. If not specified create only if vnet is created
@@ -78,6 +79,7 @@ locals {
     create_compute_subnet  = try(local.configuration_yml["network"]["vnet"]["subnets"]["compute"]["create"], local.create_vnet )
     create_bastion_subnet  = try(local.configuration_yml["network"]["vnet"]["subnets"]["bastion"]["create"], local.create_vnet )
     create_gateway_subnet  = try(local.configuration_yml["network"]["vnet"]["subnets"]["gateway"]["create"], local.create_vnet )
+    create_slurmdb_subnet   = try(local.configuration_yml["network"]["vnet"]["subnets"]["slurmdb"]["create"], local.create_vnet )
 
     # Application Security Groups
     create_nsg = try(local.configuration_yml["network"]["create_nsg"], local.create_vnet )
@@ -279,6 +281,10 @@ locals {
         AllowRdpOut                 = ["570", "Outbound", "Allow", "tcp", "Rdp",                "asg/asg-jumpbox",          "asg/asg-rdp"],
         AllowSocksOut               = ["580", "Outbound", "Allow", "tcp", "Socks",              "asg/asg-jumpbox",          "asg/asg-rdp"],
         AllowDnsOut                 = ["590", "Outbound", "Allow", "*",   "Dns",                "tag/VirtualNetwork",       "tag/VirtualNetwork"],
+
+        # SLURM Database
+        AllowSchedulerOut           = ["600", "Outbound", "Allow", "*",   "All",                "subnet/admin",             "subnet/slurmdb"],
+        AllowSlurmdbOut             = ["610", "Outbound", "Allow", "*",   "All",                "subnet/slurmdb",           "subnet/admin"],
 
         # Deny all remaining traffic and allow Internet access
         AllowInternetOutBound       = ["3000", "Outbound", "Allow", "tcp", "All",               "tag/VirtualNetwork",       "tag/Internet"],
