@@ -8,7 +8,7 @@
 - name: add slurm user
   user:
     comment: 'User to run slurmd'
-    name: slurm 
+    name: slurm
     group: slurm
     shell: /bin/false
     uid: '{{ slurm_uid }}'
@@ -18,63 +18,63 @@
   file:
     path: '{{homedir_mountpoint}}/slurm/'
     mode: 0755
-    owner: slurm 
-    group: slurm 
+    owner: slurm
+    group: slurm
     state: directory
 
-- name: check slurm config dir 
+- name: check slurm config dir
   file:
     path: '{{homedir_mountpoint}}/slurm/config/'
     mode: 0755
-    owner: slurm 
-    group: slurm 
+    owner: slurm
+    group: slurm
     state: directory
 
-- name: check slurm rpm dir 
+- name: check slurm rpm dir
   file:
     path: '{{homedir_mountpoint}}/slurm/rpms/'
     mode: 0755
     state: directory
 
-- name: check local slurm config dir 
+- name: check local slurm config dir
   file:
     path: /etc/slurm/
     mode: 0755
-    owner: slurm 
-    group: slurm 
+    owner: slurm
+    group: slurm
     state: directory
 
 - name: create a symbolic link for slurm config dir
   file:
     src: '{{homedir_mountpoint}}/slurm/config'
     dest: /sched
-    owner: slurm 
-    group: slurm 
+    owner: slurm
+    group: slurm
     state: link
 
-- name: check slurmctld log dir 
+- name: check slurmctld log dir
   file:
     path: /var/log/slurmctld/
     mode: 0755
-    owner: slurm 
-    group: slurm 
+    owner: slurm
+    group: slurm
     state: directory
 
-- name: check slurmctld log dir 
+- name: check slurmctld log dir
   file:
     path: /var/spool/slurmd/
     mode: 0755
-    owner: slurm 
-    group: slurm 
+    owner: slurm
+    group: slurm
     state: directory
 
 # TODO : What is this for ?
-- name: check central slurm dir 
+- name: check central slurm dir
   file:
     path: '{{homedir_mountpoint}}/slurm/slurmctld/'
     mode: 0755
-    owner: slurm 
-    group: slurm 
+    owner: slurm
+    group: slurm
     state: directory
 
 - name: Build SLURM RPMs
@@ -93,13 +93,13 @@
       path: '{{homedir_mountpoint}}/slurm/rpms/slurm-{{slurm_version}}.el7.x86_64.rpm'
     register: slurm_rpms
 
-  - name: download slurm 
+  - name: download slurm
     get_url:
       url: 'https://download.schedmd.com/slurm/slurm-{{slurm_version_short}}.tar.bz2'
       dest: /mnt/resource
     when: slurm_rpms.stat.exists == False
 
-  - name: check slurm build dir 
+  - name: check slurm build dir
     file:
       path: /root/rpmbuild
       mode: 0755
@@ -133,7 +133,7 @@
       - 'slurm-slurmdbd-{{slurm_version}}.el7.x86_64.rpm'
   when: not build_rpms
 
-- name: install slurm 
+- name: install slurm
   yum:
     name:
       - '{{homedir_mountpoint}}/slurm/rpms/slurm-{{slurm_version}}.el7.x86_64.rpm'
@@ -147,19 +147,19 @@
       - '{{homedir_mountpoint}}/slurm/rpms/slurm-slurmdbd-{{slurm_version}}.el7.x86_64.rpm'
     state: present
 
-- name: create slurm config 
+- name: create slurm config
   template:
     src: slurm.conf.j2
     dest: /sched/slurm.conf
-    owner: slurm 
-    group: slurm 
+    owner: slurm
+    group: slurm
 
 - name: create slurm cgroup config
   copy:
     src: files/cgroup.conf
     dest: /sched/cgroup.conf
-    owner: slurm 
-    group: slurm 
+    owner: slurm
+    group: slurm
 
 - name: symbolic link for slurm.conf
   file:
@@ -167,13 +167,13 @@
     dest: /etc/slurm/slurm.conf
     state: link
 
-- name: symbolic link for cgroup.conf 
+- name: symbolic link for cgroup.conf
   file:
     src: /sched/cgroup.conf
     dest: /etc/slurm/cgroup.conf
     state: link
 
-- name: check slurm autoscale dir 
+- name: check slurm autoscale dir
   file:
     path: /opt/cycle/slurm/
     mode: 0755
@@ -199,49 +199,49 @@
     - suspend_program.sh
     - terminate_nodes.sh
 
-- name: check execute bit for cyclecloud_slurm.sh 
+- name: check execute bit for cyclecloud_slurm.sh
   file:
     path: /opt/cycle/slurm/cyclecloud_slurm.sh
     mode: 0755
-    owner: slurm 
-    group: slurm 
+    owner: slurm
+    group: slurm
 
-- name: check execute bit for return_to_idle.sh 
+- name: check execute bit for return_to_idle.sh
   file:
     path: /opt/cycle/slurm/return_to_idle.sh
     mode: 0755
-    owner: slurm 
-    group: slurm 
+    owner: slurm
+    group: slurm
 
-- name: check execute bit for terminate_nodes.sh 
+- name: check execute bit for terminate_nodes.sh
   file:
     path: /opt/cycle/slurm/terminate_nodes.sh
     mode: 0755
-    owner: slurm 
-    group: slurm 
+    owner: slurm
+    group: slurm
 
-- name: check execute bit for resume_fail_program.sh 
+- name: check execute bit for resume_fail_program.sh
   file:
     path: /opt/cycle/slurm/resume_fail_program.sh
     mode: 0700
-    owner: slurm 
-    group: slurm 
+    owner: slurm
+    group: slurm
 
-- name: check execute bit for resume_program.sh 
+- name: check execute bit for resume_program.sh
   file:
     path: /opt/cycle/slurm/resume_program.sh
     mode: 0700
-    owner: slurm 
-    group: slurm 
+    owner: slurm
+    group: slurm
 
-- name: check execute bit for suspend_program.sh 
+- name: check execute bit for suspend_program.sh
   file:
     path: /opt/cycle/slurm/suspend_program.sh
     mode: 0700
-    owner: slurm 
-    group: slurm 
+    owner: slurm
+    group: slurm
 
-- name: install jetpack 
+- name: install jetpack
   yum:
     name:
     -  https://packages.microsoft.com/yumrepos/cyclecloud/jetpack8-8.2.0-1616.x86_64.rpm
@@ -253,7 +253,7 @@
     mode: u=rwX,g=rX,o=rX
     recurse: yes
 
-- name: download cc autoscale api 
+- name: download cc autoscale api
   get_url:
     url: https://github.com/Azure/cyclecloud-slurm/releases/download/{{cyclecloud_slurm_release}}/cyclecloud_api-8.1.0-py2.py3-none-any.whl
     dest: /opt/cycle/slurm
@@ -263,7 +263,7 @@
     url: https://github.com/Azure/cyclecloud-slurm/releases/download/{{cyclecloud_slurm_release}}/job_submit_cyclecloud_centos_{{slurm_version}}.so
     dest: /usr/lib64/slurm/job_submit_cyclecloud.so
 
-- name: install cc autoscale api 
+- name: install cc autoscale api
   shell: |
       /opt/cycle/jetpack/system/embedded/bin/pip install /opt/cycle/slurm/cyclecloud_api-8.1.0-py2.py3-none-any.whl  2>&1
       /opt/cycle/slurm/cyclecloud_slurm.sh initialize --cluster-name slurm1 --username "{{ cc_admin }}" --password "{{ cc_password }}" --url https://ccportal:9443/cyclecloud
@@ -274,11 +274,11 @@
   copy:
     content: ""
     dest: /sched/cyclecloud.conf
-    owner: slurm 
-    group: slurm 
+    owner: slurm
+    group: slurm
     force: no
 
-- name: symbolic link for cyclecloud.conf 
+- name: symbolic link for cyclecloud.conf
   file:
     src: /sched/cyclecloud.conf
     dest: /etc/slurm/cyclecloud.conf
@@ -290,15 +290,15 @@
 
 - name: cyclecloud_slurm.sh create_nodes
   shell: |
-    /opt/cycle/slurm/cyclecloud_slurm.sh create_nodes --policy AllowExisting 
+    /opt/cycle/slurm/cyclecloud_slurm.sh create_nodes --policy AllowExisting
 
 - name: cyclecloud_slurm.sh slurm_conf
   shell: |
-    /opt/cycle/slurm/cyclecloud_slurm.sh slurm_conf > /sched/cyclecloud.conf 
+    /opt/cycle/slurm/cyclecloud_slurm.sh slurm_conf > /sched/cyclecloud.conf
 
 - name: cyclecloud_slurm.sh gres_conf
   shell: |
-    /opt/cycle/slurm/cyclecloud_slurm.sh gres_conf > /sched/gres.conf 
+    /opt/cycle/slurm/cyclecloud_slurm.sh gres_conf > /sched/gres.conf
 
 - name: cyclecloud_slurm.sh topology
   shell: |
@@ -310,13 +310,13 @@
     minute: "*/5"
     job: "/opt/cycle/slurm/return_to_idle.sh 1>&2 >> /opt/cycle/jetpack/logs/return_to_idle.log"
 
-- name: symbolic link for gres.conf 
+- name: symbolic link for gres.conf
   file:
     src: /sched/gres.conf
     dest: /etc/slurm/gres.conf
     state: link
 
-- name: symbolic link for topology.conf 
+- name: symbolic link for topology.conf
   file:
     src: /sched/topology.conf
     dest: /etc/slurm/topology.conf
