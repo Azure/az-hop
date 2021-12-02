@@ -9,7 +9,8 @@ ArchiveUsage=no
 AuthInfo=/var/run/munge/munge.socket.2
 AuthType=auth/munge
 DbdHost=scheduler
-DebugLevel=debug5
+# use debug5 for more detailed output
+DebugLevel=verbose
 #DbdPort=6819
 PurgeEventAfter=1month
 PurgeJobAfter=12month
@@ -23,5 +24,6 @@ PidFile=/var/run/slurmdbd.pid
 SlurmUser=slurm
 StorageHost={{ slurmdb_fqdn}}
 StoragePass="{{ slurmdb_password }}"
-StorageUser={{ slurmdb_user }}
+StorageUser={{ slurmdb_user }}@{{ slurmdb_fqdn }}
 StorageType=accounting_storage/mysql
+StorageParameters=SSL_CA=/etc/slurm/BaltimoreCyberTrustRoot.crt.pem

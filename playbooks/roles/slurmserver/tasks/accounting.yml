@@ -15,11 +15,21 @@
   vars:
     slurmdb_password: "{{slurmdb_password_out.stdout}}"
 
+- name: download certificate
+  get_url:
+    url: 'https://www.digicert.com/CACerts/BaltimoreCyberTrustRoot.crt.pem'
+    dest: /etc/slurm/BaltimoreCyberTrustRoot.crt.pem
+    owner: slurm 
+    group: slurm
+    mode: 0644
+
 - name: ensure slurmdbd is running.
   service:
     name: slurmdbd
     state: restarted
     enabled: yes
+
+# TODO: need to check if we can connect to the database first, and failed in case of error.
 
 - name: check if cluster exists in the accounting database
   shell: sacctmgr -np show cluster slurm|wc -l
