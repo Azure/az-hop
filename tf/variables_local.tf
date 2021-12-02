@@ -45,6 +45,10 @@ locals {
     # Winviz
     create_winviz = try(local.configuration_yml["winviz"].create, false)
 
+    # Slurm Accounting Database
+    slurm_accounting = false
+    slurm_accounting_admin_user = "sqladmin"
+    
     # VNET
     create_vnet = try(length(local.vnet_id) > 0 ? false : true, true)
     vnet_id = try(local.configuration_yml["network"]["vnet"]["id"], null)
@@ -60,16 +64,21 @@ locals {
     allow_public_ip = try(local.configuration_yml["locked_down_network"]["public_ip"], true)
 
     # subnets
-    subnets = {
+    base_subnets = {
         ad = "ad",
         frontend = "frontend",
         admin = "admin",
         netapp = "netapp",
         bastion = "AzureBastionSubnet",
         gateway = "GatewaySubnet",
-        compute = "compute",
+        compute = "compute"
+    }
+
+    subnets = merge( local.base_subnets, local.slurm_accounting ? local.slurm_subnets : {} )
+    slurm_subnets = {
         slurmdb = "slurmdb"
     }
+
 
     # Create subnet if required. If not specified create only if vnet is created
     create_frontend_subnet = try(local.configuration_yml["network"]["vnet"]["subnets"]["frontend"]["create"], local.create_vnet )
@@ -79,7 +88,7 @@ locals {
     create_compute_subnet  = try(local.configuration_yml["network"]["vnet"]["subnets"]["compute"]["create"], local.create_vnet )
     create_bastion_subnet  = try(local.configuration_yml["network"]["vnet"]["subnets"]["bastion"]["create"], local.create_vnet )
     create_gateway_subnet  = try(local.configuration_yml["network"]["vnet"]["subnets"]["gateway"]["create"], local.create_vnet )
-    create_slurmdb_subnet   = try(local.configuration_yml["network"]["vnet"]["subnets"]["slurmdb"]["create"], local.create_vnet )
+    create_slurmdb_subnet  = try(local.configuration_yml["network"]["vnet"]["subnets"]["slurmdb"]["create"], local.create_vnet ) && local.slurm_accounting
 
     # Application Security Groups
     create_nsg = try(local.configuration_yml["network"]["create_nsg"], local.create_vnet )
@@ -124,7 +133,9 @@ locals {
         Telegraf = ["8086"]
         Grafana = ["3000"]
         # HTTPS, AMQP
-        CycleCloud = ["9443", "5672"]
+        CycleCloud = ["9443", "5672"],
+        # MySQL
+        MySQL = ["3306", "33060"]
     }
 
     # Array of NSG rules to be applied on the common NSG
@@ -136,7 +147,7 @@ locals {
     #   - destination_port_range : name of one of the nsg_destination_ports defined above
     #   - source                 : asg/<asg-name>, subnet/<subnet-name>, tag/<tag-name>. tag-name = any Azure tags like Internet, VirtualNetwork, AzureLoadBalancer, ...
     #   - destination            : same as source
-    nsg_rules = {
+    common_nsg_rules = {
         # ================================================================================================================================================================
         #                          ###
         #                           #     #    #  #####    ####   #    #  #    #  #####
@@ -282,13 +293,18 @@ locals {
         AllowSocksOut               = ["580", "Outbound", "Allow", "tcp", "Socks",              "asg/asg-jumpbox",          "asg/asg-rdp"],
         AllowDnsOut                 = ["590", "Outbound", "Allow", "*",   "Dns",                "tag/VirtualNetwork",       "tag/VirtualNetwork"],
 
-        # SLURM Database
-        AllowSchedulerOut           = ["600", "Outbound", "Allow", "*",   "All",                "subnet/admin",             "subnet/slurmdb"],
-        AllowSlurmdbOut             = ["610", "Outbound", "Allow", "*",   "All",                "subnet/slurmdb",           "subnet/admin"],
-
         # Deny all remaining traffic and allow Internet access
         AllowInternetOutBound       = ["3000", "Outbound", "Allow", "tcp", "All",               "tag/VirtualNetwork",       "tag/Internet"],
         DenyVnetOutbound            = ["3100", "Outbound", "Deny",  "*",   "All",               "tag/VirtualNetwork",       "tag/VirtualNetwork"],
 
     }
+
+    slurmdb_nsg_rules = {
+        # SLURM Database
+        AllowSchedulerOut           = ["600", "Outbound", "Allow", "*",   "MySQL",                "subnet/admin",             "subnet/slurmdb"],
+        # There shouldn't be access from mysql to admin subnet
+        #AllowSlurmdbOut             = ["610", "Outbound", "Allow", "*",   "MySQL",                "subnet/slurmdb",           "subnet/admin"],
+    }
+
+    nsg_rules = merge(local.common_nsg_rules, local.slurm_accounting ? local.slurmdb_nsg_rules : {})
 }
