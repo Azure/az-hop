@@ -20,7 +20,7 @@
         makestep 1.0 -1
         rtcsync
         logdir /var/log/chrony
-        refclock PHC /dev/ptp_hyperv poll 3 dpoll -2 offset 0
+        refclock PHC /dev/ptp_hyperv poll 3 dpoll -2 offset 0 stratum 2
     when: ptp_hyperv.stat.exists == True
 
   - name: set node chrony conf file
@@ -32,11 +32,11 @@
         makestep 1.0 -1
         rtcsync
         logdir /var/log/chrony
-        refclock PHC /dev/ptp0 poll 3 dpoll -2 offset 0
+        refclock PHC /dev/ptp0 poll 3 dpoll -2 offset 0 stratum 2
     when: ptp_hyperv.stat.exists == False
 
   - name: enable and start chronyd
     service:
       name: chronyd
       enabled: yes
-      state: started
+      state: restarted
