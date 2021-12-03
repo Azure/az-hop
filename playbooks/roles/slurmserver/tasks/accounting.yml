@@ -23,15 +23,15 @@
     group: slurm
     mode: 0644
 
-- name: ensure slurmctld is restarted.
-  service:
-    name: slurmctld
-    state: restarted
-    enabled: yes
-
 - name: ensure slurmdbd is restarted.
   service:
     name: slurmdbd
+    state: restarted
+    enabled: yes
+
+- name: ensure slurmctld is restarted.
+  service:
+    name: slurmctld
     state: restarted
     enabled: yes
 
