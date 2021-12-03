@@ -1,0 +1,76 @@
+- name: install prerequisites
+  yum:
+    name: gcc
+    state: present
+
+- name: Download Pyxis plugin
+  unarchive:
+    src: https://github.com/NVIDIA/pyxis/archive/refs/tags/v{{pyxis_version}}.tar.gz
+    dest: /mnt/resource
+    remote_src: yes
+
+- name: Build Pyxis
+  make:
+    chdir: /mnt/resource/pyxis-{{pyxis_version}}
+  become: yes
+
+- name: copy the plugin to the share
+  copy:
+    src: /mnt/resource/pyxis-{{pyxis_version}}/spank_pyxis.so
+    dest: '{{homedir_mountpoint}}/slurm/'
+    mode: 0755
+
+- name: install the plugin
+  copy:
+    src: '{{homedir_mountpoint}}/slurm/spank_pyxis.so'
+    dest: /usr/lib64/slurm/
+    mode: 0755
+
+- name: create plugstack.conf
+  copy:
+    content: "include /etc/slurm/plugstack.conf.d/*"
+    dest: /sched/plugstack.conf
+    owner: slurm
+    group: slurm
+
+- name: create plugstack directory
+  file:
+    path: /sched/plugstack.conf.d
+    state: directory
+    mode: 0755
+
+- name: create pyxis.conf
+  copy:
+    content: "required /usr/lib64/slurm/spank_pyxis.so"
+    dest: /sched/plugstack.conf.d/plugstack.conf
+    owner: slurm
+    group: slurm
+    mode: 0644
+
+- name: create scripts directory
+  file:
+    path: /sched/scripts
+    state: directory
+    mode: 0755
+
+- name: make symlinks
+  file:
+    path: /sched/{{ item.name }}
+    state: link
+    target: /etc/slurm/{{ item.name }}
+  with_items:
+    - plugstack.conf
+    - plugstack.conf.d
+
+- name: create slurm prolog for pyxis
+  template:
+    src: templates/prolog.sh.j2
+    dest: /sched/scripts/prolog.sh
+    owner: slurm
+    group: slurm
+    mode: 0755
+
+- name: restart slurmctld
+  service:
+    name: slurmctld
+    state: restarted

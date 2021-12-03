@@ -332,3 +332,8 @@
   become: true
   tags: [ 'accounting' ]
   when: accounting_enabled
+
+- include: pyxis.yml
+  become: true
+  tags: [ 'pyxis' ]
+  when: pyxis_enabled
