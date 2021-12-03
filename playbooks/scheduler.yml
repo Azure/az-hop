@@ -36,4 +36,5 @@
       cc_admin: '{{admin_user}}'
       cc_password: '{{password.stdout}}'
       slurm_version: 20.11.7-1
+      accounting_enabled: '{{slurm.accounting_enabled | default(false)}}'
     when: queue_manager == "slurm"

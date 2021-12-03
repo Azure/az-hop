@@ -48,7 +48,7 @@ resource "azurerm_subnet" "admin" {
   virtual_network_name = local.create_vnet ? azurerm_virtual_network.azhop[count.index].name : data.azurerm_virtual_network.azhop[count.index].name
   resource_group_name  = local.create_vnet ? azurerm_virtual_network.azhop[count.index].resource_group_name : data.azurerm_virtual_network.azhop[count.index].resource_group_name
   address_prefixes     = [try(local.configuration_yml["network"]["vnet"]["subnets"]["admin"]["address_prefixes"], "10.0.1.0/24")]
-  service_endpoints    = ["Microsoft.Storage", "Microsoft.KeyVault"]
+  service_endpoints    = ["Microsoft.Storage", "Microsoft.KeyVault", "Microsoft.Sql"]
 }
 
 # netapp subnet
@@ -123,29 +123,29 @@ resource "azurerm_subnet" "gateway" {
   address_prefixes     = [try(local.configuration_yml["network"]["vnet"]["subnets"]["gateway"]["address_prefixes"], "10.0.4.32/27")]
 }
 
-# slurmdb subnet
-data "azurerm_subnet" "slurmdb" {
-  count                = (local.create_slurmdb_subnet ? 0 : (local.slurm_accounting ? 1 : 0))
-  name                 = try(local.configuration_yml["network"]["vnet"]["subnets"]["slurmdb"]["name"], "slurmdb")
-  resource_group_name  = try(split("/", local.vnet_id)[4], "foo")
-  virtual_network_name = try(split("/", local.vnet_id)[8], "foo")
-}
+# # slurmdb subnet
+# data "azurerm_subnet" "slurmdb" {
+#   count                = (local.create_slurmdb_subnet ? 0 : (local.slurm_accounting ? 1 : 0))
+#   name                 = try(local.configuration_yml["network"]["vnet"]["subnets"]["slurmdb"]["name"], "slurmdb")
+#   resource_group_name  = try(split("/", local.vnet_id)[4], "foo")
+#   virtual_network_name = try(split("/", local.vnet_id)[8], "foo")
+# }
 
-resource "azurerm_subnet" "slurmdb" {
-  count                = local.create_slurmdb_subnet ? 1 : 0
-  name                 = try(local.configuration_yml["network"]["vnet"]["subnets"]["slurmdb"]["name"], "slurmdb")
-  virtual_network_name = local.create_vnet ? azurerm_virtual_network.azhop[count.index].name : data.azurerm_virtual_network.azhop[count.index].name
-  resource_group_name  = local.create_vnet ? azurerm_virtual_network.azhop[count.index].resource_group_name : data.azurerm_virtual_network.azhop[count.index].resource_group_name
-  address_prefixes     = [try(local.configuration_yml["network"]["vnet"]["subnets"]["slurmdb"]["address_prefixes"], "10.0.5.0/27")]
-  delegation {
-    name = "slurmdb"
+# resource "azurerm_subnet" "slurmdb" {
+#   count                = local.create_slurmdb_subnet ? 1 : 0
+#   name                 = try(local.configuration_yml["network"]["vnet"]["subnets"]["slurmdb"]["name"], "slurmdb")
+#   virtual_network_name = local.create_vnet ? azurerm_virtual_network.azhop[count.index].name : data.azurerm_virtual_network.azhop[count.index].name
+#   resource_group_name  = local.create_vnet ? azurerm_virtual_network.azhop[count.index].resource_group_name : data.azurerm_virtual_network.azhop[count.index].resource_group_name
+#   address_prefixes     = [try(local.configuration_yml["network"]["vnet"]["subnets"]["slurmdb"]["address_prefixes"], "10.0.5.0/27")]
+#   delegation {
+#     name = "slurmdb"
 
-    service_delegation {
-      name    = "Microsoft.DBforMySQL/flexibleServers"
-      actions = ["Microsoft.Network/networkinterfaces/*", "Microsoft.Network/virtualNetworks/subnets/join/action"]
-    }
-  }
-}
+#     service_delegation {
+#       name    = "Microsoft.DBforMySQL/flexibleServers"
+#       actions = ["Microsoft.Network/networkinterfaces/*", "Microsoft.Network/virtualNetworks/subnets/join/action"]
+#     }
+#   }
+# }
 
 
 # compute subnet

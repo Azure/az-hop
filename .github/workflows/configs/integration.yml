@@ -92,7 +92,7 @@ cyclecloud:
 
 winviz:
   vm_size: Standard_D4s_v3
-  create: true # Create an always running windows node, false by default
+  create: false # Create an always running windows node, false by default
 
 lustre:
   rbh_sku: "Standard_D8d_v4"
@@ -112,6 +112,11 @@ groups:
 
 # scheduler to be installed and configured
 queue_manager: __SCHEDULER__
+
+# Specific SLURM configuration
+slurm:
+  # Enable SLURM accounting, this will create a SLURM accounting database in a managed MySQL server instance
+  accounting_enabled: true
 
 images:
   - name: azhop-centos79-v2-rdma-gpgpu

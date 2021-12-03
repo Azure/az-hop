@@ -149,6 +149,11 @@ groups: # Not used today => To be used in the future
 # scheduler to be installed and configured (openpbs, slurm)
 queue_manager: openpbs
 
+# Specific SLURM configuration
+slurm:
+  # Enable SLURM accounting, this will create a SLURM accounting database in a managed MySQL server instance
+  accounting_enabled: false
+
 # List of images to be defined
 images:
   # - name: image_definition_name # Should match the packer configuration file name, one per packer file
