@@ -1,5 +1,10 @@
 ---
 # chrony.conf for different OS versions https://docs.microsoft.com/en-us/azure/virtual-machines/linux/time-sync
+# On Ubuntu 19.10 and later versions, Red Hat Enterprise Linux, and CentOS 8.x, chrony is configured to use a PTP source clock. 
+# Instead of chrony, older Linux releases use the Network Time Protocol daemon (ntpd), which doesn't support PTP sources.
+# To enable PTP in those releases, chrony must be manually installed and configured (in chrony.conf)
+# for RHEL 7.x and CentOS 7.x reference see https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/system_administrators_guide/ch-configuring_ntp_using_the_chrony_suite
+
 - hosts: jumpbox, ondemand, scheduler, lustre, lustre-oss-*, robinhood, grafana, ccportal
   become: true
   vars_files:
