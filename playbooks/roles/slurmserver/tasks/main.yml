@@ -68,15 +68,6 @@
     group: slurm
     state: directory
 
-# TODO : What is this for ?
-# - name: check central slurm dir
-#   file:
-#     path: '{{homedir_mountpoint}}/slurm/slurmctld/'
-#     mode: 0755
-#     owner: slurm
-#     group: slurm
-#     state: directory
-
 - name: Build SLURM RPMs
   block:
 
@@ -333,5 +324,16 @@
     state: restarted
     enabled: yes
 
+- name: Wait a maximum of 60 seconds until slurctld is running
+  wait_for:
+    path: /var/log/slurmctld/slurmctld.log
+    search_regex: slurmctld version \d+.\d+.\d+ started
+    timeout: 60
+
 - name: check slurm connection
   command: "sinfo -l"
+
+- name: create slurm logrotate config
+  copy:
+    src: files/slurm.logrotate
+    dest: /etc/logrotate.d/slurm
