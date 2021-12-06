@@ -69,13 +69,13 @@
     state: directory
 
 # TODO : What is this for ?
-- name: check central slurm dir
-  file:
-    path: '{{homedir_mountpoint}}/slurm/slurmctld/'
-    mode: 0755
-    owner: slurm
-    group: slurm
-    state: directory
+# - name: check central slurm dir
+#   file:
+#     path: '{{homedir_mountpoint}}/slurm/slurmctld/'
+#     mode: 0755
+#     owner: slurm
+#     group: slurm
+#     state: directory
 
 - name: Build SLURM RPMs
   block:
@@ -322,13 +322,16 @@
     dest: /etc/slurm/topology.conf
     state: link
 
-- name: ensure slurmctld is running.
-  service:
-    name: slurmctld
-    state: started
-    enabled: yes
-
 - include: accounting.yml
   become: true
   tags: [ 'accounting' ]
   when: accounting_enabled
+
+- name: ensure slurmctld is running.
+  service:
+    name: slurmctld
+    state: restarted
+    enabled: yes
+
+- name: check slurm connection
+  command: "sinfo -l"
