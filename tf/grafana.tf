@@ -37,7 +37,7 @@ resource "azurerm_linux_virtual_machine" "grafana" {
     version   = "latest"
   }
 
-  depends_on = [azurerm_network_interface_application_security_group_association.grafana-asg-asso]
+  #depends_on = [azurerm_network_interface_application_security_group_association.grafana-asg-asso]
 }
 
 resource "azurerm_network_interface_application_security_group_association" "grafana-asg-asso" {
