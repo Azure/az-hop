@@ -81,3 +81,4 @@
       cc_slurm_version: 20.11.7-1
       slurm_uid: 971
       slurm_gid: 971
+      enroot_enabled: '{{slurm.enroot_enabled | default(false)}}'

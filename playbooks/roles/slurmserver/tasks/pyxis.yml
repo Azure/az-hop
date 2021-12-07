@@ -1,6 +1,6 @@
 - name: install prerequisites
   yum:
-    name: gcc
+    name: gcc, make
     state: present
 
 - name: Download Pyxis plugin
@@ -18,12 +18,14 @@
   copy:
     src: /mnt/resource/pyxis-{{pyxis_version}}/spank_pyxis.so
     dest: '{{homedir_mountpoint}}/slurm/'
+    remote_src: yes
     mode: 0755
 
 - name: install the plugin
   copy:
     src: '{{homedir_mountpoint}}/slurm/spank_pyxis.so'
     dest: /usr/lib64/slurm/
+    remote_src: yes
     mode: 0755
 
 - name: create plugstack.conf
@@ -42,7 +44,7 @@
 - name: create pyxis.conf
   copy:
     content: "required /usr/lib64/slurm/spank_pyxis.so"
-    dest: /sched/plugstack.conf.d/plugstack.conf
+    dest: /sched/plugstack.conf.d/pyxis.conf
     owner: slurm
     group: slurm
     mode: 0644
@@ -55,20 +57,20 @@
 
 - name: make symlinks
   file:
-    path: /sched/{{ item.name }}
+    src: /sched/{{ item }}
     state: link
-    target: /etc/slurm/{{ item.name }}
+    dest: /etc/slurm/{{ item }}
   with_items:
     - plugstack.conf
     - plugstack.conf.d
 
-- name: create slurm prolog for pyxis
-  template:
-    src: templates/prolog.sh.j2
-    dest: /sched/scripts/prolog.sh
-    owner: slurm
-    group: slurm
-    mode: 0755
+# - name: create slurm prolog for pyxis
+#   template:
+#     src: templates/prolog.sh.j2
+#     dest: /sched/scripts/prolog.sh
+#     owner: slurm
+#     group: slurm
+#     mode: 0755
 
 - name: restart slurmctld
   service:
