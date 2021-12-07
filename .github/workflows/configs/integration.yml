@@ -78,6 +78,8 @@ ad:
   vm_size: Standard_B2ms
 ondemand:
   vm_size: Standard_D8s_v5
+grafana:
+  vm_size: Standard_B2ms
 scheduler:
   vm_size: Standard_B2ms
 cyclecloud:
