@@ -1,5 +1,6 @@
 #!/bin/bash
 
+mkdir -p /usr/lib64/slurm
 cp -v {{ homedir_mountpoint }}/slurm/spank_pyxis.so /usr/lib64/slurm/
 chmod +x /usr/lib64/slurm/spank_pyxis.so
 

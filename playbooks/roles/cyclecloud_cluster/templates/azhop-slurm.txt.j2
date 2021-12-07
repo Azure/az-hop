@@ -56,6 +56,9 @@ Autoscale = true
 
         [[[cluster-init cyclecloud/slurm:default:2.5.0]]]
         [[[cluster-init common:default:1.0.0]]]
+      {% if slurm.enroot_enabled is defined %}
+        [[[cluster-init enroot:default:1.0.0]]]
+      {% endif %}
 
         [[[configuration cyclecloud.mounts.nfs_sched]]]
         type = nfs
