@@ -99,9 +99,9 @@ winviz:
   create: false # Create an always running windows node, false by default
 
 lustre:
-  rbh_sku: "Standard_D8d_v5"
-  mds_sku: "Standard_D8d_v5"
-  oss_sku: "Standard_D16d_v5"
+  rbh_sku: "Standard_D8ds_v5"
+  mds_sku: "Standard_D8ds_v5"
+  oss_sku: "Standard_D16ds_v5"
   oss_count: 2
   version: "2.12.4"
   hsm_max_requests: 8
