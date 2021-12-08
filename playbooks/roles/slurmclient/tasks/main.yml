@@ -66,3 +66,22 @@
     - cgroup.conf
     - cyclecloud.conf
     - topology.conf
+
+- name: Configure Pyxis plugin
+  block:
+    - name: Instlal pyxis plugin
+      copy:
+        src: '{{homedir_mountpoint}}/slurm/spank_pyxis.so'
+        remote_src: yes
+        dest: /usr/lib64/slurm/spank_pyxis.so
+        mode: 0755
+    - name: Create symlinks
+      file:
+        src: /sched/{{item}}
+        dest: /etc/slurm/{{item}}
+        state: link
+        force: yes
+      with_items:
+        - plugstack.conf
+        - plugstack.conf.d
+  when: enroot_enabled == true

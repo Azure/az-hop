@@ -6,6 +6,8 @@
 mkdir -pv /run/enroot /mnt/resource/{enroot-cache,enroot-data,enroot-temp}
 chmod -v 777 /run/enroot /mnt/resource/{enroot-cache,enroot-data,enroot-temp}
 
+exit 0
+
 # Verify that NVIDIA UVM driver is running and device file is present
 # https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#runfile-verifications
 # If not, CUDA inside the container will fail

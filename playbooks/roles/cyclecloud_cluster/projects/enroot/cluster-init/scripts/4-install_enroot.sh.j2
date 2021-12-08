@@ -17,8 +17,12 @@ enroot version
 
 #sysctl -w user.max_user_namespaces=1417997
 grep user.max_user_namespaces /etc/sysctl.conf || echo 'user.max_user_namespaces = 1417997' >> /etc/sysctl.conf
-grep namespace.unpriv_enable /etc/default/grub || sed -i.bak 's/\(GRUB_CMDLINE_LINUX.*\)"$/\1 namespace.unpriv_enable=1 user_namespace.enable=1 vsyscall=emulate"/' /etc/default/grub
-grub2-mkconfig -o /boot/grub2/grub.cfg
+#grep namespace.unpriv_enable /etc/default/grub || sed -i.bak 's/\(GRUB_CMDLINE_LINUX.*\)"$/\1 namespace.unpriv_enable=1 user_namespace.enable=1 vsyscall=emulate"/' /etc/default/grub
+#grub2-mkconfig -o /boot/grub2/grub.cfg
+
+#mkdir -m 1777 $ENROOT_SCRATCH
+#echo "@reboot mkdir -m 1777 -p $ENROOT_SCRATCH{enroot-cache,enroot-data,enroot-temp}" | crontab -
+#sudo crontab -l
 
 # Use local temporary disk for enroot
 cat <<EOF > /etc/enroot/enroot.conf
