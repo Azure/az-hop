@@ -1,10 +1,22 @@
 ---
 # This looks crazy but in order for this playbook to run from a pipeline, the jumpbox dummy need to be added
-- name: jumpbox dummy
-  hosts: jumpbox
-  become: true
-  vars_files:
-    - '{{global_config_file}}'
+# - name: jumpbox dummy
+#   hosts: jumpbox
+#   become: true
+#   vars_files:
+#     - '{{global_config_file}}'
+
+# Do not assume the inventory_hostname is resolvable and delay 10 seconds at start
+- name: wait for host to be available
+  hosts: ccportal
+  tasks:
+  - name: Wait 300 seconds for port 22 to become open and contain "OpenSSH"
+    wait_for:
+      port: 22
+      host: '{{ (ansible_ssh_host|default(ansible_host))|default(inventory_hostname) }}'
+      search_regex: OpenSSH
+      delay: 10
+    connection: local
 
 - name: Setup cyclecloud
   hosts: ccportal
