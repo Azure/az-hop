@@ -204,12 +204,12 @@ queues:
     max_core_count: 440
     image: OpenLogic:CentOS-HPC:7_9-gen2:latest
 #    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
-  - name: hb120rs_v2
+  - name: hb120v2
     vm_size: Standard_HB120rs_v2
     max_core_count: 1200
     image: OpenLogic:CentOS-HPC:7_9-gen2:latest
 #    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
-  - name: hb120rs_v3
+  - name: hb120v3
     vm_size: Standard_HB120rs_v3
     max_core_count: 1200
     image: OpenLogic:CentOS-HPC:7_9-gen2:latest

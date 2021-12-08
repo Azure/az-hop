@@ -1,6 +1,6 @@
 #!/bin/bash
 #PBS -N PingPong
-#PBS -l select=2:ncpus=1:mpiprocs=1:slot_type=hb120rs_v3
+#PBS -l select=2:ncpus=1:mpiprocs=1:slot_type=hb120v3
 #PBS -k oed
 #PBS -j oe
 #PBS -l walltime=300
