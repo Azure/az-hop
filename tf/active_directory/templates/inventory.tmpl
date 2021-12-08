@@ -1,0 +1,15 @@
+all:
+  hosts:
+    localhost:
+      psrp_ssh_proxy: ${jumpbox-pip}
+    jumpbox:
+      ansible_host: ${jumpbox-pip}
+      ansible_ssh_user: ${jumpbox-user}
+    ad:
+      psrp_ssh_proxy: ${jumpbox-pip}
+      ansible_host: ${ad-ip}
+      ansible_connection: psrp
+      ansible_psrp_protocol: http
+      ansible_user: ${jumpbox-user}
+      ansible_password: "${ad-passwd}"
+      ansible_psrp_proxy: socks5h://localhost:5985

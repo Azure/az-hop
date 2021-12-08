@@ -17,7 +17,8 @@
 
   tasks:
   - include: create_user.yml user="{{item}}"
-    with_items: "{{users}}"
+    with_items: '{{users}}'
+    when: users is defined
 
 - name: close socks tunnel
   hosts: localhost
@@ -25,7 +26,8 @@
   gather_facts: no
   tasks:
   - name: close session on local port
-    shell: ps aux | grep 5985 | grep ssh | awk '{print "kill -9 " $0}'
+    shell: ps aux | grep localhost:5985 | grep -v grep | awk '{print "kill -9 " $2}' | sh
+    ignore_errors: true
 
 - name: Configure Users
   hosts: jumpbox
@@ -34,20 +36,18 @@
     - '{{global_config_file}}'
 
   tasks:
-  - name: init user context for {{item.name}}
-    command: ssh-keygen -t rsa -f ~/.ssh/id_rsa -q -N ""
-    become_user: '{{item.name}}'
-    args: 
-      creates: "{{item.home}}/.ssh/id_rsa"
-    with_items: "{{users}}"
+  - include: init_user.yml user="{{item}}"
+    with_items: '{{users}}'
+    when: users is defined
 
-  - name: Copy file with owner and permissions
-    copy:
-      src: "{{item.home}}/.ssh/id_rsa.pub"
-      dest: "{{item.home}}/.ssh/authorized_keys"
-      remote_src: yes
-      mode: '0600'
-      owner: '{{item.name}}'
-      group: "domain users" 
-      force: no
-    with_items: "{{users}}"
+- name: Configure users in CycleCloud
+  hosts: ccportal
+  become: true
+  vars_files:
+    - '{{global_config_file}}'
+
+  tasks:
+  - name: Add users
+    template:
+      src: user_record.txt.j2
+      dest: /opt/cycle_server/config/data/user_record.txt

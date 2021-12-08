@@ -1,0 +1,9 @@
+# slurm uid/gid match cyclecloud-slurm cookbook values
+slurm_uid: 11100
+slurm_gid: 11100
+slurm_version: 20.11.7-1
+cyclecloud_slurm_release: 2.5.0
+build_rpms: false
+accounting_enabled: false
+cc_admin: hpcadmin
+cc_password: 

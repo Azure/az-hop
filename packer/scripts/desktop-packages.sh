@@ -6,3 +6,6 @@ yum install -y qt5-qtbase-gui qt5-qtscript qt5-qtsvg
 echo "Install ResInsight"
 yum-config-manager --add-repo https://opm-project.org/package/opm.repo
 yum install -y resinsight resinsight-octave
+
+echo "Add Motif"
+yum install -y motif motif-devel

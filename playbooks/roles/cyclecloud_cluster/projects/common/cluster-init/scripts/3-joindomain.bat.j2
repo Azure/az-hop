@@ -1,0 +1,6 @@
+netsh interface ipv4 set dns name="Ethernet 2" static {{ ad_dns }}
+netsh interface ipv4 add dns name="Ethernet 2" 168.63.129.16 index=2
+
+Powershell.exe -executionpolicy remotesigned $password = ConvertTo-SecureString "{{ cc_password }}" -asPlainText -Force; $credential = New-Object System.Management.Automation.PSCredential('{{ ad_join_domain }}\{{ ad_join_user }}',$password); Add-Computer -DomainName '{{ ad_join_domain }}' -Credential $credential
+
+shutdown /r /f /t 1

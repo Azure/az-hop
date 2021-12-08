@@ -245,7 +245,7 @@ def initialize_cyclecloud_cli(admin_user, cyclecloud_admin_pw):
 
 
 def get_vm_metadata():
-    metadata_url = "http://169.254.169.254/metadata/instance?api-version=2017-08-01"
+    metadata_url = "http://169.254.169.254/metadata/instance?api-version=2019-08-15"
     metadata_req = Request(metadata_url, headers={"Metadata": True})
 
     for _ in range(30):
@@ -288,10 +288,10 @@ def main():
 
     parser = argparse.ArgumentParser(description="usage: %prog [options]")
 
-    parser.add_argument("--azureSovereignCloud",
-                        dest="azureSovereignCloud",
-                        default="public",
-                        help="Azure Region [china|germany|public|usgov]")
+    # parser.add_argument("--azureSovereignCloud",
+    #                     dest="azureSovereignCloud",
+    #                     default="public",
+    #                     help="Azure Region [china|germany|public|usgov]")
 
     parser.add_argument("--tenantId",
                         dest="tenantId",
@@ -373,8 +373,23 @@ def main():
                 print("CycleServer is not started")
                 raise 
 
+    azEnvironment = vm_metadata["compute"]["azEnvironment"]
+    azEnvironment = azEnvironment.lower()
+    print("azEnvironment=%s" % azEnvironment)
+
+    if azEnvironment == 'azurepubliccloud':
+        azureSovereignCloud = 'public'
+    elif azEnvironment == 'azureusgovernmentcloud':
+        azureSovereignCloud = 'usgov'
+    elif azEnvironment == 'azurechinacloud':
+        azureSovereignCloud = 'china'
+    elif azEnvironment == 'azuregermancloud':
+        azureSovereignCloud = 'germany'
+    else:
+        azureSovereignCloud = 'public'
+
     cyclecloud_account_setup(vm_metadata, args.useManagedIdentity, args.tenantId, args.applicationId,
-                             args.applicationSecret, args.username, args.azureSovereignCloud,
+                             args.applicationSecret, args.username, azureSovereignCloud,
                              args.acceptTerms, args.password, args.storageAccount)
 
     # if args.useLetsEncrypt:

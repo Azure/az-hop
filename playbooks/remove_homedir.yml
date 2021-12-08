@@ -1,0 +1,14 @@
+- name: Set user home if not defined
+  set_fact:
+    user_home: "{{ homedir_mountpoint }}/{{ user.name }}"
+  when: user.home is not defined
+
+- name: Set user home if defined
+  set_fact:
+    user_home: "{{ user.home }}"
+  when: user.home is defined
+
+- name: Remove {{user_home}} directory
+  file:
+    path: '{{user_home}}'
+    state: absent

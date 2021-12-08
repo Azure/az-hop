@@ -1,0 +1,28 @@
+# This looks crazy but in order for this playbook to run from a pipeline, the jumpbox dummy need to be added
+- name: jumpbox dummy
+  hosts: jumpbox
+  become: true
+
+- hosts: ondemand
+  become: true
+  vars_files:
+    - '{{global_config_file}}'
+
+  tasks:
+    - name: Copy Job templates files
+      copy:
+        src: 'files/ood_templates/{{queue_manager}}/' # inside directories are copied
+        dest: '/var/www/ood/apps/sys/myjobs/templates/'
+
+# The next two downloads are to fix the wrong style of the slider of the novnc connection page
+# Despite what is claimed, this doesn't fix this issue
+    # - name: download sessions.scss
+    #   get_url:
+    #     url: https://raw.githubusercontent.com/OSC/ondemand/aae5aefa00f2cd674eb309a327e1f168950b1cb3/apps/dashboard/app/assets/stylesheets/batch_connect/sessions.scss
+    #     dest: /var/www/ood/apps/sys/dashboard/app/assets/stylesheets/batch_connect/sessions.scss
+
+    # - name: download _novnc.html.erb
+    #   get_url:
+    #     url: https://raw.githubusercontent.com/OSC/ondemand/aae5aefa00f2cd674eb309a327e1f168950b1cb3/apps/dashboard/app/views/batch_connect/sessions/connections/_novnc.html.erb
+    #     dest: /var/www/ood/apps/sys/dashboard/app/views/batch_connect/sessions/connections/_novnc.html.erb
+

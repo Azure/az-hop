@@ -1,0 +1,68 @@
+---
+
+- name: install epel
+  yum: 
+    name:
+      - epel-release
+    state: present
+
+- name: install slurmd client utilities
+  yum:
+    name:
+      -  '{{homedir_mountpoint}}/slurm/rpms/slurm-{{cc_slurm_version}}.el7.x86_64.rpm'
+    state: present
+
+- name: check slurm config directory
+  file:
+    path: /etc/slurm
+    state: directory
+
+- name: add slurm group 
+  group:
+    name: slurm
+    gid: '{{ slurm_uid }}'
+    state: present
+
+- name: add slurm user
+  user:
+    name: slurm 
+    group: slurm
+    uid: '{{ slurm_gid }}'
+    state: present
+
+- name: create a symbolic link for slurm config dir
+  file:
+    src: '{{homedir_mountpoint}}/slurm/config'
+    dest: /sched
+    owner: slurm 
+    group: slurm 
+    state: link
+
+- name: check slurmd log dir 
+  file:
+    path: /var/log/slurmd/
+    mode: 0755
+    owner: slurm 
+    group: slurm 
+    state: directory
+
+- name: check slurmd spool dir 
+  file:
+    path: /var/spool/slurmd/
+    mode: 0755
+    owner: slurm 
+    group: slurm 
+    state: directory
+
+- name: Create symlinks
+  file:
+    dest: /etc/slurm/{{item}}
+    src: /sched/{{item}}
+    state: link
+    force: yes
+  with_items:
+    - slurm.conf
+    - gres.conf
+    - cgroup.conf
+    - cyclecloud.conf
+    - topology.conf

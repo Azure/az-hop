@@ -1,0 +1,3 @@
+# Munge uid/gid match cyclecloud-slurm cookbook values
+munge_uid: 11101
+munge_gid: 11101

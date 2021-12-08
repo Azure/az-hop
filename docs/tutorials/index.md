@@ -1,0 +1,4 @@
+- [Install Spack](spack.md)
+- [OSU Benchmarks](osu_benchmarks.md)
+- [OPM](opm.md)
+- [OpenFOAM](openfoam.md)

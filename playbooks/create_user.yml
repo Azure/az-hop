@@ -1,9 +1,35 @@
+- name: debug
+  debug:
+    msg:
+      - "user={{user}}"
+  
 - name: Read Password from KV
   command: az keyvault secret show --vault-name {{key_vault}} -n {{user.name}}-password --query "value" -o tsv
   delegate_to: localhost
-  connection: local
+#  connection: local
   register: password
   become: false
+
+- name: Set user home if not defined
+  set_fact:
+    user_home: "{{ homedir_mountpoint }}/{{ user.name }}"
+  when: user.home is not defined
+
+- name: Set user home if defined
+  set_fact:
+    user_home: "{{ user.home }}"
+  when: user.home is defined
+
+- name: Set user shell if not defined
+  set_fact:
+    user_shell: /bin/bash
+  when: user.shell is not defined
+
+- name: Set user shell if defined
+  set_fact:
+    user_shell: "{{user.shell}}"
+  when: user.shell is defined
+
 
 - name: add user
   community.windows.win_domain_user:
@@ -14,10 +40,26 @@
     state: present
     groups:
       - Domain Users
+    attributes:
+      uidNumber: "{{ user.uid }}"
+      uid: "{{ user.name }}"
+      loginShell: "{{ user_shell }}"
+      unixhomedirectory: "{{ user_home }}"
+      gidnumber: "{{user.gid}}"
+
+- name: add Admin
+  community.windows.win_domain_user:
+    name: "{{ user.name }}"
+    firstname: "{{ user.name }}"
+    password: '{{password.stdout}}'
+    password_never_expires: true
+    state: present
+    groups:
       - Domain Admins
     attributes:
       uidNumber: "{{ user.uid }}"
       uid: "{{ user.name }}"
-      loginShell: "{{ user.shell }}"
-      unixhomedirectory: "{{ user.home }}"
+      loginShell: "{{ user_shell }}"
+      unixhomedirectory: "{{ user_home }}"
       gidnumber: "{{user.gid}}"
+  when: user.admin | default(false)

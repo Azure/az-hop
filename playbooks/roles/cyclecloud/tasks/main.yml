@@ -15,13 +15,13 @@
       - "cc_update_url={{cc_rpms_cycle}}"
   when: cc_rpms_cycle is defined
 
-- name: Update CC CycleCloud
+- name: Update CycleCloud RPM
   yum:
     name: "{{cc_rpms_cycle}}"
     state: present
   when: cc_rpms_cycle is defined
 
-- name: Update CC Jetpack
+- name: Update Jetpack RPM
   yum:
     name: "{{cc_rpms_jetpack}}"
     state: present
