@@ -19,4 +19,22 @@
     vars:
       cc_admin: '{{admin_user}}'
       cc_password: '{{password.stdout}}'
+      cc_pbs_version: 1.4.0
     when: (queue_manager == "openpbs" or queue_manager is not defined)
+
+  - include_role: 
+      name: munge
+      apply: 
+        become: true
+    when: queue_manager == "slurm"
+
+  - include_role: 
+      name: slurmserver
+      apply: 
+        become: true
+    vars:
+      cc_admin: '{{admin_user}}'
+      cc_password: '{{password.stdout}}'
+      slurm_version: 20.11.7-1
+      accounting_enabled: '{{slurm.accounting_enabled | default(false)}}'
+    when: queue_manager == "slurm"

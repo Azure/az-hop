@@ -1,4 +1,6 @@
 project_root: /root/projects
 common_project_root: '{{project_root}}/common'
 openpbs_project_root: '{{project_root}}/openpbs'
+slurm_project_root: '{{project_root}}/slurm'
 cc_queue_manager:
+cyclecloud_slurm_release: 2.5.0

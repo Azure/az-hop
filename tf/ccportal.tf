@@ -66,7 +66,7 @@ resource "azurerm_virtual_machine" "ccportal" {
     identity_ids = [ azurerm_user_assigned_identity.ccportal.id ]
   }
 
-  depends_on = [azurerm_network_interface_application_security_group_association.ccportal-asg-asso]
+  #depends_on = [azurerm_network_interface_application_security_group_association.ccportal-asg-asso]
 }
 
 data "azurerm_role_definition" "contributor" {

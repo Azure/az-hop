@@ -3,15 +3,16 @@
 - name: jumpbox dummy
   hosts: jumpbox
   become: true
-  vars_files:
-    - '{{global_config_file}}'
 
 - name: Run test suite
   hosts: ondemand
   become: true
+  vars_files:
+    - '{{global_config_file}}'
 
   tasks:
   - name: Call tests role
     include_role:
       name: tests
-
+    vars:
+      scheduler: '{{ queue_manager | default("openpbs") }}'

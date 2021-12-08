@@ -67,7 +67,7 @@
     - '{{common_project_root}}/specs/default/cluster-init/scripts/2-mountlustre.sh.j2'
     - '{{common_project_root}}/specs/default/cluster-init/scripts/3-joindomain.sh.j2'
     - '{{common_project_root}}/specs/default/cluster-init/scripts/3-joindomain.bat.j2'
-    - '{{common_project_root}}/specs/default/cluster-init/scripts/5-default.sh.j2  '
+    - '{{common_project_root}}/specs/default/cluster-init/scripts/5-default.sh.j2'
 
 - name: Upload common CycleCloud project
   command: '/usr/local/bin/cyclecloud project upload'
@@ -103,3 +103,17 @@
     - name: Start OpenPBS Cluster
       command: '/usr/local/bin/cyclecloud start_cluster pbs1'
   when: cc_queue_manager == "openpbs"
+
+- name: Slurm Cycle Cloud project
+  block:
+    - name: Add azhop-Slurm template
+      template:
+        src: 'azhop-slurm.txt.j2'
+        dest: '{{project_root}}/azhop-slurm.txt'
+
+    - name: Import Slurm Cluster
+      command: '/usr/local/bin/cyclecloud import_cluster slurm1 -f {{project_root}}/azhop-slurm.txt -c azhop-slurm --force'
+
+    - name: Start Slurm Cluster
+      command: '/usr/local/bin/cyclecloud start_cluster slurm1'
+  when: cc_queue_manager == "slurm"

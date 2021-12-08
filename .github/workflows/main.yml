@@ -19,6 +19,10 @@ on:
         description: 'Use ANF Dual Protocol'
         required: false
         default: 'false' # use it with ${{ github.event.inputs.anf_dual }}
+      scheduler:
+        description: 'Job Scheduler to be installed : openpbs/slurm'
+        required: false
+        default: 'openpbs' # use it with ${{ github.event.inputs.scheduler }}
 
 env:
   TF_CLI_ARGS: '-no-color'
@@ -79,6 +83,8 @@ jobs:
             sed "s/__RESOURCE_GROUP__/$RESOURCE_GROUP/g" $AZHOP_CONFIGURATION > config.yml
             ANF_DUAL=${{ github.event.inputs.anf_dual }}
             sed -i "s/__ANF_DUAL__/$ANF_DUAL/g" config.yml
+            SCHEDULER=${{ github.event.inputs.scheduler }}
+            sed -i "s/__SCHEDULER__/$SCHEDULER/g" config.yml
           fi
 
           # write the name of the resource group in the output of the job so it can be reused in others
@@ -172,7 +178,7 @@ jobs:
   ood:
     name: ood
     runs-on: ubuntu-latest
-    needs: [ad, lustre, deploy]
+    needs: [cycle, lustre, deploy]
 
     container:
       image: xpillons/hpcrover:latest

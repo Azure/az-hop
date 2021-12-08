@@ -16,7 +16,6 @@
     yum:
       name: ca-certificates
       state: latest
-
   - name: Set up PAM authentication
     shell: |
       yum install -y mod_authnz_pam
@@ -141,6 +140,22 @@
     vars:
       pbs_server: scheduler
     when: (queue_manager == "openpbs" or queue_manager is not defined)
+
+  - name: Run the munge role
+    include_role:
+      name: munge
+      apply: 
+        become: true
+    when: queue_manager == "slurm"
+
+  - name: Run the slurmclient role
+    include_role:
+      name: slurmclient
+      apply:
+        become: true
+    vars:
+      cc_slurm_version: 20.11.7-1
+    when: (queue_manager == "slurm")
 
   - name: setup cyclecloud proxy
     shell: |

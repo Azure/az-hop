@@ -35,4 +35,3 @@
       cc_ad_server: '{{ldap_server}}'
       cc_rpms_jetpack: '{{ cyclecloud.rpms.jetpack | default(None) }}'
       cc_rpms_cycle: '{{ cyclecloud.rpms.cyclecloud | default(None) }}'
-
