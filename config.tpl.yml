@@ -171,6 +171,13 @@ images:
     hyper_v: V2
     os_type: Linux
     version: 7.9
+  - name: azhop-centos79-v2-rdma-gpgpu-enroot
+    publisher: azhop
+    offer: CentOS
+    sku: 7.9-enroot
+    hyper_v: V2
+    os_type: Linux
+    version: 7.9
   - name: centos-7.8-desktop-3d
     publisher: azhop
     offer: CentOS
