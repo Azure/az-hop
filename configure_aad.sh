@@ -1,9 +1,10 @@
 #!/bin/bash
 # This script will register an AAD application used for OIDC and authentication. 
-# The application secret is stored in the keyvault under a secret named <aad_name>-secret
+# The application secret is stored in the keyvault under a secret named azhop-oidc-password
 set -e
 AZHOP_CONFIG=config.yml
 ANSIBLE_VARIABLES=playbooks/group_vars/all.yml
+SECRET_NAME="azhop-oidc-password"
 
 if [ ! -e $AZHOP_CONFIG ]; then
   echo "$AZHOP_CONFIG doesn't exist, exiting"
@@ -28,15 +29,15 @@ if [ "$azhop_uri" == "" ]; then
   exit 1
 fi
 
-current_password=$(az keyvault secret list --vault-name $key_vault --query "[?name=='azhop-aad-password'].name" -o tsv)
+current_password=$(az keyvault secret list --vault-name $key_vault --query "[?name=='$SECRET_NAME'].name" -o tsv)
 if [ "$current_password" == "" ] ; then
   password=$(openssl rand -base64 20)
   current_password=$password
-  az keyvault secret set --value "$password" --name azhop-aad-password --vault-name $key_vault -o table > /dev/null
-  echo "Generating a password for $aadName and storing it as secret azhop-aad-password in keyvault $key_vault"
+  az keyvault secret set --value "$password" --name $SECRET_NAME --vault-name $key_vault -o table > /dev/null
+  echo "Generating a password for $aadName and storing it as secret $SECRET_NAME in keyvault $key_vault"
 else
-  echo "azhop-aad has already a secret stored in keyvault $key_vault"
-  current_password=$(az keyvault secret show --vault-name $key_vault -n azhop-aad-password --query "value" -o tsv)
+  echo "$SECRET_NAME has already a secret stored in keyvault $key_vault"
+  current_password=$(az keyvault secret show --vault-name $key_vault -n $SECRET_NAME --query "value" -o tsv)
 fi
 
 appId=$(az ad app list --display-name $aadName --query [].appId -o tsv)

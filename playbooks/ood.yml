@@ -29,6 +29,13 @@
     args:
       creates: /etc/pam.d/ood
 
+  - name: Read oidc secret from KV
+    command: az keyvault secret show --vault-name {{key_vault}} -n azhop-oidc-password --query "value" -o tsv
+    delegate_to: localhost
+    connection: local
+    register: oidc_secret
+    become: false
+
   - name: Check if we need to register HTTPS
     stat:
       path: /etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.crt
@@ -38,6 +45,7 @@
       name: ood-ansible
     vars:
       servername: null
+      oidc_client_secret: '{{ oidc_secret.stdout }}'
       httpd_port: 80
       httpd_public_uri: /.well-known
       httpd_public_root: /var/www/ood/.well-known
@@ -78,8 +86,9 @@
         include_role:
           name: ood-ansible
         vars:
-          servername: "{{ ondemand_fqdn }}"
+          servername: '{{ ondemand_fqdn }}'
           httpd_port: 443
+          oidc_client_secret: '{{ oidc_secret.stdout }}'
           ssl:
           - SSLCertificateFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.crt"
           - SSLCertificateKeyFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.key"
@@ -115,8 +124,9 @@
         include_role:
           name: ood-ansible
         vars:
-          servername: "{{ ondemand_fqdn }}"
+          servername: '{{ ondemand_fqdn }}'
           httpd_port: 443
+          oidc_client_secret: '{{ oidc_secret.stdout }}'
           ssl:
           - SSLCertificateFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.crt"
           - SSLCertificateKeyFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.key"

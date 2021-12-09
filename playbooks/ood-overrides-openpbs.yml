@@ -73,7 +73,9 @@ ood_apps:
 httpd_auth:
 - AuthType openid-connect
 - Require valid-user
-user_map_cmd: "/opt/ood/ood_auth_map/bin/ood_auth_map.regex --regex=''^(\\w+)@microsoft.com$''"
+#user_map_cmd: "/opt/ood/ood_auth_map/bin/ood_auth_map.regex --regex=''^(\\w+)@microsoft.com$''"
+# https://osc.github.io/ood-documentation/latest/reference/files/ood-portal-yml.html#ood-portal-generator-user-map-match
+user_map_match: '^([^@]+)@microsoft.com$'
 host_regex: '[^./]+'
 node_uri: '/node'
 rnode_uri: '/rnode'
