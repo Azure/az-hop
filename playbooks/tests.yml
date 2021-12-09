@@ -1,28 +1,22 @@
 ---
-# This looks crazy but in order for this playbook to run from a pipeline, the jumpbox dummy need to be added
-# - name: jumpbox dummy
-#   hosts: jumpbox
-#   become: true
-
-# Do not assume the inventory_hostname is resolvable and delay 10 seconds at start
-- name: wait for host to be available
-  hosts: ondemand
-  tasks:
-  - name: Wait 300 seconds for port 22 to become open and contain "OpenSSH"
-    wait_for:
-      port: 22
-      host: '{{ (ansible_ssh_host|default(ansible_host))|default(inventory_hostname) }}'
-      search_regex: OpenSSH
-      delay: 10
-    connection: local
+# This looks crazy but in order for this playbook to run from a pipeline, the jumpbox dummy need to be added, otherwise there is an unable to connect message
+- name: jumpbox dummy
+  hosts: jumpbox
+  become: true
 
 - name: Run test suite
   hosts: ondemand
   become: true
+  gather_facts: no
   vars_files:
     - '{{global_config_file}}'
 
   tasks:
+  - name: Wait 300 seconds for the nodes to be ready
+    wait_for_connection:
+      timeout: 300
+  - name: Gather facts for first time
+    setup:
   - name: Call tests role
     include_role:
       name: tests
