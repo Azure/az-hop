@@ -5,26 +5,19 @@
 #   vars_files:
 #     - '{{global_config_file}}'
 
-# Do not assume the inventory_hostname is resolvable and delay 10 seconds at start
-- name: wait for host to be available
-  hosts: ondemand
-  tasks:
-  - name: Wait 300 seconds for port 22 to become open and contain "OpenSSH"
-    wait_for:
-      port: 22
-      host: '{{ (ansible_ssh_host|default(ansible_host))|default(inventory_hostname) }}'
-      search_regex: OpenSSH
-      delay: 10
-    connection: local
-
-
 - hosts: ondemand
-  #gather_facts: no
+  gather_facts: no
   become: true
   vars_files:
     - '{{global_config_file}}'
 
   tasks:
+  - name: Wait 300 seconds for the nodes to be ready
+    wait_for_connection:
+      timeout: 300
+  - name: Gather facts for first time
+    setup:
+
   - name: Make sure we have the latest root certificates
     yum:
       name: ca-certificates
