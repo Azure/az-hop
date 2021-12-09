@@ -29,13 +29,14 @@
     state: restarted
     enabled: yes
 
-- name: ensure slurmctld is restarted.
-  service:
-    name: slurmctld
-    state: restarted
-    enabled: yes
+- name: Wait a maximum of 60 seconds until slurmdbd is running
+  wait_for:
+    path: /var/log/slurmctld/slurmdbd.log
+    search_regex: slurmdbd version \d+.\d+.\d+ started
+    timeout: 60
 
-# TODO: need to check if we can connect to the database first, and failed in case of error.
+- name: check slurmdb connection
+  command: "sacctmgr list cluster"
 
 - name: check if cluster exists in the accounting database
   shell: sacctmgr -np show cluster slurm|wc -l

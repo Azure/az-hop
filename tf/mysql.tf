@@ -16,8 +16,6 @@ resource "azurerm_mysql_server" "mysql" {
   ssl_enforcement_enabled           = true
   auto_grow_enabled                 = true
   storage_mb                        = 5120
-  #delegated_subnet_id = azurerm_subnet.mysql[0].id
-  #private_dns_zone_id = azurerm_private_dns_zone.azhop-privatednszone.id
 }
 
 resource "azurerm_mysql_virtual_network_rule" "mysql" {
@@ -28,13 +26,6 @@ resource "azurerm_mysql_virtual_network_rule" "mysql" {
   subnet_id           = local.create_admin_subnet ? azurerm_subnet.admin[0].id : data.azurerm_subnet.admin[0].id
 }
 
-# resource "azurerm_mysql_flexible_server_configuration" "mysql" {
-#   count               = local.slurm_accounting ? 1 : 0
-#   name                = "require_secure_transport"
-#   resource_group_name = azurerm_mysql_flexible_server.mysql[0].resource_group_name
-#   server_name         = azurerm_mysql_flexible_server.mysql[0].name
-#   value               = "OFF"
-# }
 
 resource "random_password" "mysql_password" {
   count             = local.slurm_accounting ? 1 : 0

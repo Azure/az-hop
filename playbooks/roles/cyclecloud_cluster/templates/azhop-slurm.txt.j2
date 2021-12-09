@@ -54,7 +54,7 @@ Autoscale = true
         [[[volume boot]]] 
         StorageAccountType = StandardSSD_LRS
 
-        [[[cluster-init cyclecloud/slurm:default:2.5.0]]]
+        [[[cluster-init cyclecloud/slurm:default:{{cyclecloud_slurm_release}}]]]
         [[[cluster-init common:default:1.0.0]]]
       {% if slurm.enroot_enabled is defined %}
         [[[cluster-init enroot:default:1.0.0]]]
@@ -81,7 +81,7 @@ Autoscale = true
         #slurm.node_prefix = ${ifThenElse(NodeNamePrefix=="Cluster Prefix", StrJoin("-", ClusterName, ""), NodeNamePrefix)}
         slurm.use_nodename_as_hostname = true
 
-        [[[cluster-init cyclecloud/slurm:execute:2.5.0]]]
+        [[[cluster-init cyclecloud/slurm:execute:{{cyclecloud_slurm_release}}]]]
 
 {% for queue in cc_queues %}
     [[nodearray {{ queue.name }}]]

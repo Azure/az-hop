@@ -67,7 +67,7 @@
     - '{{common_project_root}}/specs/default/cluster-init/scripts/2-mountlustre.sh.j2'
     - '{{common_project_root}}/specs/default/cluster-init/scripts/3-joindomain.sh.j2'
     - '{{common_project_root}}/specs/default/cluster-init/scripts/3-joindomain.bat.j2'
-    - '{{common_project_root}}/specs/default/cluster-init/scripts/5-default.sh.j2  '
+    - '{{common_project_root}}/specs/default/cluster-init/scripts/5-default.sh.j2'
 
 - name: Upload common CycleCloud project
   command: '/usr/local/bin/cyclecloud project upload'

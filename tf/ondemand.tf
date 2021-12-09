@@ -48,7 +48,7 @@ resource "azurerm_linux_virtual_machine" "ondemand" {
     version   = "latest"
   }
 
-  depends_on = [azurerm_network_interface_application_security_group_association.ondemand-asg-asso]
+  #depends_on = [azurerm_network_interface_application_security_group_association.ondemand-asg-asso]
 }
 
 resource "azurerm_network_interface_application_security_group_association" "ondemand-asg-asso" {

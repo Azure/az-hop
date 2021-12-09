@@ -79,22 +79,22 @@ locked_down_network:
   public_ip: true # Enable public IP creation for Jumpbox, OnDemand and create images. Default to true
 # Jumpbox VM configuration
 jumpbox:
-  vm_size: Standard_D2s_v3
+  vm_size: Standard_B2ms
 # Active directory VM configuration
 ad:
-  vm_size: Standard_D2s_v3
+  vm_size: Standard_B2ms
 # On demand VM configuration
 ondemand:
-  vm_size: Standard_D4s_v3
+  vm_size: Standard_D4s_v5
 # Grafana VM configuration
 grafana:
-  vm_size: Standard_D2s_v3
+  vm_size: Standard_B2ms
 # Scheduler VM configuration
 scheduler:
-  vm_size: Standard_D2s_v3
+  vm_size: Standard_B2ms
 # CycleCloud VM configuration
 cyclecloud:
-  vm_size: Standard_D2s_v3
+  vm_size: Standard_B2ms
   # Azure Image Reference for CycleCloud. Default to 8.2.120211111 if not present
   image: 
     publisher: "azurecyclecloud"
@@ -193,42 +193,40 @@ queues:
     # maximum number of cores that can be instanciated
     max_core_count: 1024
     # marketplace image name or custom image id
-    image: OpenLogic:CentOS-HPC:7_9-gen2:latest
-#    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+#    image: OpenLogic:CentOS-HPC:7_9-gen2:latest
+    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
     # Set to true if AccelNet need to be enabled. false is the default value
     EnableAcceleratedNetworking: false
     # spot instance support. Default is false
-    spot: true
+    spot: false
     # Set to false to disable creation of placement groups. Default is true
     ColocateNodes: false
   - name: hc44rs
     vm_size: Standard_HC44rs
     max_core_count: 440
-    image: OpenLogic:CentOS-HPC:7_9-gen2:latest
-#    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
-  - name: hb120rs_v2
+    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    spot: true
+  - name: hb120v2
     vm_size: Standard_HB120rs_v2
     max_core_count: 1200
-    image: OpenLogic:CentOS-HPC:7_9-gen2:latest
-#    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
-  - name: hb120rs_v3
+    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    spot: true
+  - name: hb120v3
     vm_size: Standard_HB120rs_v3
     max_core_count: 1200
-    image: OpenLogic:CentOS-HPC:7_9-gen2:latest
-#    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    spot: true
     # Queue dedicated to GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz3d
     vm_size: Standard_NV6
     max_core_count: 24
-    image: OpenLogic:CentOS-HPC:7_9-gen2:latest
-#    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
-    # Set to false to disable creation of placement groups. Default is true
+    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
     ColocateNodes: false
+    spot: false
     # Queue dedicated to non GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz
     vm_size: Standard_D8s_v3
     max_core_count: 200
-    image: OpenLogic:CentOS-HPC:7_9-gen2:latest
-#    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
-    # Set to false to disable creation of placement groups. Default is true
+    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
     ColocateNodes: false
+    spot: false

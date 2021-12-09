@@ -13,7 +13,7 @@ sed '/^  build_stage:$/a \ \ \ \ - /mnt/resource/$user/spack-stage' $HOME/spack/
 ## Start an interactive job on a compute node
 
 ```bash
-qsub -l select=1:slot_type=hb120rs_v2 -I
+qsub -l select=1:slot_type=hb120v2 -I
 ```
 
 > Note: alternatively you could create a code-server session instead from the ondemand dashboard.
@@ -119,7 +119,7 @@ Submit the script:
 ```
 nodes=8
 ppn=120
-qsub -l select=${nodes}:slot_type=hb120rs_v2:ncpus=120:mpiprocs=${ppn},place=scatter:excl submit.sh
+qsub -l select=${nodes}:slot_type=hb120v2:ncpus=120:mpiprocs=${ppn},place=scatter:excl submit.sh
 ```
 
 ## Visualizing

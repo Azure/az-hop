@@ -1,0 +1,24 @@
+##
+# Slurm Logrotate Configuration
+# rotate daily up to 7 days and compress
+##
+/var/log/slurmctld/*.log {
+        compress
+        missingok
+        nocopytruncate
+        nodelaycompress
+        nomail
+        notifempty
+        noolddir
+        daily
+        rotate 7
+        sharedscripts
+        size=100M
+        create 640 slurm root
+        postrotate
+                pkill -x --signal SIGUSR2 slurmctld
+                pkill -x --signal SIGUSR2 slurmd
+                pkill -x --signal SIGUSR2 slurmdbd
+                exit 0
+        endscript
+}
