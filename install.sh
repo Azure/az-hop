@@ -19,7 +19,9 @@ function run_playbook ()
       options+=" --extra-vars=@$PLAYBOOKS_DIR/extra_vars.yml"
     fi
     ansible-playbook -i $INVENTORY $PLAYBOOKS_DIR/$playbook.yml $options || exit 1
-    rm $PLAYBOOKS_DIR/extra_vars.yml
+    if [ ! -e $PLAYBOOKS_DIR/extra_vars.yml ]; then
+      rm $PLAYBOOKS_DIR/extra_vars.yml
+    fi
     touch $PLAYBOOKS_DIR/$playbook.ok
   else
     echo "Skipping playbook $PLAYBOOKS_DIR/$playbook.yml as it has been successfully run "
