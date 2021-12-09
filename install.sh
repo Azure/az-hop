@@ -8,15 +8,18 @@ INVENTORY=$PLAYBOOKS_DIR/inventory
 function run_playbook ()
 {
   local playbook=$1
-  local extra_vars_file=$2
+  shift
+  local extra_vars_file=$@
 
   # If playbook marker doesn't exists, run it
   if [ ! -e $PLAYBOOKS_DIR/$playbook.ok ]; then
     local options=""
     if [ "$extra_vars_file" != "" ]; then
-      options="--extra-vars=@$extra_vars_file"
+      yq eval-all '. as $item ireduce ({}; . *+ $item)' $extra_vars_file > $PLAYBOOKS_DIR/extra_vars.yml
+      options+=" --extra-vars=@$PLAYBOOKS_DIR/extra_vars.yml"
     fi
     ansible-playbook -i $INVENTORY $PLAYBOOKS_DIR/$playbook.yml $options || exit 1
+    rm $PLAYBOOKS_DIR/extra_vars.yml
     touch $PLAYBOOKS_DIR/$playbook.ok
   else
     echo "Skipping playbook $PLAYBOOKS_DIR/$playbook.yml as it has been successfully run "
@@ -65,7 +68,7 @@ case $TARGET in
     run_playbook $TARGET
   ;;
   ood)
-    run_playbook ood $PLAYBOOKS_DIR/ood-overrides-$SCHEDULER.yml
+    run_playbook ood $PLAYBOOKS_DIR/ood-overrides-common.yml $PLAYBOOKS_DIR/ood-overrides-$SCHEDULER.yml $PLAYBOOKS_DIR/ood-overrides-auth-oidc.yml
     run_playbook ood-custom
   ;;
   *)
