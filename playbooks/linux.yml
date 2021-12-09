@@ -1,16 +1,4 @@
 ---
-# # Do not assume the inventory_hostname is resolvable and delay 10 seconds at start
-# - name: wait for host to be available
-#   hosts: jumpbox, scheduler, ondemand, grafana
-#   tasks:
-#   - name: Wait 300 seconds for port 22 to become open and contain "OpenSSH"
-#     wait_for:
-#       port: 22
-#       host: '{{ (ansible_ssh_host|default(ansible_host))|default(inventory_hostname) }}'
-#       search_regex: OpenSSH
-#       delay: 10
-#     connection: local
-
 - name: Join AD domain and mount anf-home
   hosts: jumpbox, scheduler, ondemand, grafana
   become: true
