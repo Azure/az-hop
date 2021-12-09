@@ -3,16 +3,21 @@
 - name: jumpbox dummy
   hosts: jumpbox
   become: true
-  vars_files:
-    - '{{global_config_file}}'
 
 - name: Lustre MDS setup
   hosts: lustre
   become: true
+  gather_facts: no
   vars_files:
     - '{{global_config_file}}'
   
   tasks:
+  - name: Wait 300 seconds for the nodes to be ready
+    wait_for_connection:
+      timeout: 300
+  - name: Gather facts for first time
+    setup:
+
   - name: get mdt device info
     command: lsblk -f {{ lustre.mdt_device }}
     changed_when: false
@@ -48,10 +53,17 @@
 - name: Lustre OSS setup
   hosts: lustre-oss-*
   become: true
+  gather_facts: no
   vars_files:
     - '{{global_config_file}}'
   
   tasks:
+  - name: Wait 300 seconds for the nodes to be ready
+    wait_for_connection:
+      timeout: 300
+  - name: Gather facts for first time
+    setup:
+
   - name: get ost device info
     command: lsblk -f {{ lustre.ost_device }}
     changed_when: false
@@ -181,10 +193,17 @@
 - name: Install hydrator
   hosts: robinhood
   become: true
+  gather_facts: no
   vars_files:
     - '{{global_config_file}}'
   
   tasks:
+  - name: Wait 300 seconds for the nodes to be ready
+    wait_for_connection:
+      timeout: 300
+  - name: Gather facts for first time
+    setup:
+
   - name: check to see if lustre is hydrated
     stat:
       path: /lustre.hydrated

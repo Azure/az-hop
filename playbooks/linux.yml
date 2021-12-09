@@ -2,10 +2,17 @@
 - name: Join AD domain and mount anf-home
   hosts: jumpbox, scheduler, ondemand, grafana
   become: true
+  gather_facts: no
   vars_files:
     - '{{global_config_file}}'
 
   tasks:
+  - name: Wait 300 seconds for the nodes to be ready
+    wait_for_connection:
+      timeout: 300
+  - name: Gather facts for first time
+    setup:
+
   - name: Install dependencies
     yum:
       name: epel-release, sssd, realmd, oddjob, oddjob-mkhomedir, adcli, samba-common, samba-common-tools, krb5-workstation, openldap-clients, policycoreutils-python, nfs-utils, python3
