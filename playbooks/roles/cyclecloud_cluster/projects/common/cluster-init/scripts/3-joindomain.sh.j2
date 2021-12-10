@@ -99,12 +99,12 @@ while true; do
   if [[ $n -le $max_retry ]]; then
     if [ "$current_hostname" != "$target_hostname" ]; then
       logger -s "hostname not renamed -  Attempt $n/$max_retry:"
-      ((n++))
       enfore_hostname $current_hostname $target_hostname
 
       systemctl restart NetworkManager
       sleep $delay
     fi
+    ((n++))
   else
     logger -s "Failed to rename host after $n attempts."
     exit 1
