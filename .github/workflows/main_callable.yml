@@ -15,17 +15,17 @@ on:
       clean:
         description: 'Clean all resources'
         required: false
-        default: 'true' # use it with ${{ github.event.inputs.clean }}
+        default: 'true' # use it with ${{ inputs.clean }}
         type: string
       anf_dual:
         description: 'Use ANF Dual Protocol'
         required: false
-        default: 'false' # use it with ${{ github.event.inputs.anf_dual }}
+        default: 'false' # use it with ${{ inputs.anf_dual }}
         type: string
       scheduler:
         description: 'Job Scheduler to be installed : openpbs/slurm'
         required: true
-        default: 'openpbs' # use it with ${{ github.event.inputs.scheduler }}
+        default: 'openpbs' # use it with ${{ inputs.scheduler }}
         type: string
     secrets:
       ARM_SUBSCRIPTION_ID:
@@ -79,7 +79,7 @@ jobs:
         run: |
           set -e
           # If resource group is not specified, generate a random one
-          RESOURCE_GROUP=${{ github.event.inputs.resource_group }}
+          RESOURCE_GROUP=${{ inputs.resource_group }}
           echo "Resource group name is $RESOURCE_GROUP"
           if [ "$RESOURCE_GROUP" = "AUTO_GENERATED" ]; then
             UUID="$(cat /proc/sys/kernel/random/uuid | tr -d '\n-' | tr '[:upper:]' '[:lower:]' | cut -c 1-6)"
@@ -93,9 +93,9 @@ jobs:
           else
             # Update the default configuration with the resource group name and dual protocol options
             sed "s/__RESOURCE_GROUP__/$RESOURCE_GROUP/g" $AZHOP_CONFIGURATION > config.yml
-            ANF_DUAL=${{ github.event.inputs.anf_dual }}
+            ANF_DUAL=${{ inputs.anf_dual }}
             sed -i "s/__ANF_DUAL__/$ANF_DUAL/g" config.yml
-            SCHEDULER=${{ github.event.inputs.scheduler }}
+            SCHEDULER=${{ inputs.scheduler }}
             sed -i "s/__SCHEDULER__/$SCHEDULER/g" config.yml
           fi
 
@@ -345,7 +345,7 @@ jobs:
   cleanup:
     name: cleanup
     runs-on: ubuntu-latest
-    if: always() && github.event.inputs.clean == 'true'
+    if: always() && inputs.clean == 'true'
     needs: [deploy, run_tests]
 
     container:
