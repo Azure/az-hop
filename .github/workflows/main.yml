@@ -26,7 +26,7 @@ on:
 
 jobs:
   deploy:
-    uses: azure/az-hop/.github/workflows/main_callable.yml@v1
+    uses: azure/az-hop/.github/workflows/main_callable.yml@main
     with:
       resource_group: ${{ github.event.inputs.resource_group }}
       clean: ${{ github.event.inputs.clean }}
