@@ -22,7 +22,7 @@ on:
 
 jobs:
   deploy:
-    uses: main_callable
+    uses: ./.github/workflows/main_callable.yml
     with:
       resource_group: ${{ github.event.inputs.resource_group }}
       clean: ${{ github.event.inputs.clean }}
