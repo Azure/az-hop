@@ -3,6 +3,8 @@
 # Licensed under the MIT License.
 #
 name : slurm
+# Allow only a single instance of this workflow to run at a time
+#concurrency: ${{ github.workflow }}
 
 on:
   workflow_dispatch:
