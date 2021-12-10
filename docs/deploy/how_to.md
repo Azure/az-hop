@@ -9,6 +9,7 @@
 - [Use your own SSL certificate](#use-your-own-ssl-certificate)
 - [Not deploy ANF](#not-deploy-anf)
 - [Use an existing NFS mount point](#use-an-existing-nfs-mount-point)
+- [Use Azure Active Directory for MFA](#use-azure-active-directory-for-mfa)
 
 ## How to use an existing VNET ?
 Using an existing VNET can be done by specifying in the `config.yml` file the VNET ID that needs to be used as shown below.
@@ -145,3 +146,30 @@ mounts:
     server: <server name or IP> # Specify an existing NFS server name or IP, when using the ANF built in use '{{anf_home_ip}}'
     export: <export directory> # Specify an existing NFS export directory, when using the ANF built in use '{{anf_home_path}}'
 ```
+
+## Use Azure Active Directory for MFA
+You can use AAD to enabled Multi Factor Authentication when using the az-hop portal. This is enabled thru OpenId Connect for which you need to provide the settings in the `config.yml` file.
+
+```yml
+# Authentication configuration for accessing the az-hop portal
+# Default is basic authentication. For oidc authentication you have to specify the following values
+# The OIDCClient secret need to be stored as a secret named <oidc-client-id>-password in the keyvault used by az-hop
+authentication:
+  httpd_auth: oidc # oidc or basic
+  # User mapping https://osc.github.io/ood-documentation/latest/reference/files/ood-portal-yml.html#ood-portal-generator-user-map-match
+  # Domain users are mapped to az-hop users with the same name and without the domain name
+  user_map_match: '^([^@]+)@mydomain.foo$'
+  ood_auth_openidc:
+    OIDCProviderMetadataURL: # for AAD use 'https://sts.windows.net/{{tenant_id}}/.well-known/openid-configuration'
+    OIDCClientID: 'XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX'
+    OIDCRemoteUserClaim: # for AAD use 'upn'
+    OIDCScope: # for AAD use 'openid profile email groups'
+    OIDCPassIDTokenAs: # for AAD use 'serialized'
+    OIDCPassRefreshToken: # for AAD use 'On'
+    OIDCPassClaimsAs: # for AAD use 'environment'
+  ```
+The helper script `configure_aad.sh` can be used to 
+- Register an AAD application configured to the az-hop environment
+- Create a secret for this AAD application and store it in the az-hop Key Vault
+
+This script need to be run before the `install.sh` or at least before the `ood` step.
