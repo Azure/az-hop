@@ -11,18 +11,22 @@ on:
         description: 'Name of the resource group to deploy in - In case of an existing resource group the environment will be updated'
         required: false
         default: 'AUTO_GENERATED'
+        type: string
       clean:
         description: 'Clean all resources'
         required: false
         default: 'true' # use it with ${{ github.event.inputs.clean }}
+        type: string
       anf_dual:
         description: 'Use ANF Dual Protocol'
         required: false
         default: 'false' # use it with ${{ github.event.inputs.anf_dual }}
+        type: string
       scheduler:
         description: 'Job Scheduler to be installed : openpbs/slurm'
         required: false
         default: 'openpbs' # use it with ${{ github.event.inputs.scheduler }}
+        type: string
 
 env:
   TF_CLI_ARGS: '-no-color'
