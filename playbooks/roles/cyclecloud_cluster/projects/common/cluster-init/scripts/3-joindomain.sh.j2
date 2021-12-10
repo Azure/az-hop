@@ -59,6 +59,9 @@ done
 sed -i 's@use_fully_qualified_names.*@use_fully_qualified_names = False@' /etc/sssd/sssd.conf
 sed -i 's@ldap_id_mapping.*@ldap_id_mapping = False@' /etc/sssd/sssd.conf
 
+systemctl restart sssd
+systemctl restart sshd
+
 function enfore_hostname() {
   local system_hostname=$1
   local target_hostname=$2
@@ -93,20 +96,18 @@ while true; do
   current_hostname=$(hostname)
   target_hostname=$(jetpack config cyclecloud.node.name)
 
-  if [ "$current_hostname" != "$target_hostname" ]; then
-    if [[ $n -le $max_retry ]]; then
+  if [[ $n -le $max_retry ]]; then
+    if [ "$current_hostname" != "$target_hostname" ]; then
       logger -s "hostname not renamed -  Attempt $n/$max_retry:"
       ((n++))
-    else
-      logger -s "Failed to rename host after $n attempts."
-      exit 1
-    fi
-    enfore_hostname $current_hostname $target_hostname
+      enfore_hostname $current_hostname $target_hostname
 
-    systemctl restart NetworkManager
-    systemctl restart sssd
-    systemctl restart sshd
-    sleep $delay
+      systemctl restart NetworkManager
+      sleep $delay
+    fi
+  else
+    logger -s "Failed to rename host after $n attempts."
+    exit 1
   fi
 done
 
