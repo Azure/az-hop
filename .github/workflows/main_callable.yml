@@ -9,7 +9,7 @@ on:
     inputs:
       resource_group:
         description: 'Name of the resource group to deploy in - In case of an existing resource group the environment will be updated'
-        required: false
+        required: true
         default: 'AUTO_GENERATED'
         type: string
       clean:
@@ -24,7 +24,7 @@ on:
         type: string
       scheduler:
         description: 'Job Scheduler to be installed : openpbs/slurm'
-        required: false
+        required: true
         default: 'openpbs' # use it with ${{ github.event.inputs.scheduler }}
         type: string
     secrets:
