@@ -27,6 +27,15 @@ on:
         required: false
         default: 'openpbs' # use it with ${{ github.event.inputs.scheduler }}
         type: string
+    secrets:
+      ARM_SUBSCRIPTION_ID:
+        required: true
+      ARM_TENANT_ID:
+        required: true
+      ARM_CLIENT_ID:
+        required: true
+      ARM_CLIENT_SECRET:
+        required: true
 
 env:
   TF_CLI_ARGS: '-no-color'
@@ -38,9 +47,7 @@ env:
   ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
   ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
   AZHOP_STATE_CONTAINER: environments
-  AZHOP_STATE_ACCOUNT: ${{ secrets.STATE_ACCOUNT }}
-  JETPACK_RPM: "${{ secrets.JETPACK_RPM }}"
-  CYCLECLOUD_RPM: "${{ secrets.CYCLECLOUD_RPM }}"
+  AZHOP_STATE_ACCOUNT: azhopstates
   ANSIBLE_VERBOSITY: 2 # From 0 to 4 based on the level of logs needed in Ansible
 
 jobs:
