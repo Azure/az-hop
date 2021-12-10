@@ -17,7 +17,7 @@ jobs:
       resource_group: 'AUTO_GENERATED'
       clean: 'true'
       anf_dual: 'false'
-      scheduler: slurm
+      scheduler: 'slurm'
     secrets:
       ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
       ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
