@@ -4,6 +4,7 @@ set -e
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PLAYBOOKS_DIR=$THIS_DIR/playbooks
 INVENTORY=$PLAYBOOKS_DIR/inventory
+OOD_AUTH="basic"
 
 function run_playbook ()
 {
@@ -15,11 +16,12 @@ function run_playbook ()
   if [ ! -e $PLAYBOOKS_DIR/$playbook.ok ]; then
     local options=""
     if [ "$extra_vars_file" != "" ]; then
+      # Merge overrides variables in a single file
       yq eval-all '. as $item ireduce ({}; . *+ $item)' $extra_vars_file > $PLAYBOOKS_DIR/extra_vars.yml
       options+=" --extra-vars=@$PLAYBOOKS_DIR/extra_vars.yml"
     fi
     ansible-playbook -i $INVENTORY $PLAYBOOKS_DIR/$playbook.yml $options || exit 1
-    if [ ! -e $PLAYBOOKS_DIR/extra_vars.yml ]; then
+    if [ -e $PLAYBOOKS_DIR/extra_vars.yml ]; then
       rm $PLAYBOOKS_DIR/extra_vars.yml
     fi
     touch $PLAYBOOKS_DIR/$playbook.ok
@@ -37,6 +39,19 @@ function get_scheduler ()
   fi
 
   SCHEDULER=$scheduler
+  echo "Running on $SCHEDULER"
+}
+
+function get_ood_auth ()
+{
+  local ood_auth
+  ood_auth=$(yq eval '.authentication.httpd_auth' config.yml)
+  if [ "$ood_auth" == "null" ]; then
+    ood_auth="basic"
+  fi
+
+  OOD_AUTH=$ood_auth
+  echo "Authentication is $OOD_AUTH"
 }
 
 # Apply pre-reqs
@@ -45,6 +60,7 @@ $THIS_DIR/ansible_prereqs.sh
 # Check config syntax
 yamllint config.yml
 get_scheduler
+get_ood_auth
 
 case $TARGET in
   all)
@@ -56,7 +72,7 @@ case $TARGET in
     run_playbook ccportal
     run_playbook cccluster
     run_playbook scheduler
-    run_playbook ood $PLAYBOOKS_DIR/ood-overrides-$SCHEDULER.yml
+    run_playbook ood $PLAYBOOKS_DIR/ood-overrides-common.yml $PLAYBOOKS_DIR/ood-overrides-$SCHEDULER.yml $PLAYBOOKS_DIR/ood-overrides-auth-$OOD_AUTH.yml
     run_playbook ood-custom
     run_playbook grafana 
     run_playbook telegraf
@@ -70,7 +86,7 @@ case $TARGET in
     run_playbook $TARGET
   ;;
   ood)
-    run_playbook ood $PLAYBOOKS_DIR/ood-overrides-common.yml $PLAYBOOKS_DIR/ood-overrides-$SCHEDULER.yml $PLAYBOOKS_DIR/ood-overrides-auth-oidc.yml
+    run_playbook ood $PLAYBOOKS_DIR/ood-overrides-common.yml $PLAYBOOKS_DIR/ood-overrides-$SCHEDULER.yml $PLAYBOOKS_DIR/ood-overrides-auth-$OOD_AUTH.yml
     run_playbook ood-custom
   ;;
   *)

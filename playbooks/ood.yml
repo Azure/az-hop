@@ -6,7 +6,6 @@
     - '{{global_config_file}}'
 
 - hosts: ondemand
-  #gather_facts: no
   become: true
   vars_files:
     - '{{global_config_file}}'
@@ -29,23 +28,28 @@
     args:
       creates: /etc/pam.d/ood
 
-  - name: Read oidc secret from KV
-    command: az keyvault secret show --vault-name {{key_vault}} -n azhop-oidc-password --query "value" -o tsv
-    delegate_to: localhost
-    connection: local
-    register: oidc_secret
-    become: false
+  - name: Retrieve OIDC secret
+    block:
+      - name: Read oidc secret from KV
+        command: az keyvault secret show --vault-name {{key_vault}} -n {{authentication.ood_auth_openidc.OIDCClientID}}-password --query "value" -o tsv
+        delegate_to: localhost
+        connection: local
+        register: oidc_secret
+        become: false
+    when: (authentication.httpd_auth is defined) and 
+          (authentication.httpd_auth == 'oidc')
 
   - name: Check if we need to register HTTPS
     stat:
       path: /etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.crt
     register: sslcert
+
   - name: Run the ood-ansible role to get certificate
     include_role:
       name: ood-ansible
     vars:
       servername: null
-      oidc_client_secret: '{{ oidc_secret.stdout }}'
+      oidc_client_secret: '{{ oidc_secret.stdout | default(None)}}'
       httpd_port: 80
       httpd_public_uri: /.well-known
       httpd_public_root: /var/www/ood/.well-known
@@ -88,7 +92,7 @@
         vars:
           servername: '{{ ondemand_fqdn }}'
           httpd_port: 443
-          oidc_client_secret: '{{ oidc_secret.stdout }}'
+          oidc_client_secret: '{{ oidc_secret.stdout | default(None)}}'
           ssl:
           - SSLCertificateFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.crt"
           - SSLCertificateKeyFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.key"
@@ -126,7 +130,7 @@
         vars:
           servername: '{{ ondemand_fqdn }}'
           httpd_port: 443
-          oidc_client_secret: '{{ oidc_secret.stdout }}'
+          oidc_client_secret: '{{ oidc_secret.stdout | default(None)}}'
           ssl:
           - SSLCertificateFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.crt"
           - SSLCertificateKeyFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.key"
