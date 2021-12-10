@@ -89,9 +89,11 @@ function enfore_hostname() {
   if [ "$eth0_hostname" != "$target_hostname" ]; then
     logger -s "Warning: incorrect DHCP_HOSTNAME in /etc/sysconfig/network-scripts/ifcfg-eth0 ($etc_hostname), it should be $target_hostname, updating"
     sed -i "s/^DHCP_HOSTNAME=.*\$/DHCP_HOSTNAME=$target_hostname/g" /etc/sysconfig/network-scripts/ifcfg-eth0
+    systemctl restart NetworkManager
   fi
 }
 
+n=1
 while true; do
   current_hostname=$(hostname)
   target_hostname=$(jetpack config cyclecloud.node.name)
@@ -100,9 +102,10 @@ while true; do
     if [ "$current_hostname" != "$target_hostname" ]; then
       logger -s "hostname not renamed -  Attempt $n/$max_retry:"
       enfore_hostname $current_hostname $target_hostname
-
-      systemctl restart NetworkManager
       sleep $delay
+    else
+      logger -s "hostname successfully renamed"
+      break
     fi
     ((n++))
   else
