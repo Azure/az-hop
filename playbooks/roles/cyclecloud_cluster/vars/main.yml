@@ -3,3 +3,4 @@ common_project_root: '{{project_root}}/common'
 openpbs_project_root: '{{project_root}}/openpbs'
 enroot_project_root: '{{project_root}}/enroot'
 cc_queue_manager:
+cyclecloud_slurm_release: 2.5.0
