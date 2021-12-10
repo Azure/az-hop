@@ -26,7 +26,7 @@ on:
 
 jobs:
   deploy:
-    uses: azure/az-hop/.github/workflows/main_callable.yml@fbe1720419019bd20f00a1ad0959e6466f586010
+    uses: azure/az-hop/.github/workflows/main_callable.yml@feature/reorg_pipelines
     with:
       resource_group: ${{ github.event.inputs.resource_group }}
       clean: ${{ github.event.inputs.clean }}
