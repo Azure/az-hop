@@ -153,7 +153,7 @@ echo "terraform -chdir=$TF_FOLDER $TF_COMMAND $PARAMS"
 TF_LOG="TRACE"
 TF_LOG_PATH="$THIS_DIR/tf/terraform.log"
 rm -f $TF_LOG_PATH
-retries = 1
+retries=1
 do_retry=true
 while (( $retries < 3 )) && [ "$do_retry" == "true" ]; do
   terraform -chdir=$TF_FOLDER $TF_COMMAND $PARAMS
