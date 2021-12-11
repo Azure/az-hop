@@ -147,9 +147,10 @@ else
   esac
 fi
 export TF_VAR_CreatedBy=${logged_user_upn}
-echo "terraform -chdir=$TF_FOLDER $TF_COMMAND -parallelism=30 $PARAMS"
+echo "terraform -chdir=$TF_FOLDER $TF_COMMAND $PARAMS"
 
-terraform -chdir=$TF_FOLDER $TF_COMMAND -parallelism=30 $PARAMS
+# -parallelism=30
+terraform -chdir=$TF_FOLDER $TF_COMMAND  $PARAMS
 
 if [ -e $TF_FOLDER/terraform.tfstate ] && [ $TF_FOLDER != $THIS_DIR/tf ]; then
   cp -u -f $TF_FOLDER/terraform.tfstate $THIS_DIR/tf/terraform.tfstate
