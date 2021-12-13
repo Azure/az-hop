@@ -2,7 +2,9 @@
 # Copyright (c) Microsoft Corporation
 # Licensed under the MIT License.
 #
-name : main
+name : slurm
+# Allow only a single instance of this workflow to run at a time
+#concurrency: ${{ github.workflow }}
 
 on:
   workflow_dispatch:
@@ -19,10 +21,6 @@ on:
         description: 'Use ANF Dual Protocol'
         required: false
         default: 'false' # use it with ${{ github.event.inputs.anf_dual }}
-      scheduler:
-        description: 'Job Scheduler to be installed : openpbs/slurm'
-        required: false
-        default: 'openpbs' # use it with ${{ github.event.inputs.scheduler }}
 
 jobs:
   deploy:
@@ -31,5 +29,10 @@ jobs:
       resource_group: ${{ github.event.inputs.resource_group }}
       clean: ${{ github.event.inputs.clean }}
       anf_dual: ${{ github.event.inputs.anf_dual }}
-      scheduler: ${{ github.event.inputs.scheduler }}
+      scheduler: 'slurm'
+    secrets:
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
