@@ -1,0 +1,29 @@
+#
+# Copyright (c) Microsoft Corporation
+# Licensed under the MIT License.
+#
+name : openpbs_pr_validation
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - '.devcontainer/**'
+      - '.github/**'
+      - 'docs/**'
+
+jobs:
+  deploy:
+    uses: azure/az-hop/.github/workflows/main_callable.yml@main
+    with:
+      resource_group: 'azhop_openpbs_qa'
+      clean: 'false'
+      anf_dual: 'false'
+      scheduler: 'openpbs'
+    secrets:
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+
