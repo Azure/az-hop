@@ -1,0 +1,34 @@
+#
+# Copyright (c) Microsoft Corporation
+# Licensed under the MIT License.
+#
+name : slurm_pr_validation
+# Allow only a single instance of this workflow to run at a time
+concurrency: ${{ github.workflow }}
+
+on:
+  pull_request:
+    types: [ closed ]
+    branches:
+      - main
+    paths-ignore:
+      - '.devcontainer/**'
+      - '.github/**'
+      - 'docs/**'
+
+jobs:
+  deploy:
+    # this job will only run if the PR has been merged
+    if: github.event.pull_request.merged == true
+    uses: azure/az-hop/.github/workflows/main_callable.yml@main
+    with:
+      resource_group: 'azhop_slurm_qa'
+      clean: 'false'
+      anf_dual: 'false'
+      scheduler: 'slurm'
+    secrets:
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+
