@@ -26,6 +26,8 @@ function wait_alljobs()
 
     if [ $wait_time -ge $MAX_WAIT_TIME ]; then
         echo "Timeout while waiting for jobs"
+        sinfo -l
+        squeue -l
         scancel -n $jobgroup
         exit 1
     fi
