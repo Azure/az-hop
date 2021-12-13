@@ -1,0 +1,7 @@
+---
+httpd_auth:
+- AuthType Basic
+- AuthName "Open OnDemand"
+- AuthBasicProvider PAM
+- AuthPAMService ood
+- Require valid-user

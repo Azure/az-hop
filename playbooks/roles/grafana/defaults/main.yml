@@ -24,8 +24,11 @@ grafana_server_serve_from_sub_path: "true"
 
 grafana_public_facing_domain_name: "foo.com"
 
+# Grafana Anonymous Auth
+grafana_anonymous_auth: "true"
+
 # Grafana LDAP auth settings
-grafana_auth_ldap_enabled: "true"
+grafana_auth_ldap_enabled: "false"
 grafana_ldap_server: ""
 
 # Grafana provisioning
