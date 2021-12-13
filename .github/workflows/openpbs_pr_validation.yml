@@ -8,6 +8,7 @@ concurrency: ${{ github.workflow }}
 
 on:
   pull_request:
+    types: [ closed ]
     branches:
       - main
     paths-ignore:
@@ -17,6 +18,8 @@ on:
 
 jobs:
   deploy:
+    # this job will only run if the PR has been merged
+    if: github.event.pull_request.merged == true
     uses: azure/az-hop/.github/workflows/main_callable.yml@main
     with:
       resource_group: 'azhop_openpbs_qa'
