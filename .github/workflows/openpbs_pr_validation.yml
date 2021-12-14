@@ -12,9 +12,20 @@ on:
     branches:
       - main
     paths-ignore:
+      - '**.md'
+      - 'aad_claims.json'
+      - 'aad_manifest.json'
+      - 'configure_aad.sh'
       - '.devcontainer/**'
       - '.github/**'
       - 'docs/**'
+      - 'playbooks/roles/cyclecloud_cluster/templates/azhop-slurm.txt.j2'
+      - 'playbooks/roles/munge/**'
+      - 'playbooks/roles/slurmclient/**'
+      - 'playbooks/roles/slurmserver/**'
+      - 'playbooks/ood-overrides-slurm.yml'
+      - 'playbooks/ood-overrides-auth-oidc.yml'
+      - 'tf/mysql.tf'
 
 jobs:
   deploy:
