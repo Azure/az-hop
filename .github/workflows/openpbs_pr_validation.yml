@@ -26,6 +26,7 @@ on:
       - 'playbooks/ood-overrides-slurm.yml'
       - 'playbooks/ood-overrides-auth-oidc.yml'
       - 'tf/mysql.tf'
+      - 'playbooks/roles/tests/files/slurm_helpers.sh'
 
 jobs:
   deploy:

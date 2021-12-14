@@ -25,6 +25,7 @@ on:
       - 'playbooks/roles/pbsserver/**'
       - 'playbooks/ood-overrides-openpbs.yml'
       - 'playbooks/ood-overrides-auth-oidc.yml'
+      - 'playbooks/roles/tests/files/openpbs_helpers.sh'
 
 
 jobs:
