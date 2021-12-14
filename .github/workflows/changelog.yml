@@ -25,6 +25,15 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - run: |
+          version=${{ github.ref }}
+          echo ${version##*/} > version.txt
+
+      - uses: EndBug/add-and-commit@v7
+        with:
+          message: 'Update version file'
+          add: 'version.txt --force'
+
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
