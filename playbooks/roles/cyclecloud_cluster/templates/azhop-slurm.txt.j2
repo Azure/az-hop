@@ -77,7 +77,7 @@ Autoscale = true
         slurm.autoscale = true
         #slurm.node_prefix = ${ifThenElse(NodeNamePrefix=="Cluster Prefix", StrJoin("-", ClusterName, ""), NodeNamePrefix)}
         slurm.use_nodename_as_hostname = true
-
+        slurm.dampen_memory = 8 # Reservation of 8% of the node's memory
         [[[cluster-init cyclecloud/slurm:execute:{{cyclecloud_slurm_release}}]]]
 
 {% for queue in cc_queues %}
