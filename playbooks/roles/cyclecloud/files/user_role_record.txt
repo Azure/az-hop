@@ -1,12 +1,12 @@
 AdType = "Application.Role"
 Description = "Basic GUI access"
-OwnerAllow = {"Package.Release/View","System/AccessWebSite","System.Read","Alerts/Manage","Clusters/View","Clusters/Access"}
+OwnerAllow = {"Package.Release/View","System/AccessWebSite","Alerts/Manage","Clusters/View","Clusters/Access"}
 GroupRole = false
 Name = "User"
-Allow = {"Package.Release/View","System/AccessWebSite","Alerts/Manage","Clusters/View","Clusters/Access","System.Read"}
+Allow = {"Package.Release/View","System/AccessWebSite","Alerts/Manage","Clusters/View","Clusters/Access"}
 
 AdType = "Application.Role"
 Description = "AZHOP Cluster Admin"
 GroupRole = false
 Name = "azhop Cluster Admin"
-Allow = {"Clusters/Manage","System.Read"}
+Allow = {"Clusters/Manage"}
