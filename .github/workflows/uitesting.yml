@@ -31,7 +31,9 @@ jobs:
         with:
           node-version: '14.x'
       - name: Install dependencies
-        run: npm ci
+        run: |
+          apt-get update
+          apt install npm -y
       - name: Install Playwright
         run: npx playwright install --with-deps
       - name: Login azure
