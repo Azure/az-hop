@@ -43,9 +43,26 @@ jobs:
           echo "local user: $(whoami)"
       - name: Download azhop states
         run: |
-          RESOURCE_GROUP=${{ inputs.resource_group }}
+          RESOURCE_GROUP=${{ github.event.inputs.resource_group }}
           echo "Resource group name is $RESOURCE_GROUP"
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           cat config.yml
+      - name: Execute tests
+        run: |
+          echo "Extract "
+          AZHOP_CONFIG=config.yml
+          ANSIBLE_VARIABLES=playbooks/group_vars/all.yml
+
+          key_vault=$(yq eval '.key_vault' $ANSIBLE_VARIABLES)
+
+          user=$(yq eval '.users[0].name' AZHOP_CONFIG)
+          password=$(az keyvault secret list --vault-name $key_vault --query "[?name=='$user-password'].name" -o tsv)
+          export AZHOP_USER=$user
+          export AZHOP_PASSWORD=$password
+
+          fqdn=$(yq eval '.ondemand_fqdn' $ANSIBLE_VARIABLES)
+          export AZHOP_FQDN="https://$fqdn"
+
+          npx playwright test --config=tests\playwright.config.ts home
 
 
