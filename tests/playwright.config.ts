@@ -1,6 +1,6 @@
 import { PlaywrightTestConfig } from '@playwright/test';
 const config: PlaywrightTestConfig = {
-    testDir: './tests',
+//    testDir: './tests',
     /* Maximum time one test can run for. */
     timeout: 30 * 1000,
     globalTimeout: 60 * 60 * 1000,
