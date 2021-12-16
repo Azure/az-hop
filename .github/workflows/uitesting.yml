@@ -35,7 +35,9 @@ jobs:
           apt-get update
           apt install npm -y
       - name: Install Playwright
-        run: npx playwright install --with-deps
+        run: | 
+          npm install -D @playwright/test
+          npx playwright install --with-deps
       - name: Login azure
         run: |
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
