@@ -55,7 +55,7 @@ jobs:
 
           key_vault=$(yq eval '.key_vault' $ANSIBLE_VARIABLES)
 
-          user=$(yq eval '.users[0].name' AZHOP_CONFIG)
+          user=$(yq eval '.users[0].name' $AZHOP_CONFIG)
           password=$(az keyvault secret list --vault-name $key_vault --query "[?name=='$user-password'].name" -o tsv)
           export AZHOP_USER=$user
           export AZHOP_PASSWORD=$password
