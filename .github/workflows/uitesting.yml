@@ -52,3 +52,8 @@ jobs:
       - name: Execute tests
         run: |
           ./run_ui_tests.sh
+      - uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: playwright-test-results
+          path: test-results/
