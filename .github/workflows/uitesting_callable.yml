@@ -1,0 +1,74 @@
+name : uitesting_callable
+
+on:
+  workflow_call:
+    inputs:
+      resource_group:
+        description: 'Name of the resource group to test the environment deployed in'
+        required: true
+        type: string
+    secrets:
+      ARM_SUBSCRIPTION_ID:
+        required: true
+      ARM_TENANT_ID:
+        required: true
+      ARM_CLIENT_ID:
+        required: true
+      ARM_CLIENT_SECRET:
+        required: true
+
+env:
+  ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+  ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+  AZHOP_STATE_CONTAINER: environments
+  AZHOP_STATE_ACCOUNT: azhopstates
+
+jobs:
+  run_tests:
+    name: run_tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    container:
+      image: xpillons/hpcrover:latest
+      options: --user 0
+
+    steps:
+      - uses: actions/checkout@v2.4.0
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14.x'
+      - name: Install dependencies
+        run: |
+          apt-get update
+          apt install npm -y
+      - name: Install Playwright
+        run: | 
+          npm install -D @playwright/test
+          npx playwright install --with-deps
+      - name: Login azure
+        run: |
+          az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
+          az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
+          echo "local user: $(whoami)"
+      - name: Download azhop states
+        run: |
+          RESOURCE_GROUP=${{ inputs.resource_group }}
+          echo "Resource group name is $RESOURCE_GROUP"
+          ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
+          cat config.yml
+      - name: Execute tests
+        run: |
+          ./run_ui_tests.sh
+      - uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: playwright-test-results
+          path: test-results/
+      - uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
