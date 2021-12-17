@@ -33,6 +33,7 @@ jobs:
         with:
           message: 'Update version file'
           add: 'version.txt --force'
+          branch: main
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
