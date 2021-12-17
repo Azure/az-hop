@@ -28,7 +28,6 @@ on:
       - 'tf/mysql.tf'
       - 'playbooks/roles/tests/files/slurm_helpers.sh'
 
-
 env:
   rg: 'azhop_openpbs_qa'
 
