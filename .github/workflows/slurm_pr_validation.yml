@@ -45,6 +45,7 @@ jobs:
       ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
   run_tests:
+    needs: [deploy]
     uses: azure/az-hop/.github/workflows/uitesting_callable.yml@main
     with:
       resource_group: 'azhop_slurm_qa'
