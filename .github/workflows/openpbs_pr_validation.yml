@@ -7,6 +7,7 @@ name : openpbs_pr_validation
 concurrency: ${{ github.workflow }}
 
 on:
+  workflow_dispatch:
   pull_request:
     types: [ closed ]
     branches:
@@ -37,7 +38,7 @@ jobs:
     if: github.event.pull_request.merged == true
     uses: azure/az-hop/.github/workflows/main_callable.yml@main
     with:
-      resource_group: ${{ env.rg }}
+      resource_group: 'azhop_openpbs_qa'
       clean: 'false'
       anf_dual: 'false'
       scheduler: 'openpbs'
@@ -50,7 +51,7 @@ jobs:
   run_tests:
     uses: azure/az-hop/.github/workflows/uitesting_callable.yml@main
     with:
-      resource_group: ${{ env.rg }}
+      resource_group: 'azhop_openpbs_qa'
     secrets:
       ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
       ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}

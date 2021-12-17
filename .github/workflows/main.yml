@@ -32,4 +32,8 @@ jobs:
       clean: ${{ github.event.inputs.clean }}
       anf_dual: ${{ github.event.inputs.anf_dual }}
       scheduler: ${{ github.event.inputs.scheduler }}
-
+    secrets:
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
