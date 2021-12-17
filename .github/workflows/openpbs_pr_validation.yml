@@ -29,7 +29,7 @@ on:
       - 'playbooks/roles/tests/files/slurm_helpers.sh'
 
 env:
-  RESOURCE_GROUP: 'azhop_openpbs_qa'
+  rg: 'azhop_openpbs_qa'
 
 jobs:
   deploy:
@@ -37,7 +37,7 @@ jobs:
     if: github.event.pull_request.merged == true
     uses: azure/az-hop/.github/workflows/main_callable.yml@main
     with:
-      resource_group: '${{ env.RESOURCE_GROUP }}'
+      resource_group: ${{ env.rg }}
       clean: 'false'
       anf_dual: 'false'
       scheduler: 'openpbs'
@@ -50,7 +50,7 @@ jobs:
   run_tests:
     uses: azure/az-hop/.github/workflows/uitesting_callable.yml@main
     with:
-      resource_group: '${{ env.RESOURCE_GROUP }}'
+      resource_group: ${{ env.rg }}
     secrets:
       ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
       ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
