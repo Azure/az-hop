@@ -9,4 +9,5 @@ crontab -l > tempcron
 echo "* * * * * /opt/cycle/jetpack/system/bootstrap/cron_wrapper.sh /opt/cycle/jetpack/system/bootstrap/autostop.rb >> /opt/cycle/jetpack/logs/autostop.out 1>&2" >> tempcron
 #install new cron file
 crontab tempcron
+
 rm tempcron
