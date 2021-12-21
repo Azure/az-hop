@@ -4088,9 +4088,14 @@
             "selected": false,
             "text": "grafana",
             "value": "grafana"
+          },
+          {
+            "selected": false,
+            "text": "guacamole",
+            "value": "guacamole"
           }
         ],
-        "query": "scheduler, ondemand, ccportal, robinhood, grafana",
+        "query": "scheduler, ondemand, ccportal, robinhood, grafana, guacamole",
         "queryValue": "",
         "skipUrlSync": false,
         "type": "custom"
