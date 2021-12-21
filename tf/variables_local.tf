@@ -101,7 +101,7 @@ locals {
         robinhood = ["asg-ssh", "asg-robinhood", "asg-lustre-client", "asg-telegraf"]
         scheduler = ["asg-ssh", "asg-pbs", "asg-ad-client", "asg-cyclecloud-client", "asg-nfs-client", "asg-telegraf"]
         winviz    = ["asg-ad-client", "asg-rdp"],
-        guacamole = ["asg-ssh", "asg-guacamole", "asg-ad-client"]
+        guacamole = ["asg-ssh", "asg-guacamole", "asg-ad-client", "asg-telegraf", "asg-nfs-client"]
     }
 
     # Open ports for NSG TCP rules
