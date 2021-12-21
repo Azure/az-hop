@@ -21,6 +21,10 @@ all:
       ansible_host: ${grafana-ip}
       ansible_ssh_user: ${ondemand-user}
       ansible_ssh_common_args: '-o ProxyCommand="ssh -i ${jumpbox-user}_id_rsa -W %h:%p ${jumpbox-user}@${jumpbox-pip}"'
+    guacamole:
+      ansible_host: ${guacamole-ip}
+      ansible_ssh_user: ${ondemand-user}
+      ansible_ssh_common_args: '-o ProxyCommand="ssh -i ${jumpbox-user}_id_rsa -W %h:%p ${jumpbox-user}@${jumpbox-pip}"'
     ad:
       psrp_ssh_proxy: ${jumpbox-pip}
       ansible_host: ${ad-ip}

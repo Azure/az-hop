@@ -85,7 +85,7 @@ locals {
 
     # Application Security Groups
     create_nsg = try(local.configuration_yml["network"]["create_nsg"], local.create_vnet )
-    default_asgs = ["asg-ssh", "asg-rdp", "asg-jumpbox", "asg-ad", "asg-ad-client", "asg-lustre", "asg-lustre-client", "asg-pbs", "asg-pbs-client", "asg-cyclecloud", "asg-cyclecloud-client", "asg-nfs-client", "asg-telegraf", "asg-grafana", "asg-robinhood", "asg-ondemand", "asg-deployer"]
+    default_asgs = ["asg-ssh", "asg-rdp", "asg-jumpbox", "asg-ad", "asg-ad-client", "asg-lustre", "asg-lustre-client", "asg-pbs", "asg-pbs-client", "asg-cyclecloud", "asg-cyclecloud-client", "asg-nfs-client", "asg-telegraf", "asg-grafana", "asg-robinhood", "asg-ondemand", "asg-deployer", "asg-guacamole"]
     asgs = { for v in local.default_asgs : v => v }
     empty_array = []
     empty_map = { for v in local.empty_array : v => v }
@@ -100,7 +100,8 @@ locals {
         ondemand  = ["asg-ssh", "asg-ondemand", "asg-ad-client", "asg-nfs-client", "asg-pbs-client", "asg-lustre-client", "asg-telegraf"]
         robinhood = ["asg-ssh", "asg-robinhood", "asg-lustre-client", "asg-telegraf"]
         scheduler = ["asg-ssh", "asg-pbs", "asg-ad-client", "asg-cyclecloud-client", "asg-nfs-client", "asg-telegraf"]
-        winviz    = ["asg-ad-client", "asg-rdp"]
+        winviz    = ["asg-ad-client", "asg-rdp"],
+        guacamole = ["asg-ssh", "asg-guacamole", "asg-ad-client"]
     }
 
     # Open ports for NSG TCP rules
@@ -128,7 +129,9 @@ locals {
         # HTTPS, AMQP
         CycleCloud = ["9443", "5672"],
         # MySQL
-        MySQL = ["3306", "33060"]
+        MySQL = ["3306", "33060"],
+        # Guacamole
+        Guacamole = ["8080"]
     }
 
     # Array of NSG rules to be applied on the common NSG
@@ -212,6 +215,10 @@ locals {
         AllowInternalWebUsersIn     = ["540", "Inbound", "Allow", "tcp", "Web",                "subnet/gateway",           "asg/asg-ondemand"],
         AllowRdpIn                  = ["550", "Inbound", "Allow", "tcp", "Rdp",                "asg/asg-jumpbox",          "asg/asg-rdp"],
 
+        # Guacamole
+        AllowGuacamoleWebIn         = ["600", "Inbound", "Allow", "tcp", "Guacamole",           "asg/asg-ondemand",          "asg/asg-guacamole"],
+        AllowGuacamoleRdpIn         = ["610", "Inbound", "Allow", "tcp", "Rdp",                 "asg/asg-guacamole",         "subnet/compute"],
+
         # Deny all remaining traffic
         DenyVnetInbound             = ["3100", "Inbound", "Deny", "*", "All",                  "tag/VirtualNetwork",       "tag/VirtualNetwork"],
 
@@ -285,6 +292,10 @@ locals {
         AllowRdpOut                 = ["570", "Outbound", "Allow", "tcp", "Rdp",                "asg/asg-jumpbox",          "asg/asg-rdp"],
         AllowSocksOut               = ["580", "Outbound", "Allow", "tcp", "Socks",              "asg/asg-jumpbox",          "asg/asg-rdp"],
         AllowDnsOut                 = ["590", "Outbound", "Allow", "*",   "Dns",                "tag/VirtualNetwork",       "tag/VirtualNetwork"],
+
+        # Guacamole
+        AllowGuacamoleWebOut        = ["600", "Outbound", "Allow", "tcp", "Guacamole",           "asg/asg-ondemand",         "asg/asg-guacamole"],
+        AllowGuacamoleRdpOut        = ["610", "Outbound", "Allow", "tcp", "Rdp",                 "asg/asg-guacamole",         "subnet/compute"],
 
         # Deny all remaining traffic and allow Internet access
         AllowInternetOutBound       = ["3000", "Outbound", "Allow", "tcp", "All",               "tag/VirtualNetwork",       "tag/Internet"],
