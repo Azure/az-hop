@@ -1,0 +1,274 @@
+---
+- hosts: guacamole
+  gather_facts: no
+  become: true
+  vars_files:
+    - '{{global_config_file}}'
+
+  tasks:
+  - name: Wait 300 seconds for the nodes to be ready
+    wait_for_connection:
+      timeout: 300
+  - name: Gather facts for first time
+    setup:
+
+  - name: Install Required dependencies
+    yum:
+      name: cairo-devel, libjpeg-turbo-devel, libpng-devel, libtool, uuid-devel
+
+  - name: Install Optional dependencies
+    yum:
+      name: freerdp-devel, openssl-devel, libvorbis-devel, libwebp-devel
+
+  - name: Creates guacamole directory
+    file:
+      path: /opt/guacamole
+      state: directory
+
+  - name: Download guacamole server
+    unarchive:
+      src: https://downloads.apache.org/guacamole/1.3.0/source/guacamole-server-1.3.0.tar.gz
+      dest: /opt/guacamole
+      remote_src: yes
+
+  # https://guacamole.apache.org/releases/1.3.0/
+  - name: Download guacamole extensions
+    unarchive:
+      src: https://downloads.apache.org/guacamole/1.3.0/binary/{{item}}
+      dest: /opt/guacamole
+      remote_src: yes
+    with_items:
+      - guacamole-auth-ldap-1.3.0.tar.gz
+      - guacamole-auth-quickconnect-1.3.0.tar.gz
+      - guacamole-auth-jdbc-1.3.0.tar.gz
+      - guacamole-auth-header-1.2.0.tar.gz # 1.2.0 is expected and is not a typo
+
+  - name: Build guacamole server
+    shell: |
+      ./configure --with-init-dir=/etc/init.d
+      make
+      make install
+      ldconfig
+    args:
+      chdir: /opt/guacamole/guacamole-server-1.3.0
+      creates: /usr/local/sbin/guacd
+
+  - name: reload systemd
+    command: systemctl daemon-reload
+
+  - name: start guacd
+    service:
+      name: guacd
+      state: started
+      enabled: yes
+
+  - name: Install JDK
+    yum:
+      name: java-1.8.0-openjdk-devel
+
+  - name: add tomcat group
+    group:
+      name: tomcat
+      state: present
+
+  - name: add tomcat user
+    user:
+      comment: 'User to run tomcat'
+      name: tomcat
+      group: tomcat
+      home: /opt/tomcat
+      shell: /bin/false
+      state: present
+
+  - name: Make sure we have the latest root certificates
+    yum:
+      name: ca-certificates
+      state: latest
+
+  - name: Download tomcat
+    unarchive:
+      src: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.56/bin/apache-tomcat-9.0.56.tar.gz
+      dest: /opt/tomcat
+      owner: tomcat
+      group: tomcat
+      mode: 0755
+      remote_src: yes
+
+  - name: Create a symbolic link for tomcat/latest
+    file:
+      src: /opt/tomcat/apache-tomcat-9.0.56
+      dest: /opt/tomcat/latest
+      owner: tomcat
+      group: tomcat
+      state: link
+
+  - name: Set execute permissions on tomcat
+    shell: chmod +x /opt/tomcat/latest/bin/*.sh
+
+  - name: Create a systemd unit file
+    copy:
+      dest: /etc/systemd/system/tomcat.service
+      content: |
+          [Unit]
+          Description=Tomcat 9 servlet container
+          After=network.target
+
+          [Service]
+          Type=forking
+
+          User=tomcat
+          Group=tomcat
+
+          Environment="JAVA_HOME=/usr/lib/jvm/jre"
+          Environment="JAVA_OPTS=-Djava.security.egd=file:///dev/urandom"
+
+          Environment="CATALINA_BASE=/opt/tomcat/latest"
+          Environment="CATALINA_HOME=/opt/tomcat/latest"
+          Environment="CATALINA_PID=/opt/tomcat/latest/temp/tomcat.pid"
+          Environment="CATALINA_OPTS=-Xms512M -Xmx1024M -server -XX:+UseParallelGC"
+
+          ExecStart=/opt/tomcat/latest/bin/startup.sh
+          ExecStop=/opt/tomcat/latest/bin/shutdown.sh
+
+          [Install]
+          WantedBy=multi-user.target
+
+  - name: reload systemd
+    command: systemctl daemon-reload
+
+  - name: start tomcat
+    service:
+      name: tomcat
+      state: started
+      enabled: yes
+
+  - name: Creates guacamole directory
+    file:
+      path: /etc/guacamole
+      state: directory
+
+  - name: Download guacamole client
+    get_url:
+      url: https://downloads.apache.org/guacamole/1.3.0/binary/guacamole-1.3.0.war
+      dest: /etc/guacamole/guacamole.war
+
+  - name: Create a symbolic link for guacamole client
+    file:
+      src: /etc/guacamole/guacamole.war
+      dest: /opt/tomcat/latest/webapps/guacamole.war
+      state: link
+
+  - name: Creates guacamole configuration directories
+    file:
+      path: /etc/guacamole/{{item}}
+      state: directory
+    with_items:
+      - lib
+      - extensions
+
+  - name: Copy extensions libraries
+    copy:
+      src: /opt/guacamole/{{item}}
+      dest: /etc/guacamole/extensions/
+      remote_src: yes
+    with_items:
+      - guacamole-auth-ldap-1.3.0/guacamole-auth-ldap-1.3.0.jar
+      - guacamole-auth-jdbc-1.3.0/mysql/guacamole-auth-jdbc-mysql-1.3.0.jar
+      #- guacamole-auth-quickconnect-1.3.0/guacamole-auth-quickconnect-1.3.0.jar
+
+  # Install 8.0.26 because starting on Oct-1 2021, 8.0.27 doesn't allow connecting so a single server managed MySql instance
+  - name: download mysql80-community
+    get_url:
+      url: 'https://dev.mysql.com/get/mysql80-community-release-el7-4.noarch.rpm'
+      dest: /etc/guacamole/
+  - name: Install mysql80-community RPM
+    shell: rpm -Uvh --force /etc/guacamole/mysql80-community-release-el7-4.noarch.rpm
+  - name: Install MySQL CLI 8.0.26
+    yum:
+      name:
+        - mysql-community-libs-8.0.26
+        - mysql-community-client-plugins-8.0.26
+        - mysql-community-client-8.0.26
+        - mysql-community-common-8.0.26
+        - mysql-community-libs-compat-8.0.26
+      state: present
+  - name: download certificate
+    get_url:
+      url: 'https://www.digicert.com/CACerts/BaltimoreCyberTrustRoot.crt.pem'
+      dest: /etc/guacamole/BaltimoreCyberTrustRoot.crt.pem
+      mode: 0644
+  - name: Install MySQL Java Connector
+    yum: 
+      name: https://downloads.mysql.com/archives/get/p/3/file/mysql-connector-java-8.0.26-1.el7.noarch.rpm
+      state: present
+  
+  - name: Create a symbolic link for the mysql java connector
+    file:
+      src: /usr/share/java/mysql-connector-java.jar
+      dest: /etc/guacamole/lib/mysql-connector-java.jar
+      state: link
+
+  - name: Read SQLAdmin Password from KV
+    command: az keyvault secret show --vault-name {{key_vault}} -n {{ slurmdb_user }}-password --query "value" -o tsv
+    delegate_to: localhost
+    register: sqladmin_password
+    become: false
+    run_once: true
+
+  - name: Configure MySQL access
+    copy:
+      dest: .my.cnf
+      content: |
+        [client]
+        user = {{ slurmdb_user }}@{{ slurmdb_fqdn }}
+        password = {{sqladmin_password.stdout}}
+        host = {{slurmdb_fqdn}}
+        ssl-mode = required
+        ssl-ca = /etc/guacamole/BaltimoreCyberTrustRoot.crt.pem
+
+  - name: Create guacamole database
+    shell: |
+      mysql <<EOF
+      create database guacamole_db;
+      EOF
+      cat /opt/guacamole/guacamole-auth-jdbc-1.3.0/mysql/schema/*.sql | mysql guacamole_db
+      touch /etc/guacamole/guacamole_db.created
+    args:
+      creates: /etc/guacamole/guacamole_db.created
+
+  - name: Read Password from KV
+    command: az keyvault secret show --vault-name {{key_vault}} -n {{admin_user}}-password --query "value" -o tsv
+    delegate_to: localhost
+    register: admin_password
+    become: false
+    run_once: true
+
+  - name: configure guacamole
+    copy:
+      dest: /etc/guacamole/guacamole.properties
+      content: |
+        guacd-hostname: localhost
+        guacd-port:     4822
+        ldap-hostname: ad
+        ldap-search-bind-dn: cn={{admin_user}},cn=Users,dc=hpc,dc=azure
+        ldap-search-bind-password: {{admin_password.stdout}}
+        ldap-user-base-dn: dc=hpc,dc=azure
+        ldap-username-attribute: sAMAccountName
+
+        mysql-hostname: {{slurmdb_fqdn}}
+        mysql-port: 3306
+        mysql-database: guacamole_db
+        mysql-username: {{ slurmdb_user }}@{{ slurmdb_fqdn }}
+        mysql-password: {{sqladmin_password.stdout}}
+        mysql-server-timezone: GMT
+
+  - name: restart tomcat
+    service:
+      name: tomcat
+      state: restarted
+
+  - name: restart guacd
+    service:
+      name: guacd
+      state: restarted
+
