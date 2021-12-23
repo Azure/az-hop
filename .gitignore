@@ -11,6 +11,7 @@ packer/md5sum.txt
 
 # Ansible auto-generated inventory
 playbooks/inventory
+playbooks/extra_vars.yml
 playbooks/group_vars/*
 playbooks/image_lookup.yml
 playbooks/*.ok
@@ -28,3 +29,9 @@ working
 
 # states
 .state
+
+# node.js
+node_modules/*
+package-lock.json
+test-results/
+playwright-report/

@@ -1,12 +1,17 @@
+AdType="Application.Permission"
+Name="Fixed.ClusterMetadata"
+ForTypes = {"Cloud.Instance","Cloud.InstanceSession","Cloud.Locker","Cloud.MachineType","Cloud.Price","Cloud.ProviderAccount","Cloud.Region","ClusterMetrics","NodeMetrics","Activity"}
+Operations="Read"
+Hidden=true
+
 AdType = "Application.Role"
 Description = "Basic GUI access"
-OwnerAllow = {"Package.Release/View","System/AccessWebSite","System.Read","Alerts/Manage","Clusters/View","Clusters/Access"}
 GroupRole = false
 Name = "User"
-Allow = {"Package.Release/View","System/AccessWebSite","Alerts/Manage","Clusters/View","Clusters/Access"}
+Allow = {"Package.Release/View","System/AccessWebSite","Alerts/Manage","Clusters/View","Clusters/Access", "Fixed.ClusterMetadata"}
 
 AdType = "Application.Role"
 Description = "AZHOP Cluster Admin"
 GroupRole = false
 Name = "azhop Cluster Admin"
-Allow = {"Clusters/Manage"}
+Allow = {"Clusters/Manage", "Fixed.ClusterMetadata"}

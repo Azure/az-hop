@@ -324,11 +324,12 @@
     state: restarted
     enabled: yes
 
-- name: Wait a maximum of 60 seconds until slurctld is running
+- name: Wait a maximum of 120 seconds until slurctld is running
   wait_for:
     path: /var/log/slurmctld/slurmctld.log
-    search_regex: slurmctld version \d+.\d+.\d+ started
-    timeout: 60
+    # slurmctld version \d+.\d+.\d+ started
+    search_regex: Running as primary controller
+    timeout: 120
 
 - name: check slurm connection
   command: "sinfo -l"

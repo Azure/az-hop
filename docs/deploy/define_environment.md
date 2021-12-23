@@ -159,6 +159,23 @@ slurm:
   # Enable SLURM accounting, this will create a SLURM accounting database in a managed MySQL server instance
   accounting_enabled: false
 
+# Authentication configuration for accessing the az-hop portal
+# Default is basic authentication. For oidc authentication you have to specify the following values
+# The OIDCClient secret need to be stored as a secret named <oidc-client-id>-password in the keyvault used by az-hop
+authentication:
+  httpd_auth: basic # oidc or basic
+  # User mapping https://osc.github.io/ood-documentation/latest/reference/files/ood-portal-yml.html#ood-portal-generator-user-map-match
+  # Domain users are mapped to az-hop users with the same name and without the domain name
+  # user_map_match: '^([^@]+)@mydomain.foo$'
+  # ood_auth_openidc:
+  #   OIDCProviderMetadataURL: # for AAD use 'https://sts.windows.net/{{tenant_id}}/.well-known/openid-configuration'
+  #   OIDCClientID: 'XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX'
+  #   OIDCRemoteUserClaim: # for AAD use 'upn'
+  #   OIDCScope: # for AAD use 'openid profile email groups'
+  #   OIDCPassIDTokenAs: # for AAD use 'serialized'
+  #   OIDCPassRefreshToken: # for AAD use 'On'
+  #   OIDCPassClaimsAs: # for AAD use 'environment'
+
 # List of images to be defined
 images:
   # - name: image_definition_name # Should match the packer configuration file name, one per packer file

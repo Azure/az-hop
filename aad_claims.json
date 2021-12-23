@@ -1,0 +1,12 @@
+{
+  "idToken": [
+    {
+      "name": "upn",
+      "source": null,
+      "essential": false,
+      "additionalProperties": []
+    }
+  ],
+  "accessToken": [],
+  "saml2Token": []
+}

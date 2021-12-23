@@ -37,20 +37,20 @@ n=1
 max_retry=3
 
 while true; do
-  echo "Domain join on $ADMIN_DOMAIN"
+  logger -s "Domain join on $ADMIN_DOMAIN"
   echo $ADMIN_PASSWORD| realm join -U $ADMIN_NAME $ADMIN_DOMAIN
 
   if [ ! -f "/etc/sssd/sssd.conf" ]; then
     if [[ $n -le $max_retry ]]; then
-      echo "Failed to domain join the server -  Attempt $n/$max_retry:"
+      logger -s "Failed to domain join the server -  Attempt $n/$max_retry:"
       sleep $delay
       ((n++))
     else
-      echo "Failed to domain join the server after $n attempts."
+      logger -s "Failed to domain join the server after $n attempts."
       exit 1
     fi
   else
-    echo "Successfully joined domain $ADMIN_DOMAIN"
+    logger -s "Successfully joined domain $ADMIN_DOMAIN"
     realm list
     break
   fi
@@ -59,38 +59,64 @@ done
 sed -i 's@use_fully_qualified_names.*@use_fully_qualified_names = False@' /etc/sssd/sssd.conf
 sed -i 's@ldap_id_mapping.*@ldap_id_mapping = False@' /etc/sssd/sssd.conf
 
-# ensure the correct hostname (update if necessary)
-echo "ensure the correct hostname (update if necessary)"
-ipaddr=$(hostname -i)
-system_hostname=$(hostname)
-#target_hostname="ip-$(printf '%02X' ${ipaddr//./ })"
-target_hostname=$(jetpack config cyclecloud.node.name)
-if [ "$system_hostname" != "$target_hostname" ]; then
-  logger -s "Warning: incorrect hostname ($system_hostname), it should be $target_hostname, updating"
-  hostname $target_hostname
-fi
-if grep -i $system_hostname /etc/hosts; then
-  logger -s "Warning: incorrect hostname ($system_hostname) in /etc/hosts, updating"
-  sed -i "s/$system_hostname/$target_hostname/ig" /etc/hosts
-fi
-etc_hostname=$(</etc/hostname)
-if [ "$etc_hostname" != "$target_hostname" ]; then
-  logger -s "Warning: incorrect /etc/hostname ($etc_hostname), it should be $target_hostname, updating"
-  echo $target_hostname > /etc/hostname
-fi
-eth0_hostname=$(grep DHCP_HOSTNAME /etc/sysconfig/network-scripts/ifcfg-eth0 | cut -d'=' -f2)
-if [ "$eth0_hostname" != "$target_hostname" ]; then
-  logger -s "Warning: incorrect DHCP_HOSTNAME in /etc/sysconfig/network-scripts/ifcfg-eth0 ($etc_hostname), it should be $target_hostname, updating"
-  sed -i "s/^DHCP_HOSTNAME=.*\$/DHCP_HOSTNAME=$target_hostname/g" /etc/sysconfig/network-scripts/ifcfg-eth0
-fi
-
-systemctl restart NetworkManager
 systemctl restart sssd
 systemctl restart sshd
+
+function enfore_hostname() {
+  local system_hostname=$1
+  local target_hostname=$2
+
+  # ensure the correct hostname (update if necessary)
+  echo "ensure the correct hostname (update if necessary)"
+  #ipaddr=$(hostname -i)
+  #system_hostname=$(hostname)
+  #target_hostname="ip-$(printf '%02X' ${ipaddr//./ })"
+  #target_hostname=$(jetpack config cyclecloud.node.name)
+  if [ "$system_hostname" != "$target_hostname" ]; then
+    logger -s "Warning: incorrect hostname ($system_hostname), it should be $target_hostname, updating"
+    hostname $target_hostname
+  fi
+  if grep -i $system_hostname /etc/hosts; then
+    logger -s "Warning: incorrect hostname ($system_hostname) in /etc/hosts, updating"
+    sed -i "s/$system_hostname/$target_hostname/ig" /etc/hosts
+  fi
+  etc_hostname=$(</etc/hostname)
+  if [ "$etc_hostname" != "$target_hostname" ]; then
+    logger -s "Warning: incorrect /etc/hostname ($etc_hostname), it should be $target_hostname, updating"
+    echo $target_hostname > /etc/hostname
+  fi
+  eth0_hostname=$(grep DHCP_HOSTNAME /etc/sysconfig/network-scripts/ifcfg-eth0 | cut -d'=' -f2)
+  if [ "$eth0_hostname" != "$target_hostname" ]; then
+    logger -s "Warning: incorrect DHCP_HOSTNAME in /etc/sysconfig/network-scripts/ifcfg-eth0 ($etc_hostname), it should be $target_hostname, updating"
+    sed -i "s/^DHCP_HOSTNAME=.*\$/DHCP_HOSTNAME=$target_hostname/g" /etc/sysconfig/network-scripts/ifcfg-eth0
+    systemctl restart NetworkManager
+  fi
+}
+
+n=1
+while true; do
+  current_hostname=$(hostname)
+  target_hostname=$(jetpack config cyclecloud.node.name)
+
+  if [[ $n -le $max_retry ]]; then
+    if [ "$current_hostname" != "$target_hostname" ]; then
+      logger -s "hostname not renamed -  Attempt $n/$max_retry:"
+      enfore_hostname $current_hostname $target_hostname
+      sleep $delay
+    else
+      logger -s "hostname successfully renamed"
+      break
+    fi
+    ((n++))
+  else
+    logger -s "Failed to rename host after $n attempts."
+    exit 1
+  fi
+done
 
 # Check if we are domain joined
 realm list | grep active-directory
 if [ $? -eq 1 ]; then
-  echo "Node $(hostname) is not domain joined"
+  logger -s "Node $(hostname) is not domain joined"
   exit 1
 fi
