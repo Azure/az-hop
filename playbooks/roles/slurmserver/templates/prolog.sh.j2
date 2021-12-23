@@ -3,10 +3,13 @@
 #TODO: fix the permissions - change mode=777 to owner=slurm once pyxis is set up
 # Example: https://github.com/NVIDIA/deepops/blob/20.08/roles/slurm/templates/etc/slurm/prolog.d/50-all-enroot-dirs
 
+mount | grep resource || mount /mnt/resource
+
 mkdir -pv /run/enroot /mnt/resource/{enroot-cache,enroot-data,enroot-temp}
 chmod -v 777 /run/enroot /mnt/resource/{enroot-cache,enroot-data,enroot-temp}
 
-exit 0
+# Exit if no NVIDIA devices detected
+[ -c /dev/nvidia0 ] || exit 0
 
 # Verify that NVIDIA UVM driver is running and device file is present
 # https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#runfile-verifications
@@ -20,6 +23,7 @@ if [ ! -c /dev/nvidia-uvm ]; then
         mknod -m 666 /dev/nvidia-uvm c $D 0
         echo "Started NVIDIA UVM driver."
     else
+        echo "ERROR: NVIDIA UVM driver could not be started."
         exit 1
     fi
 fi
