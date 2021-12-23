@@ -223,8 +223,6 @@
         user = {{ slurmdb_user }}@{{ slurmdb_fqdn }}
         password = {{sqladmin_password.stdout}}
         host = {{slurmdb_fqdn}}
-        ssl-mode = required
-        ssl-ca = /etc/guacamole/BaltimoreCyberTrustRoot.crt.pem
 
   - name: Create guacamole database
     shell: |
@@ -254,11 +252,12 @@
         ldap-search-bind-password: {{admin_password.stdout}}
         ldap-user-base-dn: dc=hpc,dc=azure
         ldap-username-attribute: sAMAccountName
+        ldap-user-search-filter: (|(objectCategory=CN=Person,CN=Schema,CN=Configuration,DC=hpc,DC=azure))
 
         mysql-hostname: {{slurmdb_fqdn}}
         mysql-port: 3306
         mysql-database: guacamole_db
-        mysql-username: {{ slurmdb_user }}@{{ slurmdb_fqdn }}
+        mysql-username: {{ slurmdb_user }}@{{slurmdb_fqdn}}
         mysql-password: {{sqladmin_password.stdout}}
         mysql-server-timezone: GMT
 
