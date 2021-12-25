@@ -260,7 +260,8 @@
         mysql-username: {{ slurmdb_user }}@{{slurmdb_fqdn}}
         mysql-password: {{sqladmin_password.stdout}}
         mysql-server-timezone: GMT
-
+        mysql-auto-create-accounts: true
+        
   - name: restart tomcat
     service:
       name: tomcat
