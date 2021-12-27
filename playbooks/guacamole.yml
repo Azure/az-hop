@@ -261,7 +261,10 @@
         mysql-password: {{sqladmin_password.stdout}}
         mysql-server-timezone: GMT
         mysql-auto-create-accounts: true
-        
+      owner: root
+      group: tomcat
+      mode: 0640
+
   - name: restart tomcat
     service:
       name: tomcat
