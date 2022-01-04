@@ -180,7 +180,7 @@ img_version_id=$(az sig image-version list  -r $sig_name -i $image_name -g $reso
 
 if [ "$img_version_id" == "" ] || [ $FORCE -eq 1 ]; then
   # Create an image version Major.Minor.Patch with Patch=YYmmddHHMM
-  patch=$(date +"%g%m%d%H%M")
+  patch=$(date +"%g%m%d%H%M" | cut -c 1-9)
   eval_str=".images[] | select(.name == "\"$image_name"\") | .version"
   version=$(yq eval "$eval_str" $CONFIG_FILE)
   version+=".$patch"
