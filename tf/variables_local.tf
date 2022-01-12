@@ -64,13 +64,11 @@ locals {
     allow_public_ip = try(local.configuration_yml["locked_down_network"]["public_ip"], true)
 
     # subnets
-    subnets = {
+    _subnets = {
         ad = "ad",
         frontend = "frontend",
         admin = "admin",
         netapp = "netapp",
-        bastion = "AzureBastionSubnet",
-        gateway = "GatewaySubnet",
         compute = "compute"
     }
 
@@ -80,8 +78,19 @@ locals {
     create_netapp_subnet   = try(local.configuration_yml["network"]["vnet"]["subnets"]["netapp"]["create"], local.create_vnet )
     create_ad_subnet       = try(local.configuration_yml["network"]["vnet"]["subnets"]["ad"]["create"], local.create_vnet )
     create_compute_subnet  = try(local.configuration_yml["network"]["vnet"]["subnets"]["compute"]["create"], local.create_vnet )
-    create_bastion_subnet  = try(local.configuration_yml["network"]["vnet"]["subnets"]["bastion"]["create"], local.create_vnet )
-    create_gateway_subnet  = try(local.configuration_yml["network"]["vnet"]["subnets"]["gateway"]["create"], local.create_vnet )
+
+    bastion_subnet = try(local.configuration_yml["network"]["vnet"]["subnets"]["bastion"], null)
+    no_bastion_subnet = try(length(local.bastion_subnet) > 0 ? false : true, true )
+    create_bastion_subnet  = try(local.bastion_subnet["create"], local.create_vnet )
+
+    gateway_subnet = try(local.configuration_yml["network"]["vnet"]["subnets"]["gateway"], null)
+    no_gateway_subnet = try(length(local.gateway_subnet) > 0 ? false : true, true )
+    create_gateway_subnet  = try(local.gateway_subnet["create"], local.create_vnet )
+
+    subnets = merge(local._subnets, 
+                    local.no_bastion_subnet ? {} : {bastion = "AzureBastionSubnet"},
+                    local.no_gateway_subnet ? {} : {gateway = "GatewaySubnet"}
+                    )
 
     # Application Security Groups
     create_nsg = try(local.configuration_yml["network"]["create_nsg"], local.create_vnet )
@@ -140,7 +149,7 @@ locals {
     #   - destination_port_range : name of one of the nsg_destination_ports defined above
     #   - source                 : asg/<asg-name>, subnet/<subnet-name>, tag/<tag-name>. tag-name = any Azure tags like Internet, VirtualNetwork, AzureLoadBalancer, ...
     #   - destination            : same as source
-    nsg_rules = {
+    _nsg_rules = {
         # ================================================================================================================================================================
         #                          ###
         #                           #     #    #  #####    ####   #    #  #    #  #####
@@ -208,8 +217,6 @@ locals {
 
         # Admin and Deployment
         AllowSocksIn                = ["520", "Inbound", "Allow", "tcp", "Socks",              "asg/asg-jumpbox",          "asg/asg-rdp"],
-        AllowBastionIn              = ["530", "Inbound", "Allow", "tcp", "Bastion",            "subnet/bastion",           "tag/VirtualNetwork"],
-        AllowInternalWebUsersIn     = ["540", "Inbound", "Allow", "tcp", "Web",                "subnet/gateway",           "asg/asg-ondemand"],
         AllowRdpIn                  = ["550", "Inbound", "Allow", "tcp", "Rdp",                "asg/asg-jumpbox",          "asg/asg-rdp"],
 
         # Deny all remaining traffic
@@ -289,7 +296,19 @@ locals {
         # Deny all remaining traffic and allow Internet access
         AllowInternetOutBound       = ["3000", "Outbound", "Allow", "tcp", "All",               "tag/VirtualNetwork",       "tag/Internet"],
         DenyVnetOutbound            = ["3100", "Outbound", "Deny",  "*",   "All",               "tag/VirtualNetwork",       "tag/VirtualNetwork"],
-
     }
 
+    bastion_nsg_rules = {
+        AllowBastionIn              = ["530", "Inbound", "Allow", "tcp", "Bastion",            "subnet/bastion",           "tag/VirtualNetwork"],
+    }
+
+    gateway_nsg_rules = {
+        AllowInternalWebUsersIn     = ["540", "Inbound", "Allow", "tcp", "Web",                "subnet/gateway",           "asg/asg-ondemand"],
+    }
+
+    nsg_rules = merge(  local._nsg_rules, 
+                        local.no_bastion_subnet ? {} : local.bastion_nsg_rules, 
+                        local.no_gateway_subnet ? {} : local.gateway_nsg_rules)
+
 }
+
