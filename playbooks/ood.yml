@@ -166,7 +166,7 @@
       name: munge
       apply: 
         become: true
-    when: queue_manager == "slurm"
+    when: ( queue_manager is defined and queue_manager == "slurm" )
 
   - name: Run the slurmclient role
     include_role:
@@ -176,7 +176,7 @@
     vars:
       cc_slurm_version: 20.11.7-1
       enroot_enabled: '{{slurm.enroot_enabled | default(false)}}'
-    when: (queue_manager == "slurm")
+    when: ( queue_manager is defined and queue_manager == "slurm" )
 
   - name: setup cyclecloud proxy
     shell: |
