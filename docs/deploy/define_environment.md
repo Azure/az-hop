@@ -63,12 +63,13 @@ network:
         name: ad
         address_prefixes: "10.0.3.0/28"
         create: true
-      bastion: # Bastion subnet name is always fixed to AzureBastionSubnet
-        address_prefixes: "10.0.4.0/27" # CIDR minimal range must be /27
-        create: true
-      gateway: # Gateway subnet name is always fixed to GatewaySubnet
-        address_prefixes: "10.0.4.32/27" # Recommendation is to use /27 or /28 network
-        create: true
+      # Bastion and Gateway subnets are optional and can be added if a Bastion or a VPN need to be created in the environment
+      # bastion: # Bastion subnet name is always fixed to AzureBastionSubnet
+      #   address_prefixes: "10.0.4.0/27" # CIDR minimal range must be /27
+      #   create: true
+      # gateway: # Gateway subnet name is always fixed to GatewaySubnet
+      #   address_prefixes: "10.0.4.32/27" # Recommendation is to use /27 or /28 network
+      #   create: true
       compute:
         name: compute
         address_prefixes: "10.0.16.0/20"
