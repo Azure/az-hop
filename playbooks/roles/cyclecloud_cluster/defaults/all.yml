@@ -6,3 +6,4 @@ cc_ad_server:
 cc_password:
 cc_queues:
 cc_queue_manager: 'openpbs'
+enroot_scratch_dir: '/mnt/resource'
