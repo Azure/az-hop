@@ -5,6 +5,6 @@ slurm_version: 20.11.7-1
 cyclecloud_slurm_release: 2.5.0
 pyxis_version: 0.11.1
 build_rpms: false
-accounting_enabled: true
+accounting_enabled: false
 cc_admin: hpcadmin
 cc_password: 
