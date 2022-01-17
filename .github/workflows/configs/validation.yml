@@ -1,11 +1,28 @@
 ---
 location: westeurope
 resource_group: azhop_validation
-homefs_size_tb: 8
-homefs_service_level: Premium
+tags:
+  env: validation
+  project: azhop
+# Define an ANF account, single pool and volume
+# If not present assume that there is an existing NFS share for the users home directory
+anf:
+  # Size of the ANF pool and unique volume
+  homefs_size_tb: 8
+  # Service level of the ANF volume, can be: Standard, Premium, Ultra
+  homefs_service_level: Premium
+  # dual protocol
+  dual_protocol: false # true to enable SMB support. false by default
+
+mounts:
+  # mount settings for the user home directory
+  home:
+    mountpoint: /anfhome # /sharedhome for example
+    server: '{{anf_home_ip}}' # Specify an existing NFS server name or IP, when using the ANF built in use '{{anf_home_ip}}'
+    export: '{{anf_home_path}}' # Specify an existing NFS export directory, when using the ANF built in use '{{anf_home_path}}'
+
 admin_user: hpcadmin
 key_vault_readers: 0bf2513b-59fe-4018-bfd6-5d4844a9a3b9
-homedir_mountpoint: /anfhome
 ad:
   vm_size: Standard_D2s_v3
 ondemand:
@@ -18,14 +35,11 @@ cyclecloud:
     publisher: "azurecyclecloud"
     offer:     "azure-cyclecloud"
     sku:       "cyclecloud-81"
-    version:   "8.1.120210614"
+    version:   "8.2.020210809"
   plan:
     name: "cyclecloud-81"
     publisher:  "azurecyclecloud"
     product:    "azure-cyclecloud"
-  rpms:
-    cyclecloud: 
-    jetpack: 
 lustre:
   rbh_sku: "Standard_D8d_v4"
   mds_sku: "Standard_D8d_v4"
@@ -39,20 +53,17 @@ users:
   - name: hpcuser
     uid: 10001
     gid: 5000
-    shell: /bin/bash
-    home: /anfhome/hpcuser
-    admin: false
 groups:
   - name: users
     gid: 5000
 images:
-  - name: azhop-centos78-v2-rdma
+  - name: azhop-centos79-v2-rdma-gpgpu
     publisher: azhop
     offer: CentOS
-    sku: 7.8-gen2
+    sku: 7.9-gen2
     hyper_v: V2
     os_type: Linux
-    version: 7.8 
+    version: 7.9
   - name: centos-7.8-desktop-3d
     publisher: azhop
     offer: CentOS
@@ -64,23 +75,23 @@ queues:
   - name: execute
     vm_size: Standard_F2s_v2
     max_core_count: 1024
-    image: OpenLogic:CentOS-HPC:7_8:latest
+    image: OpenLogic:CentOS-HPC:7_9-gen2:latest
   - name: hc44rs
     vm_size: Standard_HC44rs
     max_core_count: 1056
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos78-v2-rdma/latest
+    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
   - name: hb60rs
     vm_size: Standard_HB60rs
     max_core_count: 1440
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos78-v2-rdma/latest
+    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
   - name: hb120rs_v2
     vm_size: Standard_HB120rs_v2
     max_core_count: 2880
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos78-v2-rdma/latest
+    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
   - name: hb120rs_v3
     vm_size: Standard_HB120rs_v3
     max_core_count: 2880
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos78-v2-rdma/latest
+    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
   - name: viz3d
     vm_size: Standard_NV6
     max_core_count: 24

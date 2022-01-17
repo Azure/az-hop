@@ -3,89 +3,21 @@
 - name: jumpbox dummy
   hosts: jumpbox
   become: true
-  vars_files:
-    - '{{global_config_file}}'
-
-- name: Lustre setup
-  hosts: lustre, lustre-oss-*, robinhood
-  become: true
-  vars_files:
-    - '{{global_config_file}}'
-
-  tasks:
-  - name: Disable SELinux
-    selinux:
-      state: disabled
-    register: selinux
-  - name: reboot 
-    reboot:
-    when: selinux.reboot_required 
-  - name: Add Lustre server repo
-    yum_repository:
-      name: lustreserver
-      description: Lustre repo
-      baseurl: https://downloads.whamcloud.com/public/lustre/lustre-{{ lustre.version }}/el7/patchless-ldiskfs-server/
-      file: LustrePack
-      enabled: yes
-      gpgcheck: no
-  - name: Add Lustre client repo
-    yum_repository:
-      name: lustreclient
-      description: Lustre repo
-      baseurl: https://downloads.whamcloud.com/public/lustre/lustre-{{ lustre.version }}/el7/client/
-      file: LustrePack
-      enabled: yes
-      gpgcheck: no
-  - name: Add e2fs repo
-    yum_repository:
-      name: e2fs
-      description: Lustre repo
-      baseurl: https://downloads.whamcloud.com/public/e2fsprogs/latest/el7/
-      file: LustrePack
-      enabled: yes
-      gpgcheck: no
-  - name: Install lustre packages
-    yum:
-      name:
-        - lustre
-        - kmod-lustre-osd-ldiskfs
-        - lustre-osd-ldiskfs-mount
-        - lustre-resource-agents
-        - e2fsprogs
-        - lustre-tests
-      state: present
-    register: install_rpms
-  - name: disable resource disk
-    lineinfile: 
-      path: /etc/waagent.conf 
-      regexp: '^ResourceDisk\.Format=y$' 
-      line: 'ResourceDisk.Format=n'
-      backrefs: yes
-    register: disable_resource_disk
-  - name: restart waagent if config changed
-    service:
-      name: waagent
-      state: restarted
-    when: disable_resource_disk.changed
-  - name: ensure temp-disk-swapdile is stopped
-    service:
-      name: temp-disk-swapfile
-      state: stopped
-  - name: run weak-modules
-    command: weak-modules --add-kernel --no-initramfs
-    when: install_rpms.changed
-  - name: ensure resource disk is not mounted
-    mount:
-      path: /mnt/resource
-      state: unmounted
 
 - name: Lustre MDS setup
   hosts: lustre
   become: true
+  gather_facts: no
   vars_files:
     - '{{global_config_file}}'
   
   tasks:
+  - name: Wait 300 seconds for the nodes to be ready
+    wait_for_connection:
+      timeout: 300
+  - name: Gather facts for first time
+    setup:
+
   - name: get mdt device info
     command: lsblk -f {{ lustre.mdt_device }}
     changed_when: false
@@ -121,10 +53,17 @@
 - name: Lustre OSS setup
   hosts: lustre-oss-*
   become: true
+  gather_facts: no
   vars_files:
     - '{{global_config_file}}'
   
   tasks:
+  - name: Wait 300 seconds for the nodes to be ready
+    wait_for_connection:
+      timeout: 300
+  - name: Gather facts for first time
+    setup:
+
   - name: get ost device info
     command: lsblk -f {{ lustre.ost_device }}
     changed_when: false
@@ -165,13 +104,7 @@
     - '{{global_config_file}}'
   
   tasks:
-  - name: install hsm rpms
-    yum:
-      name:
-        - https://azurehpc.azureedge.net/rpms/lemur-azure-hsm-agent-1.0.0_28_centos77_fileidfix.x86_64.rpm
-        - https://azurehpc.azureedge.net/rpms/lemur-azure-data-movers-1.0.0_28_centos77_fileidfix.x86_64.rpm
-      state: present
-  - name: create var/run/lhsmd
+  - name: create /var/run/lhsmd
     file: 
       path: /var/run/lhsmd
       state: directory
@@ -198,7 +131,7 @@
       dest: /etc/lhsmd/lhsm-plugin-az
       mode: 0600
       content: |
-        num_threads=128
+        num_threads=16
         az_storage_account="{{ lustre_hsm_storage_account }}"
         az_kv_name="{{ key_vault }}"
         az_kv_secret_name="lustre-{{ lustre_hsm_storage_account }}-{{ lustre_hsm_storage_container }}-sas"
@@ -207,7 +140,7 @@
         exportprefix=""
         archive "archive1" {
             id=1
-            num_threads=128
+            num_threads=16
             root=""
             compression="off"
             container="{{ lustre_hsm_storage_container }}"
@@ -260,43 +193,17 @@
 - name: Install hydrator
   hosts: robinhood
   become: true
+  gather_facts: no
   vars_files:
     - '{{global_config_file}}'
   
   tasks:
-  - name: check for python 3.7
-    stat:
-      path: /usr/local/bin/python3.7
-    register: stat_python_result
-  - name: install python 3.7
-    shell: |
-      export PATH=/usr/local/bin:$PATH
-      # install python 3.7
-      yum -y install git gcc openssl-devel bzip2-devel libffi-devel zlib-devel
-      cd /usr/src
-      wget https://www.python.org/ftp/python/3.7.9/Python-3.7.9.tgz
-      tar xzf Python-3.7.9.tgz
-      cd Python-3.7.9
-      ./configure --enable-optimizations
-      make altinstall
-    when: not stat_python_result.stat.exists
-  - name: check for hydrator
-    stat:
-      path: /opt/amlFilesystem-hydrator/laaso/hydrator.py
-    register: stat_hydrator
-  - name: install lustre hydrator
-    shell: |
-      export PATH=/usr/local/bin:$PATH
-      # set up hydrator
-      pip3.7 install virtualenv
-      cd /opt
-      git clone https://github.com/microsoft/amlFilesystem-hydrator.git
-      cd amlFilesystem-hydrator/
-      python3.7 -m venv venv
-      rm -rf venv
-      export LAASO_VENV_CREATE_ANSIBLE_GALAXY_REQUIREMENTS=
-      python3.7 build/venv_create.py venv laaso/requirements.txt
-    when: not stat_hydrator.stat.exists
+  - name: Wait 300 seconds for the nodes to be ready
+    wait_for_connection:
+      timeout: 300
+  - name: Gather facts for first time
+    setup:
+
   - name: check to see if lustre is hydrated
     stat:
       path: /lustre.hydrated
@@ -315,12 +222,9 @@
     when: not stat_hydrated.stat.exists
   - name: hydrate lustre
     shell: |
-      export PATH=/usr/local/bin:$PATH
-      cd /opt/amlFilesystem-hydrator
-      VENV=$(pwd)/venv
-      REPO_DIR=.
-      source $VENV/bin/activate
-      PYTHONPATH=. python3.7 laaso/hydrator.py "{{ lustre_hsm_storage_account }}" "{{ lustre_hsm_storage_container }}" "{{ lustre_sas.stdout }}" -a /lustre --lemur
+      export STORAGE_SAS="{{ lustre_sas.stdout }}"
+      cd /lustre
+      azure-import -account "{{ lustre_hsm_storage_account }}" -container "{{ lustre_hsm_storage_container }}"
       touch /lustre.hydrated
     when: not stat_hydrated.stat.exists
 
@@ -377,8 +281,8 @@
     register: stat_dbpassword
   - name: create robinhood database
     shell: |
-      rbhpass=$(mkpasswd)
-      rbh-config create_db lustre "%" "$rbhpass"
+      rbhpass=$(openssl rand -base64 12)
+      rbh-config create_db lustre "%" "$rbhpass" || exit 1
       echo "$rbhpass" > /etc/robinhood.d/.dbpassword
       chmod 600 /etc/robinhood.d/.dbpassword
     when: not stat_dbpassword.stat.exists
@@ -739,7 +643,7 @@
         archive_id="$3"
         fid="$4"
 
-        lfs hsm_remove --data '{"file_id":"'${fullpath#${fsroot}/}'"}' --archive ${archive_id} --mntpath ${fsroot} ${fid}
+        lfs hsm_remove --data "{\"file_id\":\"${fullpath#${fsroot}/}\"}" --archive ${archive_id} --mntpath ${fsroot} ${fid}
   - name: start robinhood service
     service:
       name: robinhood
@@ -795,3 +699,51 @@
       regexp: '"DB_PASSWD"   => "",' 
       line: '"DB_PASSWD"   => "{{ dbpasswd.stdout }}",'
       backrefs: yes
+
+
+- name: Enable chglogs on MDS for changelog reader
+  hosts: lustre
+  become: true
+  vars_files:
+    - '{{global_config_file}}'
+  
+  tasks:
+  - name: check to cl2 exists
+    shell: lctl get_param mdd.LustreFS-MDT0000.changelog_users | grep "cl2"
+    register: cl2_exists
+    ignore_errors: true
+  - name: enable cl2 user
+    command: lctl --device LustreFS-MDT0000 changelog_register
+    when: cl2_exists.stdout == ""
+  
+- name: Enable changelog_reader on robinhood
+  hosts: robinhood
+  become: true
+  vars_files:
+    - '{{global_config_file}}'
+  
+  tasks:
+  - name: create lustremetasync service
+    copy:
+      dest: /etc/systemd/system/lustremetasync.service
+      mode: 0600
+      content: |
+        [Unit]
+        Description=Handling directory/meta data backup on Lustre filesystem.
+        After=syslog.target network.target remote-fs.target nss-lookup.target
+
+        [Service]
+        Type=simple
+        ExecStart=/sbin/changelog-reader -account "{{ lustre_hsm_storage_account }}" -container "{{ lustre_hsm_storage_container }}" -kvname "{{ key_vault }}" -kvsecret "lustre-{{ lustre_hsm_storage_account }}-{{ lustre_hsm_storage_container }}-sas" -mdt LustreFS-MDT0000 -userid cl2
+        Restart=always
+
+        [Install]
+        WantedBy=multi-user.target
+  - name: systemd daemon reload
+    systemd:
+      daemon_reload: yes
+  - name: enable and start lustremetasync service
+    service:
+      name: lustremetasync
+      enabled: yes
+      state: started

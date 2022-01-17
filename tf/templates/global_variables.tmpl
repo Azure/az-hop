@@ -1,15 +1,21 @@
 global_ssh_public_key         : '${ssh_public_key}'
 global_cc_storage             : ${cc_storage}
+compute_subnetid              : ${compute_subnetid}
 global_config_file            : ${config_file}
 ad_dns                        : ${ad-ip}
 ad_join_user                  : ${admin_username}
 ad_join_domain                : hpc.azure
-anf_home_ip                   : ${ anf-home-ip }
-anf_home_path                 : ${ anf-home-path }
-ondemand_fqdn                 : ${ ondemand-fqdn }
+ldap_server                   : ad
+anf_home_ip                   : ${anf-home-ip}
+homedir_mountpoint            : ${homedir_mountpoint}
+anf_home_path                 : ${anf-home-path}
+ondemand_fqdn                 : ${ondemand-fqdn}
 ansible_ssh_private_key_file  : ${admin_username}_id_rsa
 subscription_id               : ${subscription_id}
+tenant_id                     : ${tenant_id}
 key_vault                     : ${key_vault}
 sig_name                      : ${sig_name}
-lustre_hsm_storage_account    : ${ lustre_hsm_storage_account }
-lustre_hsm_storage_container  : ${ lustre_hsm_storage_container }
+lustre_hsm_storage_account    : ${lustre_hsm_storage_account}
+lustre_hsm_storage_container  : ${lustre_hsm_storage_container}
+slurmdb_fqdn                  : ${mysql-fqdn}
+slurmdb_user                  : ${mysql-user}

@@ -15,21 +15,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.4.0
 
       - name: Build Changelog
         id: github_release
-        uses: mikepenz/release-changelog-builder-action@v1.8.3
+        uses: mikepenz/release-changelog-builder-action@v2
         with:
           configuration: ".github/workflows/changelog_configuration.json"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # - run: |
+      #     version=${{ github.ref }}
+      #     echo ${version##*/} > version.txt
+
+      # - uses: EndBug/add-and-commit@v7.5.0
+      #   with:
+      #     message: 'Update version file'
+      #     add: 'version.txt --force'
+      #     branch: main
+
       - name: Create Release
-        uses: actions/create-release@v1.1.4
+        uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref }}
+          #tag_name: ${{ github.ref }}
+          #name: ${{ github.ref }}
           body: ${{steps.github_release.outputs.changelog}}
           prerelease: ${{ contains(github.ref, '-rc') || contains(github.ref, '-b') || contains(github.ref, '-a') }}
         env:

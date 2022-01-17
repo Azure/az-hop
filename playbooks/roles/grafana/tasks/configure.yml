@@ -31,6 +31,7 @@
     owner: "root"
     group: "{{ grafana_group }}"
     mode: 0640
+  when: grafana_auth_ldap_enabled | bool
   notify: restart grafana
 
 - name: Create Grafana directories

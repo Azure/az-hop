@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [[ $1 == "cyclecloud" ]]; then
-  echo go create tunnel to cyclecloud at https://localhost:9443
+  echo go create tunnel to cyclecloud at https://localhost:9443/cyclecloud
   ssh -i ${jumpbox-user}_id_rsa -fN -L 9443:ccportal:9443 ${jumpbox-user}@${jumpbox-pip}
 elif [[ $1 == "ad" ]]; then
   echo go create tunnel to ad with rdp to localhost:3390

@@ -2,10 +2,7 @@
     "builders": [
         {
             "type": "azure-arm",
-            "subscription_id": "{{user `var_subscription_id`}}",
-            "tenant_id": "{{user `var_tenant_id`}}",
-            "client_id": "{{user `var_client_id`}}",
-            "client_secret": "{{user `var_client_secret`}}",
+            "use_azure_cli_auth": "{{user `var_use_azure_cli_auth`}}",
             "image_publisher": "OpenLogic",
             "image_offer": "CentOS-HPC",
             "image_sku": "7_8",
@@ -15,7 +12,12 @@
             "os_type": "Linux",
             "vm_size": "Standard_NV6",
             "ssh_pty": "true",
-            "build_resource_group_name": "{{user `var_resource_group`}}"
+            "build_resource_group_name": "{{user `var_resource_group`}}",
+            "private_virtual_network_with_public_ip": "{{user `var_private_virtual_network_with_public_ip`}}",
+            "virtual_network_name": "{{user `var_virtual_network_name`}}",
+            "virtual_network_subnet_name": "{{user `var_virtual_network_subnet_name`}}",
+            "virtual_network_resource_group_name": "{{user `var_virtual_network_resource_group_name`}}",
+            "cloud_environment_name": "{{user `var_cloud_env`}}"
         }
     ],
     "provisioners": [

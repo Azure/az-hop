@@ -1,0 +1,20 @@
+name : uitesting
+
+on:
+  workflow_dispatch:
+    inputs:
+      resource_group:
+        description: 'Name of the resource group to test the environment deployed in'
+        required: true
+
+jobs:
+  run_tests:
+    uses: azure/az-hop/.github/workflows/uitesting_callable.yml@main
+    with:
+      resource_group: ${{ github.event.inputs.resource_group }}
+    secrets:
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+

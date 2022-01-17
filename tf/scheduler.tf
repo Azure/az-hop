@@ -1,19 +1,19 @@
 resource "azurerm_network_interface" "scheduler-nic" {
   name                = "scheduler-nic"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
 
   ip_configuration {
     name                          = "internal"
-    subnet_id                     = azurerm_subnet.admin.id
+    subnet_id                     = local.create_admin_subnet ? azurerm_subnet.admin[0].id : data.azurerm_subnet.admin[0].id
     private_ip_address_allocation = "Dynamic"
   }
 }
 
 resource "azurerm_linux_virtual_machine" "scheduler" {
   name                = "scheduler"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   size                = try(local.configuration_yml["scheduler"].vm_size, "Standard_D2s_v3")
   admin_username      = local.admin_username
   network_interface_ids = [
@@ -33,7 +33,15 @@ resource "azurerm_linux_virtual_machine" "scheduler" {
   source_image_reference {
     publisher = "OpenLogic"
     offer     = "CentOS"
-    sku       = "7.7"
+    sku       = "7_9-gen2"
     version   = "latest"
   }
+
+  #depends_on = [azurerm_network_interface_application_security_group_association.scheduler-asg-asso]
+}
+
+resource "azurerm_network_interface_application_security_group_association" "scheduler-asg-asso" {
+  for_each = toset(local.asg_associations["scheduler"])
+  network_interface_id          = azurerm_network_interface.scheduler-nic.id
+  application_security_group_id = local.create_nsg ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
 }

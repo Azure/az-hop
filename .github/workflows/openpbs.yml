@@ -1,0 +1,36 @@
+#
+# Copyright (c) Microsoft Corporation
+# Licensed under the MIT License.
+#
+name : openpbs
+
+on:
+  workflow_dispatch:
+    inputs:
+      resource_group:
+        description: 'Name of the resource group to deploy in - In case of an existing resource group the environment will be updated'
+        required: false
+        default: 'AUTO_GENERATED'
+      clean:
+        description: 'Clean all resources'
+        required: false
+        default: 'true' # use it with ${{ github.event.inputs.clean }}
+      anf_dual:
+        description: 'Use ANF Dual Protocol'
+        required: false
+        default: 'false' # use it with ${{ github.event.inputs.anf_dual }}
+
+jobs:
+  deploy:
+    uses: azure/az-hop/.github/workflows/main_callable.yml@main
+    with:
+      resource_group: ${{ github.event.inputs.resource_group }}
+      clean: ${{ github.event.inputs.clean }}
+      anf_dual: ${{ github.event.inputs.anf_dual }}
+      scheduler: 'openpbs'
+    secrets:
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+

@@ -5,7 +5,10 @@ VM_SIZE=$(curl -s --noproxy "*" -H Metadata:true "http://169.254.169.254/metadat
 
 if [ "$VM_SIZE" != "$EXPECTED_VM_SIZE" ] && [ "$EXPECTED_VM_SIZE" != "any" ]; then
   echo "Wrong VM Size expected. Expected $EXPECTED_VM_SIZE but running on $VM_SIZE"
+  echo "ERROR"
   exit 1
 fi
 
+echo "Running on $VM_SIZE"
 sleep 60
+echo "PASSED"

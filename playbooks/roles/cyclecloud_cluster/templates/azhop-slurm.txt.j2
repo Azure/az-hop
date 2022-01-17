@@ -1,0 +1,110 @@
+
+################################
+## Cluster Configuration File ##
+################################
+
+[cluster azhop-slurm]
+FormLayout = selectionpanel
+Category = Azure HPC OnDemand Platform 
+
+Autoscale = true
+
+    [[node defaults]]
+    UsePublicNetwork = false
+    Credentials = azure
+    ImageName = OpenLogic:CentOS-HPC:7_9-gen2:latest
+    SubnetId = {{ cc_subnetid }}
+    Region = {{ cc_region }}
+    KeyPairLocation = ~/.ssh/cyclecloud.pem
+    EnableAcceleratedNetworking = false
+    Interruptible = false
+
+    # Slurm autoscaling supports both Terminate and Deallocate shutdown policies
+    ShutdownPolicy = Terminate
+
+        [[[configuration]]]
+        slurm.version = "20.11.7-1"
+        #slurm.user.uid = 11000
+        #slurm.user.gid = 11000
+        #munge.user.uid = 11101
+        #munge.user.gid = 11101
+        slurm.accounting.enabled = false
+        #slurm.accounting.url = $configuration_slurm_accounting_url
+        #slurm.accounting.user = $configuration_slurm_accounting_user
+        #slurm.accounting.password = $configuration_slurm_accounting_password
+        #slurm.additional.config = $additional_slurm_config
+
+        keepalive.timeout = 3600 # The amount of time in seconds to keep a node "alive" if it has not finished installing/configuring software.
+        cyclecloud.converge_on_boot = true
+        # Disable ip-XXXXXXXX hostname generation
+        cyclecloud.hosts.standalone_dns.enabled = false
+        cyclecloud.hosts.simple_vpc_dns.enabled = false
+        #cyclecloud.dns.domain = {{ad_join_domain}}
+
+        # Disable normal NFS exports and mounts
+        cyclecloud.mounts.sched.disabled = true
+        cyclecloud.mounts.shared.disabled = true
+        cyclecloud.exports.sched.disabled = true
+        cyclecloud.exports.shared.disabled = true
+        cyclecloud.exports.sched.samba.enabled = false
+        cyclecloud.exports.shared.samba.enabled = false
+        cyclecloud.exports.defaults.samba.enabled = false
+        cshared.server.legacy_links_disabled = true
+
+        [[[volume boot]]] 
+        StorageAccountType = StandardSSD_LRS
+
+        [[[cluster-init cyclecloud/slurm:default:{{cyclecloud_slurm_release}}]]]
+        [[[cluster-init common:default:1.0.0]]]
+
+        [[[configuration cyclecloud.mounts.nfs_sched]]]
+        type = nfs
+        mountpoint = /sched
+        export_path = {{mounts.home.export}}/slurm/config
+        address = {{mounts.home.server}}
+        #options =
+
+        [[[configuration cyclecloud.mounts.nfs_anfhome]]]
+        type = nfs
+        mountpoint = /anfhome
+        export_path = {{mounts.home.export}}
+        address = {{mounts.home.server}}
+        #options =
+
+    [[node nodearraybase]]
+    Abstract = true
+        [[[configuration]]]
+        slurm.autoscale = true
+        #slurm.node_prefix = ${ifThenElse(NodeNamePrefix=="Cluster Prefix", StrJoin("-", ClusterName, ""), NodeNamePrefix)}
+        slurm.use_nodename_as_hostname = true
+        slurm.dampen_memory = 8 # Reservation of 8% of the node's memory
+        [[[cluster-init cyclecloud/slurm:execute:{{cyclecloud_slurm_release}}]]]
+
+{% for queue in cc_queues %}
+    [[nodearray {{ queue.name }}]]
+    Extends = nodearraybase
+    MachineType = {{ queue.vm_size }} 
+    MaxCoreCount = {{ queue.max_core_count }}
+  {% if queue.EnableAcceleratedNetworking is defined %}
+    EnableAcceleratedNetworking = {{ queue.EnableAcceleratedNetworking }}
+  {% endif %}
+  {% if queue.spot is defined %}
+    Interruptible = {{queue.spot}}
+  {% endif %}
+    # Lookup image version for that queue
+  {% if cc_image_lookup is iterable and queue.name in cc_image_lookup %}
+    ImageName = {{ cc_image_lookup[queue.name] }}
+  {% else %}
+    ImageName = {{ queue.image }}
+  {% endif %}
+        [[[configuration]]]
+        slurm.partition = {{ queue.name }}
+      {% if loop.index == 1 %}
+        slurm.default_partition = true
+      {% endif %}
+      {% if queue.ColocateNodes is defined %}
+        slurm.hpc = {{ queue.ColocateNodes }}
+      {% else %}
+        slurm.hpc = false
+      {% endif %}
+{% endfor %}

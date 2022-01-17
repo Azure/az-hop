@@ -1,0 +1,47 @@
+- name: Read slurmdb Password from KV
+  command: az keyvault secret show --vault-name {{key_vault}} -n {{slurmdb_user}}-password --query "value" -o tsv
+  delegate_to: localhost
+  connection: local
+  register: slurmdb_password_out
+  become: false
+
+- name: configure slurmdbd
+  template:
+    src: templates/slurmdbd.conf.j2
+    dest: /etc/slurm/slurmdbd.conf
+    owner: slurm 
+    group: slurm
+    mode: 0600
+  vars:
+    slurmdb_password: "{{slurmdb_password_out.stdout}}"
+
+- name: download certificate
+  get_url:
+    url: 'https://www.digicert.com/CACerts/BaltimoreCyberTrustRoot.crt.pem'
+    dest: /etc/slurm/BaltimoreCyberTrustRoot.crt.pem
+    owner: slurm 
+    group: slurm
+    mode: 0644
+
+- name: ensure slurmdbd is restarted.
+  service:
+    name: slurmdbd
+    state: restarted
+    enabled: yes
+
+- name: Wait a maximum of 60 seconds until slurmdbd is running
+  wait_for:
+    path: /var/log/slurmctld/slurmdbd.log
+    search_regex: slurmdbd version \d+.\d+.\d+ started
+    timeout: 60
+
+- name: check slurmdb connection
+  command: "sacctmgr list cluster"
+
+- name: check if cluster exists in the accounting database
+  shell: sacctmgr -np show cluster slurm|wc -l
+  register: cluster_exists
+
+- name: add cluster to slurm accounting DB
+  shell: sacctmgr -i add cluster slurm
+  when: cluster_exists.stdout == 0

@@ -11,7 +11,8 @@
 
 - name: Install telegraf
   yum: 
-    name: https://dl.influxdata.com/telegraf/releases/telegraf-1.18.2-1.x86_64.rpm
+  #name: https://dl.influxdata.com/telegraf/releases/telegraf-1.18.2-1.x86_64.rpm
+    name: telegraf-1.18.2-1
     state: present
 
 - name: Configure telegraf

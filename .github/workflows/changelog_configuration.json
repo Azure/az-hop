@@ -7,8 +7,12 @@
       {
           "title": "## Bug Fixes",
           "labels": ["fix"]
-      }
-  ],
+        },
+        {
+            "title": "## Breaking Change",
+            "labels": ["breaking-change"]
+        }
+    ],
   "sort": "ASC",
   "template": "${{CHANGELOG}}",
   "pr_template": "- ${{TITLE}}   - PR: #${{NUMBER}}",
