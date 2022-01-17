@@ -88,3 +88,4 @@
       slurm_uid: 971
       slurm_gid: 971
       enroot_enabled: '{{slurm.enroot_enabled | default(false)}}'
+      enroot_scratch_dir: '/mnt/resource'
