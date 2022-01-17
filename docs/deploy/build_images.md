@@ -23,6 +23,7 @@ images:
 ## Build an image
 Building an image is done by the utility script `packer/build_image.sh` and requires a packer input file. az-hop provides a set of pre-defined image files like :
 - `azhop-centos79-v2-rdma-gpgpu.json` this is an CentOS 7.9 HPC image with the az-hop additions for compute nodes  
+- `azhop-centos79-v2-rdma-gpgpu-enroot.json` same as above but with the addition of the `enroot` container support
 - `centos-7.8.desktop-3d.json` this is an CentOS 7.8 HPC image with the right GPU drivers configured for remote visualization nodes
 
 ```bash

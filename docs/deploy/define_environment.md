@@ -159,6 +159,8 @@ queue_manager: openpbs
 slurm:
   # Enable SLURM accounting, this will create a SLURM accounting database in a managed MySQL server instance
   accounting_enabled: false
+  # Enable container support for SLURM using Enroot/Pyxis
+  enroot_enabled: false
 
 # Authentication configuration for accessing the az-hop portal
 # Default is basic authentication. For oidc authentication you have to specify the following values
@@ -191,6 +193,13 @@ images:
     publisher: azhop
     offer: CentOS
     sku: 7.9-gen2
+    hyper_v: V2
+    os_type: Linux
+    version: 7.9
+  - name: azhop-centos79-v2-rdma-gpgpu-enroot
+    publisher: azhop
+    offer: CentOS
+    sku: 7.9-enroot
     hyper_v: V2
     os_type: Linux
     version: 7.9
