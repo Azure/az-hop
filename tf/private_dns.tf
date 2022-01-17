@@ -1,14 +1,14 @@
 
 resource "azurerm_private_dns_zone" "azhop_private_dns" {
   name                = "hpc.azure"
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "azhop_dns_link" {
   name                  = "az-hop"
-  resource_group_name   = azurerm_resource_group.rg.name
+  resource_group_name   = azurerm_private_dns_zone.azhop_private_dns.resource_group_name
   private_dns_zone_name = azurerm_private_dns_zone.azhop_private_dns.name
-  virtual_network_id    = azurerm_virtual_network.azhop.id
+  virtual_network_id    = local.create_vnet ? azurerm_virtual_network.azhop[0].id : data.azurerm_virtual_network.azhop[0].id
   registration_enabled  = true
 }
 
