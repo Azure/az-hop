@@ -21,15 +21,15 @@
     selinux:
       state: disabled
 
-  - name: Restart service dbus
-    service:
-      name: dbus
-      state: restarted 
+  # - name: Restart service dbus
+  #   service:
+  #     name: dbus
+  #     state: restarted 
 
-  - name: Restart service systemd-logind
-    service:
-      name: systemd-logind
-      state: restarted
+  # - name: Restart service systemd-logind
+  #   service:
+  #     name: systemd-logind
+  #     state: restarted
 
   # - name: create dhclient config
   #   copy:
@@ -62,18 +62,18 @@
       mode: '0755'
     run_once : true
 
-  - name: Read Password from KV
-    command: az keyvault secret show --vault-name {{key_vault}} -n {{admin_user}}-password --query "value" -o tsv
-    delegate_to: localhost
-#    connection: local
-    register: ad_join_password
-    become: false
-    run_once: true
+#   - name: Read Password from KV
+#     command: az keyvault secret show --vault-name {{key_vault}} -n {{admin_user}}-password --query "value" -o tsv
+#     delegate_to: localhost
+# #    connection: local
+#     register: ad_join_password
+#     become: false
+#     run_once: true
 
-  - name: Join AD domain
-    shell: echo "{{ ad_join_password.stdout }}" | realm join -v -U {{ ad_join_user }} {{ ad_join_domain }}
-    args:
-      creates: /etc/sssd/sssd.conf
+  # - name: Join AD domain
+  #   shell: echo "{{ ad_join_password.stdout }}" | realm join -v -U {{ ad_join_user }} {{ ad_join_domain }}
+  #   args:
+  #     creates: /etc/sssd/sssd.conf
 
   # - name: configure sssd - use_fully_qualified_names
   #   lineinfile:
