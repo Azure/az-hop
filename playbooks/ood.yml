@@ -342,3 +342,28 @@
 
   - name: restart ood
     shell: systemctl try-restart httpd24-httpd.service httpd24-htcacheclean.service
+
+  - name: Install cvmfs repo package
+    yum:
+      name: https://ecsft.cern.ch/dist/cvmfs/cvmfs-release/cvmfs-release-latest.noarch.rpm 
+      state: present
+
+  - name: Install cvmfs package
+    yum:
+      name: cvmfs 
+      state: present
+
+  - name: Install EESSI config package
+    yum:
+      name: https://github.com/EESSI/filesystem-layer/releases/download/latest/cvmfs-config-eessi-latest.noarch.rpm
+      state: present
+
+  - name: Create cvmfs config 
+    copy:
+      dest: /etc/cvmfs/default.local
+      content: |
+        CVMFS_HTTP_PROXY=DIRECT
+        CVMFS_QUOTA_LIMIT=10000
+
+  - name: Configure cvmfs 
+    shell: cvmfs_config setup 
