@@ -10,4 +10,10 @@ if %ERRORLEVEL% neq 0 (
    exit 1
 )
 
+Powershell.exe -executionpolicy remotesigned try { Add-LocalGroupMember -Group "Remote Desktop Users" -Member "{{ ad_join_domain }}\Domain Users" } catch { exit 255 }
+
+if %ERRORLEVEL% neq 0 ( 
+   exit 1
+)
+
 shutdown /r /f /t 1
