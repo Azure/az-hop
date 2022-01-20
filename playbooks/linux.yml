@@ -36,10 +36,10 @@
   #     content: "supersede domain-name-servers {{ ad_dns }};\nappend domain-name-servers 168.63.129.16;"
   #     dest: "/etc/dhcp/dhclient.conf"
 
-  # - name: Restart service network
-  #   service:
-  #     name: NetworkManager
-  #     state: restarted
+  - name: Restart service network
+    service:
+      name: NetworkManager
+      state: restarted
 
   - name: Creates home directory mountpoint
     file:
@@ -70,24 +70,35 @@
 #     become: false
 #     run_once: true
 
-  # - name: Join AD domain
-  #   shell: echo "{{ ad_join_password.stdout }}" | realm join -v -U {{ ad_join_user }} {{ ad_join_domain }}
-  #   args:
-  #     creates: /etc/sssd/sssd.conf
+    # - name: store kerberos password => this is not working
+    #   shell: echo "{{ad_join_password.stdout}}" | kinit {{ ad_join_user }}@{{ ad_join_domain | upper }}
 
-  # - name: configure sssd - use_fully_qualified_names
-  #   lineinfile:
-  #     path: /etc/sssd/sssd.conf
-  #     regexp: '^use_fully_qualified_names'
-  #     line: 'use_fully_qualified_names = False'
+#   - name: Join AD domain
+#     shell: echo "{{ ad_join_password.stdout }}" | realm join -v -U {{ ad_join_user }} {{ ad_join_domain }}
+#     args:
+#       creates: /etc/sssd/sssd.conf
 
-  # - name: configure sssd - ldap_id_mapping
-  #   lineinfile:
-  #     path: /etc/sssd/sssd.conf
-  #     regexp: '^ldap_id_mapping'
-  #     line: 'ldap_id_mapping = False'
+#   - name: configure sssd - use_fully_qualified_names
+#     lineinfile:
+#       path: /etc/sssd/sssd.conf
+#       regexp: '^use_fully_qualified_names'
+#       line: 'use_fully_qualified_names = False'
 
-  # - name: Restart sssd
-  #   service:
-  #     name: sssd 
-  #     state: restarted
+#   - name: configure sssd - ldap_id_mapping
+#     lineinfile:
+#       path: /etc/sssd/sssd.conf
+#       regexp: '^ldap_id_mapping'
+#       line: 'ldap_id_mapping = False'
+
+hostnamectl set-hostname jumpbox.hpc.azure
+dyndns_update = true
+dyndns_refresh_interval = 43200
+dyndns_update_ptr = true
+dyndns_ttl = 3600
+dyndns_auth = GSS-TSIG
+
+
+#   - name: Restart sssd
+#     service:
+#       name: sssd 
+#       state: restarted

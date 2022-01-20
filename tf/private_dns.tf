@@ -1,6 +1,6 @@
 
 resource "azurerm_private_dns_zone" "azhop_private_dns" {
-  name                = "hpc.azure"
+  name                = "azhop.local"
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
 }
 
