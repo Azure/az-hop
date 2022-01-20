@@ -56,9 +56,6 @@ Autoscale = true
 
         [[[cluster-init cyclecloud/slurm:default:{{cyclecloud_slurm_release}}]]]
         [[[cluster-init common:default:1.0.0]]]
-      {% if slurm.enroot_enabled is defined %}
-        [[[cluster-init enroot:default:1.0.0]]]
-      {% endif %}
 
         [[[configuration cyclecloud.mounts.nfs_sched]]]
         type = nfs
@@ -109,5 +106,8 @@ Autoscale = true
         slurm.hpc = {{ queue.ColocateNodes }}
       {% else %}
         slurm.hpc = false
+      {% endif %}
+      {% if queue.enroot_enabled is defined and queue.enroot_enabled == true %}
+        [[[cluster-init enroot:default:1.0.0]]]
       {% endif %}
 {% endfor %}
