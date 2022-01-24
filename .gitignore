@@ -4,13 +4,14 @@
 
 # Config files and generated options files
 config.yml
-packer/options.json
+packer/options*.json
 packer/spn.json
 packer/*.log
 packer/md5sum.txt
 
 # Ansible auto-generated inventory
 playbooks/inventory
+playbooks/extra_vars.yml
 playbooks/group_vars/*
 playbooks/image_lookup.yml
 playbooks/*.ok
@@ -28,3 +29,9 @@ working
 
 # states
 .state
+
+# node.js
+node_modules/*
+package-lock.json
+test-results/
+playwright-report/
