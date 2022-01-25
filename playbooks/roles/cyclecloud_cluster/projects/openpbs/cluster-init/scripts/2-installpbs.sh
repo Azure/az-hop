@@ -1,30 +1,11 @@
 #!/bin/bash
+script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$script_dir/../files/azhop-helpers.sh" 
+read_os
 
-if which dpkg; then
+find $script_dir/../files -name "*.sh" -exec chmod +x {} \;
 
-  wget https://github.com/openpbs/openpbs/releases/download/v19.1.1/pbspro-19.1.1.tar.gz
-  tar -xzf pbspro-19.1.1.tar.gz
-  cd pbspro-19.1.1/
-  sudo apt-get install -y gcc make libtool libhwloc-dev libx11-dev       libxt-dev libedit-dev libical-dev ncurses-dev perl       postgresql-server-dev-all postgresql-contrib python-dev tcl-dev tk-dev swig       libexpat-dev libssl-dev libxext-dev libxft-dev autoconf       automake
-  ./autogen.sh
-  ./configure --prefix=/opt/pbs
-  make
-  make install
-  /opt/pbs/libexec/pbs_postinstall
-  chmod 4755 /opt/pbs/sbin/pbs_iff /opt/pbs/sbin/pbs_rcp
-  /etc/init.d/pbs start
-
-fi
-
-# install pbs rpms when not in custom image
-if [ ! -f "/etc/pbs.conf" ]; then
-  echo "Downloading PBS RPMs"
-  wget -q https://github.com/PBSPro/pbspro/releases/download/v19.1.1/pbspro_19.1.1.centos7.zip
-  unzip -o pbspro_19.1.1.centos7.zip
-  echo "Installing PBS RPMs"
-  yum install -y epel-release
-  yum install -y pbspro_19.1.1.centos7/pbspro-execution-19.1.1-0.x86_64.rpm jq
-fi
+$script_dir/../files/$os_release/installpbs.sh
 
 echo "Configuring PBS"
 
