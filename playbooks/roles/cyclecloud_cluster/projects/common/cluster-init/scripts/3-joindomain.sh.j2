@@ -1,42 +1,22 @@
 #!/bin/bash
-rpm_packages="sssd realmd oddjob oddjob-mkhomedir adcli samba-common samba-common-tools krb5-workstation openldap-clients policycoreutils-python"
-apt_packages="sssd libsss-simpleifp0 python-sss sssd-dbus sssd-tools realmd oddjob oddjob-mkhomedir adcli samba-common krb5-user ldap-utils packagekit resolvconf"
+script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$script_dir/../files/azhop-helpers.sh" 
+read_os
 
-if which rpm; then
-
-  if ! rpm -q $rpm_packages; then
-    echo "Installing packages $rpm_packages" 
-    yum install -y $rpm_packages
-  fi
-
-  # https://docs.microsoft.com/en-us/azure/virtual-machines/linux/azure-dns
-  echo "RES_OPTIONS=\"timeout:1 attempts:5\"" >> /etc/sysconfig/network 
-
-elif which dpkg; then
-
-  if ! dpkg -l $apt_packages ; then
-    echo "Installing packages $apt_packages" 
-    # this export is needed to stop input for krb5-user
-    export DEBIAN_FRONTEND=noninteractive
-    apt-get install -y $apt_packages
-  fi
-
-  # https://docs.microsoft.com/en-us/azure/virtual-machines/linux/azure-dns
-  if grep "^options " /etc/resolv.conf; then
-    sed -i 's/^options /options timeout:1 attempts:5 /' /etc/resolv.conf
-  else
-    echo "options timeout:1 attempts:5" >> /etc/resolv.conf
-  fi
-
-fi
-
-echo "Restart dbus systemd-logind"
-systemctl restart dbus
-systemctl restart systemd-logind
-
+ADMIN_DOMAIN={{ ad_join_domain }}
+ADMIN_NAME={{ ad_join_user }}
+ADMIN_PASSWORD={{ cc_password }}
 NAMESERVER={{ ad_dns }}
+LDAP_SERVER={{ ldap_server }}
 
-sed -i "s/nameserver.*/nameserver ${NAMESERVER}\nnameserver 168.63.129.16/g" /etc/resolv.conf
+source $script_dir/../files/$os_release/init_joindomain.sh $NAMESERVER $LDAP_SERVER $ADMIN_DOMAIN
+
+grep -v nameserver /etc/resolv.conf > /etc/resolv.conf.new
+echo "nameserver ${NAMESERVER}" >> /etc/resolv.conf.new
+echo "nameserver 168.63.129.16" >> /etc/resolv.conf.new
+mv /etc/resolv.conf.new /etc/resolv.conf
+
+#sed -i "s/nameserver.*/nameserver ${NAMESERVER}\nnameserver 168.63.129.16/g" /etc/resolv.conf
 
 echo "supersede domain-name-servers ${NAMESERVER};" > /etc/dhcp/dhclient.conf
 echo "append domain-name-servers 168.63.129.16;" >> /etc/dhcp/dhclient.conf
@@ -49,32 +29,26 @@ Host *
     UserKnownHostsFile /dev/null
 EOF
 
-ADMIN_DOMAIN={{ ad_join_domain }}
-ADMIN_NAME={{ ad_join_user }}
-ADMIN_PASSWORD={{ cc_password }}
-
-# needed for ubuntu
-echo "{{ ad_dns }} {{ ldap_server }}.{{ ad_join_domain }} {{ ldap_server }}" >> /etc/hosts
 
 delay=15
 n=1
 max_retry=3
 
 while true; do
-  echo "Domain join on $ADMIN_DOMAIN"
+  logger -s "Domain join on $ADMIN_DOMAIN"
   echo $ADMIN_PASSWORD| realm join -U $ADMIN_NAME $ADMIN_DOMAIN
 
   if [ ! -f "/etc/sssd/sssd.conf" ]; then
     if [[ $n -le $max_retry ]]; then
-      echo "Failed to domain join the server -  Attempt $n/$max_retry:"
+      logger -s "Failed to domain join the server -  Attempt $n/$max_retry:"
       sleep $delay
       ((n++))
     else
-      echo "Failed to domain join the server after $n attempts."
+      logger -s "Failed to domain join the server after $n attempts."
       exit 1
     fi
   else
-    echo "Successfully joined domain $ADMIN_DOMAIN"
+    logger -s "Successfully joined domain $ADMIN_DOMAIN"
     realm list
     break
   fi
@@ -83,33 +57,33 @@ done
 sed -i 's@use_fully_qualified_names.*@use_fully_qualified_names = False@' /etc/sssd/sssd.conf
 sed -i 's@ldap_id_mapping.*@ldap_id_mapping = False@' /etc/sssd/sssd.conf
 
-# ensure the correct hostname (update if necessary)
-echo "ensure the correct hostname (update if necessary)"
-ipaddr=$(hostname -i)
-system_hostname=$(hostname)
-target_hostname="ip-$(printf '%02X' ${ipaddr//./ })"
-if [ "$system_hostname" != "$target_hostname" ]; then
-  logger -s "Warning: incorrect hostname ($system_hostname), it should be $target_hostname, updating"
-  hostname $target_hostname
-fi
-etc_hostname=$(</etc/hostname)
-if [ "$etc_hostname" != "$target_hostname" ]; then
-  logger -s "Warning: incorrect /etc/hostname ($etc_hostname), it should be $target_hostname, updating"
-  echo $target_hostname > /etc/hostname
-fi
-eth0_hostname=$(grep DHCP_HOSTNAME /etc/sysconfig/network-scripts/ifcfg-eth0 | cut -d'=' -f2)
-if [ "$eth0_hostname" != "$target_hostname" ]; then
-  logger -s "Warning: incorrect DHCP_HOSTNAME in /etc/sysconfig/network-scripts/ifcfg-eth0 ($etc_hostname), it should be $target_hostname, updating"
-  sed -i "s/^DHCP_HOSTNAME=.*\$/DHCP_HOSTNAME=$target_hostname/g" /etc/sysconfig/network-scripts/ifcfg-eth0
-fi
-
-systemctl restart NetworkManager
 systemctl restart sssd
 systemctl restart sshd
+
+n=1
+while true; do
+  current_hostname=$(hostname)
+  target_hostname=$(jetpack config cyclecloud.node.name)
+
+  if [[ $n -le $max_retry ]]; then
+    if [ "$current_hostname" != "$target_hostname" ]; then
+      logger -s "hostname not renamed -  Attempt $n/$max_retry:"
+      enforce_hostname $current_hostname $target_hostname
+      sleep $delay
+    else
+      logger -s "hostname successfully renamed"
+      break
+    fi
+    ((n++))
+  else
+    logger -s "Failed to rename host after $n attempts."
+    exit 1
+  fi
+done
 
 # Check if we are domain joined
 realm list | grep active-directory
 if [ $? -eq 1 ]; then
-  echo "Node $(hostname) is not domain joined"
+  logger -s "Node $(hostname) is not domain joined"
   exit 1
 fi

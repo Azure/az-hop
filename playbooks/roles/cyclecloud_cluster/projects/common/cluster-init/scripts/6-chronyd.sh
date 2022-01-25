@@ -1,10 +1,9 @@
 #!/bin/bash
+script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$script_dir/../files/azhop-helpers.sh" 
+read_os
 
-if which dpkg; then
-  if ! dpkg -l chrony; then
-    apt-get install -y chrony
-  fi
-fi
+$script_dir/../files/$os_release/init_chronyd.sh
 
 if [ -e /dev/ptp_hyperv ]; then
   PTP="ptp_hyperv"

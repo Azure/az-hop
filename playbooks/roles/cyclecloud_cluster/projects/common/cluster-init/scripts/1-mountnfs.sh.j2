@@ -1,24 +1,8 @@
 #!/bin/bash
+script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$script_dir/../files/azhop-helpers.sh" 
+read_os
 
-rpm_packages="nfs-utils"
-apt_packages="nfs-common"
+find $script_dir/../files -name "*.sh" -exec chmod +x {} \;
 
-if which rpm 2>/dev/null; then
-  if ! rpm -q $rpm_packages; then
-    echo "Installing packages $rpm_packages"
-    yum install -y $rpm_packages
-  fi
-elif which dpkg 2>/dev/null; then
-  if ! dpkg -l $apt_packages | grep -q installed; then
-    echo "Installing packages $apt_packages"
-    apt-get install -y $apt_packages
-  fi
-fi
-
-mkdir {{homedir_mountpoint}}
-echo "mount {{ anf_home_ip }}:/{{ anf_home_path }} {{homedir_mountpoint}}"
-mount {{ anf_home_ip }}:/{{ anf_home_path }} {{homedir_mountpoint}}
-
-if which setsebool; then
-  setsebool -P use_nfs_home_dirs 1 || true
-fi
+$script_dir/../files/$os_release/mountnfs.sh {{homedir_mountpoint}} {{ anf_home_ip }} {{ anf_home_path }}
