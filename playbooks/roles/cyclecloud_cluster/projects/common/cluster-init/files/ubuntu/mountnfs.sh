@@ -4,7 +4,7 @@ nfs_home_ip=$2
 nfs_home_path=$3
 packages="nfs-common"
 
-if ! dpkg -l $packages | grep -q installed; then
+if ! dpkg -l $packages ; then
   echo "Installing packages $packages"
   apt-get install -y $packages
 fi

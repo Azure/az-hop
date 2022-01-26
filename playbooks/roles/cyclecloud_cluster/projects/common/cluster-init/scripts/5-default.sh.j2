@@ -7,6 +7,7 @@
 chmod 700 -R /mnt/cluster-init
 
 # change access to resource so that temp jobs can be written there
+# FIXME : /mnt/resource doesn't exists on Ubuntu
 chmod 777 /mnt/resource
 
 # Grant sudo for users with sudo privilege
