@@ -5,7 +5,10 @@ read_os
 
 find $script_dir/../files -name "*.sh" -exec chmod +x {} \;
 
-$script_dir/../files/$os_release/installpbs.sh
+# If PBS is not installed, then install it
+if [ ! -f "/etc/pbs.conf" ]; then
+    $script_dir/../files/$os_release/installpbs.sh
+fi
 
 echo "Configuring PBS"
 

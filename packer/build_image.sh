@@ -87,8 +87,10 @@ resource_group=$(jq -r '.var_resource_group' $OPTIONS_FILE)
 image_id=$(az image list -g $resource_group --query "[?name=='$image_name'].id" -o tsv)
 
 # Generate install script checksum
-md5sum ./scripts/* > md5sum.txt
+set +e
+find ./scripts/ -exec md5sum {} \; > md5sum.txt
 md5sum $PACKER_FILE >> md5sum.txt
+set -e
 packer_md5=$(md5sum md5sum.txt | cut -d' ' -f 1)
 echo "scripts checksum is $packer_md5"
 
@@ -179,8 +181,8 @@ echo "Looking for image $image_name version $image_version ..."
 img_version_id=$(az sig image-version list  -r $sig_name -i $image_name -g $resource_group --query "[?name=='$image_version'].id" -o tsv)
 
 if [ "$img_version_id" == "" ] || [ $FORCE -eq 1 ]; then
-  # Create an image version Major.Minor.Patch with Patch=YYmmddHHMM
-  patch=$(date +"%g%m%d%H%M")
+  # Create an image version Major.Minor.Patch with Patch=YYmmddHHM
+  patch=$(date +"%g%m%d%H%M" | cut -c 1-9)
   eval_str=".images[] | select(.name == "\"$image_name"\") | .version"
   version=$(yq eval "$eval_str" $CONFIG_FILE)
   version+=".$patch"
