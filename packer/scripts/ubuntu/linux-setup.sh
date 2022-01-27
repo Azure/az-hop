@@ -29,3 +29,8 @@ EOF
 cd /usr/local/bin
 wget -q https://aka.ms/downloadazcopy-v10-linux -O - | tar zxf - --strip-components 1 --wildcards '*/azcopy'
 chmod 755 /usr/local/bin/azcopy
+
+# Create a symlink for the Modules to allow compatibility with the HPC CentOS image which have Modules in capital case
+if [ ! -d /usr/share/Modules/modulefiles ]; then
+    ln -s /usr/share/Modules /usr/share/modules
+fi
