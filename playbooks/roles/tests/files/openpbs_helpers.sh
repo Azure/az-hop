@@ -3,6 +3,14 @@
 PBS_MAX_WALLTIME="24:00:00"
 MAX_WAIT_TIME=3600
 
+function check_scheduler()
+{
+    export PBS_MAX_WALLTIME="00:20:00"
+    echo "Check PBS"
+    echo "Run qstat"
+    qstat || exit 1
+}
+
 function wait_alljobs()
 {
     local jobgroup=$1
@@ -12,12 +20,14 @@ function wait_alljobs()
     while [ $active_jobs -ne 0 ] && [ $wait_time -lt $MAX_WAIT_TIME ]; do
         echo "There are $active_jobs active jobs"
         sleep 60
-	wait_time=$((wait_time+60))
+        wait_time=$((wait_time+60))
         active_jobs=$(qstat -aw | grep $jobgroup | wc -l)
     done
 
     if [ $wait_time -ge $MAX_WAIT_TIME ]; then
         echo "Timeout while waiting for jobs"
+        list_nodes
+        qstat -aw
         exit 1
     fi
 

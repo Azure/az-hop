@@ -2,21 +2,24 @@
 - name: jumpbox dummy
   hosts: jumpbox
   become: true
-  vars_files:
-    - '{{global_config_file}}'
 
 - hosts: ondemand
-  #gather_facts: no
+  gather_facts: no
   become: true
   vars_files:
     - '{{global_config_file}}'
 
   tasks:
+  - name: Wait 300 seconds for the nodes to be ready
+    wait_for_connection:
+      timeout: 300
+  - name: Gather facts for first time
+    setup:
+
   - name: Make sure we have the latest root certificates
     yum:
       name: ca-certificates
       state: latest
-
   - name: Set up PAM authentication
     shell: |
       yum install -y mod_authnz_pam
@@ -30,15 +33,28 @@
     args:
       creates: /etc/pam.d/ood
 
+  - name: Retrieve OIDC secret
+    block:
+      - name: Read oidc secret from KV
+        command: az keyvault secret show --vault-name {{key_vault}} -n {{authentication.ood_auth_openidc.OIDCClientID}}-password --query "value" -o tsv
+        delegate_to: localhost
+        connection: local
+        register: oidc_secret
+        become: false
+    when: (authentication.httpd_auth is defined) and 
+          (authentication.httpd_auth == 'oidc')
+
   - name: Check if we need to register HTTPS
     stat:
       path: /etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.crt
     register: sslcert
+
   - name: Run the ood-ansible role to get certificate
     include_role:
       name: ood-ansible
     vars:
       servername: null
+      oidc_client_secret: '{{ oidc_secret.stdout | default(None)}}'
       httpd_port: 80
       httpd_public_uri: /.well-known
       httpd_public_root: /var/www/ood/.well-known
@@ -79,8 +95,9 @@
         include_role:
           name: ood-ansible
         vars:
-          servername: "{{ ondemand_fqdn }}"
+          servername: '{{ ondemand_fqdn }}'
           httpd_port: 443
+          oidc_client_secret: '{{ oidc_secret.stdout | default(None)}}'
           ssl:
           - SSLCertificateFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.crt"
           - SSLCertificateKeyFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.key"
@@ -116,8 +133,9 @@
         include_role:
           name: ood-ansible
         vars:
-          servername: "{{ ondemand_fqdn }}"
+          servername: '{{ ondemand_fqdn }}'
           httpd_port: 443
+          oidc_client_secret: '{{ oidc_secret.stdout | default(None)}}'
           ssl:
           - SSLCertificateFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.crt"
           - SSLCertificateKeyFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.key"
@@ -128,6 +146,7 @@
     copy: 
       src: logo.png
       dest: /var/www/ood/public
+
   - name: Copy favicon
     copy: 
       src: favicon.ico
@@ -141,6 +160,22 @@
     vars:
       pbs_server: scheduler
     when: (queue_manager == "openpbs" or queue_manager is not defined)
+
+  - name: Run the munge role
+    include_role:
+      name: munge
+      apply: 
+        become: true
+    when: ( queue_manager is defined and queue_manager == "slurm" )
+
+  - name: Run the slurmclient role
+    include_role:
+      name: slurmclient
+      apply:
+        become: true
+    vars:
+      cc_slurm_version: 20.11.7-1
+    when: ( queue_manager is defined and queue_manager == "slurm" )
 
   - name: setup cyclecloud proxy
     shell: |
@@ -164,6 +199,7 @@
           /opt/ood/ood-portal-generator/sbin/update_ood_portal
           systemctl try-restart httpd24-httpd.service httpd24-htcacheclean.service
         fi
+
   - name: add modules for job submission
     yum: 
       name: Lmod, hwloc, numactl 
@@ -179,14 +215,17 @@
       name: ood-apps-cyclecloud
       apply: 
         become: true
+
   - include_role: 
       name: ood-apps-grafana
       apply: 
         become: true
+
   - include_role: 
       name: ood-apps-robinhood
       apply: 
         become: true
+
   - name: setup azcopy
     shell: |
       # Install azcopy
@@ -195,6 +234,7 @@
       chmod 755 /usr/local/bin/azcopy
     args:
       creates: /usr/local/bin/azcopy
+
   - name: Add Lustre server repo
     yum_repository:
       name: lustreserver
@@ -203,6 +243,7 @@
       file: LustrePack
       enabled: yes
       gpgcheck: no
+
   - name: Add Lustre client repo
     yum_repository:
       name: lustreclient
@@ -211,6 +252,7 @@
       file: LustrePack
       enabled: yes
       gpgcheck: no
+
   - name: Add e2fs repo
     yum_repository:
       name: e2fs
@@ -219,15 +261,18 @@
       file: LustrePack
       enabled: yes
       gpgcheck: no
+
   - name: Install lustre packages
     yum:
       name:
         - lustre-client
       state: present
     register: install_rpms
+
   - name: run weak-modules
     command: weak-modules --add-kernel --no-initramfs
     when: install_rpms.changed
+
   - name: create lustre mount directory
     file:
       path: /lustre
@@ -240,10 +285,12 @@
       opts: flock,defaults,_netdev
       state: mounted
       fstype: lustre
+
   - name: create ood initialiser directory
     file:
       path: /etc/ood/config/apps/dashboard/initializers
       state: directory
+
   - name: create ood lustre menu option
     copy:
       dest: /etc/ood/config/apps/dashboard/initializers/ood.rb

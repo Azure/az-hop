@@ -1,0 +1,340 @@
+---
+- name: add slurm group
+  group:
+    name: slurm
+    gid: '{{ slurm_gid }}'
+    state: present
+
+- name: add slurm user
+  user:
+    comment: 'User to run slurmd'
+    name: slurm
+    group: slurm
+    shell: /bin/false
+    uid: '{{ slurm_uid }}'
+    state: present
+
+- name: check slurm share
+  file:
+    path: '{{homedir_mountpoint}}/slurm/'
+    mode: 0755
+    owner: slurm
+    group: slurm
+    state: directory
+
+- name: check slurm config dir
+  file:
+    path: '{{homedir_mountpoint}}/slurm/config/'
+    mode: 0755
+    owner: slurm
+    group: slurm
+    state: directory
+
+- name: check slurm rpm dir
+  file:
+    path: '{{homedir_mountpoint}}/slurm/rpms/'
+    mode: 0755
+    state: directory
+
+- name: check local slurm config dir
+  file:
+    path: /etc/slurm/
+    mode: 0755
+    owner: slurm
+    group: slurm
+    state: directory
+
+- name: create a symbolic link for slurm config dir
+  file:
+    src: '{{homedir_mountpoint}}/slurm/config'
+    dest: /sched
+    owner: slurm
+    group: slurm
+    state: link
+
+- name: check slurmctld log dir
+  file:
+    path: /var/log/slurmctld/
+    mode: 0755
+    owner: slurm
+    group: slurm
+    state: directory
+
+- name: check slurmctld log dir
+  file:
+    path: /var/spool/slurmd/
+    mode: 0755
+    owner: slurm
+    group: slurm
+    state: directory
+
+- name: Build SLURM RPMs
+  block:
+
+  - name: install dependencies
+    yum:
+      name: python3, python3-pip, rpm-build, readline-devel, pam-devel, perl-ExtUtils-MakeMaker, gcc, mariadb-devel
+
+  - name: extract slurm tarball version number
+    set_fact:
+      slurm_version_short: "{{slurm_version | regex_replace('-.*$', '')}}"
+
+  - name: check if slurm rpms exist
+    stat:
+      path: '{{homedir_mountpoint}}/slurm/rpms/slurm-{{slurm_version}}.el7.x86_64.rpm'
+    register: slurm_rpms
+
+  - name: download slurm
+    get_url:
+      url: 'https://download.schedmd.com/slurm/slurm-{{slurm_version_short}}.tar.bz2'
+      dest: /mnt/resource
+    when: slurm_rpms.stat.exists == False
+
+  - name: check slurm build dir
+    file:
+      path: /root/rpmbuild
+      mode: 0755
+      state: directory
+
+  - name: build slurm
+    shell: |
+      rpmbuild --clean -ta /mnt/resource/slurm-{{slurm_version_short}}.tar.bz2 > log.txt
+      sudo cp /root/rpmbuild/RPMS/x86_64/slurm-*.rpm {{homedir_mountpoint}}/slurm/rpms/
+    args:
+      chdir: "{{ ansible_env.HOME }}/rpmbuild"
+    when: slurm_rpms.stat.exists == False
+  when: build_rpms
+
+- name: Use CycleCloud pre-built SLURM RPMs
+  block:
+
+  - name: download cc slurm RPMs
+    get_url:
+      url: https://github.com/Azure/cyclecloud-slurm/releases/download/{{cyclecloud_slurm_release}}/{{ item }}
+      dest: '{{homedir_mountpoint}}/slurm/rpms'
+    with_items:
+      - 'slurm-{{slurm_version}}.el7.x86_64.rpm'
+      - 'slurm-devel-{{slurm_version}}.el7.x86_64.rpm'
+      - 'slurm-example-configs-{{slurm_version}}.el7.x86_64.rpm'
+      - 'slurm-slurmctld-{{slurm_version}}.el7.x86_64.rpm'
+      - 'slurm-slurmd-{{slurm_version}}.el7.x86_64.rpm'
+      - 'slurm-perlapi-{{slurm_version}}.el7.x86_64.rpm'
+      - 'slurm-torque-{{slurm_version}}.el7.x86_64.rpm'
+      - 'slurm-openlava-{{slurm_version}}.el7.x86_64.rpm'
+      - 'slurm-slurmdbd-{{slurm_version}}.el7.x86_64.rpm'
+  when: not build_rpms
+
+- name: install slurm
+  yum:
+    name:
+      - '{{homedir_mountpoint}}/slurm/rpms/slurm-{{slurm_version}}.el7.x86_64.rpm'
+      - '{{homedir_mountpoint}}/slurm/rpms/slurm-devel-{{slurm_version}}.el7.x86_64.rpm'
+      - '{{homedir_mountpoint}}/slurm/rpms/slurm-example-configs-{{slurm_version}}.el7.x86_64.rpm'
+      - '{{homedir_mountpoint}}/slurm/rpms/slurm-slurmctld-{{slurm_version}}.el7.x86_64.rpm'
+      - '{{homedir_mountpoint}}/slurm/rpms/slurm-slurmd-{{slurm_version}}.el7.x86_64.rpm'
+      - '{{homedir_mountpoint}}/slurm/rpms/slurm-perlapi-{{slurm_version}}.el7.x86_64.rpm'
+      - '{{homedir_mountpoint}}/slurm/rpms/slurm-torque-{{slurm_version}}.el7.x86_64.rpm'
+      - '{{homedir_mountpoint}}/slurm/rpms/slurm-openlava-{{slurm_version}}.el7.x86_64.rpm'
+      - '{{homedir_mountpoint}}/slurm/rpms/slurm-slurmdbd-{{slurm_version}}.el7.x86_64.rpm'
+    state: present
+
+- name: create slurm config
+  template:
+    src: slurm.conf.j2
+    dest: /sched/slurm.conf
+    owner: slurm
+    group: slurm
+
+- name: create slurm cgroup config
+  copy:
+    src: files/cgroup.conf
+    dest: /sched/cgroup.conf
+    owner: slurm
+    group: slurm
+
+- name: symbolic link for slurm.conf
+  file:
+    src: /sched/slurm.conf
+    dest: /etc/slurm/slurm.conf
+    state: link
+
+- name: symbolic link for cgroup.conf
+  file:
+    src: /sched/cgroup.conf
+    dest: /etc/slurm/cgroup.conf
+    state: link
+
+- name: check slurm autoscale dir
+  file:
+    path: /opt/cycle/slurm/
+    mode: 0755
+    state: directory
+
+- name: download cc autoscale scripts
+  get_url:
+    url: https://raw.githubusercontent.com/Azure/cyclecloud-slurm/{{cyclecloud_slurm_release}}/specs/default/chef/site-cookbooks/slurm/files/default/{{ item }}
+    dest: /opt/cycle/slurm
+  with_items:
+    - clusterwrapper.py
+    - cyclecloud_nodeinfo.sh
+    - cyclecloud_slurm.py
+    - cyclecloud_slurm.sh
+    - cyclecloud_slurm_test.py
+    - resume_fail_program.sh
+    - resume_program.sh
+    - return_to_idle.sh
+    - slurm-limits.conf
+    - slurmcc.py
+    - slurmcc_test.py
+    - slurmctld.override
+    - suspend_program.sh
+    - terminate_nodes.sh
+
+- name: check execute bit for cyclecloud_slurm.sh
+  file:
+    path: /opt/cycle/slurm/cyclecloud_slurm.sh
+    mode: 0755
+    owner: slurm
+    group: slurm
+
+- name: check execute bit for return_to_idle.sh
+  file:
+    path: /opt/cycle/slurm/return_to_idle.sh
+    mode: 0755
+    owner: slurm
+    group: slurm
+
+- name: check execute bit for terminate_nodes.sh
+  file:
+    path: /opt/cycle/slurm/terminate_nodes.sh
+    mode: 0755
+    owner: slurm
+    group: slurm
+
+- name: check execute bit for resume_fail_program.sh
+  file:
+    path: /opt/cycle/slurm/resume_fail_program.sh
+    mode: 0700
+    owner: slurm
+    group: slurm
+
+- name: check execute bit for resume_program.sh
+  file:
+    path: /opt/cycle/slurm/resume_program.sh
+    mode: 0700
+    owner: slurm
+    group: slurm
+
+- name: check execute bit for suspend_program.sh
+  file:
+    path: /opt/cycle/slurm/suspend_program.sh
+    mode: 0700
+    owner: slurm
+    group: slurm
+
+- name: install jetpack
+  yum:
+    name:
+    -  https://packages.microsoft.com/yumrepos/cyclecloud/jetpack8-8.2.0-1616.x86_64.rpm
+    state: present
+
+- name: fix jetpack permissions
+  file:
+    path: /opt/cycle/jetpack
+    mode: u=rwX,g=rX,o=rX
+    recurse: yes
+
+- name: download cc autoscale api
+  get_url:
+    url: https://github.com/Azure/cyclecloud-slurm/releases/download/{{cyclecloud_slurm_release}}/cyclecloud_api-8.1.0-py2.py3-none-any.whl
+    dest: /opt/cycle/slurm
+
+- name: download cc jobsubmit plugin
+  get_url:
+    url: https://github.com/Azure/cyclecloud-slurm/releases/download/{{cyclecloud_slurm_release}}/job_submit_cyclecloud_centos_{{slurm_version}}.so
+    dest: /usr/lib64/slurm/job_submit_cyclecloud.so
+
+- name: install cc autoscale api
+  shell: |
+      /opt/cycle/jetpack/system/embedded/bin/pip install /opt/cycle/slurm/cyclecloud_api-8.1.0-py2.py3-none-any.whl  2>&1
+      /opt/cycle/slurm/cyclecloud_slurm.sh initialize --cluster-name slurm1 --username "{{ cc_admin }}" --password "{{ cc_password }}" --url https://ccportal:9443/cyclecloud
+  args:
+    creates: /opt/cycle/jetpack/config/autoscale.json
+
+- name: create emtpy cyclecloud.conf
+  copy:
+    content: ""
+    dest: /sched/cyclecloud.conf
+    owner: slurm
+    group: slurm
+    force: no
+
+- name: symbolic link for cyclecloud.conf
+  file:
+    src: /sched/cyclecloud.conf
+    dest: /etc/slurm/cyclecloud.conf
+    state: link
+
+- name: cyclecloud_slurm.sh upgrade_conf
+  shell: |
+    /opt/cycle/slurm/cyclecloud_slurm.sh upgrade_conf
+
+- name: cyclecloud_slurm.sh create_nodes
+  shell: |
+    /opt/cycle/slurm/cyclecloud_slurm.sh create_nodes --policy AllowExisting
+
+- name: cyclecloud_slurm.sh slurm_conf
+  shell: |
+    /opt/cycle/slurm/cyclecloud_slurm.sh slurm_conf > /sched/cyclecloud.conf
+
+- name: cyclecloud_slurm.sh gres_conf
+  shell: |
+    /opt/cycle/slurm/cyclecloud_slurm.sh gres_conf > /sched/gres.conf
+
+- name: cyclecloud_slurm.sh topology
+  shell: |
+    /opt/cycle/slurm/cyclecloud_slurm.sh topology > /sched/topology.conf
+
+- name: create cron entry to update idle nodes
+  cron:
+    name: "return_to_idle"
+    minute: "*/5"
+    job: "/opt/cycle/slurm/return_to_idle.sh 1>&2 >> /opt/cycle/jetpack/logs/return_to_idle.log"
+
+- name: symbolic link for gres.conf
+  file:
+    src: /sched/gres.conf
+    dest: /etc/slurm/gres.conf
+    state: link
+
+- name: symbolic link for topology.conf
+  file:
+    src: /sched/topology.conf
+    dest: /etc/slurm/topology.conf
+    state: link
+
+- include: accounting.yml
+  become: true
+  tags: [ 'accounting' ]
+  when: accounting_enabled
+
+- name: ensure slurmctld is running.
+  service:
+    name: slurmctld
+    state: restarted
+    enabled: yes
+
+- name: Wait a maximum of 120 seconds until slurctld is running
+  wait_for:
+    path: /var/log/slurmctld/slurmctld.log
+    # slurmctld version \d+.\d+.\d+ started
+    search_regex: Running as primary controller
+    timeout: 120
+
+- name: check slurm connection
+  command: "sinfo -l"
+
+- name: create slurm logrotate config
+  copy:
+    src: files/slurm.logrotate
+    dest: /etc/logrotate.d/slurm

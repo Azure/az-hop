@@ -181,7 +181,7 @@ echo "Looking for image $image_name version $image_version ..."
 img_version_id=$(az sig image-version list  -r $sig_name -i $image_name -g $resource_group --query "[?name=='$image_version'].id" -o tsv)
 
 if [ "$img_version_id" == "" ] || [ $FORCE -eq 1 ]; then
-  # Create an image version Major.Minor.Patch with Patch=YYmmddHHM
+  # Create an image version Major.Minor.Patch with Patch=YYmmddHHMM
   patch=$(date +"%g%m%d%H%M" | cut -c 1-9)
   eval_str=".images[] | select(.name == "\"$image_name"\") | .version"
   version=$(yq eval "$eval_str" $CONFIG_FILE)

@@ -2,19 +2,40 @@
 # Copyright (c) Microsoft Corporation
 # Licensed under the MIT License.
 #
-name : integration
+name : main_callable
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
+      resource_group:
+        description: 'Name of the resource group to deploy in - In case of an existing resource group the environment will be updated'
+        required: true
+        default: 'AUTO_GENERATED'
+        type: string
       clean:
         description: 'Clean all resources'
         required: false
-        default: 'true' # use it with ${{ github.event.inputs.clean }}
+        default: 'true' # use it with ${{ inputs.clean }}
+        type: string
       anf_dual:
         description: 'Use ANF Dual Protocol'
         required: false
-        default: 'false' # use it with ${{ github.event.inputs.anf_dual }}
+        default: 'false' # use it with ${{ inputs.anf_dual }}
+        type: string
+      scheduler:
+        description: 'Job Scheduler to be installed : openpbs/slurm'
+        required: true
+        default: 'openpbs' # use it with ${{ inputs.scheduler }}
+        type: string
+    secrets:
+      ARM_SUBSCRIPTION_ID:
+        required: true
+      ARM_TENANT_ID:
+        required: true
+      ARM_CLIENT_ID:
+        required: true
+      ARM_CLIENT_SECRET:
+        required: true
 
 env:
   TF_CLI_ARGS: '-no-color'
@@ -26,15 +47,14 @@ env:
   ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
   ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
   AZHOP_STATE_CONTAINER: environments
-  AZHOP_STATE_ACCOUNT: ${{ secrets.STATE_ACCOUNT }}
-  JETPACK_RPM: "${{ secrets.JETPACK_RPM }}"
-  CYCLECLOUD_RPM: "${{ secrets.CYCLECLOUD_RPM }}"
+  AZHOP_STATE_ACCOUNT: azhopstates
   ANSIBLE_VERBOSITY: 2 # From 0 to 4 based on the level of logs needed in Ansible
 
 jobs:
   deploy:
     name: deploy
     runs-on: ubuntu-latest
+    timeout-minutes: 60
 
     container:
       image: xpillons/hpcrover:latest
@@ -57,24 +77,37 @@ jobs:
       - name: Deployment
         id: deploy
         run: |
-
           set -e
-          UUID="$(cat /proc/sys/kernel/random/uuid | tr -d '\n-' | tr '[:upper:]' '[:lower:]' | cut -c 1-6)"
-          RESOURCE_GROUP="azhop_$UUID"
+          # If resource group is not specified, generate a random one
+          RESOURCE_GROUP=${{ inputs.resource_group }}
+          echo "Resource group name is $RESOURCE_GROUP"
+          if [ "$RESOURCE_GROUP" = "AUTO_GENERATED" ]; then
+            UUID="$(cat /proc/sys/kernel/random/uuid | tr -d '\n-' | tr '[:upper:]' '[:lower:]' | cut -c 1-6)"
+            RESOURCE_GROUP="azhop_$UUID"
+          fi
+
+          # If the resource group exists, download the latest state, if not build a new configuration file
+          rg_exists=$(az group exists -n $RESOURCE_GROUP)
+          if [ "$rg_exists" = "true" ]; then
+            ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
+          else
+            # Update the default configuration with the resource group name and dual protocol options
+            sed "s/__RESOURCE_GROUP__/$RESOURCE_GROUP/g" $AZHOP_CONFIGURATION > config.yml
+            ANF_DUAL=${{ inputs.anf_dual }}
+            sed -i "s/__ANF_DUAL__/$ANF_DUAL/g" config.yml
+            SCHEDULER=${{ inputs.scheduler }}
+            sed -i "s/__SCHEDULER__/$SCHEDULER/g" config.yml
+          fi
+
+          # write the name of the resource group in the output of the job so it can be reused in others
           echo "::set-output name=RESOURCE_GROUP::$RESOURCE_GROUP"
-          
-          sed "s/__RESOURCE_GROUP__/$RESOURCE_GROUP/g" $AZHOP_CONFIGURATION > config.yml
-          ANF_DUAL=${{ github.event.inputs.anf_dual }}
-
-          sed -i "s/__ANF_DUAL__/$ANF_DUAL/g" config.yml
-
           ls -al 
           cat config.yml
+          anf_dual=$(yq eval '.anf.dual_protocol' config.yml)
 
           # Check if we need to build with dual protocol
-          #dual_protocol=$(yq eval '.dual_protocol' config.yml | tr '[:upper:]' '[:lower:]')
           build_error=0
-          if [ "$ANF_DUAL" = "false" ]; then
+          if [ "$anf_dual" != "true" ]; then
             set +e
             ./build.sh -a apply -f tf
             build_error=$?
@@ -157,7 +190,7 @@ jobs:
   ood:
     name: ood
     runs-on: ubuntu-latest
-    needs: [ad, lustre, deploy]
+    needs: [cycle, lustre, deploy]
 
     container:
       image: xpillons/hpcrover:latest
@@ -234,7 +267,7 @@ jobs:
   telegraf:
     name: telegraf
     runs-on: ubuntu-latest
-    needs: [ad, grafana, lustre, ood, cycle, deploy]
+    needs: [grafana, lustre, cycle, deploy]
 
     container:
       image: xpillons/hpcrover:latest
@@ -285,30 +318,6 @@ jobs:
           cd packer
           ./build_image.sh -i ${{matrix.packer_file}}
 
-  # set_image:
-  #   name: set_image
-  #   runs-on: ubuntu-latest
-  #   needs: [cycle, deploy, build_image]
-  #   container:
-  #     image: xpillons/hpcrover:latest
-  #     options: --user 0
-
-  #   steps:
-  #     - uses: actions/checkout@v2.4.0
-  #       with:
-  #         submodules: true
-
-  #     - name: Login azure
-  #       run: |
-  #         az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
-  #         az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
-
-  #     - name: Update Cycle to use the latest images
-  #       run: |
-  #         RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
-  #         ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
-  #         ./install.sh ccpbs
-
   run_tests:
     name: run_tests
     runs-on: ubuntu-latest
@@ -336,7 +345,7 @@ jobs:
   cleanup:
     name: cleanup
     runs-on: ubuntu-latest
-    if: always() && github.event.inputs.clean == 'true'
+    if: always() && inputs.clean == 'true'
     needs: [deploy, run_tests]
 
     container:

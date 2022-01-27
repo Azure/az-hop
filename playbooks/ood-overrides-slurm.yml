@@ -1,0 +1,21 @@
+---
+clusters:
+  ondemand:
+    v2:
+      job:
+        adapter: slurm
+
+ood_install_apps:
+  codeserver:
+    repo: https://github.com/vgamayunov/bc_osc_codeserver.git
+ood_apps:
+  bc_desktop:
+    submit: |
+      ---
+      script:
+        native:
+          - "-p"
+          - "<%= target %>"
+          - "-t"
+          - "<%= '%02d:00:00' % hours %>"
+          - "--exclusive"

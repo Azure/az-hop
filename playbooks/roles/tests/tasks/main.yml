@@ -1,34 +1,12 @@
 ---
 
-- name: Upload pbs helpers
+- name: Upload test suite
   become_user: hpcuser
   copy:
-    src: '{{role_path}}/files/pbs_helpers.sh'
-    dest: ~/pbs_helpers.sh
+    src: '{{role_path}}/files/'
+    dest: '~/'
     mode: '0755'
-
-- name: Upload test script
-  become_user: hpcuser
-  copy:
-    src: '{{role_path}}/files/test.sh'
-    dest: ~/test.sh
-    mode: '0755'
-
-- name: Upload job script
-  become_user: hpcuser
-  copy:
-    src: '{{role_path}}/files/job.sh'
-    dest: ~/job.sh
-    mode: '0755'
-
-- name: Upload job_gpu script
-  become_user: hpcuser
-  copy:
-    src: '{{role_path}}/files/job_gpu.sh'
-    dest: ~/job_gpu.sh
-    mode: '0755'
-
 
 - name: Run tests
   become_user: hpcuser
-  shell: ~/test.sh
+  shell: ~/test.sh {{ scheduler }}

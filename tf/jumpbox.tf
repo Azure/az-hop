@@ -46,7 +46,7 @@ resource "azurerm_linux_virtual_machine" "jumpbox" {
     version   = "latest"
   }
 
-  depends_on = [azurerm_network_interface_application_security_group_association.jumpbox-asg-asso]
+  #depends_on = [azurerm_network_interface_application_security_group_association.jumpbox-asg-asso]
 }
 
 resource "azurerm_network_interface_application_security_group_association" "jumpbox-asg-asso" {

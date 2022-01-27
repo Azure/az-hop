@@ -2,66 +2,15 @@
 clusters:
   ondemand:
     v2:
-      metadata:
-        title: AZHOP - Cluster
-      login:
-        host: ondemand
       job:
         adapter: pbspro
-        host: scheduler
         exec: /opt/pbs
-      batch_connect:
-        min_port: 61001
-        max_port: 61010
-        basic:
-          min_port: 61001
-          max_port: 61010
-          script_wrapper: |
-            module purge
-            %s
-        vnc:
-          min_port: 61001
-          max_port: 61010
-          script_wrapper: |
-            module purge
-            export PATH="/opt/TurboVNC/bin:$PATH"
-            export WEBSOCKIFY_CMD="/usr/bin/websockify"
-            %s
 
 ood_install_apps:
   codeserver:
     repo: https://github.com/edwardsp/bc_osc_codeserver.git
-    dest: "{{ ood_sys_app_dir }}"
-    version: master
 ood_apps:
   bc_desktop:
-    title: "Remote Desktop"
-    cluster: ondemand
-    form:
-      - desktop
-      - target
-      - hours
-    attributes:
-      desktop: xfce
-      target:
-        widget: "select"
-        label: "Session target"
-        help: |
-          Select the resource target for the remote desktop session
-        options:
-         - ["With GPU", "viz3d"]
-         - ["Without GPU", "viz"]
-        id: 'target'
-      hours:
-        widget: "number_field"
-        label: "Maximum duration of your remote session"
-        value: 1
-        help: |
-          This is the maximum duration of your remote session once started. Enter a value between 1 and 8
-        min: 1
-        max: 8
-        step: 1
-        id: 'hours'
     submit: |
       ---
       script:
@@ -70,21 +19,3 @@ ood_apps:
           - "select=1:slot_type=<%= target %>"
           - "-l"
           - "walltime=<%= '%02d:00:00' % hours %>"
-httpd_auth:
-- AuthType Basic
-- AuthName "Open OnDemand"
-- AuthBasicProvider PAM
-- AuthPAMService ood
-- Require valid-user
-host_regex: '[^./]+'
-node_uri: '/node'
-rnode_uri: '/rnode'
-pun_custom_env:
-  OOD_DASHBOARD_TITLE: "Azure HPC On-Demand Platform"
-  OOD_DASHBOARD_LOGO: "/public/logo.png"
-  OOD_BRAND_BG_COLOR: "#0078d4"
-  OOD_BRAND_LINK_ACTIVE_BG_COLOR: "#212529"
-  OOD_JOB_NAME_ILLEGAL_CHARS: "/"
-
-pinned_apps:
-  - category: 'Interactive Apps'

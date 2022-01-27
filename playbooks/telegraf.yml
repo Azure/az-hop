@@ -1,9 +1,21 @@
+# This looks crazy but in order for this playbook to run from a pipeline, the jumpbox dummy need to be added, otherwise there is an unable to connect message
+- name: jumpbox dummy
+  hosts: jumpbox
+  become: true
+
 - hosts: jumpbox, scheduler, ondemand, ccportal, lustre, lustre-oss-*, robinhood, grafana
   become: true
+  gather_facts: no
   vars_files:
     - '{{global_config_file}}'
 
   tasks:
+  - name: Wait 300 seconds for the nodes to be ready
+    wait_for_connection:
+      timeout: 300
+  - name: Gather facts for first time
+    setup:
+
   - name: Read Password from KV
     command: az keyvault secret show --vault-name {{key_vault}} -n {{admin_user}}-password --query "value" -o tsv
     delegate_to: localhost

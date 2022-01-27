@@ -1,13 +1,13 @@
 #!/bin/bash
-#PBS -N RingPingPong
-#PBS -l select=4:ncpus=1:mpiprocs=1:slot_type=hb120rs_v3
-#PBS -k oed
-#PBS -j oe
-#PBS -l walltime=300
+#SBATCH -J RingPingPong
+#SBATCH -N 4
+#SBATCH --ntasks-per-node=1
+#SBATCH -p hc44rs
+#SBATCH -t 5
 
 TYPE=latency
 
-JOBID=$PBS_JOBID
+JOBID=$SLURM_JOBID
 
 if [ $TYPE == "latency" ]; then
    MSGLOG="9:10"
@@ -37,9 +37,7 @@ host_option="-hosts"
 numactl_options=" numactl --cpunodebind 0"
 
 hostlist=$(pwd)/hosts.$JOBID
-sort -u $PBS_NODEFILE > $hostlist
-# remove .internal.cloudapp.net from node names added by PBS in the PBS_NODEFILE
-sed -i 's/.internal.cloudapp.net//g' $hostlist
+scontrol show hostnames | sort -u > $hostlist
 
 src=$(tail -n 1 $hostlist)
 # -msglog 9:10 is for 512 and 1024 bytes message size only
