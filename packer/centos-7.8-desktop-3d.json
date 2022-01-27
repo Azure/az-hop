@@ -23,19 +23,21 @@
     "provisioners": [
         {
             "type": "file",
-            "source": "scripts",
+            "source": "scripts/centos/",
             "destination": "/tmp"
         },
         {
             "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E sh '{{ .Path }}'",
             "inline": [
-                "chmod +x /tmp/scripts/*.sh",
-                "/tmp/scripts/linux-setup.sh",
-                "/tmp/scripts/lustreclient2.12.5_centos7.8.sh",
-                "/tmp/scripts/interactive-desktop-3d.sh",
-                "/tmp/scripts/desktop-packages.sh",
-                "/tmp/scripts/pbspro.sh",
-                "/tmp/scripts/telegraf.sh",
+                "chmod +x /tmp/*.sh",
+                "/tmp/linux-setup.sh",
+                "/tmp/lustreclient2.12.5_centos7.8.sh",
+                "/tmp/interactive-desktop-3d.sh",
+                "/tmp/desktop-packages.sh",
+                "/tmp/pbspro.sh",
+                "/tmp/telegraf.sh",
+                "echo ' This is the end '",
+                "yum history sync",
                 "rm -rf /tmp/scripts",
                 "/usr/sbin/waagent -force -deprovision+user && export HISTSIZE=0 && sync"
             ],
