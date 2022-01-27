@@ -32,5 +32,5 @@ chmod 755 /usr/local/bin/azcopy
 
 # Create a symlink for the Modules to allow compatibility with the HPC CentOS image which have Modules in capital case
 if [ ! -d /usr/share/Modules/modulefiles ]; then
-    ln -s /usr/share/Modules /usr/share/modules
+    ln -s /usr/share/modules /usr/share/Modules
 fi
