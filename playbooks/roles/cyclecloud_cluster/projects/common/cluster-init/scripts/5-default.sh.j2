@@ -25,3 +25,8 @@ case $AZHPC_VMSIZE in
     systemctl restart gdm
   ;;
 esac
+
+# Create a symlink for the Modules to allow compatibility with the HPC CentOS image which have Modules in capital case
+if [ ! -d /usr/share/Modules ]; then
+    ln -s /usr/share/modules /usr/share/Modules
+fi
