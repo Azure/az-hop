@@ -38,7 +38,7 @@
                 "/tmp/telegraf.sh",
                 "echo ' This is the end '",
                 "yum history sync",
-                "rm -rf /tmp/scripts",
+                "rm -rf /tmp/*.sh",
                 "/usr/sbin/waagent -force -deprovision+user && export HISTSIZE=0 && sync"
             ],
             "inline_shebang": "/bin/sh -x",

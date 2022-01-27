@@ -35,7 +35,7 @@
                 "/tmp/pbspro.sh",
                 "/tmp/telegraf.sh",
                 "echo ' This is the end '",
-                "rm -rf /tmp",
+                "rm -rf /tmp/*.sh",
                 "/usr/sbin/waagent -force -deprovision+user && export HISTSIZE=0 && sync"
             ],
             "inline_shebang": "/bin/sh -x",

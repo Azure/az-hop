@@ -34,3 +34,8 @@ chmod 755 /usr/local/bin/azcopy
 if [ ! -d /usr/share/Modules/modulefiles ]; then
     ln -s /usr/share/modules /usr/share/Modules
 fi
+
+# Add I_MPI_HYDRA_BOOTSTRAP=ssh in the IMPI module otherwise it will break how PBS launch jobs
+if ! grep I_MPI_HYDRA_BOOTSTRAP /usr/share/modules/modulefiles/mpi/impi-2021 ; then
+    echo "setenv I_MPI_HYDRA_BOOTSTRAP ssh" >> /usr/share/modules/modulefiles/mpi/impi-2021
+fi
