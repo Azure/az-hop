@@ -40,8 +40,6 @@
     service:
       name: NetworkManager
       state: restarted
-    args:
-      creates: /etc/dhcp/dhclient.conf
 
   - name: Creates home directory mountpoint
     file:
