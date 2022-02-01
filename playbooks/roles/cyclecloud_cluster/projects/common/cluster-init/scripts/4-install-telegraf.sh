@@ -1,21 +1,9 @@
 #!/bin/bash
+script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$script_dir/../files/azhop-helpers.sh" 
+read_os
 
-if [ ! -e /etc/yum.repos.d/influxdb.repo ]; then
-echo "#### Configuration repo for InfluxDB:"
-cat <<EOF | tee /etc/yum.repos.d/influxdb.repo
-[influxdb]
-name = InfluxDB Repository - RHEL \$releasever
-baseurl = https://repos.influxdata.com/centos/\$releasever/\$basearch/stable
-enabled = 1
-gpgcheck = 1
-gpgkey = https://repos.influxdata.com/influxdb.key
-EOF
-fi
-
-if ! rpm -q telegraf; then
-  echo "#### Telegraf Installation:"
-  yum -y install https://dl.influxdata.com/telegraf/releases/telegraf-1.18.2-1.x86_64.rpm
-fi
+$script_dir/../files/$os_release/init_telegraf.sh
 
 echo "Configuring global tags"
 AZHPC_VMSIZE=$(curl -s --noproxy "*" -H Metadata:true "http://169.254.169.254/metadata/instance/compute?api-version=2019-08-15" | jq -r '.vmSize' | tr '[:upper:]' '[:lower:]')
@@ -35,5 +23,3 @@ chmod 600 $TELEGRAF_CONF_DIR/telegraf.conf
 echo "#### Starting Telegraf services:"
 systemctl enable telegraf
 systemctl restart telegraf
-
-

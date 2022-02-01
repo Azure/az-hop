@@ -3,14 +3,15 @@
         {
             "type": "azure-arm",
             "use_azure_cli_auth": "{{user `var_use_azure_cli_auth`}}",
-            "image_publisher": "OpenLogic",
-            "image_offer": "CentOS-HPC",
-            "image_sku": "7_8",
+            "image_publisher": "microsoft-dsvm",
+            "image_offer": "ubuntu-hpc",
+            "image_sku": "1804",
             "image_version": "latest",
             "managed_image_resource_group_name": "{{user `var_resource_group`}}",
             "managed_image_name": "{{user `var_image`}}",
             "os_type": "Linux",
-            "vm_size": "Standard_NV6",
+            "vm_size": "Standard_d8s_v3",
+            "managed_image_storage_account_type": "Premium_LRS",
             "ssh_pty": "true",
             "build_resource_group_name": "{{user `var_resource_group`}}",
             "private_virtual_network_with_public_ip": "{{user `var_private_virtual_network_with_public_ip`}}",
@@ -23,7 +24,7 @@
     "provisioners": [
         {
             "type": "file",
-            "source": "scripts/centos/",
+            "source": "scripts/ubuntu/",
             "destination": "/tmp"
         },
         {
@@ -31,13 +32,9 @@
             "inline": [
                 "chmod +x /tmp/*.sh",
                 "/tmp/linux-setup.sh",
-                "/tmp/lustreclient2.12.5_centos7.8.sh",
-                "/tmp/interactive-desktop-3d.sh",
-                "/tmp/desktop-packages.sh",
                 "/tmp/pbspro.sh",
                 "/tmp/telegraf.sh",
                 "echo ' This is the end '",
-                "yum history sync",
                 "rm -rf /tmp/*.sh",
                 "/usr/sbin/waagent -force -deprovision+user && export HISTSIZE=0 && sync"
             ],

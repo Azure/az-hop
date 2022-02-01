@@ -207,6 +207,13 @@ images:
     hyper_v: V1
     os_type: Linux
     version: 7.8
+  - name: azhop-ubuntu18.04
+    publisher: azhop
+    offer: Ubuntu
+    sku: 10_04
+    hyper_v: V2
+    os_type: Linux
+    version: 18.04
 # List of queues (node arays in Cycle) to be defined
 queues:
   - name: execute # name of the Cycle Cloud node array

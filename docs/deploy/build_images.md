@@ -103,25 +103,27 @@ Once done your new images are ready to be used in azhop.
 
 Sometimes you need to add missing runtime packages in the custom image built or change some settings. This can be done by either add a new script in the packer JSON configuration files or by updating one of the existing script called by packer.
 
-For example, below is the content of the `centos-7.8-desktop-3d.json` packer file, if you want to add custom packages one way would be to change the `desktop-packages.sh` located in the `./packer/scripts` directory.
+For example, below is the content of the `centos-7.8-desktop-3d.json` packer file, if you want to add custom packages one way would be to change the `desktop-packages.sh` located in the `./packer/scripts/centos` directory.
 
 ```yml
     "provisioners": [
         {
             "type": "file",
-            "source": "scripts",
+            "source": "scripts/centos/",
             "destination": "/tmp"
         },
         {
             "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E sh '{{ .Path }}'",
             "inline": [
-                "chmod +x /tmp/scripts/*.sh",
-                "/tmp/scripts/linux-setup.sh",
-                "/tmp/scripts/lustreclient2.12.5_centos7.8.sh",
-                "/tmp/scripts/interactive-desktop-3d.sh",
-                "/tmp/scripts/desktop-packages.sh",
-                "/tmp/scripts/pbspro.sh",
-                "/tmp/scripts/telegraf.sh",
+                "chmod +x /tmp/*.sh",
+                "/tmp/linux-setup.sh",
+                "/tmp/lustreclient2.12.5_centos7.8.sh",
+                "/tmp/interactive-desktop-3d.sh",
+                "/tmp/desktop-packages.sh",
+                "/tmp/pbspro.sh",
+                "/tmp/telegraf.sh",
+                "echo ' This is the end '",
+                "yum history sync",
                 "rm -rf /tmp/scripts",
                 "/usr/sbin/waagent -force -deprovision+user && export HISTSIZE=0 && sync"
             ],
