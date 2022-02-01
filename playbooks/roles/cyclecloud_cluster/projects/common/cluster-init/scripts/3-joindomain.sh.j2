@@ -1,21 +1,22 @@
 #!/bin/bash
-packages="sssd realmd oddjob oddjob-mkhomedir adcli samba-common samba-common-tools krb5-workstation openldap-clients policycoreutils-python"
+script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$script_dir/../files/azhop-helpers.sh" 
+read_os
 
-if ! rpm -q $packages; then
-  echo "Installing packages $packages" 
-  yum install -y $packages
-  echo "Restart dbus systemd-logind"
-  systemctl restart dbus
-  systemctl restart systemd-logind
-fi
-
-echo "Update nameserver"
-# https://docs.microsoft.com/en-us/azure/virtual-machines/linux/azure-dns
-echo "RES_OPTIONS=\"timeout:1 attempts:5\"" >> /etc/sysconfig/network 
-
+ADMIN_DOMAIN={{ ad_join_domain }}
+ADMIN_NAME={{ ad_join_user }}
+ADMIN_PASSWORD={{ cc_password }}
 NAMESERVER={{ ad_dns }}
+LDAP_SERVER={{ ldap_server }}
 
-sed -i "s/nameserver.*/nameserver ${NAMESERVER}\nnameserver 168.63.129.16/g" /etc/resolv.conf
+source $script_dir/../files/$os_release/init_joindomain.sh $NAMESERVER $LDAP_SERVER $ADMIN_DOMAIN
+
+grep -v nameserver /etc/resolv.conf > /etc/resolv.conf.new
+echo "nameserver ${NAMESERVER}" >> /etc/resolv.conf.new
+echo "nameserver 168.63.129.16" >> /etc/resolv.conf.new
+mv /etc/resolv.conf.new /etc/resolv.conf
+
+#sed -i "s/nameserver.*/nameserver ${NAMESERVER}\nnameserver 168.63.129.16/g" /etc/resolv.conf
 
 echo "supersede domain-name-servers ${NAMESERVER};" > /etc/dhcp/dhclient.conf
 echo "append domain-name-servers 168.63.129.16;" >> /etc/dhcp/dhclient.conf
@@ -28,9 +29,6 @@ Host *
     UserKnownHostsFile /dev/null
 EOF
 
-ADMIN_DOMAIN={{ ad_join_domain }}
-ADMIN_NAME={{ ad_join_user }}
-ADMIN_PASSWORD={{ cc_password }}
 
 delay=15
 n=1
@@ -62,37 +60,6 @@ sed -i 's@ldap_id_mapping.*@ldap_id_mapping = False@' /etc/sssd/sssd.conf
 systemctl restart sssd
 systemctl restart sshd
 
-function enfore_hostname() {
-  local system_hostname=$1
-  local target_hostname=$2
-
-  # ensure the correct hostname (update if necessary)
-  echo "ensure the correct hostname (update if necessary)"
-  #ipaddr=$(hostname -i)
-  #system_hostname=$(hostname)
-  #target_hostname="ip-$(printf '%02X' ${ipaddr//./ })"
-  #target_hostname=$(jetpack config cyclecloud.node.name)
-  if [ "$system_hostname" != "$target_hostname" ]; then
-    logger -s "Warning: incorrect hostname ($system_hostname), it should be $target_hostname, updating"
-    hostname $target_hostname
-  fi
-  if grep -i $system_hostname /etc/hosts; then
-    logger -s "Warning: incorrect hostname ($system_hostname) in /etc/hosts, updating"
-    sed -i "s/$system_hostname/$target_hostname/ig" /etc/hosts
-  fi
-  etc_hostname=$(</etc/hostname)
-  if [ "$etc_hostname" != "$target_hostname" ]; then
-    logger -s "Warning: incorrect /etc/hostname ($etc_hostname), it should be $target_hostname, updating"
-    echo $target_hostname > /etc/hostname
-  fi
-  eth0_hostname=$(grep DHCP_HOSTNAME /etc/sysconfig/network-scripts/ifcfg-eth0 | cut -d'=' -f2)
-  if [ "$eth0_hostname" != "$target_hostname" ]; then
-    logger -s "Warning: incorrect DHCP_HOSTNAME in /etc/sysconfig/network-scripts/ifcfg-eth0 ($etc_hostname), it should be $target_hostname, updating"
-    sed -i "s/^DHCP_HOSTNAME=.*\$/DHCP_HOSTNAME=$target_hostname/g" /etc/sysconfig/network-scripts/ifcfg-eth0
-    systemctl restart NetworkManager
-  fi
-}
-
 n=1
 while true; do
   current_hostname=$(hostname)
@@ -101,7 +68,7 @@ while true; do
   if [[ $n -le $max_retry ]]; then
     if [ "$current_hostname" != "$target_hostname" ]; then
       logger -s "hostname not renamed -  Attempt $n/$max_retry:"
-      enfore_hostname $current_hostname $target_hostname
+      enforce_hostname $current_hostname $target_hostname
       sleep $delay
     else
       logger -s "hostname successfully renamed"

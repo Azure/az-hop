@@ -137,6 +137,13 @@ images:
     hyper_v: V1
     os_type: Linux
     version: 7.8
+  - name: azhop-ubuntu18.04
+    publisher: azhop
+    offer: Ubuntu
+    sku: 10_04
+    hyper_v: V2
+    os_type: Linux
+    version: 18.04
 queues:
   - name: execute
     vm_size: Standard_F2s_v2
@@ -162,6 +169,11 @@ queues:
     vm_size: Standard_HB120rs_v3
     max_core_count: 2880
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    spot: true
+  - name: hbv3u18
+    vm_size: Standard_HB120rs_v3
+    max_core_count: 2880
+    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-ubuntu18.04/latest
     spot: true
   - name: viz3d
     vm_size: Standard_NV6

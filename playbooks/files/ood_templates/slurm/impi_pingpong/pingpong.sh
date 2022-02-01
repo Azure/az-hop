@@ -4,6 +4,7 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH -p hc44rs
 #SBATCH -t 5
+#SBATCH --export=NONE
 
 source /etc/profile.d/modules.sh
 module use /usr/share/Modules/modulefiles

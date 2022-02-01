@@ -1,9 +1,13 @@
 #!/bin/bash
+# Pre-requisites:
+# - jq installed
+
 # Apply default configuration to the node
 # Remote read access to the cluster init script files for all users
 chmod 700 -R /mnt/cluster-init
 
 # change access to resource so that temp jobs can be written there
+# FIXME : /mnt/resource doesn't exists on Ubuntu
 chmod 777 /mnt/resource
 
 # Grant sudo for users with sudo privilege
@@ -21,3 +25,8 @@ case $AZHPC_VMSIZE in
     systemctl restart gdm
   ;;
 esac
+
+# Create a symlink for the Modules to allow compatibility with the HPC CentOS image which have Modules in capital case
+if [ ! -d /usr/share/Modules ]; then
+    ln -s /usr/share/modules /usr/share/Modules
+fi

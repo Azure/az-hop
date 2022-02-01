@@ -31,8 +31,10 @@ function check_ib_device()
 
         standard_hc44rs|standard_hb60rs|standard_hb120rs_v2|standard_hb120*rs_v3|standard_nd96asr_v4)
             # Retrieve IB info
-            ib_device=$(ifconfig 2>/dev/null | grep ib0 -A1 | grep inet | tr -s ' ' | cut -d' ' -f 3)
-            if [ -n "$ib_device" ]; then
+            # The below commented lines are failing if IPoIB is not set while an IB device is present
+            #ib_device=$(ifconfig 2>/dev/null | grep "inet 172.16" | tr -s ' ' | cut -d' ' -f 3)
+            #if [ -n "$ib_device" ]; then
+            if ifconfig ib0; then
                 IB_STATE=$(ibv_devinfo -d mlx5_ib0 | grep state | xargs | cut -d' ' -f2)
                 IB_RATE=$(ibv_devinfo -d mlx5_ib0 -v | grep active_width | cut -d':' -f2 | xargs | cut -d' ' -f1)
                 IB_SPEED=$(ibv_devinfo -d mlx5_ib0 -v | grep active_speed | cut -d':' -f2 | xargs | cut -d'(' -f1 | xargs)

@@ -78,6 +78,12 @@ network:
   peering: # This is optional, and can be used to create a VNet Peering in the same subscription.
     vnet_name: #"VNET Name to Peer to"
     vnet_resource_group: #"Resource Group of the VNET to peer to"
+
+# Specify DNS forwarders available in the network
+# dns:
+#   forwarders:
+#     - { name: foo.com, ips: "10.2.0.4, 10.2.0.5" }
+
 # When working in a locked down network, uncomment and fill out this section
 locked_down_network:
   enforce: false
@@ -210,6 +216,13 @@ images:
     hyper_v: V1
     os_type: Linux
     version: 7.8
+  - name: azhop-ubuntu18.04
+    publisher: azhop
+    offer: Ubuntu
+    sku: 10_04
+    hyper_v: V2
+    os_type: Linux
+    version: 18.04
 # List of queues (node arays in Cycle) to be defined
 queues:
   - name: execute # name of the Cycle Cloud node array
