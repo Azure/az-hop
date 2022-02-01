@@ -78,6 +78,12 @@ network:
   peering: # This is optional, and can be used to create a VNet Peering in the same subscription.
     vnet_name: #"VNET Name to Peer to"
     vnet_resource_group: #"Resource Group of the VNET to peer to"
+
+# Specify DNS forwarders available in the network
+# dns:
+#   forwarders:
+#     - { name: foo.com, ips: "10.2.0.4, 10.2.0.5" }
+
 # When working in a locked down network, uncomment and fill out this section
 locked_down_network:
   enforce: false
