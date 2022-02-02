@@ -29,7 +29,9 @@
   shell: |
     source ~/{{ test_queue_manager }}_helpers.sh
     source ~/.bash_profile
-    submit_job {{job_name}} 1 1 {{item.name}} ~/job.sh {{item.vm_size}}
+    if [ {{item.max_core_count}} -gt 0 ]; then
+      submit_job {{job_name}} 1 1 {{item.name}} ~/job.sh {{item.vm_size}}
+    fi
   with_items: "{{test_queues}}"
 
 - name: wait jobs
