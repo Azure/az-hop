@@ -16,10 +16,12 @@ playbooks/group_vars/*
 playbooks/image_lookup.yml
 playbooks/*.ok
 
-# ssk keys
+# ssh keys
 *.pub
 *id_rsa*
 *.pem
+*.key
+*.crt
 
 # bin
 bin/*
