@@ -4,6 +4,20 @@
   hosts: jumpbox
   become: true
 
+- name: Ensure Lemur version
+  hosts: lustre-oss-*:robinhood
+  become: true
+  gather_facts: no
+  vars_files:
+    - '{{global_config_file}}'
+  tasks:
+    shell: |
+      min_ver="2.1.2"
+      ver=$(rpm -q --qf "%{VERSION}" lemur-azure-hsm-agent)
+      if [ $? -gt 0 ] || [ "$ver" != "$(printf "$min_ver\n$ver" | sort -t '.' -k 1,1 -k 2,2 -k 3,3 -g | tail -n1)" ]; then
+        yum -y install https://github.com/edwardsp/lemur/releases/download/2.1.2/lemur-azure-data-movers-${min_ver}-lustre_2.12.x86_64.rpm https://github.com/edwardsp/lemur/releases/download/2.1.2/lemur-azure-hsm-agent-${min_ver}-lustre_2.12.x86_64.rpm
+      fi
+
 - name: Lustre MDS setup
   hosts: lustre
   become: true
@@ -132,8 +146,10 @@
       mode: 0600
       content: |
         num_threads=16
+        az_storage_suffix="{{ blob_storage_suffix }}"
         az_storage_account="{{ lustre_hsm_storage_account }}"
         az_kv_name="{{ key_vault }}"
+        az_kv_suffix="{{ key_vault_suffix }}"
         az_kv_secret_name="lustre-{{ lustre_hsm_storage_account }}-{{ lustre_hsm_storage_container }}-sas"
         region="westeurope"
         bandwidth=0
@@ -160,6 +176,7 @@
         ExecStartPre=/bin/mkdir -p /var/run/lhsmd
         ExecStart=/sbin/lhsmd -config /etc/lhsmd/agent
         Restart=always
+        Environment=AZURE_ENVIRONMENT={{ azure_environment }}
         [Install]
         WantedBy=multi-user.target
   - name: systemd daemon reload
@@ -208,23 +225,12 @@
     stat:
       path: /lustre.hydrated
     register: stat_hydrated
-  - name: Read Password from KV
-    command: |
-      az keyvault secret show
-      --vault-name {{ key_vault }}
-      --name lustre-{{ lustre_hsm_storage_account }}-{{ lustre_hsm_storage_container }}-sas
-      --query "value"
-      -o tsv
-    delegate_to: localhost
-    connection: local
-    register: lustre_sas
-    become: false
-    when: not stat_hydrated.stat.exists
   - name: hydrate lustre
     shell: |
       export STORAGE_SAS="{{ lustre_sas.stdout }}"
+      export AZURE_ENVIRONMENT={{ azure_environment }}
       cd /lustre
-      azure-import -account "{{ lustre_hsm_storage_account }}" -container "{{ lustre_hsm_storage_container }}"
+      azure-import -account "{{ lustre_hsm_storage_account }}" -container "{{ lustre_hsm_storage_container }}" -suffix "{{ blob_storage_suffix }}" -kvname "{{ key_vault }}" -kvsuffix "{{ Key_vault_suffix }}" -kvsecret "lustre-{{ lustre_hsm_storage_account }}-{{ lustre_hsm_storage_container }}-sas"
       touch /lustre.hydrated
     when: not stat_hydrated.stat.exists
 
@@ -734,8 +740,9 @@
 
         [Service]
         Type=simple
-        ExecStart=/sbin/changelog-reader -account "{{ lustre_hsm_storage_account }}" -container "{{ lustre_hsm_storage_container }}" -kvname "{{ key_vault }}" -kvsecret "lustre-{{ lustre_hsm_storage_account }}-{{ lustre_hsm_storage_container }}-sas" -mdt LustreFS-MDT0000 -userid cl2
+        ExecStart=/sbin/changelog-reader -account "{{ lustre_hsm_storage_account }}" -suffix "{{ blob_storage_suffix }}" -container "{{ lustre_hsm_storage_container }}" -kvname "{{ key_vault }}" -kvsuffix "{{ key_vault_suffix }}" -kvsecret "lustre-{{ lustre_hsm_storage_account }}-{{ lustre_hsm_storage_container }}-sas" -mdt LustreFS-MDT0000 -userid cl2
         Restart=always
+        Environment=AZURE_ENVIRONMENT={{ azure_environment }}
 
         [Install]
         WantedBy=multi-user.target
