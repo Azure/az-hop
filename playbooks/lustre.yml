@@ -228,7 +228,6 @@
     register: stat_hydrated
   - name: hydrate lustre
     shell: |
-      export STORAGE_SAS="{{ lustre_sas.stdout }}"
       export AZURE_ENVIRONMENT={{ azure_environment }}
       cd /lustre
       azure-import -account "{{ lustre_hsm_storage_account }}" -container "{{ lustre_hsm_storage_container }}" -suffix "{{ blob_storage_suffix }}" -kvname "{{ key_vault }}" -kvsuffix "{{ Key_vault_suffix }}" -kvsecret "lustre-{{ lustre_hsm_storage_account }}-{{ lustre_hsm_storage_container }}-sas"
