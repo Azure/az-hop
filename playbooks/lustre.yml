@@ -11,6 +11,7 @@
   vars_files:
     - '{{global_config_file}}'
   tasks:
+  - name: install Lemur if not the required version
     shell: |
       min_ver="2.1.2"
       ver=$(rpm -q --qf "%{VERSION}" lemur-azure-hsm-agent)
