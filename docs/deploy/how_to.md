@@ -117,7 +117,7 @@ Make sure to update your configuration file to specify the FQDN name of the on-d
 ondemand:
   vm_size: Standard_D4s_v5
   fqdn: azhop.foo.com # When provided it will be used for the certificate server name
-  generate_certificates: false 
+  generate_certificate: false 
 ```
 If you want to generate your own self signed certificate here is how to proceed
 

@@ -99,7 +99,7 @@ ad:
 ondemand:
   vm_size: Standard_D4s_v5
   #fqdn: azhop.foo.com # When provided it will be used for the certificate server name, but only in a non public IP configuration
-  generate_certificates: true # Generate an SSL certificates for the OnDemand portal. Default to true
+  generate_certificate: true # Generate an SSL certificate for the OnDemand portal. Default to true
 # Grafana VM configuration
 grafana:
   vm_size: Standard_B2ms
