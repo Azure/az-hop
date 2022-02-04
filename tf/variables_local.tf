@@ -1,4 +1,9 @@
 locals {
+    # azure environment
+    azure_environment = var.AzureEnvironment
+    key_vault_suffix = var.KeyVaultSuffix
+    blob_storage_suffix = var.BlobStorageSuffix
+
     # azurerm_client_config contains empty values for Managed Identity so use variables instead
     tenant_id = var.tenant_id
     logged_user_objectId = var.logged_user_objectId

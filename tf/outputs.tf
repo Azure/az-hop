@@ -22,6 +22,9 @@ resource "local_file" "AnsibleInventory" {
 resource "local_file" "global_variables" {
   sensitive_content = templatefile("${local.playbooks_template_dir}/global_variables.tmpl",
     {
+      azure_environment   = local.azure_environment
+      key_vault_suffix    = local.key_vault_suffix
+      blob_storage_suffix = local.blob_storage_suffix
       admin_username      = local.admin_username
       ssh_public_key      = tls_private_key.internal.public_key_openssh
       cc_storage          = azurerm_storage_account.azhop.name

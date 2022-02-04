@@ -1,3 +1,15 @@
+variable AzureEnvironment {
+  default = "AZUREPUBLICCLOUD"
+}
+
+variable KeyVaultSuffix {
+  default = "vault.azure.net"
+}
+
+variable BlobStorageSuffix {
+  default = "blob.core.windows.net"
+}
+
 variable CreatedBy {
   default = ""
 }
