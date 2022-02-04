@@ -82,7 +82,14 @@
           state: present
         with_items: '{{dns.forwarders}}'
         when: dns.forwarders is defined
-  
+
+      - name: Add az-hop admin group
+        community.windows.win_domain_group:
+          name: az-hop-admins
+          state: present
+          description: Members of this group can perform administrative tasks on the az-hop environment
+          scope: domainlocal
+
     always:
       - name: close session on local port
         shell: ps aux | grep localhost:5985 | grep -v grep | awk '{print "kill -9 " $2}' | sh

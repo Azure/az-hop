@@ -17,8 +17,14 @@
       timeout: 300
   - name: Gather facts for first time
     setup:
+
   - name: Call tests role
     include_role:
       name: tests
     vars:
-      scheduler: '{{ queue_manager | default("openpbs") }}'
+      test_queue_manager: '{{ queue_manager | default("openpbs") }}'
+      test_user: '{{users[0].name}}'
+      test_mounts:
+        - '{{mounts.home.mountpoint | default("/anfhome")}}'
+        - "/lustre"
+      test_queues: '{{queues}}'

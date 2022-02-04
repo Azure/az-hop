@@ -22,6 +22,9 @@ resource "local_file" "AnsibleInventory" {
 resource "local_file" "global_variables" {
   sensitive_content = templatefile("${local.playbooks_template_dir}/global_variables.tmpl",
     {
+      azure_environment   = local.azure_environment
+      key_vault_suffix    = local.key_vault_suffix
+      blob_storage_suffix = local.blob_storage_suffix
       admin_username      = local.admin_username
       ssh_public_key      = tls_private_key.internal.public_key_openssh
       cc_storage          = azurerm_storage_account.azhop.name
@@ -33,7 +36,7 @@ resource "local_file" "global_variables" {
       ad-ip               = azurerm_network_interface.ad-nic.private_ip_address
       anf-home-ip         = local.create_anf ? element(azurerm_netapp_volume.home[0].mount_ip_addresses, 0) : local.configuration_yml["mounts"]["home"]["server"]
       anf-home-path       = local.create_anf ? azurerm_netapp_volume.home[0].volume_path : local.configuration_yml["mounts"]["home"]["export"]
-      ondemand-fqdn       = local.allow_public_ip ? azurerm_public_ip.ondemand-pip[0].fqdn : azurerm_network_interface.ondemand-nic.private_ip_address
+      ondemand-fqdn       = local.allow_public_ip ? azurerm_public_ip.ondemand-pip[0].fqdn : try( local.configuration_yml["ondemand"]["fqdn"], azurerm_network_interface.ondemand-nic.private_ip_address)
       subscription_id     = data.azurerm_subscription.primary.subscription_id
       tenant_id           = data.azurerm_subscription.primary.tenant_id
       key_vault           = azurerm_key_vault.azhop.name

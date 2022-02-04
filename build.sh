@@ -149,6 +149,39 @@ fi
 export TF_VAR_CreatedBy=${logged_user_upn}
 echo "terraform -chdir=$TF_FOLDER $TF_COMMAND $PARAMS"
 
+# Retrieve on which cloud environment we run on
+# env details from here: https://github.com/hashicorp/terraform-provider-azurerm/blob/main/vendor/github.com/Azure/go-autorest/autorest/azure/environments.go
+# TODO: check az environmentName for AzureChina and AzureGerman
+cloud_env="Public"
+account_env=$(az account show | jq '.environmentName' -r)
+case "$account_env" in
+  AzureChinaCloud)
+    export TF_VAR_AzureEnvironment=AZURECHINACLOUD
+    export TF_VAR_KeyVaultSuffix=vault.azure.cn
+    export TF_VAR_BlobStorageSuffix=blob.core.chinacloudapi.cn
+    ;;
+  AzureGermanCloud)
+    export TF_VAR_AzureEnvironment=AZUREGERMANCLOUD
+    export TF_VAR_KeyVaultSuffix=vault.microsoftazure.de
+    export TF_VAR_BlobStorageSuffix=blob.core.cloudapi.de
+    ;;
+  AzureCloud)
+    export TF_VAR_AzureEnvironment=AZUREPUBLICCLOUD
+    export TF_VAR_KeyVaultSuffix=vault.azure.net
+    export TF_VAR_BlobStorageSuffix=blob.core.windows.net
+    ;;
+  AzureUSGovernment)
+    export TF_VAR_AzureEnvironment=AZUREUSGOVERNMENTCLOUD
+    export TF_VAR_KeyVaultSuffix=vault.usgovcloudapi.net
+    export TF_VAR_BlobStorageSuffix=blob.core.usgovcloudapi.net
+    ;;
+  *)
+    echo "ERROR: Unknown Azure environment ${account_env}"
+    exit 1
+    ;;
+esac
+
+
 # -parallelism=30
 TF_LOG="TRACE"
 TF_LOG_PATH="$THIS_DIR/tf/terraform.log"

@@ -38,6 +38,7 @@
     password: '{{password.stdout}}'
     password_never_expires: true
     state: present
+    groups_action: replace
     groups:
       - Domain Users
     attributes:
@@ -47,19 +48,12 @@
       unixhomedirectory: "{{ user_home }}"
       gidnumber: "{{user.gid}}"
 
+# Add admin users into the az-hop-admins group
 - name: add Admin
   community.windows.win_domain_user:
     name: "{{ user.name }}"
-    firstname: "{{ user.name }}"
-    password: '{{password.stdout}}'
-    password_never_expires: true
     state: present
     groups:
-      - Domain Admins
-    attributes:
-      uidNumber: "{{ user.uid }}"
-      uid: "{{ user.name }}"
-      loginShell: "{{ user_shell }}"
-      unixhomedirectory: "{{ user_home }}"
-      gidnumber: "{{user.gid}}"
+      - az-hop-admins
+
   when: user.admin | default(false)

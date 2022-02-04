@@ -109,14 +109,25 @@ In such scenario you need to use a `deployer` VM, make sure that this VM can acc
 > Note: One option is to provision that VM in the `admin` subnet and open an NSG rule for allowing SSH from that machine to the `jumbox`.
 
 ## Use your own SSL certificate
-In a no public IP scenario, you will have to provide your own SSL certificate. If you want to generate your own self signed certificate here is how to proceed
+In a no public IP scenario, you will have to provide your own SSL certificate. 
+Make sure to update your configuration file to specify the FQDN name of the on-demand portal and that you don't want to generate a certificate.
+
+```yml
+# On demand VM configuration
+ondemand:
+  vm_size: Standard_D4s_v5
+  fqdn: azhop.foo.com # When provided it will be used for the certificate server name
+  generate_certificate: false 
+```
+If you want to generate your own self signed certificate here is how to proceed
 
 ```bash
 openssl req -nodes -new -x509 -keyout certificate.key -out certificate.crt
 ```
 
-Copy both files `certificate.key` and `certificate.crt` in the `./playbooks` directory and renamed them with the `ondemand_fqdn` variable value defined in the `./playbooks/group_vars/all.yml` file.
+Copy both files `certificate.key` and `certificate.crt` in the `./playbooks` directory and renamed them `<ondemand_fqdn>.crt` and `<ondemand_fqdn>.key`. The `ondemand_fdqn` variable value can be found in the `./playbooks/group_vars/all.yml` file.
 
+> Note: If you have an intermediate or chain file make sur to name it `<ondemand_fqdn>_chain.crt` 
 The playbook configuring OnDemand is expecting to find these files and will copy them in the ondemand VM when the no PIP option is set.
 
 ## Not deploy ANF
