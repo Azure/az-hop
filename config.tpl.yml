@@ -169,8 +169,11 @@ slurm:
 authentication:
   httpd_auth: basic # oidc or basic
   # User mapping https://osc.github.io/ood-documentation/latest/reference/files/ood-portal-yml.html#ood-portal-generator-user-map-match
+  # You can specify either a map_match or a user_map_cmd
   # Domain users are mapped to az-hop users with the same name and without the domain name
   # user_map_match: '^([^@]+)@mydomain.foo$'
+  # If using a custom mapping script, update it from the ./playbooks/files directory before running the playbook
+  # user_map_cmd: /opt/ood/ood_auth_map/bin/custom_mapping.sh
   # ood_auth_openidc:
   #   OIDCProviderMetadataURL: # for AAD use 'https://sts.windows.net/{{tenant_id}}/.well-known/openid-configuration'
   #   OIDCClientID: 'XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX'
