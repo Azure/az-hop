@@ -69,7 +69,7 @@
 
 - name: Configure Pyxis plugin
   block:
-    - name: Instlal pyxis plugin
+    - name: Install pyxis plugin
       copy:
         src: '{{homedir_mountpoint}}/slurm/spank_pyxis.so'
         remote_src: yes
