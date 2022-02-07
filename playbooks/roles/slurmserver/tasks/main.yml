@@ -338,3 +338,8 @@
   copy:
     src: files/slurm.logrotate
     dest: /etc/logrotate.d/slurm
+
+- include: pyxis.yml
+  become: true
+  tags: [ 'pyxis' ]
+  when: enroot_enabled

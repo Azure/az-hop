@@ -89,4 +89,5 @@
       slurm_gid: 11100
       munge_uid: 11101
       munge_gid: 11101
-
+      enroot_enabled: '{{slurm.enroot_enabled | default(false)}}'
+      enroot_scratch_dir: '/mnt/resource'

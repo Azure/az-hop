@@ -167,6 +167,9 @@ queue_manager: openpbs
 slurm:
   # Enable SLURM accounting, this will create a SLURM accounting database in a managed MySQL server instance
   accounting_enabled: false
+  # Enable container support for SLURM using Enroot/Pyxis (global switch)
+  # Each queue with container support must have its own enroot_enabled switch set to true
+  enroot_enabled: false
 
 # Authentication configuration for accessing the az-hop portal
 # Default is basic authentication. For oidc authentication you have to specify the following values
@@ -235,6 +238,8 @@ queues:
     spot: false
     # Set to false to disable creation of placement groups. Default is true
     ColocateNodes: false
+    # Set to true to enable Enroot for this partition
+    enroot_enabled: false
   - name: hc44rs
     vm_size: Standard_HC44rs
     max_core_count: 440

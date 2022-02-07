@@ -107,4 +107,7 @@ Autoscale = true
       {% else %}
         slurm.hpc = false
       {% endif %}
+      {% if queue.enroot_enabled is defined and queue.enroot_enabled %}
+        [[[cluster-init enroot:default:1.0.0]]]
+      {% endif %}
 {% endfor %}
