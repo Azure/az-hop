@@ -2,9 +2,9 @@
 httpd_auth:
 - AuthType openid-connect
 - Require valid-user
-#user_map_cmd: "/opt/ood/ood_auth_map/bin/ood_auth_map.regex --regex=''^(\\w+)@microsoft.com$''"
+user_map_cmd: '{{authentication.user_map_cmd | default(None)}}' # "/opt/ood/ood_auth_map/bin/ood_auth_map.regex --regex=''^(\\w+)@microsoft.com$''"
 # https://osc.github.io/ood-documentation/latest/reference/files/ood-portal-yml.html#ood-portal-generator-user-map-match
-user_map_match: '{{authentication.user_map_match}}' # '^([^@]+)@microsoft.com$'
+user_map_match: '{{authentication.user_map_match | default(None)}}' # '^([^@]+)@microsoft.com$'
 logout_redirect: '/oidc?logout=https%3A%2F%2F{{ servername }}'
 oidc_uri: /oidc
 #oidc_provider_metadata_url: https://sts.windows.net/{{tenant_id}}/.well-known/openid-configuration

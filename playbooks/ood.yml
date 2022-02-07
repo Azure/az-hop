@@ -171,6 +171,12 @@
       src: favicon.ico
       dest: /var/www/ood/public
 
+  - name: Copy Custom user mapping script
+    copy: 
+      src: files/custom_mapping.sh
+      dest: /opt/ood/ood_auth_map/bin
+      mode: 755
+
   - name: Run the pbsclient role
     include_role:
       name: pbsclient
