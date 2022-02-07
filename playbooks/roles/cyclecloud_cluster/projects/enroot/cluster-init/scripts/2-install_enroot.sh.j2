@@ -10,7 +10,7 @@ ENROOT_CACHE_PATH {{ enroot_scratch_dir }}/enroot-cache/user-\$(id -u)
 ENROOT_DATA_PATH {{ enroot_scratch_dir }}/enroot-data/user-\$(id -u)
 ENROOT_TEMP_PATH {{ enroot_scratch_dir }}/enroot-temp
 ENROOT_SQUASH_OPTIONS -noI -noD -noF -noX -no-duplicates
-ENROOT_MOUNT_HOME n
+ENROOT_MOUNT_HOME y
 ENROOT_RESTRICT_DEV y
 ENROOT_ROOTFS_WRITABLE y
 EOF
