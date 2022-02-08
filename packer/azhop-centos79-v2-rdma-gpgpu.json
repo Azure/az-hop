@@ -35,6 +35,7 @@
                 "/tmp/pbspro.sh",
                 "/tmp/telegraf.sh",
                 "/tmp/lustreclient.sh 2.12.6",
+                "/tmp/enroot.sh 3.4.0-2",
                 "echo ' This is the end '",
                 "yum history sync",
                 "rm -rf /tmp/*.sh",
