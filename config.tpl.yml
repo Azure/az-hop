@@ -231,7 +231,7 @@ queues:
     EnableAcceleratedNetworking: false
     # spot instance support. Default is false
     spot: false
-    # Set to false to disable creation of placement groups. Default is true
+    # Set to false to disable creation of placement groups (for SLURM only). Default is true
     ColocateNodes: false
     # Set to true to enable Enroot for this partition
     enroot_enabled: false
