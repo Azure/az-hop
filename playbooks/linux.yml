@@ -51,7 +51,7 @@
     mount:
       src: '{{ anf_home_ip }}:/{{ anf_home_path }}'
       path: '{{homedir_mountpoint}}'
-      opts: rw,sync,hard,intr
+      opts: rw,hard,rsize=65536,wsize=65536,vers=3,tcp
       state: mounted
       fstype: nfs
 
@@ -77,6 +77,14 @@
     shell: echo "{{ ad_join_password.stdout }}" | realm join -v -U {{ ad_join_user }} {{ ad_join_domain }}
     args:
       creates: /etc/sssd/sssd.conf
+
+  # - name: ReJoin AD domain
+  #   shell: |
+  #     realm leave
+  #     systemctl stop sssd
+  #     rm -rf /var/lib/sss/db/*
+  #     echo "{{ ad_join_password.stdout }}" | realm join -v -U {{ ad_join_user }} {{ ad_join_domain }}
+
 
   - name: configure sssd - use_fully_qualified_names
     lineinfile:
