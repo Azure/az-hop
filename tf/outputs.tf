@@ -3,15 +3,8 @@ resource "local_file" "AnsibleInventory" {
    {
       jumpbox-pip       = local.allow_public_ip ? azurerm_public_ip.jumpbox-pip[0].ip_address : azurerm_network_interface.jumpbox-nic.private_ip_address
       jumpbox-user      = azurerm_linux_virtual_machine.jumpbox.admin_username
-      scheduler-ip      = azurerm_network_interface.scheduler-nic.private_ip_address
-      scheduler-user    = azurerm_linux_virtual_machine.scheduler.admin_username
-      ondemand-ip       = azurerm_network_interface.ondemand-nic.private_ip_address
-      ondemand-user     = azurerm_linux_virtual_machine.ondemand.admin_username
-      ccportal-ip       = azurerm_network_interface.ccportal-nic.private_ip_address
-      grafana-ip        = azurerm_network_interface.grafana-nic.private_ip_address
       ad-ip             = azurerm_network_interface.ad-nic.private_ip_address
       ad-passwd         = azurerm_windows_virtual_machine.ad.admin_password
-      lustre-user       = azurerm_linux_virtual_machine.lustre.admin_username
       lustre-oss-count  = local.lustre_oss_count
       winviz-ip         = try(azurerm_network_interface.winviz-nic[0].private_ip_address, "0.0.0.0")
     }
