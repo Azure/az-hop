@@ -20,6 +20,10 @@ const config: PlaywrightTestConfig = {
             password: process.env.AZHOP_PASSWORD
         },
         trace: 'on-first-retry',
+        launchOptions: {
+            args: ['--window-position=-100,-100', '--window-size=1600,900', '--start-maximized']
+        }
     },
 };
 export default config;
+//browser = playwright.chromium.launch(args=['--window-position=-5,-5'],headless=False)
