@@ -32,8 +32,13 @@ test('Shell Session', async ({browser}) => {
         page.click('text=AZHOP - Cluster Shell Access')
     ]);
     await page1.waitForLoadState('networkidle');
-    await page1.close()
 
+    // Click text=[hpcuser@ondemand ~]$
+    await page1.frame({
+        url: 'about:blank'
+    }).click('text=['+process.env.AZHOP_USER+'@ondemand ~]$');
+
+    await page1.close()
     // Close the browser
     await context.close();
 });
