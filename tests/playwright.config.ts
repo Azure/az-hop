@@ -8,7 +8,7 @@ const config: PlaywrightTestConfig = {
     /* Opt out of parallel tests on CI. */
     workers: process.env.CI ? 1 : undefined,
     globalTimeout: 60 * 60 * 1000,
-    snapshotDir: './snapshots',
+    snapshotDir: './snapshots', 
     reporter: process.env.CI ? 'html' : 'dot',
     use: {
         headless: true,
