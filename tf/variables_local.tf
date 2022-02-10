@@ -81,9 +81,7 @@ locals {
     vnet_id = try(local.configuration_yml["network"]["vnet"]["id"], null)
 
     # VNET Peering
-    create_peering = try(length(local.peering_vnet_name) > 0 ? 1 : 0, 0)
-    peering_vnet_name = try(local.configuration_yml["network"]["peering"]["vnet_name"], null)
-    peering_vnet_resource_group = try(local.configuration_yml["network"]["peering"]["vnet_resource_group"], null)
+    vnet_peering = try(tolist(local.configuration_yml["network"]["peering"]), [])
 
     # Lockdown scenario
     locked_down_network = try(local.configuration_yml["locked_down_network"]["enforce"], false)

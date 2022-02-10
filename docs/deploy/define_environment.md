@@ -75,9 +75,9 @@ network:
         address_prefixes: "10.0.16.0/20"
         create: true
 
-  peering: # This is optional, and can be used to create a VNet Peering in the same subscription.
-    vnet_name: #"VNET Name to Peer to"
-    vnet_resource_group: #"Resource Group of the VNET to peer to"
+#  peering: # This list is optional, and can be used to create VNet Peerings in the same subscription.
+#    - vnet_name: #"VNET Name to Peer to"
+#      vnet_resource_group: #"Resource Group of the VNET to peer to"
 
 # Specify DNS forwarders available in the network
 # dns:
@@ -236,7 +236,7 @@ queues:
     EnableAcceleratedNetworking: false
     # spot instance support. Default is false
     spot: false
-    # Set to false to disable creation of placement groups. Default is true
+    # Set to false to disable creation of placement groups (for SLURM only). Default is true
     ColocateNodes: false
     # Set to true to enable Enroot for this partition
     enroot_enabled: false

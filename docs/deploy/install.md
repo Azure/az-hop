@@ -19,11 +19,12 @@ The simpler is just to run
 ```bash
 ./install.sh
 ```
-and let it go
+and let it go. The script will automatically skip playbooks that have been previously executed and completed successfully.
 
 If you need to apply only a subset then run 
 ```bash
 ./install.sh <target> # with a single target in the list above
 ```
+When requesting the execution of a specific playbook, the script will force execution even if the playbook successfully completed on a previous run.
 
 In case of a transient failure, the install script can be reapplied as most of the settings are idempotent. The script contains a checkpointing mechanism, each sucessfully applied target will have a `.ok` file created in the playbooks directory. If you want to re-apply a target, delete this file and rerun the install script.

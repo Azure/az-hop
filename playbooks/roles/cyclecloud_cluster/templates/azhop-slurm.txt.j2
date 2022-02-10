@@ -105,7 +105,7 @@ Autoscale = true
       {% if queue.ColocateNodes is defined %}
         slurm.hpc = {{ queue.ColocateNodes }}
       {% else %}
-        slurm.hpc = false
+        slurm.hpc = true
       {% endif %}
       {% if queue.enroot_enabled is defined and queue.enroot_enabled %}
         [[[cluster-init enroot:default:1.0.0]]]

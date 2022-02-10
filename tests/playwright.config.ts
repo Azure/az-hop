@@ -8,7 +8,7 @@ const config: PlaywrightTestConfig = {
     /* Opt out of parallel tests on CI. */
     workers: process.env.CI ? 1 : undefined,
     globalTimeout: 60 * 60 * 1000,
-    snapshotDir: './snapshots',
+    snapshotDir: './snapshots', 
     reporter: process.env.CI ? 'html' : 'dot',
     use: {
         headless: true,
@@ -20,6 +20,10 @@ const config: PlaywrightTestConfig = {
             password: process.env.AZHOP_PASSWORD
         },
         trace: 'on-first-retry',
+        launchOptions: {
+            args: ['--window-position=-100,-100', '--window-size=1600,900', '--start-maximized']
+        }
     },
 };
 export default config;
+//browser = playwright.chromium.launch(args=['--window-position=-5,-5'],headless=False)
