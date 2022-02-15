@@ -11,6 +11,14 @@ resource "local_file" "AnsibleInventory" {
   )
   filename = "${local.playbook_root_dir}/inventory"
 }
+resource "local_file" "CISInventory" { 
+  content = templatefile("${local.playbooks_template_dir}/inventory.cis.tmpl",
+   {
+      lustre-oss-count  = local.lustre_oss_count
+    }
+  )
+  filename = "${local.playbook_root_dir}/inventory.cis.yml"
+}
 
 resource "local_file" "global_variables" {
   sensitive_content = templatefile("${local.playbooks_template_dir}/global_variables.tmpl",

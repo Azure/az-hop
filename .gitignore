@@ -10,7 +10,7 @@ packer/*.log
 packer/md5sum.txt
 
 # Ansible auto-generated inventory
-playbooks/inventory
+playbooks/inventory*
 playbooks/extra_vars.yml
 playbooks/group_vars/*
 playbooks/image_lookup.yml
