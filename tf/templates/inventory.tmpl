@@ -8,19 +8,19 @@ all:
     scheduler:
       ansible_host: ${scheduler-ip}
       ansible_ssh_user: ${scheduler-user}
-      ansible_ssh_common_args: '-o ProxyCommand="ssh -i ${jumpbox-user}_id_rsa -W %h:%p ${jumpbox-user}@${jumpbox-pip}"'
+      ansible_ssh_common_args: '-o ProxyCommand="ssh -i ${jumpbox-user}_id_rsa -p ${jumpbox-ssh-port} -W %h:%p ${jumpbox-user}@${jumpbox-pip}"'
     ondemand:
       ansible_host: ${ondemand-ip}
       ansible_ssh_user: ${ondemand-user}
-      ansible_ssh_common_args: '-o ProxyCommand="ssh -i ${jumpbox-user}_id_rsa -W %h:%p ${jumpbox-user}@${jumpbox-pip}"'
+      ansible_ssh_common_args: '-o ProxyCommand="ssh -i ${jumpbox-user}_id_rsa -p ${jumpbox-ssh-port} -W %h:%p ${jumpbox-user}@${jumpbox-pip}"'
     ccportal:
       ansible_host: ${ccportal-ip}
       ansible_ssh_user: ${ondemand-user}
-      ansible_ssh_common_args: '-o ProxyCommand="ssh -i ${jumpbox-user}_id_rsa -W %h:%p ${jumpbox-user}@${jumpbox-pip}"'
+      ansible_ssh_common_args: '-o ProxyCommand="ssh -i ${jumpbox-user}_id_rsa -p ${jumpbox-ssh-port} -W %h:%p ${jumpbox-user}@${jumpbox-pip}"'
     grafana:
       ansible_host: ${grafana-ip}
       ansible_ssh_user: ${ondemand-user}
-      ansible_ssh_common_args: '-o ProxyCommand="ssh -i ${jumpbox-user}_id_rsa -W %h:%p ${jumpbox-user}@${jumpbox-pip}"'
+      ansible_ssh_common_args: '-o ProxyCommand="ssh -i ${jumpbox-user}_id_rsa -p ${jumpbox-ssh-port} -W %h:%p ${jumpbox-user}@${jumpbox-pip}"'
     ad:
       psrp_ssh_proxy: ${jumpbox-pip}
       ansible_host: ${ad-ip}
@@ -40,14 +40,14 @@ all:
     lustre:
       ansible_host: lustre
       ansible_ssh_user: ${lustre-user}
-      ansible_ssh_common_args: '-o ProxyCommand="ssh -i ${jumpbox-user}_id_rsa -W %h:%p ${jumpbox-user}@${jumpbox-pip}"'
+      ansible_ssh_common_args: '-o ProxyCommand="ssh -i ${jumpbox-user}_id_rsa -p ${jumpbox-ssh-port} -W %h:%p ${jumpbox-user}@${jumpbox-pip}"'
 %{ for count in range(lustre-oss-count) }
     lustre-oss-${count}:
       ansible_host: lustre-oss-${count}
       ansible_ssh_user: ${lustre-user}
-      ansible_ssh_common_args: '-o ProxyCommand="ssh -i ${jumpbox-user}_id_rsa -W %h:%p ${jumpbox-user}@${jumpbox-pip}"'
+      ansible_ssh_common_args: '-o ProxyCommand="ssh -i ${jumpbox-user}_id_rsa -p ${jumpbox-ssh-port} -W %h:%p ${jumpbox-user}@${jumpbox-pip}"'
 %{ endfor }
     robinhood:
       ansible_host: robinhood
       ansible_ssh_user: ${lustre-user}
-      ansible_ssh_common_args: '-o ProxyCommand="ssh -i ${jumpbox-user}_id_rsa -W %h:%p ${jumpbox-user}@${jumpbox-pip}"'
+      ansible_ssh_common_args: '-o ProxyCommand="ssh -i ${jumpbox-user}_id_rsa -p ${jumpbox-ssh-port} -W %h:%p ${jumpbox-user}@${jumpbox-pip}"'

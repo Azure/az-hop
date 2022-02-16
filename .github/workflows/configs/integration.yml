@@ -75,6 +75,7 @@ locked_down_network:
 
 jumpbox:
   vm_size: Standard_B2ms
+  ssh_port: 2222 # SSH port used on the public IP, default to 22
 ad:
   vm_size: Standard_B2ms
 ondemand:

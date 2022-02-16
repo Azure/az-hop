@@ -3,6 +3,7 @@ resource "local_file" "AnsibleInventory" {
    {
       jumpbox-pip       = local.allow_public_ip ? azurerm_public_ip.jumpbox-pip[0].ip_address : azurerm_network_interface.jumpbox-nic.private_ip_address
       jumpbox-user      = azurerm_linux_virtual_machine.jumpbox.admin_username
+      jumpbox-ssh-port  = local.jumpbox_ssh_port
       scheduler-ip      = azurerm_network_interface.scheduler-nic.private_ip_address
       scheduler-user    = azurerm_linux_virtual_machine.scheduler.admin_username
       ondemand-ip       = azurerm_network_interface.ondemand-nic.private_ip_address
@@ -45,6 +46,7 @@ resource "local_file" "global_variables" {
       lustre_hsm_storage_container = ( local.lustre_archive_account != null ? local.configuration_yml["lustre"]["hsm"]["storage_container"] : azurerm_storage_container.lustre_archive[0].name )
       mysql-fqdn        = local.slurm_accounting ? azurerm_mysql_server.mysql[0].fqdn : ""
       mysql-user        = local.slurm_accounting_admin_user
+      jumpbox-ssh-port  = local.jumpbox_ssh_port
     }
   )
   filename = "${local.playbook_root_dir}/group_vars/all.yml"
@@ -55,6 +57,7 @@ resource "local_file" "connect_script" {
     {
       jumpbox-pip       = local.allow_public_ip ? azurerm_public_ip.jumpbox-pip[0].ip_address :  azurerm_network_interface.jumpbox-nic.private_ip_address
       jumpbox-user      = azurerm_linux_virtual_machine.jumpbox.admin_username,
+      jumpbox-ssh-port  = local.jumpbox_ssh_port
     }
   )
   filename = "${path.root}/../bin/connect"

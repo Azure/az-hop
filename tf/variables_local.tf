@@ -64,8 +64,8 @@ locals {
     # Lockdown scenario
     locked_down_network = try(local.configuration_yml["locked_down_network"]["enforce"], false)
     grant_access_from   = try(local.configuration_yml["locked_down_network"]["grant_access_from"], [])
-    allow_public_ip = try(local.configuration_yml["locked_down_network"]["public_ip"], true)
-
+    allow_public_ip     = try(local.configuration_yml["locked_down_network"]["public_ip"], true)
+    jumpbox_ssh_port    = try(local.configuration_yml["jumpbox"]["ssh_port"], "22")
     # subnets
     _subnets = {
         ad = "ad",
@@ -122,6 +122,7 @@ locals {
         Bastion = ["22", "3389"]
         Web = ["443", "80"]
         Ssh    = ["22"]
+        Public_Ssh = [local.jumpbox_ssh_port]
         Socks = ["5985"]
         # DNS, Kerberos, RpcMapper, Ldap, Smb, KerberosPass, LdapSsl, LdapGc, LdapGcSsl, AD Web Services, RpcSam
         DomainControlerTcp = ["53", "88", "135", "389", "445", "464", "686", "3268", "3269", "9389", "49152-65535"]
@@ -301,6 +302,10 @@ locals {
         DenyVnetOutbound            = ["3100", "Outbound", "Deny",  "*",   "All",               "tag/VirtualNetwork",       "tag/VirtualNetwork"],
     }
 
+    internet_nsg_rules = {
+        AllowInternetSshIn          = ["200", "Inbound", "Allow", "tcp", "Public_Ssh",                "tag/Internet", "asg/asg-jumpbox"], # Only when using a PIP
+        AllowInternetHttpIn         = ["210", "Inbound", "Allow", "tcp", "Web",                "tag/Internet", "asg/asg-ondemand"], # Only when using a PIP
+    }
     bastion_nsg_rules = {
         AllowBastionIn              = ["530", "Inbound", "Allow", "tcp", "Bastion",            "subnet/bastion",           "tag/VirtualNetwork"],
     }
@@ -311,7 +316,8 @@ locals {
 
     nsg_rules = merge(  local._nsg_rules, 
                         local.no_bastion_subnet ? {} : local.bastion_nsg_rules, 
-                        local.no_gateway_subnet ? {} : local.gateway_nsg_rules)
+                        local.no_gateway_subnet ? {} : local.gateway_nsg_rules,
+                        local.allow_public_ip ? local.internet_nsg_rules : {})
 
 }
 
