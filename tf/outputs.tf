@@ -101,3 +101,17 @@ resource "local_file" "packer_nopip" {
   )
   filename = "${local.packer_root_dir}/options_nopip.json"
 }
+
+resource "local_file" "ci_jumpbox" {
+  sensitive_content = templatefile("${local.playbooks_template_dir}/jumpbox_ci.tmpl",
+    {
+      jumpbox-ssh-port  = local.jumpbox_ssh_port
+    }
+  )
+  filename = "${path.root}/cloud-init/jumpbox.yml"
+}
+
+data "local_file" "ci_jumpbox" {
+  filename = "${path.root}/cloud-init/jumpbox.yml"
+  depends_on = [local_file.ci_jumpbox]
+}

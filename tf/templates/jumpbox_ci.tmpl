@@ -1,0 +1,6 @@
+#cloud-config
+runcmd:
+  - echo "Update SSH port to ${jumpbox-ssh-port}"
+  - sed -i 's/^#Port 22/Port ${jumpbox-ssh-port}/' /etc/ssh/sshd_config
+  - echo "Restart SSH"
+  - systemctl restart sshd
