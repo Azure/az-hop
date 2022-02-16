@@ -2,5 +2,6 @@
 runcmd:
   - echo "Update SSH port to ${jumpbox-ssh-port}"
   - sed -i 's/^#Port 22/Port ${jumpbox-ssh-port}/' /etc/ssh/sshd_config
+  - semanage port -a -t ssh_port_t -p tcp ${jumpbox-ssh-port}
   - echo "Restart SSH"
   - systemctl restart sshd
