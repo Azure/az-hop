@@ -1,5 +1,6 @@
 #!/bin/bash
-REX="([^@]+)%40foo.com"
+REX="([^@]+)%domain.com" # To extract user from user%40domain.com
+#REX="(^\w+)" # To extract firstname from firstname.lastname@domain.com
 INPUT_USER="$1"
 
 if [[ $INPUT_USER =~ $REX ]]; then
