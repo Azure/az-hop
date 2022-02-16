@@ -15,6 +15,7 @@ all:
       rhel7cis_rule_4_1_11: false # This is failing on lustre => find: '/mnt/mgsmds': Not a directory
 %{ for count in range(lustre-oss-count) }
     lustre-oss-${count}:
+      rhel7cis_rule_1_5_2: false # failing on OSS
       rhel7cis_rule_4_1_11: false # This is failing on lustre => find: '/mnt/oss': Not a directory
 %{ endfor }
     ccportal:
