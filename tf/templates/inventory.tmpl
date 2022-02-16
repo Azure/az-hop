@@ -5,6 +5,7 @@ all:
     jumpbox:
       ansible_host: ${jumpbox-pip}
       ansible_ssh_user: ${jumpbox-user}
+      ansible_ssh_port: ${jumpbox-ssh-port}
     scheduler:
       ansible_host: ${scheduler-ip}
       ansible_ssh_user: ${scheduler-user}

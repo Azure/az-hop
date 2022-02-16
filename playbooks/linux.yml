@@ -1,4 +1,30 @@
 ---
+- name: Update SSH for Jumpbox
+  hosts: jumpbox
+  become: true
+  gather_facts: no
+  vars_files:
+    - '{{global_config_file}}'
+
+  tasks:
+  - name: Update SSH port
+    block:
+      - name: Wait 300 seconds for the nodes to be ready
+        wait_for_connection:
+          timeout: 300
+      - name: Gather facts for first time
+        setup:
+      - name: Update SSH config file
+        lineinfile:
+          path: /etc/ssh/sshd_config
+          regexp: '^#Port 22'
+          line: 'Port {{jumpbox_ssh_port}}'
+      - name: Restart SSH service
+        service: 
+          name: sshd
+          state: restarted
+    when: jumpbox_ssh_port != 22
+
 - name: Join AD domain and mount anf-home
   hosts: jumpbox, scheduler, ondemand, grafana
   become: true
