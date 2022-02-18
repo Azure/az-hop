@@ -17,11 +17,13 @@ fi
 
 users=$(yq eval '.users[].name' $AZHOP_CONFIG)
 for user in $users; do
-  current_password=$(az keyvault secret list --vault-name $key_vault --query "[?name=='$user-password'].name" -o tsv)
+  # Because secret names are restricted to '^[0-9a-zA-Z-]+$' we need to remove all other characters
+  secret_name=$(echo $user-password | tr -dc 'a-zA-Z0-9-')
+  current_password=$(az keyvault secret list --vault-name $key_vault --query "[?name=='$secret_name'].name" -o tsv)
   if [ "$current_password" == "" ]; then
     password=$(openssl rand -base64 20)
-    az keyvault secret set --value $password --name $user-password --vault-name $key_vault -o table > /dev/null
-    echo "Generating a password for $user and storing it as secret $user-password in keyvault $key_vault"
+    az keyvault secret set --value $password --name $secret_name --vault-name $key_vault -o table > /dev/null
+    echo "Generating a password for $user and storing it as secret $secret_name in keyvault $key_vault"
   else
     echo "User $user has already a password stored in keyvault $key_vault"
   fi

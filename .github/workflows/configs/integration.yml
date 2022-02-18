@@ -111,6 +111,8 @@ lustre:
 users:
   - { name: hpcuser,   uid: 10001, gid: 5000 }
   - { name: adminuser, uid: 10002, gid: 5000, admin: true, sudo: true }
+  - { name: john.john,   uid: 10003, gid: 5000 }
+
 groups:
   - name: users
     gid: 5000
