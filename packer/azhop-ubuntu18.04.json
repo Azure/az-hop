@@ -18,7 +18,11 @@
             "virtual_network_name": "{{user `var_virtual_network_name`}}",
             "virtual_network_subnet_name": "{{user `var_virtual_network_subnet_name`}}",
             "virtual_network_resource_group_name": "{{user `var_virtual_network_resource_group_name`}}",
-            "cloud_environment_name": "{{user `var_cloud_env`}}"
+            "cloud_environment_name": "{{user `var_cloud_env`}}",
+            "ssh_bastion_host": "{{user `var_ssh_bastion_host`}}",
+            "ssh_bastion_port": "{{user `var_ssh_bastion_port`}}",
+            "ssh_bastion_username": "{{user `var_ssh_bastion_username`}}",
+            "ssh_bastion_private_key_file": "{{user `var_ssh_bastion_private_key_file`}}"
         }
     ],
     "provisioners": [
