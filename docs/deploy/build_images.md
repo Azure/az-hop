@@ -137,3 +137,11 @@ For example, below is the content of the `centos-7.8-desktop-3d.json` packer fil
 Rebuilding a new image version is done by following the steps above.
 
 > Note: For the new image to be used by new instances, make sure that all the existing one have been drained.
+
+> Note: Starting from version **v1.0.16** the jumpbox is now used as an ssh bastion for Packer and no public IP are created for the packer VMs.
+> As a consequence if you have customized packer files, you need to add these parameters in the `builders` section :
+>            "ssh_bastion_host": "{{user `var_ssh_bastion_host`}}",
+>            "ssh_bastion_port": "{{user `var_ssh_bastion_port`}}",
+>            "ssh_bastion_username": "{{user `var_ssh_bastion_username`}}",
+>            "ssh_bastion_private_key_file": "{{user `var_ssh_bastion_private_key_file`}}"
+

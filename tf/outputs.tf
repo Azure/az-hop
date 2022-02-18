@@ -81,26 +81,35 @@ resource "local_file" "packer_pip" {
       resource_group  = local.resource_group
       location        = local.location
       sig_name        = azurerm_shared_image_gallery.sig.name
+      private_virtual_network_with_public_ip = false # Never use public IPs for packer VMs
+      virtual_network_name                   = local.create_vnet ? azurerm_virtual_network.azhop[0].name : data.azurerm_virtual_network.azhop[0].name
+      virtual_network_subnet_name            = local.create_admin_subnet ? azurerm_subnet.compute[0].name : data.azurerm_subnet.compute[0].name
+      virtual_network_resource_group_name    = local.create_vnet ? azurerm_virtual_network.azhop[0].resource_group_name : data.azurerm_virtual_network.azhop[0].resource_group_name
+      ssh_bastion_host = local.allow_public_ip ? azurerm_public_ip.jumpbox-pip[0].ip_address :  azurerm_network_interface.jumpbox-nic.private_ip_address
+      ssh_bastion_port = local.jumpbox_ssh_port
+      ssh_bastion_username = azurerm_linux_virtual_machine.jumpbox.admin_username
+      ssh_bastion_private_key_file = local_file.private_key.filename
     }
   )
   filename = "${local.packer_root_dir}/options.json"
 }
 
-resource "local_file" "packer_nopip" {
-  content = templatefile("${local.packer_root_dir}/templates/options_nopip.json.tmpl",
-    {
-      subscription_id = data.azurerm_subscription.primary.subscription_id
-      resource_group  = local.resource_group
-      location        = local.location
-      sig_name        = azurerm_shared_image_gallery.sig.name
-      private_virtual_network_with_public_ip = local.allow_public_ip
-      virtual_network_name                   = local.create_vnet ? azurerm_virtual_network.azhop[0].name : data.azurerm_virtual_network.azhop[0].name
-      virtual_network_subnet_name            = local.create_admin_subnet ? azurerm_subnet.admin[0].name : data.azurerm_subnet.admin[0].name
-      virtual_network_resource_group_name    = local.create_vnet ? azurerm_virtual_network.azhop[0].resource_group_name : data.azurerm_virtual_network.azhop[0].resource_group_name
-    }
-  )
-  filename = "${local.packer_root_dir}/options_nopip.json"
-}
+# No longer needed as we use the jumpbox as an SSH bastion
+# resource "local_file" "packer_nopip" {
+#   content = templatefile("${local.packer_root_dir}/templates/options_nopip.json.tmpl",
+#     {
+#       subscription_id = data.azurerm_subscription.primary.subscription_id
+#       resource_group  = local.resource_group
+#       location        = local.location
+#       sig_name        = azurerm_shared_image_gallery.sig.name
+#       private_virtual_network_with_public_ip = local.allow_public_ip
+#       virtual_network_name                   = local.create_vnet ? azurerm_virtual_network.azhop[0].name : data.azurerm_virtual_network.azhop[0].name
+#       virtual_network_subnet_name            = local.create_admin_subnet ? azurerm_subnet.admin[0].name : data.azurerm_subnet.admin[0].name
+#       virtual_network_resource_group_name    = local.create_vnet ? azurerm_virtual_network.azhop[0].resource_group_name : data.azurerm_virtual_network.azhop[0].resource_group_name
+#     }
+#   )
+#   filename = "${local.packer_root_dir}/options_nopip.json"
+# }
 
 resource "local_file" "ci_jumpbox" {
   sensitive_content = templatefile("${local.playbooks_template_dir}/jumpbox_ci.tmpl",
