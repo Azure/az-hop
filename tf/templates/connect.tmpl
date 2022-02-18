@@ -7,5 +7,5 @@ elif [[ $1 == "ad" ]]; then
   echo go create tunnel to ad with rdp to localhost:3390
   ssh -i ${jumpbox-user}_id_rsa -fN -L 3390:ad:3389 -p ${jumpbox-ssh-port} ${jumpbox-user}@${jumpbox-pip}
 else
-  exec ssh -i ${jumpbox-user}_id_rsa -p ${jumpbox-ssh-port} -o ProxyCommand="ssh -i ${jumpbox-user}_id_rsa -p ${jumpbox-ssh-port} -W %h:%p ${jumpbox-user}@${jumpbox-pip}" "$@"
+  exec ssh -i ${jumpbox-user}_id_rsa -o ProxyCommand="ssh -i ${jumpbox-user}_id_rsa -p ${jumpbox-ssh-port} -W %h:%p ${jumpbox-user}@${jumpbox-pip}" "$@"
 fi
