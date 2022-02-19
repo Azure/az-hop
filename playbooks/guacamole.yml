@@ -20,7 +20,7 @@
 
   - name: Install Optional dependencies
     yum:
-      name: freerdp-devel, openssl-devel, libvorbis-devel, libwebp-devel
+      name: freerdp-devel, openssl-devel, libvorbis-devel, libwebp-devel, libwebsockets-devel, pulseaudio-libs-devel, libvncserver-devel, pango-devel, openssl-devel, libssh2-devel, dejavu-sans-mono-fonts.noarch, terminus-fonts, terminus-fonts-console
 
   - name: Creates guacamole directory
     file:
