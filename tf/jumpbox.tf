@@ -28,7 +28,8 @@ resource "azurerm_linux_virtual_machine" "jumpbox" {
   network_interface_ids = [
     azurerm_network_interface.jumpbox-nic.id,
   ]
-
+  # Set cloud-init only if ssh port is not default
+  custom_data = local.jumpbox_ssh_port != "22" ? data.local_file.ci_jumpbox.content_base64 : filebase64("cluster-init/empty.yml")
   admin_ssh_key {
     username   = local.admin_username
     public_key = tls_private_key.internal.public_key_openssh

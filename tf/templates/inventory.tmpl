@@ -4,6 +4,7 @@ all:
       psrp_ssh_proxy: ${jumpbox-pip}
     jumpbox:
       ansible_host: ${jumpbox-pip}
+      ansible_ssh_port: ${jumpbox-ssh-port}
       ansible_ssh_common_args:
     scheduler:
     ondemand:
@@ -32,7 +33,7 @@ all:
     robinhood:
   vars:
     ansible_ssh_user: ${jumpbox-user}
-    ansible_ssh_common_args: '-o ProxyCommand="ssh -i ${jumpbox-user}_id_rsa -W %h:%p ${jumpbox-user}@${jumpbox-pip}"'
+    ansible_ssh_common_args: '-o ProxyCommand="ssh -i ${jumpbox-user}_id_rsa -p ${jumpbox-ssh-port} -W %h:%p ${jumpbox-user}@${jumpbox-pip}"'
   children:
     lustre_oss:
       hosts:

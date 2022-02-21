@@ -92,6 +92,7 @@ locked_down_network:
 # Jumpbox VM configuration
 jumpbox:
   vm_size: Standard_B2ms
+  #ssh_port: 2222 # SSH port used on the public IP, default to 22
 # Active directory VM configuration
 ad:
   vm_size: Standard_B2ms
@@ -153,7 +154,7 @@ users:
   # shell: /bin/bash # default to /bin/bash
   # home: /anfhome/<user_name> # default to /homedir_mountpoint/user_name
   # admin: false # true will allow user to have cluster admin privilege - false by default
-  # sudo: true # Allow sudo access - false by default
+  # sudo: true # Allow sudo access on cluster compute nodes - false by default
   - { name: clusteradmin, uid: 10001, gid: 5000, admin: true, sudo: true }
   - { name: clusteruser, uid: 10002, gid: 5000 }
 groups: # Not used today => To be used in the future

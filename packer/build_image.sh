@@ -26,12 +26,13 @@ fi
 # Check config syntax
 yamllint $CONFIG_FILE
 
-nopip=$(yq eval .locked_down_network.public_ip $CONFIG_FILE)
-if [ "$nopip" == "false" ]; then
-  OPTIONS_FILE=options_nopip.json
-else
-  OPTIONS_FILE=options.json
-fi
+# No longer needed as we use the jumpbox as an SSH bastion
+# nopip=$(yq eval .locked_down_network.public_ip $CONFIG_FILE)
+# if [ "$nopip" == "false" ]; then
+#   OPTIONS_FILE=options_nopip.json
+# else
+#   OPTIONS_FILE=options.json
+# fi
 
 PACKER_OPTIONS="-timestamp-ui"
 while (( "$#" )); do

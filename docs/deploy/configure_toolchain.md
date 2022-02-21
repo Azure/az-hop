@@ -22,7 +22,7 @@ git submodule update
 
 ### HPC Rover - Setup the toolchain from a container
 
-The `HPC Rover` is a docker container acting as a sandbox toolchain development environemnt to avoid impacting the local machine configuration. It is the same container if you are using Windows, Linux or macOS, you only need Visual Studio Code.
+The `HPC Rover` is a docker container acting as a sandbox toolchain development environment to avoid impacting the local machine configuration. It is the same container if you are using Windows, Linux or macOS, you only need Visual Studio Code.
 
 <img src="https://code.visualstudio.com/assets/docs/remote/containers/architecture-containers.png" width="75%">
 
