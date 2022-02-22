@@ -1,0 +1,13 @@
+---
+- hosts: scheduler
+#- hosts: jumpbox, scheduler, ondemand, grafana, robinhood, lustre*
+  become: true
+  vars:
+      is_container: false
+
+  roles:
+    - role: "{{ CIS_playbook_dir }}"
+
+- hosts: scheduler
+  tasks:
+    - include: scheduler.yml
