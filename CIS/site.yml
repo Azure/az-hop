@@ -1,7 +1,6 @@
 ---
 - name: Apply CIS hardening
-  hosts: scheduler
-#- hosts: jumpbox, scheduler, ondemand, grafana, robinhood, lustre*
+  hosts: jumpbox, scheduler, ondemand, grafana, robinhood, lustre*
   become: true
   vars:
       is_container: false

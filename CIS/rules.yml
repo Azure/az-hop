@@ -50,13 +50,15 @@ rulesets:
       - rule_5.4.1
       - rule_5.4.2
       - rule_5.4.4
+      - rule_5.5.1.1
+      - rule_5.5.1.2
       - rule_5.5.1.4
       - rule_5.5.2
       - rule_5.5.5
 
   - name: "lot8"
     rules:
-      - rule_6.1.5
+      - rule_6.1.4
       - rule_6.1.5
       - rule_6.2.12
       - rule_6.2.13
