@@ -1,5 +1,6 @@
 ---
-- hosts: scheduler
+- name: Apply CIS hardening
+  hosts: scheduler
 #- hosts: jumpbox, scheduler, ondemand, grafana, robinhood, lustre*
   become: true
   vars:
@@ -8,6 +9,6 @@
   roles:
     - role: "{{ CIS_playbook_dir }}"
 
-- hosts: scheduler
   tasks:
-    - include: scheduler.yml
+    - include: exceptions.yml
+

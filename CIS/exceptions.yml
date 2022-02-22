@@ -1,8 +1,9 @@
 ---
-# Tasks to fix breaking rules
-
 - name: "5.5.2 | L1 | EXCEPTION | Ensure system accounts are secured | Set nologin"
   user:
       name: "postgres"
       shell: /bin/bash
   become: true
+  when: inventory_hostname == "scheduler" # and PBS
+  tags:
+    - always
