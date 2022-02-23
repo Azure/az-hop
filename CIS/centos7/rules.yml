@@ -1,8 +1,8 @@
 ---
 rulesets:
-    - name: "audit"
-      rules:
-        - audit
+  - name: "audit"
+    rules:
+      - audit
 
   - name: "lot1"
     rules:
