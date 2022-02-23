@@ -1,20 +1,32 @@
 #!/bin/bash
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
-lot=$1
+os=$1
+lot=$2
 azhop_playbooks=$THIS_DIR/../playbooks
 
-if [ -z "$CIS_PLAYBOOK_DIR" ]; then
-  echo "The CIS_PLAYBOOK_DIR environment variable is not set. Please set it to the directory where the CIS playbooks are stored."
-  exit 1
-fi
+function usage() {
+    echo "Usage: $0 <os> <lot>"
+    echo "  os: centos7 | centos8"
+    echo "  lot: lot1 | lot2 | lot3"
+    exit 1
+}
 
-RULES=$THIS_DIR/rules.yml
+if [ -z "$os" ]; then
+    usage
+fi
 
 if [ -z "$lot" ]; then
-  echo "Usage: $0 <lot to apply, all for all lots>"
+    usage
+fi
+
+var_name=CIS_PLAYBOOK_DIR_${os}
+if [ -z "${!var_name}" ]; then
+  echo "The $var_name environment variable is not set. Please set (export $var_name=foo) it to the directory where the CIS playbooks for OS $os are stored."
   exit 1
 fi
+
+RULES=$THIS_DIR/$os/rules.yml
+echo "Using CIS playbooks from ${!var_name}"
 
 function appply_rules() {
     lot=$1
@@ -45,7 +57,7 @@ function appply_rules() {
     tags+="run_audit"
 
     echo "Applying tags: $tags"
-    ansible-playbook -i $azhop_playbooks/inventory -i $azhop_playbooks/inventory.cis.yml $THIS_DIR/site.yml --tags "$tags" -e "CIS_playbook_dir=$CIS_PLAYBOOK_DIR"
+    ansible-playbook -i $azhop_playbooks/inventory -i $azhop_playbooks/inventory.cis.yml $THIS_DIR/$os/main.yml --tags "$tags" -e "CIS_playbook_dir=${!var_name}"
 }
 
 appply_rules $lot

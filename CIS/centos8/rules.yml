@@ -1,0 +1,15 @@
+---
+rulesets:
+  - name: "lot1"
+    rules:
+      - cramfs
+      - mounts
+      - aide
+      - rule_1.11
+      - rule_1.3.2
+      - rule_1.3.3
+
+  - name: "audit"
+    rules:
+      - audit
+
