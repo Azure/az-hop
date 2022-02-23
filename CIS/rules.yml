@@ -44,6 +44,7 @@ rulesets:
       - rule_5.1.6
       - rule_5.1.7
       - rule_5.1.9
+      - rule_5.2.2
 
   - name: "lot7"
     rules:
@@ -62,3 +63,7 @@ rulesets:
       - rule_6.1.5
       - rule_6.2.12
       - rule_6.2.13
+
+  - name: "debug"
+    rules:
+      - rule_5.2.2
