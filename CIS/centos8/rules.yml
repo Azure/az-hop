@@ -1,13 +1,79 @@
 ---
 rulesets:
+  - name: "urgent"
+    rules:
+      - rule_1.1.23
+      - rule_5.2.10
+      - rule_5.5.1.1
+      - rule_5.5.1.2
+
   - name: "lot1"
     rules:
       - cramfs
       - mounts
       - aide
-      - rule_1.11
       - rule_1.3.2
       - rule_1.3.3
+      - rule_1.5.1
+      - rule_1.6.1
+      - rule_1.6.2
+      - rule_1.8.1.2
+      - rule_1.8.1.3
+      - rule_1.8.2
+
+  - name: "lot2"
+    rules:
+      - rule_2.2.1.2
+      - sysctl
+      - rule_3.5
+
+  - name: "lot3"
+    rules:
+      - auditd
+
+  - name: "lot4"
+    rules:
+      - rsyslog
+      - rule_4.2.2.1
+      - rule_4.2.2.2
+      - rule_4.2.2.3
+      - rule_4.2.3
+
+  - name: "lot5"
+    rules:
+      - rule_5.1.2
+      - rule_5.1.3
+      - rule_5.1.4
+      - rule_5.1.5
+      - rule_5.1.6
+      - rule_5.1.7
+      - rule_5.1.8
+      - rule_5.1.8
+
+  - name: "lot6"
+    rules:
+      - rule_5.4.1
+      - rule_5.4.2
+      - rule_5.4.3
+      - rule_5.5.1.1
+      - rule_5.5.1.2
+      - rule_5.5.1.4
+      - rule_5.5.2
+      - rule_5.5.5
+      - rule_6.2.3
+
+  - name: "ssh"
+    rules:
+      - rule_5.2.10
+      - rule_5.2.14
+      - rule_5.2.15
+      - rule_5.2.17
+      - rule_5.2.18
+      - rule_5.2.19
+      - rule_5.2.3
+      - rule_5.2.6
+      - rule_5.2.7
+
 
   - name: "audit"
     rules:

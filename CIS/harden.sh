@@ -57,7 +57,7 @@ function appply_rules() {
     tags+="run_audit"
 
     echo "Applying tags: $tags"
-    ansible-playbook -i $azhop_playbooks/inventory -i $azhop_playbooks/inventory.cis.yml $THIS_DIR/$os/main.yml --tags "$tags" -e "CIS_playbook_dir=${!var_name}"
+    ansible-playbook -i $azhop_playbooks/inventory -i $azhop_playbooks/inventory.cis.yml $THIS_DIR/$os/main.yml --tags "$tags" -e "CIS_playbook_dir=${!var_name}" #--list-tasks
 }
 
 appply_rules $lot

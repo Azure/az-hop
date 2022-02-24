@@ -10,4 +10,8 @@ rhel8cis_rule_1_11: false
 
 # RHEL-08-4.2.1.4/4.2.1.5 remote and destation log server name
 rhel8cis_remote_log_server: 
+# rsyslog rules
+rule_4.2.1.4: false
+rule_4.2.1.6: false
+
 

@@ -15,8 +15,8 @@ rhel7cis_rule_5_3_8: false
 rhel7cis_rule_5_3_9: false
 rhel7cis_rule_5_3_12: false
 rhel7cis_rule_5_3_16: false
-rhel7cis_rule_5_3_17: false
+#rhel7cis_rule_5_3_17: false # Ensure SSH LoginGraceTime is set to one minute or less
 rhel7cis_rule_5_3_19: false
-rhel7cis_rule_5_3_20: false # Ensure SSH AllowTcpForwarding is disabled
-rhel7cis_rule_5_3_21: false # Ensure SSH MaxStartups is configured
+#rhel7cis_rule_5_3_20: false # Ensure SSH AllowTcpForwarding is disabled
+#rhel7cis_rule_5_3_21: false # Ensure SSH MaxStartups is configured
 rhel7cis_rule_5_3_22: false
