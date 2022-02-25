@@ -6,7 +6,7 @@
 - name: Read Password from KV
   command: az keyvault secret show --vault-name {{key_vault}} -n {{user.name}}-password --query "value" -o tsv
   delegate_to: localhost
-#  connection: local
+  connection: local
   register: password
   become: false
 
