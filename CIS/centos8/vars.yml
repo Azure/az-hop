@@ -14,4 +14,8 @@ rhel8cis_remote_log_server:
 rule_4.2.1.4: false
 rule_4.2.1.6: false
 
-
+rhel8cis_auditd:
+    space_left_action: rotate
+    action_mail_acct: root
+    admin_space_left_action: suspend
+    max_log_file_action: rotate

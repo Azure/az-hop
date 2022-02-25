@@ -10,6 +10,13 @@ rhel7cis_rule_3_5_1_5: false
 rhel7cis_rule_3_5_1_6: false
 rhel7cis_rule_3_5_1_7: false
 
+# auditd settings
+rhel7cis_auditd:
+    space_left_action: rotate
+    action_mail_acct: root
+    admin_space_left_action: suspend
+    max_log_file_action: rotate
+    
 rhel7cis_rule_5_3_4: false # Ensure SSH access is limited
 rhel7cis_rule_5_3_8: false
 rhel7cis_rule_5_3_9: false
