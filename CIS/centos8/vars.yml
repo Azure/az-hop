@@ -19,3 +19,6 @@ rhel8cis_auditd:
     action_mail_acct: root
     admin_space_left_action: suspend
     max_log_file_action: rotate
+
+# The max_log_file parameter should be based on your sites policy
+rhel8cis_max_log_file_size: 100
