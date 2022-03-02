@@ -1,9 +1,18 @@
 setup_audit: true
 run_audit: true
-rhel7cis_selinux_disable: true
 rhel7cis_firewall: firewalld # This will avoid running rules 3.5.2 for nftables and 3.5.3.1.x for iptables
 # RHEL-07-4.2.1.4/4.2.1.5 remote and destation log server name
 rhel7cis_remote_log_server: 
+
+# Don't disable SE Linux as whole but instead disable only rules needed (1.6x)
+#rhel7cis_selinux_disable: true
+rhel7cis_rule_1_6_1_3: false # Ensure SELinux policy is configured
+rhel7cis_rule_1_6_1_4: false # Ensure the SELinux state is enforcing or permissive
+rhel7cis_rule_1_6_1_5: false # Ensure the SELinux state is enforcing
+
+rhel7cis_rule_2_2_17: false # Ensure nfs-utils is not installed or the nfs-server service is masked
+rhel7cis_rule_2_2_18: false # Ensure rpcbind is not installed or the rpcbind services are masked
+rhel7cis_rule_2_2_19: false # Ensure rsync is not installed or the rsyncd services are masked
 
 rhel7cis_rule_3_5_1_4: false # Ensure firewalld service is enabled and running
 rhel7cis_rule_3_5_1_5: false
