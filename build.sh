@@ -125,9 +125,11 @@ else
   export clientId=$(az account show --query user.name -o tsv)
   case "${clientId}" in
       "systemAssignedIdentity")
-          vmname=$(curl -s --noproxy "*" -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2019-08-15" | jq -r '.compute.name')
-          echo " - logged in Azure with System Assigned Identity from ${vmname}"
-          export TF_VAR_logged_user_objectId=$(az resource list -n $vmname --query [*].identity.principalId --out tsv)
+          mds=$(curl -s --noproxy "*" -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2019-08-15")
+          vmname=$(echo $mds | jq -r '.compute.name')
+          rgname=$(echo $mds | jq -r '.compute.resourceGroupName')
+          echo " - logged in Azure with System Assigned Identity from ${vmname}/${rgname}"
+          export TF_VAR_logged_user_objectId=$(az resource list -n $vmname -g $rgname --query [*].identity.principalId --out tsv)
           export ARM_TENANT_ID=${TF_VAR_tenant_id}
           export ARM_SUBSCRIPTION_ID=${subscription_id}
           export ARM_USE_MSI=true
