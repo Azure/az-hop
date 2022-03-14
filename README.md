@@ -1,7 +1,7 @@
 # Azure HPC On-Demand Platform, your deployment to be HPC-Ready! 
 
 Azure HPC On-Demand Platform, provides the end to end deployment mechanism for a base HPC infrastructure on Azure. Industry standard tools like Terraform, Ansible and Packer are used to provision and configure this environment containing :
-- An [HPC OnDemand Portal](https://osc.github.io/ood-documentation/master/index.html) for all user access, remote shell access, remote visualization access, job submission, file access and more,
+- An [HPC OnDemand Portal](https://osc.github.io/ood-documentation) for all user access, remote shell access, remote visualization access, job submission, file access and more,
 - An Active Directory for user authentication and domain control,
 - [Open PBS](https://openpbs.org/) as a Job Scheduler,
 - Dynamic resources provisioning and autoscaling is done by [Azure Cycle Cloud](https://docs.microsoft.com/en-us/azure/cyclecloud/?view=cyclecloud-8) pre-configured job queues and integrated health-checks to quickly avoid non-optimal nodes,
