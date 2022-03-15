@@ -91,3 +91,4 @@
       munge_gid: 11101
       enroot_enabled: '{{slurm.enroot_enabled | default(false)}}'
       enroot_scratch_dir: '/mnt/resource'
+      cvmfs_eessi_enabled: '{{cvmfs_eessi.enabled | default(false)}}'
