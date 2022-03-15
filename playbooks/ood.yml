@@ -268,7 +268,7 @@
       baseurl: https://downloads.whamcloud.com/public/lustre/lustre-2.12.6/el7/patchless-ldiskfs-server/
       file: LustrePack
       enabled: yes
-      gpgcheck: no
+      gpgcheck: yes
 
   - name: Add Lustre client repo
     yum_repository:
@@ -277,7 +277,7 @@
       baseurl: https://downloads.whamcloud.com/public/lustre/lustre-2.12.6/el7/client/
       file: LustrePack
       enabled: yes
-      gpgcheck: no
+      gpgcheck: yes
 
   - name: Add e2fs repo
     yum_repository:
@@ -286,7 +286,7 @@
       baseurl: https://downloads.whamcloud.com/public/e2fsprogs/latest/el7/
       file: LustrePack
       enabled: yes
-      gpgcheck: no
+      gpgcheck: yes
 
   - name: Install lustre packages
     yum:
