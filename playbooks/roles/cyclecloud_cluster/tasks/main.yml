@@ -69,6 +69,12 @@
     - '{{common_project_root}}/specs/default/cluster-init/scripts/3-joindomain.bat.j2'
     - '{{common_project_root}}/specs/default/cluster-init/scripts/5-default.sh.j2'
 
+- name: Remove CVMFS if not enabled
+  file:
+    path: '{{common_project_root}}/specs/default/cluster-init/scripts/7-cvmfs-eessi.sh'
+    state: absent
+  when: cvmfs_eessi_enabled == false
+
 - name: Upload common CycleCloud project
   command: '/usr/local/bin/cyclecloud project upload'
   args:

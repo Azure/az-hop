@@ -161,6 +161,10 @@ groups: # Not used today => To be used in the future
   - name: users
     gid: 5000
 
+# Enable cvmfs-eessi - disabled by default
+# cvmfs_eessi:
+#   enabled: true
+
 # scheduler to be installed and configured (openpbs, slurm)
 queue_manager: openpbs
 

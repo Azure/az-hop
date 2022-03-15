@@ -11,3 +11,4 @@ slurm_gid: 11100
 # Munge uid/gid match cyclecloud-slurm cookbook values
 munge_uid: 11101
 munge_gid: 11101
+cvmfs_eessi_enabled: false
