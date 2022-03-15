@@ -1,9 +1,6 @@
 #!/bin/bash
-yum install -y https://ecsft.cern.ch/dist/cvmfs/cvmfs-release/cvmfs-release-latest.noarch.rpm
-yum install -y cvmfs
-yum install -y https://github.com/EESSI/filesystem-layer/releases/download/latest/cvmfs-config-eessi-latest.noarch.rpm
+script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$script_dir/../files/azhop-helpers.sh" 
+read_os
 
-# configure CernVM-FS (no proxy, 10GB quota for CernVM-FS cache)
-bash -c "echo 'CVMFS_HTTP_PROXY=DIRECT' > /etc/cvmfs/default.local"
-bash -c "echo 'CVMFS_QUOTA_LIMIT=10000' >> /etc/cvmfs/default.local"
- cvmfs_config setup
+$script_dir/../files/$os_release/cvmfs-eessi.sh

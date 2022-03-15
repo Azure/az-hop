@@ -51,12 +51,6 @@
     dest: '{{common_project_root}}/specs/default/cluster-init/scripts/5-default.sh'
     mode: 0777
 
-- name: Add cvmfs-eesi script 
-  template:
-    src: '{{role_path}}/projects/common/cluster-init/scripts/7-cvmfs-eessi.sh'
-    dest: '{{common_project_root}}/specs/default/cluster-init/scripts/7-cvmfs-eessi.sh'
-    mode: 0777
-
 - name: Add telegraf configuration file  
   template:
     src: '{{role_path}}/projects/common/cluster-init/files/telegraf.conf.j2'
