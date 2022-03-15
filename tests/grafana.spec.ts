@@ -4,14 +4,16 @@ test('Grafana', async ({browser}) => {
     // create context with HTTP credentials
     const context = await browser.newContext();
 
-    // Open Grafanna
+    // Open Grafana
     const page = await context.newPage();
     await page.goto('/rnode/grafana/3000', { waitUntil: 'networkidle' });
 
     // Click [aria-label="Dashboards"] div
-    await page.click('[aria-label="Dashboards"] div');
+    //await page.click('[aria-label="Dashboards"] div');
     // Click text=Browse >> [data-testid="dropdown-child-icon"]
-    await page.click('text=Browse >> [data-testid="dropdown-child-icon"]');
+    //await page.click('text=Browse >> [data-testid="dropdown-child-icon"]');
+
+    await page.goto('/rnode/grafana/3000/dashboards', { waitUntil: 'networkidle' });
     // Click text=dashboards| Go to folder
     await page.click('text=dashboards| Go to folder');
 
