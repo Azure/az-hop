@@ -6,4 +6,5 @@
   become: true
   when: inventory_hostname == "scheduler" # and PBS
   tags:
-    - always
+#    - always
+    - rule_5.5.2

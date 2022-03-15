@@ -36,3 +36,10 @@ rhel7cis_rule_5_3_19: false
 #rhel7cis_rule_5_3_20: false # Ensure SSH AllowTcpForwarding is disabled
 #rhel7cis_rule_5_3_21: false # Ensure SSH MaxStartups is configured
 rhel7cis_rule_5_3_22: false
+
+# RHEL-07-5.5.4
+# Session timeout setting file (TMOUT setting can be set in multiple files)
+# Timeout value is in seconds. (60 seconds * 30 = 900)
+rhel7cis_shell_session_timeout:
+    file: /etc/profile.d/tmout.sh
+    timeout: 900
