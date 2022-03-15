@@ -12,8 +12,9 @@ function run_playbook ()
   shift
   local extra_vars_file=$@
 
-  # If playbook marker doesn't exists, run it
-  if [ ! -e $PLAYBOOKS_DIR/$playbook.ok ]; then
+  # If running all playbooks and playbook marker doesn't exists, run the playbook
+  # If user requested specific playbook ignore marker file and force run
+  if [ ! -e $PLAYBOOKS_DIR/$playbook.ok ] || [ "$TARGET" != "all" ]; then
     local options=""
     if [ "$extra_vars_file" != "" ]; then
       # Merge overrides variables in a single file
@@ -82,7 +83,7 @@ case $TARGET in
     run_playbook lustre-sas
     run_playbook lustre
   ;;
-  ad | linux | add_users | ccportal | chrony | cccluster | scheduler | grafana | telegraf | ood-custom | winviz | remove_users)
+  ad | linux | add_users | ccportal | chrony | cccluster | scheduler | grafana | telegraf | ood-custom | winviz | remove_users | tests)
     run_playbook $TARGET
   ;;
   ood)

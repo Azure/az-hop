@@ -23,11 +23,11 @@ Autoscale = true
     ShutdownPolicy = Terminate
 
         [[[configuration]]]
-        slurm.version = "20.11.7-1"
-        #slurm.user.uid = 11000
-        #slurm.user.gid = 11000
-        #munge.user.uid = 11101
-        #munge.user.gid = 11101
+        slurm.version = {{ slurm_version }}
+        slurm.user.uid = {{ slurm_uid }}
+        slurm.user.gid = {{ slurm_gid }}
+        munge.user.uid = {{ munge_uid }}
+        munge.user.gid = {{ munge_gid }}
         slurm.accounting.enabled = false
         #slurm.accounting.url = $configuration_slurm_accounting_url
         #slurm.accounting.user = $configuration_slurm_accounting_user
@@ -105,6 +105,9 @@ Autoscale = true
       {% if queue.ColocateNodes is defined %}
         slurm.hpc = {{ queue.ColocateNodes }}
       {% else %}
-        slurm.hpc = false
+        slurm.hpc = true
+      {% endif %}
+      {% if queue.enroot_enabled is defined and queue.enroot_enabled %}
+        [[[cluster-init enroot:default:1.0.0]]]
       {% endif %}
 {% endfor %}

@@ -26,12 +26,13 @@ fi
 # Check config syntax
 yamllint $CONFIG_FILE
 
-nopip=$(yq eval .locked_down_network.public_ip $CONFIG_FILE)
-if [ "$nopip" == "false" ]; then
-  OPTIONS_FILE=options_nopip.json
-else
-  OPTIONS_FILE=options.json
-fi
+# No longer needed as we use the jumpbox as an SSH bastion
+# nopip=$(yq eval .locked_down_network.public_ip $CONFIG_FILE)
+# if [ "$nopip" == "false" ]; then
+#   OPTIONS_FILE=options_nopip.json
+# else
+#   OPTIONS_FILE=options.json
+# fi
 
 PACKER_OPTIONS="-timestamp-ui"
 while (( "$#" )); do
@@ -87,8 +88,10 @@ resource_group=$(jq -r '.var_resource_group' $OPTIONS_FILE)
 image_id=$(az image list -g $resource_group --query "[?name=='$image_name'].id" -o tsv)
 
 # Generate install script checksum
-md5sum ./scripts/* > md5sum.txt
+set +e
+find ./scripts/ -exec md5sum {} \; > md5sum.txt
 md5sum $PACKER_FILE >> md5sum.txt
+set -e
 packer_md5=$(md5sum md5sum.txt | cut -d' ' -f 1)
 echo "scripts checksum is $packer_md5"
 

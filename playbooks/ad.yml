@@ -22,7 +22,7 @@
         register: ad_join_password
 
       - name: start socks tunnel
-        shell: ssh -i {{ lookup('env', 'PWD') }}/{{ansible_ssh_private_key_file}} -fN -D localhost:5985 -o StrictHostKeyChecking=no {{admin_user}}@{{ psrp_ssh_proxy }}
+        shell: ssh -i {{ lookup('env', 'PWD') }}/{{ansible_ssh_private_key_file}} -fN -D localhost:5985 -p {{jumpbox_ssh_port}} -o StrictHostKeyChecking=no {{admin_user}}@{{ psrp_ssh_proxy }}
         delegate_to: localhost
         connection: local
 
@@ -72,6 +72,24 @@
           state: present
           password_never_expires: true
           update_password: on_create
+
+      - name: Add DNS Forwarders
+        community.windows.win_dns_zone:
+          name: '{{item.name}}'
+          type: forwarder
+          dns_servers: "{{item.ips}}"
+          replication: none
+          state: present
+        with_items: '{{dns.forwarders}}'
+        when: dns.forwarders is defined
+
+      - name: Add az-hop admin group
+        community.windows.win_domain_group:
+          name: az-hop-admins
+          state: present
+          description: Members of this group can perform administrative tasks on the az-hop environment
+          scope: domainlocal
+
     always:
       - name: close session on local port
         shell: ps aux | grep localhost:5985 | grep -v grep | awk '{print "kill -9 " $2}' | sh

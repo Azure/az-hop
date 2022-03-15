@@ -110,8 +110,31 @@
       command: '/usr/local/bin/cyclecloud start_cluster pbs1'
   when: cc_queue_manager == "openpbs"
 
-- name: Slurm Cycle Cloud project
+- name: SLURM template and optional Enroot project
   block:
+    - name: Populate cluster-init for enroot/pyxis
+      block:
+        - name: Create enroot project
+          command: '/usr/local/bin/cyclecloud project init enroot'
+          args:
+            chdir: '{{project_root}}'
+            creates: '{{enroot_project_root}}/project.ini'
+        - name: Create install_pyxis.sh
+          template:
+            src: '{{role_path}}/projects/enroot/cluster-init/scripts/1-install_pyxis.sh.j2'
+            dest: '{{enroot_project_root}}/specs/default/cluster-init/scripts/1-install_pyxis.sh'
+            mode: 0777
+        - name: Create install_enroot.sh
+          template:
+            src: '{{role_path}}/projects/enroot/cluster-init/scripts/2-install_enroot.sh.j2'
+            dest: '{{enroot_project_root}}/specs/default/cluster-init/scripts/2-install_enroot.sh'
+            mode: 0777
+        - name: Upload enroot CycleCloud project
+          command: '/usr/local/bin/cyclecloud project upload'
+          args:
+            chdir: '{{enroot_project_root}}'
+      when: enroot_enabled == true
+
     - name: Add azhop-Slurm template
       template:
         src: 'azhop-slurm.txt.j2'

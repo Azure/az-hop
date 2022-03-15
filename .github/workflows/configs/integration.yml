@@ -63,9 +63,10 @@ network:
         name: compute
         address_prefixes: "10.0.16.0/20"
         create: true
-  peering: # This is optional, and can be used to create a VNet Peering in the same subscription.
-    vnet_name: #"VNET Name to Peer to"
-    vnet_resource_group: #"Resource Group of the VNET to peer to"
+#  peering: # This list is optional, and can be used to create VNet Peerings in the same subscription.
+#    - vnet_name: #"VNET Name to Peer to"
+#      vnet_resource_group: #"Resource Group of the VNET to peer to"
+
 # When working in a locked down network, uncomment and fill out this section
 locked_down_network:
   enforce: false
@@ -74,6 +75,7 @@ locked_down_network:
 
 jumpbox:
   vm_size: Standard_B2ms
+  ssh_port: 2222 # SSH port used on the public IP, default to 22
 ad:
   vm_size: Standard_B2ms
 ondemand:
@@ -110,6 +112,8 @@ lustre:
 users:
   - { name: hpcuser,   uid: 10001, gid: 5000 }
   - { name: adminuser, uid: 10002, gid: 5000, admin: true, sudo: true }
+  - { name: john.john,   uid: 10003, gid: 5000 }
+
 groups:
   - name: users
     gid: 5000
@@ -137,6 +141,13 @@ images:
     hyper_v: V1
     os_type: Linux
     version: 7.8
+  - name: azhop-ubuntu18.04
+    publisher: azhop
+    offer: Ubuntu
+    sku: 10_04
+    hyper_v: V2
+    os_type: Linux
+    version: 18.04
 queues:
   - name: execute
     vm_size: Standard_F2s_v2
@@ -162,6 +173,11 @@ queues:
     vm_size: Standard_HB120rs_v3
     max_core_count: 2880
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    spot: true
+  - name: hbv3u18
+    vm_size: Standard_HB120rs_v3
+    max_core_count: 2880
+    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-ubuntu18.04/latest
     spot: true
   - name: viz3d
     vm_size: Standard_NV6

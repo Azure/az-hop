@@ -5,7 +5,14 @@
     name: python-flask
     state: present
 
+- name: Create directory
+  file:
+    path: /var/www/ood/apps/sys/cyclecloud
+    state: directory
+    mode: 0755
+
 - name: Copy application files
   copy:
     src: '{{role_path}}/files/cyclecloud'
     dest: /var/www/ood/apps/sys
+    mode: 0644

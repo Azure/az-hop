@@ -18,26 +18,31 @@
             "virtual_network_name": "{{user `var_virtual_network_name`}}",
             "virtual_network_subnet_name": "{{user `var_virtual_network_subnet_name`}}",
             "virtual_network_resource_group_name": "{{user `var_virtual_network_resource_group_name`}}",
-            "cloud_environment_name": "{{user `var_cloud_env`}}"
+            "cloud_environment_name": "{{user `var_cloud_env`}}",
+            "ssh_bastion_host": "{{user `var_ssh_bastion_host`}}",
+            "ssh_bastion_port": "{{user `var_ssh_bastion_port`}}",
+            "ssh_bastion_username": "{{user `var_ssh_bastion_username`}}",
+            "ssh_bastion_private_key_file": "{{user `var_ssh_bastion_private_key_file`}}"
         }
     ],
     "provisioners": [
         {
             "type": "file",
-            "source": "scripts",
+            "source": "scripts/centos/",
             "destination": "/tmp"
         },
         {
             "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E sh '{{ .Path }}'",
             "inline": [
-                "chmod +x /tmp/scripts/*.sh",
-                "/tmp/scripts/linux-setup.sh",
-                "/tmp/scripts/pbspro.sh",
-                "/tmp/scripts/telegraf.sh",
-                "/tmp/scripts/lustreclient.sh 2.12.6",
-                "rm -rf /tmp/scripts",
+                "chmod +x /tmp/*.sh",
+                "/tmp/linux-setup.sh",
+                "/tmp/pbspro.sh",
+                "/tmp/telegraf.sh",
+                "/tmp/lustreclient.sh 2.12.6",
+                "/tmp/enroot.sh 3.4.0-2",
+                "echo ' This is the end '",
                 "yum history sync",
-                "lscpu",
+                "rm -rf /tmp/*.sh",
                 "/usr/sbin/waagent -force -deprovision+user && export HISTSIZE=0 && sync"
             ],
             "inline_shebang": "/bin/sh -x",

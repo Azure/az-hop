@@ -18,7 +18,7 @@ users:
 
 ## Create users passwords
 
-Run the `create_passwords.sh` scripts. This will create a password for each new users, and store it in the keyvault deployed in this environemnt, under the secret named `<user>-password`
+Run the `create_passwords.sh` scripts. This will create a password for each new users, and store it in the keyvault deployed in this environment, under the secret named `<user>-password`
 
 ```bash
 $./create_passwords.sh

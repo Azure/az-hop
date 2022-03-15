@@ -1,12 +1,52 @@
 ---
 
 - name: Upload test suite
-  become_user: hpcuser
+  become_user: '{{test_user}}'
   copy:
     src: '{{role_path}}/files/'
     dest: '~/'
     mode: '0755'
 
-- name: Run tests
-  become_user: hpcuser
-  shell: ~/test.sh {{ scheduler }}
+- name: check mounts
+  become_user: '{{test_user}}'
+  shell: 'df | grep {{item}} || exit 1'
+  with_items: '{{test_mounts}}'
+
+- name: check scheduler
+  become_user: '{{test_user}}'
+  shell: |
+    source ~/{{ test_queue_manager }}_helpers.sh
+    source ~/.bash_profile
+    check_scheduler
+
+- name: Create random job name
+  become_user: '{{test_user}}'
+  set_fact:
+    job_name: "{{ lookup('password', '/dev/null chars=ascii_lowercase,digits length=8') }}"
+
+- name: submit single node jobs
+  become_user: '{{test_user}}'
+  shell: |
+    source ~/{{ test_queue_manager }}_helpers.sh
+    source ~/.bash_profile
+    if [ {{item.max_core_count}} -gt 0 ]; then
+      submit_job {{job_name}} 1 1 {{item.name}} ~/job.sh {{item.vm_size}}
+    fi
+  with_items: "{{test_queues}}"
+
+- name: wait jobs
+  become_user: '{{test_user}}'
+  shell: |
+    source ~/{{ test_queue_manager }}_helpers.sh
+    source ~/.bash_profile
+    echo "Wait for jobs"
+    wait_alljobs {{job_name}}
+    echo "List nodes"
+    list_nodes || exit 1
+    echo "Get job status"
+    check_jobstatus {{job_name}}
+
+# - name: Always failed
+#   become_user: '{{test_user}}'
+#   shell: exit 1
+

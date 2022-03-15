@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Exit if Enroot is not in the image
+[ -d /etc/enroot ] || exit 0
+
+mkdir -p /usr/lib64/slurm
+cp -v {{ homedir_mountpoint }}/slurm/spank_pyxis.so /usr/lib64/slurm/
+chmod +x /usr/lib64/slurm/spank_pyxis.so
+
+ln -sfv /sched/plugstack.conf /etc/slurm/plugstack.conf
+ln -sfv /sched/plugstack.conf.d /etc/slurm/plugstack.conf.d
+
+echo Restarting SLURMD...
+systemctl restart slurmd

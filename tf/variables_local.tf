@@ -1,4 +1,10 @@
 locals {
+    # azure environment
+    azure_environment = var.AzureEnvironment
+    key_vault_suffix = var.KeyVaultSuffix
+    blob_storage_suffix = var.BlobStorageSuffix
+    enable_cis = false
+
     # azurerm_client_config contains empty values for Managed Identity so use variables instead
     tenant_id = var.tenant_id
     logged_user_objectId = var.logged_user_objectId
@@ -18,6 +24,27 @@ locals {
         CreatedBy = var.CreatedBy
         CreatedOn = timestamp()
     }
+    _base_image_reference = {
+        publisher = "OpenLogic"
+        offer     = "CentOS"
+        sku       = "7_9-gen2"
+        version   = "latest"
+    }
+    _base_image_plan = {}
+    _cis_image_reference = {
+        publisher = "center-for-internet-security-inc"
+        offer     = "cis-centos-7-v2-1-1-l1"
+        sku       = "cis-centos7-l1"
+        version   = "3.1.5"
+    }
+    _cis_image_plan = {
+        name      = "cis-centos7-l1"
+        publisher = "center-for-internet-security-inc"
+        product   = "cis-centos-7-v2-1-1-l1"
+    }
+
+    base_image_reference = local.enable_cis ? local._cis_image_reference : local._base_image_reference
+    base_image_plan = local.enable_cis ? local._cis_image_plan : local._base_image_plan
 
     # Create the RG if not using an existing RG and (creating a VNET or when reusing a VNET in another resource group)
     use_existing_rg = try(local.configuration_yml["use_existing_rg"], false)
@@ -54,15 +81,13 @@ locals {
     vnet_id = try(local.configuration_yml["network"]["vnet"]["id"], null)
 
     # VNET Peering
-    create_peering = try(length(local.peering_vnet_name) > 0 ? 1 : 0, 0)
-    peering_vnet_name = try(local.configuration_yml["network"]["peering"]["vnet_name"], null)
-    peering_vnet_resource_group = try(local.configuration_yml["network"]["peering"]["vnet_resource_group"], null)
+    vnet_peering = try(tolist(local.configuration_yml["network"]["peering"]), [])
 
     # Lockdown scenario
     locked_down_network = try(local.configuration_yml["locked_down_network"]["enforce"], false)
     grant_access_from   = try(local.configuration_yml["locked_down_network"]["grant_access_from"], [])
-    allow_public_ip = try(local.configuration_yml["locked_down_network"]["public_ip"], true)
-
+    allow_public_ip     = try(local.configuration_yml["locked_down_network"]["public_ip"], true)
+    jumpbox_ssh_port    = try(local.configuration_yml["jumpbox"]["ssh_port"], "22")
     # subnets
     _subnets = {
         ad = "ad",
@@ -119,6 +144,7 @@ locals {
         Bastion = ["22", "3389"]
         Web = ["443", "80"]
         Ssh    = ["22"]
+        Public_Ssh = [local.jumpbox_ssh_port]
         Socks = ["5985"]
         # DNS, Kerberos, RpcMapper, Ldap, Smb, KerberosPass, LdapSsl, LdapGc, LdapGcSsl, AD Web Services, RpcSam
         DomainControlerTcp = ["53", "88", "135", "389", "445", "464", "686", "3268", "3269", "9389", "49152-65535"]
@@ -298,6 +324,10 @@ locals {
         DenyVnetOutbound            = ["3100", "Outbound", "Deny",  "*",   "All",               "tag/VirtualNetwork",       "tag/VirtualNetwork"],
     }
 
+    internet_nsg_rules = {
+        AllowInternetSshIn          = ["200", "Inbound", "Allow", "tcp", "Public_Ssh",                "tag/Internet", "asg/asg-jumpbox"], # Only when using a PIP
+        AllowInternetHttpIn         = ["210", "Inbound", "Allow", "tcp", "Web",                "tag/Internet", "asg/asg-ondemand"], # Only when using a PIP
+    }
     bastion_nsg_rules = {
         AllowBastionIn              = ["530", "Inbound", "Allow", "tcp", "Bastion",            "subnet/bastion",           "tag/VirtualNetwork"],
     }
@@ -308,7 +338,8 @@ locals {
 
     nsg_rules = merge(  local._nsg_rules, 
                         local.no_bastion_subnet ? {} : local.bastion_nsg_rules, 
-                        local.no_gateway_subnet ? {} : local.gateway_nsg_rules)
+                        local.no_gateway_subnet ? {} : local.gateway_nsg_rules,
+                        local.allow_public_ip ? local.internet_nsg_rules : {})
 
 }
 

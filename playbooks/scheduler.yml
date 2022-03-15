@@ -44,4 +44,6 @@
       cc_password: '{{password.stdout}}'
       slurm_version: 20.11.7-1
       accounting_enabled: '{{slurm.accounting_enabled | default(false)}}'
+      enroot_enabled: '{{slurm.enroot_enabled | default(false)}}'
+      enroot_scratch_dir: '/mnt/resource'
     when: ( queue_manager is defined and queue_manager == "slurm" )

@@ -1,16 +1,20 @@
 #!/bin/bash
+# Pre-requisites:
+# - jq installed
+
 # Apply default configuration to the node
 # Remote read access to the cluster init script files for all users
 chmod 700 -R /mnt/cluster-init
 
 # change access to resource so that temp jobs can be written there
+# FIXME : /mnt/resource doesn't exists on Ubuntu
 chmod 777 /mnt/resource
 
 # Grant sudo for users with sudo privilege
 {% for user in users %}
-  {% if user.sudo is defined and user.sudo %}
-echo "{{user.name}} ALL=(ALL) NOPASSWD: ALL" | tee -a /etc/sudoers.d/{{user.name}}
-  {% endif %}
+{% if user.sudo is defined and user.sudo %}
+echo "{{user.name}} ALL=(ALL) NOPASSWD: ALL" | tee -a /etc/sudoers.d/{{ user.name | map('regex_replace', '[^0-9a-zA-Z-]', '')|list|join() }}
+{% endif %}
 {% endfor %}
 
 # For any NV instances, reinit the session
@@ -21,3 +25,8 @@ case $AZHPC_VMSIZE in
     systemctl restart gdm
   ;;
 esac
+
+# Create a symlink for the Modules to allow compatibility with the HPC CentOS image which have Modules in capital case
+if [ ! -d /usr/share/Modules ]; then
+    ln -s /usr/share/modules /usr/share/Modules
+fi

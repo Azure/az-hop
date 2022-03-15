@@ -125,9 +125,11 @@ else
   export clientId=$(az account show --query user.name -o tsv)
   case "${clientId}" in
       "systemAssignedIdentity")
-          vmname=$(curl -s --noproxy "*" -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2019-08-15" | jq -r '.compute.name')
-          echo " - logged in Azure with System Assigned Identity from ${vmname}"
-          export TF_VAR_logged_user_objectId=$(az resource list -n $vmname --query [*].identity.principalId --out tsv)
+          mds=$(curl -s --noproxy "*" -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2019-08-15")
+          vmname=$(echo $mds | jq -r '.compute.name')
+          rgname=$(echo $mds | jq -r '.compute.resourceGroupName')
+          echo " - logged in Azure with System Assigned Identity from ${vmname}/${rgname}"
+          export TF_VAR_logged_user_objectId=$(az resource list -n $vmname -g $rgname --query [*].identity.principalId --out tsv)
           export ARM_TENANT_ID=${TF_VAR_tenant_id}
           export ARM_SUBSCRIPTION_ID=${subscription_id}
           export ARM_USE_MSI=true
@@ -148,6 +150,39 @@ else
 fi
 export TF_VAR_CreatedBy=${logged_user_upn}
 echo "terraform -chdir=$TF_FOLDER $TF_COMMAND $PARAMS"
+
+# Retrieve on which cloud environment we run on
+# env details from here: https://github.com/hashicorp/terraform-provider-azurerm/blob/main/vendor/github.com/Azure/go-autorest/autorest/azure/environments.go
+# TODO: check az environmentName for AzureChina and AzureGerman
+cloud_env="Public"
+account_env=$(az account show | jq '.environmentName' -r)
+case "$account_env" in
+  AzureChinaCloud)
+    export TF_VAR_AzureEnvironment=AZURECHINACLOUD
+    export TF_VAR_KeyVaultSuffix=vault.azure.cn
+    export TF_VAR_BlobStorageSuffix=blob.core.chinacloudapi.cn
+    ;;
+  AzureGermanCloud)
+    export TF_VAR_AzureEnvironment=AZUREGERMANCLOUD
+    export TF_VAR_KeyVaultSuffix=vault.microsoftazure.de
+    export TF_VAR_BlobStorageSuffix=blob.core.cloudapi.de
+    ;;
+  AzureCloud)
+    export TF_VAR_AzureEnvironment=AZUREPUBLICCLOUD
+    export TF_VAR_KeyVaultSuffix=vault.azure.net
+    export TF_VAR_BlobStorageSuffix=blob.core.windows.net
+    ;;
+  AzureUSGovernment)
+    export TF_VAR_AzureEnvironment=AZUREUSGOVERNMENTCLOUD
+    export TF_VAR_KeyVaultSuffix=vault.usgovcloudapi.net
+    export TF_VAR_BlobStorageSuffix=blob.core.usgovcloudapi.net
+    ;;
+  *)
+    echo "ERROR: Unknown Azure environment ${account_env}"
+    exit 1
+    ;;
+esac
+
 
 # -parallelism=30
 TF_LOG="TRACE"
