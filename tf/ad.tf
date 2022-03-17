@@ -16,7 +16,9 @@ resource "azurerm_windows_virtual_machine" "ad" {
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   size                = try(local.configuration_yml["ad"].vm_size, "Standard_D2s_v3")
   admin_username      = local.admin_username
-  admin_password      = random_password.password.result 
+  admin_password      = random_password.password.result
+  license_type        = try(local.configuration_yml["ad"].hybrid_benefit, false) ? "Windows_Server" : "None"
+
   network_interface_ids = [
     azurerm_network_interface.ad-nic.id,
   ]
