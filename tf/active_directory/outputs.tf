@@ -11,7 +11,7 @@ resource "local_file" "AnsibleInventory" {
 }
 
 resource "local_file" "global_variables" {
-  sensitive_content = templatefile("${local.playbooks_template_dir}/global_variables.tmpl",
+  content = templatefile("${local.playbooks_template_dir}/global_variables.tmpl",
     {
       admin_username      = local.admin_username
       ssh_public_key      = tls_private_key.internal.public_key_openssh

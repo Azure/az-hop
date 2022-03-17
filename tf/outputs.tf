@@ -22,7 +22,7 @@ resource "local_file" "CISInventory" {
 }
 
 resource "local_file" "global_variables" {
-  sensitive_content = templatefile("${local.playbooks_template_dir}/global_variables.tmpl",
+  content = templatefile("${local.playbooks_template_dir}/global_variables.tmpl",
     {
       azure_environment   = local.azure_environment
       key_vault_suffix    = local.key_vault_suffix
@@ -54,7 +54,7 @@ resource "local_file" "global_variables" {
 }
 
 resource "local_file" "connect_script" {
-  sensitive_content = templatefile("${local.playbooks_template_dir}/connect.tmpl",
+  content = templatefile("${local.playbooks_template_dir}/connect.tmpl",
     {
       jumpbox-pip       = local.allow_public_ip ? azurerm_public_ip.jumpbox-pip[0].ip_address :  azurerm_network_interface.jumpbox-nic.private_ip_address
       jumpbox-user      = azurerm_linux_virtual_machine.jumpbox.admin_username,
@@ -66,7 +66,7 @@ resource "local_file" "connect_script" {
 }
 
 resource "local_file" "get_secret_script" {
-  sensitive_content = templatefile("${local.playbooks_template_dir}/get_secret.tmpl",
+  content = templatefile("${local.playbooks_template_dir}/get_secret.tmpl",
     {
       key_vault          = azurerm_key_vault.azhop.name
     }
@@ -95,25 +95,8 @@ resource "local_file" "packer_pip" {
   filename = "${local.packer_root_dir}/options.json"
 }
 
-# No longer needed as we use the jumpbox as an SSH bastion
-# resource "local_file" "packer_nopip" {
-#   content = templatefile("${local.packer_root_dir}/templates/options_nopip.json.tmpl",
-#     {
-#       subscription_id = data.azurerm_subscription.primary.subscription_id
-#       resource_group  = local.resource_group
-#       location        = local.location
-#       sig_name        = azurerm_shared_image_gallery.sig.name
-#       private_virtual_network_with_public_ip = local.allow_public_ip
-#       virtual_network_name                   = local.create_vnet ? azurerm_virtual_network.azhop[0].name : data.azurerm_virtual_network.azhop[0].name
-#       virtual_network_subnet_name            = local.create_admin_subnet ? azurerm_subnet.admin[0].name : data.azurerm_subnet.admin[0].name
-#       virtual_network_resource_group_name    = local.create_vnet ? azurerm_virtual_network.azhop[0].resource_group_name : data.azurerm_virtual_network.azhop[0].resource_group_name
-#     }
-#   )
-#   filename = "${local.packer_root_dir}/options_nopip.json"
-# }
-
 resource "local_file" "ci_jumpbox" {
-  sensitive_content = templatefile("${local.playbooks_template_dir}/jumpbox_ci.tmpl",
+  content = templatefile("${local.playbooks_template_dir}/jumpbox_ci.tmpl",
     {
       jumpbox-ssh-port  = local.jumpbox_ssh_port
     }
