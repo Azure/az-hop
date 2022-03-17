@@ -96,6 +96,7 @@ jumpbox:
 # Active directory VM configuration
 ad:
   vm_size: Standard_B2ms
+  hybrid_benefit: false # Enable hybrid benefit for AD, default to false
 # On demand VM configuration
 ondemand:
   vm_size: Standard_D4s_v5
