@@ -90,6 +90,7 @@ case $COMMAND in
     mkdir -p $STATE_DIR/playbooks/group_vars
     cp playbooks/group_vars/all.yml $STATE_DIR/playbooks/group_vars
     cp playbooks/inventory $STATE_DIR/playbooks
+    cp playbooks/inventory.cis.yml $STATE_DIR/playbooks
     mkdir -p $STATE_DIR/tf
     cp tf/terraform.tfstate $STATE_DIR/tf
     mkdir -p $STATE_DIR/bin
