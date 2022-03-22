@@ -1,0 +1,7 @@
+#cloud-config
+runcmd:
+  - echo "Update SSH port to 8822"
+  - sed -i 's/^#Port 22/Port 8822/' /etc/ssh/sshd_config
+  - semanage port -a -t ssh_port_t -p tcp 8822
+  - echo "Restart SSH"
+  - systemctl restart sshd
