@@ -38,6 +38,7 @@ ood_apps:
       - desktop
       - target
       - hours
+      - reservedcores
     attributes:
       desktop: xfce
       target:
@@ -47,6 +48,7 @@ ood_apps:
           Select the resource target for the remote desktop session
         options:
          - ["With GPU", "viz3d"]
+         - ["Shared With GPU", "sharedviz3d"]
          - ["Without GPU", "viz"]
         id: 'target'
       hours:
@@ -56,9 +58,19 @@ ood_apps:
         help: |
           This is the maximum duration of your remote session once started. Enter a value between 1 and 8
         min: 1
-        max: 8
+        max: 12
         step: 1
         id: 'hours'
+      reservedcores:
+        widget: "number_field"
+        label: "Maximum number of cores of your remote session"
+        value: 3
+        help: |
+          This is the maximum number of cores used on a shared node. Enter a value between 1 and 120
+        min: 1
+        max: 120
+        step: 1
+        id: 'reservedcores'
 
 host_regex: '[^./]+'
 node_uri: '/node'

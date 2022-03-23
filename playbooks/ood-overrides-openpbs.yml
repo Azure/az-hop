@@ -12,10 +12,15 @@ ood_install_apps:
 ood_apps:
   bc_desktop:
     submit: |
+      <%-
+        num_cpu = target == 'sharedviz3d' ? ":ncpus="+reservedcores+",place=shared:scatter" : ""
+      -%>
       ---
       script:
         native:
+          - "-q"
+          - "vizq"
           - "-l"
-          - "select=1:slot_type=<%= target %>"
+          - "select=1:slot_type=<%= target %><%= num_cpu %>"
           - "-l"
           - "walltime=<%= '%02d:00:00' % hours %>"
