@@ -183,11 +183,21 @@ queues:
     vm_size: Standard_NV6
     max_core_count: 24
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
+    ColocateNodes: false
+    spot: false
   - name: viz
     vm_size: Standard_D8a_v4
     max_core_count: 200
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
+    ColocateNodes: false
+    spot: false
   - name: nc24v3
     vm_size: Standard_NC24rs_v3
     max_core_count: 96
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+  - name: sharedviz3d
+    vm_size: Standard_NV48s_v3
+    max_core_count: 96
+    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
+    ColocateNodes: false
+    spot: false
