@@ -264,7 +264,7 @@ queues:
     ColocateNodes: false
     spot: false
     # Queue dedicated to share GPU remote viz nodes. This name is fixed and can't be changed
-  - name: sharedviz3d
+  - name: largeviz3d
     vm_size: Standard_NV48s_v3
     max_core_count: 96
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
