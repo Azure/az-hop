@@ -37,28 +37,48 @@ ood_apps:
     form:
       - desktop
       - target
-      - hours
+      - num_hours
+      - reservedcores
     attributes:
       desktop: xfce
       target:
         widget: "select"
         label: "Session target"
         help: |
-          Select the resource target for the remote desktop session
+          Select the resource target for the remote desktop session <br>
+          - **With GPU** <br>
+            These are standard small GPU nodes for visualization, usually for a single session.<br>
+          - **Large With GPU** <br>
+            These are standard large GPU nodes for visualization, usually for multiple sessions sharing the same node.<br>
+          - **Without GPU** <br>
+            Same as for **With GPU** but without GPU.
         options:
-         - ["With GPU", "viz3d"]
-         - ["Without GPU", "viz"]
+         - ["With GPU - Small GPU node for single session", "viz3d"]
+         - ["Large With GPU - Intented for shared sessions", "largeviz3d"]
+         - ["Without GPU - for single session", "viz"]
         id: 'target'
-      hours:
+      num_hours:
         widget: "number_field"
         label: "Maximum duration of your remote session"
         value: 1
         help: |
-          This is the maximum duration of your remote session once started. Enter a value between 1 and 8
-        min: 1
-        max: 8
+          This is the maximum duration of your remote session once started. <br> 
+          Enter a value between 0 and 24. <strong>0 means no limit</strong>.
+        min: 0
+        max: 24
         step: 1
         id: 'hours'
+      reservedcores:
+        widget: "number_field"
+        label: "Maximum number of cores of your remote session"
+        value: 4
+        help: |
+          This is the maximum number of cores used on a shared node. <br>
+          Enter a value between 0 and 48. <strong>0 means all cores are used</strong>.
+        min: 0
+        max: 48
+        step: 1
+        id: 'reservedcores'
 
 host_regex: '[^./]+'
 node_uri: '/node'
