@@ -51,7 +51,7 @@
     mount:
       src: '{{ anf_home_ip }}:/{{ anf_home_path }}'
       path: '{{homedir_mountpoint}}'
-      opts: rw,sync,hard,intr
+      opts: rw,hard,rsize=65536,wsize=65536,vers=3,tcp
       state: mounted
       fstype: nfs
 
@@ -65,15 +65,26 @@
   - name: Read Password from KV
     command: az keyvault secret show --vault-name {{key_vault}} -n {{admin_user}}-password --query "value" -o tsv
     delegate_to: localhost
-#    connection: local
+    connection: local
     register: ad_join_password
     become: false
     run_once: true
+
+    # - name: store kerberos password => this is not working
+    #   shell: echo "{{ad_join_password.stdout}}" | kinit {{ ad_join_user }}@{{ ad_join_domain | upper }}
 
   - name: Join AD domain
     shell: echo "{{ ad_join_password.stdout }}" | realm join -v -U {{ ad_join_user }} {{ ad_join_domain }}
     args:
       creates: /etc/sssd/sssd.conf
+
+  # - name: ReJoin AD domain
+  #   shell: |
+  #     realm leave
+  #     systemctl stop sssd
+  #     rm -rf /var/lib/sss/db/*
+  #     echo "{{ ad_join_password.stdout }}" | realm join -v -U {{ ad_join_user }} {{ ad_join_domain }}
+
 
   - name: configure sssd - use_fully_qualified_names
     lineinfile:
@@ -86,6 +97,14 @@
       path: /etc/sssd/sssd.conf
       regexp: '^ldap_id_mapping'
       line: 'ldap_id_mapping = False'
+
+# Thes are the options to set in order to register DNS in the AD
+# hostnamectl set-hostname jumpbox.hpc.azure
+# dyndns_update = true
+# dyndns_refresh_interval = 43200
+# dyndns_update_ptr = true
+# dyndns_ttl = 3600
+# dyndns_auth = GSS-TSIG
 
   - name: Restart sssd
     service:

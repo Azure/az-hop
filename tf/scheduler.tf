@@ -31,10 +31,18 @@ resource "azurerm_linux_virtual_machine" "scheduler" {
   }
 
   source_image_reference {
-    publisher = "OpenLogic"
-    offer     = "CentOS"
-    sku       = "7_9-gen2"
-    version   = "latest"
+    publisher = local.base_image_reference.publisher
+    offer     = local.base_image_reference.offer
+    sku       = local.base_image_reference.sku
+    version   = local.base_image_reference.version
+  }
+  dynamic "plan" {
+    for_each = try (length(local.base_image_plan.name) > 0, false) ? [1] : []
+    content {
+        name      = local.base_image_plan.name
+        publisher = local.base_image_plan.publisher
+        product   = local.base_image_plan.product
+    }
   }
 
   #depends_on = [azurerm_network_interface_application_security_group_association.scheduler-asg-asso]

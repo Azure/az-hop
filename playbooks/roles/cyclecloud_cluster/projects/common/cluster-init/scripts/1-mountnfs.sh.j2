@@ -1,13 +1,8 @@
 #!/bin/bash
-packages="nfs-utils"
+script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$script_dir/../files/azhop-helpers.sh" 
+read_os
 
-if ! rpm -q $packages; then
-  echo "Installing packages $packages"
-  yum install -y $packages
-fi
+find $script_dir/../files -name "*.sh" -exec chmod +x {} \;
 
-mkdir {{homedir_mountpoint}}
-echo "mount {{ anf_home_ip }}:/{{ anf_home_path }} {{homedir_mountpoint}}"
-mount {{ anf_home_ip }}:/{{ anf_home_path }} {{homedir_mountpoint}}
-
-setsebool -P use_nfs_home_dirs 1 || true
+$script_dir/../files/$os_release/mountnfs.sh {{homedir_mountpoint}} {{ anf_home_ip }} {{ anf_home_path }}

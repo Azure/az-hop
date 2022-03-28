@@ -15,13 +15,14 @@ git clone --recursive https://github.com/Azure/az-hop.git -b <version>
 - Option 2
 ```bash
 git clone https://github.com/Azure/az-hop.git -b <version>
+cd az-hop
 git submodule init
 git submodule update
 ```
 
 ### HPC Rover - Setup the toolchain from a container
 
-The `HPC Rover` is a docker container acting as a sandbox toolchain development environemnt to avoid impacting the local machine configuration. It is the same container if you are using Windows, Linux or macOS, you only need Visual Studio Code.
+The `HPC Rover` is a docker container acting as a sandbox toolchain development environment to avoid impacting the local machine configuration. It is the same container if you are using Windows, Linux or macOS, you only need Visual Studio Code.
 
 <img src="https://code.visualstudio.com/assets/docs/remote/containers/architecture-containers.png" width="75%">
 
@@ -53,10 +54,10 @@ Run the `install.sh` from the _toolset/scripts_ directory in Ubuntu 20.04.
 ```
 
 ## From a deployer VM
-`az-hop` can be deployed directly from an Azure VM used preferably behind a Bastion, in that case do the following :
+`az-hop` can be deployed directly from an Ubuntu Azure VM used preferably behind a Bastion, in that case do the following :
 - Create a Bastion
-- Create a `deployer` VM without a public IP
-- Connect to the `deployer` VM from the Bastion
+- Create a `deployer` VM running Ubuntu without a public IP
+- Connect to the `deployer` VM from Bastion
 - Clone the repo as explained above
 - Install the toolset by running `sudo ./az-hop/toolset/scripts/install.sh`
 

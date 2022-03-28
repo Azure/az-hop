@@ -97,12 +97,16 @@
     file:
       path: /opt/telegraf/scripts
       state: directory
+      mode: 0755
+      owner: telegraf
+
   - name: add PBS scripts
     block:
       - name: create collect_pbs_stats script
         copy:
           dest: /opt/telegraf/scripts/collect_pbs_stats.py
           mode: 0755
+          owner: telegraf
           content: |
             #!/usr/bin/env python
 

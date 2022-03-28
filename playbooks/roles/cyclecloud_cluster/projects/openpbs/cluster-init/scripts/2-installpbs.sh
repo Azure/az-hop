@@ -1,13 +1,13 @@
 #!/bin/bash
+script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$script_dir/../files/azhop-helpers.sh" 
+read_os
 
-# install pbs rpms when not in custom image
+find $script_dir/../files -name "*.sh" -exec chmod +x {} \;
+
+# If PBS is not installed, then install it
 if [ ! -f "/etc/pbs.conf" ]; then
-  echo "Downloading PBS RPMs"
-  wget -q https://github.com/PBSPro/pbspro/releases/download/v19.1.1/pbspro_19.1.1.centos7.zip
-  unzip -o pbspro_19.1.1.centos7.zip
-  echo "Installing PBS RPMs"
-  yum install -y epel-release
-  yum install -y pbspro_19.1.1.centos7/pbspro-execution-19.1.1-0.x86_64.rpm jq
+    $script_dir/../files/$os_release/installpbs.sh
 fi
 
 echo "Configuring PBS"

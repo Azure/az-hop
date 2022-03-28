@@ -2,11 +2,18 @@
   debug:
     msg:
       - "user={{user}}"
-  
+
+# Remove any forbidden characters from the username so we conform to the keyvaul secret name rules '^[0-9a-zA-Z-]+$'
+- name: Set secretname
+  set_fact:
+    secretname: "{{ user.name | map('regex_replace', '[^0-9a-zA-Z-]', '')|list|join() }}-password"
+
+- debug:
+    msg: "secretname={{secretname}}"
+
 - name: Read Password from KV
-  command: az keyvault secret show --vault-name {{key_vault}} -n {{user.name}}-password --query "value" -o tsv
+  command: az keyvault secret show --vault-name {{key_vault}} -n {{secretname}} --query "value" -o tsv
   delegate_to: localhost
-#  connection: local
   register: password
   become: false
 
@@ -38,6 +45,7 @@
     password: '{{password.stdout}}'
     password_never_expires: true
     state: present
+    groups_action: replace
     groups:
       - Domain Users
     attributes:
@@ -47,19 +55,12 @@
       unixhomedirectory: "{{ user_home }}"
       gidnumber: "{{user.gid}}"
 
+# Add admin users into the az-hop-admins group
 - name: add Admin
   community.windows.win_domain_user:
     name: "{{ user.name }}"
-    firstname: "{{ user.name }}"
-    password: '{{password.stdout}}'
-    password_never_expires: true
     state: present
     groups:
-      - Domain Admins
-    attributes:
-      uidNumber: "{{ user.uid }}"
-      uid: "{{ user.name }}"
-      loginShell: "{{ user_shell }}"
-      unixhomedirectory: "{{ user_home }}"
-      gidnumber: "{{user.gid}}"
+      - az-hop-admins
+
   when: user.admin | default(false)

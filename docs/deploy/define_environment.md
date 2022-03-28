@@ -75,9 +75,15 @@ network:
         address_prefixes: "10.0.16.0/20"
         create: true
 
-  peering: # This is optional, and can be used to create a VNet Peering in the same subscription.
-    vnet_name: #"VNET Name to Peer to"
-    vnet_resource_group: #"Resource Group of the VNET to peer to"
+#  peering: # This list is optional, and can be used to create VNet Peerings in the same subscription.
+#    - vnet_name: #"VNET Name to Peer to"
+#      vnet_resource_group: #"Resource Group of the VNET to peer to"
+
+# Specify DNS forwarders available in the network
+# dns:
+#   forwarders:
+#     - { name: foo.com, ips: "10.2.0.4, 10.2.0.5" }
+
 # When working in a locked down network, uncomment and fill out this section
 locked_down_network:
   enforce: false
@@ -86,12 +92,16 @@ locked_down_network:
 # Jumpbox VM configuration
 jumpbox:
   vm_size: Standard_B2ms
+  #ssh_port: 2222 # SSH port used on the public IP, default to 22
 # Active directory VM configuration
 ad:
   vm_size: Standard_B2ms
+  hybrid_benefit: false # Enable hybrid benefit for AD, default to false
 # On demand VM configuration
 ondemand:
   vm_size: Standard_D4s_v5
+  #fqdn: azhop.foo.com # When provided it will be used for the certificate server name, but only in a non public IP configuration
+  generate_certificate: true # Generate an SSL certificate for the OnDemand portal. Default to true
 # Grafana VM configuration
 grafana:
   vm_size: Standard_B2ms
@@ -145,12 +155,16 @@ users:
   # shell: /bin/bash # default to /bin/bash
   # home: /anfhome/<user_name> # default to /homedir_mountpoint/user_name
   # admin: false # true will allow user to have cluster admin privilege - false by default
-  # sudo: true # Allow sudo access - false by default
+  # sudo: true # Allow sudo access on cluster compute nodes - false by default
   - { name: clusteradmin, uid: 10001, gid: 5000, admin: true, sudo: true }
   - { name: clusteruser, uid: 10002, gid: 5000 }
 groups: # Not used today => To be used in the future
   - name: users
     gid: 5000
+
+# Enable cvmfs-eessi - disabled by default
+# cvmfs_eessi:
+#   enabled: true
 
 # scheduler to be installed and configured (openpbs, slurm)
 queue_manager: openpbs
@@ -159,6 +173,9 @@ queue_manager: openpbs
 slurm:
   # Enable SLURM accounting, this will create a SLURM accounting database in a managed MySQL server instance
   accounting_enabled: false
+  # Enable container support for SLURM using Enroot/Pyxis (global switch)
+  # Each queue with container support must have its own enroot_enabled switch set to true
+  enroot_enabled: false
 
 # Authentication configuration for accessing the az-hop portal
 # Default is basic authentication. For oidc authentication you have to specify the following values
@@ -166,8 +183,11 @@ slurm:
 authentication:
   httpd_auth: basic # oidc or basic
   # User mapping https://osc.github.io/ood-documentation/latest/reference/files/ood-portal-yml.html#ood-portal-generator-user-map-match
+  # You can specify either a map_match or a user_map_cmd
   # Domain users are mapped to az-hop users with the same name and without the domain name
   # user_map_match: '^([^@]+)@mydomain.foo$'
+  # If using a custom mapping script, update it from the ./playbooks/files directory before running the playbook
+  # user_map_cmd: /opt/ood/ood_auth_map/bin/custom_mapping.sh
   # ood_auth_openidc:
   #   OIDCProviderMetadataURL: # for AAD use 'https://sts.windows.net/{{tenant_id}}/.well-known/openid-configuration'
   #   OIDCClientID: 'XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX'
@@ -201,6 +221,13 @@ images:
     hyper_v: V1
     os_type: Linux
     version: 7.8
+  - name: azhop-ubuntu18.04
+    publisher: azhop
+    offer: Ubuntu
+    sku: 10_04
+    hyper_v: V2
+    os_type: Linux
+    version: 18.04
 # List of queues (node arays in Cycle) to be defined
 queues:
   - name: execute # name of the Cycle Cloud node array
@@ -215,8 +242,10 @@ queues:
     EnableAcceleratedNetworking: false
     # spot instance support. Default is false
     spot: false
-    # Set to false to disable creation of placement groups. Default is true
+    # Set to false to disable creation of placement groups (for SLURM only). Default is true
     ColocateNodes: false
+    # Set to true to enable Enroot for this partition
+    enroot_enabled: false
   - name: hc44rs
     vm_size: Standard_HC44rs
     max_core_count: 440
@@ -236,6 +265,13 @@ queues:
   - name: viz3d
     vm_size: Standard_NV6
     max_core_count: 24
+    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
+    ColocateNodes: false
+    spot: false
+    # Queue dedicated to share GPU remote viz nodes. This name is fixed and can't be changed
+  - name: largeviz3d
+    vm_size: Standard_NV48s_v3
+    max_core_count: 96
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
     ColocateNodes: false
     spot: false

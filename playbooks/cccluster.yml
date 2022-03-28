@@ -85,5 +85,10 @@
       telegraf_influxdb_urls: 
         - "http://grafana:8086"
       cc_slurm_version: 20.11.7-1
-      slurm_uid: 971
-      slurm_gid: 971
+      slurm_uid: 11100
+      slurm_gid: 11100
+      munge_uid: 11101
+      munge_gid: 11101
+      enroot_enabled: '{{slurm.enroot_enabled | default(false)}}'
+      enroot_scratch_dir: '/mnt/resource'
+      cvmfs_eessi_enabled: '{{cvmfs_eessi.enabled | default(false)}}'
