@@ -105,6 +105,9 @@ ondemand:
 # Grafana VM configuration
 grafana:
   vm_size: Standard_B2ms
+# Guacamole VM configuration
+guacamole:
+  vm_size: Standard_B2ms
 # Scheduler VM configuration
 scheduler:
   vm_size: Standard_B2ms
@@ -282,4 +285,14 @@ queues:
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
     ColocateNodes: false
     spot: false
+
+# Remote Visualization definitions
+remoteviz:
+  - name: winviz # This name is fixed and can't be changed
+    vm_size: Standard_D8a_v4
+    max_core_count: 200
+    image: "MicrosoftWindowsDesktop:Windows-10:21h1-pron:latest"
+    ColocateNodes: false
+    spot: false
+
 ```
