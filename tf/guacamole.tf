@@ -42,6 +42,27 @@ resource "azurerm_linux_virtual_machine" "guacamole" {
   #   sku       = "20_04-lts-gen2"
   #   version   = "latest"
   # }
+
+  identity {
+    type         = "UserAssigned"
+    identity_ids = [ azurerm_user_assigned_identity.guacamole.id ]
+  }
+}
+
+resource "azurerm_user_assigned_identity" "guacamole" {
+  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
+
+  name = "guacamole"
+}
+# Grant read access to the Keyvault for the guacamole identity
+resource "azurerm_key_vault_access_policy" "guacamole" {
+  key_vault_id = azurerm_key_vault.azhop.id
+  tenant_id    = local.tenant_id
+  object_id    = azurerm_user_assigned_identity.guacamole.principal_id
+
+  key_permissions = [ "get", "list" ]
+  secret_permissions = [ "get", "list" ]
 }
 
 resource "azurerm_network_interface_application_security_group_association" "guacamole-asg-asso" {
