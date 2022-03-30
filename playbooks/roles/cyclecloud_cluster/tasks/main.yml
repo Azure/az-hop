@@ -146,3 +146,16 @@
     - name: Start Slurm Cluster
       command: '/usr/local/bin/cyclecloud start_cluster slurm1'
   when: cc_queue_manager == "slurm"
+
+- name: Remote Visualization Cycle Cloud project
+  block:
+    - name: Add azhop-remoteviz template
+      template:
+        src: 'azhop-remoteviz.txt.j2'
+        dest: '{{project_root}}/azhop-remoteviz.txt'
+
+    - name: Import remoteviz Cluster
+      command: '/usr/local/bin/cyclecloud import_cluster remoteviz -f {{project_root}}/azhop-remoteviz.txt -c azhop-remoteviz --force'
+
+    - name: Start remoteviz Cluster
+      command: '/usr/local/bin/cyclecloud start_cluster remoteviz'

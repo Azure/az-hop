@@ -5,4 +5,5 @@ cc_domain:
 cc_ad_server:
 cc_password:
 cc_queues:
+cc_remoteviz:
 cc_queue_manager: 'openpbs'
