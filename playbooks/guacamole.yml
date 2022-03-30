@@ -5,7 +5,7 @@
   vars_files:
     - '{{global_config_file}}'
   vars:
-    cyclecloud_guac_version: 0.1.7
+    cyclecloud_guac_version: 0.1.8
     tomcat_version: 9.0.60
 
   tasks:
@@ -301,6 +301,16 @@
       src: "https://github.com/xpillons/azhop-guac/releases/download/{{cyclecloud_guac_version}}/cyclecloud-guac-pkg-{{cyclecloud_guac_version}}.tar.gz"
       dest: /tmp/
       remote_src: yes
+
+  - name: Creates spool status directory
+    file:
+      path: /anfhome/guac-spool/status
+      state: directory
+
+  - name: Creates spool command directory
+    file:
+      path: /anfhome/guac-spool/commands
+      state: directory
 
   - name: enable CycleCloud ScaleLib Guacamole
     shell: | 
