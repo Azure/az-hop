@@ -220,7 +220,7 @@
 
   - name: Configure MySQL access
     copy:
-      dest: .my.cnf
+      dest: /root/.my.cnf
       content: |
         [client]
         user = {{ slurmdb_user }}@{{ slurmdb_fqdn }}
@@ -229,6 +229,8 @@
 
   - name: Create guacamole database
     shell: |
+      set -e
+      set -o pipefail
       mysql <<EOF
       create database guacamole_db;
       EOF
