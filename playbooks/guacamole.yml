@@ -5,7 +5,8 @@
   vars_files:
     - '{{global_config_file}}'
   vars:
-    cyclecloud_guac_version: 0.1.6
+    cyclecloud_guac_version: 0.1.7
+    tomcat_version: 9.0.60
 
   tasks:
   - name: Wait 300 seconds for the nodes to be ready
@@ -89,7 +90,7 @@
 
   - name: Download tomcat
     unarchive:
-      src: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.56/bin/apache-tomcat-9.0.56.tar.gz
+      src: https://dlcdn.apache.org/tomcat/tomcat-9/v{{tomcat_version}}/bin/apache-tomcat-{{tomcat_version}}.tar.gz
       dest: /opt/tomcat
       owner: tomcat
       group: tomcat
@@ -98,7 +99,7 @@
 
   - name: Create a symbolic link for tomcat/latest
     file:
-      src: /opt/tomcat/apache-tomcat-9.0.56
+      src: /opt/tomcat/apache-tomcat-{{tomcat_version}}
       dest: /opt/tomcat/latest
       owner: tomcat
       group: tomcat
@@ -304,7 +305,7 @@
       /tmp/cyclecloud-guac/install.sh  --venv /opt/cycle/guac/venv --install-venv
       /tmp/cyclecloud-guac/generate_autoscale_json.sh  --install-dir /opt/cycle/guac \
                   --username {{ admin_user }} --password "{{ admin_password.stdout }}" \
-                  --url https://ccportal:9443/cyclecloud --cluster-name winviz \
+                  --url https://ccportal:9443/cyclecloud --cluster-name remoteviz \
                   --vaultname "{{ key_vault }}"
     args:
       chdir: /tmp/cyclecloud-guac
