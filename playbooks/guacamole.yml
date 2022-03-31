@@ -302,16 +302,6 @@
       dest: /tmp/
       remote_src: yes
 
-  - name: Creates spool status directory
-    file:
-      path: /anfhome/guac-spool/status
-      state: directory
-
-  - name: Creates spool command directory
-    file:
-      path: /anfhome/guac-spool/commands
-      state: directory
-
   - name: enable CycleCloud ScaleLib Guacamole
     shell: | 
       /tmp/cyclecloud-guac/install.sh  --venv /opt/cycle/guac/venv --install-venv
