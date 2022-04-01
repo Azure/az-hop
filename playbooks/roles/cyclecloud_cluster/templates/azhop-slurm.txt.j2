@@ -97,6 +97,12 @@ Autoscale = true
   {% else %}
     ImageName = {{ queue.image }}
   {% endif %}
+  {% if queue.plan is defined %}
+    {% set plan_details = queue.plan.split(':') %}
+    ImagePlan.Publisher = {{ plan_details[0] }}
+    ImagePlan.Product = {{ plan_details[1] }}
+    ImagePlan.Name = {{ plan_details[2] }}
+  {% endif %}
         [[[configuration]]]
         slurm.partition = {{ queue.name }}
       {% if loop.index == 1 %}

@@ -233,6 +233,8 @@ queues:
     # marketplace image name or custom image id
 #    image: OpenLogic:CentOS-HPC:7_9-gen2:latest
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    # Image plan specification (when needed for the image). Terms must be accepted prior to deployment
+#    plan: publisher:product:name
     # Set to true if AccelNet need to be enabled. false is the default value
     EnableAcceleratedNetworking: false
     # spot instance support. Default is false
