@@ -231,6 +231,13 @@ images:
     hyper_v: V2
     os_type: Linux
     version: 18.04
+  - name: azhop-win10
+    publisher: azhop
+    offer: Windows-10
+    sku: 21h1-pron
+    hyper_v: V1
+    os_type: Windows
+    version: 10.19043
 # List of queues (node arays in Cycle) to be defined
 queues:
   - name: execute # name of the Cycle Cloud node array
