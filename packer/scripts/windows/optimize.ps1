@@ -10,16 +10,21 @@ $updatePath= "C:\optimize\Virtual-Desktop-Optimization-Tool\Windows_VDOT.ps1"
 ((Get-Content -path $updatePath -Raw) -replace 'Set-NetAdapterAdvancedProperty -DisplayName "Send Buffer Size" -DisplayValue 4MB','#Set-NetAdapterAdvancedProperty -DisplayName "Send Buffer Size" -DisplayValue 4MB') | Set-Content -Path $updatePath
 
 # Patch: override the REG UNLOAD, needs GC before, otherwise will Access Deny unload
+Write-Host 'Patch: override the REG UNLOAD, needs GC before, otherwise will Access Deny unload'
 [System.Collections.ArrayList]$file = Get-Content $updatePath
  $insert = @()
  for ($i=0; $i -lt $file.count; $i++) {
-   if ($file[$i] -like "*& REG UNLOAD HKLM\DEFAULT*") {
+   if ($file[$i] -like "*& REG UNLOAD HKLM*") {
      $insert += $i-1 
    }
  }
 
 #add gc and sleep
+Write-Host $insert
 $insert | ForEach-Object { $file.insert($_,"                 Write-Host 'Patch closing handles and runnng GC before reg unload' `n              `$newKey.Handle.close()` `n              [gc]::collect() `n                Start-Sleep -Seconds 15 ") }
+Write-Host $file
 Set-Content $updatePath $file 
 
 .\Windows_VDOT.ps1 -Verbose -AcceptEULA
+# Force clean exit
+exit 0
