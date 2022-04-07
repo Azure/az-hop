@@ -69,9 +69,6 @@ locals {
     lustre_oss_sku = try(local.configuration_yml["lustre"]["oss_sku"], "Standard_D32d_v4")
     lustre_oss_count = try(local.configuration_yml["lustre"]["oss_count"], 2)
 
-    # Winviz
-    create_winviz = try(local.configuration_yml["winviz"].create, false)
-
     # Slurm Accounting Database
     slurm_accounting = try(local.configuration_yml["slurm"].accounting_enabled, false)
     slurm_accounting_admin_user = "sqladmin"
@@ -134,7 +131,6 @@ locals {
         ondemand  = ["asg-ssh", "asg-ondemand", "asg-ad-client", "asg-nfs-client", "asg-pbs-client", "asg-lustre-client", "asg-telegraf"]
         robinhood = ["asg-ssh", "asg-robinhood", "asg-lustre-client", "asg-telegraf"]
         scheduler = ["asg-ssh", "asg-pbs", "asg-ad-client", "asg-cyclecloud-client", "asg-nfs-client", "asg-telegraf"]
-        winviz    = ["asg-ad-client", "asg-rdp"],
         guacamole = ["asg-ssh", "asg-guacamole", "asg-ad-client", "asg-telegraf", "asg-nfs-client", "asg-cyclecloud-client"]
     }
 

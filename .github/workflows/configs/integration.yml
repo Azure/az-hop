@@ -96,10 +96,6 @@ cyclecloud:
     publisher:  "azurecyclecloud"
     product:    "azure-cyclecloud"
 
-winviz:
-  vm_size: Standard_D4_v5
-  create: false # Create an always running windows node, false by default
-
 lustre:
   rbh_sku: "Standard_D8d_v4"
   mds_sku: "Standard_D8d_v4"

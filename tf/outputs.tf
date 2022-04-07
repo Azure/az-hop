@@ -7,7 +7,6 @@ resource "local_file" "AnsibleInventory" {
       ad-ip             = azurerm_network_interface.ad-nic.private_ip_address
       ad-passwd         = azurerm_windows_virtual_machine.ad.admin_password
       lustre-oss-count  = local.lustre_oss_count
-      winviz-ip         = try(azurerm_network_interface.winviz-nic[0].private_ip_address, "0.0.0.0")
     }
   )
   filename = "${local.playbook_root_dir}/inventory"
