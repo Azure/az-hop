@@ -246,6 +246,8 @@ queues:
     ColocateNodes: false
     # Set to true to enable Enroot for this partition
     enroot_enabled: false
+    # Image plan specification (when needed for the image). Terms must be accepted prior to deployment
+#    plan: publisher:product:name
   - name: hc44rs
     vm_size: Standard_HC44rs
     max_core_count: 440
