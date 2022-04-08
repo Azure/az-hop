@@ -141,8 +141,8 @@ resource "azurerm_key_vault_access_policy" "lustre-oss" {
   tenant_id    = local.tenant_id
   object_id    = azurerm_user_assigned_identity.lustre-oss.principal_id
 
-  key_permissions = [ "get", "list" ]
-  secret_permissions = [ "get", "list" ]
+  key_permissions = [ "Get", "List" ]
+  secret_permissions = [ "Get", "List" ]
 }
 
 # Problem : How to generate associations for all OSS instances as we can't mix count and for_each ???
