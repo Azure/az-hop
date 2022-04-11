@@ -81,17 +81,17 @@ terraform -chdir=$TF_FOLDER init -upgrade
 yamllint $AZHOP_CONFIG
 
 # Accept Cycle marketplace image terms
-cc_plan=$(yq eval '.cyclecloud.plan.name' $AZHOP_CONFIG)
-if [ "$cc_plan" == "" ]; then
-  cc_plan="cyclecloud8"
-fi
-accepted=$(az vm image terms show --offer azure-cyclecloud --publisher azurecyclecloud --plan $cc_plan --query 'accepted' -o tsv)
-if [ "$accepted" != "true" ]; then
-  echo "Azure CycleCloud marketplace image terms are not accepted, accepting them now"
-  az vm image terms accept --offer azure-cyclecloud --publisher azurecyclecloud --plan $cc_plan -o tsv
-else
-  echo "Azure CycleCloud marketplace image terms already accepted"
-fi
+# cc_plan=$(yq eval '.cyclecloud.plan.name' $AZHOP_CONFIG)
+# if [ "$cc_plan" == "" ]; then
+#   cc_plan="cyclecloud8"
+# fi
+# accepted=$(az vm image terms show --offer azure-cyclecloud --publisher azurecyclecloud --plan $cc_plan --query 'accepted' -o tsv)
+# if [ "$accepted" != "true" ]; then
+#   echo "Azure CycleCloud marketplace image terms are not accepted, accepting them now"
+#   az vm image terms accept --offer azure-cyclecloud --publisher azurecyclecloud --plan $cc_plan -o tsv
+# else
+#   echo "Azure CycleCloud marketplace image terms already accepted"
+# fi
 
 # Accept Lustre marketplace image terms
 accepted=$(az vm image terms show --offer azurehpc-lustre --publisher azhpc --plan azurehpc-lustre-2_12 --query 'accepted' -o tsv)
