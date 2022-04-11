@@ -86,15 +86,6 @@ scheduler:
   vm_size: Standard_B2ms
 cyclecloud:
   vm_size: Standard_B2ms
-  image:
-    publisher: "azurecyclecloud"
-    offer:     "azure-cyclecloud"
-    sku:       "cyclecloud8"
-    version:   "8.2.120211111"
-  plan:
-    name: "cyclecloud8"
-    publisher:  "azurecyclecloud"
-    product:    "azure-cyclecloud"
 
 winviz:
   vm_size: Standard_D4_v5
