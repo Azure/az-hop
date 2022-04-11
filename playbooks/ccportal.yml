@@ -8,8 +8,8 @@
   hosts: ccportal
   become: true
   gather_facts: no
-  vars:
-    - ansible_python_interpreter: /usr/bin/python3
+  # vars:
+  #   - ansible_python_interpreter: /usr/bin/python3
   vars_files:
     - '{{global_config_file}}'
 
