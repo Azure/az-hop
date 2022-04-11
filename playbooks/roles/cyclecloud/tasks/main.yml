@@ -10,11 +10,15 @@
 
 # setup CycleCloud. Ported from https://github.com/Azure/cyclecloud-marketplace-image/blob/main/scripts/setup_cyclecloud.sh
 
+- name: debug
+  debug:
+    msg:
+      - "cc_version={{cc_version}}"
+
 - name: Update packages marked for security
   yum:
     state: latest
     security: yes
-
 
 - name: install AZ CLI repo
   shell: |
@@ -61,15 +65,17 @@
 
 - name: Install pre-reqs packages
   yum:
-    name:
-      - azure-cli
-      - dnsmasq
+    name: azure-cli, dnsmasq
     state: present
 
-- name: Install CycleCloud packages
+- name: Install CycleCloud
   yum:
-    name:
-      - cyclecloud8
+    name: "cyclecloud8-{{cc_version}}"
+    state: present
+
+- name: Install Jetpack
+  yum:
+    name: "jetpack8-{{cc_version}}"
     state: present
 
 - name: Create a data record for azhop and start cycleserver
@@ -109,25 +115,6 @@
   service:
     name: cycle_server
     state: stopped
-
-- name: debug
-  debug:
-    msg:
-      - "cc_jetpack_url={{cc_rpms_jetpack}}"
-      - "cc_update_url={{cc_rpms_cycle}}"
-  when: cc_rpms_cycle is defined
-
-- name: Update CycleCloud RPM
-  yum:
-    name: "{{cc_rpms_cycle}}"
-    state: present
-  when: cc_rpms_cycle is defined
-
-- name: Update Jetpack RPM
-  yum:
-    name: "{{cc_rpms_jetpack}}"
-    state: present
-  when: cc_rpms_jetpack is defined
 
 - name: Update cycle server properties
   shell: |

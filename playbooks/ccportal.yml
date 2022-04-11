@@ -8,8 +8,6 @@
   hosts: ccportal
   become: true
   gather_facts: no
-  # vars:
-  #   - ansible_python_interpreter: /usr/bin/python3
   vars_files:
     - '{{global_config_file}}'
 
@@ -38,5 +36,4 @@
       cc_storage: '{{global_cc_storage}}'
       cc_domain: '{{ad_join_domain}}'
       cc_ad_server: '{{ldap_server}}'
-      cc_rpms_jetpack: '{{ cyclecloud.rpms.jetpack | default(None) }}'
-      cc_rpms_cycle: '{{ cyclecloud.rpms.cyclecloud | default(None) }}'
+      cc_version: '{{cyclecloud.version | default("8.2.1-1733")}}'
