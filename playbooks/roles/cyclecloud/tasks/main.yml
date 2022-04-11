@@ -59,13 +59,17 @@
   args:
     creates: /tmp/data_disk_mounted
 
-
-- name: Install cyclecloud packages
+- name: Install pre-reqs packages
   yum:
     name:
       - azure-cli
-      - cyclecloud
       - dnsmasq
+    state: present
+
+- name: Install CycleCloud packages
+  yum:
+    name:
+      - cyclecloud8
     state: present
 
 - name: Create a data record for azhop and start cycleserver
