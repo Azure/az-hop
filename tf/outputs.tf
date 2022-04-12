@@ -108,3 +108,7 @@ data "local_file" "ci_jumpbox" {
   filename = "${path.root}/cloud-init/jumpbox.yml"
   depends_on = [local_file.ci_jumpbox]
 }
+
+# output "use_linux_image_reference" {
+#   value = local.use_linux_image_reference
+# }

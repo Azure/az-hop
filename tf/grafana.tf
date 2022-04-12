@@ -30,12 +30,17 @@ resource "azurerm_linux_virtual_machine" "grafana" {
     storage_account_type = "Standard_LRS"
   }
 
-  source_image_reference {
-    publisher = local.base_image_reference.publisher
-    offer     = local.base_image_reference.offer
-    sku       = local.base_image_reference.sku
-    version   = local.base_image_reference.version
+  dynamic "source_image_reference" {
+    for_each = local.use_linux_image_id ? [] : [1]
+    content {
+      publisher = local.linux_base_image_reference.publisher
+      offer     = local.linux_base_image_reference.offer
+      sku       = local.linux_base_image_reference.sku
+      version   = local.linux_base_image_reference.version
+    }
   }
+
+  source_image_id = local.linux_image_id
 
   dynamic "plan" {
     for_each = try (length(local.base_image_plan.name) > 0, false) ? [1] : []

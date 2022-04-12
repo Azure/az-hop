@@ -3,7 +3,6 @@ locals {
     azure_environment = var.AzureEnvironment
     key_vault_suffix = var.KeyVaultSuffix
     blob_storage_suffix = var.BlobStorageSuffix
-    enable_cis = false
 
     # azurerm_client_config contains empty values for Managed Identity so use variables instead
     tenant_id = var.tenant_id
@@ -24,27 +23,50 @@ locals {
         CreatedBy = var.CreatedBy
         CreatedOn = timestamp()
     }
-    _base_image_reference = {
-        publisher = "OpenLogic"
-        offer     = "CentOS"
-        sku       = "7_9-gen2"
-        version   = "latest"
+
+    # Use a linux custom image reference if the linux_base_image is defined and contains ":"
+    use_linux_image_reference = try(length(split(":", local.configuration_yml["linux_base_image"])[1])>0, false)
+    #use_linux_image_reference = false
+    # Use a linux custom image reference if the linux_base_image is defined and contains ":"
+    use_windows_image_reference = try(length(split(":", local.configuration_yml["windows_base_image"])[1])>0, false)
+
+    linux_base_image_reference = {
+        publisher = local.use_linux_image_reference ? split(":", local.configuration_yml["linux_base_image"])[0] : "OpenLogic"
+        offer     = local.use_linux_image_reference ? split(":", local.configuration_yml["linux_base_image"])[1] : "CentOS"
+        sku       = local.use_linux_image_reference ? split(":", local.configuration_yml["linux_base_image"])[2] : "7_9-gen2"
+        version   = local.use_linux_image_reference ? split(":", local.configuration_yml["linux_base_image"])[3] : "latest"
     }
-    _base_image_plan = {}
-    _cis_image_reference = {
-        publisher = "center-for-internet-security-inc"
-        offer     = "cis-centos-7-v2-1-1-l1"
-        sku       = "cis-centos7-l1"
-        version   = "3.1.5"
-    }
-    _cis_image_plan = {
-        name      = "cis-centos7-l1"
-        publisher = "center-for-internet-security-inc"
-        product   = "cis-centos-7-v2-1-1-l1"
+    windows_base_image_reference = {
+        publisher = local.use_linux_image_reference ? split(":", local.configuration_yml["windows_base_image"])[0] : "MicrosoftWindowsServer"
+        offer     = local.use_linux_image_reference ? split(":", local.configuration_yml["windows_base_image"])[1] : "WindowsServer"
+        sku       = local.use_linux_image_reference ? split(":", local.configuration_yml["windows_base_image"])[2] : "2016-Datacenter-smalldisk"
+        version   = local.use_linux_image_reference ? split(":", local.configuration_yml["windows_base_image"])[3] : "latest"
     }
 
-    base_image_reference = local.enable_cis ? local._cis_image_reference : local._base_image_reference
-    base_image_plan = local.enable_cis ? local._cis_image_plan : local._base_image_plan
+    # Use a linux custom image id if the linux_base_image is defined and contains "/"
+    use_linux_image_id = try(length(split("/", local.configuration_yml["linux_base_image"])[1])>0, false)
+    linux_image_id = local.use_linux_image_id ? local.configuration_yml["linux_base_image"] : null
+
+    # Use a windows custom image id if the windows_base_image is defined and contains "/"
+    use_windows_image_id = try(length(split("/", local.configuration_yml["windows_base_image"])[1])>0, false)
+    windows_image_id = local.use_windows_image_id ? local.configuration_yml["windows_base_image"] : null
+
+    _linux_base_image_plan = {}
+    # _cis_image_reference = {
+    #     publisher = "center-for-internet-security-inc"
+    #     offer     = "cis-centos-7-v2-1-1-l1"
+    #     sku       = "cis-centos7-l1"
+    #     version   = "3.1.5"
+    # }
+    # _cis_image_plan = {
+    #     name      = "cis-centos7-l1"
+    #     publisher = "center-for-internet-security-inc"
+    #     product   = "cis-centos-7-v2-1-1-l1"
+    # }
+
+    base_image_plan = {}
+    #linux_base_image_reference = local.use_linux_image_reference ? local._cis_image_reference : local._linux_base_image_reference
+    #base_image_plan = local.enable_cis ? local._cis_image_plan : local._linux_base_image_plan
 
     # Create the RG if not using an existing RG and (creating a VNET or when reusing a VNET in another resource group)
     use_existing_rg = try(local.configuration_yml["use_existing_rg"], false)
