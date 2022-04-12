@@ -17,7 +17,7 @@ test('CycleCloud', async ({browser}) => {
     await page.click('text=Activity');
 
     // Click text=Monitoring
-    await page.click('text=Monitoring');
+    //await page.click('text=Monitoring');
 
     await page.close()
 
