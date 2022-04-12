@@ -111,23 +111,7 @@ scheduler:
 # CycleCloud VM configuration
 cyclecloud:
   vm_size: Standard_B2ms
-  # Azure Image Reference for CycleCloud. Default to 8.2.120211111 if not present
-  image: 
-    publisher: "azurecyclecloud"
-    offer:     "azure-cyclecloud"
-    sku:       "cyclecloud8"
-    version:   "8.2.120211111"
-  # Azure Image Plan for CycleCloud. Default to 8 if not present
-  plan: 
-    name:      "cyclecloud8"
-    publisher: "azurecyclecloud"
-    product:   "azure-cyclecloud"
-# uncomment if updated RPMS need to be applied
-#  rpms:
-    # optional URL to apply a fix on the marketplace image deployed on the ccportal
-#    cyclecloud:
-    # mandatory URL on the jetpack RPM to be installed on the ccportal and the scheduler
-#    jetpack:
+  # version: 8.2.1-1733 # to specify a specific version, see https://packages.microsoft.com/yumrepos/cyclecloud/
 
 winviz:
   vm_size: Standard_D4s_v3

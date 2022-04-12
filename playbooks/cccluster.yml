@@ -1,16 +1,14 @@
 ---
 # This looks crazy but in order for this playbook to run from a pipeline, the jumpbox dummy need to be added
-# - name: jumpbox dummy
-#   hosts: jumpbox
-#   become: true
-#   vars_files:
-#     - '{{global_config_file}}'
+- name: jumpbox dummy
+  hosts: jumpbox
+  become: true
+
 - name: Setup cyclecloud
   hosts: ccportal
   become: true
   gather_facts: no
   vars:
-    - ansible_python_interpreter: /usr/bin/python3
     - lookup_img_file: image_lookup.yml
   vars_files:
     - '{{global_config_file}}'
