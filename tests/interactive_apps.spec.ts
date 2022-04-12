@@ -30,13 +30,13 @@ test('Interactive Apps', async ({browser}) => {
     await page.click('div[role="main"] >> text=Remote Desktop');
 
     // Click input[name="batch_connect_session_context\[hours\]"]
-    await page.click('input[name="batch_connect_session_context\\[hours\\]"]');
+    await page.click('input[name="batch_connect_session_context\\[num_hours\\]"]');
 
     // Fill input[name="batch_connect_session_context\[hours\]"]
-    await page.fill('input[name="batch_connect_session_context\\[hours\\]"]', '1');
+    await page.fill('input[name="batch_connect_session_context\\[num_hours\\]"]', '1');
 
     // Press Tab
-    await page.press('input[name="batch_connect_session_context\\[hours\\]"]', 'Tab');
+    await page.press('input[name="batch_connect_session_context\\[num_hours\\]"]', 'Tab');
 
     // Click input:has-text("Launch")
     await page.click('input:has-text("Launch")');
