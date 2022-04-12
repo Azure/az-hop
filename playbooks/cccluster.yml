@@ -10,7 +10,7 @@
   become: true
   gather_facts: no
   vars:
-    - ansible_python_interpreter: /usr/bin/python3
+#    - ansible_python_interpreter: /usr/bin/python3
     - lookup_img_file: image_lookup.yml
   vars_files:
     - '{{global_config_file}}'
