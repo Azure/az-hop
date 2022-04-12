@@ -189,7 +189,7 @@ jobs:
   ood:
     name: ood
     runs-on: ubuntu-latest
-    needs: [cycle, lustre, deploy]
+    needs: [cycle_cluster, lustre, deploy]
 
     container:
       image: xpillons/hpcrover:latest
