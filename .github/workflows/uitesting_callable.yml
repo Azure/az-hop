@@ -107,10 +107,10 @@ jobs:
       - uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: playwright-test-results
+          name: playwright-test-results-${{ matrix.users }}
           path: test-results/
       - uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: playwright-report
+          name: playwright-report-${{ matrix.users }}
           path: playwright-report/
