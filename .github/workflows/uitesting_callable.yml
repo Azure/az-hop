@@ -102,7 +102,8 @@ jobs:
       - name: Execute tests
         run: |
           # Add a random delay
-          sleep $[ ( $RANDOM % 60 )  + 1 ]s
+          wait_time=$((RANDOM % 10))
+          sleep ${wait_time}s
           ./run_ui_tests.sh ${{ matrix.users }}
       - uses: actions/upload-artifact@v3
         if: always()
