@@ -33,6 +33,7 @@ test('Shell Session', async ({browser}) => {
     ]);
 
     await page1.waitForLoadState('networkidle');
+    await page1.waitForTimeout(5000);
     // Click text=[hpcuser@ondemand ~]$
     const frame = page1.frame({
         url: 'about:blank'
