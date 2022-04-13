@@ -2,7 +2,7 @@ import { PlaywrightTestConfig } from '@playwright/test';
 const config: PlaywrightTestConfig = {
 //    testDir: './tests',
     /* Maximum time one test can run for. */
-    timeout: 30 * 1000,
+    timeout: 120 * 1000,
     /* Retry on CI only */
     retries: process.env.CI ? 2 : 0,
     /* Opt out of parallel tests on CI. */
