@@ -35,6 +35,17 @@ jobs:
     runs-on: ubuntu-latest
     name: init_matrix
     steps:
+      - name: Login azure
+        run: |
+          az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
+          az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
+          echo "local user: $(whoami)"
+      - name: Download azhop states
+        run: |
+          RESOURCE_GROUP=${{ inputs.resource_group }}
+          echo "Resource group name is $RESOURCE_GROUP"
+          ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
+          cat config.yml
       - name: list all images to be built
         id: set-matrix
         run: |
