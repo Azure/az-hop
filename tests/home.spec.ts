@@ -37,8 +37,9 @@ test('Shell Session', async ({browser}) => {
     const frame = page1.frame({
         url: 'about:blank'
     })
-    await frame.waitForLoadState('networkidle');
-    await frame.click('text=['+process.env.AZHOP_USER+'@ondemand ~]$');
+    await frame.waitForLoadState();
+    const line = frame.locator('text=['+process.env.AZHOP_USER+'@ondemand ~]$');
+    await line.click();
 
     await page.close()
     // Close the browser
