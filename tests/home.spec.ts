@@ -34,9 +34,11 @@ test('Shell Session', async ({browser}) => {
 
     await page1.waitForLoadState('networkidle');
     // Click text=[hpcuser@ondemand ~]$
-    await page1.frame({
+    const frame = page1.frame({
         url: 'about:blank'
-    }).click('text=['+process.env.AZHOP_USER+'@ondemand ~]$');
+    })
+    await frame.waitForLoadState('networkidle');
+    await frame.click('text=['+process.env.AZHOP_USER+'@ondemand ~]$');
 
     await page.close()
     // Close the browser
