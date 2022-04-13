@@ -2,6 +2,7 @@
 .terraform*
 *.tfstate*
 tf/cloud-init/jumpbox.yml
+tf/active_directory/cloud-init/jumpbox.yml
 
 # Config files and generated options files
 config.yml
