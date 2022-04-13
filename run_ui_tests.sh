@@ -1,16 +1,19 @@
 #!/bin/bash
 set -e
-USER_INDEX=${1:-0}
-shift
+USER_NAME=$1
 AZHOP_CONFIG=config.yml
 ANSIBLE_VARIABLES=playbooks/group_vars/all.yml
 
 echo "Retrieve Username, password and FQDN"
 key_vault=$(yq eval '.key_vault' $ANSIBLE_VARIABLES)
-eval_expr=".users[$USER_INDEX].name"
-user=$(yq eval $eval_expr $AZHOP_CONFIG)
-password=$(./bin/get_secret $user)
-export AZHOP_USER=$user
+if [ -z "$USER_NAME" ]; then
+    USER_NAME=$(yq eval '.users[0].name' $AZHOP_CONFIG)
+else
+    shift
+fi
+
+password=$(./bin/get_secret $USER_NAME)
+export AZHOP_USER=$USER_NAME
 export AZHOP_PASSWORD=$password
 
 fqdn=$(yq eval '.ondemand_fqdn' $ANSIBLE_VARIABLES)

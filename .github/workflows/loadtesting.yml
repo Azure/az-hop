@@ -8,14 +8,10 @@ on:
         required: true
 
 jobs:
-  strategy:
-    matrix:
-      user_index: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
   run_tests:
     uses: azure/az-hop/.github/workflows/uitesting_callable.yml@main
     with:
       resource_group: ${{ github.event.inputs.resource_group }}
-      user_index: ${{ matrix.user_index }}
     secrets:
       ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
       ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}

@@ -7,11 +7,11 @@ on:
         description: 'Name of the resource group to test the environment deployed in'
         required: true
         type: string
-      user_index:
-        description: 'Index of the user to test the environment deployed in'
+      users:
+        description: 'Number of the users to test the environment deployed in'
         required: false
         type: number
-        default: 0
+        default: 1
     secrets:
       ARM_SUBSCRIPTION_ID:
         required: true
@@ -31,9 +31,26 @@ env:
   AZHOP_STATE_ACCOUNT: azhopstates
 
 jobs:
+  init_matrix:
+    runs-on: ubuntu-latest
+    name: init_matrix
+    steps:
+      - name: list all images to be built
+        id: set-matrix
+        run: |
+          users=$(yq eval ".users[].name" config.yml | jq -cRn '[inputs]')
+          # TODO: Add a filter to reduce the number of users tested to the number of users specified in input
+          echo "::set-output name=matrix::$users"
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+
   run_tests:
     name: run_tests
     runs-on: ubuntu-latest
+    needs: [init_matrix]
+    strategy: 
+      matrix:
+        users: ${{ fromJson(needs.init_matrix.outputs.matrix) }}
     timeout-minutes: 60
 
     container:
@@ -66,7 +83,7 @@ jobs:
           cat config.yml
       - name: Execute tests
         run: |
-          ./run_ui_tests.sh ${{ inputs.user_index }}
+          ./run_ui_tests.sh ${{ matrix.users }}
       - uses: actions/upload-artifact@v3
         if: always()
         with:
