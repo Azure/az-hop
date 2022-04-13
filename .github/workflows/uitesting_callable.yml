@@ -7,6 +7,11 @@ on:
         description: 'Name of the resource group to test the environment deployed in'
         required: true
         type: string
+      user_index:
+        description: 'Index of the user to test the environment deployed in'
+        required: false
+        type: integer
+        default: 0
     secrets:
       ARM_SUBSCRIPTION_ID:
         required: true
@@ -61,7 +66,7 @@ jobs:
           cat config.yml
       - name: Execute tests
         run: |
-          ./run_ui_tests.sh
+          ./run_ui_tests.sh ${{ inputs.user_index }}
       - uses: actions/upload-artifact@v3
         if: always()
         with:
