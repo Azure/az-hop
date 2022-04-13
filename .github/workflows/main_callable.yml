@@ -260,7 +260,6 @@ jobs:
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           ./install.sh ccportal
-          ./install.sh add_users
 
   add_users:
     name: add_users
@@ -290,7 +289,7 @@ jobs:
   cycle_cluster:
     name: cycle_cluster
     runs-on: ubuntu-latest
-    needs: [cycle, deploy, build_image]
+    needs: [add_users, deploy, build_image]
 
     container:
       image: xpillons/hpcrover:latest
