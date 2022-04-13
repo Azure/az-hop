@@ -33,7 +33,7 @@ test('Shell Session', async ({browser}) => {
     ]);
 
     await page1.waitForLoadState('networkidle');
-    await page1.waitForTimeout(5000);
+    await page1.waitForTimeout(5000); // this delay is to allow the shell session to open in the frame
     // Click text=[hpcuser@ondemand ~]$
     const frame = page1.frame({
         url: 'about:blank'
