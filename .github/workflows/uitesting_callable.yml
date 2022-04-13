@@ -67,6 +67,8 @@ jobs:
     strategy: 
       matrix:
         users: ${{ fromJson(needs.init_matrix.outputs.matrix) }}
+      fail-fast: false
+
     timeout-minutes: 60
 
     container:
