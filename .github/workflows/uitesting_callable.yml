@@ -10,7 +10,7 @@ on:
       user_index:
         description: 'Index of the user to test the environment deployed in'
         required: false
-        type: integer
+        type: number
         default: 0
     secrets:
       ARM_SUBSCRIPTION_ID:
