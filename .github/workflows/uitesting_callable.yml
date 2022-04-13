@@ -55,7 +55,7 @@ jobs:
       - name: list all images to be built
         id: set-matrix
         run: |
-          users=$(yq eval ".users[].name" config.yml | tail -n ${{ inputs.users }} | jq -cRn '[inputs]')
+          users=$(yq eval ".users[].name" config.yml | head -n ${{ inputs.users }} | jq -cRn '[inputs]')
           echo "::set-output name=matrix::$users"
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
