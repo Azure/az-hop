@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 USER_INDEX=${1:-0}
+shift
 AZHOP_CONFIG=config.yml
 ANSIBLE_VARIABLES=playbooks/group_vars/all.yml
 
