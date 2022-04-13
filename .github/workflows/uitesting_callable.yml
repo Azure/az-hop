@@ -10,6 +10,7 @@ on:
       users:
         description: 'Number of the users to test the environment deployed in'
         required: false
+        type: string
         default: 1
     secrets:
       ARM_SUBSCRIPTION_ID:
