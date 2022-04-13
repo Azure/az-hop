@@ -9,6 +9,7 @@ on:
       nb_users:
         description: 'Number of users to test'
         required: false
+        type: number
         default: 1
 
 jobs:
