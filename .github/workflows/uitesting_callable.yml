@@ -34,7 +34,13 @@ jobs:
   init_matrix:
     runs-on: ubuntu-latest
     name: init_matrix
+    container:
+      image: xpillons/hpcrover:latest
+      options: --user 0
     steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
       - name: Login azure
         run: |
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
