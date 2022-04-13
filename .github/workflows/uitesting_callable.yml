@@ -55,8 +55,7 @@ jobs:
       - name: list all images to be built
         id: set-matrix
         run: |
-          users=$(yq eval ".users[].name" config.yml | jq -cRn '[inputs]')
-          # TODO: Add a filter to reduce the number of users tested to the number of users specified in input
+          users=$(yq eval ".users[].name" config.yml | tail -n ${{ inputs.users }} | jq -cRn '[inputs]')
           echo "::set-output name=matrix::$users"
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
