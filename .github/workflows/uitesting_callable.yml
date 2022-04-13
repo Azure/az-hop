@@ -101,6 +101,8 @@ jobs:
           cat config.yml
       - name: Execute tests
         run: |
+          # Add a random delay
+          sleep $[ ( $RANDOM % 60 )  + 1 ]s
           ./run_ui_tests.sh ${{ matrix.users }}
       - uses: actions/upload-artifact@v3
         if: always()
