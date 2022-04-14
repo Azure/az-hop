@@ -372,6 +372,22 @@
       sed -i "s/^LoadModule mpm_worker_module/#LoadModule mpm_worker_module/" /opt/rh/httpd24/root/etc/httpd/conf.modules.d/00-mpm.conf
       sed -i "s/^#LoadModule mpm_event_module/LoadModule mpm_event_module/" /opt/rh/httpd24/root/etc/httpd/conf.modules.d/00-mpm.conf
 
+    - name: Tune Apache mpm_event_module
+      copy:
+        dest: /opt/rh/httpd24/root/etc/httpd/conf.d/mpm_event_module.conf
+        content: |
+          <IfModule mpm_event_module>
+            ServerLimit            32
+            StartServers           2
+            MaxRequestWorkers      512
+            MinSpareThreads        25
+            MaxSpareThreads        75
+            ThreadsPerChild        32
+            MaxRequestsPerChild    0
+            ThreadLimit            512
+            ListenBacklog          511
+          </IfModule>
+
   - name: restart ood
     shell: systemctl try-restart httpd24-httpd.service httpd24-htcacheclean.service
 
