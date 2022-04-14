@@ -17,6 +17,7 @@ jobs:
     with:
       resource_group: ${{ github.event.inputs.resource_group }}
       users: ${{ github.event.inputs.nb_users }}
+      scenarios: "ood*.*"
     secrets:
       ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
       ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
