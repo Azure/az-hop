@@ -366,6 +366,12 @@
       minute: "0,10,20,30,40,50"
       job: "test -e /mnt/resource/passenger-tmp || (mkdir /mnt/resource/passenger-tmp && chmod 777 /mnt/resource/passenger-tmp)"
 
+  - name: Enable Apache mpm_event_module
+    shell: |
+      sed -i "s/^LoadModule mpm_prefork_module/#LoadModule mpm_prefork_module/" /opt/rh/httpd24/root/etc/httpd/conf.modules.d/00-mpm.conf
+      sed -i "s/^LoadModule mpm_worker_module/#LoadModule mpm_worker_module/" /opt/rh/httpd24/root/etc/httpd/conf.modules.d/00-mpm.conf
+      sed -i "s/^#LoadModule mpm_event_module/LoadModule mpm_event_module/" /opt/rh/httpd24/root/etc/httpd/conf.modules.d/00-mpm.conf
+
   - name: restart ood
     shell: systemctl try-restart httpd24-httpd.service httpd24-htcacheclean.service
 
