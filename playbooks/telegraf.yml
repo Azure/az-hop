@@ -34,6 +34,32 @@
       telegraf_influxdb_urls: 
         - "http://grafana:8086"
 
+- name: OnDemand Metrics
+  hosts: ondemand
+  become: true
+  vars_files:
+    - '{{global_config_file}}'
+
+  tasks:
+    - name: enable apache mod_status
+      copy:
+        dest: /opt/rh/httpd24/root/etc/httpd/conf.d/mod_status.conf
+        content: |
+          <Location "/server-status">
+              SetHandler server-status
+          </Location>
+
+    - name: add apache metrics to telegraf config
+      blockinfile:
+        path: /etc/telegraf/telegraf.conf
+        block: |
+          [[inputs.apache]]
+            urls = ["http://localhost/server-status?auto"]
+            insecure_skip_verify = true
+
+    - name: restart ood
+      shell: systemctl try-restart httpd24-httpd.service httpd24-htcacheclean.service
+
 - name: Robinhood metrics
   hosts: robinhood
   become: true
