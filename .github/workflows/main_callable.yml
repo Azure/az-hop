@@ -160,7 +160,6 @@ jobs:
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           ./install.sh ad
           ./install.sh linux
-          ./install.sh add_users
 
   lustre:
     name: lustre
@@ -190,7 +189,7 @@ jobs:
   ood:
     name: ood
     runs-on: ubuntu-latest
-    needs: [cycle, lustre, deploy]
+    needs: [cycle_cluster, lustre, deploy]
 
     container:
       image: xpillons/hpcrover:latest
@@ -240,7 +239,7 @@ jobs:
   cycle:
     name: cycle
     runs-on: ubuntu-latest
-    needs: [ad, build_image, deploy]
+    needs: [ad, deploy]
 
     container:
       image: xpillons/hpcrover:latest
@@ -261,6 +260,55 @@ jobs:
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           ./install.sh ccportal
+
+  add_users:
+    name: add_users
+    runs-on: ubuntu-latest
+    needs: [cycle, deploy]
+
+    container:
+      image: xpillons/hpcrover:latest
+      options: --user 0
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+         
+      - name: Login azure
+        run: |
+          az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
+          az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
+
+      - name: Install applications
+        run: |
+          RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
+          ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
+          ./install.sh add_users
+
+  cycle_cluster:
+    name: cycle_cluster
+    runs-on: ubuntu-latest
+    needs: [add_users, deploy, build_image]
+
+    container:
+      image: xpillons/hpcrover:latest
+      options: --user 0
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+         
+      - name: Login azure
+        run: |
+          az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
+          az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
+
+      - name: Install applications
+        run: |
+          RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
+          ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           ./install.sh cccluster
           ./install.sh scheduler
 
@@ -378,7 +426,7 @@ jobs:
   run_tests:
     name: run_tests
     runs-on: ubuntu-latest
-    needs: [deploy, cycle, ood]
+    needs: [deploy, cycle, ood, cycle_cluster]
     container:
       image: xpillons/hpcrover:latest
       options: --user 0

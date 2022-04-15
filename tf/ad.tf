@@ -32,12 +32,18 @@ resource "azurerm_windows_virtual_machine" "ad" {
     storage_account_type = "StandardSSD_LRS"
   }
 
-  source_image_reference {
-    publisher = "MicrosoftWindowsServer"
-    offer     = "WindowsServer"
-    sku       = "2016-Datacenter-smalldisk"
-    version   = "latest"
+  dynamic "source_image_reference" {
+    for_each = local.use_windows_image_id ? [] : [1]
+    content {
+      publisher = local.windows_base_image_reference.publisher
+      offer     = local.windows_base_image_reference.offer
+      sku       = local.windows_base_image_reference.sku
+      version   = local.windows_base_image_reference.version
+    }
   }
+
+  source_image_id = local.windows_image_id
+
 }
 
 resource "azurerm_network_interface_application_security_group_association" "ad-asg-asso" {

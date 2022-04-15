@@ -30,13 +30,13 @@ resource "azurerm_key_vault_access_policy" "admin" {
   object_id    = local.logged_user_objectId
 
   secret_permissions = [
-      "get",
-      "set",
-      "list",
-      "delete",
-      "purge",
-      "recover",
-      "restore"
+      "Get",
+      "Set",
+      "List",
+      "Delete",
+      "Purge",
+      "Recover",
+      "Restore"
     ]
 }
 
@@ -48,8 +48,8 @@ resource "azurerm_key_vault_access_policy" "reader" {
   object_id    = local.key_vault_readers != null ? local.key_vault_readers : local.logged_user_objectId
 
   secret_permissions = [
-      "get",
-      "list"
+      "Get",
+      "List"
     ]
 }
 

@@ -11,10 +11,6 @@
   - **Reader** on the subscription
 - Your subscription need to be registered for NetApp resource provider as explained [here](https://docs.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-register#waitlist)
 - If using ANF Dual Protocol be aware of the limitation of one ANF account allow to be domain joined per region in the same subscription
-- The CycleCloud marketplace image need to be allowed, this is the default unless your subscription have a policy blocking it. The EULA terms need to be accepted, this is done in the build script, but if you are not granted to do so, ask your administrator to run this command :
-```bash
-az vm image terms accept --offer azure-cyclecloud --publisher azurecyclecloud --plan cyclecloud8
-```
 - The Azure HPC Lustre marketplace image terms need to be accepted
 ```bash
 az vm image terms accept --offer azurehpc-lustre --publisher azhpc --plan azurehpc-lustre-2_12

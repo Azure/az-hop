@@ -4,6 +4,4 @@ cc_password:
 cc_storage:
 cc_domain:
 cc_ad_server:
-cc_rpms_jetpack:
-cc_rpms_cycle:
-
+cc_version:
