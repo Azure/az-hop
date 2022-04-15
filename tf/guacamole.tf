@@ -30,18 +30,26 @@ resource "azurerm_linux_virtual_machine" "guacamole" {
     storage_account_type = "Standard_LRS"
   }
 
-  source_image_reference {
-    publisher = "OpenLogic"
-    offer     = "CentOS"
-    sku       = "7_9-gen2"
-    version   = "latest"
+  dynamic "source_image_reference" {
+    for_each = local.use_linux_image_id ? [] : [1]
+    content {
+      publisher = local.linux_base_image_reference.publisher
+      offer     = local.linux_base_image_reference.offer
+      sku       = local.linux_base_image_reference.sku
+      version   = local.linux_base_image_reference.version
+    }
   }
-  # source_image_reference {
-  #   publisher = "Canonical"
-  #   offer     = "0001-com-ubuntu-server-focal"
-  #   sku       = "20_04-lts-gen2"
-  #   version   = "latest"
-  # }
+
+  source_image_id = local.linux_image_id
+
+  dynamic "plan" {
+    for_each = try (length(local.base_image_plan.name) > 0, false) ? [1] : []
+    content {
+        name      = local.base_image_plan.name
+        publisher = local.base_image_plan.publisher
+        product   = local.base_image_plan.product
+    }
+  }
 
   identity {
     type         = "UserAssigned"
@@ -61,8 +69,8 @@ resource "azurerm_key_vault_access_policy" "guacamole" {
   tenant_id    = local.tenant_id
   object_id    = azurerm_user_assigned_identity.guacamole.principal_id
 
-  key_permissions = [ "get", "list" ]
-  secret_permissions = [ "get", "list" ]
+  key_permissions = [ "Get", "List" ]
+  secret_permissions = [ "Get", "List" ]
 }
 
 resource "azurerm_network_interface_application_security_group_association" "guacamole-asg-asso" {

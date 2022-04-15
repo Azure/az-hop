@@ -267,8 +267,8 @@ locals {
         AllowRdpIn                  = ["550", "Inbound", "Allow", "Tcp", "Rdp",                "asg/asg-jumpbox",          "asg/asg-rdp"],
 
         # Guacamole
-        AllowGuacamoleWebIn         = ["600", "Inbound", "Allow", "tcp", "Guacamole",           "asg/asg-ondemand",          "asg/asg-guacamole"],
-        AllowGuacamoleRdpIn         = ["610", "Inbound", "Allow", "tcp", "Rdp",                 "asg/asg-guacamole",         "subnet/compute"],
+        AllowGuacamoleWebIn         = ["600", "Inbound", "Allow", "Tcp", "Guacamole",           "asg/asg-ondemand",          "asg/asg-guacamole"],
+        AllowGuacamoleRdpIn         = ["610", "Inbound", "Allow", "Tcp", "Rdp",                 "asg/asg-guacamole",         "subnet/compute"],
 
         # Deny all remaining traffic
         DenyVnetInbound             = ["3100", "Inbound", "Deny", "*", "All",                  "tag/VirtualNetwork",       "tag/VirtualNetwork"],
@@ -345,8 +345,8 @@ locals {
         AllowDnsOut                 = ["590", "Outbound", "Allow", "*",   "Dns",                "tag/VirtualNetwork",       "tag/VirtualNetwork"],
 
         # Guacamole
-        AllowGuacamoleWebOut        = ["600", "Outbound", "Allow", "tcp", "Guacamole",           "asg/asg-ondemand",         "asg/asg-guacamole"],
-        AllowGuacamoleRdpOut        = ["610", "Outbound", "Allow", "tcp", "Rdp",                 "asg/asg-guacamole",         "subnet/compute"],
+        AllowGuacamoleWebOut        = ["600", "Outbound", "Allow", "Tcp", "Guacamole",           "asg/asg-ondemand",         "asg/asg-guacamole"],
+        AllowGuacamoleRdpOut        = ["610", "Outbound", "Allow", "Tcp", "Rdp",                 "asg/asg-guacamole",         "subnet/compute"],
 
         # Deny all remaining traffic and allow Internet access
         AllowInternetOutBound       = ["3000", "Outbound", "Allow", "Tcp", "All",               "tag/VirtualNetwork",       "tag/Internet"],
