@@ -315,7 +315,7 @@ jobs:
   telegraf:
     name: telegraf
     runs-on: ubuntu-latest
-    needs: [grafana, lustre, cycle, deploy]
+    needs: [grafana, lustre, cycle, deploy, ood]
 
     container:
       image: xpillons/hpcrover:latest
