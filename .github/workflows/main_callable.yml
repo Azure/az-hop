@@ -53,7 +53,7 @@ env:
 jobs:
   deploy:
     name: deploy
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     timeout-minutes: 60
 
     container:
@@ -137,7 +137,7 @@ jobs:
 
   ad:
     name: ad
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: deploy
 
     container:
@@ -163,7 +163,7 @@ jobs:
 
   lustre:
     name: lustre
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [ad, deploy]
 
     container:
@@ -188,7 +188,7 @@ jobs:
 
   ood:
     name: ood
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [cycle_cluster, lustre, deploy]
 
     container:
@@ -213,7 +213,7 @@ jobs:
 
   grafana:
     name: grafana
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [ad, deploy]
 
     container:
@@ -238,7 +238,7 @@ jobs:
 
   cycle:
     name: cycle
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [ad, deploy]
 
     container:
@@ -263,7 +263,7 @@ jobs:
 
   add_users:
     name: add_users
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [cycle, deploy]
 
     container:
@@ -288,7 +288,7 @@ jobs:
 
   cycle_cluster:
     name: cycle_cluster
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [add_users, deploy, build_image]
 
     container:
@@ -314,7 +314,7 @@ jobs:
 
   telegraf:
     name: telegraf
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [grafana, lustre, cycle, deploy, ood]
 
     container:
@@ -371,7 +371,7 @@ jobs:
 
   build_image:
     name: build_image
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [deploy, set_image_list]
     strategy: 
       matrix:
@@ -400,7 +400,7 @@ jobs:
 
   run_tests:
     name: run_tests
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [deploy, cycle, ood, cycle_cluster]
     container:
       image: xpillons/hpcrover:latest
