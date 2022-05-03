@@ -113,6 +113,10 @@ groups:
   - name: users
     gid: 5000
 
+# Enable cvmfs-eessi - disabled by default
+cvmfs_eessi:
+  enabled: true
+
 # scheduler to be installed and configured
 queue_manager: __SCHEDULER__
 
@@ -120,6 +124,29 @@ queue_manager: __SCHEDULER__
 slurm:
   # Enable SLURM accounting, this will create a SLURM accounting database in a managed MySQL server instance
   accounting_enabled: true
+  # Enable container support for SLURM using Enroot/Pyxis (global switch)
+  # Each queue with container support must have its own enroot_enabled switch set to true
+  enroot_enabled: true
+
+# Authentication configuration for accessing the az-hop portal
+# Default is basic authentication. For oidc authentication you have to specify the following values
+# The OIDCClient secret need to be stored as a secret named <oidc-client-id>-password in the keyvault used by az-hop
+authentication:
+  httpd_auth: basic # oidc or basic
+  # User mapping https://osc.github.io/ood-documentation/latest/reference/files/ood-portal-yml.html#ood-portal-generator-user-map-match
+  # You can specify either a map_match or a user_map_cmd
+  # Domain users are mapped to az-hop users with the same name and without the domain name
+  # user_map_match: '^([^@]+)@mydomain.foo$'
+  # If using a custom mapping script, update it from the ./playbooks/files directory before running the playbook
+  # user_map_cmd: /opt/ood/ood_auth_map/bin/custom_mapping.sh
+  # ood_auth_openidc:
+  #   OIDCProviderMetadataURL: # for AAD use 'https://sts.windows.net/{{tenant_id}}/.well-known/openid-configuration'
+  #   OIDCClientID: 'XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX'
+  #   OIDCRemoteUserClaim: # for AAD use 'upn'
+  #   OIDCScope: # for AAD use 'openid profile email groups'
+  #   OIDCPassIDTokenAs: # for AAD use 'serialized'
+  #   OIDCPassRefreshToken: # for AAD use 'On'
+  #   OIDCPassClaimsAs: # for AAD use 'environment'
 
 images:
   - name: azhop-centos79-v2-rdma-gpgpu
