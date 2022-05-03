@@ -63,9 +63,9 @@ network:
         name: compute
         address_prefixes: "10.128.0.128/25"
         create: true
- peering: # This list is optional, and can be used to create VNet Peerings in the same subscription.
-   - vnet_name: "azhop_hub" #"VNET Name to Peer to"
-     vnet_resource_group: "azhop_control_plane_westeurope" #"Resource Group of the VNET to peer to"
+  peering: # This list is optional, and can be used to create VNet Peerings in the same subscription.
+    - vnet_name: "azhop_hub" #"VNET Name to Peer to"
+      vnet_resource_group: "azhop_control_plane_westeurope" #"Resource Group of the VNET to peer to"
 
 # When working in a locked down network, uncomment and fill out this section
 locked_down_network:
