@@ -24,6 +24,7 @@ playbooks/*.ok
 *.pem
 *.key
 *.crt
+*.csr
 
 # bin
 bin/*
