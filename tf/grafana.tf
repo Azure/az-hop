@@ -50,7 +50,12 @@ resource "azurerm_linux_virtual_machine" "grafana" {
         product   = local.base_image_plan.product
     }
   }
-  #depends_on = [azurerm_network_interface_application_security_group_association.grafana-asg-asso]
+
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
 }
 
 resource "azurerm_network_interface_application_security_group_association" "grafana-asg-asso" {

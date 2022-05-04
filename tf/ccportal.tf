@@ -54,6 +54,12 @@ resource "azurerm_linux_virtual_machine" "ccportal" {
         product   = local.base_image_plan.product
     }
   }
+  
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
 }
 
 resource "azurerm_managed_disk" "ccportal_datadisk" {
