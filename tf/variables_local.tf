@@ -347,6 +347,11 @@ locals {
         AllowInternetHttpIn         = ["210", "Inbound", "Allow", "Tcp", "Web",                "tag/Internet", "asg/asg-ondemand"], # Only when using a PIP
     }
 
+    hub_nsg_rules = {
+        AllowHubSshIn          = ["200", "Inbound", "Allow", "Tcp", "Ssh",                      "tag/VirtualNetwork", "asg/asg-jumpbox"],
+        AllowHubHttpIn         = ["210", "Inbound", "Allow", "Tcp", "Web",                      "tag/VirtualNetwork", "asg/asg-ondemand"],
+    }
+
     bastion_nsg_rules = {
         AllowBastionIn              = ["530", "Inbound", "Allow", "Tcp", "Bastion",            "subnet/bastion",           "tag/VirtualNetwork"],
     }
@@ -358,7 +363,7 @@ locals {
     nsg_rules = merge(  local._nsg_rules, 
                         local.no_bastion_subnet ? {} : local.bastion_nsg_rules, 
                         local.no_gateway_subnet ? {} : local.gateway_nsg_rules,
-                        local.allow_public_ip ? local.internet_nsg_rules : {})
+                        local.allow_public_ip ? local.internet_nsg_rules : hub_nsg_rules)
 
 }
 
