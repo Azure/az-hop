@@ -363,7 +363,7 @@ locals {
     nsg_rules = merge(  local._nsg_rules, 
                         local.no_bastion_subnet ? {} : local.bastion_nsg_rules, 
                         local.no_gateway_subnet ? {} : local.gateway_nsg_rules,
-                        local.allow_public_ip ? local.internet_nsg_rules : hub_nsg_rules)
+                        local.allow_public_ip ? local.internet_nsg_rules : local.hub_nsg_rules)
 
 }
 
