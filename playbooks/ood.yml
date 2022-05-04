@@ -50,9 +50,9 @@
     register: sslcert
 
   #
-  # Block to generate a certificate when using a public IP
+  # Block to generate a Let's Encrypt certificate when using a public IP
   #
-  - name: Generate Let's Encrypt Certificate
+  - name: Generate Let's Encrypt Certificate when using a public IP
     block:
       - name: Run the ood-ansible role to get certificate
         include_role:
@@ -65,7 +65,7 @@
           httpd_public_root: /var/www/ood/.well-known
         when: sslcert.stat.exists == False
 
-      - name: Generate HTTPS certificate
+      - name: Generate Let's Encrypt HTTPS certificate
         shell: |
           cd /root
 
@@ -91,34 +91,18 @@
           creates: /etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.crt
         when: sslcert.stat.exists == False
 
-      - name: Run the ood-ansible role for HTTPS
-        include_role:
-          name: ood-ansible
-        vars:
-          servername: '{{ ondemand_fqdn }}'
-          httpd_port: 443
-          oidc_client_secret: '{{ oidc_secret.stdout | default(None)}}'
-          ssl:
-          - SSLCertificateFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.crt"
-          - SSLCertificateKeyFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.key"
-          - SSLCertificateChainFile "/etc/ssl/{{ ondemand_fqdn }}/letsencryptauthorityx3.pem.txt"
+      - name: Set the SSLCertificateChainFile variable
+        set_fact:
+          SSLCertificateChainFile: SSLCertificateChainFile "/etc/ssl/{{ ondemand_fqdn }}/letsencryptauthorityx3.pem.txt"
 
-    when: ( ondemand.generate_certificate | default(true) )
+    when: ( ondemand.generate_certificate | default(true) and 
+            locked_down_network.public_ip | default(true) )
 
   #
   # Block to use an existing certificate
   #
   - name: use an existing certificate
     block:
-      # - name: Generate a Self Signed OpenSSL certificate
-      #   openssl_certificate:
-      #     path: '{{ ondemand_fqdn }}.crt'
-      #     privatekey_path: '{{ ondemand_fqdn }}.key'
-      #     provider: selfsigned
-      #   delegate_to: localhost
-      #   connection: local
-      #   when: sslcert.stat.exists == False
-
       - name: copy cert files
         copy:
           src: '{{item}}'
@@ -147,19 +131,87 @@
         set_fact:
           SSLCertificateChainFile: SSLCertificateChainFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}_chain.crt"
         when: sslcert_chain.stat.exists == True
+    # When public_ip == false and generate_certificate == false
+    when: not (locked_down_network.public_ip | default(true)) and
+          not (ondemand.generate_certificate | default(true))
 
-      - name: Run the ood-ansible role for HTTPS
-        include_role:
-          name: ood-ansible
-        vars:
-          servername: '{{ ondemand_fqdn }}'
-          httpd_port: 443
-          oidc_client_secret: '{{ oidc_secret.stdout | default(None)}}'
-          ssl:
-          - SSLCertificateFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.crt"
-          - SSLCertificateKeyFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.key"
-          - "{{SSLCertificateChainFile | default(None)}}"
-    when: not ( ondemand.generate_certificate | default(true) )
+  #
+  # Block to generate a self_signed certificate
+  #
+  - name: generate a self_signed certificate
+    block:
+      # - name: upgrade pip
+      #   pip:
+      #     name: pip
+      #     state: latest
+      #     executable: /usr/bin/pip3
+
+      - name: install python OpenSSL dependencies
+        delegate_to: localhost
+        connection: local
+        become: false
+        pip:
+          name: PyOpenSSL
+          state: latest
+
+      - name: Generate an OpenSSL private key
+        delegate_to: localhost
+        connection: local
+        become: false
+        openssl_privatekey:
+          path: "{{ ondemand_fqdn }}.key"
+          size: 4096
+          type: "DSA"
+          backup: yes
+
+      - name: Generate an OpenSSL Certificate Signing Request with Subject information
+        delegate_to: localhost
+        connection: local
+        become: false
+        openssl_csr:
+          path: "{{ ondemand_fqdn }}.csr"
+          privatekey_path: "{{ ondemand_fqdn }}.key"
+          country_name: "US"
+          organization_name: "Microsoft"
+          email_address: "azhop@microsoft.com"
+          common_name: "{{ ondemand_fqdn }}"
+
+      - name: Generate a Self Signed OpenSSL certificate
+        delegate_to: localhost
+        connection: local
+        become: false
+        openssl_certificate:
+          path: '{{ ondemand_fqdn }}.crt'
+          privatekey_path: '{{ ondemand_fqdn }}.key'
+          csr_path: "{{ ondemand_fqdn }}.csr"
+          provider: selfsigned
+
+      - name: copy cert files
+        copy:
+          src: '{{item}}'
+          dest: '/etc/ssl/{{ ondemand_fqdn }}/'
+        with_items:
+          - '{{ ondemand_fqdn }}.crt'
+          - '{{ ondemand_fqdn }}.key'
+        when: sslcert.stat.exists == False
+
+    # when public_ip == false and generate_certificate == true
+    when: not (locked_down_network.public_ip | default(true)) and
+          ondemand.generate_certificate | default(true)
+
+  - name: Run the ood-ansible role for HTTPS
+    include_role:
+      name: ood-ansible
+    vars:
+      servername: '{{ ondemand_fqdn }}'
+      httpd_port: 443
+      oidc_client_secret: '{{ oidc_secret.stdout | default(None)}}'
+      ssl:
+      - SSLCertificateFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.crt"
+      - SSLCertificateKeyFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.key"
+      - "{{SSLCertificateChainFile | default(None)}}"
+
+#    not ( ondemand.generate_certificate | default(true) )
 
   - name: Copy logo
     copy: 
