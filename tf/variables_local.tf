@@ -207,10 +207,6 @@ locals {
         #                           #     #   ##  #    #  #    #  #    #  #   ##  #    #
         #                          ###    #    #  #####    ####    ####   #    #  #####
         # ================================================================================================================================================================
-        # Public Inbound 
-        AllowInternetSshIn          = ["200", "Inbound", "Allow", "Tcp", "Ssh",                "tag/Internet", "asg/asg-jumpbox"], # Only when using a PIP
-        AllowInternetHttpIn         = ["210", "Inbound", "Allow", "Tcp", "Web",                "tag/Internet", "asg/asg-ondemand"], # Only when using a PIP
-
         # AD communication
         AllowAdServerTcpIn          = ["220", "Inbound", "Allow", "Tcp", "DomainControlerTcp", "asg/asg-ad",        "asg/asg-ad-client"],
         AllowAdServerUdpIn          = ["230", "Inbound", "Allow", "Udp", "DomainControlerUdp", "asg/asg-ad",        "asg/asg-ad-client"],
@@ -347,9 +343,10 @@ locals {
     }
 
     internet_nsg_rules = {
-        AllowInternetSshIn          = ["200", "Inbound", "Allow", "Tcp", "Public_Ssh",                "tag/Internet", "asg/asg-jumpbox"], # Only when using a PIP
+        AllowInternetSshIn          = ["200", "Inbound", "Allow", "Tcp", "Public_Ssh",         "tag/Internet", "asg/asg-jumpbox"], # Only when using a PIP
         AllowInternetHttpIn         = ["210", "Inbound", "Allow", "Tcp", "Web",                "tag/Internet", "asg/asg-ondemand"], # Only when using a PIP
     }
+
     bastion_nsg_rules = {
         AllowBastionIn              = ["530", "Inbound", "Allow", "Tcp", "Bastion",            "subnet/bastion",           "tag/VirtualNetwork"],
     }
