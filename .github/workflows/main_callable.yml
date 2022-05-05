@@ -97,6 +97,32 @@ jobs:
             sed -i "s/__ANF_DUAL__/$ANF_DUAL/g" config.yml
             SCHEDULER=${{ inputs.scheduler }}
             sed -i "s/__SCHEDULER__/$SCHEDULER/g" config.yml
+
+            # If peering, then find out which IP range can be used
+            peered_vnet=$(yq eval ".network.peering[0].vnet_name" config.yml)
+            if [ "$peered_vnet" != "null" ]; then
+              peered_vnet_rg=$(yq eval ".network.peering[0].vnet_resource_group" config.yml)
+              # fill up range mapping
+              for i in $(seq 0 1 255); do
+                range_mapping+=(0)
+              done
+              # Get all peered IP ranges
+              remoteAddressSpace=$(az network vnet peering list --resource-group $peered_vnet_rg --vnet-name $peered_vnet --query '[].remoteAddressSpace.addressPrefixes' -o tsv)
+              for address in $remoteAddressSpace; do
+                echo "Peered IP range: $address"
+                # Get the second octet of the IP range
+                octet=$(echo $address | cut -d. -f2)
+                range_mapping[$octet]=1
+              done
+              echo ${range_mapping[@]}
+              second_octet=$(( ( RANDOM % 255 )  + 1 ))
+              while [ ${range_mapping[$second_octet]} == 1 ]; do
+                second_octet=$(( ( RANDOM % 255 )  + 1 ))
+              done
+              echo "Second octet: $second_octet"
+              sed_exp="s/10.128/10.$second_octet/g"
+              sed -i $sed_exp config.yml
+            fi
           fi
 
           # write the name of the resource group in the output of the job so it can be reused in others

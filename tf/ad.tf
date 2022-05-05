@@ -44,6 +44,11 @@ resource "azurerm_windows_virtual_machine" "ad" {
 
   source_image_id = local.windows_image_id
 
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
 }
 
 resource "azurerm_network_interface_application_security_group_association" "ad-asg-asso" {

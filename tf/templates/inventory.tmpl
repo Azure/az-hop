@@ -7,9 +7,13 @@ all:
       ansible_ssh_port: ${jumpbox-ssh-port}
       ansible_ssh_common_args:
     scheduler:
+      ansible_host: ${scheduler-ip}
     ondemand:
+      ansible_host: ${ondemand-ip}
     ccportal:
+      ansible_host: ${ccportal-ip}
     grafana:
+      ansible_host: ${grafana-ip}
     ad:
       psrp_ssh_proxy: ${jumpbox-pip}
       ansible_host: ${ad-ip}
@@ -27,10 +31,13 @@ all:
       ansible_password: "${ad-passwd}"
       ansible_psrp_proxy: socks5h://localhost:5985
     lustre:
+      ansible_host: ${lustre-ip}
 %{ for count in range(lustre-oss-count) }
     lustre-oss-${count}:
+      ansible_host: ${lustre-oss-ip[count]}
 %{ endfor }
     robinhood:
+      ansible_host: ${robinhood-ip}
   vars:
     ansible_ssh_user: ${jumpbox-user}
     ansible_ssh_common_args: '-o ProxyCommand="ssh -i ${jumpbox-user}_id_rsa -p ${jumpbox-ssh-port} -W %h:%p ${jumpbox-user}@${jumpbox-pip}"'

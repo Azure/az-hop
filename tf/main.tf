@@ -54,9 +54,9 @@ resource "azurerm_resource_group" "rg" {
 
   lifecycle {
     ignore_changes = [
-      tags["CreatedOn"]
+      tags
     ]
-  }
+  }  
 }
 
 resource "tls_private_key" "internal" {
