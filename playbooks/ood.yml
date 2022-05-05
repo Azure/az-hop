@@ -140,51 +140,15 @@
   #
   - name: generate a self_signed certificate
     block:
-      # - name: upgrade pip
-      #   pip:
-      #     name: pip
-      #     state: latest
-      #     executable: /usr/bin/pip3
-
-      - name: install python OpenSSL dependencies
-        delegate_to: localhost
-        connection: local
-        become: false
-        pip:
-          name: PyOpenSSL
-          state: latest
-
-      - name: Generate an OpenSSL private key
-        delegate_to: localhost
-        connection: local
-        become: false
-        openssl_privatekey:
-          path: "{{ ondemand_fqdn }}.key"
-          size: 4096
-          type: "DSA"
-          backup: yes
-
-      - name: Generate an OpenSSL Certificate Signing Request with Subject information
-        delegate_to: localhost
-        connection: local
-        become: false
-        openssl_csr:
-          path: "{{ ondemand_fqdn }}.csr"
-          privatekey_path: "{{ ondemand_fqdn }}.key"
-          country_name: "US"
-          organization_name: "Microsoft"
-          email_address: "azhop@microsoft.com"
-          common_name: "{{ ondemand_fqdn }}"
 
       - name: Generate a Self Signed OpenSSL certificate
         delegate_to: localhost
         connection: local
         become: false
-        openssl_certificate:
-          path: '{{ ondemand_fqdn }}.crt'
-          privatekey_path: '{{ ondemand_fqdn }}.key'
-          csr_path: "{{ ondemand_fqdn }}.csr"
-          provider: selfsigned
+        shell: |
+          openssl req -nodes -new -x509 -keyout {{ ondemand_fqdn }}.key -out {{ ondemand_fqdn }}.crt -subj "/CN="
+        args:
+          creates: "{{ ondemand_fqdn }}.crt"
 
       - name: copy cert files
         copy:
