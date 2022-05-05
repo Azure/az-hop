@@ -103,7 +103,6 @@ jobs:
             if [ "$peered_vnet" != "null" ]; then
               peered_vnet_rg=$(yq eval ".network.peering[0].vnet_resource_group" config.yml)
               # fill up range mapping
-              declare -a range_mapping
               for i in $(seq 0 1 255); do
                 range_mapping[$i]=0
               done
