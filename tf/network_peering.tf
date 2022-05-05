@@ -12,6 +12,7 @@ resource "azurerm_virtual_network_peering" "azhop-to-peer" {
   remote_virtual_network_id     = data.azurerm_virtual_network.peernetwork[count.index].id
   allow_virtual_network_access  = true
   allow_forwarded_traffic       = true
+  use_remote_gateways           = true
 }
 
 resource "azurerm_virtual_network_peering" "peer-to-azhop" {
@@ -22,4 +23,5 @@ resource "azurerm_virtual_network_peering" "peer-to-azhop" {
   remote_virtual_network_id     = azurerm_virtual_network.azhop[0].id
   allow_virtual_network_access  = true
   allow_forwarded_traffic       = true
+  allow_gateway_transit         = true
 }
