@@ -103,8 +103,9 @@ jobs:
             if [ "$peered_vnet" != "null" ]; then
               peered_vnet_rg=$(yq eval ".network.peering[0].vnet_resource_group" config.yml)
               # fill up range mapping
+              declare -a range_mapping
               for i in $(seq 0 1 255); do
-                range_mapping+=(0)
+                range_mapping[$i]=0
               done
               # Get all peered IP ranges
               remoteAddressSpace=$(az network vnet peering list --resource-group $peered_vnet_rg --vnet-name $peered_vnet --query '[].remoteAddressSpace.addressPrefixes' -o tsv)
