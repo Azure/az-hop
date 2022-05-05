@@ -53,12 +53,12 @@ network:
         name: netapp
         address_prefixes: "10.128.0.32/29"
         create: true
-      gateway: # Gateway subnet name is always fixed to GatewaySubnet
-        address_prefixes: "10.128.0.48/28" # Recommendation is to use /27 or /28 network
-        create: true
-      bastion: # Bastion subnet name is always fixed to AzureBastionSubnet
-        address_prefixes: "10.128.0.64/27" # CIDR minimal range must be /27
-        create: true
+      # gateway: # Gateway subnet name is always fixed to GatewaySubnet
+      #   address_prefixes: "10.128.0.48/28" # Recommendation is to use /27 or /28 network
+      #   create: true
+      # bastion: # Bastion subnet name is always fixed to AzureBastionSubnet
+      #   address_prefixes: "10.128.0.64/27" # CIDR minimal range must be /27
+      #   create: true
       compute:
         name: compute
         address_prefixes: "10.128.0.128/25"
@@ -84,6 +84,7 @@ ad:
   vm_size: Standard_B2ms
 ondemand:
   vm_size: Standard_D8s_v5
+  generate_certificate: true
 grafana:
   vm_size: Standard_B2ms
 scheduler:
