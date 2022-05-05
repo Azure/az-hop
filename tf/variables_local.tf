@@ -348,7 +348,7 @@ locals {
     }
 
     hub_nsg_rules = {
-        AllowHubSshIn          = ["200", "Inbound", "Allow", "Tcp", "Ssh",                      "tag/VirtualNetwork", "asg/asg-jumpbox"],
+        AllowHubSshIn          = ["200", "Inbound", "Allow", "Tcp", "Public_Ssh",               "tag/VirtualNetwork", "asg/asg-jumpbox"],
         AllowHubHttpIn         = ["210", "Inbound", "Allow", "Tcp", "Web",                      "tag/VirtualNetwork", "asg/asg-ondemand"],
     }
 
