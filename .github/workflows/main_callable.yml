@@ -50,6 +50,10 @@ env:
   AZHOP_STATE_ACCOUNT: azhopstates
   ANSIBLE_VERBOSITY: 2 # From 0 to 4 based on the level of logs needed in Ansible
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   deploy:
     name: deploy
@@ -77,7 +81,6 @@ jobs:
       - name: Deployment
         id: deploy
         run: |
-          #!/bin/bash
           set -e
           # If resource group is not specified, generate a random one
           RESOURCE_GROUP=${{ inputs.resource_group }}
