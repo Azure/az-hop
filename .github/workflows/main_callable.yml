@@ -477,6 +477,12 @@ jobs:
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           rg_exists=$(az group exists -n $RESOURCE_GROUP)
           if [ "$rg_exists" = "true" ]; then
+            echo "Download state files for $RESOURCE_GROUP"
+            ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
+
+            echo "Remove resources from $RESOURCE_GROUP"
+            ./build.sh -a destroy -f tf
+
             echo "removing resource group $RESOURCE_GROUP"
             az group delete -n $RESOURCE_GROUP -y
             ./azhop_state.sh delete ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
