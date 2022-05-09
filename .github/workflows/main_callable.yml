@@ -481,9 +481,12 @@ jobs:
             ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
 
             echo "Remove resources from $RESOURCE_GROUP"
+            set +e
             ./build.sh -a destroy -f tf
+
+            echo "Remove state from $RESOURCE_GROUP"
+            ./azhop_state.sh delete ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
 
             echo "removing resource group $RESOURCE_GROUP"
             az group delete -n $RESOURCE_GROUP -y
-            ./azhop_state.sh delete ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           fi
