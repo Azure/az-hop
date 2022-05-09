@@ -3,8 +3,8 @@ Azure HPC OnDemand Platform or **azhop**, delivers an end-2-end deployment mecha
 
 - An [OpenOn Demand Portal](https://osc.github.io/ood-documentation/master/) for a unified user access, remote shell access, remote visualization access, job submission, file access and more,
 - An Active Directory for user authentication and domain control,
-- A PBS Job Scheduler,
-- [Azure Cycle Cloud](https://docs.microsoft.com/en-us/azure/cyclecloud/?view=cyclecloud-8) to handle autoscaling of PBS Nodes thru PBS integration,
+- An Open PBS or SLURM Job Scheduler,
+- [Azure Cycle Cloud](https://docs.microsoft.com/en-us/azure/cyclecloud/?view=cyclecloud-8) to handle autoscaling of nodes thru job scheduler integration,
 - A Jumpbox to provide admin access,
 - Azure Netapp Files for home directory and data storage,
 - A Lustre cluster for the scratch storage with HSM capbilities to Azure Blobs thru a [RobinHood](https://github.com/cea-hpc/robinhood) integration,
