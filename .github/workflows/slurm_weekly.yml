@@ -16,6 +16,7 @@ jobs:
     with:
       resource_group: 'AUTO_GENERATED'
       clean: 'true'
+      location: 'southcentralus'
       anf_dual: 'false'
       scheduler: 'slurm'
     secrets:
