@@ -20,5 +20,10 @@ A new browser tab will be created with a noVNC session in it.
 
 From there your home dir is mounted and you can start using your visualization software.
 
-> Note: To use GPU offloading, run your application with the `vglrun` command
+> 
+> **Note**: To use GPU offloading, run your application with the `vglrun` command.
 
+> On a multi GPU instance you can specify on which GPU you want to run by setting the VGL_DISPLAY environment variable before calling vglrun.
+```bash
+export VGL_DISPLAY=:0.<gpu_id>
+```
