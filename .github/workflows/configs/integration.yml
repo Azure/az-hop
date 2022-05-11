@@ -1,5 +1,5 @@
 ---
-location: westeurope
+location: __LOCATION__
 resource_group: __RESOURCE_GROUP__
 use_existing_rg: false
 tags:

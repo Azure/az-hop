@@ -12,6 +12,11 @@ on:
         required: true
         default: 'AUTO_GENERATED'
         type: string
+      location:
+        description: 'Azure location where to deploy to - default to westeurope'
+        required: false
+        default: 'westeurope'
+        type: string
       clean:
         description: 'Clean all resources'
         required: false
@@ -101,6 +106,8 @@ jobs:
             sed -i "s/__ANF_DUAL__/$ANF_DUAL/g" config.yml
             SCHEDULER=${{ inputs.scheduler }}
             sed -i "s/__SCHEDULER__/$SCHEDULER/g" config.yml
+            LOCATION=${{ inputs.location }}
+            sed -i "s/__LOCATION__/$LOCATION/g" config.yml
 
             # If peering, then find out which IP range can be used
             peered_vnet=$(yq eval ".network.peering[0].vnet_name" config.yml)
