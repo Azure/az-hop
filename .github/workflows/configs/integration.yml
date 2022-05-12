@@ -167,6 +167,13 @@ images:
     hyper_v: V2
     os_type: Linux
     version: 18.04
+  - name: azhop-win10
+    publisher: azhop
+    offer: Windows-10
+    sku: 21h1-pron
+    hyper_v: V1
+    os_type: Windows
+    version: 10.19043
 queues:
   - name: execute
     vm_size: Standard_F2s_v2
