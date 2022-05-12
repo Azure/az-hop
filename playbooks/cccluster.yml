@@ -10,7 +10,6 @@
   gather_facts: no
   vars:
     - lookup_img_file: image_lookup.yml
-    - remoteviz_lookup_img_file: remoteviz_image_lookup.yml
   vars_files:
     - '{{global_config_file}}'
 
@@ -31,16 +30,6 @@
   - name: Init image lookup file
     shell: |
         echo "image_lookup:" > {{lookup_img_file}}
-    args:
-      executable: /bin/bash
-      warn: false
-    delegate_to: localhost
-    connection: local
-    become: false
-
-  - name: Init remoteviz image lookup file
-    shell: |
-        echo "image_lookup:" > {{remoteviz_lookup_img_file}}
     args:
       executable: /bin/bash
       warn: false
@@ -72,10 +61,6 @@
     become: false
     with_items: "{{queues}}"
 
-  - name: Load lookup image version
-    include_vars:
-      file: '{{lookup_img_file}}'
-
 # Rewrite remoteviz.image propertie to include the image version number for images stored in the SIG
   - name: Overwrite image version when needed
     shell: |
@@ -90,7 +75,7 @@
           echo "unable to retrieve image id for $img_name"
           exit 1
         else
-          echo "  {{item.name}}: $img_id" >> {{remoteviz_lookup_img_file}}
+          echo "  {{item.name}}: $img_id" >> {{lookup_img_file}}
         fi
       fi
     args:
@@ -102,7 +87,7 @@
 
   - name: Load lookup image version
     include_vars:
-      file: '{{remoteviz_lookup_img_file}}'
+      file: '{{lookup_img_file}}'
 
   - include_role: 
       name: cyclecloud_cluster
