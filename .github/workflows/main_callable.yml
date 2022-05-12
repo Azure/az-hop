@@ -12,6 +12,11 @@ on:
         required: true
         default: 'AUTO_GENERATED'
         type: string
+      location:
+        description: 'Azure location where to deploy to - default to westeurope'
+        required: false
+        default: 'westeurope'
+        type: string
       clean:
         description: 'Clean all resources'
         required: false
@@ -50,10 +55,14 @@ env:
   AZHOP_STATE_ACCOUNT: azhopstates
   ANSIBLE_VERBOSITY: 2 # From 0 to 4 based on the level of logs needed in Ansible
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   deploy:
     name: deploy
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     timeout-minutes: 60
 
     container:
@@ -97,6 +106,35 @@ jobs:
             sed -i "s/__ANF_DUAL__/$ANF_DUAL/g" config.yml
             SCHEDULER=${{ inputs.scheduler }}
             sed -i "s/__SCHEDULER__/$SCHEDULER/g" config.yml
+            LOCATION=${{ inputs.location }}
+            sed -i "s/__LOCATION__/$LOCATION/g" config.yml
+
+            # If peering, then find out which IP range can be used
+            peered_vnet=$(yq eval ".network.peering[0].vnet_name" config.yml)
+            if [ "$peered_vnet" != "null" ]; then
+              peered_vnet_rg=$(yq eval ".network.peering[0].vnet_resource_group" config.yml)
+              # fill up range mapping
+              declare -A range_mapping
+              for i in $(seq 0 1 255); do
+                range_mapping[$i]=0
+              done
+              # Get all peered IP ranges
+              remoteAddressSpace=$(az network vnet peering list --resource-group $peered_vnet_rg --vnet-name $peered_vnet --query '[].remoteAddressSpace.addressPrefixes' -o tsv)
+              for address in $remoteAddressSpace; do
+                echo "Peered IP range: $address"
+                # Get the second octet of the IP range
+                octet=$(echo $address | cut -d. -f2)
+                range_mapping[$octet]=1
+              done
+              echo ${range_mapping[@]}
+              second_octet=$(( ( RANDOM % 255 )  + 1 ))
+              while [ ${range_mapping[$second_octet]} == 1 ]; do
+                second_octet=$(( ( RANDOM % 255 )  + 1 ))
+              done
+              echo "Second octet: $second_octet"
+              sed_exp="s/10.128/10.$second_octet/g"
+              sed -i $sed_exp config.yml
+            fi
           fi
 
           # write the name of the resource group in the output of the job so it can be reused in others
@@ -137,7 +175,7 @@ jobs:
 
   ad:
     name: ad
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: deploy
 
     container:
@@ -163,7 +201,7 @@ jobs:
 
   lustre:
     name: lustre
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [ad, deploy]
 
     container:
@@ -188,7 +226,7 @@ jobs:
 
   ood:
     name: ood
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [cycle_cluster, lustre, deploy]
 
     container:
@@ -213,7 +251,7 @@ jobs:
 
   grafana:
     name: grafana
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [ad, deploy]
 
     container:
@@ -238,7 +276,7 @@ jobs:
 
   cycle:
     name: cycle
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [ad, deploy]
 
     container:
@@ -263,7 +301,7 @@ jobs:
 
   add_users:
     name: add_users
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [cycle, deploy]
 
     container:
@@ -288,7 +326,7 @@ jobs:
 
   cycle_cluster:
     name: cycle_cluster
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [add_users, deploy, build_image]
 
     container:
@@ -339,8 +377,8 @@ jobs:
 
   telegraf:
     name: telegraf
-    runs-on: ubuntu-latest
-    needs: [grafana, lustre, cycle, deploy]
+    runs-on: self-hosted
+    needs: [grafana, lustre, cycle, deploy, ood]
 
     container:
       image: xpillons/hpcrover:latest
@@ -396,7 +434,7 @@ jobs:
 
   build_image:
     name: build_image
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [deploy, set_image_list]
     strategy: 
       matrix:
@@ -425,7 +463,7 @@ jobs:
 
   run_tests:
     name: run_tests
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [deploy, cycle, ood, cycle_cluster]
     container:
       image: xpillons/hpcrover:latest
@@ -471,7 +509,16 @@ jobs:
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           rg_exists=$(az group exists -n $RESOURCE_GROUP)
           if [ "$rg_exists" = "true" ]; then
+            echo "Download state files for $RESOURCE_GROUP"
+            ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
+
+            echo "Remove resources from $RESOURCE_GROUP"
+            set +e
+            ./build.sh -a destroy -f tf
+
+            echo "Remove state from $RESOURCE_GROUP"
+            ./azhop_state.sh delete ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
+
             echo "removing resource group $RESOURCE_GROUP"
             az group delete -n $RESOURCE_GROUP -y
-            ./azhop_state.sh delete ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           fi

@@ -260,8 +260,8 @@ queues:
     spot: true
     # Queue dedicated to GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz3d
-    vm_size: Standard_NV6
-    max_core_count: 24
+    vm_size: Standard_NV12s_v3
+    max_core_count: 48
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
     ColocateNodes: false
     spot: false

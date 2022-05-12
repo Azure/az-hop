@@ -50,7 +50,11 @@ resource "azurerm_linux_virtual_machine" "scheduler" {
     }
   }
 
-  #depends_on = [azurerm_network_interface_application_security_group_association.scheduler-asg-asso]
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
 }
 
 resource "azurerm_network_interface_application_security_group_association" "scheduler-asg-asso" {

@@ -13,6 +13,7 @@ jobs:
     uses: azure/az-hop/.github/workflows/main_callable.yml@main
     with:
       resource_group: 'AUTO_GENERATED'
+      location: 'westeurope'
       clean: 'true'
       anf_dual: 'false'
       scheduler: 'openpbs'

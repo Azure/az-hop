@@ -23,9 +23,9 @@ ood_apps:
         # If the user has specified a number of cores, set the job ppn
         cores = reservedcores.to_i
         if cores > 0
-          scheduler_args += ["--ntasks-per-node=", "%d" % cores]
+          scheduler_args += ["--ntasks-per-node=%d" % cores]
         else
-          scheduler_args += ["--exclusive", ""]
+          scheduler_args += ["--exclusive"]
         end
 
       -%>
