@@ -109,6 +109,7 @@ locals {
     locked_down_network = try(local.configuration_yml["locked_down_network"]["enforce"], false)
     grant_access_from   = try(local.configuration_yml["locked_down_network"]["grant_access_from"], [])
     allow_public_ip     = try(local.configuration_yml["locked_down_network"]["public_ip"], true)
+    allow_jb_public_ip     = try(local.configuration_yml["locked_down_network"]["jb_public_ip"], true)
     jumpbox_ssh_port    = try(local.configuration_yml["jumpbox"]["ssh_port"], "22")
     # subnets
     _subnets = {
