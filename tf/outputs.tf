@@ -8,7 +8,7 @@ resource "local_file" "AnsibleInventory" {
       lustre-ip         = azurerm_network_interface.lustre-nic.private_ip_address
       lustre-oss-ip     = concat(azurerm_network_interface.lustre-oss-nic[*].private_ip_address)
       robinhood-ip      = azurerm_network_interface.robinhood-nic.private_ip_address
-      jumpbox-pip       = local.allow_public_ip ? azurerm_public_ip.jumpbox-pip[0].ip_address : azurerm_network_interface.jumpbox-nic.private_ip_address
+      jumpbox-pip       = local.allow_jb_public_ip ? azurerm_public_ip.jumpbox-pip[0].ip_address : azurerm_network_interface.jumpbox-nic.private_ip_address
       jumpbox-user      = azurerm_linux_virtual_machine.jumpbox.admin_username
       jumpbox-ssh-port  = local.jumpbox_ssh_port
       ad-ip             = azurerm_network_interface.ad-nic.private_ip_address
@@ -45,7 +45,7 @@ resource "local_file" "global_variables" {
       ad-ip               = azurerm_network_interface.ad-nic.private_ip_address
       anf-home-ip         = local.create_anf ? element(azurerm_netapp_volume.home[0].mount_ip_addresses, 0) : local.configuration_yml["mounts"]["home"]["server"]
       anf-home-path       = local.create_anf ? azurerm_netapp_volume.home[0].volume_path : local.configuration_yml["mounts"]["home"]["export"]
-      ondemand-fqdn       = local.allow_public_ip ? azurerm_public_ip.ondemand-pip[0].fqdn : try( local.configuration_yml["ondemand"]["fqdn"], azurerm_network_interface.ondemand-nic.private_ip_address)
+      ondemand-fqdn       = local.allow_jb_public_ip ? azurerm_public_ip.ondemand-pip[0].fqdn : try( local.configuration_yml["ondemand"]["fqdn"], azurerm_network_interface.ondemand-nic.private_ip_address)
       subscription_id     = data.azurerm_subscription.primary.subscription_id
       tenant_id           = data.azurerm_subscription.primary.tenant_id
       key_vault           = azurerm_key_vault.azhop.name
@@ -63,7 +63,7 @@ resource "local_file" "global_variables" {
 resource "local_file" "connect_script" {
   content = templatefile("${local.playbooks_template_dir}/connect.tmpl",
     {
-      jumpbox-pip       = local.allow_public_ip ? azurerm_public_ip.jumpbox-pip[0].ip_address :  azurerm_network_interface.jumpbox-nic.private_ip_address
+      jumpbox-pip       = local.allow_jb_public_ip ? azurerm_public_ip.jumpbox-pip[0].ip_address :  azurerm_network_interface.jumpbox-nic.private_ip_address
       jumpbox-user      = azurerm_linux_virtual_machine.jumpbox.admin_username,
       jumpbox-ssh-port  = local.jumpbox_ssh_port
     }
@@ -93,7 +93,7 @@ resource "local_file" "packer_pip" {
       virtual_network_name                   = local.create_vnet ? azurerm_virtual_network.azhop[0].name : data.azurerm_virtual_network.azhop[0].name
       virtual_network_subnet_name            = local.create_admin_subnet ? azurerm_subnet.compute[0].name : data.azurerm_subnet.compute[0].name
       virtual_network_resource_group_name    = local.create_vnet ? azurerm_virtual_network.azhop[0].resource_group_name : data.azurerm_virtual_network.azhop[0].resource_group_name
-      ssh_bastion_host = local.allow_public_ip ? azurerm_public_ip.jumpbox-pip[0].ip_address :  azurerm_network_interface.jumpbox-nic.private_ip_address
+      ssh_bastion_host = local.allow_jb_public_ip ? azurerm_public_ip.jumpbox-pip[0].ip_address :  azurerm_network_interface.jumpbox-nic.private_ip_address
       ssh_bastion_port = local.jumpbox_ssh_port
       ssh_bastion_username = azurerm_linux_virtual_machine.jumpbox.admin_username
       ssh_bastion_private_key_file = local_file.private_key.filename
