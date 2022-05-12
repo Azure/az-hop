@@ -7,6 +7,7 @@
   vars:
     cyclecloud_guac_version: 0.1.13
     tomcat_version: 9.0.62
+    guac_version: 1.3.0
 
   tasks:
   - name: Wait 300 seconds for the nodes to be ready
@@ -30,20 +31,20 @@
 
   - name: Download guacamole server
     unarchive:
-      src: https://downloads.apache.org/guacamole/1.3.0/source/guacamole-server-1.3.0.tar.gz
+      src: https://downloads.apache.org/guacamole/{{guac_version}}/source/guacamole-server-{{guac_version}}.tar.gz
       dest: /opt/guacamole
       remote_src: yes
 
   # https://guacamole.apache.org/releases/1.3.0/
   - name: Download guacamole extensions
     unarchive:
-      src: https://downloads.apache.org/guacamole/1.3.0/binary/{{item}}
+      src: https://downloads.apache.org/guacamole/{{guac_version}}/binary/{{item}}
       dest: /opt/guacamole
       remote_src: yes
     with_items:
-      - guacamole-auth-ldap-1.3.0.tar.gz
-      - guacamole-auth-quickconnect-1.3.0.tar.gz
-      - guacamole-auth-jdbc-1.3.0.tar.gz
+      - guacamole-auth-ldap-{{guac_version}}.tar.gz
+      - guacamole-auth-quickconnect-{{guac_version}}.tar.gz
+      - guacamole-auth-jdbc-{{guac_version}}.tar.gz
       - guacamole-auth-header-1.2.0.tar.gz # 1.2.0 is expected and is not a typo
 
   - name: Build guacamole server
@@ -53,7 +54,7 @@
       make install
       ldconfig
     args:
-      chdir: /opt/guacamole/guacamole-server-1.3.0
+      chdir: /opt/guacamole/guacamole-server-{{guac_version}}
       creates: /usr/local/sbin/guacd
 
   - name: reload systemd
@@ -152,7 +153,7 @@
 
   - name: Download guacamole client
     get_url:
-      url: https://downloads.apache.org/guacamole/1.3.0/binary/guacamole-1.3.0.war
+      url: https://downloads.apache.org/guacamole/{{guac_version}}/binary/guacamole-{{guac_version}}.war
       dest: /etc/guacamole/guacamole.war
 
   - name: Create a symbolic link for guacamole client
@@ -175,8 +176,8 @@
       dest: /etc/guacamole/extensions/
       remote_src: yes
     with_items:
-      - guacamole-auth-ldap-1.3.0/guacamole-auth-ldap-1.3.0.jar
-      - guacamole-auth-jdbc-1.3.0/mysql/guacamole-auth-jdbc-mysql-1.3.0.jar
+      - guacamole-auth-ldap-{{guac_version}}/guacamole-auth-ldap-{{guac_version}}.jar
+      - guacamole-auth-jdbc-{{guac_version}}/mysql/guacamole-auth-jdbc-mysql-{{guac_version}}.jar
       #- guacamole-auth-quickconnect-1.3.0/guacamole-auth-quickconnect-1.3.0.jar
 
   # Install 8.0.26 because starting on Oct-1 2021, 8.0.27 doesn't allow connecting so a single server managed MySql instance
