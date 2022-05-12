@@ -6,7 +6,7 @@
     - '{{global_config_file}}'
   vars:
     cyclecloud_guac_version: 0.1.13
-    tomcat_version: 9.0.60
+    tomcat_version: 9.0.62
 
   tasks:
   - name: Wait 300 seconds for the nodes to be ready
