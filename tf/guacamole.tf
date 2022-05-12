@@ -55,6 +55,11 @@ resource "azurerm_linux_virtual_machine" "guacamole" {
     type         = "UserAssigned"
     identity_ids = [ azurerm_user_assigned_identity.guacamole.id ]
   }
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
 }
 
 resource "azurerm_user_assigned_identity" "guacamole" {
