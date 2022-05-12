@@ -378,7 +378,7 @@ jobs:
   telegraf:
     name: telegraf
     runs-on: self-hosted
-    needs: [grafana, lustre, cycle, deploy, ood]
+    needs: [grafana, lustre, cycle, deploy, ood, guacamole]
 
     container:
       image: xpillons/hpcrover:latest
