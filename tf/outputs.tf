@@ -91,7 +91,7 @@ resource "local_file" "packer_pip" {
       sig_name        = azurerm_shared_image_gallery.sig.name
       private_virtual_network_with_public_ip = false # Never use public IPs for packer VMs
       virtual_network_name                   = local.create_vnet ? azurerm_virtual_network.azhop[0].name : data.azurerm_virtual_network.azhop[0].name
-      virtual_network_subnet_name            = local.create_admin_subnet ? azurerm_subnet.compute[0].name : data.azurerm_subnet.compute[0].name
+      virtual_network_subnet_name            = local.create_compute_subnet ? azurerm_subnet.compute[0].name : data.azurerm_subnet.compute[0].name
       virtual_network_resource_group_name    = local.create_vnet ? azurerm_virtual_network.azhop[0].resource_group_name : data.azurerm_virtual_network.azhop[0].resource_group_name
       ssh_bastion_host = local.allow_jb_public_ip ? azurerm_public_ip.jumpbox-pip[0].ip_address :  azurerm_network_interface.jumpbox-nic.private_ip_address
       ssh_bastion_port = local.jumpbox_ssh_port
