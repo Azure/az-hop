@@ -177,6 +177,14 @@
 
 #    not ( ondemand.generate_certificate | default(true) )
 
+  - name: install custom rpms
+    shell: |
+      rpm -i --force "https://github.com/xpillons/ondemand/releases/download/v2.0.0_azhop/ondemand-2.0.0-1.el7.x86_64.rpm"
+      systemctl restart httpd24-httpd.service
+      touch /var/tmp/ondemand-custom.done
+    args:
+      creates: /var/tmp/ondemand-custom.done
+
   - name: Copy logo
     copy: 
       src: logo.png
