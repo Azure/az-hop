@@ -7,7 +7,7 @@
   vars:
     cyclecloud_guac_version: 0.1.13
     tomcat_version: 9.0.62
-    guac_version: 1.3.0
+    guac_version: 1.4.0
 
   tasks:
   - name: Wait 300 seconds for the nodes to be ready
@@ -18,11 +18,13 @@
 
   - name: Install Required dependencies
     yum:
-      name: cairo-devel, libjpeg-turbo-devel, libpng-devel, libtool, uuid-devel
+      name: python3, cairo-devel, libjpeg-turbo-devel, libpng-devel, libtool, uuid-devel
 
+  # libwebsockets-devel => only needed for kubernetes
+  # terminus-fonts, terminus-fonts-console => removed as they can't be installed 
   - name: Install Optional dependencies
     yum:
-      name: freerdp-devel, openssl-devel, libvorbis-devel, libwebp-devel, libwebsockets-devel, pulseaudio-libs-devel, libvncserver-devel, pango-devel, openssl-devel, libssh2-devel, dejavu-sans-mono-fonts.noarch, terminus-fonts, terminus-fonts-console
+      name: freerdp-devel, libvorbis-devel, libwebp-devel, pulseaudio-libs-devel, libvncserver-devel, pango-devel, openssl-devel, libssh2-devel, dejavu-sans-mono-fonts.noarch
 
   - name: Creates guacamole directory
     file:
@@ -35,7 +37,7 @@
       dest: /opt/guacamole
       remote_src: yes
 
-  # https://guacamole.apache.org/releases/1.3.0/
+  # https://guacamole.apache.org/releases/{{guac_version}}/
   - name: Download guacamole extensions
     unarchive:
       src: https://downloads.apache.org/guacamole/{{guac_version}}/binary/{{item}}
@@ -45,7 +47,7 @@
       - guacamole-auth-ldap-{{guac_version}}.tar.gz
       - guacamole-auth-quickconnect-{{guac_version}}.tar.gz
       - guacamole-auth-jdbc-{{guac_version}}.tar.gz
-      - guacamole-auth-header-1.2.0.tar.gz # 1.2.0 is expected and is not a typo
+      - guacamole-auth-header-{{guac_version}}.tar.gz # Used to be fixed 1.2.0 when using 1.3.0
 
   - name: Build guacamole server
     shell: |
@@ -235,7 +237,7 @@
       mysql <<EOF
       create database guacamole_db;
       EOF
-      cat /opt/guacamole/guacamole-auth-jdbc-1.3.0/mysql/schema/*.sql | mysql guacamole_db
+      cat /opt/guacamole/guacamole-auth-jdbc-{{guac_version}}/mysql/schema/*.sql | mysql guacamole_db
       touch /etc/guacamole/guacamole_db.created
     args:
       creates: /etc/guacamole/guacamole_db.created
@@ -253,7 +255,7 @@
       content: |
         guacd-hostname: localhost
         guacd-port:     4822
-        ldap-hostname: ad
+        ldap-hostname: {{ad_dns}}
         ldap-search-bind-dn: cn={{admin_user}},cn=Users,dc=hpc,dc=azure
         ldap-search-bind-password: {{admin_password.stdout}}
         ldap-user-base-dn: dc=hpc,dc=azure
