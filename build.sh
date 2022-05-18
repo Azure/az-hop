@@ -123,13 +123,13 @@ yamllint $AZHOP_CONFIG
 # fi
 
 # Accept Lustre marketplace image terms
-accepted=$(az vm image terms show --offer azurehpc-lustre --publisher azhpc --plan azurehpc-lustre-2_12 --query 'accepted' -o tsv)
-if [ "$accepted" != "true" ]; then
-  echo "Azure Lustre marketplace image terms are not accepted, accepting them now"
-  az vm image terms accept --offer azurehpc-lustre --publisher azhpc --plan azurehpc-lustre-2_12 -o tsv
-else
-  echo "Azure Lustre marketplace image terms already accepted"
-fi
+#accepted=$(az vm image terms show --offer azurehpc-lustre --publisher azhpc --plan azurehpc-lustre-2_12 --query 'accepted' -o tsv)
+#if [ "$accepted" != "true" ]; then
+#  echo "Azure Lustre marketplace image terms are not accepted, accepting them now"
+#  az vm image terms accept --offer azurehpc-lustre --publisher azhpc --plan azurehpc-lustre-2_12 -o tsv
+#else
+#  echo "Azure Lustre marketplace image terms already accepted"
+#fi
 
 if [ -e $THIS_DIR/tf/terraform.tfstate ] && [ $TF_FOLDER != $THIS_DIR/tf ]; then
   cp -u -f $THIS_DIR/tf/terraform.tfstate $TF_FOLDER
@@ -158,7 +158,7 @@ else
           vmname=$(echo $mds | jq -r '.compute.name')
           rgname=$(echo $mds | jq -r '.compute.resourceGroupName')
           echo " - logged in Azure with System Assigned Identity from ${vmname}/${rgname}"
-          export TF_VAR_logged_user_objectId=$(az resource list -n $vmname -g $rgname --query [*].identity.principalId --out tsv)
+          export TF_VAR_logged_user_objectId=$(az resource list -n $vmname -g $rgname --query [*].identity.userAssignedIdentities.*.principalId --out tsv)
           export ARM_TENANT_ID=${TF_VAR_tenant_id}
           export ARM_SUBSCRIPTION_ID=${subscription_id}
           export ARM_USE_MSI=true
