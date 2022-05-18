@@ -44,7 +44,7 @@ write_files:
     az login -i
     #az vm image terms accept --offer azurehpc-lustre --publisher azhpc --plan azurehpc-lustre-2_12
     ./build.sh -a apply
-    ./bin/create_passwords.sh
+    ./create_passwords.sh
     ./install.sh
 - owner: root:root
   path: /root/config.yml
@@ -73,7 +73,7 @@ write_files:
       create_nsg: true
       vnet:
         name: hpcvnet # Optional - default to hpcvnet
-        id: /subscriptions/SUBSCRIPTION_ID/resourceGroups/RESOURCE_GROUP/providers/Microsoft.Network/virtualNetworks/hpcvnet
+        id: SUBSCRIPTION_ID/resourceGroups/RESOURCE_GROUP/providers/Microsoft.Network/virtualNetworks/hpcvnet
         address_space: "10.0.0.0/16" # Optional - default to "10.0.0.0/16"
         subnets: # all subnets are optionals
           frontend:
@@ -218,21 +218,12 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-05-01' = {
           serviceEndpoints: [
             {
               service: 'Microsoft.KeyVault'
-              locations: [
-                location
-              ]
             }
             {
               service: 'Microsoft.Sql'
-              locations: [
-                location
-              ]
             }
             {
               service: 'Microsoft.Storage'
-              locations: [
-                location
-              ]
             }
           ]
         }
@@ -246,6 +237,17 @@ resource adminSubnet 'Microsoft.Network/virtualNetworks/subnets@2020-05-01' = {
   name: adminSubnetName
   properties: {
     addressPrefix: adminSubnetIpPrefix
+    serviceEndpoints: [
+      {
+        service: 'Microsoft.KeyVault'
+      }
+      {
+        service: 'Microsoft.Sql'
+      }
+      {
+        service: 'Microsoft.Storage'
+      }
+    ]
   }
 }
 
