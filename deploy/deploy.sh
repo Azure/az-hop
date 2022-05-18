@@ -1,6 +1,6 @@
 #!/bin/bash
 
-rg=paul-test-azhop-deploy-5
+rg=paul-test-azhop-deploy-2
 loc=westeurope
 adminName=deploy
 
@@ -14,3 +14,6 @@ az deployment group create \
     --resource-group $rg \
     --template-file main.bicep \
     --parameters deployUsername=$adminName deployKey="$(<${adminName}.pub)"
+
+# Add these in bicep
+# service_endpoints    = ["Microsoft.Storage", "Microsoft.KeyVault", "Microsoft.Sql"]
