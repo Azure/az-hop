@@ -36,7 +36,7 @@ write_files:
   permissions: '0700'
   content: |
     cd /root
-    git clone --recursive https://github.com/Azure/az-hop.git
+    git clone -b private_jumpbox --recursive https://github.com/Azure/az-hop.git
     cd az-hop
     sudo ./toolset/scripts/install.sh
     ln -s ../config.yml
