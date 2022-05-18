@@ -1,6 +1,6 @@
 #!/bin/bash
 
-rg=azhoprg
+rg=paul-test-azhop-deploy-5
 loc=westeurope
 adminName=deploy
 
@@ -13,4 +13,4 @@ az group create --resource-group $rg --location $loc
 az deployment group create \
     --resource-group $rg \
     --template-file main.bicep \
-    --parameters jumpboxUsername=$adminName jumpboxKey="$(<${adminName}.pub)"
+    --parameters deployUsername=$adminName deployKey="$(<${adminName}.pub)"
