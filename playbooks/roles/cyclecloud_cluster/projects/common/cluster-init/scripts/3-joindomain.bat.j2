@@ -10,4 +10,8 @@ if %ERRORLEVEL% neq 0 (
    exit 1
 )
 
-shutdown /r /f /t 1 /c "Reboot after domain join"
+:: C:\cycle\jetpack\bin\jetpack log "Successfully join domain {{ ad_join_domain }}"
+
+schtasks /create /tn "azhop-configuration" /sc onstart /ru system /tr "%~dp0\..\files\windows\4-configure-rdp.bat"
+
+shutdown /r /f /t 0 /c "Reboot after domain join"
