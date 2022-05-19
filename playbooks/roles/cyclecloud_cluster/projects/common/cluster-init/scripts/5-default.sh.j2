@@ -23,7 +23,7 @@ case $AZHPC_VMSIZE in
   standard_nv*)
     echo "Configure xorg.conf"
     nvidia-xconfig --enable-all-gpus --allow-empty-initial-configuration -c /etc/X11/xorg.conf --virtual=1920x1200 -s
-    sed -i '/BusID/a\    Option         "HardDPMS" "false"' /etc/X11/xorg.conf
+    sed -i '/Section "Device"/a\    Option         "HardDPMS" "false"' /etc/X11/xorg.conf
     echo "Enabling GUI"
     systemctl restart gdm
   ;;
