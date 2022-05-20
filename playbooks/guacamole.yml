@@ -5,7 +5,7 @@
   vars_files:
     - '{{global_config_file}}'
   vars:
-    cyclecloud_guac_version: 0.1.13
+    cyclecloud_guac_version: 0.1.14
     tomcat_version: 9.0.62
     guac_version: 1.4.0
 
