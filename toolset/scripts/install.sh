@@ -56,7 +56,11 @@ chmod 755 /usr/local/bin/azcopy
 # Install Ansible
 #
 echo "Installing Ansible ..."
-apt install -y ansible
+apt-get remove ansible -y
+apt autoremove
+pip3 install ansible==5.8.0
+#add-apt-repository --yes --update ppa:ansible/ansible
+#apt install -y ansible
 
 echo "Installing Ansible playbooks pre-reqs"
 pip3 install pypsrp
