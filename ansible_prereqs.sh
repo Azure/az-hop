@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+ANSIBLE_VERSION=5.8.0
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 if [[ `pip3 list pypsrp` == *"pypsrp"* ]]; then 
@@ -30,4 +31,12 @@ if [ "$(ls -A $OOD_ANSIBLE)" ]; then
 else
     echo "$OOD_ANSIBLE is empty. Please git clone this repo using the --recursive option or run 'git submodule init && git submodule update'"
     exit 1
+fi
+
+ansible --version
+pip3 list | grep ansible
+version=$(pip3 list | grep ansible | sort | head -n 1 | xargs | cut -d' ' -f 2)
+if [ "$version" != $ANSIBLE_VERSION ]; then
+  echo "Ansible version is $ansible_version. Please run ./toolset/scripts/install.sh to install the correct version of Ansible"
+  exit 1
 fi

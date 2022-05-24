@@ -1,0 +1,16 @@
+name : update selfhost nodes
+
+on:
+  # manual only
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: self-hosted
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install the toolchain
+      run: |
+        ./toolset/scripts/install.sh
