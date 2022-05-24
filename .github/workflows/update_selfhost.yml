@@ -13,4 +13,4 @@ jobs:
     - uses: actions/checkout@v3
     - name: Install the toolchain
       run: |
-        ./toolset/install.sh
+        ./toolset/scripts/install.sh
