@@ -31,3 +31,7 @@ else
     echo "$OOD_ANSIBLE is empty. Please git clone this repo using the --recursive option or run 'git submodule init && git submodule update'"
     exit 1
 fi
+
+ansible --version
+pip3 list | grep ansible
+
