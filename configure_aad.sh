@@ -30,35 +30,33 @@ if [ "$azhop_uri" == "" ]; then
 fi
 
 # Create the AAD application, generate a client secret, and register it with the AAD tenant
-# Store the secret under <appId>-password in the keyvault
-appId=$(az ad app list --display-name $aadName --query [].appId -o tsv)
-if [ "$appId" == "" ]; then
-  password=$(openssl rand -base64 20)
-  current_password=$password
+# Store the secret under <objectId>-password in the keyvault
+objectId=$(az ad app list --display-name $aadName --query [].id -o tsv)
+if [ "$objectId" == "" ]; then
   az ad app create --display-name $aadName \
-          --identifier-uris "https://$azhop_uri" \
-          --reply-urls "https://$azhop_uri/oidc" \
+          --web-redirect-uris "https://$azhop_uri/oidc" \
+          --public-client-redirect-uris "https://$azhop_uri/oidc" \
           --required-resource-accesses @aad_manifest.json \
           --optional-claims @aad_claims.json \
-          --key-type password \
-          --password "$current_password" \
-          --credential-description "azhop AAD" # Need to be <15 chars long https://github.com/Azure/azure-docs-powershell-azuread/issues/296
-  appId=$(az ad app list --display-name $aadName --query [].appId -o tsv)
-  SECRET_NAME="$appId-password"
-  az keyvault secret set --value "$password" --name $SECRET_NAME --vault-name $key_vault -o table > /dev/null
+          --key-type password 
+
+  objectId=$(az ad app list --display-name $aadName --query [].id -o tsv)
+  echo "Generating a password for $aadName and storing it as secret $SECRET_NAME in keyvault $key_vault"
+  current_password=$(az ad app credential reset --id $objectId | jq -r '.password')
+  SECRET_NAME="$objectId-password"
+  az keyvault secret set --value "$current_password" --name $SECRET_NAME --vault-name $key_vault -o table > /dev/null
 else
-  SECRET_NAME="$appId-password"
+  SECRET_NAME="$objectId-password"
   echo "AAD application $aadName already exists"
   current_password=$(az keyvault secret list --vault-name $key_vault --query "[?name=='$SECRET_NAME'].name" -o tsv)
   if [ "$current_password" == "" ] ; then
-    password=$(openssl rand -base64 20)
-    current_password=$password
-    az keyvault secret set --value "$password" --name $SECRET_NAME --vault-name $key_vault -o table > /dev/null
+    objectId=$(az ad app list --display-name $aadName --query [].id -o tsv)
     echo "Generating a password for $aadName and storing it as secret $SECRET_NAME in keyvault $key_vault"
-    az ad app update --id $appId --password "$current_password"
+    current_password=$(az ad app credential reset --id $objectId | jq -r '.password')
+    az keyvault secret set --value "$current_password" --name $SECRET_NAME --vault-name $key_vault -o table > /dev/null
   else
     echo "$SECRET_NAME has already a secret stored in keyvault $key_vault"
   fi
 fi
 
-echo "AAD appId: $appId"
+echo "AAD objectId: $objectId"
