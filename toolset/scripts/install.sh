@@ -79,13 +79,14 @@ echo "Installing terraform ..."
 #apt install -y software-properties-common && \
 curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -
 apt-add-repository --yes "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-apt update -y
+apt-get remove terraform -y
 apt install -y terraform
 
 #
 # Install Packer
 #
 echo "Installing packer...."
+apt-get remove packer -y
 apt-get install packer
 
 #
