@@ -1,6 +1,6 @@
 #!/bin/bash
 
-rg=paul-test-azhop-deploy-2
+rg=paul-test-azhop-deploy-1
 loc=westeurope
 adminName=deploy
 
