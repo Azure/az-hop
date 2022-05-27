@@ -4,6 +4,11 @@
 # build.sh -a [plan, apply, destroy] -v <vars file> -f <folder>
 #
 AZHOP_CONFIG=config.yml
+AZCLI_VERSION_MAJOR=2
+AZCLI_VERSION_MINOR=37
+AZCLI_VERSION_PATCH=0
+AZCLI_VERSION="$AZCLI_VERSION_MAJOR.$AZCLI_VERSION_MINOR.$AZCLI_VERSION_PATCH"
+
 set -e
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 #TFVARS_FILE=""
@@ -73,6 +78,30 @@ function get_arm_access_key {
   fi
 }
 
+function check_azcli_version {
+  version=$(az --version | grep azure-cli | xargs | cut -d' ' -f 2)
+  major=$(echo $version | cut -d'.' -f 1)
+  minor=$(echo $version | cut -d'.' -f 2)
+  patch=$(echo $version | cut -d'.' -f 3)
+
+  if [ $major -lt $AZCLI_VERSION_MAJOR ]; then
+    echo "azure-cli version $AZCLI_VERSION or higher is required"
+    exit 1
+  else
+    if [ $minor -lt $AZCLI_VERSION_MINOR ]; then
+      echo "azure-cli version $AZCLI_VERSION or higher is required"
+      exit 1
+    else
+      if [ $patch -lt $AZCLI_VERSION_PATCH ]; then
+        echo "azure-cli version $AZCLI_VERSION or higher is required"
+        exit 1
+      fi
+    fi
+  fi
+}
+
+check_azcli_version
+
 get_arm_access_key
 
 terraform -chdir=$TF_FOLDER init -upgrade
@@ -81,17 +110,17 @@ terraform -chdir=$TF_FOLDER init -upgrade
 yamllint $AZHOP_CONFIG
 
 # Accept Cycle marketplace image terms
-cc_plan=$(yq eval '.cyclecloud.plan.name' $AZHOP_CONFIG)
-if [ "$cc_plan" == "" ]; then
-  cc_plan="cyclecloud8"
-fi
-accepted=$(az vm image terms show --offer azure-cyclecloud --publisher azurecyclecloud --plan $cc_plan --query 'accepted' -o tsv)
-if [ "$accepted" != "true" ]; then
-  echo "Azure CycleCloud marketplace image terms are not accepted, accepting them now"
-  az vm image terms accept --offer azure-cyclecloud --publisher azurecyclecloud --plan $cc_plan -o tsv
-else
-  echo "Azure CycleCloud marketplace image terms already accepted"
-fi
+# cc_plan=$(yq eval '.cyclecloud.plan.name' $AZHOP_CONFIG)
+# if [ "$cc_plan" == "" ]; then
+#   cc_plan="cyclecloud8"
+# fi
+# accepted=$(az vm image terms show --offer azure-cyclecloud --publisher azurecyclecloud --plan $cc_plan --query 'accepted' -o tsv)
+# if [ "$accepted" != "true" ]; then
+#   echo "Azure CycleCloud marketplace image terms are not accepted, accepting them now"
+#   az vm image terms accept --offer azure-cyclecloud --publisher azurecyclecloud --plan $cc_plan -o tsv
+# else
+#   echo "Azure CycleCloud marketplace image terms already accepted"
+# fi
 
 # Accept Lustre marketplace image terms
 accepted=$(az vm image terms show --offer azurehpc-lustre --publisher azhpc --plan azurehpc-lustre-2_12 --query 'accepted' -o tsv)
@@ -126,7 +155,7 @@ if [ ${user_type} == "user" ]; then
   unset ARM_CLIENT_ID
   unset ARM_CLIENT_SECRET
   unset ARM_USE_MSI
-  export TF_VAR_logged_user_objectId=$(az ad signed-in-user show --query objectId -o tsv)
+  export TF_VAR_logged_user_objectId=$(az ad signed-in-user show --query id -o tsv)
   logged_user_upn=$(az ad signed-in-user show --query userPrincipalName -o tsv)
   echo " - logged in Azure with User ${logged_user_upn}"
 else
@@ -149,7 +178,7 @@ else
           exit 1
           ;;
       *)
-          export TF_VAR_logged_user_objectId=$(az ad sp show --id ${clientId} --query objectId -o tsv)
+          export TF_VAR_logged_user_objectId=$(az ad sp show --id ${clientId} --query id -o tsv)
           logged_user_upn=$(az ad sp show --id ${clientId} --query displayName -o tsv)
           echo " - logged in Azure with Service Principal Name ${logged_user_upn}"
           export ARM_TENANT_ID=${TF_VAR_tenant_id}

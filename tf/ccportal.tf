@@ -10,55 +10,24 @@ resource "azurerm_network_interface" "ccportal-nic" {
   }
 }
 
-resource "azurerm_virtual_machine" "ccportal" {
-  name                  = "ccportal"
-  location              = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
-  resource_group_name   = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
-  vm_size               = try(local.configuration_yml["cyclecloud"].vm_size, "Standard_D2s_v3")
+resource "azurerm_linux_virtual_machine" "ccportal" {
+  name                = "ccportal"
+  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
+  size                = try(local.configuration_yml["cyclecloud"].vm_size, "Standard_B2ms")
+  admin_username      = local.admin_username
   network_interface_ids = [
     azurerm_network_interface.ccportal-nic.id,
   ]
 
-  os_profile {
-    computer_name  = "ccportal"
-    admin_username = local.admin_username
+  admin_ssh_key {
+    username   = local.admin_username
+    public_key = tls_private_key.internal.public_key_openssh
   }
 
-  os_profile_linux_config {
-    disable_password_authentication = true
-    ssh_keys {
-      path     = "/home/${local.admin_username}/.ssh/authorized_keys"
-      key_data = tls_private_key.internal.public_key_openssh
-    }
-  }
-
-  storage_os_disk {
-    name              = "ccportal-osdisk"
-    create_option     = "FromImage"
-    caching           = "ReadWrite"
-    managed_disk_type = "Standard_LRS"
-  }
-
-  storage_image_reference {
-    publisher = try(local.configuration_yml["cyclecloud"].image.publisher,"azurecyclecloud")
-    offer     = try(local.configuration_yml["cyclecloud"].image.offer, "azure-cyclecloud")
-    sku       = try(local.configuration_yml["cyclecloud"].image.sku, "cyclecloud8")
-    version   = try(local.configuration_yml["cyclecloud"].image.version, "8.2.120211111")
-  }
-
-  plan {
-    name      = try(local.configuration_yml["cyclecloud"].plan.name, "cyclecloud8")
-    publisher = try(local.configuration_yml["cyclecloud"].plan.publisher, "azurecyclecloud")
-    product   = try(local.configuration_yml["cyclecloud"].plan.product, "azure-cyclecloud")
-  }
-
-  storage_data_disk {
-    lun               = 0
-    name              = "ccportal-datadisk"
-    caching           = "ReadWrite"
-    create_option     = "FromImage"
-    managed_disk_type = "Premium_LRS"
-    disk_size_gb      = 128
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
   }
 
   identity {
@@ -66,7 +35,47 @@ resource "azurerm_virtual_machine" "ccportal" {
     identity_ids = [ azurerm_user_assigned_identity.ccportal.id ]
   }
 
-  #depends_on = [azurerm_network_interface_application_security_group_association.ccportal-asg-asso]
+  dynamic "source_image_reference" {
+    for_each = local.use_linux_image_id ? [] : [1]
+    content {
+      publisher = local.linux_base_image_reference.publisher
+      offer     = local.linux_base_image_reference.offer
+      sku       = local.linux_base_image_reference.sku
+      version   = local.linux_base_image_reference.version
+    }
+  }
+
+  source_image_id = local.linux_image_id
+  dynamic "plan" {
+    for_each = try (length(local.base_image_plan.name) > 0, false) ? [1] : []
+    content {
+        name      = local.base_image_plan.name
+        publisher = local.base_image_plan.publisher
+        product   = local.base_image_plan.product
+    }
+  }
+  
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
+}
+
+resource "azurerm_managed_disk" "ccportal_datadisk" {
+  name                 = "ccportal-datadisk0"
+  location             = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+  resource_group_name  = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
+  storage_account_type = "Premium_LRS"
+  create_option        = "Empty"
+  disk_size_gb         = 128
+}
+
+resource "azurerm_virtual_machine_data_disk_attachment" "ccportal" {
+  managed_disk_id    = azurerm_managed_disk.ccportal_datadisk.id
+  virtual_machine_id = azurerm_linux_virtual_machine.ccportal.id
+  lun                = "0"
+  caching            = "ReadWrite"
 }
 
 data "azurerm_role_definition" "contributor" {

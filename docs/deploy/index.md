@@ -1,5 +1,6 @@
  - [Configure the toolchain](configure_toolchain.md)
  - [Azure Prerequisites](azure_prereqs.md)
+ - [Plan your network scope](plan_your_network_scope.md)
  - [Define the environment to deploy](define_environment.md)
  - [Deploy](deploy.md)
  - [Build Images](build_images.md)

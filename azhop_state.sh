@@ -95,6 +95,8 @@ case $COMMAND in
     cp tf/terraform.tfstate $STATE_DIR/tf
     mkdir -p $STATE_DIR/bin
     cp bin/* $STATE_DIR/bin
+    mkdir -p $STATE_DIR/tf/cloud-init
+    cp tf/cloud-init/*.yml $STATE_DIR/tf/cloud-init
 
     sas=$(az storage container generate-sas --account-name $SA_ACCOUNT --name $SA_CONTAINER --permissions rwdl --start $start --expiry $expiry --output tsv)
     azcopy copy "$STATE_DIR/*" "https://$SA_ACCOUNT.blob.core.windows.net/$SA_CONTAINER/$RESOURCE_GROUP?$sas"  --recursive
@@ -103,7 +105,7 @@ case $COMMAND in
   delete)
     get_resource_group
     echo "Delete state for $RESOURCE_GROUP"
-    sas=$(az storage container generate-sas --account-name $SA_ACCOUNT --name $SA_CONTAINER --permissions dl --start $start --expiry $expiry --output tsv)
+    sas=$(az storage container generate-sas --account-name $SA_ACCOUNT --name $SA_CONTAINER --permissions rwdl --start $start --expiry $expiry --output tsv)
     azcopy remove "https://$SA_ACCOUNT.blob.core.windows.net/$SA_CONTAINER/$RESOURCE_GROUP?$sas" --recursive=true
   ;;
 esac

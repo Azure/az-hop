@@ -52,11 +52,6 @@ sudo ./NVIDIA-Linux-x86_64-grid.run -s
 # Answers are: yes, yes, yes
 sudo cp /etc/nvidia/gridd.conf.template /etc/nvidia/gridd.conf
 
-BUSID=`nvidia-xconfig --query-gpu-info | awk '/PCI BusID/{print \$4}'`
-nvidia-xconfig -a --allow-empty-initial-configuration -c /etc/X11/xorg.conf --busid=$BUSID --virtual=1920x1200 -s
-# fix for this issue: https://www.gitmemory.com/issue/VirtualGL/virtualgl/120/614331680
-sed -i '/BusID/a\    Option         "HardDPMS" "false"' /etc/X11/xorg.conf
-
 cat <<EOF >>/etc/nvidia/gridd.conf
 IgnoreSP=FALSE
 EnableUI=FALSE 
@@ -65,16 +60,9 @@ sed -i '/FeatureType=0/d' /etc/nvidia/gridd.conf
 
 cat <<EOF >/etc/rc.d/rc3.d/busidupdate.sh
 #!/bin/bash
-XCONFIG="/etc/X11/xorg.conf"
-OLDBUSID=\`awk '/BusID/{gsub(/"/, "", \$2); print \$2}' \${XCONFIG}\`
-NEWBUSID=\`nvidia-xconfig --query-gpu-info | awk '/PCI BusID/{print \$4}'\`
-
-if [[ "${OLDBUSID}" == "${NEWBUSID}" ]] ; then
-        echo "NVIDIA BUSID not changed - nothing to do"
-else
-        echo "NVIDIA BUSID changed from \"${OLDBUSID}\" to \"${NEWBUSID}\": Updating ${XCONFIG}" 
-        sed -e 's|BusID.*|BusID          '\"${NEWBUSID}\"'|' -i ${XCONFIG}
-fi
+nvidia-xconfig --enable-all-gpus --allow-empty-initial-configuration -c /etc/X11/xorg.conf --virtual=1920x1200 -s
+# https://virtualgl.org/Documentation/HeadlessNV
+sed -i '/BusID/a\    Option         "HardDPMS" "false"' /etc/X11/xorg.conf
 EOF
 chmod +x /etc/rc.d/rc3.d/busidupdate.sh
 /etc/rc.d/rc3.d/busidupdate.sh

@@ -104,7 +104,7 @@ function submit_job()
 
     echo "job_name=$job_name; node_count=$node_count; ppn=$ppn; slot_type=$slot_type; script=$script"
     qsub -l walltime=$PBS_MAX_WALLTIME -N $job_name -k oe \
-            -j oe -l select=$node_count:ncpus=$ppn:mpiprocs=$ppn:slot_type=$slot_type,place=scatter:excl \
+            -j oe -l select=$node_count:ncpus=$ppn:mpiprocs=$ppn:slot_type=$slot_type \
             -- $script
     if [ "$?" -ne "0" ]; then
         echo "Unable to submit job"

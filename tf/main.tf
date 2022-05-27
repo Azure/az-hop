@@ -2,7 +2,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "=2.99.0"
+      version = "=3.1.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -54,9 +54,9 @@ resource "azurerm_resource_group" "rg" {
 
   lifecycle {
     ignore_changes = [
-      tags["CreatedOn"]
+      tags
     ]
-  }
+  }  
 }
 
 resource "tls_private_key" "internal" {

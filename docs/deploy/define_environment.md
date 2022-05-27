@@ -89,6 +89,11 @@ locked_down_network:
   enforce: false
 #   grant_access_from: [a.b.c.d] # Array of CIDR to grant access from, see https://docs.microsoft.com/en-us/azure/storage/common/storage-network-security?tabs=azure-portal#grant-access-from-an-internet-ip-range
   public_ip: true # Enable public IP creation for Jumpbox, OnDemand and create images. Default to true
+
+# Base image configuration. Can be either an image reference or an image_id from the image registry or a custom managed image
+linux_base_image: "OpenLogic:CentOS:7_9-gen2:latest" # publisher:offer:sku:version or image_id
+windows_base_image: "MicrosoftWindowsServer:WindowsServer:2016-Datacenter-smalldisk:latest" # publisher:offer:sku:version or image_id
+
 # Jumpbox VM configuration
 jumpbox:
   vm_size: Standard_B2ms
@@ -111,23 +116,7 @@ scheduler:
 # CycleCloud VM configuration
 cyclecloud:
   vm_size: Standard_B2ms
-  # Azure Image Reference for CycleCloud. Default to 8.2.120211111 if not present
-  image: 
-    publisher: "azurecyclecloud"
-    offer:     "azure-cyclecloud"
-    sku:       "cyclecloud8"
-    version:   "8.2.120211111"
-  # Azure Image Plan for CycleCloud. Default to 8 if not present
-  plan: 
-    name:      "cyclecloud8"
-    publisher: "azurecyclecloud"
-    product:   "azure-cyclecloud"
-# uncomment if updated RPMS need to be applied
-#  rpms:
-    # optional URL to apply a fix on the marketplace image deployed on the ccportal
-#    cyclecloud:
-    # mandatory URL on the jetpack RPM to be installed on the ccportal and the scheduler
-#    jetpack:
+  # version: 8.2.1-1733 # to specify a specific version, see https://packages.microsoft.com/yumrepos/cyclecloud/
 
 winviz:
   vm_size: Standard_D4s_v3
@@ -265,8 +254,8 @@ queues:
     spot: true
     # Queue dedicated to GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz3d
-    vm_size: Standard_NV6
-    max_core_count: 24
+    vm_size: Standard_NV12s_v3
+    max_core_count: 48
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
     ColocateNodes: false
     spot: false

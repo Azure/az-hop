@@ -33,10 +33,14 @@ test('Shell Session', async ({browser}) => {
     ]);
 
     await page1.waitForLoadState('networkidle');
+    await page1.waitForTimeout(5000); // this delay is to allow the shell session to open in the frame
     // Click text=[hpcuser@ondemand ~]$
-    await page1.frame({
+    const frame = page1.frame({
         url: 'about:blank'
-    }).click('text=['+process.env.AZHOP_USER+'@ondemand ~]$');
+    })
+    await frame.waitForLoadState();
+    const line = frame.locator('text=['+process.env.AZHOP_USER+'@ondemand ~]$');
+    await line.click();
 
     await page.close()
     // Close the browser

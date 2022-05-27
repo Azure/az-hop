@@ -21,6 +21,9 @@ echo "{{user.name}} ALL=(ALL) NOPASSWD: ALL" | tee -a /etc/sudoers.d/{{ user.nam
 AZHPC_VMSIZE=$(curl -s --noproxy "*" -H Metadata:true "http://169.254.169.254/metadata/instance/compute?api-version=2019-08-15" | jq -r '.vmSize' | tr '[:upper:]' '[:lower:]')
 case $AZHPC_VMSIZE in
   standard_nv*)
+    echo "Configure xorg.conf"
+    nvidia-xconfig --enable-all-gpus --allow-empty-initial-configuration -c /etc/X11/xorg.conf --virtual=1920x1200 -s
+    sed -i '/Section "Device"/a\    Option         "HardDPMS" "false"' /etc/X11/xorg.conf
     echo "Enabling GUI"
     systemctl restart gdm
   ;;
