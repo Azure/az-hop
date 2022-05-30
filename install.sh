@@ -76,6 +76,7 @@ case $TARGET in
     run_playbook ood $PLAYBOOKS_DIR/ood-overrides-common.yml $PLAYBOOKS_DIR/ood-overrides-$SCHEDULER.yml $PLAYBOOKS_DIR/ood-overrides-auth-$OOD_AUTH.yml
     run_playbook ood-custom
     run_playbook guacamole
+    run_playbook guac_spooler
     run_playbook grafana 
     run_playbook telegraf
     run_playbook chrony
@@ -84,7 +85,7 @@ case $TARGET in
     run_playbook lustre-sas
     run_playbook lustre
   ;;
-  ad | linux | add_users | ccportal | chrony | cccluster | scheduler | grafana | telegraf | ood-custom | remove_users | tests | guacamole)
+  ad | linux | add_users | ccportal | chrony | cccluster | scheduler | grafana | telegraf | ood-custom | remove_users | tests | guacamole | guac_spooler)
     run_playbook $TARGET
   ;;
   ood)

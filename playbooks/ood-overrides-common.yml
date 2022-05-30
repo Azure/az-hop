@@ -36,14 +36,14 @@ ood_install_apps:
   guacamole:
     dest: "{{ ood_sys_app_dir }}"
     version: main
-    repo: https://github.com/edwardsp/ondemand_bc_guacamole.git
+    repo: https://github.com/xpillons/ondemand_bc_guacamole.git
 
   codeserver:
     dest: "{{ ood_sys_app_dir }}"
     version: master
 ood_apps:
   bc_desktop:
-    title: "Remote Desktop"
+    title: "Linux Desktop"
     cluster: ondemand
     form:
       - desktop

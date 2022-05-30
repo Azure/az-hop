@@ -1,11 +1,10 @@
 ---
-- hosts: guacamole
+- hosts: ondemand
   gather_facts: no
   become: true
   vars_files:
     - '{{global_config_file}}'
   vars:
-    cyclecloud_guac_version: 0.1.14
     tomcat_version: 9.0.62
     guac_version: 1.4.0
 
@@ -215,6 +214,7 @@
   - name: Read SQLAdmin Password from KV
     command: az keyvault secret show --vault-name {{key_vault}} -n {{ slurmdb_user }}-password --query "value" -o tsv
     delegate_to: localhost
+    connection: local
     register: sqladmin_password
     become: false
     run_once: true
@@ -243,6 +243,7 @@
   - name: Read Password from KV
     command: az keyvault secret show --vault-name {{key_vault}} -n {{admin_user}}-password --query "value" -o tsv
     delegate_to: localhost
+    connection: local
     register: admin_password
     become: false
     run_once: true
@@ -297,53 +298,3 @@
       name: guacd
       state: restarted
 
-  - name: check if cyclecloud-guac-pkg-{{cyclecloud_guac_version}}.tar.gz file exists
-    stat: 
-      path: /tmp/cyclecloud-guac/cyclecloud-guac-pkg-{{cyclecloud_guac_version}}.tar.gz
-    register: guac_cycle_package
-
-  - name: check if /tmp/cyclecloud-guac/packages exists
-    stat: 
-      path: /tmp/cyclecloud-guac/packages
-    register: packages
-
-  - name: remove old packages directory if a new version is applied
-    file:
-      path: /tmp/cyclecloud-guac/packages
-      state: absent
-    when: packages.stat.exists == True and guac_cycle_package.stat.exists == False
-
-  - name: download CycleCloud ScaleLib Guacamole package
-    unarchive: 
-      src: "https://github.com/xpillons/azhop-guac/releases/download/{{cyclecloud_guac_version}}/cyclecloud-guac-pkg-{{cyclecloud_guac_version}}.tar.gz"
-      dest: /tmp/
-      remote_src: yes
-
-
-  # Commands spool directory is writable by all domain users
-  - name: Creates spool commands directory
-    file:
-      path: "{{ homedir_mountpoint }}/guac-spool/commands"
-      state: directory
-      mode: 0775
-      owner: root
-      group: 5000
-
-# status spool directory is readable by all domain users
-  - name: Creates spool status directory
-    file:
-      path: "{{ homedir_mountpoint }}/guac-spool/status"
-      state: directory
-      mode: 0755
-      owner: root
-      group: 5000
-
-  - name: enable CycleCloud ScaleLib Guacamole
-    shell: | 
-      /tmp/cyclecloud-guac/install.sh  --venv /opt/cycle/guac/venv --install-venv
-      /tmp/cyclecloud-guac/generate_autoscale_json.sh  --install-dir /opt/cycle/guac \
-                  --username {{ admin_user }} --password "{{ admin_password.stdout }}" \
-                  --url https://ccportal:9443/cyclecloud --cluster-name remoteviz \
-                  --vaultname "{{ key_vault }}"
-    args:
-      chdir: /tmp/cyclecloud-guac
