@@ -8,19 +8,23 @@
     cyclecloud_guac_version: 0.1.16
 
   tasks:
-  - name: Wait 300 seconds for the nodes to be ready
-    wait_for_connection:
-      timeout: 300
-  - name: Gather facts for first time
-    setup:
+  - name: Install Guac Spooler only if required
+    block:
 
-  - name: Install Guac Spooler
-    include_role:
-      name: guac_spooler
-    vars:
-      guac_spooler_key_vault: "{{key_vault}}"
-      guac_spooler_admin_user: "{{admin_user}}"
-      guac_spooler_slurmdb_user: "{{ slurmdb_user }}"
-      guac_spooler_slurmdb_fqdn: "{{slurmdb_fqdn}}"
-      guac_spooler_mountpoint: "{{ homedir_mountpoint }}"
+    - name: Wait 300 seconds for the nodes to be ready
+      wait_for_connection:
+        timeout: 300
+    - name: Gather facts for first time
+      setup:
+
+    - name: Install Guac Spooler role
+      include_role:
+        name: guac_spooler
+      vars:
+        guac_spooler_key_vault: "{{key_vault}}"
+        guac_spooler_admin_user: "{{admin_user}}"
+        guac_spooler_slurmdb_user: "{{ slurmdb_user }}"
+        guac_spooler_slurmdb_fqdn: "{{slurmdb_fqdn}}"
+        guac_spooler_mountpoint: "{{ homedir_mountpoint }}"
+    when: ( enable_remote_winviz is defined and enable_remote_winviz )
 
