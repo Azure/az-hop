@@ -159,3 +159,4 @@
 
     - name: Start remoteviz Cluster
       command: '/usr/local/bin/cyclecloud start_cluster remoteviz'
+  when: cc_enable_remote_winviz == true
