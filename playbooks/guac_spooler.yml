@@ -14,94 +14,13 @@
   - name: Gather facts for first time
     setup:
 
-  - name: Read Password from KV
-    command: az keyvault secret show --vault-name {{key_vault}} -n {{admin_user}}-password --query "value" -o tsv
-    delegate_to: localhost
-    connection: local
-    register: admin_password
-    become: false
-    run_once: true
+  - name: Install Guac Spooler
+    include_role:
+      name: guac_spooler
+    vars:
+      guac_spooler_key_vault: "{{key_vault}}"
+      guac_spooler_admin_user: "{{admin_user}}"
+      guac_spooler_slurmdb_user: "{{ slurmdb_user }}"
+      guac_spooler_slurmdb_fqdn: "{{slurmdb_fqdn}}"
+      guac_spooler_mountpoint: "{{ homedir_mountpoint }}"
 
-  - name: Read SQLAdmin Password from KV
-    command: az keyvault secret show --vault-name {{key_vault}} -n {{ slurmdb_user }}-password --query "value" -o tsv
-    delegate_to: localhost
-    connection: local
-    register: sqladmin_password
-    become: false
-    run_once: true
-
-  # create guac conf directory
-  - name: create guac conf directory
-    file:
-      path: /etc/guacamole/
-      state: directory
-      owner: root
-
-  - name: configure guacamole
-    copy:
-      dest: /etc/guacamole/guacamole.properties
-      content: |
-        mysql-hostname: {{slurmdb_fqdn}}
-        mysql-port: 3306
-        mysql-database: guacamole_db
-        mysql-username: {{ slurmdb_user }}@{{slurmdb_fqdn}}
-        mysql-password: {{sqladmin_password.stdout}}
-        mysql-server-timezone: GMT
-        mysql-auto-create-accounts: true
-      owner: root
-      mode: 0640
-
-  - name: Make sure we have the latest root certificates
-    yum:
-      name: ca-certificates
-      state: latest
-
-  - name: check if cyclecloud-guac-pkg-{{cyclecloud_guac_version}}.tar.gz file exists
-    stat: 
-      path: /tmp/cyclecloud-guac/cyclecloud-guac-pkg-{{cyclecloud_guac_version}}.tar.gz
-    register: guac_cycle_package
-
-  - name: check if /tmp/cyclecloud-guac/packages exists
-    stat: 
-      path: /tmp/cyclecloud-guac/packages
-    register: packages
-
-  - name: remove old packages directory if a new version is applied
-    file:
-      path: /tmp/cyclecloud-guac/packages
-      state: absent
-    when: packages.stat.exists == True and guac_cycle_package.stat.exists == False
-
-  - name: download CycleCloud ScaleLib Guacamole package
-    unarchive: 
-      src: "https://github.com/xpillons/azhop-guac/releases/download/{{cyclecloud_guac_version}}/cyclecloud-guac-pkg-{{cyclecloud_guac_version}}.tar.gz"
-      dest: /tmp/
-      remote_src: yes
-
-  # Commands spool directory is writable by all domain users
-  - name: Creates spool commands directory
-    file:
-      path: "{{ homedir_mountpoint }}/guac-spool/commands"
-      state: directory
-      mode: 0775
-      owner: root
-      group: 5000
-
-# status spool directory is readable by all domain users
-  - name: Creates spool status directory
-    file:
-      path: "{{ homedir_mountpoint }}/guac-spool/status"
-      state: directory
-      mode: 0755
-      owner: root
-      group: 5000
-
-  - name: enable CycleCloud ScaleLib Guacamole
-    shell: | 
-      /tmp/cyclecloud-guac/install.sh  --venv /opt/cycle/guac/venv --install-venv
-      /tmp/cyclecloud-guac/generate_autoscale_json.sh  --install-dir /opt/cycle/guac \
-                  --username {{ admin_user }} --password "{{ admin_password.stdout }}" \
-                  --url https://ccportal:9443/cyclecloud --cluster-name remoteviz \
-                  --vaultname "{{ key_vault }}"
-    args:
-      chdir: /tmp/cyclecloud-guac
