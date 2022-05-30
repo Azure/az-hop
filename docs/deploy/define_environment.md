@@ -281,6 +281,8 @@ queues:
     spot: false
 
 # Remote Visualization definitions
+enable_remote_winviz: false # Set to true to enable windows remote visualization
+
 remoteviz:
   - name: winviz # This name is fixed and can't be changed
     vm_size: Standard_D8a_v4

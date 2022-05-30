@@ -91,8 +91,11 @@ locals {
     lustre_oss_sku = try(local.configuration_yml["lustre"]["oss_sku"], "Standard_D32d_v4")
     lustre_oss_count = try(local.configuration_yml["lustre"]["oss_count"], 2)
 
+    # Enable Windows Remote Visualization scenarios
+    enable_remote_winviz = try(local.configuration_yml["enable_remote_winviz"], false)
+
     # Slurm Accounting Database
-    slurm_accounting = try(local.configuration_yml["slurm"].accounting_enabled, false)
+    slurm_accounting = local.enable_remote_winviz || try(local.configuration_yml["slurm"].accounting_enabled, false)
     slurm_accounting_admin_user = "sqladmin"
     
     # VNET

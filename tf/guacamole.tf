@@ -1,4 +1,5 @@
 resource "azurerm_network_interface" "guacamole-nic" {
+  count               = local.enable_remote_winviz ? 1 : 0
   name                = "guacamole-nic"
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
@@ -11,13 +12,14 @@ resource "azurerm_network_interface" "guacamole-nic" {
 }
 
 resource "azurerm_linux_virtual_machine" "guacamole" {
+  count               = local.enable_remote_winviz ? 1 : 0
   name                = "guacamole"
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   size                = try(local.configuration_yml["guacamole"].vm_size, "Standard_B2ms")
   admin_username      = local.admin_username
   network_interface_ids = [
-    azurerm_network_interface.guacamole-nic.id,
+    azurerm_network_interface.guacamole-nic[0].id,
   ]
 
   admin_ssh_key {
@@ -53,7 +55,7 @@ resource "azurerm_linux_virtual_machine" "guacamole" {
 
   identity {
     type         = "UserAssigned"
-    identity_ids = [ azurerm_user_assigned_identity.guacamole.id ]
+    identity_ids = [ azurerm_user_assigned_identity.guacamole[0].id ]
   }
   lifecycle {
     ignore_changes = [
@@ -63,6 +65,7 @@ resource "azurerm_linux_virtual_machine" "guacamole" {
 }
 
 resource "azurerm_user_assigned_identity" "guacamole" {
+  count               = local.enable_remote_winviz ? 1 : 0
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
 
@@ -70,16 +73,17 @@ resource "azurerm_user_assigned_identity" "guacamole" {
 }
 # Grant read access to the Keyvault for the guacamole identity
 resource "azurerm_key_vault_access_policy" "guacamole" {
+  count               = local.enable_remote_winviz ? 1 : 0
   key_vault_id = azurerm_key_vault.azhop.id
   tenant_id    = local.tenant_id
-  object_id    = azurerm_user_assigned_identity.guacamole.principal_id
+  object_id    = azurerm_user_assigned_identity.guacamole[0].principal_id
 
   key_permissions = [ "Get", "List" ]
   secret_permissions = [ "Get", "List" ]
 }
 
 resource "azurerm_network_interface_application_security_group_association" "guacamole-asg-asso" {
-  for_each = toset(local.asg_associations["guacamole"])
-  network_interface_id          = azurerm_network_interface.guacamole-nic.id
+  for_each = local.enable_remote_winviz ? toset(local.asg_associations["guacamole"]) : []
+  network_interface_id          = azurerm_network_interface.guacamole-nic[0].id
   application_security_group_id = local.create_nsg ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
 }
