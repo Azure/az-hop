@@ -45,6 +45,7 @@ ood_apps:
   bc_desktop:
     title: "Linux Desktop"
     cluster: ondemand
+    icon: fa://linux
     form:
       - desktop
       - target
