@@ -9,7 +9,8 @@
   vars_files:
     - '{{global_config_file}}'
   vars:
-    ood_version: 2.0.23
+    ondemand_version: 2.0.23
+    ood_core_version: 0.18.1
 
   tasks:
   - name: Wait 300 seconds for the nodes to be ready
@@ -60,7 +61,7 @@
         include_role:
           name: ood-ansible
         vars:
-          ondemand_package: 'ondemand-{{ ood_version }}'
+          ondemand_package: 'ondemand-{{ ondemand_version }}'
           servername: null
           oidc_client_secret: '{{ oidc_secret.stdout | default(None)}}'
           httpd_port: 80
@@ -170,7 +171,7 @@
     include_role:
       name: ood-ansible
     vars:
-      ondemand_package: 'ondemand-{{ ood_version }}'
+      ondemand_package: 'ondemand-{{ ondemand_version }}'
       servername: '{{ ondemand_fqdn }}'
       httpd_port: 443
       oidc_client_secret: '{{ oidc_secret.stdout | default(None)}}'
@@ -178,6 +179,24 @@
       - SSLCertificateFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.crt"
       - SSLCertificateKeyFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.key"
       - "{{SSLCertificateChainFile | default(None)}}"
+
+  - name: cleanup ood_core gem directory
+    file:
+      state: absent
+      path: "/opt/ood/ondemand/root/usr/share/gems/2.7/ondemand/{{ ondemand_version }}/gems/ood_core-{{ood_core_version}}"
+
+  - name: get the ood_core specific gem
+    git:
+      repo: "https://github.com/xpillons/ood_core.git"
+      dest: "/opt/ood/ondemand/root/usr/share/gems/2.7/ondemand/{{ ondemand_version }}/gems/ood_core-{{ood_core_version}}"
+      version: "azhop/{{ood_core_version}}"
+      force: yes
+
+  - name: get the ondemand guacamole customization
+    get_url:
+      force: yes
+      dest: /var/www/ood/apps/sys/dashboard/app/models/active_jobs/jobstatusdata.rb
+      url: https://raw.githubusercontent.com/xpillons/ondemand/azhop/release_2.0/apps/dashboard/app/models/active_jobs/jobstatusdata.rb
 
 #    not ( ondemand.generate_certificate | default(true) )
 
