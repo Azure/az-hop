@@ -231,6 +231,7 @@
           password = {{sqladmin_password.stdout}}
           host = {{slurmdb_fqdn}}
 
+    # TODO : Check if the DB exists before calling this
     - name: Create guacamole database
       shell: |
         set -e
