@@ -41,6 +41,7 @@
             "inline": [
                 "chmod +x /tmp/*.sh",
                 "/tmp/linux-setup.sh || exit 1",
+                "/tmp/install_persistent_rdma.sh || exit 1",
                 "/tmp/pbspro.sh || exit 1",
                 "/tmp/telegraf.sh || exit 1",
                 "/tmp/lustreclient.sh 2.12.8 || exit 1",
