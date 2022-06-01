@@ -8,6 +8,8 @@
   become: true
   vars_files:
     - '{{global_config_file}}'
+  vars:
+    ood_version: 2.0.23
 
   tasks:
   - name: Wait 300 seconds for the nodes to be ready
@@ -58,6 +60,7 @@
         include_role:
           name: ood-ansible
         vars:
+          ondemand_package: 'ondemand-{{ ood_version }}'
           servername: null
           oidc_client_secret: '{{ oidc_secret.stdout | default(None)}}'
           httpd_port: 80
@@ -167,6 +170,7 @@
     include_role:
       name: ood-ansible
     vars:
+      ondemand_package: 'ondemand-{{ ood_version }}'
       servername: '{{ ondemand_fqdn }}'
       httpd_port: 443
       oidc_client_secret: '{{ oidc_secret.stdout | default(None)}}'
@@ -177,13 +181,13 @@
 
 #    not ( ondemand.generate_certificate | default(true) )
 
-  - name: install custom rpms
-    shell: |
-      rpm -i --force "https://github.com/xpillons/ondemand/releases/download/v2.0.0_azhop/ondemand-2.0.0-1.el7.x86_64.rpm"
-      systemctl restart httpd24-httpd.service
-      touch /var/tmp/ondemand-custom.done
-    args:
-      creates: /var/tmp/ondemand-custom.done
+  # - name: install custom rpms
+  #   shell: |
+  #     rpm -i --force "https://github.com/xpillons/ondemand/releases/download/v2.0.0_azhop/ondemand-2.0.0-1.el7.x86_64.rpm"
+  #     systemctl restart httpd24-httpd.service
+  #     touch /var/tmp/ondemand-custom.done
+  #   args:
+  #     creates: /var/tmp/ondemand-custom.done
 
   - name: Copy logo
     copy: 
