@@ -10,8 +10,17 @@ if %ERRORLEVEL% neq 0 (
    exit 1
 )
 
-:: C:\cycle\jetpack\bin\jetpack log "Successfully join domain {{ ad_join_domain }}"
-
+:: call C:\cycle\jetpack\bin\jetpack log "Successfully join domain {{ ad_join_domain }}"
+:: Create a schedule task to finalize settings after the reboot as we need to reboot to finish the domain join
 schtasks /create /tn "azhop-configuration" /sc onstart /ru system /tr "%~dp0\..\files\windows\4-configure-rdp.bat"
 
+:: Download the NVidia GPU GRID driver
+call C:\cycle\jetpack\bin\jetpack log "Download the NVidia GPU GRID driver"
+Powershell.exe -executionpolicy remotesigned try { $ProgressPreference = 'SilentlyContinue'; Invoke-WebRequest -Uri 'https://download.microsoft.com/download/3/2/2/322f99aa-57f3-4539-b5fc-718f8c0e2579/472.39_grid_win11_win10_64bit_Azure-SWL.exe' -OutFile '472.39_grid_win11_win10_64bit_Azure-SWL.exe' } catch { exit 255 }
+
+:: Install the driver silently /s and don't reboot /n
+call C:\cycle\jetpack\bin\jetpack log "Install the driver silently /s and don't reboot /n"
+472.39_grid_win11_win10_64bit_Azure-SWL.exe /s /n
+
+call C:\cycle\jetpack\bin\jetpack log "Reboot"
 shutdown /r /f /t 0 /c "Reboot after domain join"

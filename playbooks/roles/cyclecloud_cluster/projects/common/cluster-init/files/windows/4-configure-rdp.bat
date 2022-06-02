@@ -9,4 +9,4 @@ net localgroup "Administrators" "HPC\az-hop-localadmins" /add
 
 net localgroup "Remote Desktop Users" "HPC\Domain Users" /add
 net localgroup "Remote Desktop Users"
-:: call C:\cycle\jetpack\bin\jetpack log "End of configure rdp script" --level info --priority low
+call C:\cycle\jetpack\bin\jetpack log "End of configure rdp script" --level info
