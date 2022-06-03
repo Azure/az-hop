@@ -13,6 +13,7 @@ const config: PlaywrightTestConfig = {
     use: {
         headless: true,
         baseURL: process.env.AZHOP_FQDN,
+        ignoreHTTPSErrors: true,
         viewport: { width: 1600, height: 900 },
         screenshot: 'only-on-failure',
         httpCredentials: {
