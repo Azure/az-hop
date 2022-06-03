@@ -5,7 +5,7 @@
   vars_files:
     - '{{global_config_file}}'
   vars:
-    cyclecloud_guac_version: 0.1.16
+    cyclecloud_guac_version: 0.1.17
 
   tasks:
   - name: Install Guac Spooler only if required
