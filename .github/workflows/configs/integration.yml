@@ -92,10 +92,6 @@ scheduler:
 cyclecloud:
   vm_size: Standard_B2ms
 
-winviz:
-  vm_size: Standard_D4_v5
-  create: false # Create an always running windows node, false by default
-
 lustre:
   rbh_sku: "Standard_D8d_v4"
   mds_sku: "Standard_D8d_v4"
@@ -171,6 +167,13 @@ images:
     hyper_v: V2
     os_type: Linux
     version: 18.04
+  - name: azhop-win10
+    publisher: azhop
+    offer: Windows-10
+    sku: 21h1-pron
+    hyper_v: V1
+    os_type: Windows
+    version: 10.19043
 queues:
   - name: execute
     vm_size: Standard_F2s_v2
@@ -222,5 +225,14 @@ queues:
     vm_size: Standard_NV48s_v3
     max_core_count: 96
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
+    ColocateNodes: false
+    spot: false
+
+# Remote Visualization definitions
+remoteviz:
+  - name: winviz # This name is fixed and can't be changed
+    vm_size: Standard_D8a_v4
+    max_core_count: 200
+    image: "MicrosoftWindowsDesktop:Windows-10:21h1-pron:latest"
     ColocateNodes: false
     spot: false

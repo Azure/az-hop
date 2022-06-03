@@ -90,6 +90,13 @@
           description: Members of this group can perform administrative tasks on the az-hop environment
           scope: domainlocal
 
+      - name: Add az-hop local admin group
+        community.windows.win_domain_group:
+          name: az-hop-localadmins
+          state: present
+          description: Members of this group are in the administrators group of Windows nodes
+          scope: domainlocal
+
     always:
       - name: close session on local port
         shell: ps aux | grep localhost:5985 | grep -v grep | awk '{print "kill -9 " $2}' | sh

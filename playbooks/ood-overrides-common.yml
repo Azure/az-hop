@@ -30,10 +30,12 @@ ood_install_apps:
   codeserver:
     dest: "{{ ood_sys_app_dir }}"
     version: master
+
 ood_apps:
   bc_desktop:
-    title: "Remote Desktop"
+    title: "Linux Desktop"
     cluster: ondemand
+    icon: fa://linux
     form:
       - desktop
       - target

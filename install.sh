@@ -55,6 +55,22 @@ function get_ood_auth ()
   echo "Authentication is $OOD_AUTH"
 }
 
+function enable_winviz ()
+{
+  local enable_winviz
+  enable_winviz=$(yq eval '.enable_remote_winviz' config.yml)
+  if [ "$enable_winviz" == "null" ]; then
+    enable_winviz=false
+  fi
+
+  echo "Enable WinViz is $enable_winviz"
+  if [ "$enable_winviz" == "true" ]; then
+    ENABLE_WINVIZ_PLAYBOOK=$PLAYBOOKS_DIR/ood-overrides-guacamole.yml
+  else
+    ENABLE_WINVIZ_PLAYBOOK=
+  fi
+}
+
 # Apply pre-reqs
 $THIS_DIR/ansible_prereqs.sh
 
@@ -62,6 +78,7 @@ $THIS_DIR/ansible_prereqs.sh
 yamllint config.yml
 get_scheduler
 get_ood_auth
+enable_winviz
 
 case $TARGET in
   all)
@@ -73,8 +90,10 @@ case $TARGET in
     run_playbook add_users
     run_playbook cccluster
     run_playbook scheduler
-    run_playbook ood $PLAYBOOKS_DIR/ood-overrides-common.yml $PLAYBOOKS_DIR/ood-overrides-$SCHEDULER.yml $PLAYBOOKS_DIR/ood-overrides-auth-$OOD_AUTH.yml
+    run_playbook ood $PLAYBOOKS_DIR/ood-overrides-common.yml $PLAYBOOKS_DIR/ood-overrides-$SCHEDULER.yml $PLAYBOOKS_DIR/ood-overrides-auth-$OOD_AUTH.yml $ENABLE_WINVIZ_PLAYBOOK
     run_playbook ood-custom
+    run_playbook guacamole
+    run_playbook guac_spooler
     run_playbook grafana 
     run_playbook telegraf
     run_playbook chrony
@@ -83,11 +102,11 @@ case $TARGET in
     run_playbook lustre-sas
     run_playbook lustre
   ;;
-  ad | linux | add_users | ccportal | chrony | cccluster | scheduler | grafana | telegraf | ood-custom | winviz | remove_users | tests)
+  ad | linux | add_users | ccportal | chrony | cccluster | scheduler | grafana | telegraf | ood-custom | remove_users | tests | guacamole | guac_spooler)
     run_playbook $TARGET
   ;;
   ood)
-    run_playbook ood $PLAYBOOKS_DIR/ood-overrides-common.yml $PLAYBOOKS_DIR/ood-overrides-$SCHEDULER.yml $PLAYBOOKS_DIR/ood-overrides-auth-$OOD_AUTH.yml
+    run_playbook ood $PLAYBOOKS_DIR/ood-overrides-common.yml $PLAYBOOKS_DIR/ood-overrides-$SCHEDULER.yml $PLAYBOOKS_DIR/ood-overrides-auth-$OOD_AUTH.yml $ENABLE_WINVIZ_PLAYBOOK
     run_playbook ood-custom
   ;;
   *)

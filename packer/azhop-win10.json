@@ -1,0 +1,35 @@
+{
+    "builders": [
+        {
+            "type": "azure-arm",
+            "use_azure_cli_auth": "{{user `var_use_azure_cli_auth`}}",
+            "image_publisher": "MicrosoftWindowsDesktop",
+            "image_offer": "Windows-10",
+            "image_sku": "21h1-pron",
+            "image_version": "latest",
+            "managed_image_resource_group_name": "{{user `var_resource_group`}}",
+            "managed_image_name": "{{user `var_image`}}",
+            "os_type": "Windows",
+            "vm_size": "Standard_d8s_v3",
+            "managed_image_storage_account_type": "Premium_LRS",
+
+            "communicator": "winrm",
+            "winrm_use_ssl": true,
+            "winrm_insecure": true,
+            "winrm_timeout": "5m",
+            "winrm_username": "packer",
+
+            "build_resource_group_name": "{{user `var_resource_group`}}",
+            "cloud_environment_name": "{{user `var_cloud_env`}}"
+        }
+    ],
+    "provisioners": [{
+        "type": "powershell",
+        "scripts": [
+          "./scripts/windows/wait-for-agent.ps1",
+          "./scripts/windows/install-choco.ps1",
+          "./scripts/windows/optimize.ps1",
+          "./scripts/windows/sysprep.ps1"
+        ]
+      }]
+}

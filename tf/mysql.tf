@@ -18,7 +18,7 @@ resource "azurerm_mysql_server" "mysql" {
   storage_mb                        = 5120
 }
 
-resource "azurerm_mysql_virtual_network_rule" "mysql" {
+resource "azurerm_mysql_virtual_network_rule" "mysql_admin" {
   count               = local.slurm_accounting ? 1 : 0
   name                = "AllowAccessAdmin"
   resource_group_name = azurerm_mysql_server.mysql[0].resource_group_name
@@ -26,6 +26,13 @@ resource "azurerm_mysql_virtual_network_rule" "mysql" {
   subnet_id           = local.create_admin_subnet ? azurerm_subnet.admin[0].id : data.azurerm_subnet.admin[0].id
 }
 
+resource "azurerm_mysql_virtual_network_rule" "mysql_frontend" {
+  count               = local.slurm_accounting ? 1 : 0
+  name                = "AllowAccessFrontend"
+  resource_group_name = azurerm_mysql_server.mysql[0].resource_group_name
+  server_name         = azurerm_mysql_server.mysql[0].name
+  subnet_id           = local.create_frontend_subnet ? azurerm_subnet.frontend[0].id : data.azurerm_subnet.frontend[0].id
+}
 
 resource "random_password" "mysql_password" {
   count             = local.slurm_accounting ? 1 : 0

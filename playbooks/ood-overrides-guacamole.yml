@@ -1,0 +1,14 @@
+---
+clusters:
+  guacamole:
+    v2:
+      metadata:
+        title: Windows Remote Desktop
+      job:
+        adapter: guacamole
+
+ood_install_apps:
+  guacamole:
+    dest: "{{ ood_sys_app_dir }}"
+    version: main
+    repo: https://github.com/xpillons/ondemand_bc_guacamole.git
