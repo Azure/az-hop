@@ -1,0 +1,105 @@
+#
+# Copyright (c) Microsoft Corporation
+# Licensed under the MIT License.
+#
+name : build_image_callable
+
+on:
+  workflow_call:
+    inputs:
+      resource_group:
+        description: 'Name of the azhop resource group to build in - Need to already exists'
+        required: true
+        type: string
+    secrets:
+      ARM_SUBSCRIPTION_ID:
+        required: true
+      ARM_TENANT_ID:
+        required: true
+      ARM_CLIENT_ID:
+        required: true
+      ARM_CLIENT_SECRET:
+        required: true
+
+env:
+  TF_CLI_ARGS: '-no-color'
+  TF_CLI_ARGS_destroy: '-auto-approve -refresh=false'
+  TF_CLI_ARGS_apply: '-auto-approve'
+  AZHOP_CONFIGURATION: '.github/workflows/configs/integration.yml'
+  ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+  ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+  AZHOP_STATE_CONTAINER: environments
+  AZHOP_STATE_ACCOUNT: azhopstates
+  ANSIBLE_VERBOSITY: 2 # From 0 to 4 based on the level of logs needed in Ansible
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  set_image_list:
+    name: set_image_list
+    runs-on: ubuntu-latest
+
+    container:
+      image: xpillons/hpcrover:latest
+      options: --user 0
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+         
+      - name: Login azure
+        run: |
+          az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
+          az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
+
+      - name: list all images to be built
+        id: set-image-matrix
+        run: |
+          RESOURCE_GROUP=${{ inputs.resource_group }}
+          rg_exists=$(az group exists -n $RESOURCE_GROUP)
+          if [ "$rg_exists" = "true" ]; then
+            ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
+          else
+            echo "Resource group $RESOURCE_GROUP does not exist"
+            exit 1
+          fi
+          
+          # Build the list of images from the config file
+          images=$(yq eval ".images[].name" config.yml | jq -cRn '[inputs]')
+          echo "::set-output name=matrix::$images"
+    # save the list into the outputs
+    outputs:
+      matrix: ${{ steps.set-image-matrix.outputs.matrix }}
+
+  build_image:
+    name: build_image
+    runs-on: self-hosted
+    needs: [set_image_list]
+    strategy: 
+      matrix:
+        packer_file: ${{ fromJson(needs.set_image_list.outputs.matrix) }}
+    container:
+      image: xpillons/hpcrover:latest
+      options: --user 0
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+         
+      - name: Login azure
+        run: |
+          az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
+          az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
+
+      - name: Build Images
+        run: |
+          RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
+          ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
+          cd packer
+          ./build_image.sh -i ${{matrix.packer_file}}.json

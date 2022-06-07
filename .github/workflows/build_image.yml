@@ -1,0 +1,23 @@
+#
+# Copyright (c) Microsoft Corporation
+# Licensed under the MIT License.
+#
+name : build_image
+
+on:
+  workflow_dispatch:
+    inputs:
+      resource_group:
+        description: 'Name of the azhop resource group deployed'
+        required: true
+
+jobs:
+  deploy:
+    uses: azure/az-hop/.github/workflows/build_image_callable.yml@main
+    with:
+      resource_group: ${{ github.event.inputs.resource_group }}
+    secrets:
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
