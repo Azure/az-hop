@@ -1,30 +1,17 @@
 - name: Install dependencies
   yum:
     name: epel-release, sssd, realmd, oddjob, oddjob-mkhomedir, adcli, samba-common, samba-common-tools, krb5-workstation, openldap-clients, policycoreutils-python, nfs-utils, python3
+  notify: restart dbus
 
 - name: Disable SELinux
   selinux:
     state: disabled
 
-- name: Restart service dbus
-  service:
-    name: dbus
-    state: restarted 
-
-- name: Restart service systemd-logind
-  service:
-    name: systemd-logind
-    state: restarted
-
 - name: create dhclient config
   copy:
     content: "supersede domain-name-servers {{ domain_dc_ip }};\nappend domain-name-servers 168.63.129.16;"
     dest: "/etc/dhcp/dhclient.conf"
-
-- name: Restart service network
-  service:
-    name: NetworkManager
-    state: restarted
+  notify: restart NetworkManager
 
 - name: Creates home directory mountpoint
   file:
@@ -61,12 +48,14 @@
     path: /etc/sssd/sssd.conf
     regexp: '^use_fully_qualified_names'
     line: 'use_fully_qualified_names = False'
+  notify: restart sssd
 
 - name: configure sssd - ldap_id_mapping
   lineinfile:
     path: /etc/sssd/sssd.conf
     regexp: '^ldap_id_mapping'
     line: 'ldap_id_mapping = False'
+  notify: restart sssd
 
 # Thes are the options to set in order to register DNS in the AD
 # hostnamectl set-hostname jumpbox.hpc.azure
@@ -76,7 +65,3 @@
 # dyndns_ttl = 3600
 # dyndns_auth = GSS-TSIG
 
-- name: Restart sssd
-  service:
-    name: sssd 
-    state: restarted
