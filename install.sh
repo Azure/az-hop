@@ -92,8 +92,8 @@ case $TARGET in
     run_playbook scheduler
     run_playbook ood $PLAYBOOKS_DIR/ood-overrides-common.yml $PLAYBOOKS_DIR/ood-overrides-$SCHEDULER.yml $PLAYBOOKS_DIR/ood-overrides-auth-$OOD_AUTH.yml $ENABLE_WINVIZ_PLAYBOOK
     run_playbook ood-custom
-    run_playbook guacamole
     run_playbook guac_spooler
+    run_playbook guacamole
     run_playbook grafana 
     run_playbook telegraf
     run_playbook chrony
