@@ -21,6 +21,7 @@ function run_playbook ()
       yq eval-all '. as $item ireduce ({}; . *+ $item)' $extra_vars_file > $PLAYBOOKS_DIR/extra_vars.yml
       options+=" --extra-vars=@$PLAYBOOKS_DIR/extra_vars.yml"
     fi
+    echo "Running playbook $PLAYBOOKS_DIR/$playbook.yml ..."
     ansible-playbook -i $INVENTORY $PLAYBOOKS_DIR/$playbook.yml $options || exit 1
     if [ -e $PLAYBOOKS_DIR/extra_vars.yml ]; then
       rm $PLAYBOOKS_DIR/extra_vars.yml
@@ -67,6 +68,7 @@ function enable_winviz ()
   if [ "$enable_winviz" == "true" ]; then
     ENABLE_WINVIZ_PLAYBOOK=$PLAYBOOKS_DIR/ood-overrides-guacamole.yml
   else
+    touch $PLAYBOOKS_DIR/guac_spooler.ok
     ENABLE_WINVIZ_PLAYBOOK=
   fi
 }
