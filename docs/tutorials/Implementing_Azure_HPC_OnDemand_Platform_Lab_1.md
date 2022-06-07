@@ -56,7 +56,7 @@ To complete this lab, you must verify that your account has sufficient permissio
 1. In the Azure portal, on the subscription blade, in the **Settings** section of the resource menu, select **Usage + quota**.
 1. On the **Usage + quotas** blade, in the **Search** filters drop-down boxes, select the Azure region you intend to use for this lab and the **Microsoft.Compute** provider entry.
 
-   > ![Note]: We recommend that you use the **South Central US**, **East US** or the **West Europe** regions because these currently are more likely to increase the possibility of successfully raising quota limits for the Azure virtual machine (VM) SKUs required for this lab.
+   > Note: We recommend that you use the **South Central US**, **East US** or the **West Europe** regions because these currently are more likely to increase the possibility of successfully raising quota limits for the Azure virtual machine (VM) SKUs required for this lab.
 
 1. Review the listing of existing quotas and determine whether you have sufficient capacity to accommodate a deployment of the following vCPUs:
 
@@ -93,7 +93,7 @@ To complete this lab, you must verify that your account has sufficient permissio
 
 1. On the **Review + create** tab of the **New support request** blade, select **Create**.
 
-   > ![Note]: Typically, requests for quota increases are completed within a few hours, but its possible that the processing might take up to a few days.
+   > Note: Typically, requests for quota increases are completed within a few hours, but its possible that the processing might take up to a few days.
 
 ## Exercise 1: Prepare for implementing the Azure HPC OnDemand Platform environment
 
@@ -106,11 +106,11 @@ In this exercise, you will set up an Azure VM that you will use for deployment o
 1. From the lab computer, start a web browser, navigate to [the Azure portal](http://portal.azure.com), and if needed, sign in with credentials of the account with the Owner role in the Azure subscription you will be using in this lab.
 1. In the Azure portal, start a Bash session in **Cloud Shell**.
 
-   > ![Note]: If prompted, in the **Welcome to Azure Cloud Shell** window, select **Bash (Linux)**, and in the **You have no storage mounted** window, select **Create storage**.
+   > Note: If prompted, in the **Welcome to Azure Cloud Shell** window, select **Bash (Linux)**, and in the **You have no storage mounted** window, select **Create storage**.
 
 1. In the **Bash** session, in the **Cloud Shell** pane, run the following command to select the Azure subscription in which you will provision the Azure resources in this lab. In the following command, replace the `<subscription_ID>` placeholder with the value of the **subscriptionID** property of the Azure subscription you are using in this lab:
 
-   > ![Note]: To list the subscription ID properties of all subscriptions associated with your account, run `az account list -otable --query '[].{subscriptionId: id, name: name, isDefault: isDefault}'`.
+   > Note: To list the subscription ID properties of all subscriptions associated with your account, run `az account list -otable --query '[].{subscriptionId: id, name: name, isDefault: isDefault}'`.
 
    ```bash
    az account set --subscription '<subscription_ID>'
@@ -118,7 +118,7 @@ In this exercise, you will set up an Azure VM that you will use for deployment o
 
 1. Run the following commands to create an Azure resource group that will contain the Azure VM hosting the lab deployment tools. In the following commands, replace the `<Azure_region>` placeholder with the name of the Azure region you intend to use in this lab:
 
-   > ![Note]: You can use the `az account list-locations -o table` command to list the names of Azure regions available in your Azure subscription:
+   > Note: You can use the `az account list-locations -o table` command to list the names of Azure regions available in your Azure subscription:
 
    ```bash
    LOCATION='<Azure_region>'
@@ -132,8 +132,8 @@ In this exercise, you will set up an Azure VM that you will use for deployment o
    rm ubuntu_azurecli_vm_template.json -f
    rm ubuntu_azurecli_vm_template.parameters.json -f
 
-   wget https://raw.githubusercontent.com/polichtm/az-hop/main/templates/ubuntu_azurecli_vm_template.json
-   wget https://raw.githubusercontent.com/polichtm/az-hop/main/templates/ubuntu_azurecli_vm_template.parameters.json
+   wget https://raw.githubusercontent.com/azure/az-hop/scripts/arm/ubuntu_azurecli_vm_template.json
+   wget https://raw.githubusercontent.com/azure/az-hop/scripts/arm/ubuntu_azurecli_vm_template.parameters.json
    ```
 
 1. Run the following command to provision the Azure VM that will host the lab deployment tools:
@@ -145,13 +145,13 @@ In this exercise, you will set up an Azure VM that you will use for deployment o
    --parameters @ubuntu_azurecli_vm_template.parameters.json
    ```
 
-   > ![Note]: When prompted, enter an arbitrary password that will be assigned to the **azureadm** user, which you will use to sign in to the operating system of the Azure VM.
+   > Note: When prompted, enter an arbitrary password that will be assigned to the **azureadm** user, which you will use to sign in to the operating system of the Azure VM.
 
-   > ![Note]: Wait until the provisioning completes. This should take about 3 minutes.
+   > Note: Wait until the provisioning completes. This should take about 3 minutes.
 
 ### Task 2: Deploy Azure Bastion
 
-> ![Note]: Azure Bastion allows users to connect to Azure VMs without relying on public endpoints and helps provide protection against brute force exploits that target operating system level credentials.
+> Note: Azure Bastion allows users to connect to Azure VMs without relying on public endpoints and helps provide protection against brute force exploits that target operating system level credentials.
 
 1. On the lab computer, in the browser window displaying the Azure portal, from the Bash session in the **Cloud Shell** pane, run the following commands to add a subnet named **AzureBastionSubnet** to the virtual network that you created in the previous task:
 
@@ -180,11 +180,11 @@ In this exercise, you will set up an Azure VM that you will use for deployment o
 
 1. On the **Review + create** tab of the **Create a Bastion** blade, select **Create**.
 
-   > ![Note]: Wait for the deployment to complete before you proceed to the next exercise. The deployment might take about 5 minutes to complete.
+   > Note: Wait for the deployment to complete before you proceed to the next exercise. The deployment might take about 5 minutes to complete.
 
 ### Task 3: Install the az-hop toolset
 
-> ![Note]: Ensure that your browser has the pop-up functionality enabled before you attempt to connect through Azure Bastion.
+> Note: Ensure that your browser has the pop-up functionality enabled before you attempt to connect through Azure Bastion.
 
 1. On the lab computer, in the browser window displaying the Azure portal, use the **Search resources, services, and docs** text box to search for **Virtual machines**, and from the **Virtual machines** blade, select **azcli-vm0**.
 1. On the **azcli-vm0** blade, select **Connect**, from the drop-down menu, select **Bastion**, on the **azcli-vm0 \| Bastion** blade, enter **azureadm** as the user name and the password you set during the Azure VM deployment in the first task of this exercise, and then select **Connect**.
@@ -220,7 +220,7 @@ In this exercise, you will set up an Azure VM that you will use for deployment o
    sudo ./toolset/scripts/install.sh
    ```
 
-   > ![Note]: Wait until the script completes running. This might take about 5 minutes.
+   > Note: Wait until the script completes running. This might take about 5 minutes.
 
 ### Task 4: Prepare the Azure subscription for deployment
 
@@ -268,7 +268,7 @@ In this exercise, you will set up an Azure VM that you will use for deployment o
    az provider list --query "[?namespace=='Microsoft.NetApp']" --output table
    ```
 
-   > ![Note]: In the output of the command, verify that the value of **RegistrationState** is listed as **Registered**.
+   > Note: In the output of the command, verify that the value of **RegistrationState** is listed as **Registered**.
 
 ## Exercise 2: Implement Azure HPC OnDemand Platform cloud infrastructure
 
@@ -322,7 +322,7 @@ You can define an az-hop environment by using a configuration file named **confi
    ./build.sh -a apply
    ```
 
-   > ![Note]: Wait for the deployment to complete. This should take about 20 minutes. After the deployment completes, you should observe the message stating **Apply complete! Resources: 124 added, 0 changed, 0 destroyed.**
+   > Note: Wait for the deployment to complete. This should take about 20 minutes. After the deployment completes, you should observe the message stating **Apply complete! Resources: 124 added, 0 changed, 0 destroyed.**
 
 ### Task 3: Build images
 
@@ -330,18 +330,18 @@ The az-hop solution provides pre-configured Packer configuration files that can 
 
 1. On the lab computer, in the browser window displaying the Azure portal, within the SSH session to the Azure VM, run the following commands to build a custom image based on the **azhop-centos79-v2-rdma-gpgpu.json** configuration file.
 
-   > ![Note]: The image creation process based on the **azhop-centos79-v2-rdma-gpgpu.json** configuration file relies on a **Standard_d8s_v3** SKU Azure VM.
+   > Note: The image creation process based on the **azhop-centos79-v2-rdma-gpgpu.json** configuration file relies on a **Standard_d8s_v3** SKU Azure VM.
 
    ```bash
    cd packer/
    ./build_image.sh -i azhop-centos79-v2-rdma-gpgpu.json
    ```
 
-   > ![Note]: Disregard any warning messages.
+   > Note: Disregard any warning messages.
 
-   > ![Note]: Wait for the process to complete. This might take about 20 minutes.
+   > Note: Wait for the process to complete. This might take about 20 minutes.
 
-   > ![Note]: The image creation process based on the **centos-7.8-desktop-3d.json** configuration file relies on a **Standard_NV6** SKU Azure VM. If you manage to obtain a sufficient number of quotas to provision a **Standard_NV6**-based Azure VM, you can proceed directly to the next step. Otherwise, open the **centos-7.8-desktop-3d.json** file, replace the entry **Standard_NV6** with **Standard_D8s_v3**, save the change, and then close the file. Although such a step is likely to affect the functionality of compute resources based on this image, its meant strictly as a workaround that facilitates the next step in the process of implementing the Azure HPC OnDemand Platform lab environment.
+   > Note: The image creation process based on the **centos-7.8-desktop-3d.json** configuration file relies on a **Standard_NV6** SKU Azure VM. If you manage to obtain a sufficient number of quotas to provision a **Standard_NV6**-based Azure VM, you can proceed directly to the next step. Otherwise, open the **centos-7.8-desktop-3d.json** file, replace the entry **Standard_NV6** with **Standard_D8s_v3**, save the change, and then close the file. Although such a step is likely to affect the functionality of compute resources based on this image, its meant strictly as a workaround that facilitates the next step in the process of implementing the Azure HPC OnDemand Platform lab environment.
 
 1. Within the SSH session to the Azure VM, run the following command to build a custom image based on the **centos-7.8-desktop-3d.json** configuration file.
 
@@ -349,7 +349,7 @@ The az-hop solution provides pre-configured Packer configuration files that can 
    ./build_image.sh -i centos-7.8-desktop-3d.json
    ```
 
-   > ![Note]: Wait for the process to complete. This might take about 40 minutes.
+   > Note: Wait for the process to complete. This might take about 40 minutes.
 
 ### Task 4: Review deployment results
 
@@ -358,7 +358,7 @@ The az-hop solution provides pre-configured Packer configuration files that can 
 1. In the Azure portal, use the **Search resources, services, and docs** text box to search for **Azure virtual machines**, and in the list of results, select **Virtual machines**.
 1. On the **Virtual machines** blade, review the listing of the provisioned virtual machines.
 
-   > ![Note]: If needed, filter the listing of the virtual machines by setting the resource group criterion to **azhop**.
+   > Note: If needed, filter the listing of the virtual machines by setting the resource group criterion to **azhop**.
 
 1. Close the newly opened browser tab displaying the **Virtual machines** blade in the Azure portal.
 
@@ -377,9 +377,9 @@ The az-hop solution provides pre-configured Packer configuration files that can 
    ./bin/get_secret clusteradmin
    ```
 
-   > ![Note]: Record the password. You will need it later in this lab.
+   > Note: Record the password. You will need it later in this lab.
 
-   > ![Note]: The **./bin/get_secret utility script** retrieves the password of the user you specify as its parameter from the Azure Key vault, which is part of the Azure HPC OnDemand Platform infrastructure you deployed in the previous exercise.
+   > Note: The **./bin/get_secret utility script** retrieves the password of the user you specify as its parameter from the Azure Key vault, which is part of the Azure HPC OnDemand Platform infrastructure you deployed in the previous exercise.
 
 ## Exercise 3: Install and configure Azure HPC OnDemand Platform software components
 
@@ -387,7 +387,7 @@ Duration: 50 minutes
 
 In this exercise, you'll install and configure software components that form the Azure HPC OnDemand Platform solution.
 
-> ![Note]: You will perform this installation by using Ansible playbooks, which supports setup for individual components and an entire solution. In either case, its necessary to account for dependencies between components. The setup script **install.sh** in the root directory of the repository performs the installation in the intended order. The components include: **ad**, **linux**, **add_users**, **lustre**, **ccportal**, **cccluster** (this component requires that custom images are present in the compute gallery), **scheduler**, **ood**, **grafana**, **telegraf**, and **chrony**.
+> Note: You will perform this installation by using Ansible playbooks, which supports setup for individual components and an entire solution. In either case, its necessary to account for dependencies between components. The setup script **install.sh** in the root directory of the repository performs the installation in the intended order. The components include: **ad**, **linux**, **add_users**, **lustre**, **ccportal**, **cccluster** (this component requires that custom images are present in the compute gallery), **scheduler**, **ood**, **grafana**, **telegraf**, and **chrony**.
 
 ### Task 1: Install and configure Azure HPC OnDemand Platform software components
 
@@ -397,9 +397,9 @@ In this exercise, you'll install and configure software components that form the
    ./install.sh
    ```
 
-   > ![Note]: Wait for the process to complete. This might take about 30 minutes.
+   > Note: Wait for the process to complete. This might take about 30 minutes.
 
-   > ![Note]: In case of a transient failure, you can rerun the install script can be rerun because most of the settings are idempotent. In addition, the script has a checkpointing mechanism that creates component-specific files with the **.ok** extension in the playbooks directory and checks for their presence during subsequent runs. If you want to reapply the configuration to an existing component, delete the corresponding **.ok** file, and then rerun the install script.
+   > Note: In case of a transient failure, you can rerun the install script can be rerun because most of the settings are idempotent. In addition, the script has a checkpointing mechanism that creates component-specific files with the **.ok** extension in the playbooks directory and checks for their presence during subsequent runs. If you want to reapply the configuration to an existing component, delete the corresponding **.ok** file, and then rerun the install script.
 
 ### Task 2: Review installation results
 
@@ -409,16 +409,16 @@ In this exercise, you'll install and configure software components that form the
    grep ondemand_fqdn playbooks/group_vars/all.yml
    ```
 
-   > ![Note]: Record this value. You'll need it throughout the remainder of this lab.
+   > Note: Record this value. You'll need it throughout the remainder of this lab.
 
 1. From the lab computer, start a web browser, navigate to the URL of the Azure HPC On-Demand Platform portal you identified earlier in this task, and when prompted sign in with the **clusteradmin** user account and its password you identified in the previous step.
 
-   > ![Note]: You'll be presented with the **Azure HPC On-Demand Platform** dashboard. Review its interface, starting with the top-level menu, which provides access to **Apps**, **Files**, **Jobs**, **Clusters**, **Interactive Apps**, **Monitoring**, and **My Interactive Sessions** menu items.
+   > Note: You'll be presented with the **Azure HPC On-Demand Platform** dashboard. Review its interface, starting with the top-level menu, which provides access to **Apps**, **Files**, **Jobs**, **Clusters**, **Interactive Apps**, **Monitoring**, and **My Interactive Sessions** menu items.
 
 1. In the **Monitoring** menu, select **Azure CycleCloud**.
 1. When presented with the page titled **App has not been initialized or does not exist**, select **Initialize App**.
 
-   > ![Note]: This prompt reflects the OnDemand component architecture, which the Azure HPC OnDemand Platform solution relies on to implement its portal. The shared frontend creates Per User NGINX (PUN) processes to provide connectivity to such components as **Azure CycleCloud**, **Grafana**, or **Robinhood Dashboard**.
+   > Note: This prompt reflects the OnDemand component architecture, which the Azure HPC OnDemand Platform solution relies on to implement its portal. The shared frontend creates Per User NGINX (PUN) processes to provide connectivity to such components as **Azure CycleCloud**, **Grafana**, or **Robinhood Dashboard**.
 
 1. On the **Azure CycleCloud for Azure HPC On-Demand Platform** page, note the presence of a configuration of a cluster named **pbs1**.
 1. On the **pbs1** page, select the **Arrays** tab, and note that it contains six entries representing queue definitions you reviewed earlier in the **config.yml** file.
