@@ -1,0 +1,71 @@
+- name: Install dependencies
+  yum:
+    name: epel-release, sssd, realmd, oddjob, oddjob-mkhomedir, adcli, samba-common, samba-common-tools, krb5-workstation, openldap-clients, policycoreutils-python, nfs-utils, python3
+  notify: restart dbus
+
+- name: Disable SELinux
+  selinux:
+    state: disabled
+
+- name: create dhclient config
+  copy:
+    content: "supersede domain-name-servers {{ domain_dc_ip }};\nappend domain-name-servers 168.63.129.16;"
+    dest: "/etc/dhcp/dhclient.conf"
+
+- name: restart NetworkManager
+  service:
+    name: NetworkManager
+    state: restarted
+
+- name: Creates home directory mountpoint
+  file:
+    path: '{{domain_homedir}}'
+    state: directory
+    mode: '0755'
+
+- name: Mount an NFS volume
+  mount:
+    src: '{{ domain_mount_ip }}:/{{ domain_mount_path }}'
+    path: '{{domain_homedir}}'
+    opts: rw,hard,rsize=65536,wsize=65536,vers=3,tcp
+    state: mounted
+    fstype: nfs
+
+  # - name: store kerberos password => this is not working
+  #   shell: echo "{{domain_password}}" | kinit {{ domain_admin }}@{{ domain_name | upper }}
+
+- name: Join AD domain
+  shell: echo "{{ domain_password }}" | realm join -v -U {{ domain_admin }} {{ domain_name }}
+  args:
+    creates: /etc/sssd/sssd.conf
+
+# - name: ReJoin AD domain
+#   shell: |
+#     realm leave
+#     systemctl stop sssd
+#     rm -rf /var/lib/sss/db/*
+#     echo "{{ domain_password }}" | realm join -v -U {{ domain_admin }} {{ domain_name }}
+
+
+- name: configure sssd - use_fully_qualified_names
+  lineinfile:
+    path: /etc/sssd/sssd.conf
+    regexp: '^use_fully_qualified_names'
+    line: 'use_fully_qualified_names = False'
+  notify: restart sssd
+
+- name: configure sssd - ldap_id_mapping
+  lineinfile:
+    path: /etc/sssd/sssd.conf
+    regexp: '^ldap_id_mapping'
+    line: 'ldap_id_mapping = False'
+  notify: restart sssd
+
+# Thes are the options to set in order to register DNS in the AD
+# hostnamectl set-hostname jumpbox.hpc.azure
+# dyndns_update = true
+# dyndns_refresh_interval = 43200
+# dyndns_update_ptr = true
+# dyndns_ttl = 3600
+# dyndns_auth = GSS-TSIG
+
