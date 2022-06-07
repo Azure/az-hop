@@ -11,7 +11,11 @@
   copy:
     content: "supersede domain-name-servers {{ domain_dc_ip }};\nappend domain-name-servers 168.63.129.16;"
     dest: "/etc/dhcp/dhclient.conf"
-  notify: restart NetworkManager
+
+- name: restart NetworkManager
+  service:
+    name: NetworkManager
+    state: restarted
 
 - name: Creates home directory mountpoint
   file:

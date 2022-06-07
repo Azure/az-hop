@@ -5,11 +5,6 @@
     name: sssd 
     state: restarted
 
-- name: restart NetworkManager
-  service:
-    name: NetworkManager
-    state: restarted
-
 - name: restart dbus
   service:
     name: dbus
