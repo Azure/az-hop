@@ -190,6 +190,13 @@ images:
   #   os_type: Linux # Linux or Windows
   #   version: 7.9 # Version of the image to create the image definition in SIG
 # Pre-defined images
+  - name: azhop-almalinux85-v2-rdma-gpgpu
+    publisher: azhop
+    offer: almalinux
+    sku: 8_5-hpc-gen2
+    hyper_v: V2
+    os_type: Linux
+    version: 8.5
   - name: azhop-centos79-v2-rdma-gpgpu
     publisher: azhop
     offer: CentOS
