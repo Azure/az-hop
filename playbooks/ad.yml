@@ -50,18 +50,19 @@
         register: ad_ds
 
       - name: Create AD-Domain
-        ansible.windows.win_domain:
+        win_domain:
           dns_domain_name: '{{ad_join_domain}}'
           safe_mode_password: '{{ad_join_password.stdout}}'
         register: ad_promotion
 
       - name: Reboot after promotion
-        ansible.windows.win_reboot:
-          post_reboot_delay: 600
+        win_reboot:
+          test_command: 'exit (Get-Service -Name Netlogon).Status -ne "Running"'
+          #post_reboot_delay: 600
         when: ad_promotion.reboot_required
 
       - name: update gidnumber Domain Users 
-        community.windows.win_domain_group:
+        win_domain_group:
           name: Domain Users
           attributes:
             gidnumber: 5000
@@ -74,7 +75,7 @@
           update_password: on_create
 
       - name: Add DNS Forwarders
-        community.windows.win_dns_zone:
+        win_dns_zone:
           name: '{{item.name}}'
           type: forwarder
           dns_servers: "{{item.ips}}"
@@ -84,14 +85,14 @@
         when: dns.forwarders is defined
 
       - name: Add az-hop admin group
-        community.windows.win_domain_group:
+        win_domain_group:
           name: az-hop-admins
           state: present
           description: Members of this group can perform administrative tasks on the az-hop environment
           scope: domainlocal
 
       - name: Add az-hop local admin group
-        community.windows.win_domain_group:
+        win_domain_group:
           name: az-hop-localadmins
           state: present
           description: Members of this group are in the administrators group of Windows nodes
