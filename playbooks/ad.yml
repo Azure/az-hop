@@ -75,7 +75,7 @@
           update_password: on_create
 
       - name: Add DNS Forwarders
-        win_dns_zone:
+        community.windows.win_dns_zone:
           name: '{{item.name}}'
           type: forwarder
           dns_servers: "{{item.ips}}"
