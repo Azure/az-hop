@@ -68,7 +68,7 @@ jobs:
             echo "Resource group $RESOURCE_GROUP does not exist"
             exit 1
           fi
-          
+
           # Build the list of images from the config file
           images=$(yq eval ".images[].name" config.yml | jq -cRn '[inputs]')
           echo "::set-output name=matrix::$images"
@@ -99,7 +99,7 @@ jobs:
 
       - name: Build Images
         run: |
-          RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
+          RESOURCE_GROUP=${{ inputs.resource_group }}
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           cd packer
           ./build_image.sh -i ${{matrix.packer_file}}.json
