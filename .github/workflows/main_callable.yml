@@ -127,9 +127,9 @@ jobs:
                 range_mapping[$octet]=1
               done
               echo ${range_mapping[@]}
-              second_octet=$(( ( RANDOM % 255 )  + 1 ))
+              second_octet=$(( ( RANDOM % 254 )  + 1 ))
               while [ ${range_mapping[$second_octet]} == 1 ]; do
-                second_octet=$(( ( RANDOM % 255 )  + 1 ))
+                second_octet=$(( ( RANDOM % 254 )  + 1 ))
               done
               echo "Second octet: $second_octet"
               sed_exp="s/10.128/10.$second_octet/g"
