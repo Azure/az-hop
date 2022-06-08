@@ -373,8 +373,8 @@ jobs:
         run: |
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
-          ./install.sh guac_spooler
           ./install.sh guacamole
+          ./install.sh guac_spooler
 
   telegraf:
     name: telegraf
