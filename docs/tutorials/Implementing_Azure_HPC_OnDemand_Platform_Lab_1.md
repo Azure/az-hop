@@ -5,14 +5,14 @@
   - [Before the hands-on lab](#before-the-hands-on-lab)
     - [Task 1: Validate the owner role assignment in the Azure subscription](#task-1-validate-the-owner-role-assignment-in-the-azure-subscription)
     - [Task 2: Validate a sufficient number of vCPU cores](#task-2-validate-a-sufficient-number-of-vcpu-cores)
-  - [Exercise 1: Prepare for implementing Azure HPC OnDemand Platform environment](#exercise-1-prepare-for-implementing-azure-hpc-ondemand-platform-environment)
+  - [Exercise 1: Prepare for implementing the Azure HPC OnDemand Platform environment](#exercise-1-prepare-for-implementing-the-azure-hpc-ondemand-platform-environment)
     - [Task 1: Provision an Azure VM running Linux](#task-1-provision-an-azure-vm-running-linux)
     - [Task 2: Deploy Azure Bastion](#task-2-deploy-azure-bastion)
     - [Task 3: Install the az-hop toolset](#task-3-install-the-az-hop-toolset)
     - [Task 4: Prepare the Azure subscription for deployment](#task-4-prepare-the-azure-subscription-for-deployment)
   - [Exercise 2: Implement Azure HPC OnDemand Platform infrastructure](#exercise-2-implement-azure-hpc-ondemand-platform-infrastructure)
     - [Task 1: Customize infrastructure components](#task-1-customize-infrastructure-components)
-    - [Task 2: Deploy Azure HPC OnDemand Platform cloud infrastructure](#task-2-deploy-azure-hpc-ondemand-platform-cloud-infrastructure)
+    - [Task 2: Deploy Azure HPC OnDemand Platform infrastructure](#task-2-deploy-azure-hpc-ondemand-platform-infrastructure)
     - [Task 3: Build images](#task-3-build-images)
     - [Task 4: Review deployment results](#task-4-review-deployment-results)
     - [Task 5: Generate passwords for user and admin accounts](#task-5-generate-passwords-for-user-and-admin-accounts)
@@ -20,13 +20,12 @@
     - [Task 1: Install Azure HPC OnDemand Platform software components](#task-1-install-azure-hpc-ondemand-platform-software-components)
     - [Task 2: Review installation results](#task-2-review-installation-results)
   - [Exercise 6: Optionally - Deprovision Azure HPC OnDemand Platform environment](#exercise-6-optionally---deprovision-azure-hpc-ondemand-platform-environment)
-    - [Task 1: Terminate the cluster](#task-1-terminate-the-cluster)
-    - [Task 2: Deprovision the Azure resources](#task-2-deprovision-the-azure-resources)
+    - [Task 1: Deprovision the Azure resources](#task-1-deprovision-the-azure-resources)
 
 <!-- /TOC -->
 
 # Azure HPC OnDemand Platform lab guide
-This series of 2 labs will guide you in `Lab1` thru the whole deployment of an **azhop** environment, and in `Lab2` to how to use it.
+This series of 2 labs will guide you in `Lab1` thru the whole deployment of an **azhop** environment, and in `Lab2` on how to use it.
 
 ## Requirements
 
@@ -264,7 +263,7 @@ In this exercise, you will set up an Azure VM that you will use for deployment o
 
    > Note: In the output of the command, verify that the value of **RegistrationState** is listed as **Registered**.
 
-## Exercise 2: Implement Azure HPC OnDemand Platform cloud infrastructure
+## Exercise 2: Implement Azure HPC OnDemand Platform infrastructure
 
 Duration: 90 minutes
 
@@ -383,7 +382,7 @@ In this exercise, you'll install and configure software components that form the
 
 > Note: You will perform this installation by using Ansible playbooks, which supports setup for individual components and an entire solution. In either case, its necessary to account for dependencies between components. The setup script **install.sh** in the root directory of the repository performs the installation in the intended order. The components include: **ad**, **linux**, **add_users**, **lustre**, **ccportal**, **cccluster** (this component requires that custom images are present in the compute gallery), **scheduler**, **ood**, **grafana**, **telegraf**, and **chrony**.
 
-### Task 1: Install and configure Azure HPC OnDemand Platform software components
+### Task 1: Install Azure HPC OnDemand Platform software components
 
 1. On the lab computer, in the browser window displaying the Azure portal, within the SSH session to the Azure VM, run the following command to invoke the installation of the Azure HPC OnDemand Platform software components:
 
