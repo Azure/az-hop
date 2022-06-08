@@ -35,25 +35,25 @@ network:
   create_nsg: true
   vnet:
     name: hpcvnet
-    address_space: "10.0.0.0/24"
+    address_space: "10.70.0.0/24"
     # When using an existing VNET, only the subnet names will be used and not the adress_prefixes
     subnets: # all subnets are optionals
     # name values can be used to rename the default to specific names, address_prefixes to change the IP ranges to be used
       frontend: 
         name: frontend
-        address_prefixes: "10.0.0.0/29"
+        address_prefixes: "10.70.0.0/29"
       ad:
         name: ad
-        address_prefixes: "10.0.0.8/29"
+        address_prefixes: "10.70.0.8/29"
       admin:
         name: admin
-        address_prefixes: "10.0.0.16/28"
+        address_prefixes: "10.70.0.16/28"
       netapp:
         name: netapp
-        address_prefixes: "10.0.0.32/29"
+        address_prefixes: "10.70.0.32/29"
       compute:
         name: compute
-        address_prefixes: "10.0.0.128/25"
+        address_prefixes: "10.70.0.128/25"
 
 # When working in a locked down network, uncomment and fill out this section
 locked_down_network:
@@ -157,6 +157,11 @@ authentication:
   #   OIDCPassClaimsAs: # for AAD use 'environment'
 
 # List of images to be defined
+community_gallery_name: 
+  westeurope: azhop-8ff77402-9dd3-47a3-9581-83c29d288784
+  southcentralus:
+  eastus:
+
 images:
   # - name: image_definition_name # Should match the packer configuration file name, one per packer file
   #   publisher: azhop
@@ -195,39 +200,39 @@ queues:
     # maximum number of cores that can be instanciated
     max_core_count: 16
     # marketplace image name or custom image id
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    image: /CommunityGalleries/{{community_gallery_name}}/Images/azhop-centos79-v2-rdma-gpgpu/Versions/7.9.220607101
     # Set to false to disable creation of placement groups (for SLURM only). Default is true
     ColocateNodes: false
     spot: false
   - name: hc44rs
     vm_size: Standard_HC44rs
     max_core_count: 220
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    image: /CommunityGalleries/{{community_gallery_name}}/Images/azhop-centos79-v2-rdma-gpgpu/Versions/7.9.220607101
     spot: false
   - name: hb120v3
     vm_size: Standard_HB120rs_v3
     max_core_count: 600
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    image: /CommunityGalleries/{{community_gallery_name}}/Images/azhop-centos79-v2-rdma-gpgpu/Versions/7.9.220607101
     spot: false
     # Queue dedicated to GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz3d
     vm_size: Standard_NV12s_v3
     max_core_count: 24
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
+    image: /CommunityGalleries/{{community_gallery_name}}/Images/centos-7.8-desktop-3d/Versions/7.8.220607103
     ColocateNodes: false
     spot: false
     # Queue dedicated to share GPU remote viz nodes. This name is fixed and can't be changed
   - name: largeviz3d
     vm_size: Standard_NV48s_v3
     max_core_count: 48
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
+    image: /CommunityGalleries/{{community_gallery_name}}/Images/centos-7.8-desktop-3d/Versions/7.8.220607103
     ColocateNodes: false
     spot: false
     # Queue dedicated to non GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz
     vm_size: Standard_D8s_v5
     max_core_count: 16
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
+    image: /CommunityGalleries/{{community_gallery_name}}/Images/centos-7.8-desktop-3d/Versions/7.8.220607103
     ColocateNodes: false
     spot: false
 
