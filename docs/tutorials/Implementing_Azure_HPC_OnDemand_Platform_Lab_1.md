@@ -192,10 +192,10 @@ In this exercise, you will set up an Azure VM that you will use for deployment o
    sudo apt-get upgrade -y
    ```
 
-1. Run the following command to install Git:
+1. Run the following command to install Git and screen:
 
    ```bash
-   sudo apt-get install git
+   sudo apt-get install git screen
    ```
 
 1. Run the following commands to clone the **az-hop** repository:
@@ -310,7 +310,8 @@ You can define an az-hop environment by using a configuration file named **confi
    ./build.sh -a apply
    ```
 
-   > Note: Wait for the deployment to complete. This should take about 20 minutes. After the deployment completes, you should observe the message stating something similar to **Apply complete! Resources: 124 added, 0 changed, 0 destroyed.**
+   > Note: Wait for the deployment to complete. This should take about 15 minutes. After the deployment completes, you should observe the message stating something similar to **Apply complete! Resources: 142 added, 0 changed, 0 destroyed.**
+
 
 ### Task 3: Build images
 
