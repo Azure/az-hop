@@ -11,7 +11,7 @@
         },
         "vmName": {
             "type": "String",
-            "defaultValue": "azcli-vm0"
+            "defaultValue": "azhop-vm0"
         },
         "adminUsername": {
             "type": "string",
@@ -31,7 +31,7 @@
         "nicName": "[concat(parameters('vmName'),'-nic0')]",
         "diskName": "[concat(parameters('vmName'),'-osDisk')]",
         "nsgName": "[concat(parameters('vmName'),'-nsg0')]",
-        "vnetName": "azcli-vnet",
+        "vnetName": "azhop-vnet",
         "subnet0Name": "subnet0",
         "subnet0Ref": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), variables('subnet0Name'))]",
         "diskType": "Standard_LRS",
@@ -127,14 +127,20 @@
             "properties": {
                 "addressSpace": {
                     "addressPrefixes": [
-                        "192.168.0.0/22"
+                        "10.201.0.0/22"
                     ]
                 },
                 "subnets": [
                     {
                         "name": "[variables('subnet0Name')]",
                         "properties": {
-                            "addressPrefix": "192.168.0.0/24"
+                            "addressPrefix": "10.201.1.0/24"
+                        }
+                    },
+                    {
+                        "name": "AzureBastionSubnet",
+                        "properties": {
+                            "addressPrefix": "10.201.0.0/24"
                         }
                     }
                 ]
