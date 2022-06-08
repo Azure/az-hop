@@ -64,7 +64,7 @@ To complete this lab, you must verify that your account has sufficient permissio
    - Standard DSv3 Family vCPUs: **16**
    - Standard DSv5 Family vCPUs: **16**
    - Standard HBv3 Family vCPUs: **480**
-   - Standard NVsv3 Family vCPUs: **48**
+   - Standard NVsv3 Family vCPUs: **24**
    - Total Regional Spot vCPUs: **480**
    - Total Regional vCPUs: **700**
 
@@ -156,7 +156,7 @@ In this exercise, you will set up an Azure VM that you will use for deployment o
 
    ```bash
    RGNAME='azhop-cli-RG'
-   VNETNAME='azcli-vnet'
+   VNETNAME='azhop-vnet'
    az network vnet subnet create --resource-group $RGNAME --vnet-name $VNETNAME --name AzureBastionSubnet --address-prefixes 192.168.3.0/24
    ```
 
@@ -172,8 +172,8 @@ In this exercise, you will set up an Azure VM that you will use for deployment o
    |Name|**azhop-cli-bastion**|
    |Region|Enter the same Azure region to which you used for deployment in the previous task of this exercise.|
    |Tier|**Basic**|
-   |Virtual network|**azcli-vnet**|
-   |Subnet|**AzureBastionSubnet (192.168.3.0/24)**|
+   |Virtual network|**azhop-vnet**|
+   |Subnet|**AzureBastionSubnet (10.201.0.0/24)**|
    |Public IP address|**Create new**|
    |Public IP name|**azhop-cli-pip**|
 
@@ -185,8 +185,8 @@ In this exercise, you will set up an Azure VM that you will use for deployment o
 
 > Note: Ensure that your browser has the pop-up functionality enabled before you attempt to connect through Azure Bastion.
 
-1. On the lab computer, in the browser window displaying the Azure portal, use the **Search resources, services, and docs** text box to search for **Virtual machines**, and from the **Virtual machines** blade, select **azcli-vm0**.
-1. On the **azcli-vm0** blade, select **Connect**, from the drop-down menu, select **Bastion**, on the **azcli-vm0 \| Bastion** blade, enter **azureadm** as the user name and the password you set during the Azure VM deployment in the first task of this exercise, and then select **Connect**.
+1. On the lab computer, in the browser window displaying the Azure portal, use the **Search resources, services, and docs** text box to search for **Virtual machines**, and from the **Virtual machines** blade, select **azhop-vm0**.
+1. On the **azhop-vm0** blade, select **Connect**, from the drop-down menu, select **Bastion**, on the **azhop-vm0 \| Bastion** blade, enter **azureadm** as the user name and the password you set during the Azure VM deployment in the first task of this exercise, and then select **Connect**.
 1. Within the SSH session to the Azure VM, run the following command to update the package manager list of available packages and their versions:
 
    ```bash
