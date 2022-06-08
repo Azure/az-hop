@@ -352,7 +352,7 @@ jobs:
 
   guacamole:
     name: guacamole
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [cycle, ood, deploy]
 
     container:
