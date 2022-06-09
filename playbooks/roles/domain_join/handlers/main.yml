@@ -1,0 +1,17 @@
+---
+
+- name: restart sssd
+  service:
+    name: sssd 
+    state: restarted
+
+- name: restart dbus
+  service:
+    name: dbus
+    state: restarted 
+  notify: restart systemd-logind
+
+- name: restart systemd-logind
+  service:
+    name: systemd-logind
+    state: restarted

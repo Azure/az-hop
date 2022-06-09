@@ -1,6 +1,6 @@
 ---
 - name: Join AD domain and mount anf-home
-  hosts: jumpbox, scheduler, ondemand, grafana, guacamole
+  hosts: jumpbox, scheduler, ondemand, grafana
   become: true
   gather_facts: no
   vars_files:
@@ -13,47 +13,25 @@
   - name: Gather facts for first time
     setup:
 
-  - name: Install dependencies
-    yum:
-      name: epel-release, sssd, realmd, oddjob, oddjob-mkhomedir, adcli, samba-common, samba-common-tools, krb5-workstation, openldap-clients, policycoreutils-python, nfs-utils, python3
+  - name: Read Password from KV
+    command: az keyvault secret show --vault-name {{key_vault}} -n {{admin_user}}-password --query "value" -o tsv
+    delegate_to: localhost
+    connection: local
+    register: password
+    become: false
+    run_once: true
 
-  - name: Disable SELinux
-    selinux:
-      state: disabled
-
-  - name: Restart service dbus
-    service:
-      name: dbus
-      state: restarted 
-
-  - name: Restart service systemd-logind
-    service:
-      name: systemd-logind
-      state: restarted
-
-  - name: create dhclient config
-    copy:
-      content: "supersede domain-name-servers {{ ad_dns }};\nappend domain-name-servers 168.63.129.16;"
-      dest: "/etc/dhcp/dhclient.conf"
-
-  - name: Restart service network
-    service:
-      name: NetworkManager
-      state: restarted
-
-  - name: Creates home directory mountpoint
-    file:
-      path: '{{homedir_mountpoint}}'
-      state: directory
-      mode: '0755'
-
-  - name: Mount an NFS volume
-    mount:
-      src: '{{ anf_home_ip }}:/{{ anf_home_path }}'
-      path: '{{homedir_mountpoint}}'
-      opts: rw,hard,rsize=65536,wsize=65536,vers=3,tcp
-      state: mounted
-      fstype: nfs
+  - name: Join domain
+    include_role:
+      name: domain_join
+    vars:
+      domain_admin: "{{admin_user}}"
+      domain_password: "{{password.stdout}}"
+      domain_name: "{{ad_join_domain}}"
+      domain_dc_ip: "{{ad_dns}}"
+      domain_homedir: "{{homedir_mountpoint}}"
+      domain_mount_ip: "{{anf_home_ip}}"
+      domain_mount_path: "{{anf_home_path}}"
 
   - name: Update ANF chmod mode
     file:
@@ -61,52 +39,3 @@
       state: directory
       mode: '0755'
     run_once : true
-
-  - name: Read Password from KV
-    command: az keyvault secret show --vault-name {{key_vault}} -n {{admin_user}}-password --query "value" -o tsv
-    delegate_to: localhost
-    connection: local
-    register: ad_join_password
-    become: false
-    run_once: true
-
-    # - name: store kerberos password => this is not working
-    #   shell: echo "{{ad_join_password.stdout}}" | kinit {{ ad_join_user }}@{{ ad_join_domain | upper }}
-
-  - name: Join AD domain
-    shell: echo "{{ ad_join_password.stdout }}" | realm join -v -U {{ ad_join_user }} {{ ad_join_domain }}
-    args:
-      creates: /etc/sssd/sssd.conf
-
-  # - name: ReJoin AD domain
-  #   shell: |
-  #     realm leave
-  #     systemctl stop sssd
-  #     rm -rf /var/lib/sss/db/*
-  #     echo "{{ ad_join_password.stdout }}" | realm join -v -U {{ ad_join_user }} {{ ad_join_domain }}
-
-
-  - name: configure sssd - use_fully_qualified_names
-    lineinfile:
-      path: /etc/sssd/sssd.conf
-      regexp: '^use_fully_qualified_names'
-      line: 'use_fully_qualified_names = False'
-
-  - name: configure sssd - ldap_id_mapping
-    lineinfile:
-      path: /etc/sssd/sssd.conf
-      regexp: '^ldap_id_mapping'
-      line: 'ldap_id_mapping = False'
-
-# Thes are the options to set in order to register DNS in the AD
-# hostnamectl set-hostname jumpbox.hpc.azure
-# dyndns_update = true
-# dyndns_refresh_interval = 43200
-# dyndns_update_ptr = true
-# dyndns_ttl = 3600
-# dyndns_auth = GSS-TSIG
-
-  - name: Restart sssd
-    service:
-      name: sssd 
-      state: restarted
