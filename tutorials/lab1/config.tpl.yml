@@ -156,12 +156,6 @@ authentication:
   #   OIDCPassRefreshToken: # for AAD use 'On'
   #   OIDCPassClaimsAs: # for AAD use 'environment'
 
-# List of images to be defined
-community_gallery_name: 
-  westeurope: azhop-8ff77402-9dd3-47a3-9581-83c29d288784
-  southcentralus:
-  eastus:
-
 images:
   # - name: image_definition_name # Should match the packer configuration file name, one per packer file
   #   publisher: azhop
@@ -185,13 +179,7 @@ images:
     hyper_v: V1
     os_type: Linux
     version: 7.8
-  - name: azhop-win10
-    publisher: azhop
-    offer: Windows-10
-    sku: 21h1-pron
-    hyper_v: V1
-    os_type: Windows
-    version: 10.19043
+
 # List of queues (node arays in Cycle) to be defined
 queues:
   - name: execute # name of the Cycle Cloud node array
@@ -200,39 +188,39 @@ queues:
     # maximum number of cores that can be instanciated
     max_core_count: 16
     # marketplace image name or custom image id
-    image: /CommunityGalleries/{{community_gallery_name}}/Images/azhop-centos79-v2-rdma-gpgpu/Versions/7.9.220607101
+    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
     # Set to false to disable creation of placement groups (for SLURM only). Default is true
     ColocateNodes: false
     spot: false
   - name: hc44rs
     vm_size: Standard_HC44rs
     max_core_count: 220
-    image: /CommunityGalleries/{{community_gallery_name}}/Images/azhop-centos79-v2-rdma-gpgpu/Versions/7.9.220607101
+    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
     spot: false
   - name: hb120v3
     vm_size: Standard_HB120rs_v3
     max_core_count: 600
-    image: /CommunityGalleries/{{community_gallery_name}}/Images/azhop-centos79-v2-rdma-gpgpu/Versions/7.9.220607101
+    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
     spot: false
     # Queue dedicated to GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz3d
     vm_size: Standard_NV12s_v3
     max_core_count: 24
-    image: /CommunityGalleries/{{community_gallery_name}}/Images/centos-7.8-desktop-3d/Versions/7.8.220607103
+    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
     ColocateNodes: false
     spot: false
     # Queue dedicated to share GPU remote viz nodes. This name is fixed and can't be changed
   - name: largeviz3d
     vm_size: Standard_NV48s_v3
     max_core_count: 48
-    image: /CommunityGalleries/{{community_gallery_name}}/Images/centos-7.8-desktop-3d/Versions/7.8.220607103
+    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
     ColocateNodes: false
     spot: false
     # Queue dedicated to non GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz
     vm_size: Standard_D8s_v5
     max_core_count: 16
-    image: /CommunityGalleries/{{community_gallery_name}}/Images/centos-7.8-desktop-3d/Versions/7.8.220607103
+    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
     ColocateNodes: false
     spot: false
 

@@ -315,13 +315,14 @@ You can define an az-hop environment by using a configuration file named **confi
 
 ### Task 3: Build images
 
-The az-hop solution provides pre-configured Packer configuration files that can be used to build custom images. The utility script **./packer/build_image.sh** performs the build process and stores the resulting images in the Shared Image Gallery included in the deployed infrastructure.
+The az-hop solution provides pre-configured Packer configuration files that can be used to build custom images. The utility script **./packer/build_image.sh** performs the build process and stores the resulting images in the Shared Image Gallery included in the deployed infrastructure. Because building these images is a long process, we will use `screen` to build them in parallel.
 
 1. On the lab computer, in the browser window displaying the Azure portal, within the SSH session to the Azure VM, run the following commands to build a custom image based on the **azhop-centos79-v2-rdma-gpgpu.json** configuration file.
 
    > Note: The image creation process based on the **azhop-centos79-v2-rdma-gpgpu.json** configuration file relies on a **Standard_d8s_v3** SKU Azure VM.
 
    ```bash
+   screen -S packer1
    cd packer/
    ./build_image.sh -i azhop-centos79-v2-rdma-gpgpu.json
    ```
@@ -330,16 +331,41 @@ The az-hop solution provides pre-configured Packer configuration files that can 
 
    > Note: Wait for the process to complete. This might take about 20 minutes.
 
-   > Note: The image creation process based on the **centos-7.8-desktop-3d.json** configuration file relies on a **Standard_NV6** SKU Azure VM. If you manage to obtain a sufficient number of quotas to provision a **Standard_NV6**-based Azure VM, you can proceed directly to the next step. Otherwise, open the **centos-7.8-desktop-3d.json** file, replace the entry **Standard_NV6** with **Standard_D8s_v3**, save the change, and then close the file. Although such a step is likely to affect the functionality of compute resources based on this image, its meant strictly as a workaround that facilitates the next step in the process of implementing the Azure HPC OnDemand Platform lab environment.
+   > Note: The image creation process based on the **centos-7.8-desktop-3d.json** configuration file relies on a **Standard_NV12s_v3** SKU Azure VM. If you manage to obtain a sufficient number of quotas to provision a **Standard_NV12s_v3**-based Azure VM, you can proceed directly to the next step. Otherwise, open the **centos-7.8-desktop-3d.json** file, replace the entry **Standard_NV12s_v3** with **Standard_D8s_v3**, save the change, and then close the file. Although such a step is likely to affect the functionality of compute resources based on this image, its meant strictly as a workaround that facilitates the next step in the process of implementing the Azure HPC OnDemand Platform lab environment.
+
+   Detach from the current screen with `<ctrl>a+d`
 
 1. Within the SSH session to the Azure VM, run the following command to build a custom image based on the **centos-7.8-desktop-3d.json** configuration file.
 
    ```bash
+   screen -S packer2
+   cd packer
    ./build_image.sh -i centos-7.8-desktop-3d.json
    ```
 
    > Note: Wait for the process to complete. This might take about 40 minutes.
 
+   Detach from the current screen with `<ctrl>a+d`
+
+1. Check the image build status by switching between `screen` sessions.
+
+   - **\<ctrl> a+d** : to detach
+   - **screen -ls** : to list sessions
+   - **screen -r [name]**: to reattach to the session [name]
+
+A typical output of a sucessful image build should end like this
+```
+Creating an image definition for azhop-centos79-v2-rdma-gpgpu
+Read image definition from ../config.yml
+/subscriptions/xxxxxx/resourceGroups/azhop-lab1/providers/Microsoft.Compute/galleries/azhop_ya3hzc6v/images/azhop-centos79-v2-rdma-gpgpu
+Looking for image azhop-centos79-v2-rdma-gpgpu version  ...
+Pushing version 7.9.220608174 of azhop-centos79-v2-rdma-gpgpu in azhop_ya3hzc6v
+/subscriptions/xxxxx/resourceGroups/azhop-lab1/providers/Microsoft.Compute/galleries/azhop_ya3hzc6v/images/azhop-centos79-v2-rdma-gpgpu/versions/7.9.220608174e
+astus   7.9.220608174   Succeeded    None    azhop-lab1    Microsoft.Compute/galleries/images/versions
+Tagging the source image with version 7.9.220608174 and checksum b94b6fe74922717c402ed09e9675e3fe
+None    V2    /subscriptions/xxxxxx/resourceGroups/azhop-lab1/providers/Microsoft.Compute/images/azhop-centos79-v2-rdma-gpgpu   eastus  azhop-centos79-v2-rdma
+-gpgpu  Succeededazhop-lab1Microsoft.Compute/images
+```
 ### Task 4: Review deployment results
 
 1. On the lab computer, in the browser window displaying the Azure portal, open another tab, navigate to the Azure portal, use the **Search resources, services, and docs** text box to search for **Azure compute galleries**, and in the list of results, select **Azure compute galleries**.
@@ -376,7 +402,7 @@ Duration: 50 minutes
 
 In this exercise, you'll install and configure software components that form the Azure HPC OnDemand Platform solution.
 
-> Note: You will perform this installation by using Ansible playbooks, which supports setup for individual components and an entire solution. In either case, its necessary to account for dependencies between components. The setup script **install.sh** in the root directory of the repository performs the installation in the intended order. The components include: **ad**, **linux**, **add_users**, **lustre**, **ccportal**, **cccluster** (this component requires that custom images are present in the compute gallery), **scheduler**, **ood**, **grafana**, **telegraf**, and **chrony**.
+> Note: You will perform this installation by using Ansible playbooks, which supports setup for individual components and an entire solution. In either case, its necessary to account for dependencies between components. The setup script **install.sh** in the root directory of the repository performs the installation in the intended order. The components include: **ad**, **linux**, **add_users**, **lustre**, **ccportal**, **cccluster** (this component requires that custom images are present in the compute gallery), **scheduler**, **ood**, **guacamole**, **guac_spooler**, **grafana**, **telegraf**, and **chrony**.
 
 ### Task 1: Install Azure HPC OnDemand Platform software components
 
@@ -388,7 +414,7 @@ In this exercise, you'll install and configure software components that form the
 
    > Note: Wait for the process to complete. This might take about 30 minutes.
 
-   > Note: In case of a transient failure, you can rerun the install script can be rerun because most of the settings are idempotent. In addition, the script has a checkpointing mechanism that creates component-specific files with the **.ok** extension in the playbooks directory and checks for their presence during subsequent runs. If you want to reapply the configuration to an existing component, delete the corresponding **.ok** file, and then rerun the install script.
+   > Note: In case of a transient failure, you can rerun the install script can be rerun because most of the settings are idempotent. In addition, the script has a checkpointing mechanism that creates component-specific files with the **.ok** extension in the playbooks directory and checks for their presence during subsequent runs. If you want to reapply the configuration to an existing component, rerun the install script with one of component name listed above.
 
 ### Task 2: Review installation results
 
@@ -414,11 +440,11 @@ In this exercise, you'll install and configure software components that form the
 
 ## Exercise 6: Optionally - Deprovision Azure HPC OnDemand Platform environment
 
+> Note: Do only this if you don't plan to run Lab 2
+
 Duration: 5 minutes
 
 In this exercise, you will deprovision the Azure HPC OnDemand Platform lab environment.
-
-> Note: Do only this if you don't plan to run Lab 2
 
 ### Task 1: Deprovision the Azure resources
 
