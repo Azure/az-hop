@@ -13,6 +13,7 @@ module load mpi/impi-2021
 #export I_MPI_FABRICS="shm:ofi"
 export I_MPI_DEBUG=5
 #export FI_PROVIDER=mlx
+export I_MPI_HYDRA_BOOTSTRAP=ssh
 
 IMB_ROOT=$I_MPI_ROOT/bin
 
