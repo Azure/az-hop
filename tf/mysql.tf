@@ -37,11 +37,10 @@ resource "azurerm_mysql_virtual_network_rule" "mysql_frontend" {
 resource "random_password" "mysql_password" {
   count             = local.slurm_accounting ? 1 : 0
   length            = 16
-  special           = true
+  special           = false
   min_lower         = 1
   min_upper         = 1
   min_numeric       = 1
-  override_special  = "_%@"
 }
 
 resource "azurerm_key_vault_secret" "mysql_password" {
