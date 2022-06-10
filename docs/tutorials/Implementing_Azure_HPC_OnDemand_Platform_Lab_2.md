@@ -6,19 +6,22 @@
   - [Exercise 2: Review the main az-hop features](#exercise-2-review-the-main-az-hop-features)
     - [Task 1: Using file explorer](#task-1-using-file-explorer)
     - [Task 2: Using shell access](#task-2-using-shell-access)
-    - [Task 3: Running interactive apps using Code Server and Remote Desktop](#task-3-running-interactive-apps-using-code-server-and-remote-desktop)
+    - [Task 3: Running interactive apps using Code Server and Linux Desktop](#task-3-running-interactive-apps-using-code-server-and-linux-desktop)
     - [Task 4: Running Intel MPI PingPong jobs from the Job composer](#task-4-running-intel-mpi-pingpong-jobs-from-the-job-composer)
     - [Task 5: Create jobs based on a non-default Azure HPC OnDemand Platform template](#task-5-create-jobs-based-on-a-non-default-azure-hpc-ondemand-platform-template)
-  - [Exercise 5: Set up Spack](#exercise-5-set-up-spack)
-    - [Task 1: Create a compute node](#task-1-create-a-compute-node)
+  - [Exercise 3: Set up Spack](#exercise-3-set-up-spack)
+    - [Task 1: Create a Code Server session](#task-1-create-a-code-server-session)
     - [Task 2: Install Spack](#task-2-install-spack)
-  - [Exercise 6: Build, run, and analyze reservoir simulation using OPM Flow](#exercise-6-build-run-and-analyze-reservoir-simulation-using-opm-flow)
+  - [Exercise 6: Build and run OSU Benchmarks](#exercise-4-build-and-run-osu-benchmarks)
+    - [Task 1: Build OSU Benchmarks with OpenMPI](#task-1-build-osu-benchmarks-with-openmpi)
+    - [Task 2: Create the run script](#task-2-create-the-run-script)
+    - [Task 3: Submit OSU jobs](#task-3-submit-osu-jobs)
+  - [Exercise 5: Build, run, and analyze reservoir simulation using OPM Flow](#exercise-5-build-run-and-analyze-reservoir-simulation-using-opm-flow)
     - [Task 1: Build OPM](#task-1-build-opm)
     - [Task 2: Retrieve test data and run a flow job](#task-2-retrieve-test-data-and-run-a-flow-job)
-    - [Task 3: View the results of the OPM job by using ResInsight](#task-3-view-the-results-of-the-opm-job-by-using-resinsight)
-  - [Exercise 7: Deprovision Azure HPC OnDemand Platform environment](#exercise-7-deprovision-azure-hpc-ondemand-platform-environment)
-    - [Task 1: Terminate the cluster](#task-1-terminate-the-cluster)
-    - [Task 2: Deprovision the Azure resources](#task-2-deprovision-the-azure-resources)
+    - [Task 3: View the results of the OPM job by using ResInsight](#task-3-review-the-results-of-the-opm-job-by-using-resinsight)
+  - [Exercise 6: Deprovision Azure HPC OnDemand Platform environment](#exercise-6-deprovision-azure-hpc-ondemand-platform-environment)
+    - [Task 1: Deprovision the Azure resources](#task-1-deprovision-the-azure-resources)
 
 <!-- /TOC -->
 
@@ -130,7 +133,7 @@ In this exercise, you will review the main features of the Azure HPC OnDemand Pl
 1. You can now edit any files located in your home directory, git clone repos and connect to your github account.
 1. Switch back to the **Azure HPC On-Demand Platform** home page, or the `Dashboard`.
 1. Select **Linux Desktop**.
-1. On the **Remote Desktop** launching page, from the **Session target** drop-down list, ensure that **With GPU - Small GPU node for single session** is selected.
+1. On the **Linux Desktop** launching page, from the **Session target** drop-down list, ensure that **With GPU - Small GPU node for single session** is selected.
 1. In the **Maximum duration of your remote session** field, enter **1**
 1. In the **Maximum number of cores of your session** field, enter **0**
 1. Select **Launch**.
@@ -157,11 +160,11 @@ In this exercise, you will review the main features of the Azure HPC OnDemand Pl
 1. Use the **Delete** button to delete the **Code Server** job by selecting **Confirm** when prompted.
 1. On the session with hosts named `viz3d-1`, adjust **Compression** and **Image quality** according to your preferences, and then select **Launch Linux Desktop**.
 
-   > Note: This will open another browser tab displaying the Remote Desktop VNC session.
+   > Note: This will open another browser tab displaying the Linux Desktop VNC session.
 
 1. Open a terminal and run `nvidia-smi` to validate that GPU is enabled
 1. In the open terminal run `glxspheres64` and observed the performances. This is running witout GPU acceleration and should deliver about **40 frames/sec**.
-1. Close the **GLX Spheres** window and rerun it by prefexing the command with vglrun to offload Opengl to the GPU: `vglrun glxspheres64`. Performances should be increased to about **500 frames/sec** depending on your screen size, quality and compression options.
+1. Close the **GLX Spheres** window and rerun it by prefexing the command with vglrun to offload Opengl to the GPU: `vglrun glxspheres64`. Performances should be increased to about **400 frames/sec** depending on your screen size, quality and compression options.
 1. Start a new terminal and launch `nvidia-smi` to check the GPU usage which should be aboud **35%**.
 
 > Note: The `vglrun` command can be called for all applications which use Opengl to offload calls to the GPU.
@@ -220,9 +223,11 @@ On the **Dashboard** page, select the **Jobs** menu title, and from the drop-dow
 
    > Note: The Message Passing Interface (MPI) ping-pong tests measure network latency and throughput between nodes in the cluster by sending packets of data back and forth between paired nodes repeatedly. The *latency* is the average of half of the time that it takes for a packet to make a round trip between a pair of nodes, in microseconds. The *throughput* is the average rate of data transfer between a pair of nodes, in MB/second.
 
-   > Note: This will automatically create a job named **Intel MPI PingPong** that targets the **hb120v3** slot_type.
+   > Note: This will automatically create a job named **Intel MPI PingPong** that targets the **hb120v3** slot_type, as this lab is setup for **hb120v2** you will have to update the job file.
+1. In the **Submit Script** from the right panel, click on the button **Open Editor** at the bottom. This will open a new tab with the pingpong script open.
+1. On line 3, change **hb120v3** to **hb120v2**. Click on the **Save** button and close the tab.
 
-1. Repeat the previous step twice to create two additional jobs based on the **Intel MPI PingPong** template.
+1. Create two additional jobs based on the **Intel MPI PingPong** job by expanding the **+ New Job** button and chosing the **From Selected Job**.
 1. Note that, as before, all three jobs are currently in the **Not Submitted** state. To submit them, select each one of them, and then select **Submit**.
 
    > Note: The status of the jobs should change to **Queued**.
@@ -245,24 +250,24 @@ On the **Dashboard** page, select the **Jobs** menu title, and from the drop-dow
 
    > Note: This will automatically open another web browser tab displaying the output of the job.
 
-## Exercise 5: Set up Spack
+## Exercise 3: Set up Spack
 
 Duration: 30 minutes
 
 In this exercise, you will install and configure Spack from Code Server, as documented in [https://azure.github.io/az-hop/tutorials/spack.html](https://azure.github.io/az-hop/tutorials/spack.html).
 
-### Task 1: Create a Code Server
+### Task 1: Create a Code Server session
 
 1. On the lab computer, in the browser window, switch to the tab displaying the **Azure HPC On-Demand Platform** portal.
 1. Select the **Interactive Apps** menu, and from the drop-down menu, select **Code Server**.
 
    > Note: This will open another browser tab displaying the **Code Server** launching page.
 
-1. On the **Code Server** launching page, in the **Maximum duration of your remote session** field, enter **3**. In the **Slot Type** text box, enter **execute**, and then select **Launch**.
+1. On the **Code Server** launching page, in the **Maximum duration of your remote session** field, enter **3**. In the **Slot Type** text box, enter **hb120v2**, and then select **Launch**.
 
    > Note: This will initiate the provisioning of a compute node of the type you specified. Note that this creates a new job and the **Queued** status for this job is displayed on the same page.
 
-1. Switch to the **Azure CycleCloud for Azure HPC On-Demand Platform** portal and monitor the progress of the **execute** node provisioning.
+1. Switch to the **Azure CycleCloud for Azure HPC On-Demand Platform** portal and monitor the progress of the **hb120v2** node provisioning.
 
    > Note: Wait until the node status changes to **Ready**. This should take about 5 minutes.
 
@@ -272,24 +277,15 @@ In this exercise, you will install and configure Spack from Code Server, as docu
 
 1. Review the interface, and then close the **Welcome** tab.
 1. Select the **Application** menu, from the drop-down menu select **Terminal**, and then from the sub-menu that opens, select **New Terminal**.
-1. In the **Terminal** pane, at the **[clusteradmin@execute-1 ~]$** prompt, run the following command to clone the azurehpc repo and use the azhop/spack branch:
+1. In the **Terminal** pane, at the **[clusteradmin@hb120v2-1 ~]$** prompt, run the following command to clone the azurehpc repo and use the azhop/spack branch:
 
    ```bash
    git clone https://github.com/Azure/azurehpc.git
    ```
 
-1. In the Terminal pane, run the following command to provision a compute node and connect to it interactively:
-
-   ```bash
-   qsub -l select=1:slot_type=hb120v3 -I
-   ```
-
-   > Note: Wait for the node to finish provisioning. This might take about 10 minutes.
-
 ### Task 2: Install Spack
 
-1. On the lab computer, in the browser window displaying the Code Server, wait until the prompt **[clusteradmin@hb120v3-1 ~]$** appears within the **Terminal** pane.
-1. In the **Terminal** pane, run the following commands to install and configure Spack:
+1. In the **Terminal** pane, review and run the following scripts to install and configure Spack:
 
    ```bash
    ~/azurehpc/experimental/azhop/spack/install.sh
@@ -299,19 +295,19 @@ In this exercise, you will install and configure Spack from Code Server, as docu
    > Note: The output should resemble the following listing:
 
    ```bash
-   [clusteradmin@hhb120v3-1 ~]$ ~/azurehpc/experimental/azhop/spack/install.sh
+   [clusteradmin@hb120v2-1 ~]$ ~/azurehpc/experimental/azhop/spack/install.sh
    Cloning into '/anfhome/clusteradmin/spack'...
-   remote: Enumerating objects: 356062, done.
-   remote: Counting objects: 100% (8/8), done.
-   remote: Compressing objects: 100% (7/7), done.
-   remote: Total 356062 (delta 0), reused 5 (delta 0), pack-reused 356054
-   Receiving objects: 100% (356062/356062), 161.30 MiB | 20.68 MiB/s, done.
-   Resolving deltas: 100% (151608/151608), done.
-   Checking out files: 100% (9104/9104), done.
-   Checking out files: 100% (8002/8002), done.
-   Branch releases/v0.16 set up to track remote branch releases/v0.16 from origin.
-   Switched to a new branch 'releases/v0.16'
-   [clusteradmin@hb120v3-1 ~]$ ~/azurehpc/experimental/azhop/spack/configure.sh
+   remote: Enumerating objects: 389726, done.
+   remote: Counting objects: 100% (18/18), done.
+   remote: Compressing objects: 100% (17/17), done.
+   remote: Total 389726 (delta 1), reused 9 (delta 0), pack-reused 389708
+   Receiving objects: 100% (389726/389726), 173.48 MiB | 48.70 MiB/s, done.
+   Resolving deltas: 100% (167923/167923), done.
+   Checking out files: 100% (9513/9513), done.
+   Checking out files: 100% (6826/6826), done.
+   Branch releases/v0.18 set up to track remote branch releases/v0.18 from origin.
+   Switched to a new branch 'releases/v0.18'
+   [clusteradmin@hb120v2-1 ~]$ ~/azurehpc/experimental/azhop/spack/configure.sh
    Add GCC compiler
    ==> Added 1 new compiler to /anfhome/clusteradmin/.spack/linux/compilers.yaml
        gcc@9.2.0
@@ -321,18 +317,17 @@ In this exercise, you will install and configure Spack from Code Server, as docu
    Configure local settings
    ```
 
-1. In the **Terminal** pane, run the following commands to confirm the list of defined compilers:
+1. Run the following commands to confirm the list of defined compilers:
 
    ```bash
-   . ~/spack/share/spack/setup-env.sh
    spack compilers
    ```
 
    > Note: The output should resemble the following listing:
 
    ```bash
-   [clusteradmin@hb120v3-1 ~]$ . ~/spack/share/spack/setup-env.sh
-   [clusteradmin@hb120v3-1 ~]$ spack compilers
+   [clusteradmin@hb120v2-1 ~]$
+   [clusteradmin@hb120v2-1 ~]$ spack compilers
    ==> Available compilers
    -- gcc centos7-x86_64 -------------------------------------------
    gcc@9.2.0
@@ -340,7 +335,54 @@ In this exercise, you will install and configure Spack from Code Server, as docu
 
    > Note: Verify that gcc 9.2 is referenced in the output.
 
-## Exercise 6: Build, run, and analyze reservoir simulation using OPM Flow
+## Exercise 4: Build and run OSU Benchmarks
+In this exercise, you will build and run some of the OSU Benchmarks used to measure latency and bandwith using OpenMPI.
+
+Duration: 30 minutes
+### Task 1: Build OSU Benchmarks with OpenMPI
+1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hb120v2-1 ~]$**  prompt, run the following command to load Spack modules:
+
+   ```bash
+   . ~/spack/share/spack/setup-env.sh
+   module use /usr/share/Modules/modulefiles
+   ```
+1. Install OSU benchmarks with Spack and OpenMPI
+   ```bash
+   spack install osu-micro-benchmarks^openmpi
+   ```
+
+### Task 2: Create the run script
+
+1. At the root of the home directoryn, create a file named **osu_benchmarks.sh** with this content
+```bash
+#!/bin/bash
+BENCH=${1:-osu_latency}
+. ~/spack/share/spack/setup-env.sh
+source /etc/profile.d/modules.sh
+module use /usr/share/Modules/modulefiles
+spack load osu-micro-benchmarks^openmpi
+mpirun -x PATH --hostfile $PBS_NODEFILE --map-by ppr:1:node --bind-to core --report-bindings $BENCH
+```
+
+1. Enable execution for this script
+```bash
+chmod +x ~/osu_benchmarks.sh
+```
+
+### Task 3: Submit OSU jobs
+1. Submit a first job for running the bandwidth benchmarks. Note the **slot_type** used in the select statement.
+```bash
+qsub -N BW -joe -koe -l select=2:slot_type=hb120v2 -- osu_benchmarks.sh osu_bw
+```
+
+1. And a second one for the latency test
+```bash
+qsub -N LAT -joe -koe -l select=2:slot_type=hb120v2 -- osu_benchmarks.sh osu_latency
+```
+
+2. Review the results of the jobs in files names **LAT.o??** and **BW.o??** at the root of the home directory
+
+## Exercise 5: Build, run, and analyze reservoir simulation using OPM Flow
 
 In this exercise, you will build, run, and analyze reservoir simulation using OPM (Open Porous Media) Flow.
 
@@ -348,13 +390,13 @@ Duration: 60 minutes
 
 ### Task 1: Build OPM
 
-1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hb120v3-1 ~]$**  prompt, run the following command to load Spack modules:
+1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hb120v2-1 ~]$**  prompt, run the following command to load Spack modules:
 
    ```bash
    module use /usr/share/Modules/modulefiles
    ```
 
-1. Run the following command to create the az-hop Spack repo:
+1. Review the following script and run it to create the az-hop Spack repo:
 
    ```bash
    ~/azurehpc/experimental/azhop/azhop-spack/install.sh
@@ -366,7 +408,7 @@ Duration: 60 minutes
    ==> Added repo with namespace 'azhop'.
    ```
 
-1. Run the following command to configure the OPM packages:
+1. Review the following script and run it to configure the OPM packages:
 
    ```bash
    ~/azurehpc/experimental/azhop/opm/configure.sh
@@ -375,7 +417,7 @@ Duration: 60 minutes
    > Note: The output should resemble the following listing:
 
    ```bash
-   [clusteradmin@hb120v3-1 ~]$ ~/azurehpc/experimental/azhop/opm/configure.sh
+   [clusteradmin@hb120v2-1 ~]$ ~/azurehpc/experimental/azhop/opm/configure.sh
    Cloning into 'dune-spack'...
    remote: Enumerating objects: 357, done.
    remote: Total 357 (delta 0), reused 0 (delta 0), pack-reused 357
@@ -394,22 +436,11 @@ Duration: 60 minutes
    > Note: The output should resemble the following listing:
 
    ```bash
-   [clusteradmin@hb120v3-1 .spack]$ module avail
+   [clusteradmin@hb120v2-1 ~]$ module avail
 
-   ---------------------------------------- /usr/share/Modules/modulefiles ----------------------------------------
-      amd/aocl              module-git         mpi/hpcx               mpi/impi-2021         mpi/openmpi-4.1.0 (D)
-      amd/aocl-2.2-4 (D)    module-info        mpi/impi_2018.4.274    mpi/mvapich2          null
-      dot                   modules            mpi/impi_2021.2.0      mpi/mvapich2-2.3.5    use.own
-      gcc-9.2.0             mpi/hpcx-v2.8.3    mpi/impi               mpi/openmpi
-
-   ------------------------------------ /usr/share/lmod/lmod/modulefiles/Core -------------------------------------
-      lmod    settarg
-
-     Where:
-      D:  Default Module
-
-   Use "module spider" to find all possible modules and extensions.
-   Use "module keyword key1 key2 ..." to search for all possible modules matching any of the "keys".
+      --------------------------------------------------------------------------------------------- /usr/share/Modules/modulefiles ---------------------------------------------------------------------------------------------
+      amd/aocl            dot                 module-git          modules             mpi/hpcx-v2.9.0     mpi/impi_2018.4.274 mpi/impi_2021.4.0   mpi/mvapich2-2.3.6  mpi/openmpi-4.1.1   use.own
+      amd/aocl-2.2-4      gcc-9.2.0           module-info         mpi/hpcx            mpi/impi            mpi/impi-2021       mpi/mvapich2        mpi/openmpi         null
    ```
 
    > Note: Review the output and note the openmpi version.
@@ -438,7 +469,7 @@ Duration: 60 minutes
        buildable: False
    ```
 
-   > Note: You must use the following updated content with openmpi version 4.1.0.
+   > Note: You must use the following updated content with openmpi version 4.1.1.
 
    ```bash
    packages:
@@ -448,13 +479,13 @@ Duration: 60 minutes
          mpi: [openpmi]
      openmpi:
        externals:
-       - spec: openmpi@4.1.0%gcc@9.2.0
+       - spec: openmpi@4.1.1%gcc@9.2.0
          modules:
-         - mpi/openmpi-4.1.0
+         - mpi/openmpi-4.1.1
        buildable: False
    ```
 
-1. Run the following command to initialize the OPM build:
+1. Review the following script and run it to build OPM:
 
    ```bash
    ~/azurehpc/experimental/azhop/opm/build.sh
@@ -463,8 +494,8 @@ Duration: 60 minutes
    > Note: The output should start with the following listing:
 
    ```bash
-   [clusteradmin@hb120v3-1 ~]$ ~/azurehpc/experimental/azhop/opm/build.sh
-   ==> Warning: Missing a source id for openmpi@4.1.0
+   [clusteradmin@hb120v2-1 ~]$ ~/azurehpc/experimental/azhop/opm/build.sh
+   ==> Warning: Missing a source id for openmpi@4.1.1
    ==> Warning: Missing a source id for dune@2.7
    ==> Installing pkg-config-0.29.2-opt4cajmlefjsbaqmhcuxegkkdr6gvac
    ==> No binary for pkg-config-0.29.2-opt4cajmlefjsbaqmhcuxegkkdr6gvac found: installing from source
@@ -474,16 +505,16 @@ Duration: 60 minutes
    ==> pkg-config: Executing phase: 'configure'
    ```
 
-   > Note: Wait for the build to complete. This might take about 30 minutes.
+   > Note: Wait for the build to complete. This might take about 40 minutes.
 
 ### Task 2: Retrieve test data and run a flow job
 
-1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hb120v3-1 ~]$** prompt, run the following commands to download test data:
+1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hb120v2-1 ~]$** prompt, run the following commands to download test data:
 
    ```bash
    cd /lustre
-   mkdir clusteradmin
-   cd clusteradmin
+   mkdir $USER
+   cd $USER
    git clone https://github.com/OPM/opm-data.git
    ```
 
@@ -493,11 +524,11 @@ Duration: 60 minutes
    cp ~/azurehpc/experimental/azhop/opm/run_opm.sh ~
    ```
 
-1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hb120v3-1 ~]$** prompt, open the newly created copy of the **run_opm.sh** file in a text editor.
+1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hb120v2-1 ~]$** prompt, open the newly created copy of the **run_opm.sh** file in a text editor.
 1. Make the following changes to the file, and close it after saving the changes:
 
-   - Modify the input file path (`INPUT`) by replacing the entry `~/opm-data/norne` with `/lustre/clusteradmin/opm-data/norne`).
-   - Modify the compute node configuration by replacing the entry `select=1:ncpus=40:mpiprocs=40:slot_type=hc44rs` with `select=1:ncpus=120:mpiprocs=60:slot_type=hb120v3`.
+   - Modify the input file path (`INPUT`) by replacing the entry `~/opm-data/norne` with `/lustre/$USER/opm-data/norne`).
+   - Modify the compute node configuration by replacing the entry `select=1:ncpus=40:mpiprocs=40:slot_type=hc44rs` with `select=1:ncpus=120:mpiprocs=60:slot_type=hb120v2`.
    - Add the `which flow` line following the `spack load opm-simulators` line.
 
    > Note: Leave the number of nodes set to **1** to avoid the quota limit issues.
@@ -546,12 +577,12 @@ Duration: 60 minutes
    ```bash
    #!/bin/bash
    #PBS -N OPM
-   #PBS -l select=1:ncpus=120:mpiprocs=60:slot_type=hb120v3
+   #PBS -l select=1:ncpus=120:mpiprocs=60:slot_type=hb120v2
    #PBS -k oed
    #PBS -j oe
    #PBS -l walltime=3600
 
-   INPUT=/lustre/clusteradmin/opm-data/norne/NORNE_ATW2013.DATA
+   INPUT=/lustre/$USER/opm-data/norne/NORNE_ATW2013.DATA
    INPUT_DIR=${INPUT%/*}
    INPUT_FILE=${INPUT##*/}
    NUM_THREADS=1
@@ -581,7 +612,7 @@ Duration: 60 minutes
    popd
    ```
 
-1. On the lab computer, in the browser window displaying the Code Server, in the Terminal pane, from the prompt **[clusteradmin@hb120v3-1 ~]$**, run the following command to submit the job referenced in the **~/run_opm.sh** file:
+1. On the lab computer, in the browser window displaying the Code Server, in the Terminal pane, from the prompt **[clusteradmin@hb120v2-1 ~]$**, run the following command to submit the job referenced in the **~/run_opm.sh** file:
 
    ```bash
    qsub ~/run_opm.sh 
@@ -596,9 +627,9 @@ Duration: 60 minutes
    > Note: The output should resemble the following listing:
 
    ```bash
-   [clusteradmin@hb120v3-1 clusteradmin]$ qsub ~/run_opm.sh
+   [clusteradmin@hb120v2-1 clusteradmin]$ qsub ~/run_opm.sh
    8.scheduler
-   [clusteradmin@hb120v3-1 clusteradmin]$ qstat
+   [clusteradmin@hb120v2-1 clusteradmin]$ qstat
    Job id            Name             User              Time Use S Queue
    ----------------  ---------------- ----------------  -------- - -----
    6.scheduler       sys-dashboard-s  clusteradmin      00:00:17 R workq           
@@ -618,10 +649,10 @@ Duration: 60 minutes
    > Note: The output should start with the following listing:
 
    ```bash
-   [clusteradmin@hb120v3-1 clusteradmin]$ qstat -fx 8.scheduler
+   [clusteradmin@hb120v2-1 clusteradmin]$ qstat -fx 8.scheduler
    Job Id: 8.scheduler
        Job_Name = OPM
-       Job_Owner = clusteradmin@hb120v3-1.internal.cloudapp.net
+       Job_Owner = clusteradmin@hb120v2-1.internal.cloudapp.net
        resources_used.cpupercent = 1635
        resources_used.cput = 00:45:00
        resources_used.mem = 29380680kb
@@ -633,15 +664,15 @@ Duration: 60 minutes
        server = scheduler
        Checkpoint = u
        ctime = Tue Feb 22 18:26:47 2022
-       Error_Path = hb120v3-1.internal.cloudapp.net:/lustre/clusteradmin/OPM.e8
-       exec_host = hb120v3-2/0*120
-       exec_vnode = (hb120v3-2:ncpus=120)
+       Error_Path = hb120v2-1.internal.cloudapp.net:/lustre/clusteradmin/OPM.e8
+       exec_host = hb120v2-2/0*120
+       exec_vnode = (hb120v2-2:ncpus=120)
        Hold_Types = n
        Join_Path = oe
        Keep_Files = oed
        Mail_Points = a
        mtime = Tue Feb 22 18:36:42 2022
-       Output_Path = hb120v3-1.internal.cloudapp.net:/lustre/clusteradmin/OPM.o8
+       Output_Path = hb120v2-1.internal.cloudapp.net:/lustre/clusteradmin/OPM.o8
        Priority = 0
        qtime = Tue Feb 22 18:26:47 2022
        Rerunable = True
@@ -649,7 +680,7 @@ Duration: 60 minutes
        Resource_List.ncpus = 120
        Resource_List.nodect = 1
        Resource_List.place = scatter:excl
-       Resource_List.select = 1:ncpus=120:mpiprocs=60:slot_type=hb120v3
+       Resource_List.select = 1:ncpus=120:mpiprocs=60:slot_type=hb120v2
        Resource_List.slot_type = execute
        Resource_List.ungrouped = false
        Resource_List.walltime = 01:00:00
@@ -664,7 +695,7 @@ Duration: 60 minutes
            .local/bin:/anfhome/clusteradmin/bin,
            PBS_O_MAIL=/var/spool/mail/clusteradmin,PBS_O_SHELL=/bin/bash,
            PBS_O_WORKDIR=/lustre/clusteradmin,PBS_O_SYSTEM=Linux,
-           PBS_O_QUEUE=workq,PBS_O_HOST=hb120v3-1.internal.cloudapp.net
+           PBS_O_QUEUE=workq,PBS_O_HOST=hb120v2-1.internal.cloudapp.net
        comment = Not Running: Not enough free nodes available
        etime = Tue Feb 22 18:26:47 2022
        run_count = 1
@@ -677,7 +708,7 @@ Duration: 60 minutes
 
    > Note: Wait for the job to complete. This might take about 5 minutes.
 
-   > Note: To verify that the job completed, you can rerun the `qstat` command or the `qstat -fx <jobid>` command. The second command should display the comment in the format `comment = Job run at Tue Feb 22 at 18:40 on (hb120v3-2:ncpus=120) and finished`.
+   > Note: To verify that the job completed, you can rerun the `qstat` command or the `qstat -fx <jobid>` command. The second command should display the comment in the format `comment = Job run at Tue Feb 22 at 18:40 on (hb120v2-2:ncpus=120) and finished`.
 
 1. Run the following command to verify that the job has generated the expected output:
 
@@ -690,48 +721,26 @@ Duration: 60 minutes
    > Note: The output should resemble the following listing:
 
    ```bash
-   [clusteradmin@hb120v3-1 clusteradmin]$ ls /lustre/clusteradmin/opm-data/norne/out_parallel/
+   [clusteradmin@hb120v2-1 clusteradmin]$ ls /lustre/$USER/opm-data/norne/out_parallel/
    NORNE_ATW2013.EGRID     NORNE_ATW2013.INIT  NORNE_ATW2013.SMSPEC  NORNE_ATW2013.UNSMRY
    NORNE_ATW2013.INFOSTEP  NORNE_ATW2013.RFT   NORNE_ATW2013.UNRST
    ```
 
 ### Task 3: Review the results of the OPM job by using ResInsight
 
-1. On the lab computer, in the browser window, switch back to the **Azure HPC On-Demand Platform** portal, and then in the **Interactive Apps** section, select **Remote Desktop**.
-1. On the **Remote Desktop** launching page, from the **Session target** drop-down list, ensure that **With GPU** entry is selected. In the **Maximum duration of your remote session** field, enter **1**,  and then select **Launch**.
+1. On the lab computer, in the browser window, switch back to the **Azure HPC On-Demand Platform** portal, and then in the **Interactive Apps** section, select **Linux Desktop**.
+1. On the **Linux Desktop** launching page, from the **Session target** drop-down list, ensure that **With GPU** entry is selected. In the **Maximum duration of your remote session** field, enter **1**,  and then select **Launch**.
 
    > Note: In case your subscription doesn't have a sufficient number of quotas for the **Standard_NV6** SKU, choose the **Without GPU** entry instead.
 
    > Note: This will begin compute node provisioning of the type you specified. This also creates a new job with its **Queued** status displaying on the same page.
 
-1. Switch back to the **Remote Desktop** launching page, and then verify that the corresponding job's status has changed to **Running**.
-1. Adjust **Compression** and **Image quality** according to your preferences, and then select **Launch Remote Desktop**.
+1. Switch back to the **Linux Desktop** launching page, and then verify that the corresponding job's status has changed to **Running**.
+1. Adjust **Compression** and **Image quality** according to your preferences, and then select **Launch Linux Desktop**.
 
-   > Note: This will open another browser tab displaying the Remote Desktop session.
+   > Note: This will open another browser tab displaying the Linux Desktop session.
 
-1. Within the Remote Desktop session, start **Terminal Emulator**.
-
-   > Note: ResInsight installation instructions are available at [https://resinsight.org/getting-started/download-and-install/linux-installation/](https://resinsight.org/getting-started/download-and-install/linux-installation/)
-
-1. In the **Terminal Emulator** window, at the **[clusteradmin@vis-1 ~]$** prompt, run the following commands to sudo to root:
-
-   ```bash
-   sudo su -
-   ```
-
-1. In the **Terminal Emulator** window, use the vi Editor to open the **/etc/yum.conf** file.
-1. Add a new line with the `sslverify=0` entry.
-1. Save the change, and then close the file.
-
-   > Note: This entry is necessary to prevent the error message **Peer's Certificate issuer is not recognized** when downloading the ResInsight package.
-
-1. In the **Terminal Emulator** window, at the **[clusteradmin@vis-1 ~]$** prompt, run the following command to install the ResInsight package:
-
-   ```bash
-   yum-config-manager --add-repo https://opm-project.org/package/opm.repo
-   yum install resinsight -y
-   yum install resinsight-octave -y
-   ```
+1. Within the Linux Desktop session, start **Terminal Emulator**.
 
 1. In the **Terminal Emulator** window, at the **[clusteradmin@vis-1 ~]$** prompt, run the following command to launch ResInsight:
 
@@ -742,35 +751,23 @@ Duration: 60 minutes
 
    > Note: This will open the ResInsight application window.
 
-   > Note: If you're using a non-GPU VM SKU, rather than running `vglrun ResInsight, you'll need to launch ResInsight directly. To do this, in the **Remote Desktop** session, select **Application Finder** (the magnifying glass icon at the bottom, center section of the page). In the search text box, enter **ResInsight**. From the list of search results, select **ResInsight**, and then select **Launch**.
+   > Note: If you're using a non-GPU VM SKU, rather than running `vglrun ResInsight, you'll need to launch ResInsight directly. To do this, in the **Linux Desktop** session, select **Application Finder** (the magnifying glass icon at the bottom, center section of the page). In the search text box, enter **ResInsight**. From the list of search results, select **ResInsight**, and then select **Launch**.
 
 1. In the ResInsight application window, select the **File** menu header. From the drop-down menu, select **Import**, in the sub-menu, select **Eclipse cases**, and then select **Import Eclipse cases**.
 1. In the **Import Eclipse File** dialog box, select **Computer**.
 1. Navigate to **/lustre/clusteradmin/opm-data/norne/out_parallel**, and then from the list of files in the target directory, select **NORNE_ATW2013.EGRID**.
 1. Review the case in the ResInsight application window.
+1. Change the **Navigation Mode** to `Ceetron` in the 3d Views by opening the **Edit/Preferences** menu.
+   - Rotation can be maintaining with the right mouse button
+1. In the button ribbon, play the simulation with the **>** button.
 
-## Exercise 7: Deprovision Azure HPC OnDemand Platform environment
+## Exercise 6: Deprovision Azure HPC OnDemand Platform environment
 
-Duration: 30 minutes
+Duration: 5 minutes
 
 In this exercise, you will deprovision the Azure HPC OnDemand Platform lab environment.
 
-### Task 1: Terminate the cluster
-
-1. On the lab computer, in the browser window, navigate to the **Azure CycleCloud for Azure HPC On-Demand Platform** portal.
-1. On the **pbs1** page, select **Terminate**, and when prompted for confirmation, select **OK**.
-1. Monitor the cluster's termination progress.
-
-   > Note: Ensure that all nodes and scaleset are deleted before you proceed to the next step.
-
-### Task 2: Deprovision the Azure resources
+### Task 1: Deprovision the Azure resources
 
 1. On the lab computer, switch to the browser window displaying the Azure portal
-1. Start a Bash session in **Cloud Shell**.
-1. From the Bash session in the **Cloud Shell** pane, run the following command to initiate the deprovisioning of the Azure HPC OnDemand Platform infrastructure you created and evaluated in this lab:
-
-   ```bash
-   az group delete --name azhop --yes
-   ```
-
-   > Note: Wait for the resource deprovisioning to complete. This should take about 20 minutes.
+1. Remove the resource group you have choosen to deploy azhop in.
