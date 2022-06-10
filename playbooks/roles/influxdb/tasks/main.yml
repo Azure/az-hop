@@ -19,7 +19,7 @@
 - name: Install required pip3 packages
   shell: |
     pip3 install certifi==2021.10.8
-    pip3 influxdb
+    pip3 install influxdb
 
 - name: Start and enable the influxdb service
   service:
