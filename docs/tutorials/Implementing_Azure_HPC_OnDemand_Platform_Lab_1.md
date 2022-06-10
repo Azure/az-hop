@@ -63,11 +63,10 @@ To complete this lab, you must verify that your account has sufficient permissio
    - Standard DDv4 Family vCPUs: **64**
    - Standard DSv3 Family vCPUs: **16**
    - Standard DSv5 Family vCPUs: **48**
-   - Standard HC44 Family vCPUs: **220**
-   - Standard HBv3 Family vCPUs: **600**
-   - Standard NVsv3 Family vCPUs: **48**
-   - Total Regional Spot vCPUs: **1000**
-   - Total Regional vCPUs: **1000**
+   - Standard HBrsv2 Family vCPUs: **480**
+   - Standard NV Family vCPUs: **24**
+   - Total Regional Spot vCPUs: **960**
+   - Total Regional vCPUs: **830**
 
 1. If the number of vCPUs isn't sufficient, on the subscription's **Usage + quotas** blade, select **Request Increase**.
 1. On the **Basic** tab of the **New support request** blade, specify the following, and then select **Next: Solutions >**:
@@ -331,12 +330,41 @@ The az-hop solution provides pre-configured Packer configuration files that can 
 
    > Note: Wait for the process to complete. This might take about 20 minutes.
 
-   > Note: The image creation process based on the **centos-7.8-desktop-3d.json** configuration file relies on a **Standard_NV12s_v3** SKU Azure VM. If you manage to obtain a sufficient number of quotas to provision a **Standard_NV12s_v3**-based Azure VM, you can proceed directly to the next step. Otherwise, open the **centos-7.8-desktop-3d.json** file, replace the entry **Standard_NV12s_v3** with **Standard_D8s_v3**, save the change, and then close the file. Although such a step is likely to affect the functionality of compute resources based on this image, its meant strictly as a workaround that facilitates the next step in the process of implementing the Azure HPC OnDemand Platform lab environment.
-
    Detach from the current screen with `<ctrl>a+d`
 
 1. Within the SSH session to the Azure VM, run the following command to build a custom image based on the **centos-7.8-desktop-3d.json** configuration file.
 
+   > Note: The image creation process based on the **centos-7.8-desktop-3d.json** configuration file relies on a **Standard_NV12s_v3** SKU Azure VM, however this lab assume that you have quota only for **Standard_NV6**, you will have to update the **centos-7.8-desktop-3d.json** to use it as explained below.
+
+   Open the **centos-7.8-desktop-3d.json**, update `vm_size` to **Standard_NV6** and delete the line containing **managed_image_storage_account_type**. The content should look like this
+```json
+   {
+      "builders": [
+         {
+            "type": "azure-arm",
+            "use_azure_cli_auth": "{{user `var_use_azure_cli_auth`}}",
+            "image_publisher": "OpenLogic",
+            "image_offer": "CentOS-HPC",
+            "image_sku": "7_8",
+            "image_version": "latest",
+            "managed_image_resource_group_name": "{{user `var_resource_group`}}",
+            "managed_image_name": "{{user `var_image`}}",
+            "os_type": "Linux",
+            "vm_size": "Standard_NV6",
+            "ssh_pty": "true",
+            "build_resource_group_name": "{{user `var_resource_group`}}",
+            "private_virtual_network_with_public_ip": "{{user `var_private_virtual_network_with_public_ip`}}",
+            "virtual_network_name": "{{user `var_virtual_network_name`}}",
+            "virtual_network_subnet_name": "{{user `var_virtual_network_subnet_name`}}",
+            "virtual_network_resource_group_name": "{{user `var_virtual_network_resource_group_name`}}",
+            "cloud_environment_name": "{{user `var_cloud_env`}}",
+            "ssh_bastion_host": "{{user `var_ssh_bastion_host`}}",
+            "ssh_bastion_port": "{{user `var_ssh_bastion_port`}}",
+            "ssh_bastion_username": "{{user `var_ssh_bastion_username`}}",
+            "ssh_bastion_private_key_file": "{{user `var_ssh_bastion_private_key_file`}}"
+        }
+    ]
+```
    ```bash
    screen -S packer2
    cd packer

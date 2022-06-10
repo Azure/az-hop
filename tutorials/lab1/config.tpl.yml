@@ -194,17 +194,22 @@ queues:
     spot: false
   - name: hc44rs
     vm_size: Standard_HC44rs
-    max_core_count: 220
+    max_core_count: 0
+    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    spot: false
+  - name: hb120v2
+    vm_size: Standard_HB120rs_v2
+    max_core_count: 480
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
     spot: false
   - name: hb120v3
     vm_size: Standard_HB120rs_v3
-    max_core_count: 600
+    max_core_count: 480
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
     spot: false
     # Queue dedicated to GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz3d
-    vm_size: Standard_NV12s_v3
+    vm_size: Standard_NV6
     max_core_count: 24
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
     ColocateNodes: false
@@ -212,7 +217,7 @@ queues:
     # Queue dedicated to share GPU remote viz nodes. This name is fixed and can't be changed
   - name: largeviz3d
     vm_size: Standard_NV48s_v3
-    max_core_count: 48
+    max_core_count: 0
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
     ColocateNodes: false
     spot: false
@@ -229,7 +234,7 @@ enable_remote_winviz: true # Set to true to enable windows remote visualization
 
 remoteviz:
   - name: winviz # This name is fixed and can't be changed
-    vm_size: Standard_NV12s_v3 # Standard_NV8as_v4 Only NVsv3 and NVsV4 are supported
+    vm_size: Standard_NV6 # Standard_NV8as_v4 Only NVsv3 and NVsV4 are supported
     max_core_count: 24
     image: "MicrosoftWindowsDesktop:Windows-10:21h1-pron:latest"
     ColocateNodes: false
