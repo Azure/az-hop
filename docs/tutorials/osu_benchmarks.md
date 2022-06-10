@@ -22,6 +22,7 @@ spack install osu-micro-benchmarks^openmpi
 #!/bin/bash
 BENCH=${1:-osu_latency}
 . ~/spack/share/spack/setup-env.sh
+source /etc/profile.d/modules.sh
 module use /usr/share/Modules/modulefiles
 spack load osu-micro-benchmarks^openmpi
 mpirun -x PATH --hostfile $PBS_NODEFILE --map-by ppr:1:node --bind-to core --report-bindings $BENCH
