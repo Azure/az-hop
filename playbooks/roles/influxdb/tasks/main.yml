@@ -16,11 +16,10 @@
       - python-pip
     state: present
 
-- name: Install required pip packages
-  pip:
-    name: 
-    - certifi==2021.10.8
-    - influxdb
+- name: Install required pip3 packages
+  shell: |
+    pip3 install certifi==2021.10.8
+    pip3 influxdb
 
 - name: Start and enable the influxdb service
   service:
