@@ -120,8 +120,8 @@ In this exercise, you will set up an Azure VM that you will use for deployment o
    > Note: You can use the `az account list-locations -o table` command to list the names of Azure regions available in your Azure subscription:
 
    ```bash
-   LOCATION='<Azure_region>'
-   RGNAME='azhop-cli-RG'
+   LOCATION="<Azure_region>"
+   RGNAME="azhop-cli-RG"
    az group create --location $LOCATION --name $RGNAME
    ```
 
@@ -131,8 +131,8 @@ In this exercise, you will set up an Azure VM that you will use for deployment o
    rm ubuntu_azurecli_vm_template.json -f
    rm ubuntu_azurecli_vm_template.parameters.json -f
 
-   wget https://raw.githubusercontent.com/azure/az-hop/scripts/arm/ubuntu_azurecli_vm_template.json
-   wget https://raw.githubusercontent.com/azure/az-hop/scripts/arm/ubuntu_azurecli_vm_template.parameters.json
+   wget https://raw.githubusercontent.com/azure/az-hop/main/scripts/arm/ubuntu_azurecli_vm_template.json
+   wget https://raw.githubusercontent.com/azure/az-hop/main/scripts/arm/ubuntu_azurecli_vm_template.parameters.json
    ```
 
 1. Run the following command to provision the Azure VM that will host the lab deployment tools:
@@ -201,7 +201,7 @@ In this exercise, you will set up an Azure VM that you will use for deployment o
 
    ```bash
    rm ~/az-hop -rf
-   git clone --recursive https://github.com/Azure/az-hop.git -b v1.0.20
+   git clone --recursive https://github.com/Azure/az-hop.git
    ```
 
 1. Run the following commands to install all the tools required to provision the **az-hop** environment:
@@ -222,6 +222,8 @@ In this exercise, you will set up an Azure VM that you will use for deployment o
    ```
 
 1. Note the code displayed in the output of the command. Switch to your lab computer, open another tab in the browser window displaying the Azure portal, navigate to [the Microsoft Device Login page](https://microsoft.com/devicelogin), enter the code, and then select **Next**.
+   > Note: You may use **select** and **right click** to copy selected text. Be careful that **ctrl+c** will interrupt the command
+
 1. If prompted, sign in with the credentials of the user account with the Owner role in the Azure subscription you are using in this lab,  select **Continue**, and then close the newly opened browser tab.
 1. In the browser window displaying the Azure portal, within the SSH session to the Azure VM, run the following command to identify the Azure subscription you are connected to:
 
@@ -270,7 +272,7 @@ You can define an az-hop environment by using a configuration file named **confi
 1. On the lab computer, in the browser window displaying the Azure portal, within the SSH session to the Azure VM, run the following commands to download and copy **config.tpl.yml** to **config.yml**:
 
    ```bash
-   wget https://raw.githubusercontent.com/azure/az-hop/tutorials/lab1/config.tpl.yml -O config.yml
+   wget https://raw.githubusercontent.com/azure/az-hop/main/tutorials/lab1/config.tpl.yml -O config.yml
    ```
 
 1. Open the **config.yml** file using your preferred editor such as `nano` or `vi`:
