@@ -21,7 +21,7 @@
     name: 
     - certifi==2021.10.8
     - influxdb
-  executable: pip3
+    executable: pip3
 
 - name: Start and enable the influxdb service
   service:
