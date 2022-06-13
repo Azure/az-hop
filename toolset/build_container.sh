@@ -7,8 +7,8 @@ buildenv=${1:-local}
 tag=$(date +"%g%m.%d%H")
 case "$buildenv" in
     "github")
-        hpcrover="xpillons/hpcrover:${tag}"
-        latest="xpillons/hpcrover:latest"
+        hpcrover="hpcrover:${tag}"
+        latest="hpcrover:latest"
     ;;
 
     "local")

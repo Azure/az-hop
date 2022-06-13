@@ -11,15 +11,19 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Docker Hub Login
-      uses: Azure/docker-login@v1
+
+    - name: 'Login via Azure CLI'
+      uses: azure/login@v1
       with:
-        # Container registry username
-        username: xpillons
-        # Container registry password
-        password: ${{ secrets.docker_registry_password }}
-        # Container registry server url
-        login-server: https://index.docker.io/v1/
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: 'ACR Login'
+      uses: azure/docker-login@v1
+      with:
+        login-server: azhop.azurecr.io
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+
     - name: Build the HPC Rover
       run: |
         ./toolset/build_container.sh github
