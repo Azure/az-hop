@@ -388,6 +388,7 @@ qsub -N LAT -joe -koe -l select=2:slot_type=hb120v2 -- osu_benchmarks.sh osu_lat
 
 2. Review the results of the jobs in files names **LAT.o??** and **BW.o??** at the root of the home directory
 
+> Note : At this point you can do Exercise 5 and/or 6 either in parallel or any of the two.
 ## Exercise 5: Build, run, and analyze reservoir simulation using OPM Flow
 
 In this exercise, you will build, run, and analyze reservoir simulation using OPM (Open Porous Media) Flow.
