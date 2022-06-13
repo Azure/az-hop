@@ -25,12 +25,12 @@ echo "Creating version ${hpcrover}"
 docker build . -t ${login_server}/${hpcrover}
 
 docker tag toolset_hpcrover ${hpcrover}
-docker tag toolset_hpcrover ${latest}
+#docker tag toolset_hpcrover ${latest}
 case "$buildenv" in
     "github")
         docker login ${login_server}
         docker push ${login_server}/${hpcrover}
-        docker push ${login_server}/${latest}
+#        docker push ${login_server}/${latest}
     ;;
 
     "local")
