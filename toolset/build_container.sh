@@ -27,8 +27,8 @@ docker tag toolset_hpcrover ${latest}
 case "$buildenv" in
     "github")
         #docker login
-        docker push ${hpcrover}
-        docker push ${latest}
+        docker push azhop.azurecr.io/${hpcrover}
+        docker push azhop.azurecr.io/${latest}
     ;;
 
     "local")
