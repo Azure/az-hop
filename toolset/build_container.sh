@@ -24,7 +24,7 @@ echo "Creating version ${hpcrover}"
 #docker-compose build 
 docker build . -t ${login_server}/${hpcrover}
 
-docker tag toolset_hpcrover ${hpcrover}
+#docker tag toolset_hpcrover ${hpcrover}
 #docker tag toolset_hpcrover ${latest}
 case "$buildenv" in
     "github")
