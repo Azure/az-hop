@@ -27,9 +27,9 @@ docker tag toolset_hpcrover ${hpcrover}
 docker tag toolset_hpcrover ${latest}
 case "$buildenv" in
     "github")
-        #docker login
-        docker push ${login_server}/${hpcrover}
-        docker push ${login_server}/${latest}
+        docker login ${login_server}
+        docker push ${hpcrover}
+        docker push ${latest}
     ;;
 
     "local")
