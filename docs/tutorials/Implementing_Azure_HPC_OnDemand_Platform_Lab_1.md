@@ -153,32 +153,14 @@ In this exercise, you will set up an Azure VM that you will use for deployment o
 > Note: Azure Bastion allows users to connect to Azure VMs without relying on public endpoints and helps provide protection against brute force exploits that target operating system level credentials.
 
 1. Close the **Cloud Shell** pane.
-1. In the Azure portal, use the **Search resources, services, and docs** text box to search for **Bastions**, and in the list of results, select **Bastions**.
-1. On the **Bastions** blade, select **+ Create**.
-1. On the **Basic** tab of the **Create a Bastion** blade, specify the following settings, and then select **Review + create**:
-
-   |Setting|Value|
-   |---|---|
-   |Subscription|Enter the name of the Azure subscription you are using in this lab.|
-   |Resource group|**azhop-cli-RG**|
-   |Name|**azhop-cli-bastion**|
-   |Region|Enter the same Azure region to which you used for deployment in the previous task of this exercise.|
-   |Tier|**Basic**|
-   |Virtual network|**azhop-vnet**|
-   |Subnet|**AzureBastionSubnet (10.201.0.0/24)**|
-   |Public IP address|**Create new**|
-   |Public IP name|**azhop-vnet-pip**|
-
-1. On the **Review + create** tab of the **Create a Bastion** blade, select **Create**.
-
+1. In the Azure Portal, select **Resource groups**, select the resource group you have created with the name `RGNAME`
+1. Click on the VM named **azhop-vm0**,
+1. Expand the **Connect** menu and select **Bastion**
+1. As no Bastion already exists you are proposed to create one, select **Create Azure Bastion using defaults**
    > Note: Wait for the deployment to complete before you proceed to the next exercise. The deployment might take about 5 minutes to complete.
-
+1. Enter **azureadm** as the user name and the password you set during the Azure VM deployment in the first task of this exercise, and then select **Connect**. You may have to disable the popup blocker as it may block the connection window. 
 ### Task 3: Install the az-hop toolset
 
-> Note: Ensure that your browser has the pop-up functionality enabled before you attempt to connect through Azure Bastion.
-
-1. On the lab computer, in the browser window displaying the Azure portal, use the **Search resources, services, and docs** text box to search for **Virtual machines**, and from the **Virtual machines** blade, select **azhop-vm0**.
-1. On the **azhop-vm0** blade, select **Connect**, from the drop-down menu, select **Bastion**, on the **azhop-vm0 \| Bastion** blade, enter **azureadm** as the user name and the password you set during the Azure VM deployment in the first task of this exercise, and then select **Connect**.
 1. Within the SSH session to the Azure VM, run the following command to update the package manager list of available packages and their versions:
 
    ```bash
@@ -201,7 +183,7 @@ In this exercise, you will set up an Azure VM that you will use for deployment o
 
    ```bash
    rm ~/az-hop -rf
-   git clone --recursive https://github.com/Azure/az-hop.git
+   git clone --recursive https://github.com/Azure/az-hop.git -b v1.0.21
    ```
 
 1. Run the following commands to install all the tools required to provision the **az-hop** environment:
@@ -211,7 +193,7 @@ In this exercise, you will set up an Azure VM that you will use for deployment o
    sudo ./toolset/scripts/install.sh
    ```
 
-   > Note: Wait until the script completes running. This might take about 6 minutes.
+   > Note: Wait until the script completes running. This might take about 5 minutes.
 
 ### Task 4: Prepare the Azure subscription for deployment
 

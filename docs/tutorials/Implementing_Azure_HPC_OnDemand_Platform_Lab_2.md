@@ -20,7 +20,12 @@
     - [Task 1: Build OPM](#task-1-build-opm)
     - [Task 2: Retrieve test data and run a flow job](#task-2-retrieve-test-data-and-run-a-flow-job)
     - [Task 3: View the results of the OPM job by using ResInsight](#task-3-review-the-results-of-the-opm-job-by-using-resinsight)
-  - [Exercise 6: Deprovision Azure HPC OnDemand Platform environment](#exercise-6-deprovision-azure-hpc-ondemand-platform-environment)
+  - [Exercise 6: Build, run, and analyze OpenFOAM](#exercise-6-build-run-and-analyze-openfoam)
+    - [Task 1: Build OpenFOAM](#task-1-build-openfoam)
+    - [Task 2: Running the motorbike tutorial on a single node](#task-2-running-the-motorbike-tutorial-on-a-single-node)
+    - [Task 3: Running the motorbike tutorial on multiple nodes](#task-3-running-the-motorbike-tutorial-on-multiple-nodes)
+    - [Task 4: Visualize the motorbike tutorial result](#task-4-visualize-the-motorbike-tutorial-result)
+  - [Exercise 7: Deprovision Azure HPC OnDemand Platform environment](#exercise-7-deprovision-azure-hpc-ondemand-platform-environment)
     - [Task 1: Deprovision the Azure resources](#task-1-deprovision-the-azure-resources)
 
 <!-- /TOC -->
@@ -102,7 +107,7 @@ In this exercise, you will review the main features of the Azure HPC OnDemand Pl
 
    > Note: Examine the output of the command and verify that the submitted job is in the queue.
 
-1. Switch to the browser tab with the **Azure CycleCloud for Azure HPC On-Demand Platform** page.
+1. Switch to the browser tab with the **Azure CycleCloud for Azure HPC On-Demand Platform** page. After some time (less than a minute), a new **execute** instance is created.
 1. Review the newly created job's progress, including the new VM creation.
 
 ### Task 3: Running interactive apps using Code Server and Linux Desktop
@@ -154,7 +159,7 @@ In this exercise, you will review the main features of the Azure HPC OnDemand Pl
 
    > Note: Wait until the status of the node changes to **Ready**. This should take about 10 minutes.
 
-   > Note: The **viz3d** node provisioning will fail if your subscription doesn't offer **Standard_NV12s_v3** SKU in the Azure region hosting your az-hop deployment.
+   > Note: The **viz3d** node provisioning will fail if your subscription doesn't offer **Standard_NV6** SKU in the Azure region hosting your az-hop deployment.
 
 1. Switch back to the **My Interactive Sessions** page, and then verify that the corresponding job's status has changed to **Running**.
 1. Use the **Delete** button to delete the **Code Server** job by selecting **Confirm** when prompted.
@@ -320,6 +325,7 @@ In this exercise, you will install and configure Spack from Code Server, as docu
 1. Run the following commands to confirm the list of defined compilers:
 
    ```bash
+   . ~/spack/share/spack/setup-env.sh
    spack compilers
    ```
 
@@ -353,7 +359,7 @@ Duration: 30 minutes
 
 ### Task 2: Create the run script
 
-1. At the root of the home directoryn, create a file named **osu_benchmarks.sh** with this content
+1. At the root of the home directory, create a file named **osu_benchmarks.sh** with this content
 ```bash
 #!/bin/bash
 BENCH=${1:-osu_latency}
@@ -382,6 +388,7 @@ qsub -N LAT -joe -koe -l select=2:slot_type=hb120v2 -- osu_benchmarks.sh osu_lat
 
 2. Review the results of the jobs in files names **LAT.o??** and **BW.o??** at the root of the home directory
 
+> Note : At this point you can do Exercise 5 and/or 6 either in parallel or any of the two.
 ## Exercise 5: Build, run, and analyze reservoir simulation using OPM Flow
 
 In this exercise, you will build, run, and analyze reservoir simulation using OPM (Open Porous Media) Flow.
@@ -399,6 +406,7 @@ Duration: 60 minutes
 1. Review the following script and run it to create the az-hop Spack repo:
 
    ```bash
+   . ~/spack/share/spack/setup-env.sh
    ~/azurehpc/experimental/azhop/azhop-spack/install.sh
    ```
 
@@ -729,7 +737,7 @@ Duration: 60 minutes
 ### Task 3: Review the results of the OPM job by using ResInsight
 
 1. On the lab computer, in the browser window, switch back to the **Azure HPC On-Demand Platform** portal, and then in the **Interactive Apps** section, select **Linux Desktop**.
-1. On the **Linux Desktop** launching page, from the **Session target** drop-down list, ensure that **With GPU** entry is selected. In the **Maximum duration of your remote session** field, enter **1**,  and then select **Launch**.
+1. On the **Linux Desktop** launching page, from the **Session target** drop-down list, ensure that **With GPU** entry is selected. In the **Maximum duration of your remote session** field, enter **2**,  and then select **Launch**.
 
    > Note: In case your subscription doesn't have a sufficient number of quotas for the **Standard_NV6** SKU, choose the **Without GPU** entry instead.
 
@@ -745,7 +753,6 @@ Duration: 60 minutes
 1. In the **Terminal Emulator** window, at the **[clusteradmin@vis-1 ~]$** prompt, run the following command to launch ResInsight:
 
    ```bash
-   exit
    vglrun ResInsight
    ```
 
@@ -761,7 +768,132 @@ Duration: 60 minutes
    - Rotation can be maintaining with the right mouse button
 1. In the button ribbon, play the simulation with the **>** button.
 
-## Exercise 6: Deprovision Azure HPC OnDemand Platform environment
+## Exercise 6: Build, run, and analyze OpenFOAM
+
+In this exercise, you will build, run, and analyze CFD simulation using OpenFOAM.
+
+Duration: 60 minutes
+
+### Task 1: Build OpenFOAM
+
+1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hb120v2-1 ~]$**  prompt, run the following command to build OpenFOAM 8:
+
+   ```bash
+   . ~/spack/share/spack/setup-env.sh
+   module use /usr/share/Modules/modulefiles
+   spack install openfoam-org@8
+   ```
+   > Note: Wait for the build to complete. This might take about 30 minutes.
+### Task 2: Running the motorbike tutorial on a single node
+
+1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hb120v2-1 ~]$**  prompt, run the following command to load OpenFOAM modules:
+   ```bash
+   spack load openfoam-org@8
+   ```
+
+1. Copy the motorbike tutorial into scratch space
+   ```bash
+   mkdir -p /lustre/$USER
+   cd /lustre/$USER
+   cp -r $WM_PROJECT_DIR/tutorials/incompressible/simpleFoam/motorBike .
+   ```
+
+1. Run the case
+   ```bash
+   cd motorBike
+   ./Allrun
+   ```
+
+1. Review all log files `log.*` for any errors
+
+### Task 3: Running the motorbike tutorial on multiple nodes
+
+The following updates are needed:
+
+- Add FOAM_MPIRUN_FLAGS to the mpirun command when using runParallel (needed for all version of OpenFOAM)
+- Reconstruct the single partition after the solve
+
+1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hb120v2-1 ~]$**  prompt, run the following commands:
+
+   ```bash
+      cd /lustre/$USER/motorBike
+      sed -i '/RunFunctions/a source <(declare -f runParallel | sed "s/mpirun/mpirun \\\$FOAM_MPIRUN_FLAGS/g")' Allrun
+      sed -i 's#/bin/sh#/bin/bash#g' Allrun
+      sed -i 's/# runApplication reconstructPar/runApplication reconstructPar/g' Allrun
+   ```
+
+1. Now, create a PBS submit script, **submit.sh** withe the following content.
+
+When running on multiple nodes it is necessary to export all the OpenFOAM environment variables (unless you add loading the modules in `.bashrc`). This is done with the `FOAM_MPIRUN_FLAGS` that are added to the `runParallel` in the last step. The script will run for the number of cores specified to PBS (`select` x `mpiprocs`)
+
+```bash
+#!/bin/bash
+. ~/spack/share/spack/setup-env.sh
+module use /usr/share/Modules/modulefiles
+spack load openfoam-org@8
+ranks_per_numa=4
+export FOAM_MPIRUN_FLAGS="-hostfile $PBS_NODEFILE $(env |grep 'WM_\|FOAM' | cut -d'=' -f1 | sed 's/^/-x /g' | tr '\n' ' ') -x MPI_BUFFER_SIZE --report-bindings --map-by ppr:${ranks_per_numa}:numa"
+$PBS_O_WORKDIR/Allrun -cores $(wc -l <$PBS_NODEFILE)
+```
+
+1. Save that file under the `/lustre/$USER/motorBike` directory
+
+1. Run the OpenFOAM job
+
+```bash
+rm log.*
+qsub -l select=2:slot_type=hb120v2:ncpus=120:mpiprocs=120,place=scatter:excl submit.sh
+```
+
+1. Monitor the job and wait for the job to be finished
+
+### Task 4: Visualize the motorbike tutorial result
+
+1. On the lab computer, in the browser window, switch back to the **Azure HPC On-Demand Platform** portal, and then in the **Interactive Apps** section, select **Linux Desktop**.
+1. On the **Linux Desktop** launching page, from the **Session target** drop-down list, ensure that **With GPU** entry is selected. In the **Maximum duration of your remote session** field, enter **2**,  and then select **Launch**.
+
+   > Note: In case your subscription doesn't have a sufficient number of quotas for the **Standard_NV6** SKU, choose the **Without GPU** entry instead.
+
+   > Note: This will begin compute node provisioning of the type you specified. This also creates a new job with its **Queued** status displaying on the same page.
+
+1. Switch back to the **Linux Desktop** launching page, and then verify that the corresponding job's status has changed to **Running**.
+1. Adjust **Compression** and **Image quality** according to your preferences, and then select **Launch Linux Desktop**.
+
+   > Note: This will open another browser tab displaying the Linux Desktop session.
+
+1. Within the Linux Desktop session, start **Terminal Emulator**.
+
+1. Install the **Paraview** viewer
+
+```bash
+wget "https://www.paraview.org/paraview-downloads/download.php?submit=Download&version=v5.10&type=binary&os=Linux&downloadFile=ParaView-5.10.1-MPI-Linux-Python3.9-x86_64.tar.gz" -O ParaView-5.10.1-MPI-Linux-Python3.9-x86_64.tar.gz
+
+tar xvf ParaView-5.10.1-MPI-Linux-Python3.9-x86_64.tar.gz
+
+```
+
+1. Create a case file and launch Paraview
+
+```bash
+touch /lustre/$USER/motorBike/case.foam
+vglrun ./ParaView-5.10.1-MPI-Linux-Python3.9-x86_64/bin/paraview
+```
+
+1. Open the model
+
+Within **Paraview** open the case `/lustre/$USER/motorBike/case.foam`
+
+When the model is loaded, you can view the geometry like this:
+- In the bottom left pane, in the "Mesh Regions" list, unselect "internalMesh" and select "group/motorBikeGroup".
+- Click "Apply" above the list.
+- You should now see the model geometry, and you can move/rotate/zoom using the mouse.
+
+Next, you can visualize the simulation results.
+- Click the "Play" button on the toolbar at the top of the window to advance to the end of the simulation.
+- On the Active Variables Coontrol toolbar you will find a drop down box where you can select variables. For example, select "p" for pressure.
+
+
+## Exercise 7: Deprovision Azure HPC OnDemand Platform environment
 
 Duration: 5 minutes
 
