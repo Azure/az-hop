@@ -3,6 +3,7 @@ set -e
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 pushd $DIR
 buildenv=${1:-local}
+login_server=$2
 
 tag=$(date +"%g%m.%d%H")
 case "$buildenv" in
@@ -27,8 +28,8 @@ docker tag toolset_hpcrover ${latest}
 case "$buildenv" in
     "github")
         #docker login
-        docker push azhop.azurecr.io/${hpcrover}
-        docker push azhop.azurecr.io/${latest}
+        docker push ${login_server}/${hpcrover}
+        docker push ${login_server}/${latest}
     ;;
 
     "local")

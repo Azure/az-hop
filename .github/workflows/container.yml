@@ -26,4 +26,4 @@ jobs:
 
     - name: Build the HPC Rover
       run: |
-        ./toolset/build_container.sh github
+        ./toolset/build_container.sh github azhop.azurecr.io
