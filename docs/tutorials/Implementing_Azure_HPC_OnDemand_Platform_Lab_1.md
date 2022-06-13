@@ -183,7 +183,7 @@ In this exercise, you will set up an Azure VM that you will use for deployment o
 
    ```bash
    rm ~/az-hop -rf
-   git clone --recursive https://github.com/Azure/az-hop.git
+   git clone --recursive https://github.com/Azure/az-hop.git -b v1.0.21
    ```
 
 1. Run the following commands to install all the tools required to provision the **az-hop** environment:
