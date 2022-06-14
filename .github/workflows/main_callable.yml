@@ -54,6 +54,7 @@ env:
   AZHOP_STATE_CONTAINER: environments
   AZHOP_STATE_ACCOUNT: azhopstates
   ANSIBLE_VERBOSITY: 2 # From 0 to 4 based on the level of logs needed in Ansible
+  HPCROVER_CONTAINER: azhop.azurecr.io/hpcrover:2206.1321
 
 defaults:
   run:
@@ -66,7 +67,7 @@ jobs:
     timeout-minutes: 60
 
     container:
-      image: azhop.azurecr.io/hpcrover:2206.1321
+      image: ${{ env.HPCROVER_CONTAINER }}
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -182,7 +183,7 @@ jobs:
     needs: deploy
 
     container:
-      image: azhop.azurecr.io/hpcrover:2206.1321
+      image: ${{ env.HPCROVER_CONTAINER }}
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -211,7 +212,7 @@ jobs:
     needs: [ad, deploy]
 
     container:
-      image: azhop.azurecr.io/hpcrover:2206.1321
+      image: ${{ env.HPCROVER_CONTAINER }}
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -239,7 +240,7 @@ jobs:
     needs: [cycle_cluster, lustre, deploy]
 
     container:
-      image: azhop.azurecr.io/hpcrover:2206.1321
+      image: ${{ env.HPCROVER_CONTAINER }}
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -267,7 +268,7 @@ jobs:
     needs: [ad, deploy]
 
     container:
-      image: azhop.azurecr.io/hpcrover:2206.1321
+      image: ${{ env.HPCROVER_CONTAINER }}
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -295,7 +296,7 @@ jobs:
     needs: [ad, deploy]
 
     container:
-      image: azhop.azurecr.io/hpcrover:2206.1321
+      image: ${{ env.HPCROVER_CONTAINER }}
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -323,7 +324,7 @@ jobs:
     needs: [cycle, deploy]
 
     container:
-      image: azhop.azurecr.io/hpcrover:2206.1321
+      image: ${{ env.HPCROVER_CONTAINER }}
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -351,7 +352,7 @@ jobs:
     needs: [add_users, deploy, build_image]
 
     container:
-      image: azhop.azurecr.io/hpcrover:2206.1321
+      image: ${{ env.HPCROVER_CONTAINER }}
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -380,7 +381,7 @@ jobs:
     needs: [cycle, ood, deploy]
 
     container:
-      image: azhop.azurecr.io/hpcrover:2206.1321
+      image: ${{ env.HPCROVER_CONTAINER }}
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -409,7 +410,7 @@ jobs:
     needs: [grafana, lustre, cycle, deploy, ood, guacamole]
 
     container:
-      image: azhop.azurecr.io/hpcrover:2206.1321
+      image: ${{ env.HPCROVER_CONTAINER }}
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -438,7 +439,7 @@ jobs:
     needs: [deploy]
 
     container:
-      image: azhop.azurecr.io/hpcrover:2206.1321
+      image: ${{ env.HPCROVER_CONTAINER }}
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -475,7 +476,7 @@ jobs:
         #packer_file: ["centos-7.8-desktop-3d.json", "azhop-centos79-v2-rdma-gpgpu.json"]
         packer_file: ${{ fromJson(needs.set_image_list.outputs.matrix) }}
     container:
-      image: azhop.azurecr.io/hpcrover:2206.1321
+      image: ${{ env.HPCROVER_CONTAINER }}
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -503,7 +504,7 @@ jobs:
     runs-on: self-hosted
     needs: [deploy, cycle, ood, cycle_cluster]
     container:
-      image: azhop.azurecr.io/hpcrover:2206.1321
+      image: ${{ env.HPCROVER_CONTAINER }}
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -532,7 +533,7 @@ jobs:
     needs: [deploy, run_tests]
 
     container:
-      image: azhop.azurecr.io/hpcrover:2206.1321
+      image: ${{ env.HPCROVER_CONTAINER }}
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
