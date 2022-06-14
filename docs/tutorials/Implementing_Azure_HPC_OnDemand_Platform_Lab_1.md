@@ -19,7 +19,7 @@
   - [Exercise 3: Install and configure Azure HPC OnDemand Platform software components](#exercise-3-install-and-configure-azure-hpc-ondemand-platform-software-components)
     - [Task 1: Install Azure HPC OnDemand Platform software components](#task-1-install-azure-hpc-ondemand-platform-software-components)
     - [Task 2: Review installation results](#task-2-review-installation-results)
-  - [Exercise 6: Optionally - Deprovision Azure HPC OnDemand Platform environment](#exercise-6-optionally---deprovision-azure-hpc-ondemand-platform-environment)
+  - [Exercise 4: Optionally - Deprovision Azure HPC OnDemand Platform environment](#exercise-4-optionally---deprovision-azure-hpc-ondemand-platform-environment)
     - [Task 1: Deprovision the Azure resources](#task-1-deprovision-the-azure-resources)
 
 <!-- /TOC -->
@@ -103,7 +103,7 @@ In this exercise, you will set up an Azure VM that you will use for deployment o
 ### Task 1: Provision an Azure VM running Linux
 
 1. From the lab computer, start a web browser, navigate to [the Azure portal](http://portal.azure.com), and if needed, sign in with credentials of the account with the Owner role in the Azure subscription you will be using in this lab.
-1. In the Azure portal, start a Bash session in **Cloud Shell**.
+1. In the Azure portal, start a Bash session in **Cloud Shell**. The **Cloud Shell** icon is located on the ribbon, on the right of the search box.
 
    > Note: If prompted, in the **Welcome to Azure Cloud Shell** window, select **Bash (Linux)**, and in the **You have no storage mounted** window, select **Create storage**.
 
@@ -417,7 +417,7 @@ None    V2    /subscriptions/xxxxxx/resourceGroups/azhop-lab1/providers/Microsof
 
 ## Exercise 3: Install and configure Azure HPC OnDemand Platform software components
 
-Duration: 50 minutes
+Duration: 40 minutes
 
 In this exercise, you'll install and configure software components that form the Azure HPC OnDemand Platform solution.
 
@@ -457,7 +457,7 @@ In this exercise, you'll install and configure software components that form the
 1. On the **Azure CycleCloud for Azure HPC On-Demand Platform** page, note the presence of a configuration of a cluster named **pbs1**.
 1. On the **pbs1** page, select the **Arrays** tab, and note that it contains six entries representing queue definitions you reviewed earlier in the **config.yml** file.
 
-## Exercise 6: Optionally - Deprovision Azure HPC OnDemand Platform environment
+## Exercise 4: Optionally - Deprovision Azure HPC OnDemand Platform environment
 
 > Note: Do only this if you don't plan to run Lab 2
 
