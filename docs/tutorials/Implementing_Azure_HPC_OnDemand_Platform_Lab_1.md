@@ -146,6 +146,13 @@ In this exercise, you will set up an Azure VM that you will use for deployment o
 
    > Note: When prompted, enter an arbitrary password that will be assigned to the **azureadm** user, which you will use to sign in to the operating system of the Azure VM.
 
+   The supplied password must be between 6-72 characters long and must satisfy at least 3 of password complexity requirements from the following:
+   - Contains an uppercase character
+   - Contains a lowercase character
+   - Contains a numeric digit
+   - Contains a special character
+   - Control characters are not allowed
+
    > Note: Wait until the provisioning completes. This should take about 3 minutes.
 
 ### Task 2: Deploy Azure Bastion
