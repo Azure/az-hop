@@ -68,8 +68,8 @@ jobs:
     container:
       image: azhop.azurecr.io/hpcrover:2206.1321
       credentials:
-        username: ${{ secrets.REGISTRY_USERNAME }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     outputs:
@@ -184,8 +184,8 @@ jobs:
     container:
       image: azhop.azurecr.io/hpcrover:2206.1321
       credentials:
-        username: ${{ secrets.REGISTRY_USERNAME }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
@@ -213,8 +213,8 @@ jobs:
     container:
       image: azhop.azurecr.io/hpcrover:2206.1321
       credentials:
-        username: ${{ secrets.REGISTRY_USERNAME }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
@@ -241,8 +241,8 @@ jobs:
     container:
       image: azhop.azurecr.io/hpcrover:2206.1321
       credentials:
-        username: ${{ secrets.REGISTRY_USERNAME }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
@@ -269,8 +269,8 @@ jobs:
     container:
       image: azhop.azurecr.io/hpcrover:2206.1321
       credentials:
-        username: ${{ secrets.REGISTRY_USERNAME }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
@@ -297,8 +297,8 @@ jobs:
     container:
       image: azhop.azurecr.io/hpcrover:2206.1321
       credentials:
-        username: ${{ secrets.REGISTRY_USERNAME }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
@@ -325,8 +325,8 @@ jobs:
     container:
       image: azhop.azurecr.io/hpcrover:2206.1321
       credentials:
-        username: ${{ secrets.REGISTRY_USERNAME }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
@@ -353,8 +353,8 @@ jobs:
     container:
       image: azhop.azurecr.io/hpcrover:2206.1321
       credentials:
-        username: ${{ secrets.REGISTRY_USERNAME }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
@@ -382,8 +382,8 @@ jobs:
     container:
       image: azhop.azurecr.io/hpcrover:2206.1321
       credentials:
-        username: ${{ secrets.REGISTRY_USERNAME }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
@@ -411,8 +411,8 @@ jobs:
     container:
       image: azhop.azurecr.io/hpcrover:2206.1321
       credentials:
-        username: ${{ secrets.REGISTRY_USERNAME }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
@@ -440,8 +440,8 @@ jobs:
     container:
       image: azhop.azurecr.io/hpcrover:2206.1321
       credentials:
-        username: ${{ secrets.REGISTRY_USERNAME }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
@@ -477,8 +477,8 @@ jobs:
     container:
       image: azhop.azurecr.io/hpcrover:2206.1321
       credentials:
-        username: ${{ secrets.REGISTRY_USERNAME }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
@@ -505,8 +505,8 @@ jobs:
     container:
       image: azhop.azurecr.io/hpcrover:2206.1321
       credentials:
-        username: ${{ secrets.REGISTRY_USERNAME }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
@@ -534,8 +534,8 @@ jobs:
     container:
       image: azhop.azurecr.io/hpcrover:2206.1321
       credentials:
-        username: ${{ secrets.REGISTRY_USERNAME }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
