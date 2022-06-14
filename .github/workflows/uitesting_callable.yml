@@ -35,14 +35,13 @@ env:
   ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
   AZHOP_STATE_CONTAINER: environments
   AZHOP_STATE_ACCOUNT: azhopstates
-  HPCROVER_CONTAINER: azhop.azurecr.io/hpcrover:2206.1321
 
 jobs:
   init_matrix:
     runs-on: ubuntu-latest
     name: init_matrix
     container:
-      image: ${{ env.HPCROVER_CONTAINER }}
+      image: azhop.azurecr.io/hpcrover:2206.1321
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -82,7 +81,7 @@ jobs:
     timeout-minutes: 60
 
     container:
-      image: ${{ env.HPCROVER_CONTAINER }}
+      image: azhop.azurecr.io/hpcrover:2206.1321
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
