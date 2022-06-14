@@ -327,7 +327,7 @@ The az-hop solution provides pre-configured Packer configuration files that can 
 
    > Note: The image creation process based on the **centos-7.8-desktop-3d.json** configuration file relies on a **Standard_NV12s_v3** SKU Azure VM, however this lab assume that you have quota only for **Standard_NV6**, you will have to update the **centos-7.8-desktop-3d.json** to use it as explained below.
 
-   Open the **centos-7.8-desktop-3d.json**, update `vm_size` to **Standard_NV6** and delete the line containing **managed_image_storage_account_type**. The content should look like this
+   Using **vi** or **nano** open the **centos-7.8-desktop-3d.json**, update `vm_size` to **Standard_NV6** and delete the line containing **managed_image_storage_account_type**. The content should look like this
 ```json
    {
       "builders": [
