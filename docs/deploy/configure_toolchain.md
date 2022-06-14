@@ -1,5 +1,5 @@
 # Configure the toolchain
-The toolchain can be setup either from a docker container or locally, the docker container being the prefered way as it contains a fully tested environment. See below for instructions regarding the installation.
+The toolchain can be setup either locally or from a deployer VM. See below for instructions regarding the installation.
 
 ## From a local machine
 ### Clone the repo
@@ -20,51 +20,22 @@ git submodule init
 git submodule update
 ```
 
-### Set up the toolchain using the "HPC Rover" docker container
-
-#### Prerequisites
-
-Install
-* Docker
-  * **Windows**: Docker Desktop 2.0+ on Windows 10 Pro/Enterprise with Linux Container mode
-  * **macOS**: Docker Desktop 2.0+
-  * **Linux**: Docker CE/EE 18.06+ and Docker Compose 1.24+
-* Visual Studio Code version 1.41+ - [link](https://code.visualstudio.com/Download)
-* Visual Studio Code Extension - Remote Development - [link](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack)
-
-For more information, see the [Visual Studio Code documentation](https://code.visualstudio.com/docs/remote/containers#_system-requirements).
-
-#### Running the container
-
-To start the container in VS Code, simply 
-
- * open the cloned repository directory (from the **File** menu or by using `code .` from the cloned directory in a separate WSL instance)
- * click on **Reopen in Container** in the pop-up notification in the bottom right corner (this can take a few minutes)
-
-The [`HPC Rover`](https://hub.docker.com/r/xpillons/hpcrover/tags?page=1&ordering=last_updated) is a docker container acting as a sandbox toolchain development environment to avoid impacting the local machine configuration.
-It is the same container if you are using Windows, Linux or macOS.
-
-<img src="https://code.visualstudio.com/assets/docs/remote/containers/architecture-containers.png" width="75%">
-
-
 ### Set up the toolchain on Ubuntu 20.04 (e.g. WSL2)
-This is not recommended, but still doable.
-
 For Terraform to work properly on  WSL2, on the C drive, make sure to have the "metadata mount" option enabled.
 Afterwards, you can directly run the `install.sh`  script: 
 
 ```bash
-./toolset/scripts/install.sh
+sudo ./toolset/scripts/install.sh
 ```
 
 ## From a deployer VM
-`az-hop` can be deployed directly from an Ubuntu VM on Azure, preferably behind a Bastion.
+`az-hop` can be deployed directly from an Ubuntu 20.04 (prefered) or a CentOS 7.9 VM on Azure, preferably behind a Bastion.
 In that case do the following :
 
 - Create a Bastion
 - Create a `deployer` VM running Ubuntu 20.04 without a public IP
 - Connect to the `deployer` VM from Bastion
 - Clone the repo as explained above
-- Install the toolset by running `sudo ./az-hop/toolset/scripts/install.sh`
-
-
+- Install the toolset by running 
+  - For Ubuntu 20.04 : `sudo ./az-hop/toolset/scripts/install.sh`
+  - For CentOS 7.9 : `sudo ./az-hop/toolset/scripts/install_centos.sh`
