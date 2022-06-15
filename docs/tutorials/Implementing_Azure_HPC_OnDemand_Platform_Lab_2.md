@@ -91,7 +91,7 @@ In this exercise, you will review the main features of the Azure HPC OnDemand Pl
    qsub -l select=1:slot_type=execute -- /usr/bin/bash -c 'sleep 60'
    ```
 
-   > Note: Do not paste commands into the shell session pane, enter them instead.
+   > Note: Be careful when pasting the commands to make sure the exacts characters are used, especially for hyphen.
 
 1. In the shell session, run the following command to display the status of the submitted job:
 
