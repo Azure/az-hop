@@ -12,15 +12,15 @@ resource "time_sleep" "wait_forsubnets" {
 # Application security groups
 resource "azurerm_application_security_group" "asg" {
   for_each = local.create_nsg ? local.asgs : local.empty_map
-  name                = each.key
-  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
-  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+  name                = each.value
+  resource_group_name = local.create_nsg ? (local.create_rg ? azurerm_resource_group.rg[0].name     : data.azurerm_resource_group.rg[0].name )     : local.asg_resource_group
+  location            = local.create_nsg ? (local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location ) : data.azurerm_resource_group.rg[0].location
 }
 
 data "azurerm_application_security_group" "asg" {
   for_each = local.create_nsg ? local.empty_map : local.asgs
-  name                = each.key
-  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
+  name                = each.value
+  resource_group_name = local.create_nsg ? azurerm_resource_group.rg[0].name : local.asg_resource_group
 }
 
 # Read subnets data so we can dynamically retrieve all CIDR for the NSG rules
