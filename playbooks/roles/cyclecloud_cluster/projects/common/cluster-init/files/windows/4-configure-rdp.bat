@@ -5,7 +5,7 @@ reg add "HKLM\System\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnec
 :: Allow paste of password on UAC windows
 reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v PromptOnSecureDesktop /t REG_DWORD /d 0 /f 
 
-net localgroup "Administrators" "HPC\az-hop-localadmins" /add
+net localgroup "Administrators" "HPC\azhop-localadmins" /add
 
 net localgroup "Remote Desktop Users" "HPC\Domain Users" /add
 net localgroup "Remote Desktop Users"
