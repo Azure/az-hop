@@ -4,6 +4,11 @@ write_files:
   path: /root/deploy.sh
   permissions: '0700'
   content: |
+    # set sshd port
+    sed -i 's/^#Port 22.*$/Port 8822/g' /etc/ssh/sshd_config
+    systemctl restart sshd
+    systemctl status sshd
+    # deploy azhop
     cd /root
     git clone -b private_jumpbox --recursive https://github.com/Azure/az-hop.git
     cd az-hop
@@ -39,32 +44,32 @@ write_files:
     admin_user: hpcadmin
     key_vault_readers: #<object_id>
     network:
-      create_nsg: true
+      create_nsg: false
       vnet:
-        name: hpcvnet # Optional - default to hpcvnet
+        name: hpcvnet
         id: SUBSCRIPTION_ID/resourceGroups/RESOURCE_GROUP/providers/Microsoft.Network/virtualNetworks/hpcvnet
-        address_space: "10.0.0.0/16" # Optional - default to "10.0.0.0/16"
+        address_space: "10.169.0.0/24"
         subnets: # all subnets are optionals
           frontend:
             name: frontend
-            address_prefixes: "10.0.0.0/24"
-            create: true # create the subnet if true. default to true when not specified, default to false if using an existing VNET when not specified
+            address_prefixes: "10.169.0.0/29"
+            create: false
           admin:
             name: admin
-            address_prefixes: "10.0.1.0/24"
+            address_prefixes: "10.169.0.16/28"
             create: false
           netapp:
             name: netapp
-            address_prefixes: "10.0.2.0/24"
-            create: true
+            address_prefixes: "10.169.0.32/29"
+            create: false
           ad:
             name: ad
-            address_prefixes: "10.0.3.0/28"
-            create: true
+            address_prefixes: "10.169.0.8/29"
+            create: false
           compute:
             name: compute
-            address_prefixes: "10.0.16.0/20"
-            create: true
+            address_prefixes: "10.169.0.128/25"
+            create: false
     
     locked_down_network:
       enforce: false

@@ -1,9 +1,4 @@
-@description('Name of new or existing vnet to which Azure Bastion should be deployed')
-param vnetName string = 'hpcvnet'
-@description('IP prefix for available addresses in vnet address space')
-param vnetIpPrefix string = '10.0.0.0/16'
-@description('Admin subnet IP prefix')
-param adminSubnetIpPrefix string = '10.0.1.0/24'
+var config = json(loadTextContent('azhopconfig.json'))
 
 @description('deploy name')
 param deployName string = 'deployer'
@@ -21,67 +16,153 @@ param deployKey string
 @description('Azure region to use')
 param location string = resourceGroup().location
 
-var adminSubnetName = 'admin'
 var deployNicName = '${deployName}-nic'
-var deployNsgName = '${deployName}-nsg'
 var deployOsDiskType = 'Standard_LRS'
 
 var setupScriptTpl = loadTextContent('cloudconfig.yml')
 var setupScript = replace(replace(replace(setupScriptTpl, 'SUBSCRIPTION_ID', subscription().id), 'LOCATION', location), 'RESOURCE_GROUP', resourceGroup().name)
 
-resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-05-01' = {
-  name: vnetName
+/*
+ _   _          _                               _      _
+| \ | |   ___  | |_  __      __   ___    _ __  | | __ (_)  _ __     __ _
+|  \| |  / _ \ | __| \ \ /\ / /  / _ \  | '__| | |/ / | | | '_ \   / _` |
+| |\  | |  __/ | |_   \ V  V /  | (_) | | |    |   <  | | | | | | | (_| |
+|_| \_|  \___|  \__|   \_/\_/    \___/  |_|    |_|\_\ |_| |_| |_|  \__, |
+                                                                   |___/
+*/                                               
+var vnet = config.vnet
+var subnets = vnet.subnets
+
+resource commonNsg 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
+  name: 'nsg-common'
   location: location
   properties: {
-    addressSpace: {
-      addressPrefixes: [
-        vnetIpPrefix
-      ]
-    }
-  }
-}
-
-resource adminSubnet 'Microsoft.Network/virtualNetworks/subnets@2020-05-01' = {
-  parent: virtualNetwork
-  name: adminSubnetName
-  properties: {
-    addressPrefix: adminSubnetIpPrefix
-    serviceEndpoints: [
-      {
-        service: 'Microsoft.KeyVault'
-      }
-      {
-        service: 'Microsoft.Sql'
-      }
-      {
-        service: 'Microsoft.Storage'
-      }
+    securityRules: [
     ]
   }
 }
 
-resource deployNsg 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
-  name: deployNsgName
+resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-05-01' = {
+  name: vnet.name
   location: location
   properties: {
-    securityRules: [
+    addressSpace: {
+      addressPrefixes: [
+        vnet.cidr
+      ]
+    }
+    subnets: [
       {
-        name: 'SSH'
+        name: subnets.frontend.name
         properties: {
-          priority: 1000
-          protocol: 'Tcp'
-          access: 'Allow'
-          direction: 'Inbound'
-          sourceAddressPrefix: '*'
-          sourcePortRange: '*'
-          destinationAddressPrefix: '*'
-          destinationPortRange: '22'
+          addressPrefix: subnets.frontend.cidr
+          networkSecurityGroup: {
+            id: commonNsg.id
+          }
+        }
+      }
+      {
+        name: subnets.admin.name
+        properties: {
+          addressPrefix: subnets.admin.cidr
+          networkSecurityGroup: {
+            id: commonNsg.id
+          }
+          serviceEndpoints: [
+            {
+              service: 'Microsoft.KeyVault'
+            }
+            {
+              service: 'Microsoft.Sql'
+            }
+            {
+              service: 'Microsoft.Storage'
+            }
+          ]
+        }
+      }
+      {
+        name: subnets.netapp.name
+        properties: {
+          addressPrefix: subnets.netapp.cidr
+          networkSecurityGroup: {
+            id: commonNsg.id
+          }
+          delegations: [
+            {
+              name: 'netapp'
+              properties: {
+                serviceName: 'Microsoft.NetApp/volumes'
+              }
+            }
+          ]
+        }
+      }
+      {
+        name: subnets.ad.name
+        properties: {
+          addressPrefix: subnets.ad.cidr
+          networkSecurityGroup: {
+            id: commonNsg.id
+          }
+        }
+      }
+      {
+        name: subnets.compute.name
+        properties: {
+          addressPrefix: subnets.compute.cidr
+          networkSecurityGroup: {
+            id: commonNsg.id
+          }
+          serviceEndpoints: [
+            {
+              service: 'Microsoft.Storage'
+            }
+          ]
         }
       }
     ]
   }
 }
 
+resource frontendSubnet 'Microsoft.Network/virtualNetworks/subnets@2020-05-01' existing = {
+  parent: virtualNetwork
+  name: subnets.frontend.name
+}
+resource adminSubnet 'Microsoft.Network/virtualNetworks/subnets@2020-05-01' existing = {
+  parent: virtualNetwork
+  name: subnets.admin.name
+}
+
+resource netappSubnet 'Microsoft.Network/virtualNetworks/subnets@2020-05-01' existing = {
+  parent: virtualNetwork
+  name: subnets.netapp.name
+}
+
+resource adSubnet 'Microsoft.Network/virtualNetworks/subnets@2020-05-01' existing = {
+  parent: virtualNetwork
+  name: subnets.ad.name
+}
+
+resource computeSubnet 'Microsoft.Network/virtualNetworks/subnets@2020-05-01' existing = {
+  parent: virtualNetwork
+  name: subnets.compute.name
+}
+    
+resource allNgs 'Microsoft.Network/applicationSecurityGroups@2021-08-01' = [ for asgName in config.asgs: {
+  name: asgName
+  location: location
+}]
+
+
+/*
+__     __  __  __       ____                   _
+\ \   / / |  \/  |  _  |  _ \    ___   _ __   | |   ___    _   _    ___   _ __
+ \ \ / /  | |\/| | (_) | | | |  / _ \ | '_ \  | |  / _ \  | | | |  / _ \ | '__|
+  \ V /   | |  | |  _  | |_| | |  __/ | |_) | | | | (_) | | |_| | |  __/ | |
+   \_/    |_|  |_| (_) |____/   \___| | .__/  |_|  \___/   \__, |  \___| |_|
+                                      |_|                  |___/
+*/
 resource deployNic 'Microsoft.Network/networkInterfaces@2020-06-01' = {
   name: deployNicName
   location: location
@@ -100,9 +181,6 @@ resource deployNic 'Microsoft.Network/networkInterfaces@2020-06-01' = {
         }
       }
     ]
-    networkSecurityGroup: {
-      id: deployNsg.id
-    }
   }
 }
 
@@ -120,10 +198,8 @@ resource pip 'Microsoft.Network/publicIPAddresses@2021-05-01' = {
 }
 
 var contributorId = resourceId('microsoft.authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')
-//var readerId = resourceId('microsoft.authorization/roleDefinitions', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')
 var userAccessAdministratorId = resourceId('microsoft.authorization/roleDefinitions', '18d7d88d-d35e-4fb5-a5c3-7773c20a72d9')
 var contributorRa = guid(managedIdentity.name, contributorId, subscription().id)
-//var subscriptionRa = guid(managedIdentity.name, readerId, subscription().id)
 var UserAccessAdminitratorRa = guid(managedIdentity.name, userAccessAdministratorId, subscription().id)
 resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
   name: '${deployName}-mi'
@@ -138,15 +214,7 @@ resource managedIdentityContributor 'Microsoft.Authorization/roleAssignments@202
     principalType: 'ServicePrincipal'
   }
 }
-//resource managedIdentityReader 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-//  name: subscriptionRa
-//  scope: resourceGroup()
-//  properties: {
-//    roleDefinitionId: readerId
-//    principalId: managedIdentity.properties.principalId
-//    principalType: 'ServicePrincipal'
-//  }
-//}
+
 resource managedIdentityUserAccessAdminitrator 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   name: UserAccessAdminitratorRa
   scope: resourceGroup()

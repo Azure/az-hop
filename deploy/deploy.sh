@@ -1,11 +1,11 @@
 #!/bin/bash
 
-rg=paul-test-azhop-deploy-1
+rg=paul-test-azhop-deploy-169
 loc=westeurope
 adminName=deploy
 
 if [[ ! -f "$adminName" ]]; then
-    ssh-keygen -f $adminName -N ''
+    ssh-keygen -f $adminName  -N ''
 fi
 
 az group create --resource-group $rg --location $loc
