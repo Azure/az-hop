@@ -15,6 +15,10 @@
 ```bash
 az vm image terms accept --offer azurehpc-lustre --publisher azhpc --plan azurehpc-lustre-2_12
 ```
+- If AlmaLinux Marketplace image is used, the terms need to be accepted as well
+```bash
+az vm image terms accept --offer almalinux-hpc --publisher almalinux --plan 8_5-hpc-gen2
+```
 
 - When using the default configurations in order to build your environment, make sure you have enough quota for :
   - 10 cores of Standard BS Family

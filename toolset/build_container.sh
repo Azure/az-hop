@@ -3,12 +3,13 @@ set -e
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 pushd $DIR
 buildenv=${1:-local}
+login_server=$2
 
 tag=$(date +"%g%m.%d%H")
 case "$buildenv" in
     "github")
-        hpcrover="xpillons/hpcrover:${tag}"
-        latest="xpillons/hpcrover:latest"
+        hpcrover="hpcrover:${tag}"
+        latest="hpcrover:latest"
     ;;
 
     "local")
@@ -20,15 +21,16 @@ esac
 echo "Creating version ${hpcrover}"
 
 # Build the base image
-docker-compose build 
+#docker-compose build 
+docker build . -t ${login_server}/${hpcrover}
 
-docker tag toolset_hpcrover ${hpcrover}
-docker tag toolset_hpcrover ${latest}
+#docker tag toolset_hpcrover ${hpcrover}
+#docker tag toolset_hpcrover ${latest}
 case "$buildenv" in
     "github")
-        docker login
-        docker push ${hpcrover}
-        docker push ${latest}
+        docker login ${login_server}
+        docker push ${login_server}/${hpcrover}
+#        docker push ${login_server}/${latest}
     ;;
 
     "local")

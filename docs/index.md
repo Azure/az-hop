@@ -10,6 +10,8 @@ Azure HPC OnDemand Platform or **azhop**, delivers an end-2-end deployment mecha
 - A Lustre cluster for the scratch storage with HSM capbilities to Azure Blobs thru a [RobinHood](https://github.com/cea-hpc/robinhood) integration,
 - [Grafana](https://grafana.com/) dashboards to monitor your cluster
 
+<img src="./images/azhop_architecture.png" width="75%">
+
 # Deployment Guide
 Follow the steps [here](deploy/index.md) for configuring and deploying your AZHOP environmment.
 

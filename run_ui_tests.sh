@@ -1,4 +1,8 @@
 #!/bin/bash
+# Usage:
+# run_ui_tests user <test_name> <playright_options>
+#   test_name: any .ts file located in ./tests
+#   playright_options: --debug
 set -e
 USER_NAME=$1
 AZHOP_CONFIG=config.yml

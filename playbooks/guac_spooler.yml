@@ -1,0 +1,54 @@
+# This looks crazy but in order for this playbook to run from a pipeline, the jumpbox dummy need to be added, otherwise there is an unable to connect message
+- name: jumpbox dummy
+  hosts: jumpbox
+  become: true
+
+- hosts: guacamole
+  gather_facts: no
+  become: true
+  vars_files:
+    - '{{global_config_file}}'
+  vars:
+    cyclecloud_guac_version: 0.1.17
+
+  tasks:
+  - name: Install Guac Spooler only if required
+    block:
+
+    - name: Wait 300 seconds for the nodes to be ready
+      wait_for_connection:
+        timeout: 300
+    - name: Gather facts for first time
+      setup:
+
+    - name: Read Password from KV
+      command: az keyvault secret show --vault-name {{key_vault}} -n {{admin_user}}-password --query "value" -o tsv
+      delegate_to: localhost
+      connection: local
+      register: password
+      become: false
+      run_once: true
+
+    - name: Join domain
+      include_role:
+        name: domain_join
+      vars:
+        domain_admin: "{{admin_user}}"
+        domain_password: "{{password.stdout}}"
+        domain_name: "{{ad_join_domain}}"
+        domain_dc_ip: "{{ad_dns}}"
+        domain_homedir: "{{homedir_mountpoint}}"
+        domain_mount_ip: "{{anf_home_ip}}"
+        domain_mount_path: "{{anf_home_path}}"
+
+    - name: Install Guac Spooler role
+      include_role:
+        name: guac_spooler
+      vars:
+        guac_spooler_key_vault: "{{key_vault}}"
+        guac_spooler_admin_user: "{{admin_user}}"
+        guac_spooler_slurmdb_user: "{{ slurmdb_user }}"
+        guac_spooler_slurmdb_fqdn: "{{slurmdb_fqdn}}"
+        guac_spooler_mountpoint: "{{ homedir_mountpoint }}"
+    when: ( enable_remote_winviz is defined and enable_remote_winviz )
+

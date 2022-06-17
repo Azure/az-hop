@@ -16,6 +16,7 @@ playbooks/inventory*
 playbooks/extra_vars.yml
 playbooks/group_vars/*
 playbooks/image_lookup.yml
+playbooks/remoteviz_image_lookup.yml
 playbooks/*.ok
 
 # ssh keys

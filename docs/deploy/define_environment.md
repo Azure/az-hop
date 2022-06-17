@@ -74,6 +74,27 @@ network:
         name: compute
         address_prefixes: "10.0.16.0/20"
         create: true
+# asg:
+#   resource_group: # name of the resource group containing the ASG. Default to the resource group containing azhop resources
+#   names: # list of ASG names mapping to the one defined in az-hop
+#     asg-ssh: asg-ssh
+#     asg-rdp: asg-rdp
+#     asg-jumpbox: asg-jumpbox
+#     asg-ad: asg-ad
+#     asg-ad-client: asg-ad-client
+#     asg-lustre: asg-lustre
+#     asg-lustre-client: asg-lustre-client
+#     asg-pbs: asg-pbs
+#     asg-pbs-client: asg-pbs-client
+#     asg-cyclecloud: asg-cyclecloud
+#     asg-cyclecloud-client: asg-cyclecloud-client
+#     asg-nfs-client: asg-nfs-client
+#     asg-telegraf: asg-telegraf
+#     asg-grafana: asg-grafana
+#     asg-robinhood: asg-robinhood
+#     asg-ondemand: asg-ondemand
+#     asg-deployer: asg-deployer
+#     asg-guacamole: asg-guacamole
 
 #  peering: # This list is optional, and can be used to create VNet Peerings in the same subscription.
 #    - vnet_name: #"VNET Name to Peer to"
@@ -110,6 +131,9 @@ ondemand:
 # Grafana VM configuration
 grafana:
   vm_size: Standard_B2ms
+# Guacamole VM configuration
+guacamole:
+  vm_size: Standard_B2ms
 # Scheduler VM configuration
 scheduler:
   vm_size: Standard_B2ms
@@ -117,10 +141,6 @@ scheduler:
 cyclecloud:
   vm_size: Standard_B2ms
   # version: 8.2.1-1733 # to specify a specific version, see https://packages.microsoft.com/yumrepos/cyclecloud/
-
-winviz:
-  vm_size: Standard_D4s_v3
-  create: false # Create an always running windows node, false by default
 
 # Lustre cluster configuration
 lustre:
@@ -217,6 +237,13 @@ images:
     hyper_v: V2
     os_type: Linux
     version: 18.04
+  - name: azhop-win10
+    publisher: azhop
+    offer: Windows-10
+    sku: 21h1-pron
+    hyper_v: V1
+    os_type: Windows
+    version: 10.19043
 # List of queues (node arays in Cycle) to be defined
 queues:
   - name: execute # name of the Cycle Cloud node array
@@ -273,4 +300,16 @@ queues:
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
     ColocateNodes: false
     spot: false
+
+# Remote Visualization definitions
+enable_remote_winviz: false # Set to true to enable windows remote visualization
+
+remoteviz:
+  - name: winviz # This name is fixed and can't be changed
+    vm_size: Standard_D8a_v4
+    max_core_count: 200
+    image: "MicrosoftWindowsDesktop:Windows-10:21h1-pron:latest"
+    ColocateNodes: false
+    spot: false
+
 ```

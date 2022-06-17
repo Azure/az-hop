@@ -63,5 +63,13 @@
     state: present
     groups:
       - az-hop-admins
-
   when: user.admin | default(false)
+
+# Add users into the az-hop-localadmins group
+- name: add local admin
+  community.windows.win_domain_user:
+    name: "{{ user.name }}"
+    state: present
+    groups:
+      - az-hop-localadmins
+  when: user.sudo | default(false)

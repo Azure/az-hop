@@ -91,11 +91,11 @@ locals {
     lustre_oss_sku = try(local.configuration_yml["lustre"]["oss_sku"], "Standard_D32d_v4")
     lustre_oss_count = try(local.configuration_yml["lustre"]["oss_count"], 2)
 
-    # Winviz
-    create_winviz = try(local.configuration_yml["winviz"].create, false)
+    # Enable Windows Remote Visualization scenarios
+    enable_remote_winviz = try(local.configuration_yml["enable_remote_winviz"], false)
 
     # Slurm Accounting Database
-    slurm_accounting = try(local.configuration_yml["slurm"].accounting_enabled, false)
+    slurm_accounting = local.enable_remote_winviz || try(local.configuration_yml["slurm"].accounting_enabled, false)
     slurm_accounting_admin_user = "sqladmin"
     
     # VNET
@@ -142,22 +142,47 @@ locals {
 
     # Application Security Groups
     create_nsg = try(local.configuration_yml["network"]["create_nsg"], local.create_vnet )
-    default_asgs = ["asg-ssh", "asg-rdp", "asg-jumpbox", "asg-ad", "asg-ad-client", "asg-lustre", "asg-lustre-client", "asg-pbs", "asg-pbs-client", "asg-cyclecloud", "asg-cyclecloud-client", "asg-nfs-client", "asg-telegraf", "asg-grafana", "asg-robinhood", "asg-ondemand", "asg-deployer"]
-    asgs = { for v in local.default_asgs : v => v }
+    # If create NSG then use the local resource group otherwise use the configured one. Default to local resource group
+    asg_resource_group = local.create_nsg ? local.resource_group : try(length(local.configuration_yml["network"]["asg"]["resource_group"]) > 0 ? local.configuration_yml["network"]["asg"]["resource_group"] : local.resource_group, local.resource_group )
+
+    _default_asgs = {
+        asg-ssh = "asg-ssh"
+        asg-rdp = "asg-rdp"
+        asg-jumpbox = "asg-jumpbox"
+        asg-ad = "asg-ad"
+        asg-ad-client = "asg-ad-client"
+        asg-lustre = "asg-lustre"
+        asg-lustre-client = "asg-lustre-client"
+        asg-pbs = "asg-pbs"
+        asg-pbs-client = "asg-pbs-client"
+        asg-cyclecloud = "asg-cyclecloud"
+        asg-cyclecloud-client = "asg-cyclecloud-client"
+        asg-nfs-client = "asg-nfs-client"
+        asg-telegraf = "asg-telegraf"
+        asg-grafana = "asg-grafana"
+        asg-robinhood = "asg-robinhood"
+        asg-ondemand = "asg-ondemand"
+        asg-deployer = "asg-deployer"
+        asg-guacamole = "asg-guacamole"
+    }
+    #asgs = local.create_nsg ? local._default_asgs :  try(local.configuration_yml["network"]["asg"]["names"], local._default_asgs)
+    asgs = try(local.configuration_yml["network"]["asg"]["names"], local._default_asgs)
+    #asgs = { for v in local.default_asgs : v => v }
     empty_array = []
     empty_map = { for v in local.empty_array : v => v }
 
     # VM name to list of ASGs associations
+    # TODO : Add mapping for names
     asg_associations = {
         ad        = ["asg-ad", "asg-rdp"]
         ccportal  = ["asg-ssh", "asg-cyclecloud", "asg-telegraf", "asg-ad-client"]
         grafana   = ["asg-ssh", "asg-grafana", "asg-ad-client", "asg-telegraf", "asg-nfs-client"]
         jumpbox   = ["asg-ssh", "asg-jumpbox", "asg-ad-client", "asg-telegraf", "asg-nfs-client"]
         lustre    = ["asg-ssh", "asg-lustre", "asg-lustre-client", "asg-telegraf"]
-        ondemand  = ["asg-ssh", "asg-ondemand", "asg-ad-client", "asg-nfs-client", "asg-pbs-client", "asg-lustre-client", "asg-telegraf"]
+        ondemand  = ["asg-ssh", "asg-ondemand", "asg-ad-client", "asg-nfs-client", "asg-pbs-client", "asg-lustre-client", "asg-telegraf", "asg-guacamole", "asg-cyclecloud-client"]
         robinhood = ["asg-ssh", "asg-robinhood", "asg-lustre-client", "asg-telegraf"]
         scheduler = ["asg-ssh", "asg-pbs", "asg-ad-client", "asg-cyclecloud-client", "asg-nfs-client", "asg-telegraf"]
-        winviz    = ["asg-ad-client", "asg-rdp"]
+        guacamole = ["asg-ssh", "asg-ad-client", "asg-telegraf", "asg-nfs-client", "asg-cyclecloud-client"]
     }
 
     # Open ports for NSG TCP rules
@@ -186,7 +211,9 @@ locals {
         # HTTPS, AMQP
         CycleCloud = ["9443", "5672"],
         # MySQL
-        MySQL = ["3306", "33060"]
+        MySQL = ["3306", "33060"],
+        # Guacamole
+        Guacamole = ["8080"]
     }
 
     # Array of NSG rules to be applied on the common NSG
@@ -264,6 +291,10 @@ locals {
         AllowSocksIn                = ["520", "Inbound", "Allow", "Tcp", "Socks",              "asg/asg-jumpbox",          "asg/asg-rdp"],
         AllowRdpIn                  = ["550", "Inbound", "Allow", "Tcp", "Rdp",                "asg/asg-jumpbox",          "asg/asg-rdp"],
 
+        # Guacamole
+#        AllowGuacamoleWebIn         = ["600", "Inbound", "Allow", "Tcp", "Guacamole",           "asg/asg-ondemand",          "asg/asg-guacamole"],
+        AllowGuacamoleRdpIn         = ["610", "Inbound", "Allow", "Tcp", "Rdp",                 "asg/asg-guacamole",         "subnet/compute"],
+
         # Deny all remaining traffic
         DenyVnetInbound             = ["3100", "Inbound", "Deny", "*", "All",                  "tag/VirtualNetwork",       "tag/VirtualNetwork"],
 
@@ -337,6 +368,10 @@ locals {
         AllowRdpOut                 = ["570", "Outbound", "Allow", "Tcp", "Rdp",                "asg/asg-jumpbox",          "asg/asg-rdp"],
         AllowSocksOut               = ["580", "Outbound", "Allow", "Tcp", "Socks",              "asg/asg-jumpbox",          "asg/asg-rdp"],
         AllowDnsOut                 = ["590", "Outbound", "Allow", "*",   "Dns",                "tag/VirtualNetwork",       "tag/VirtualNetwork"],
+
+        # Guacamole
+#        AllowGuacamoleWebOut        = ["600", "Outbound", "Allow", "Tcp", "Guacamole",           "asg/asg-ondemand",         "asg/asg-guacamole"],
+        AllowGuacamoleRdpOut        = ["610", "Outbound", "Allow", "Tcp", "Rdp",                 "asg/asg-guacamole",         "subnet/compute"],
 
         # Deny all remaining traffic and allow Internet access
         AllowInternetOutBound       = ["3000", "Outbound", "Allow", "Tcp", "All",               "tag/VirtualNetwork",       "tag/Internet"],

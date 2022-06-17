@@ -5,7 +5,7 @@
 # To enable PTP in those releases, chrony must be manually installed and configured (in chrony.conf)
 # for RHEL 7.x and CentOS 7.x reference see https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/system_administrators_guide/ch-configuring_ntp_using_the_chrony_suite
 
-- hosts: jumpbox, ondemand, scheduler, lustre, lustre-oss-*, robinhood, grafana, ccportal
+- hosts: jumpbox, ondemand, scheduler, lustre, lustre-oss-*, robinhood, grafana, ccportal, guacamole
   become: true
   vars_files:
     - '{{global_config_file}}'

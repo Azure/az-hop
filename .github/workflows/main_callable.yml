@@ -66,7 +66,10 @@ jobs:
     timeout-minutes: 60
 
     container:
-      image: xpillons/hpcrover:latest
+      image: azhop.azurecr.io/hpcrover:2206.1321
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     outputs:
@@ -127,9 +130,9 @@ jobs:
                 range_mapping[$octet]=1
               done
               echo ${range_mapping[@]}
-              second_octet=$(( ( RANDOM % 255 )  + 1 ))
+              second_octet=$(( ( RANDOM % 254 )  + 1 ))
               while [ ${range_mapping[$second_octet]} == 1 ]; do
-                second_octet=$(( ( RANDOM % 255 )  + 1 ))
+                second_octet=$(( ( RANDOM % 254 )  + 1 ))
               done
               echo "Second octet: $second_octet"
               sed_exp="s/10.128/10.$second_octet/g"
@@ -179,7 +182,10 @@ jobs:
     needs: deploy
 
     container:
-      image: xpillons/hpcrover:latest
+      image: azhop.azurecr.io/hpcrover:2206.1321
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
@@ -205,7 +211,10 @@ jobs:
     needs: [ad, deploy]
 
     container:
-      image: xpillons/hpcrover:latest
+      image: azhop.azurecr.io/hpcrover:2206.1321
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
@@ -230,7 +239,10 @@ jobs:
     needs: [cycle_cluster, lustre, deploy]
 
     container:
-      image: xpillons/hpcrover:latest
+      image: azhop.azurecr.io/hpcrover:2206.1321
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
@@ -255,7 +267,10 @@ jobs:
     needs: [ad, deploy]
 
     container:
-      image: xpillons/hpcrover:latest
+      image: azhop.azurecr.io/hpcrover:2206.1321
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
@@ -280,7 +295,10 @@ jobs:
     needs: [ad, deploy]
 
     container:
-      image: xpillons/hpcrover:latest
+      image: azhop.azurecr.io/hpcrover:2206.1321
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
@@ -305,7 +323,10 @@ jobs:
     needs: [cycle, deploy]
 
     container:
-      image: xpillons/hpcrover:latest
+      image: azhop.azurecr.io/hpcrover:2206.1321
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
@@ -330,7 +351,10 @@ jobs:
     needs: [add_users, deploy, build_image]
 
     container:
-      image: xpillons/hpcrover:latest
+      image: azhop.azurecr.io/hpcrover:2206.1321
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
@@ -350,13 +374,45 @@ jobs:
           ./install.sh cccluster
           ./install.sh scheduler
 
+  guacamole:
+    name: guacamole
+    runs-on: self-hosted
+    needs: [cycle, ood, deploy]
+
+    container:
+      image: azhop.azurecr.io/hpcrover:2206.1321
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
+      options: --user 0
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+         
+      - name: Login azure
+        run: |
+          az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
+          az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
+
+      - name: Install applications
+        run: |
+          RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
+          ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
+          ./install.sh guacamole
+          ./install.sh guac_spooler
+
   telegraf:
     name: telegraf
     runs-on: self-hosted
-    needs: [grafana, lustre, cycle, deploy, ood]
+    needs: [grafana, lustre, cycle, deploy, ood, guacamole]
 
     container:
-      image: xpillons/hpcrover:latest
+      image: azhop.azurecr.io/hpcrover:2206.1321
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
@@ -382,7 +438,10 @@ jobs:
     needs: [deploy]
 
     container:
-      image: xpillons/hpcrover:latest
+      image: azhop.azurecr.io/hpcrover:2206.1321
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
@@ -416,7 +475,10 @@ jobs:
         #packer_file: ["centos-7.8-desktop-3d.json", "azhop-centos79-v2-rdma-gpgpu.json"]
         packer_file: ${{ fromJson(needs.set_image_list.outputs.matrix) }}
     container:
-      image: xpillons/hpcrover:latest
+      image: azhop.azurecr.io/hpcrover:2206.1321
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
@@ -441,7 +503,10 @@ jobs:
     runs-on: self-hosted
     needs: [deploy, cycle, ood, cycle_cluster]
     container:
-      image: xpillons/hpcrover:latest
+      image: azhop.azurecr.io/hpcrover:2206.1321
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
@@ -467,7 +532,10 @@ jobs:
     needs: [deploy, run_tests]
 
     container:
-      image: xpillons/hpcrover:latest
+      image: azhop.azurecr.io/hpcrover:2206.1321
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:

@@ -41,7 +41,10 @@ jobs:
     runs-on: ubuntu-latest
     name: init_matrix
     container:
-      image: xpillons/hpcrover:latest
+      image: azhop.azurecr.io/hpcrover:2206.1321
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
     steps:
       - uses: actions/checkout@v3
@@ -78,12 +81,15 @@ jobs:
     timeout-minutes: 60
 
     container:
-      image: xpillons/hpcrover:latest
+      image: azhop.azurecr.io/hpcrover:2206.1321
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3.2.0
+      - uses: actions/setup-node@v3.3.0
         with:
           node-version: '14.x'
       - name: Install dependencies
