@@ -1,0 +1,515 @@
+@description('SSH Key for the Virtual Machine.')
+@secure()
+param adminUser string
+
+@description('SSH Key for the Virtual Machine.')
+@secure()
+param adminSshKey string
+
+@description('The Windows/Active Directory password.')
+@secure()
+param adminPassword string
+
+@description('Azure region to use')
+param location string = resourceGroup().location
+
+// end with a character (x) - requirement for shared image gallery
+var resourcePostfix = '${uniqueString(subscription().subscriptionId, resourceGroup().id)}x'
+
+{%- if slurm.accounting_enabled == true %}
+@description('Slurm accounting admin user')
+param slurmAccountingAdminUser string = 'sqladmin'
+
+@description('Password for the Slurm accounting admin user')
+@secure()
+param slurmAccountingAdminPassword string
+{%- endif %}
+
+//  _   _   ____     ____
+// | \ | | / ___|   / ___|
+// |  \| | \___ \  | |  _
+// | |\  |  ___) | | |_| |
+// |_| \_| |____/   \____|
+resource commonNsg 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
+  name: 'nsg-common'
+  location: location
+  properties: {
+    securityRules: [
+    ]
+  }
+}
+
+//  _   _   _____   _____  __        __   ___    ____    _  __
+// | \ | | | ____| |_   _| \ \      / /  / _ \  |  _ \  | |/ /
+// |  \| | |  _|     | |    \ \ /\ / /  | | | | | |_) | | ' /
+// | |\  | | |___    | |     \ V  V /   | |_| | |  _ <  | . \
+// |_| \_| |_____|   |_|      \_/\_/     \___/  |_| \_\ |_|\_\
+resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-05-01' = {
+  name: '{{ vnet.name }}'
+  location: location
+  properties: {
+    addressSpace: {
+      addressPrefixes: [
+        '{{ vnet.cidr }}'
+      ]
+    }
+    subnets: [
+{%- for _, subnet in vnet.subnets.items() %}
+      {
+        name: '{{ subnet.name }}'
+        properties: {
+          addressPrefix: '{{ subnet.cidr }}'
+          networkSecurityGroup: {
+            id: commonNsg.id
+          }
+    {%- if 'delegation' in subnet %}
+          delegations: [
+            {
+              name: '{{ subnet.name }}'
+              properties: {
+                serviceName: '{{ subnet.delegation }}'
+              }
+            }
+          ]
+    {%- endif %}
+    {%- if 'service_endpoints' in subnet %}
+          serviceEndpoints: [
+        {%- for endpoint in subnet.service_endpoints %}
+            {
+              service: '{{ endpoint }}'
+            }
+        {%- endfor %}
+          ]
+    {%- endif %}
+        }
+      }
+{%- endfor %}
+    ]
+  }
+}
+{%- for subnetName, subnet in vnet.subnets.items() %}
+resource {{ subnetName }}Subnet 'Microsoft.Network/virtualNetworks/subnets@2020-05-01' existing = {
+  parent: virtualNetwork
+  name: '{{ subnet.name }}'
+}
+{%- endfor %}
+
+//     _      ____     ____
+//    / \    / ___|   / ___|
+//   / _ \   \___ \  | |  _
+//  / ___ \   ___) | | |_| |
+// /_/   \_\ |____/   \____|
+{% for asg in asgs %}
+resource {{ asg | replace('-', '_') }} 'Microsoft.Network/applicationSecurityGroups@2021-08-01' = {
+  name: '{{ asg }}'
+  location: location
+}
+{%- endfor %}
+
+// __     __  __  __
+// \ \   / / |  \/  |  ___
+//  \ \ / /  | |\/| | / __|
+//   \ V /   | |  | | \__ \
+//    \_/    |_|  |_| |___/
+{% for vm_name, vm in vms.items() %}
+resource {{ vm_name }}Nic 'Microsoft.Network/networkInterfaces@2020-06-01' = {
+  name: '{{ vm_name }}-nic'
+  location: location
+  properties: {
+    ipConfigurations: [
+      {
+        name: '{{ vm_name }}-ipconfig'
+        properties: {
+          applicationSecurityGroups: [
+  {%- for asg in vm.asgs %}
+            {
+              id: {{ asg | replace('-', '_') }}.id
+            }
+  {%- endfor %}
+          ]
+          subnet: {
+            id: {{ vm.subnet }}Subnet.id
+          }
+          privateIPAllocationMethod: 'Dynamic'
+  {%- if 'pip' in vm and vm.pip == true %}
+          publicIPAddress: {
+            id: {{ vm_name }}Pip.id
+          }
+  {%- endif %}
+        }
+      }
+    ]
+  }
+}
+
+  {%- if 'pip' in vm and vm.pip == true %}
+resource {{ vm_name }}Pip 'Microsoft.Network/publicIPAddresses@2021-05-01' = {
+  name: '{{ vm_name }}-pip'
+  location: location
+  sku: {
+    name: 'Basic'
+  }
+  properties: {
+    publicIPAllocationMethod: 'Dynamic'
+    publicIPAddressVersion: 'IPv4'
+    idleTimeoutInMinutes: 4
+  }
+}
+  {%- endif %}
+
+  {%- if 'identity' in vm %}
+resource {{ vm_name }}ManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
+  name: '{{ vm_name }}-mi'
+  location: location
+}
+    {%- if 'roles' in vm.identity %}
+      {%- for role in vm.identity.roles %}
+        {%- if role == 'Contributor' %}
+var {{ vm_name }}{{ role }}Id = resourceId('microsoft.authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')
+        {%- elif role == 'UserAccessAdministrator' %}
+var {{ vm_name }}{{ role }}Id = resourceId('microsoft.authorization/roleDefinitions', '18d7d88d-d35e-4fb5-a5c3-7773c20a72d9')
+        {%- endif %}
+var {{ vm_name }}{{ role }}Ra = guid({{ vm_name }}ManagedIdentity.name, {{ vm_name }}{{ role }}Id, subscription().id)
+resource {{ vm_name }}ManagedIdentity{{ role }} 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: {{ vm_name }}{{ role }}Ra
+  scope: resourceGroup()
+  properties: {
+    roleDefinitionId: {{ vm_name }}{{ role }}Id
+    principalId: {{ vm_name }}ManagedIdentity.properties.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+      {%- endfor %}
+    {%- endif %}
+  {%- endif %}
+
+resource {{ vm_name }}Vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
+  name: '{{ vm_name }}'
+  location: location
+  {%- if 'identity' in vm %}
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${ {{ vm_name }}ManagedIdentity.id}': {}
+    }
+  }
+  {%- endif %}  
+  properties: {
+    hardwareProfile: {
+      vmSize: '{{ vm.sku }}'
+    }
+    storageProfile: {
+      osDisk: {
+        createOption: 'FromImage'
+        managedDisk: {
+          storageAccountType: '{{ vm.disksku }}'
+        }
+    {%- if 'disksize' in vm %}
+        diskSizeGB: {{ vm.disksize }}
+    {%- endif %}
+        caching: 'ReadWrite'
+      }
+      imageReference: {
+        publisher: '{{ images[vm.image].publisher }}'
+        offer: '{{ images[vm.image].offer }}'
+        sku: '{{ images[vm.image].sku }}'
+        version: '{{ images[vm.image].version }}'
+      }
+    }
+    networkProfile: {
+      networkInterfaces: [
+        {
+          id: {{ vm_name }}Nic.id
+        }
+      ]
+    }
+    osProfile: {
+      computerName: '{{ vm_name }}'
+      adminUsername: adminUser
+    {%- if 'windows' in vm and vm.windows == true %}
+      adminPassword: adminPassword
+      windowsConfiguration: {
+        winRM: {
+          listeners: [
+            {
+              protocol: 'Http'
+            }
+          ]
+        }
+      }
+    {%- else %}
+      linuxConfiguration: {
+        disablePasswordAuthentication: true
+        ssh: {
+          publicKeys: [
+            {
+              path: '/home/${adminUser}/.ssh/authorized_keys'
+              keyData: adminSshKey
+            }
+          ]
+        }
+      }
+    {%- endif %}
+    }
+    {%- if 'ahub' in vm and vm.ahub == true %}
+    licenseType: 'Windows_Server'
+    {%- endif %}
+  }
+}
+{%- endfor %}
+
+//     _      _   _   _____
+//    / \    | \ | | |  ___|
+//   / _ \   |  \| | | |_
+//  / ___ \  | |\  | |  _|
+// /_/   \_\ |_| \_| |_|
+
+resource anfAccount 'Microsoft.NetApp/netAppAccounts@2021-10-01' = {
+  name: 'azhop-${resourcePostfix}'
+  location: location
+  
+{%- if anf.dual_protocol == true %}
+  properties: {
+    activeDirectories: [
+      {
+        username: adminUser
+        password: adminPassword
+        dns: adNic.properties.ipConfigurations[0].properties.privateIPAddress
+        smbServerName: 'anf'
+        domain: 'hpc.azure' 
+      }
+    ]
+  }
+{%- endif %}
+}
+
+resource anfPool 'Microsoft.NetApp/netAppAccounts/capacityPools@2021-10-01' = {
+  name: 'anfpool-${resourcePostfix}'
+  location: location
+  parent: anfAccount
+  properties: {
+    serviceLevel: '{{ anf.service_level }}'
+    size: {{ anf.size_tb * 1024 * 1024 * 1024 * 1024 }}
+  }
+}
+
+resource anfHome 'Microsoft.NetApp/netAppAccounts/capacityPools/volumes@2021-10-01' = {
+  name: 'anfhome'
+  location: location
+  parent: anfPool
+  properties: {
+    creationToken: 'anfpool-${resourcePostfix}'
+    serviceLevel: '{{ anf.service_level }}'
+    subnetId: netappSubnet.id
+    protocolTypes: [
+      'NFSv3'
+{%- if anf.dual_protocol == true %}
+      'CIFS'
+{%- endif %}
+    ]
+    securityStyle: 'unix'
+    usageThreshold: {{ anf.size_tb * 1024 * 1024 * 1024 * 1024 }}
+
+    exportPolicy: {
+      rules: [
+        {
+          ruleIndex: 1
+          allowedClients: '0.0.0.0/0'
+          unixReadWrite: true
+          hasRootAccess: true
+          nfsv3: true
+        }
+      ]
+    }
+  }
+}
+
+
+//  ____    ___    ____
+// / ___|  |_ _|  / ___|
+// \___ \   | |  | |  _
+//  ___) |  | |  | |_| |
+// |____/  |___|  \____|
+
+resource sig 'Microsoft.Compute/galleries@2022-01-03' = {
+  name: 'azhop_${resourcePostfix}'
+  location: location
+  properties: {
+    description: 'Shared images for AZHOP"'
+  }
+}
+
+//  _  __  _____  __   __ __     __     _      _   _   _       _____
+// | |/ / | ____| \ \ / / \ \   / /    / \    | | | | | |     |_   _|
+// | ' /  |  _|    \ V /   \ \ / /    / _ \   | | | | | |       | |
+// | . \  | |___    | |     \ V /    / ___ \  | |_| | | |___    | |
+// |_|\_\ |_____|   |_|      \_/    /_/   \_\  \___/  |_____|   |_|
+
+resource kv 'Microsoft.KeyVault/vaults@2021-10-01' = {
+  name: 'kv${resourcePostfix}'
+  location: location
+  properties: {
+    enabledForDiskEncryption: true
+    tenantId: subscription().tenantId
+    softDeleteRetentionInDays: 7
+    sku: {
+      family: 'A'
+      name: 'standard'
+    }
+    networkAcls: {
+      bypass: 'AzureServices'
+{%- if lock_down_network.enforce == true %}
+      defaultAction: 'Deny'
+{%- else %}
+      defaultAction: 'Allow'
+{%- endif %}
+{%- if 'grant_access_from' in lock_down_network %}
+      ipRules: [
+  {%- for ip in lock_down_network.grant_access_from %}
+        {
+          value: '{{ ip }}'
+        }
+  {%- endfor %}
+      ]
+{%- endif %}
+      virtualNetworkRules: [
+        {
+          id: adminSubnet.id
+        }
+      ]
+    }
+    accessPolicies: [
+{%- for oid in keyvault_readers %}
+      {
+        objectId: '{{ oid }}'
+        permissions: {
+          secrets: [
+            'Get'
+            'List'
+          ]
+        }
+        tenantId: subscription().tenantId
+      }
+{%- endfor %}
+    ]
+  }
+}
+
+resource adminPasswordSecret 'Microsoft.KeyVault/vaults/secrets@2021-10-01' = {
+  name: '${adminUser}-password'
+  parent: kv
+  properties: {
+    value: adminPassword
+  }
+}
+
+
+//  ____    _____    ___    ____       _       ____   _____
+// / ___|  |_   _|  / _ \  |  _ \     / \     / ___| | ____|
+// \___ \    | |   | | | | | |_) |   / _ \   | |  _  |  _|
+//  ___) |   | |   | |_| | |  _ <   / ___ \  | |_| | | |___
+// |____/    |_|    \___/  |_| \_\ /_/   \_\  \____| |_____|
+//
+// Storage account used for
+//  - CycleCloud projects
+//  - Terraform states
+resource storageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' = {
+  name: 'azhop${resourcePostfix}'
+  location: location
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+    accessTier: 'Hot'
+    minimumTlsVersion: 'TLS1_2'
+{%- if lock_down_network.enforce == true %}
+    networkAcls: {
+      defaultAction: 'Deny'
+      ipRules: [
+  {%- for ip in lock_down_network.grant_access_from %}
+        {
+          value: '{{ ip }}'
+        }
+  {%- endfor %}
+      ]
+      virtualNetworkRules: [
+        {
+          id: adminSubnet.id
+        }
+        {
+          id: computeSubnet.id
+        }
+      ]
+    }
+{%- endif %}
+  }
+}
+
+resource blobServices 'Microsoft.Storage/storageAccounts/blobServices@2021-09-01' = {
+  name: 'default'
+  parent: storageAccount
+}
+
+resource lustreArchive 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-06-01' = {
+  name: 'lustre'
+  parent: blobServices
+  properties: {
+    publicAccess: 'None'
+  }
+}
+
+//  __  __  __   __  ____     ___    _
+// |  \/  | \ \ / / / ___|   / _ \  | |
+// | |\/| |  \ V /  \___ \  | | | | | |
+// | |  | |   | |    ___) | | |_| | | |___
+// |_|  |_|   |_|   |____/   \__\_\ |_____|
+{%- if slurm.accounting_enabled == true %}
+resource mysql 'Microsoft.DBforMySQL/servers@2017-12-01' = {
+  name: 'azhop-${resourcePostfix}'
+  location: location
+  
+  sku: {
+    name: 'GP_Gen5_2'
+  }
+  properties: {
+    minimalTlsVersion: 'TLS1_2'
+    publicNetworkAccess: 'Enabled'
+    sslEnforcement: 'Enabled'
+    storageProfile: {
+      backupRetentionDays: 7
+      geoRedundantBackup: 'Disabled'
+      storageAutogrow: 'Enabled'
+      storageMB: 5120
+    }
+    version: '5.7'
+    createMode: 'Default'
+    administratorLogin: slurmAccountingAdminUser
+    administratorLoginPassword: slurmAccountingAdminPassword
+  }
+}
+
+resource mysqlAdmin 'Microsoft.DBforMySQL/servers/virtualNetworkRules@2017-12-01' = {
+  name: 'AllowAccessAdmin'
+  parent: mysql
+  properties: {
+    virtualNetworkSubnetId: adminSubnet.id
+  }
+}
+
+resource mysqlFrontend 'Microsoft.DBforMySQL/servers/virtualNetworkRules@2017-12-01' = {
+  name: 'AllowAccessFrontend'
+  parent: mysql
+  properties: {
+    virtualNetworkSubnetId: frontendSubnet.id
+  }
+}
+
+resource mysqlPasswordSecret 'Microsoft.KeyVault/vaults/secrets@2021-10-01' = {
+  name: '${slurmAccountingAdminUser}-password'
+  parent: kv
+  properties: {
+    value: slurmAccountingAdminPassword
+  }
+}
+{%- endif %}

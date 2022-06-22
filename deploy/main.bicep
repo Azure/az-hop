@@ -1,23 +1,14 @@
 var config = json(loadTextContent('azhopconfig.json'))
 
-@description('deploy name')
-param deployName string = 'deployer'
-
-@description('deploy VM size')
-param deployVmSize string = 'Standard_B2ms'
-
-@description('deploy username')
-param deployUsername string
+var adminUser = config.admin_user
+var images = config.images
 
 @description('SSH Key or password for the Virtual Machine. SSH key is recommended.')
 @secure()
-param deployKey string
+param adminSshKey string
 
 @description('Azure region to use')
 param location string = resourceGroup().location
-
-var deployNicName = '${deployName}-nic'
-var deployOsDiskType = 'Standard_LRS'
 
 var setupScriptTpl = loadTextContent('cloudconfig.yml')
 var setupScript = replace(replace(replace(setupScriptTpl, 'SUBSCRIPTION_ID', subscription().id), 'LOCATION', location), 'RESOURCE_GROUP', resourceGroup().name)
@@ -163,20 +154,22 @@ __     __  __  __       ____                   _
    \_/    |_|  |_| (_) |____/   \___| | .__/  |_|  \___/   \__, |  \___| |_|
                                       |_|                  |___/
 */
-resource deployNic 'Microsoft.Network/networkInterfaces@2020-06-01' = {
-  name: deployNicName
+
+var deployer = config.vms.deployer
+resource deployerNic 'Microsoft.Network/networkInterfaces@2020-06-01' = {
+  name: deployer.name
   location: location
   properties: {
     ipConfigurations: [
       {
-        name: '${deployName}-ipconfig'
+        name: '${deployer.name}-ipconfig'
         properties: {
           subnet: {
             id: adminSubnet.id
           }
           privateIPAllocationMethod: 'Dynamic'
           publicIPAddress: {
-            id: pip.id
+            id: deployerPip.id
           }
         }
       }
@@ -184,8 +177,8 @@ resource deployNic 'Microsoft.Network/networkInterfaces@2020-06-01' = {
   }
 }
 
-resource pip 'Microsoft.Network/publicIPAddresses@2021-05-01' = {
-  name: '${deployName}-pip'
+resource deployerPip 'Microsoft.Network/publicIPAddresses@2021-05-01' = {
+  name: '${deployer.name}-pip'
   location: location
   sku: {
     name: 'Basic'
@@ -197,79 +190,158 @@ resource pip 'Microsoft.Network/publicIPAddresses@2021-05-01' = {
   }
 }
 
-var contributorId = resourceId('microsoft.authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')
-var userAccessAdministratorId = resourceId('microsoft.authorization/roleDefinitions', '18d7d88d-d35e-4fb5-a5c3-7773c20a72d9')
-var contributorRa = guid(managedIdentity.name, contributorId, subscription().id)
-var UserAccessAdminitratorRa = guid(managedIdentity.name, userAccessAdministratorId, subscription().id)
-resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
-  name: '${deployName}-mi'
+var deployerContributorId = resourceId('microsoft.authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')
+var deployerUserAccessAdministratorId = resourceId('microsoft.authorization/roleDefinitions', '18d7d88d-d35e-4fb5-a5c3-7773c20a72d9')
+var deployerContributorRa = guid(deployerManagedIdentity.name, deployerContributorId, subscription().id)
+var deployerUserAccessAdminitratorRa = guid(deployerManagedIdentity.name, deployerUserAccessAdministratorId, subscription().id)
+resource deployerManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
+  name: '${deployer.name}-mi'
   location: location
 }
-resource managedIdentityContributor 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  name: contributorRa
+resource deployerManagedIdentityContributor 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: deployerContributorRa
   scope: resourceGroup()
   properties: {
-    roleDefinitionId: contributorId
-    principalId: managedIdentity.properties.principalId
+    roleDefinitionId: deployerContributorId
+    principalId: deployerManagedIdentity.properties.principalId
     principalType: 'ServicePrincipal'
   }
 }
 
 resource managedIdentityUserAccessAdminitrator 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  name: UserAccessAdminitratorRa
+  name: deployerUserAccessAdminitratorRa
   scope: resourceGroup()
   properties: {
-    roleDefinitionId: userAccessAdministratorId
-    principalId: managedIdentity.properties.principalId
+    roleDefinitionId: deployerUserAccessAdministratorId
+    principalId: deployerManagedIdentity.properties.principalId
     principalType: 'ServicePrincipal'
   }
 }
 
-resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
-  name: deployName
+resource deployerVm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
+  name: deployer.name
   location: location
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
-      '${managedIdentity.id}': {}
+      '${deployerManagedIdentity.id}': {}
     }
   }
   properties: {
     hardwareProfile: {
-      vmSize: deployVmSize
+      vmSize: deployer.sku
     }
     storageProfile: {
       osDisk: {
         createOption: 'FromImage'
         managedDisk: {
-          storageAccountType: deployOsDiskType
+          storageAccountType: deployer.osdisk
         }
       }
-      imageReference: {
-        publisher: 'Canonical'
-        offer: '0001-com-ubuntu-server-focal'
-        sku: '20_04-lts-gen2'
-        version: 'latest'
-      }
+      imageReference: images.ubuntu
     }
     networkProfile: {
       networkInterfaces: [
         {
-          id: deployNic.id
+          id: deployerNic.id
         }
       ]
     }
     osProfile: {
-      computerName: deployName
-      adminUsername: deployUsername
+      computerName: deployer.name
+      adminUsername: adminUser
       customData: base64(setupScript)
       linuxConfiguration: {
         disablePasswordAuthentication: true
         ssh: {
           publicKeys: [
             {
-              path: '/home/${deployUsername}/.ssh/authorized_keys'
-              keyData: deployKey
+              path: '/home/${adminUser}/.ssh/authorized_keys'
+              keyData: adminSshKey
+            }
+          ]
+        }
+      }
+    }
+  }
+}
+
+/*
+__     __  __  __           _                               _
+\ \   / / |  \/  |  _      | |  _   _   _ __ ___    _ __   | |__     ___   __  __
+ \ \ / /  | |\/| | (_)  _  | | | | | | | '_ ` _ \  | '_ \  | '_ \   / _ \  \ \/ /
+  \ V /   | |  | |  _  | |_| | | |_| | | | | | | | | |_) | | |_) | | (_) |  >  <
+   \_/    |_|  |_| (_)  \___/   \__,_| |_| |_| |_| | .__/  |_.__/   \___/  /_/\_\
+                                                   |_|
+*/
+var jumpbox = config.vms.jumpbox
+resource jumpboxNic 'Microsoft.Network/networkInterfaces@2020-06-01' = {
+  name: jumpbox.name
+  location: location
+  properties: {
+    ipConfigurations: [
+      {
+        name: '${jumpbox.name}-ipconfig'
+        properties: {
+          subnet: {
+            id: adminSubnet.id
+          }
+          privateIPAllocationMethod: 'Dynamic'
+          publicIPAddress: {
+            id: jumpboxPip.id
+          }
+        }
+      }
+    ]
+  }
+}
+
+resource jumpboxPip 'Microsoft.Network/publicIPAddresses@2021-05-01' = {
+  name: '${jumpbox.name}-pip'
+  location: location
+  sku: {
+    name: 'Basic'
+  }
+  properties: {
+    publicIPAllocationMethod: 'Dynamic'
+    publicIPAddressVersion: 'IPv4'
+    idleTimeoutInMinutes: 4
+  }
+}
+
+resource jumpboxVm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
+  name: jumpbox.name
+  location: location
+  properties: {
+    hardwareProfile: {
+      vmSize: jumpbox.sku
+    }
+    storageProfile: {
+      osDisk: {
+        createOption: 'FromImage'
+        managedDisk: {
+          storageAccountType: jumpbox.osdisk
+        }
+      }
+      imageReference: images.linux_base
+    }
+    networkProfile: {
+      networkInterfaces: [
+        {
+          id: jumpboxNic.id
+        }
+      ]
+    }
+    osProfile: {
+      computerName: jumpbox.name
+      adminUsername: adminUser
+      linuxConfiguration: {
+        disablePasswordAuthentication: true
+        ssh: {
+          publicKeys: [
+            {
+              path: '/home/${adminUser}/.ssh/authorized_keys'
+              keyData: adminSshKey
             }
           ]
         }
