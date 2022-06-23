@@ -44,11 +44,17 @@ vnet:
         - Microsoft.Storage
 
 images:
+  lustre:
+    plan: true
+    publisher: azhpc
+    offer: azurehpc-lustre
+    sku: azurehpc-lustre-2_12
+    version: latest
   ubuntu:
-    publisher: 'Canonical'
-    offer: '0001-com-ubuntu-server-focal'
-    sku: '20_04-lts-gen2'
-    version: 'latest'
+    publisher: Canonical
+    offer: 0001-com-ubuntu-server-focal
+    sku: 20_04-lts-gen2
+    version: latest
   linux_base:
     publisher: OpenLogic
     offer: CentOS
@@ -101,7 +107,10 @@ vms:
     image: linux_base
     asgs: [ asg-ssh, asg-grafana, asg-ad-client, asg-telegraf, asg-nfs-client ]
   guacamole:
-    # identity
+    identity:
+      keyvault:
+        key_permissions: [ Get, List ]
+        secret_permissions: [ Get, List ]
     subnet: admin
     sku: Standard_B2ms
     disksku: Standard_LRS
@@ -123,6 +132,34 @@ vms:
     disksku: Standard_LRS
     image: linux_base
     asgs: [ asg-ssh, asg-pbs, asg-ad-client, asg-cyclecloud-client, asg-nfs-client, asg-telegraf ]
+  lustre:
+    subnet: admin
+    sku: Standard_D8d_v4
+    disksku: StandardSSD_LRS
+    image: lustre
+    asgs: [ asg-ssh, asg-lustre, asg-lustre-client, asg-telegraf ]
+  lustreoss:
+    count: 2
+    identity:
+      keyvault:
+        key_permissions: [ Get, List ]
+        secret_permissions: [ Get, List ]
+    subnet: admin
+    sku: Standard_D32d_v4
+    disksku: StandardSSD_LRS
+    image: lustre
+    asgs: [ asg-ssh, asg-lustre, asg-lustre-client, asg-telegraf ]
+  robinhood:
+    identity:
+      keyvault:
+        key_permissions: [ Get, List ]
+        secret_permissions: [ Get, List ]
+    subnet: admin
+    sku: Standard_D8d_v4
+    disksku: StandardSSD_LRS
+    image: lustre
+    asgs: [ asg-ssh, asg-robinhood, asg-lustre-client, asg-telegraf ]
+
 
 asgs: [ asg-ssh, asg-rdp, asg-jumpbox, asg-ad, asg-ad-client, asg-lustre, asg-lustre-client,
   asg-pbs, asg-pbs-client, asg-cyclecloud, asg-cyclecloud-client, asg-nfs-client,

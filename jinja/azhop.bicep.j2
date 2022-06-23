@@ -35,6 +35,51 @@ resource commonNsg 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
   location: location
   properties: {
     securityRules: [
+{%- for rule_name, rule in _nsg_rules.items() %}
+      {
+        name: '{{ rule_name}}'
+        properties: {
+          priority: {{ rule[0] }}
+          direction: '{{ rule[1] }}'
+          access: '{{ rule[2] }}'
+          protocol: '{{ rule[3] }}'
+          sourcePortRange: '*'
+          destinationPortRanges: [
+  {%- for port in nsg_destination_ports[rule[4]] %}
+            '{{ port }}'
+  {%- endfor %}
+          ]
+
+  {%- if rule[5].startswith('tag/') %}
+          sourceAddressPrefix: '{{ rule[5].split('/')[1] }}'
+  {%- endif %}
+  {%- if rule[5].startswith('asg/') %}
+          sourceApplicationSecurityGroups: [
+            {
+              id: {{ rule[5].split('/')[1] | replace('-', '_') }}.id
+            }
+          ]
+  {%- endif %}
+  {%- if rule[5].startswith('subnet/') %}
+          sourceAddressPrefix: '{{ vnet.subnets[rule[5].split('/')[1]].cidr }}'
+  {%- endif %}
+
+  {%- if rule[6].startswith('tag/') %}
+          destinationAddressPrefix: '{{ rule[6].split('/')[1] }}'
+  {%- endif %}
+  {%- if rule[6].startswith('asg/') %}
+          destinationApplicationSecurityGroups: [
+            {
+              id: {{ rule[6].split('/')[1] | replace('-', '_') }}.id
+            }
+          ]
+  {%- endif %}
+  {%- if rule[6].startswith('subnet/') %}
+          destinationAddressPrefix: '{{ vnet.subnets[rule[6].split('/')[1]].cidr }}'
+  {%- endif %}
+        }
+      }
+{%- endfor %}
     ]
   }
 }
@@ -186,6 +231,13 @@ resource {{ vm_name }}ManagedIdentity{{ role }} 'Microsoft.Authorization/roleAss
 resource {{ vm_name }}Vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
   name: '{{ vm_name }}'
   location: location
+  {%- if 'plan' in images[vm.image] and images[vm.image].plan == true %}
+  plan: {
+    publisher: '{{ images[vm.image].publisher }}'
+    product: '{{ images[vm.image].offer }}'
+    name: '{{ images[vm.image].sku }}'
+  }
+  {%- endif %}
   {%- if 'identity' in vm %}
   identity: {
     type: 'UserAssigned'
@@ -390,6 +442,30 @@ resource kv 'Microsoft.KeyVault/vaults@2021-10-01' = {
         }
         tenantId: subscription().tenantId
       }
+{%- endfor %}
+{%- for vm_name, vm in vms.items() %}
+  {%- if 'identity' in vm and 'keyvault' in vm.identity %}
+      {
+        objectId: {{ vm_name }}ManagedIdentity.properties.principalId
+        permissions: {
+    {%- if 'key_permissions' in vm.identity.keyvault %}
+          keys: [
+      {%- for perm in vm.identity.keyvault.key_permissions %}
+            '{{ perm }}'
+      {%- endfor %}
+          ]
+    {%- endif %}
+    {%- if 'secret_permissions' in vm.identity.keyvault %}
+          secrets: [
+      {%- for perm in vm.identity.keyvault.secret_permissions %}
+            '{{ perm }}'
+      {%- endfor %}
+          ]
+    {%- endif %}
+        }
+        tenantId: subscription().tenantId
+      }
+  {%- endif %}
 {%- endfor %}
     ]
   }
