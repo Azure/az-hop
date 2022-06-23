@@ -122,6 +122,7 @@
         register: sslcert_chain
         delegate_to: localhost
         connection: local
+        become: false
 
       - name: copy chain cert files
         copy:
