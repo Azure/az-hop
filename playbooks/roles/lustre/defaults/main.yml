@@ -1,0 +1,5 @@
+# Variables to be defined in order to install various components
+install_mds: false
+install_oss: false
+install_robinhood: false
+install_client: false
