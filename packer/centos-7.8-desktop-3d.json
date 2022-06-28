@@ -40,6 +40,7 @@
                 "/tmp/interactive-desktop-3d.sh || exit 1",
                 "/tmp/desktop-packages.sh || exit 1",
                 "/tmp/pbspro.sh || exit 1",
+                "/tmp/slurm-client.sh || exit 1",
                 "/tmp/telegraf.sh || exit 1",
                 "echo ' This is the end '",
                 "yum history sync",
