@@ -351,13 +351,12 @@
       path: /lustre
       state: directory
       mode: 0777
-  - name: mount lustre
-    mount:
-      path: /lustre
-      src: lustre@tcp0:/LustreFS
-      opts: flock,defaults,_netdev
-      state: mounted
-      fstype: lustre
+
+  - name: Install Lustre Client
+    include_role:
+      name: lustre
+    vars:
+      install_client: true
 
   - name: create ood initialiser directory
     file:

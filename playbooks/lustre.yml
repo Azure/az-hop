@@ -12,7 +12,7 @@
   - name: Gather facts for first time
     setup:
 
-  - name: Ensure Lemur version
+  - name: Install MDS
     include_role:
       name: lustre
     vars:
@@ -33,7 +33,7 @@
   - name: Gather facts for first time
     setup:
 
-  - name: Ensure Lemur version
+  - name: Install OSS
     include_role:
       name: lustre
     vars:
@@ -54,7 +54,7 @@
   - name: Gather facts for first time
     setup:
 
-  - name: Ensure Lemur version
+  - name: Install Robinhood
     include_role:
       name: lustre
     vars:
