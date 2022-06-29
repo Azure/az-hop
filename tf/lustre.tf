@@ -1,12 +1,3 @@
-locals {
-  lustre_image_reference = {
-    publisher = "azhpc"
-    offer     = "azurehpc-lustre"
-    sku       = "azurehpc-lustre-2_12"
-    version   = "latest"
-  }
-}
-
 #
 # lustre MDS/MGS VM
 #
@@ -45,17 +36,25 @@ resource "azurerm_linux_virtual_machine" "lustre" {
     storage_account_type = "StandardSSD_LRS"
   }
 
-  source_image_reference {
-      publisher = local.lustre_image_reference.publisher
-      offer     = local.lustre_image_reference.offer
-      sku       = local.lustre_image_reference.sku
-      version   = local.lustre_image_reference.version
+  dynamic "source_image_reference" {
+    for_each = local.use_lustre_image_id ? [] : [1]
+    content {
+      publisher = local.lustre_base_image_reference.publisher
+      offer     = local.lustre_base_image_reference.offer
+      sku       = local.lustre_base_image_reference.sku
+      version   = local.lustre_base_image_reference.version
+    }
   }
 
-  plan {
-    publisher = local.lustre_image_reference.publisher
-    product   = local.lustre_image_reference.offer
-    name      = local.lustre_image_reference.sku
+  source_image_id = local.lustre_image_id
+
+  dynamic "plan" {
+    for_each = try (length(local.lustre_image_plan.name) > 0, false) ? [1] : []
+    content {
+        name      = local.lustre_image_plan.name
+        publisher = local.lustre_image_plan.publisher
+        product   = local.lustre_image_plan.product
+    }
   }
 
   lifecycle {
@@ -118,17 +117,25 @@ resource "azurerm_linux_virtual_machine" "lustre-oss" {
     storage_account_type = "StandardSSD_LRS"
   }
 
-  source_image_reference {
-      publisher = local.lustre_image_reference.publisher
-      offer     = local.lustre_image_reference.offer
-      sku       = local.lustre_image_reference.sku
-      version   = local.lustre_image_reference.version
+  dynamic "source_image_reference" {
+    for_each = local.use_lustre_image_id ? [] : [1]
+    content {
+      publisher = local.lustre_base_image_reference.publisher
+      offer     = local.lustre_base_image_reference.offer
+      sku       = local.lustre_base_image_reference.sku
+      version   = local.lustre_base_image_reference.version
+    }
   }
 
-  plan {
-    publisher = local.lustre_image_reference.publisher
-    product   = local.lustre_image_reference.offer
-    name      = local.lustre_image_reference.sku
+  source_image_id = local.lustre_image_id
+
+  dynamic "plan" {
+    for_each = try (length(local.lustre_image_plan.name) > 0, false) ? [1] : []
+    content {
+        name      = local.lustre_image_plan.name
+        publisher = local.lustre_image_plan.publisher
+        product   = local.lustre_image_plan.product
+    }
   }
 
   identity {
@@ -213,17 +220,25 @@ resource "azurerm_linux_virtual_machine" "robinhood" {
     storage_account_type = "StandardSSD_LRS"
   }
 
-  source_image_reference {
-      publisher = local.lustre_image_reference.publisher
-      offer     = local.lustre_image_reference.offer
-      sku       = local.lustre_image_reference.sku
-      version   = local.lustre_image_reference.version
+  dynamic "source_image_reference" {
+    for_each = local.use_lustre_image_id ? [] : [1]
+    content {
+      publisher = local.lustre_base_image_reference.publisher
+      offer     = local.lustre_base_image_reference.offer
+      sku       = local.lustre_base_image_reference.sku
+      version   = local.lustre_base_image_reference.version
+    }
   }
 
-  plan {
-    publisher = local.lustre_image_reference.publisher
-    product   = local.lustre_image_reference.offer
-    name      = local.lustre_image_reference.sku
+  source_image_id = local.lustre_image_id
+
+  dynamic "plan" {
+    for_each = try (length(local.lustre_image_plan.name) > 0, false) ? [1] : []
+    content {
+        name      = local.lustre_image_plan.name
+        publisher = local.lustre_image_plan.publisher
+        product   = local.lustre_image_plan.product
+    }
   }
   
   identity {
