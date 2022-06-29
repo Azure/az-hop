@@ -38,16 +38,16 @@ locals {
         version   = local.use_linux_image_reference ? split(":", local.configuration_yml["linux_base_image"])[3] : "latest"
     }
     lustre_base_image_reference = {
-        publisher = local.use_linux_image_reference ? split(":", local.configuration_yml["lustre_base_image"])[0] : "azhpc"
-        offer     = local.use_linux_image_reference ? split(":", local.configuration_yml["lustre_base_image"])[1] : "azurehpc-lustre"
-        sku       = local.use_linux_image_reference ? split(":", local.configuration_yml["lustre_base_image"])[2] : "azurehpc-lustre-2_12"
-        version   = local.use_linux_image_reference ? split(":", local.configuration_yml["lustre_base_image"])[3] : "latest"
+        publisher = local.use_lustre_image_reference ? split(":", local.configuration_yml["lustre_base_image"])[0] : "azhpc"
+        offer     = local.use_lustre_image_reference ? split(":", local.configuration_yml["lustre_base_image"])[1] : "azurehpc-lustre"
+        sku       = local.use_lustre_image_reference ? split(":", local.configuration_yml["lustre_base_image"])[2] : "azurehpc-lustre-2_12"
+        version   = local.use_lustre_image_reference ? split(":", local.configuration_yml["lustre_base_image"])[3] : "latest"
     }
     windows_base_image_reference = {
-        publisher = local.use_linux_image_reference ? split(":", local.configuration_yml["windows_base_image"])[0] : "MicrosoftWindowsServer"
-        offer     = local.use_linux_image_reference ? split(":", local.configuration_yml["windows_base_image"])[1] : "WindowsServer"
-        sku       = local.use_linux_image_reference ? split(":", local.configuration_yml["windows_base_image"])[2] : "2016-Datacenter-smalldisk"
-        version   = local.use_linux_image_reference ? split(":", local.configuration_yml["windows_base_image"])[3] : "latest"
+        publisher = local.use_windows_image_reference ? split(":", local.configuration_yml["windows_base_image"])[0] : "MicrosoftWindowsServer"
+        offer     = local.use_windows_image_reference ? split(":", local.configuration_yml["windows_base_image"])[1] : "WindowsServer"
+        sku       = local.use_windows_image_reference ? split(":", local.configuration_yml["windows_base_image"])[2] : "2016-Datacenter-smalldisk"
+        version   = local.use_windows_image_reference ? split(":", local.configuration_yml["windows_base_image"])[3] : "latest"
     }
 
     # Use a linux custom image id if the linux_base_image is defined and contains "/"
