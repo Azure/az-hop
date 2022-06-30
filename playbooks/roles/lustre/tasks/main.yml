@@ -23,11 +23,6 @@
   tags: [ 'client' ]
   when: install_client or install_robinhood
 
-- import_tasks: robinhood.yml
-  become: true
-  tags: [ 'robinhood' ]
-  when: install_robinhood
-
 - name: install Lemur if not the required version
   become: true
   shell: |
@@ -37,3 +32,8 @@
       yum -y install https://github.com/edwardsp/lemur/releases/download/2.1.2/lemur-azure-data-movers-${min_ver}-lustre_2.12.x86_64.rpm https://github.com/edwardsp/lemur/releases/download/2.1.2/lemur-azure-hsm-agent-${min_ver}-lustre_2.12.x86_64.rpm
     fi
   when: install_oss or install_robinhood
+
+- import_tasks: robinhood.yml
+  become: true
+  tags: [ 'robinhood' ]
+  when: install_robinhood
