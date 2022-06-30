@@ -1,12 +1,12 @@
 ---
-- name: Check if lustrelustre-client package is installed
-  ansible.builtin.yum:
-    list: lustre-client
-  register: lustre_package
+- name: Gather the package facts
+  package_facts:
+    manager: auto
 
-- set_fact:
-    lustre_already_installed: true
-  when: lustre_package.results.0.yumstate|default('') == "installed"
+- name: Check whether a package called lustre-client is installed
+  ansible.builtin.debug:
+    msg: "{{ ansible_facts.packages['lustre-client'] | length }} versions of lustre-client are installed!"
+  when: "'lustre-client' in ansible_facts.packages"
 
 - name: Configure OS for Lustre
   block:
@@ -26,4 +26,4 @@
       command: weak-modules --add-kernel --no-initramfs
       when: install_rpms.changed
 
-  when: lustre_already_installed == false
+  when: "'lustre-client' not in ansible_facts.packages"

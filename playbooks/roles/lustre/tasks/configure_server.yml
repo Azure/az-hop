@@ -1,12 +1,12 @@
 ---
-- name: Check if lustre packages are installed
-  ansible.builtin.yum:
-    list: lustre
-  register: lustre_package
+- name: Gather the package facts
+  package_facts:
+    manager: auto
 
-- set_fact:
-    lustre_already_installed: true
-  when: lustre_package.results.0.yumstate|default('') == "installed"
+- name: Check whether a package called lustre is installed
+  ansible.builtin.debug:
+    msg: "{{ ansible_facts.packages['lustre'] | length }} versions of lustre are installed!"
+  when: "'lustre' in ansible_facts.packages"
 
 - name: Configure OS for Lustre
   block:
@@ -56,4 +56,4 @@
       shell: |
         sed -i '/^ - disk_setup$/d;/^ - mounts$/d' /etc/cloud/cloud.cfg
         sed -i '/azure_resource-part1/d' /etc/fstab  
-  when: lustre_already_installed == false
+  when: "'lustre' not in ansible_facts.packages"
