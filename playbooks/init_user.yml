@@ -21,5 +21,5 @@
     remote_src: yes
     mode: '0600'
     owner: '{{user.name}}'
-    group: "domain users" # TODO: get group from user.groups
+    group: "domain users"
     force: no

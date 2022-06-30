@@ -38,6 +38,7 @@
     user_shell: "{{user.shell}}"
   when: user.shell is defined
 
+
 - name: add user
   community.windows.win_domain_user:
     name: "{{ user.name }}"
