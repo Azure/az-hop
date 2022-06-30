@@ -44,7 +44,10 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: xpillons/hpcrover:latest
+      image: azhop.azurecr.io/hpcrover:2206.1321
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
@@ -84,7 +87,10 @@ jobs:
       matrix:
         packer_file: ${{ fromJson(needs.set_image_list.outputs.matrix) }}
     container:
-      image: xpillons/hpcrover:latest
+      image: azhop.azurecr.io/hpcrover:2206.1321
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:

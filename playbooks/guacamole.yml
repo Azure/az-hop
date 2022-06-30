@@ -9,7 +9,7 @@
   vars_files:
     - '{{global_config_file}}'
   vars:
-    tomcat_version: 9.0.62
+    tomcat_version: 9.0.64
     guac_version: 1.4.0
 
   tasks:

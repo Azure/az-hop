@@ -141,12 +141,37 @@ locals {
 
     # Application Security Groups
     create_nsg = try(local.configuration_yml["network"]["create_nsg"], local.create_vnet )
-    default_asgs = ["asg-ssh", "asg-rdp", "asg-jumpbox", "asg-ad", "asg-ad-client", "asg-lustre", "asg-lustre-client", "asg-pbs", "asg-pbs-client", "asg-cyclecloud", "asg-cyclecloud-client", "asg-nfs-client", "asg-telegraf", "asg-grafana", "asg-robinhood", "asg-ondemand", "asg-deployer", "asg-guacamole"]
-    asgs = { for v in local.default_asgs : v => v }
+    # If create NSG then use the local resource group otherwise use the configured one. Default to local resource group
+    asg_resource_group = local.create_nsg ? local.resource_group : try(length(local.configuration_yml["network"]["asg"]["resource_group"]) > 0 ? local.configuration_yml["network"]["asg"]["resource_group"] : local.resource_group, local.resource_group )
+
+    _default_asgs = {
+        asg-ssh = "asg-ssh"
+        asg-rdp = "asg-rdp"
+        asg-jumpbox = "asg-jumpbox"
+        asg-ad = "asg-ad"
+        asg-ad-client = "asg-ad-client"
+        asg-lustre = "asg-lustre"
+        asg-lustre-client = "asg-lustre-client"
+        asg-pbs = "asg-pbs"
+        asg-pbs-client = "asg-pbs-client"
+        asg-cyclecloud = "asg-cyclecloud"
+        asg-cyclecloud-client = "asg-cyclecloud-client"
+        asg-nfs-client = "asg-nfs-client"
+        asg-telegraf = "asg-telegraf"
+        asg-grafana = "asg-grafana"
+        asg-robinhood = "asg-robinhood"
+        asg-ondemand = "asg-ondemand"
+        asg-deployer = "asg-deployer"
+        asg-guacamole = "asg-guacamole"
+    }
+    #asgs = local.create_nsg ? local._default_asgs :  try(local.configuration_yml["network"]["asg"]["names"], local._default_asgs)
+    asgs = try(local.configuration_yml["network"]["asg"]["names"], local._default_asgs)
+    #asgs = { for v in local.default_asgs : v => v }
     empty_array = []
     empty_map = { for v in local.empty_array : v => v }
 
     # VM name to list of ASGs associations
+    # TODO : Add mapping for names
     asg_associations = {
         ad        = ["asg-ad", "asg-rdp"]
         ccportal  = ["asg-ssh", "asg-cyclecloud", "asg-telegraf", "asg-ad-client"]

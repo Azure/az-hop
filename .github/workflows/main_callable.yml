@@ -66,7 +66,10 @@ jobs:
     timeout-minutes: 60
 
     container:
-      image: xpillons/hpcrover:latest
+      image: azhop.azurecr.io/hpcrover:2206.1321
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     outputs:
@@ -179,7 +182,10 @@ jobs:
     needs: deploy
 
     container:
-      image: xpillons/hpcrover:latest
+      image: azhop.azurecr.io/hpcrover:2206.1321
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
@@ -205,7 +211,10 @@ jobs:
     needs: [ad, deploy]
 
     container:
-      image: xpillons/hpcrover:latest
+      image: azhop.azurecr.io/hpcrover:2206.1321
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
@@ -230,7 +239,10 @@ jobs:
     needs: [cycle_cluster, lustre, deploy]
 
     container:
-      image: xpillons/hpcrover:latest
+      image: azhop.azurecr.io/hpcrover:2206.1321
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
@@ -255,7 +267,10 @@ jobs:
     needs: [ad, deploy]
 
     container:
-      image: xpillons/hpcrover:latest
+      image: azhop.azurecr.io/hpcrover:2206.1321
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
@@ -280,7 +295,10 @@ jobs:
     needs: [ad, deploy]
 
     container:
-      image: xpillons/hpcrover:latest
+      image: azhop.azurecr.io/hpcrover:2206.1321
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
@@ -305,7 +323,10 @@ jobs:
     needs: [cycle, deploy]
 
     container:
-      image: xpillons/hpcrover:latest
+      image: azhop.azurecr.io/hpcrover:2206.1321
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
@@ -330,7 +351,10 @@ jobs:
     needs: [add_users, deploy, build_image]
 
     container:
-      image: xpillons/hpcrover:latest
+      image: azhop.azurecr.io/hpcrover:2206.1321
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
@@ -356,7 +380,10 @@ jobs:
     needs: [cycle, ood, deploy]
 
     container:
-      image: xpillons/hpcrover:latest
+      image: azhop.azurecr.io/hpcrover:2206.1321
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
@@ -382,7 +409,10 @@ jobs:
     needs: [grafana, lustre, cycle, deploy, ood, guacamole]
 
     container:
-      image: xpillons/hpcrover:latest
+      image: azhop.azurecr.io/hpcrover:2206.1321
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
@@ -408,7 +438,10 @@ jobs:
     needs: [deploy]
 
     container:
-      image: xpillons/hpcrover:latest
+      image: azhop.azurecr.io/hpcrover:2206.1321
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
@@ -442,7 +475,10 @@ jobs:
         #packer_file: ["centos-7.8-desktop-3d.json", "azhop-centos79-v2-rdma-gpgpu.json"]
         packer_file: ${{ fromJson(needs.set_image_list.outputs.matrix) }}
     container:
-      image: xpillons/hpcrover:latest
+      image: azhop.azurecr.io/hpcrover:2206.1321
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
@@ -467,7 +503,10 @@ jobs:
     runs-on: self-hosted
     needs: [deploy, cycle, ood, cycle_cluster]
     container:
-      image: xpillons/hpcrover:latest
+      image: azhop.azurecr.io/hpcrover:2206.1321
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
@@ -493,7 +532,10 @@ jobs:
     needs: [deploy, run_tests]
 
     container:
-      image: xpillons/hpcrover:latest
+      image: azhop.azurecr.io/hpcrover:2206.1321
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     steps:
