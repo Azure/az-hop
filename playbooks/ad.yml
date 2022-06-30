@@ -64,7 +64,7 @@
         community.windows.win_domain_group:
           name: Domain Users
           attributes:
-            gidnumber: "{{ (usergroups | selectattr('name', 'match', 'Domain Users') | map(attribute='gid')) | default(5000, true) }}"
+            gidnumber: 5000
 
       - name: Disable password expiration
         win_domain_user:
@@ -83,42 +83,19 @@
         with_items: '{{dns.forwarders}}'
         when: dns.forwarders is defined
 
-      # - name: Add azhop admin group
-      #   community.windows.win_domain_group:
-      #     name: azhop-admins
-      #     state: present
-      #     description: Members of this group can perform administrative tasks on the az-hop environment
-      #     scope: domainlocal
-      #     attributes:
-      #       gidnumber: "{{ (usergroups | selectattr('name', 'match', 'azhop-admins') | map(attribute='gid')) | default(5001, true) }}"
-
-      # - name: Add azhop local admin group
-      #   community.windows.win_domain_group:
-      #     name: azhop-localadmins
-      #     state: present
-      #     description: Members of this group are in the administrators group of Windows nodes
-      #     scope: domainlocal
-      #     attributes:
-      #       gidnumber: "{{ (usergroups | selectattr('name', 'match', 'azhop-localadmins') | map(attribute='gid')) | default(5002, true) }}"
-
-      - name: Update azhop groups gidnumber
+      - name: Add az-hop admin group
         community.windows.win_domain_group:
-          name: '{{item.name}}'
+          name: az-hop-admins
           state: present
+          description: Members of this group can perform administrative tasks on the az-hop environment
           scope: domainlocal
-          attributes:
-            gidnumber: '{{item.gid}}'
-        loop: "{{usergroups  | selectattr('gid', 'ge', 5001) | selectattr('gid', 'lt', 6000) }}"
 
-      - name: Add custom groups
+      - name: Add az-hop local admin group
         community.windows.win_domain_group:
-          name: '{{item.name}}'
+          name: az-hop-localadmins
           state: present
-          description: '{{item.description | default("Custom azhop group - item.name")}}'
+          description: Members of this group are in the administrators group of Windows nodes
           scope: domainlocal
-          attributes:
-            gidnumber: '{{item.gid}}'
-        loop: "{{usergroups  | selectattr('gid', 'ge', 6000) }}"
 
     always:
       - name: close session on local port
