@@ -1,0 +1,29 @@
+---
+- name: Check if lustrelustre-client package is installed
+  ansible.builtin.yum:
+    list: lustre-client
+  register: lustre_package
+
+- set_fact:
+    lustre_already_installed: true
+  when: lustre_package.results.0.yumstate|default('') == "installed"
+
+- name: Configure OS for Lustre
+  block:
+    - name: Disable SELinux
+      selinux:
+        state: disabled
+
+    - import_tasks: repos.yml
+
+    - name: Install Lustre packages
+      yum:
+        name: lustre-client
+        state: present
+      register: install_rpms
+
+    - name: run weak-modules
+      command: weak-modules --add-kernel --no-initramfs
+      when: install_rpms.changed
+
+  when: lustre_already_installed == false
