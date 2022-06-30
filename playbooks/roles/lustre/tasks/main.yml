@@ -29,6 +29,7 @@
   when: install_robinhood
 
 - name: install Lemur if not the required version
+  become: true
   shell: |
     min_ver="2.1.2"
     ver=$(rpm -q --qf "%{VERSION}" lemur-azure-hsm-agent)
