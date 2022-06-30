@@ -7,6 +7,7 @@ lock_down_network:
   grant_access_from: [] # list in CIDR notation
 
 slurm:
+  admin_user: sqladmin
   accounting_enabled: true
 
 anf:
@@ -15,31 +16,38 @@ anf:
   size_tb: 4
 
 vnet:
+  tags:
+    NRMSBastion: ''
   name: hpcvnet
-  cidr: '10.169.0.0/24'
+  cidr: '10.201.0.0/16'
   subnets:
+    bastion:
+      apply_nsg: false
+      name: AzureBastionSubnet
+      cidr: '10.201.0.0/24'
     frontend:
       name: frontend
-      cidr: '10.169.0.0/29'
+      cidr: '10.201.1.0/24'
       service_endpoints: 
         - Microsoft.Sql
     admin:
       name: admin
-      cidr: '10.169.0.16/28'
+      cidr: '10.201.2.0/24'
       service_endpoints: 
         - Microsoft.KeyVault
         - Microsoft.Sql
         - Microsoft.Storage
     netapp:
+      apply_nsg: false
       name: netapp
-      cidr: '10.169.0.32/29'
+      cidr: '10.201.3.0/24'
       delegation: Microsoft.NetApp/volumes
     ad:
       name: ad
-      cidr: '10.169.0.8/29'
+      cidr: '10.201.4.0/24'
     compute:
       name: compute
-      cidr: '10.169.0.128/25'
+      cidr: '10.201.5.0/24'
       service_endpoints:
         - Microsoft.Storage
 
@@ -70,10 +78,13 @@ vms:
   deployer:
     subnet: frontend
     sku: Standard_B2ms
-    disksku: Standard_LRS
+    osdisksku: Standard_LRS
     image: ubuntu
     pip: true
     identity:
+      keyvault:
+        key_permissions: [ Get, List ]
+        secret_permissions: [ Get, List ]
       roles:
         - Contributor
         - UserAccessAdministrator
@@ -81,7 +92,7 @@ vms:
   jumpbox:
     subnet: frontend
     sku: Standard_B2ms
-    disksku: Standard_LRS
+    osdisksku: Standard_LRS
     image: linux_base
     pip: true
     asgs: [ asg-ssh, asg-jumpbox, asg-ad-client, asg-telegraf, asg-nfs-client ]
@@ -90,20 +101,20 @@ vms:
     windows: true
     ahub: false
     sku: Standard_B2ms
-    disksku: StandardSSD_LRS
+    osdisksku: StandardSSD_LRS
     image: win_base
     asgs: [ asg-ad, asg-rdp ]
   ondemand:
     subnet: frontend
     sku: Standard_D4s_v5
-    disksku: Standard_LRS
+    osdisksku: Standard_LRS
     image: linux_base
     pip: true
     asgs: [ asg-ssh, asg-ondemand, asg-ad-client, asg-nfs-client, asg-pbs-client, asg-lustre-client, asg-telegraf, asg-guacamole, asg-cyclecloud-client ]
   grafana:
     subnet: admin
     sku: Standard_B2ms
-    disksku: Standard_LRS
+    osdisksku: Standard_LRS
     image: linux_base
     asgs: [ asg-ssh, asg-grafana, asg-ad-client, asg-telegraf, asg-nfs-client ]
   guacamole:
@@ -113,15 +124,19 @@ vms:
         secret_permissions: [ Get, List ]
     subnet: admin
     sku: Standard_B2ms
-    disksku: Standard_LRS
+    osdisksku: Standard_LRS
     image: linux_base
     asgs: [ asg-ssh, asg-ad-client, asg-telegraf, asg-nfs-client, asg-cyclecloud-client ]
   ccportal:
     subnet: admin
     sku: Standard_B2ms
-    disksku: Premium_LRS
-    disksize: 128
+    osdisksku: Standard_LRS
     image: linux_base
+    datadisks:
+      - name: ccportal-datadisk0
+        disksku: Premium_LRS
+        size: 128
+        caching: ReadWrite
     identity:
       roles:
         - Contributor
@@ -129,16 +144,16 @@ vms:
   scheduler:
     subnet: admin
     sku: Standard_B2ms
-    disksku: Standard_LRS
+    osdisksku: Standard_LRS
     image: linux_base
     asgs: [ asg-ssh, asg-pbs, asg-ad-client, asg-cyclecloud-client, asg-nfs-client, asg-telegraf ]
   lustre:
     subnet: admin
     sku: Standard_D8d_v4
-    disksku: StandardSSD_LRS
+    osdisksku: StandardSSD_LRS
     image: lustre
     asgs: [ asg-ssh, asg-lustre, asg-lustre-client, asg-telegraf ]
-  lustreoss:
+  lustre-oss:
     count: 2
     identity:
       keyvault:
@@ -146,7 +161,7 @@ vms:
         secret_permissions: [ Get, List ]
     subnet: admin
     sku: Standard_D32d_v4
-    disksku: StandardSSD_LRS
+    osdisksku: StandardSSD_LRS
     image: lustre
     asgs: [ asg-ssh, asg-lustre, asg-lustre-client, asg-telegraf ]
   robinhood:
@@ -156,7 +171,7 @@ vms:
         secret_permissions: [ Get, List ]
     subnet: admin
     sku: Standard_D8d_v4
-    disksku: StandardSSD_LRS
+    osdisksku: StandardSSD_LRS
     image: lustre
     asgs: [ asg-ssh, asg-robinhood, asg-lustre-client, asg-telegraf ]
 

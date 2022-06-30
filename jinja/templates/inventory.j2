@@ -1,0 +1,41 @@
+all:
+  hosts:
+    localhost:
+      psrp_ssh_proxy: {{outputs.jumpbox_private_ip}}
+    jumpbox:
+      ansible_host: {{outputs.jumpbox_private_ip}}
+      ansible_ssh_common_args:
+    scheduler:
+      ansible_host: {{outputs.scheduler_private_ip}}
+    ondemand:
+      ansible_host: {{outputs.ondemand_private_ip}}
+    ccportal:
+      ansible_host: {{outputs.ccportal_private_ip}}
+    grafana:
+      ansible_host: {{outputs.grafana_private_ip}}
+    guacamole:
+      ansible_host: {{outputs.guacamole_private_ip}}
+    ad:
+      psrp_ssh_proxy: {{outputs.jumpbox_private_ip}}
+      ansible_host: {{outputs.ad_private_ip}}
+      ansible_connection: psrp
+      ansible_psrp_protocol: http
+      ansible_user: {{config.admin_user}}
+      ansible_password: "${ad-passwd}"
+      ansible_psrp_proxy: socks5h://localhost:5985
+    lustre:
+      ansible_host: {{outputs.lustre_private_ip}}
+{% for count in range(1, config.vms['lustre-oss'].count + 1) %}
+    lustre-oss-{{count}}:
+      ansible_host: {{outputs['lustre_oss_'~count~'_private_ip']}}
+{% endfor %}
+    robinhood:
+      ansible_host: {{outputs.robinhood_private_ip}}
+  vars:
+    ansible_ssh_user: {{config.admin_user}}
+    ansible_ssh_common_args: '-o ProxyCommand="ssh -i {{config.admin_user}}_id_rsa -p {{access.jumpbox_port}} -W %h:%p {{config.admin_user}}@{{access.jumpbox_host}}"'
+  children:
+    lustre_oss:
+      hosts:
+        {% for count in range(1, config.vms['lustre-oss'].count + 1) %}lustre-oss-{{count}}:
+        {% endfor %}
