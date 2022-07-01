@@ -4,7 +4,7 @@ az_storage_account="{{ lustre_hsm_storage_account }}"
 az_kv_name="{{ key_vault }}"
 az_kv_suffix="{{ key_vault_suffix }}"
 az_kv_secret_name="lustre-{{ lustre_hsm_storage_account }}-{{ lustre_hsm_storage_container }}-sas"
-region="westeurope"
+region="{{ location }}"
 bandwidth=0
 exportprefix=""
 archive "archive1" {
@@ -13,5 +13,5 @@ archive "archive1" {
     root=""
     compression="off"
     container="{{ lustre_hsm_storage_container }}"
-    region="westeurope"
+    region="{{ location }}"
 }
