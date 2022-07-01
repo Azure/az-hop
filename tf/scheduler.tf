@@ -42,11 +42,11 @@ resource "azurerm_linux_virtual_machine" "scheduler" {
 
   source_image_id = local.linux_image_id
   dynamic "plan" {
-    for_each = try (length(local.base_image_plan.name) > 0, false) ? [1] : []
+    for_each = try (length(local.linux_image_plan.name) > 0, false) ? [1] : []
     content {
-        name      = local.base_image_plan.name
-        publisher = local.base_image_plan.publisher
-        product   = local.base_image_plan.product
+        name      = local.linux_image_plan.name
+        publisher = local.linux_image_plan.publisher
+        product   = local.linux_image_plan.product
     }
   }
 

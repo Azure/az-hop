@@ -26,7 +26,8 @@ locals {
 
     # Use a linux custom image reference if the linux_base_image is defined and contains ":"
     use_linux_image_reference = try(length(split(":", local.configuration_yml["linux_base_image"])[1])>0, false)
-    #use_linux_image_reference = false
+    # Use a lustre custom image reference if the lustre_base_image is defined and contains ":"
+    use_lustre_image_reference = try(length(split(":", local.configuration_yml["lustre_base_image"])[1])>0, false)
     # Use a linux custom image reference if the linux_base_image is defined and contains ":"
     use_windows_image_reference = try(length(split(":", local.configuration_yml["windows_base_image"])[1])>0, false)
 
@@ -36,37 +37,45 @@ locals {
         sku       = local.use_linux_image_reference ? split(":", local.configuration_yml["linux_base_image"])[2] : "7_9-gen2"
         version   = local.use_linux_image_reference ? split(":", local.configuration_yml["linux_base_image"])[3] : "latest"
     }
+    lustre_base_image_reference = {
+        publisher = local.use_lustre_image_reference ? split(":", local.configuration_yml["lustre_base_image"])[0] : "azhpc"
+        offer     = local.use_lustre_image_reference ? split(":", local.configuration_yml["lustre_base_image"])[1] : "azurehpc-lustre"
+        sku       = local.use_lustre_image_reference ? split(":", local.configuration_yml["lustre_base_image"])[2] : "azurehpc-lustre-2_12"
+        version   = local.use_lustre_image_reference ? split(":", local.configuration_yml["lustre_base_image"])[3] : "latest"
+    }
     windows_base_image_reference = {
-        publisher = local.use_linux_image_reference ? split(":", local.configuration_yml["windows_base_image"])[0] : "MicrosoftWindowsServer"
-        offer     = local.use_linux_image_reference ? split(":", local.configuration_yml["windows_base_image"])[1] : "WindowsServer"
-        sku       = local.use_linux_image_reference ? split(":", local.configuration_yml["windows_base_image"])[2] : "2016-Datacenter-smalldisk"
-        version   = local.use_linux_image_reference ? split(":", local.configuration_yml["windows_base_image"])[3] : "latest"
+        publisher = local.use_windows_image_reference ? split(":", local.configuration_yml["windows_base_image"])[0] : "MicrosoftWindowsServer"
+        offer     = local.use_windows_image_reference ? split(":", local.configuration_yml["windows_base_image"])[1] : "WindowsServer"
+        sku       = local.use_windows_image_reference ? split(":", local.configuration_yml["windows_base_image"])[2] : "2016-Datacenter-smalldisk"
+        version   = local.use_windows_image_reference ? split(":", local.configuration_yml["windows_base_image"])[3] : "latest"
     }
 
     # Use a linux custom image id if the linux_base_image is defined and contains "/"
     use_linux_image_id = try(length(split("/", local.configuration_yml["linux_base_image"])[1])>0, false)
     linux_image_id = local.use_linux_image_id ? local.configuration_yml["linux_base_image"] : null
 
+    # Use a lustre custom image id if the lustre_base_image is defined and contains "/"
+    use_lustre_image_id = try(length(split("/", local.configuration_yml["lustre_base_image"])[1])>0, false)
+    lustre_image_id = local.use_lustre_image_id ? local.configuration_yml["lustre_base_image"] : null
+
     # Use a windows custom image id if the windows_base_image is defined and contains "/"
     use_windows_image_id = try(length(split("/", local.configuration_yml["windows_base_image"])[1])>0, false)
     windows_image_id = local.use_windows_image_id ? local.configuration_yml["windows_base_image"] : null
 
-    _linux_base_image_plan = {}
-    # _cis_image_reference = {
-    #     publisher = "center-for-internet-security-inc"
-    #     offer     = "cis-centos-7-v2-1-1-l1"
-    #     sku       = "cis-centos7-l1"
-    #     version   = "3.1.5"
-    # }
-    # _cis_image_plan = {
-    #     name      = "cis-centos7-l1"
-    #     publisher = "center-for-internet-security-inc"
-    #     product   = "cis-centos-7-v2-1-1-l1"
-    # }
+    _empty_image_plan = {}
+    _linux_base_image_plan = {
+        publisher = try(split(":", local.configuration_yml["linux_base_plan"])[0], "")
+        product   = try(split(":", local.configuration_yml["linux_base_plan"])[1], "")
+        name      = try(split(":", local.configuration_yml["linux_base_plan"])[2], "")
+    }
+    linux_image_plan = try( length(local._linux_base_image_plan.publisher) > 0 ? local._linux_base_image_plan : local._empty_image_plan, local._empty_image_plan)
 
-    base_image_plan = {}
-    #linux_base_image_reference = local.use_linux_image_reference ? local._cis_image_reference : local._linux_base_image_reference
-    #base_image_plan = local.enable_cis ? local._cis_image_plan : local._linux_base_image_plan
+    _lustre_base_image_plan = {
+        publisher = try(split(":", local.configuration_yml["lustre_base_plan"])[0], "azhpc")
+        product   = try(split(":", local.configuration_yml["lustre_base_plan"])[1], "azurehpc-lustre")
+        name      = try(split(":", local.configuration_yml["lustre_base_plan"])[2], "azurehpc-lustre-2_12")
+    }
+    lustre_image_plan = try( length(local._lustre_base_image_plan.publisher) > 0 ? local._lustre_base_image_plan : local._empty_image_plan, local._empty_image_plan)
 
     # Create the RG if not using an existing RG and (creating a VNET or when reusing a VNET in another resource group)
     use_existing_rg = try(local.configuration_yml["use_existing_rg"], false)
