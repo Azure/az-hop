@@ -1,13 +1,34 @@
 #!/usr/bin/python3
 
+import os
 import yaml
 from jinja2 import Template
 
 with open("config.yml") as file:
     config = yaml.safe_load(file)
 
-with open("azhop.bicep.j2") as file:
-    template = Template(file.read())
+# only keep deployer
+#config['vms'] = { 'deployer': config['vms']['deployer'] }
 
-print(template.render(config))
+btpl = [ 
+    "parameters.bicep.j2",
+    "nsg.bicep.j2",
+    "network.bicep.j2",
+    "asg.bicep.j2",
+    "vms.bicep.j2",
+    "anf.bicep.j2",
+    "sig.bicep.j2",
+    "keyvault.bicep.j2",
+    "secrets.bicep.j2",
+    "storage.bicep.j2",
+    "mysql.bicep.j2",
+    "bastion.bicep.j2",
+    "outputs.bicep.j2"
+]
+
+for filename in btpl:
+    with open(os.path.join('bicep', filename)) as file:
+        template = Template(file.read())
+
+    print(template.render(config))
 

@@ -83,8 +83,8 @@ vms:
     pip: true
     identity:
       keyvault:
-        key_permissions: [ Get, List ]
-        secret_permissions: [ Get, List ]
+        key_permissions: [ All ]
+        secret_permissions: [ All ]
       roles:
         - Contributor
         - UserAccessAdministrator

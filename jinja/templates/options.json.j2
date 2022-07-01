@@ -1,0 +1,10 @@
+{
+    "var_subscription_id": "{{outputs.subscription_id}}",
+    "var_resource_group": "{{outputs.resource_group}}",
+    "var_location": "{{outputs.location}}",
+    "var_sig_name": "azhop_{{outputs.resource_postfix}}",
+    "var_private_virtual_network_with_public_ip": "false",
+    "var_virtual_network_name": "{{config.vnet.name}}",
+    "var_virtual_network_subnet_name": "{{config.vnet.subnets.compute.name}}",
+    "var_virtual_network_resource_group_name": "{{outputs.resource_group}}"
+  }
