@@ -28,7 +28,7 @@ az deployment group create \
         adminSshPrivateKey="$(<${adminuser}_id_rsa)" \
         slurmAccountingAdminUser=$slurmadmin \
         slurmAccountingAdminPassword="$slurmactpassword" \
-    2>&1 | tee deploy.log
+    | tee deploy.log
 
 jq '.properties.outputs | to_entries | map({(.key): .value.value}) | add' <deploy.log | yq -P | tee outputs.yml
 

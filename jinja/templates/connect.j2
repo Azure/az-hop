@@ -9,3 +9,4 @@ elif [[ $1 == "ad" ]]; then
 else
   exec ssh -i {{outputs.admin_user}}_id_rsa -o ProxyCommand="ssh -i {{outputs.admin_user}}_id_rsa -p {{access.jumpbox_port}} -W %h:%p {{outputs.admin_user}}@{{access.jumpbox_host}}" "$@"
 fi
+

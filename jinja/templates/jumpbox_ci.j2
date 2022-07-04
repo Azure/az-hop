@@ -5,3 +5,4 @@ runcmd:
   - semanage port -a -t ssh_port_t -p tcp ${jumpbox-ssh-port}
   - echo "Restart SSH"
   - systemctl restart sshd
+

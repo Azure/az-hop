@@ -2,6 +2,7 @@
 
 apt update
 
+# failed to obtain package lock...
 curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 
 apt install -y jq git
@@ -30,7 +31,7 @@ az deployment group show \
 
 kv="$(yq .keyvault_name <outputs.yml)"
 adminuser="$(yq .admin_user <outputs.yml)"
-export admin_pass="$(az keyvault secret show --vault-name $kv -n ${adminuser}-pubkey --query "value" -o tsv)"
+export admin_pass="$(az keyvault secret show --vault-name $kv -n ${adminuser}-password --query "value" -o tsv)"
 
 az keyvault secret show --vault-name $kv -n ${adminuser}-pubkey --query "value" -o tsv > ${adminuser}_id_rsa.pub
 az keyvault secret show --vault-name $kv -n ${adminuser}-privkey --query "value" -o tsv > ${adminuser}_id_rsa
@@ -51,4 +52,16 @@ mkdir -p ../playbooks/group_vars
 cp templates/global_variables ../playbooks/group_vars/all.yml
 # need to add admin password for AD (or just remove from config...)
 cp templates/inventory ../playbooks
-cp template/options.json ../packer
+cp templates/options.json ../packer
+
+cd ..
+./toolset/scripts/install.sh
+
+cd packer
+./build_image.sh -i azhop-centos79-v2-rdma-gpgpu.json
+./build_image.sh -i centos-7.8-desktop-3d.json
+
+cd ..
+./create_passwords.sh
+
+./install.sh
