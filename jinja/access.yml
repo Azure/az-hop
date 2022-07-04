@@ -1,2 +1,2 @@
-jumpbox_port: 8022
-jumpbox_host: localhost
+jumpbox_port: 22
+jumpbox_host: jumpbox

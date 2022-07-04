@@ -20,8 +20,8 @@ all:
       ansible_host: {{outputs.ad_private_ip}}
       ansible_connection: psrp
       ansible_psrp_protocol: http
-      ansible_user: {{config.admin_user}}
-      ansible_password: "${ad-passwd}"
+      ansible_user: {{outputs.admin_user}}
+      ansible_password: {{admin_password}}
       ansible_psrp_proxy: socks5h://localhost:5985
     lustre:
       ansible_host: {{outputs.lustre_private_ip}}
@@ -32,8 +32,8 @@ all:
     robinhood:
       ansible_host: {{outputs.robinhood_private_ip}}
   vars:
-    ansible_ssh_user: {{config.admin_user}}
-    ansible_ssh_common_args: '-o ProxyCommand="ssh -i {{config.admin_user}}_id_rsa -p {{access.jumpbox_port}} -W %h:%p {{config.admin_user}}@{{access.jumpbox_host}}"'
+    ansible_ssh_user: {{outputs.admin_user}}
+    ansible_ssh_common_args: '-o ProxyCommand="ssh -i {{outputs.admin_user}}_id_rsa -p {{access.jumpbox_port}} -W %h:%p {{outputs.admin_user}}@{{access.jumpbox_host}}"'
   children:
     lustre_oss:
       hosts:

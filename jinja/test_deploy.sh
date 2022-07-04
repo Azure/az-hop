@@ -32,19 +32,6 @@ az deployment group create \
 
 jq '.properties.outputs | to_entries | map({(.key): .value.value}) | add' <deploy.log | yq -P | tee outputs.yml
 
-./generate_template_file.py
-
-cp templates/config.yml ../config.yml
-mkdir -p ../bin
-cp templates/get_secret ../bin
-chmod +x ../bin/get_secret
-cp templates/connect ../bin
-chmod +x ../bin/connect
-mkdir -p ../playbooks/group_vars
-cp templates/global_variables ../playbooks/group_vars/all.yml
-cp templates/inventory ../playbooks
-cp ${adminuser}_id_rsa* ..
-
 subscription_id=$(yq .subscription_id outputs.yml)
 
 echo

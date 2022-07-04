@@ -1,5 +1,5 @@
 ---
-admin_user: hpcadmin
+#admin_user: hpcadmin # parameter
 keyvault_readers: [] # list of object IDs to grant read access
 
 lock_down_network:
@@ -7,7 +7,7 @@ lock_down_network:
   grant_access_from: [] # list in CIDR notation
 
 slurm:
-  admin_user: sqladmin
+  #admin_user: sqladmin # parameter
   accounting_enabled: true
 
 anf:

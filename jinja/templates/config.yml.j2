@@ -27,7 +27,7 @@ mounts:
     export: 'home-{{outputs.resource_postfix}}' # Specify an existing NFS export directory, when using the ANF built in use '{{anf_home_path}}'
 
 # name of the admin account
-admin_user: {{config.admin_user}}
+admin_user: {{outputs.admin_user}}
 # Object ID to grant key vault read access
 key_vault_readers: #<object_id>
 # Network
@@ -314,3 +314,4 @@ remoteviz:
     image: "MicrosoftWindowsDesktop:Windows-10:21h1-pron:latest"
     ColocateNodes: false
     spot: false
+
