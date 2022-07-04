@@ -2,8 +2,9 @@
 
 apt update
 
-# failed to obtain package lock...
-curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+while ! which az >/dev/null 2>&1; do
+    curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+done
 
 apt install -y jq git
 snap install yq
