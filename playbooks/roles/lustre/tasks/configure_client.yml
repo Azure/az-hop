@@ -1,0 +1,29 @@
+---
+- name: Gather the package facts
+  package_facts:
+    manager: auto
+
+- name: Check whether a package called lustre-client is installed
+  ansible.builtin.debug:
+    msg: "{{ ansible_facts.packages['lustre-client'] | length }} versions of lustre-client are installed!"
+  when: "'lustre-client' in ansible_facts.packages"
+
+- name: Configure OS for Lustre
+  block:
+    - name: Disable SELinux
+      selinux:
+        state: disabled
+
+    - import_tasks: repos.yml
+
+    - name: Install Lustre packages
+      yum:
+        name: lustre-client
+        state: present
+      register: install_rpms
+
+    - name: run weak-modules
+      command: weak-modules --add-kernel --no-initramfs
+      when: install_rpms.changed
+
+  when: "'lustre-client' not in ansible_facts.packages"

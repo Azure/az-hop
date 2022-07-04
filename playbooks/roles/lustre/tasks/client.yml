@@ -1,0 +1,14 @@
+---
+
+- name: create lustre mount directory
+  file:
+    path: /lustre
+    state: directory
+
+- name: mount lustre
+  mount:
+    path: /lustre
+    src: lustre@tcp0:/LustreFS
+    opts: flock,defaults,_netdev
+    state: mounted
+    fstype: lustre
