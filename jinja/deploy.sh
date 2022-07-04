@@ -55,6 +55,8 @@ cp templates/global_variables ../playbooks/group_vars/all.yml
 cp templates/inventory ../playbooks
 cp templates/options.json ../packer
 
+cp ${adminuser}_id_rsa* ../
+
 cd ..
 ./toolset/scripts/install.sh
 
