@@ -9,6 +9,10 @@ snap install yq
 
 git clone --recursive https://github.com/Azure/az-hop.git -b private_jumpbox
 
+cd az-hop
+export azhop_root=$(pwd)
+cd jinja
+
 az login -i
 deployment_name=azhop
 resource_group=$(curl -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2017-08-01" | jq -r .compute.resourceGroupName)
@@ -24,18 +28,14 @@ az deployment group show \
     --query properties.outputs \
     | jq 'to_entries | map({(.key): .value.value}) | add' | yq -P | tee outputs.yml
 
-kv="$(yq .keyvault_name outputs.yml)"
-admin_user="$(yq .admin_user outputs.yml)"
+kv="$(yq .keyvault_name <outputs.yml)"
+adminuser="$(yq .admin_user <outputs.yml)"
 export admin_pass="$(az keyvault secret show --vault-name $kv -n ${adminuser}-pubkey --query "value" -o tsv)"
-
-cd az-hop
-export azhop_root=$(pwd)
 
 az keyvault secret show --vault-name $kv -n ${adminuser}-pubkey --query "value" -o tsv > ${adminuser}_id_rsa.pub
 az keyvault secret show --vault-name $kv -n ${adminuser}-privkey --query "value" -o tsv > ${adminuser}_id_rsa
 chmod 600 ${adminuser}_id_rsa*
 
-cd jinja
 cat <<EOF >config.yml
 __INSERT_CONFIG_FILE__
 EOF
