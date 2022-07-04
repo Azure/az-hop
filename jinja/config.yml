@@ -76,6 +76,7 @@ images:
 
 vms:
   deployer:
+    run_deploy_script: true
     subnet: frontend
     sku: Standard_B2ms
     osdisksku: Standard_LRS

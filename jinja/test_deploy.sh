@@ -7,9 +7,9 @@ if [ "$rg" == "" ]; then
     exit 1
 fi
 
-adminuser=$(yq .admin_user config.yml)
+adminuser=hpcadmin
 winpassword=$(pwgen -s 12 -1)
-slurmadmin=$(yq .slurm.admin_user config.yml)
+slurmadmin=sqladmin
 slurmactpassword=$(pwgen -s 12 -1)
 
 if [[ ! -f "${adminuser}_id_rsa" ]]; then
