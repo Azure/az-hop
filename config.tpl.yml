@@ -161,7 +161,8 @@ users:
   # name: username
   # uid: uniqueid
   # shell: /bin/bash # default to /bin/bash
-  # home: /anfhome/<user_name> # default to /homedir_mountpoint/user_name  
+  # home: /anfhome/<user_name> # default to /homedir_mountpoint/user_name
+  # groups: list of groups the user belongs to
   - { name: clusteradmin, uid: 10001, groups: [5001, 6000, 6001] }
   - { name: clusteruser, uid: 10002 }
   - { name: user1, uid: 10003, groups: [6000] }
@@ -171,10 +172,12 @@ usergroups:
 # These groups can’t be changed
   - name: Domain Users # All users will be added to this one by default
     gid: 5000
-  - name: az-hop-admins # For users with azhop admin privilege
+  - name: az-hop-admins
     gid: 5001
-  - name: az-hop-localadmins # For users with sudo right on nodes
+    description: "For users with azhop admin privileges"
+  - name: az-hop-localadmins
     gid: 5002
+    description: "For users with sudo right or local admin right on nodes"
 # For custom groups use gid >= 6000
   - name: project1 # For project1 users
     gid: 6000
