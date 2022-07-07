@@ -2,7 +2,8 @@
   debug:
     msg:
       - "user={{user}}"
-      - "{{ usergroups | selectattr('gid', 'in', (user.groups | default([], true))) | map(attribute='name') }}"
+      - "{{ usergroups | selectattr('gid', 'in', (user.groups | default([], true))) | selectattr('name', 'match', 'az-hop-admins') | map(attribute='name') }}"
+#      - "{{ (usergroups | selectattr('name', 'match', 'az-hop-admins') | map(attribute='gid')) | default(5000, true) | selectattr('gid', 'in', (user.groups | default([], true))) }}"
 
 # Remove any forbidden characters from the username so we conform to the keyvaul secret name rules '^[0-9a-zA-Z-]+$'
 - name: Set secretname
@@ -63,20 +64,21 @@
     state: present
     groups: "{{ usergroups | selectattr('gid', 'in', (user.groups | default([], true))) | map(attribute='name')}}"
 
-# # Add admin users into the azhop-admins group
-# - name: add Admin
-#   community.windows.win_domain_user:
-#     name: "{{ user.name }}"
-#     state: present
-#     groups:
-#       - azhop-admins
-#   when: user.admin | default(false)
+#### Block to maintain compatibility with older user properties
+# Add admin users into the azhop-admins group
+- name: add Admin
+  community.windows.win_domain_user:
+    name: "{{ user.name }}"
+    state: present
+    groups:
+      - az-hop-admins
+  when: user.admin | default(false)
 
-# # Add users into the azhop-localadmins group
-# - name: add local admin
-#   community.windows.win_domain_user:
-#     name: "{{ user.name }}"
-#     state: present
-#     groups:
-#       - azhop-localadmins
-#   when: user.sudo | default(false)
+# Add users into the azhop-localadmins group
+- name: add local admin
+  community.windows.win_domain_user:
+    name: "{{ user.name }}"
+    state: present
+    groups:
+      - az-hop-localadmins
+  when: user.sudo | default(false)
