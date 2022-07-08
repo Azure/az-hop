@@ -10,12 +10,8 @@ chmod 700 -R /mnt/cluster-init
 # FIXME : /mnt/resource doesn't exists on Ubuntu
 chmod 777 /mnt/resource
 
-# Grant sudo for users with sudo privilege
-{% for user in users %}
-{% if user.sudo is defined and user.sudo %}
-echo "{{user.name}} ALL=(ALL) NOPASSWD: ALL" | tee -a /etc/sudoers.d/{{ user.name | map('regex_replace', '[^0-9a-zA-Z-]', '')|list|join() }}
-{% endif %}
-{% endfor %}
+# Grant sudo for users in the az-hop-localadmins group
+echo "%az-hop-localadmins@HPC.AZURE ALL=(ALL) NOPASSWD: ALL" | tee -a /etc/sudoers.d/az-hop-localadmins
 
 # For any NV instances, reinit the session
 AZHPC_VMSIZE=$(curl -s --noproxy "*" -H Metadata:true "http://169.254.169.254/metadata/instance/compute?api-version=2019-08-15" | jq -r '.vmSize' | tr '[:upper:]' '[:lower:]')

@@ -160,17 +160,29 @@ lustre:
 users:
   # name: username
   # uid: uniqueid
-  # gid: 5000
   # shell: /bin/bash # default to /bin/bash
   # home: /anfhome/<user_name> # default to /homedir_mountpoint/user_name
-  # admin: false # true will allow user to have cluster admin privilege - false by default
-  # sudo: true # Allow sudo access on cluster compute nodes - false by default
-  - { name: clusteradmin, uid: 10001, gid: 5000, admin: true, sudo: true }
-  - { name: clusteruser, uid: 10002, gid: 5000 }
-groups: # Not used today => To be used in the future
-  - name: users
-    gid: 5000
+  # groups: list of groups the user belongs to
+  - { name: clusteradmin, uid: 10001, groups: [5001, 6000, 6001] }
+  - { name: clusteruser, uid: 10002 }
+  - { name: user1, uid: 10003, groups: [6000] }
+  - { name: user2, uid: 10004, groups: [6001] }
 
+usergroups:
+# These groups can’t be changed
+  - name: Domain Users # All users will be added to this one by default
+    gid: 5000
+  - name: az-hop-admins
+    gid: 5001
+    description: "For users with azhop admin privileges"
+  - name: az-hop-localadmins
+    gid: 5002
+    description: "For users with sudo right or local admin right on nodes"
+# For custom groups use gid >= 6000
+  - name: project1 # For project1 users
+    gid: 6000
+  - name: project2 # For project2 users
+    gid: 6001
 
 # Enable cvmfs-eessi - disabled by default
 # cvmfs_eessi:
