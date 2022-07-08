@@ -73,7 +73,7 @@
 
   - name: install dependencies
     yum:
-      name: python3, python3-pip, rpm-build, readline-devel, pam-devel, perl-ExtUtils-MakeMaker, gcc, mariadb-devel
+      name: python3, python3-pip, rpm-build, readline-devel, pam-devel, perl-ExtUtils-MakeMaker, gcc, mariadb-devel, autoconf
 
   - name: extract slurm tarball version number
     set_fact:
@@ -84,11 +84,22 @@
       path: '{{homedir_mountpoint}}/slurm/rpms/slurm-{{slurm_version}}.el7.x86_64.rpm'
     register: slurm_rpms
 
+  - name: check if job submit plugin exists
+    stat:
+      path: '{{homedir_mountpoint}}/slurm/job_submit_cyclecloud.so'
+    register: slurm_job_submit_plugin
+
   - name: download slurm
     get_url:
       url: 'https://download.schedmd.com/slurm/slurm-{{slurm_version_short}}.tar.bz2'
       dest: /mnt/resource
     when: slurm_rpms.stat.exists == False
+
+  - name: download cc source code
+    unarchive:
+      src: https://github.com/Azure/cyclecloud-slurm/archive/refs/tags/{{cyclecloud_slurm_release}}/{{cyclecloud_slurm_release}}.tar.gz
+      dest: /mnt/resource
+      remote_src: yes
 
   - name: check slurm build dir
     file:
@@ -103,6 +114,32 @@
     args:
       chdir: "{{ ansible_env.HOME }}/rpmbuild"
     when: slurm_rpms.stat.exists == False
+  
+  - name: build job submit plugin
+    shell: |
+      CC_SRC_DIR=/mnt/resource/cyclecloud-slurm-{{cyclecloud_slurm_release}}
+      BUILD_DIR=/mnt/resource/job_submit
+      SLURM_SRC_DIR=$BUILD_DIR/slurm-{{slurm_version_short}}
+
+      rm -rf $BUILD_DIR
+      mkdir -p $BUILD_DIR
+      cd $BUILD_DIR
+      tar xjf /mnt/resource/slurm-{{slurm_version_short}}.tar.bz2
+      mkdir -p ${SLURM_SRC_DIR}/src/plugins/job_submit/cyclecloud/
+      cd ${SLURM_SRC_DIR}/src/plugins/job_submit/cyclecloud/
+      rsync -a $CC_SRC_DIR/specs/default/cluster-init/files/JobSubmitPlugin/ .
+      mv Makefile.in.v19 Makefile.in
+      cd $BUILD_DIR
+      sed -i 's/src\/plugins\/job_submit\/Makefile/src\/plugins\/job_submit\/Makefile\n                 src\/plugins\/job_submit\/cyclecloud\/Makefile/g'  ${SLURM_SRC_DIR}/configure.ac
+      cd ${SLURM_SRC_DIR}
+
+      autoconf
+      ./configure
+      make -j > make.log
+      cd ${SLURM_SRC_DIR}/src/plugins/job_submit/cyclecloud/
+      make > make_plugin.log
+      cp .libs/job_submit_cyclecloud.so {{homedir_mountpoint}}/slurm/job_submit_cyclecloud.so
+    when: slurm_job_submit_plugin.stat.exists == False
   when: build_rpms
 
 - name: Use CycleCloud pre-built SLURM RPMs
@@ -251,8 +288,17 @@
 
 - name: download cc jobsubmit plugin
   get_url:
-    url: https://github.com/Azure/cyclecloud-slurm/releases/download/{{cyclecloud_slurm_release}}/job_submit_cyclecloud_centos_{{slurm_version}}.so
+    url: https://github.com/Azure/cyclecloud-slurm/releases/download/{{cyclecloud_slurm_release}}/job_submit_cyclecloud_centos_20.11.7-1.so
     dest: /usr/lib64/slurm/job_submit_cyclecloud.so
+  when: not build_rpms
+
+- name: install cc job_submit plugin
+  copy:
+    src: '{{homedir_mountpoint}}/slurm/job_submit_cyclecloud.so'
+    dest: /usr/lib64/slurm/job_submit_cyclecloud.so
+    mode: 0755
+    remote_src: yes
+  when: build_rpms
 
 - name: install cc autoscale api
   shell: |
