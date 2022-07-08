@@ -63,3 +63,28 @@ systemctl stop munge
 userdel munge
 rm -f /var/log/munge/munged.log
 mkdir -p /etc/slurm
+
+#
+# Install Enroot
+#
+
+ENROOT_VERSION_FULL=${1:-3.4.0-2}
+ENROOT_VERSION=${ENROOT_VERSION_FULL%-*}
+
+# Debian-based distributions
+arch=$(dpkg --print-architecture)
+curl -fSsL -O https://github.com/NVIDIA/enroot/releases/download/v3.4.0/enroot_3.4.0-1_${arch}.deb
+curl -fSsL -O https://github.com/NVIDIA/enroot/releases/download/v3.4.0/enroot+caps_3.4.0-1_${arch}.deb # optional
+apt install -y ./*.deb
+
+# Install NVIDIA container support
+distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
+         && curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
+         && curl -s -L https://nvidia.github.io/libnvidia-container/$distribution/libnvidia-container.list | \
+               sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+               sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+apt-get update
+sudo apt install -y curl gawk jq squashfs-tools parallel
+sudo apt install -y libnvidia-container-tools pigz squashfuse # optional
+
+enroot version

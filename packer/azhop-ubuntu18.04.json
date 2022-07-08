@@ -36,10 +36,8 @@
             "inline": [
                 "chmod +x /tmp/*.sh",
                 "/tmp/linux-setup.sh || exit 1",
-                "[ {{user `var_queue_manager`}} == openpbs ] && (/tmp/pbspro.sh || exit 1)",
-                "[ {{user `var_queue_manager`}} == slurm ] && (/tmp/slurm-client.sh || exit 1)",
+                "/tmp/{{user `var_queue_manager`}}.sh || exit 1",
                 "/tmp/telegraf.sh || exit 1",
-                "[ {{user `var_queue_manager`}} == slurm ] && (/tmp/enroot.sh || exit 1)",
                 "echo ' This is the end '",
                 "rm -rf /tmp/*.sh",
                 "/usr/sbin/waagent -force -deprovision+user && export HISTSIZE=0 && sync"
