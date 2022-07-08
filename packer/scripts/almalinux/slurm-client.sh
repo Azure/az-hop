@@ -34,9 +34,7 @@ DOWNLOAD_URL="https://download.schedmd.com/slurm"
 
 cd $BUILD_DIR
 
-# munge is in EPEL
-dnf -y install epel-release && yum -q makecache
-
+dnf -y install epel-release && dnf -q makecache
 dnf -y install munge
 
 if [ "$SLURM_VERSION" \> "20" ]; then
@@ -45,11 +43,11 @@ else
     PYTHON=python2
 fi
 
-yum install -y dnf-plugins-core
+dnf install -y dnf-plugins-core
 dnf config-manager --set-enabled powertools
-yum install -y make
+dnf install -y make
 
-yum install -y make $PYTHON which rpm-build munge-devel munge-libs readline-devel openssl openssl-devel pam-devel perl-ExtUtils-MakeMaker gcc mysql mysql-devel wget gtk2-devel.x86_64 glib2-devel.x86_64 libtool m4 automake rsync
+dnf install -y make $PYTHON which rpm-build munge-devel munge-libs readline-devel openssl openssl-devel pam-devel perl-ExtUtils-MakeMaker gcc mysql mysql-devel wget gtk2-devel.x86_64 glib2-devel.x86_64 libtool m4 automake rsync
 if [ ! -e $BUILD_DIR/bin ]; then
     mkdir -p $BUILD_DIR/bin
 fi
@@ -68,7 +66,7 @@ wget https://github.com/Azure/cyclecloud-slurm/releases/download/2.6.2/job_submi
 # Install SLURM and plugin
 #
 
-yum -y install /root/rpmbuild/RPMS/x86_64/slurm-${SLURM_VERSION}*.rpm /root/rpmbuild/RPMS/x86_64/slurm-slurmd-${SLURM_VERSION}*.rpm
+dnf -y install /root/rpmbuild/RPMS/x86_64/slurm-${SLURM_VERSION}*.rpm /root/rpmbuild/RPMS/x86_64/slurm-slurmd-${SLURM_VERSION}*.rpm
 cp job_submit_cyclecloud_centos_20.11.7-1.so /usr/lib64/slurm/job_submit_cyclecloud.so
 chmod +x /usr/lib64/slurm/job_submit_cyclecloud.so
 
