@@ -64,7 +64,7 @@
         community.windows.win_domain_group:
           name: Domain Users
           attributes:
-            gidnumber: 5000
+            gidnumber: "{{ (usergroups | selectattr('name', 'match', 'Domain Users') | map(attribute='gid')) | default(5000, true) }}"
 
       - name: Disable password expiration
         win_domain_user:
@@ -83,19 +83,15 @@
         with_items: '{{dns.forwarders}}'
         when: dns.forwarders is defined
 
-      - name: Add az-hop admin group
+      - name: Update azhop groups gidnumber
         community.windows.win_domain_group:
-          name: az-hop-admins
+          name: '{{item.name}}'
           state: present
-          description: Members of this group can perform administrative tasks on the az-hop environment
+          description: '{{item.description | default("az-hop group - item.name")}}'
           scope: domainlocal
-
-      - name: Add az-hop local admin group
-        community.windows.win_domain_group:
-          name: az-hop-localadmins
-          state: present
-          description: Members of this group are in the administrators group of Windows nodes
-          scope: domainlocal
+          attributes:
+            gidnumber: '{{item.gid}}'
+        loop: "{{usergroups  | selectattr('gid', 'ge', 5001) }}"
 
     always:
       - name: close session on local port

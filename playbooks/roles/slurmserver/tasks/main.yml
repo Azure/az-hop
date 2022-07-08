@@ -272,7 +272,7 @@
 - name: install jetpack
   yum:
     name:
-    -  https://packages.microsoft.com/yumrepos/cyclecloud/jetpack8-8.2.0-1616.x86_64.rpm
+    -  https://packages.microsoft.com/yumrepos/cyclecloud/jetpack8-{{cc_version}}.x86_64.rpm
     state: present
 
 - name: fix jetpack permissions
