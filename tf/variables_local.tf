@@ -103,6 +103,9 @@ locals {
     # Enable Windows Remote Visualization scenarios
     enable_remote_winviz = try(local.configuration_yml["enable_remote_winviz"], false)
 
+    # Queue manager
+    queue_manager = try(local.configuration_yml["queue_manager"], "openpbs")
+
     # Slurm Accounting Database
     slurm_accounting = local.enable_remote_winviz || try(local.configuration_yml["slurm"].accounting_enabled, false)
     slurm_accounting_admin_user = "sqladmin"

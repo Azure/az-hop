@@ -97,6 +97,7 @@ resource "local_file" "packer_pip" {
       ssh_bastion_port = local.jumpbox_ssh_port
       ssh_bastion_username = azurerm_linux_virtual_machine.jumpbox.admin_username
       ssh_bastion_private_key_file = local_file.private_key.filename
+      queue_manager = local.queue_manager
     }
   )
   filename = "${local.packer_root_dir}/options.json"
