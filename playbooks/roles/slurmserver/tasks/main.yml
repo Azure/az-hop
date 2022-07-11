@@ -288,7 +288,7 @@
 
 - name: download cc jobsubmit plugin
   get_url:
-    url: https://github.com/Azure/cyclecloud-slurm/releases/download/{{cyclecloud_slurm_release}}/job_submit_cyclecloud_centos_20.11.7-1.so
+    url: https://github.com/Azure/cyclecloud-slurm/releases/download/{{cyclecloud_slurm_release}}/job_submit_cyclecloud_centos_{{slurm_version}}.so
     dest: /usr/lib64/slurm/job_submit_cyclecloud.so
   when: not build_rpms
 
