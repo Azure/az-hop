@@ -16,7 +16,7 @@ export azhop_root=$(pwd)
 cd $azhop_root/deploy
 
 az login -i
-deployment_name=azhop
+deployment_name=azureDeploy
 resource_group=$(curl -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2017-08-01" | jq -r .compute.resourceGroupName)
 
 while deployment_state=$(az deployment group show -g $resource_group -n $deployment_name --query properties.provisioningState -o tsv); [ "$deployment_state" != "Succeeded" ]; do
