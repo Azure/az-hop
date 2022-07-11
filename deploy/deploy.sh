@@ -16,7 +16,7 @@ if [[ ! -f "${adminuser}_id_rsa" ]]; then
     ssh-keygen -f "${adminuser}_id_rsa"  -N ''
 fi
 
-./generate.py > azhop.bicep
+./build.sh
 az group create --location westeurope --name $rg
 az deployment group create \
     --resource-group $rg \
