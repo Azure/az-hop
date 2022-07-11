@@ -1,0 +1,34 @@
+resource bastionPip 'Microsoft.Network/publicIpAddresses@2020-08-01' = {
+  name: 'bastion-pip'
+  location: location
+  sku: {
+    name: 'Standard'
+  }
+  properties: {
+    publicIPAllocationMethod: 'Static'
+  }
+}
+
+resource bastionHost 'Microsoft.Network/bastionHosts@2021-08-01' = {
+  name: 'bastion'
+  location: location
+  sku: {
+    name: 'Standard'
+  }
+  properties: {
+    enableTunneling: true
+    ipConfigurations: [
+      {
+        name: 'bastion-ipconfig'
+        properties: {
+          subnet: {
+            id: bastionSubnet.id
+          }
+          publicIPAddress: {
+            id: bastionPip.id
+          }
+        }
+      }
+    ]
+  }
+}

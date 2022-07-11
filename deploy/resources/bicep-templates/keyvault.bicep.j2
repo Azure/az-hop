@@ -1,0 +1,73 @@
+resource kv 'Microsoft.KeyVault/vaults@2021-10-01' = {
+  name: 'kv${resourcePostfix}'
+  location: location
+  properties: {
+    enabledForDiskEncryption: true
+    tenantId: subscription().tenantId
+    softDeleteRetentionInDays: 7
+    sku: {
+      family: 'A'
+      name: 'standard'
+    }
+    networkAcls: {
+      bypass: 'AzureServices'
+{%- if lock_down_network.enforce == true %}
+      defaultAction: 'Deny'
+{%- else %}
+      defaultAction: 'Allow'
+{%- endif %}
+{%- if 'grant_access_from' in lock_down_network %}
+      ipRules: [
+  {%- for ip in lock_down_network.grant_access_from %}
+        {
+          value: '{{ ip }}'
+        }
+  {%- endfor %}
+      ]
+{%- endif %}
+      virtualNetworkRules: [
+        {
+          id: adminSubnet.id
+        }
+      ]
+    }
+    accessPolicies: [
+{%- for oid in keyvault_readers %}
+      {
+        objectId: '{{ oid }}'
+        permissions: {
+          secrets: [
+            'Get'
+            'List'
+          ]
+        }
+        tenantId: subscription().tenantId
+      }
+{%- endfor %}
+{%- for vm_name, vm in vms.items() %}
+  {%- if 'identity' in vm and 'keyvault' in vm.identity %}
+      {
+        objectId: {{ vm_name | replace('-', '_') }}ManagedIdentity.properties.principalId
+        permissions: {
+    {%- if 'key_permissions' in vm.identity.keyvault %}
+          keys: [
+      {%- for perm in vm.identity.keyvault.key_permissions %}
+            '{{ perm }}'
+      {%- endfor %}
+          ]
+    {%- endif %}
+    {%- if 'secret_permissions' in vm.identity.keyvault %}
+          secrets: [
+      {%- for perm in vm.identity.keyvault.secret_permissions %}
+            '{{ perm }}'
+      {%- endfor %}
+          ]
+    {%- endif %}
+        }
+        tenantId: subscription().tenantId
+      }
+  {%- endif %}
+{%- endfor %}
+    ]
+  }
+}

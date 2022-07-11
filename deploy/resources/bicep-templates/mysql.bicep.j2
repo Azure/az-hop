@@ -1,0 +1,49 @@
+{%- if slurm.accounting_enabled == true %}
+resource mysql 'Microsoft.DBforMySQL/servers@2017-12-01' = {
+  name: 'azhop-${resourcePostfix}'
+  location: location
+  
+  sku: {
+    name: 'GP_Gen5_2'
+  }
+  properties: {
+    minimalTlsVersion: 'TLS1_2'
+    publicNetworkAccess: 'Enabled'
+    sslEnforcement: 'Enabled'
+    storageProfile: {
+      backupRetentionDays: 7
+      geoRedundantBackup: 'Disabled'
+      storageAutogrow: 'Enabled'
+      storageMB: 5120
+    }
+    version: '5.7'
+    createMode: 'Default'
+    administratorLogin: slurmAccountingAdminUser
+    administratorLoginPassword: slurmAccountingAdminPassword
+  }
+}
+
+resource mysqlAdmin 'Microsoft.DBforMySQL/servers/virtualNetworkRules@2017-12-01' = {
+  name: 'AllowAccessAdmin'
+  parent: mysql
+  properties: {
+    virtualNetworkSubnetId: adminSubnet.id
+  }
+}
+
+resource mysqlFrontend 'Microsoft.DBforMySQL/servers/virtualNetworkRules@2017-12-01' = {
+  name: 'AllowAccessFrontend'
+  parent: mysql
+  properties: {
+    virtualNetworkSubnetId: frontendSubnet.id
+  }
+}
+
+resource mysqlPasswordSecret 'Microsoft.KeyVault/vaults/secrets@2021-10-01' = {
+  name: '${slurmAccountingAdminUser}-password'
+  parent: kv
+  properties: {
+    value: slurmAccountingAdminPassword
+  }
+}
+{%- endif %}

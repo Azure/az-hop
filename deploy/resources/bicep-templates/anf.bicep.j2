@@ -1,0 +1,61 @@
+resource anfAccount 'Microsoft.NetApp/netAppAccounts@2021-10-01' = {
+  name: 'azhop-${resourcePostfix}'
+  location: location
+  
+{%- if anf.dual_protocol == true %}
+  properties: {
+    activeDirectories: [
+      {
+        username: adminUser
+        password: adminPassword
+        dns: adNic.properties.ipConfigurations[0].properties.privateIPAddress
+        smbServerName: 'anf'
+        domain: 'hpc.azure' 
+      }
+    ]
+  }
+{%- endif %}
+}
+
+resource anfPool 'Microsoft.NetApp/netAppAccounts/capacityPools@2021-10-01' = {
+  name: 'anfpool-${resourcePostfix}'
+  location: location
+  parent: anfAccount
+  properties: {
+    serviceLevel: '{{ anf.service_level }}'
+    size: {{ anf.size_tb * 1024 * 1024 * 1024 * 1024 }}
+  }
+}
+
+resource anfHome 'Microsoft.NetApp/netAppAccounts/capacityPools/volumes@2021-10-01' = {
+  name: 'anfhome'
+  location: location
+  parent: anfPool
+  properties: {
+    creationToken: 'home-${resourcePostfix}'
+    serviceLevel: '{{ anf.service_level }}'
+    subnetId: netappSubnet.id
+    protocolTypes: [
+      'NFSv3'
+{%- if anf.dual_protocol == true %}
+      'CIFS'
+{%- endif %}
+    ]
+    securityStyle: 'unix'
+    usageThreshold: {{ anf.size_tb * 1024 * 1024 * 1024 * 1024 }}
+
+    exportPolicy: {
+      rules: [
+        {
+          ruleIndex: 1
+          allowedClients: '0.0.0.0/0'
+          unixReadWrite: true
+          hasRootAccess: true
+          nfsv3: true
+        }
+      ]
+    }
+  }
+}
+
+output anf_home_ip string = anfHome.properties.mountTargets[0].ipAddress
