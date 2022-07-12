@@ -11,7 +11,7 @@ if __name__ == "__main__":
     input_yml = {}
 
     with open("build.yml") as file:
-        input_yml['config'] = yaml.safe_load(file)
+        input_yml['build'] = yaml.safe_load(file)
     with open("outputs.yml") as file:
         input_yml['outputs'] = yaml.safe_load(file)
 
