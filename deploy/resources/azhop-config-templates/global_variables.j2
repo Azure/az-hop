@@ -18,7 +18,7 @@ sig_name                      : azhop_{{outputs.resource_postfix}}
 lustre_hsm_storage_account    : azhop{{outputs.resource_postfix}}
 lustre_hsm_storage_container  : lustre
 slurmdb_fqdn                  : {{outputs.mysql_fqdn}}
-slurmdb_user                  : {{build.slurm.admin_user}}
+slurmdb_user                  : {{outputs.slurm_admin_user}}
 azure_environment             : AZUREPUBLICCLOUD
 key_vault_suffix              : vault.azure.net
 blob_storage_suffix           : blob.core.windows.net

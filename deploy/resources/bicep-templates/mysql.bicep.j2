@@ -46,4 +46,7 @@ resource mysqlPasswordSecret 'Microsoft.KeyVault/vaults/secrets@2021-10-01' = {
     value: slurmAccountingAdminPassword
   }
 }
+
+output mysql_fqdn string = reference(mysql.id, mysql.apiVersion, 'full').properties.fullyQualifiedDomainName
+
 {%- endif %}
