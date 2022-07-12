@@ -7,7 +7,11 @@ while ! which az >/dev/null 2>&1; do
 done
 
 apt install -y jq git
-snap install yq
+
+echo "Installing yq...."
+VERSION=v4.25.3
+BINARY=yq_linux_amd64
+wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY} -O /usr/bin/yq && chmod +x /usr/bin/yq
 
 git clone --recursive https://github.com/Azure/az-hop.git -b bicep
 
