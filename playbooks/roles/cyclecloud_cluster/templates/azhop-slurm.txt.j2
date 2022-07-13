@@ -23,6 +23,7 @@ Autoscale = true
     ShutdownPolicy = Terminate
 
         [[[configuration]]]
+        slurm.install = false
         slurm.version = {{ slurm_version }}
         slurm.user.uid = {{ slurm_uid }}
         slurm.user.gid = {{ slurm_gid }}
