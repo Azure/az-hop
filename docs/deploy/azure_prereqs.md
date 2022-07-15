@@ -2,13 +2,13 @@
 
 - When using a user account 
   - you need to be **Owner** of the subscription
-- When using a Service Principal Name you need to be :
-  - **Contributor** on the subscription
-  - **User Access Administrator** on the subscription
+- When using a Service Principal Name, the service principal needs to be
+  - **"Contributor"** on the subscription
+  - **"User Access Administrator"** on the subscription
 - When using a managed Identity on a deployer VM it needs to be a **System Managed Identity** with 
-  - **Contributor** on the resource group
-  - **User Access Administrator** on the resource group
-  - **Reader** on the subscription
+  - **"Contributor"** on the resource group
+  - **"User Access Administrator"** on the resource group
+  - **"Reader"** on the subscription
 - Your subscription need to be registered for NetApp resource provider as explained [here](https://docs.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-register#waitlist)
 - If using ANF Dual Protocol be aware of the limitation of one ANF account allow to be domain joined per region in the same subscription
 - The Azure HPC Lustre marketplace image terms need to be accepted
