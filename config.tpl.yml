@@ -12,7 +12,7 @@ tags:
 # Define an Azure Netapp Files (ANF) account, single pool and volume
 # If not present, assume that there is an existing NFS share for the users home directory
 anf:
-  # Size of the ANF pool and unique volume (min: 4TB, max: 500TB)
+  # Size of the ANF pool and unique volume (min: 4TB, max: 100TB)
   homefs_size_tb: 4
   # Service level of the ANF volume, can be: Standard, Premium, Ultra
   homefs_service_level: Standard
