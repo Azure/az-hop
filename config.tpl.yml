@@ -9,10 +9,10 @@ use_existing_rg: false
 tags:
   env: dev
   project: azhop
-# Define an ANF account, single pool and volume
-# If not present assume that there is an existing NFS share for the users home directory
+# Define an Azure Netapp Files (ANF) account, single pool and volume
+# If not present, assume that there is an existing NFS share for the users home directory
 anf:
-  # Size of the ANF pool and unique volume
+  # Size of the ANF pool and unique volume (min: 4TB, max: 100TB)
   homefs_size_tb: 4
   # Service level of the ANF volume, can be: Standard, Premium, Ultra
   homefs_service_level: Standard
@@ -118,7 +118,9 @@ lustre_base_plan: "azhpc:azurehpc-lustre:azurehpc-lustre-2_12" # publisher:produ
 # Jumpbox VM configuration
 jumpbox:
   vm_size: Standard_B2ms
-  #ssh_port: 2222 # SSH port used on the public IP, default to 22
+  # SSH port under which the jumpbox SSH server listens on the public IP. Default to 22
+  # Change this to, e.g., 2222, if security policies (like "zero trust") in your tenant automatically block access to port 22 from the internet
+  #ssh_port: 2222
 # Active directory VM configuration
 ad:
   vm_size: Standard_B2ms
