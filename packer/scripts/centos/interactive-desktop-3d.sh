@@ -27,8 +27,8 @@ systemctl set-default graphical.target
 systemctl isolate graphical.target
 
 echo "################### INSTALL CUDA"
-NVIDIA_DRIVER_VERSION=460.32.03
-CUDA_VERSION=11-2
+NVIDIA_DRIVER_VERSION=470.82.01
+CUDA_VERSION=11.4.3
 yum-config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-rhel7.repo
 yum clean all
 yum -y install nvidia-driver-latest-dkms-$NVIDIA_DRIVER_VERSION cuda-$CUDA_VERSION
@@ -45,10 +45,13 @@ net.core.wmem_max=2097152
 EOF
 
 echo "################### INSTALL NVIDIA GRID DRIVERS"
+systemctl stop nv_peer_mem.service
+systemctl stop nvidia-fabricmanager
+rmmod nvidia
 
 init 3
 # Use the direct link which contains the clear version number
-wget -O NVIDIA-Linux-x86_64-grid.run https://download.microsoft.com/download/9/5/c/95c667ff-ab95-4c56-89e0-e13e9a76782d/NVIDIA-Linux-x86_64-$NVIDIA_DRIVER_VERSION-grid-azure.run
+wget -O NVIDIA-Linux-x86_64-grid.run https://download.microsoft.com/download/a/3/c/a3c078a0-e182-4b61-ac9b-ac011dc6ccf4/NVIDIA-Linux-x86_64-$NVIDIA_DRIVER_VERSION-grid-azure.run
 chmod +x NVIDIA-Linux-x86_64-grid.run
 sudo ./NVIDIA-Linux-x86_64-grid.run -s
 # Answers are: yes, yes, yes
