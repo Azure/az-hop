@@ -243,6 +243,29 @@ images:
     hyper_v: V2
     os_type: Linux
     version: 7.9
+  # Image definition when using a custom image to build compute nodes images
+  - name: azhop-centos79-v2-rdma-ci
+    publisher: azhop
+    offer: CentOS
+    sku: 7.9-gen2-ci
+    hyper_v: V2
+    os_type: Linux
+    version: 7.9
+  # Image definition when using a custom image to build remote viz nodes images
+  - name: azhop-centos79-desktop3d-ci
+    publisher: azhop
+    offer: CentOS
+    sku: 7.9-gen2-desktop3d-ci
+    hyper_v: V2
+    os_type: Linux
+    version: 7.9
+  - name: azhop-centos79-desktop3d
+    publisher: azhop
+    offer: CentOS
+    sku: 7.9-gen2-desktop3d
+    hyper_v: V2
+    os_type: Linux
+    version: 7.9
   - name: centos-7.8-desktop-3d
     publisher: azhop
     offer: CentOS
