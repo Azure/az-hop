@@ -20,24 +20,9 @@ EOF
 cp -fv /usr/share/enroot/hooks.d/50-slurm-pmi.sh /usr/share/enroot/hooks.d/50-slurm-pytorch.sh /etc/enroot/hooks.d
 
 [ -d /etc/sysconfig ] || mkdir -pv /etc/sysconfig
-
-SLURM_ENV=/usr/local/sbin/slurm_env.sh
-cat <<EOFEOF > $SLURM_ENV
-#!/bin/bash
-if ! grep PMIX /etc/sysconfig/slurmd ; then
-cat <<EOF >> /etc/sysconfig/slurmd
-
-      PMIX_MCA_ptl=^usock
-      PMIX_MCA_psec=none
-      PMIX_SYSTEM_TMPDIR=/var/empty
-      PMIX_MCA_gds=hash
-      HWLOC_COMPONENTS=-opencl
-EOF
-fi
-EOFEOF
-chmod +x $SLURM_ENV
-echo "*/5 * * * * root $SLURM_ENV" > /etc/cron.d/slurmenv
-$SLURM_ENV
+# Add variables for PMIx
+sed -i '/EnvironmentFile/a Environment=PMIX_MCA_ptl=^usock PMIX_MCA_psec=none PMIX_SYSTEM_TMPDIR=/var/empty PMIX_MCA_gds=hash HWLOC_COMPONENTS=-opencl' /usr/lib/systemd/system/slurmd.service
+systemctl daemon-reload
 
 echo Restarting SLURMD...
 systemctl restart slurmd
