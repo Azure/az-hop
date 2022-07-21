@@ -11,4 +11,4 @@ fi
 
 mkdir $homedir_mountpoint
 echo "mount $nfs_home_ip:/$nfs_home_path $homedir_mountpoint"
-mount $nfs_home_ip:/$nfs_home_path $homedir_mountpoint
+mount -t nfs -o rw,hard,rsize=262144,wsize=262144,vers=3,tcp $nfs_home_ip:/$nfs_home_path $homedir_mountpoint || exit 1
