@@ -4,7 +4,7 @@ Azure HPC On-Demand Platform, provides the end to end deployment mechanism for a
 - An [HPC OnDemand Portal](https://osc.github.io/ood-documentation) for all user access, remote shell access, remote visualization access, job submission, file access and more,
 - An Active Directory for user authentication and domain control,
 - [Open PBS](https://openpbs.org/) or [SLURM](https://slurm.schedmd.com/overview.html) as a Job Scheduler,
-- Dynamic resources provisioning and autoscaling is done by [Azure Cycle Cloud](https://docs.microsoft.com/en-us/azure/cyclecloud/?view=cyclecloud-8) pre-configured job queues and integrated health-checks to quickly avoid non-optimal nodes,
+- Dynamic resources provisioning and autoscaling is done by [Azure CycleCloud](https://docs.microsoft.com/en-us/azure/cyclecloud/?view=cyclecloud-8) pre-configured job queues and integrated health-checks to quickly avoid non-optimal nodes,
 - A Jumpbox to provide admin access,
 - A common shared file system for home directory and applications is delivered by [Azure Netapp Files](https://azure.microsoft.com/en-us/services/netapp/),
 - A Lustre parallel filesystem using local NVME for high performance that automatically archives to [Azure Blob Storage](https://azure.microsoft.com/en-gb/services/storage/blobs/) using the [Robinhood Policy Engine](https://github.com/cea-hpc/robinhood) and [Azure Storage data mover](https://github.com/wastore/lemur),
