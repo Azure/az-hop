@@ -4,6 +4,7 @@ Here is a template for building such configuration file.
 
 ```yml
 ---
+---
 # azure location name as returned by the command : az account list-locations -o table
 location: westeurope
 # Name of the resource group to create all resources
@@ -14,10 +15,10 @@ use_existing_rg: false
 tags:
   env: dev
   project: azhop
-# Define an ANF account, single pool and volume
-# If not present assume that there is an existing NFS share for the users home directory
+# Define an Azure Netapp Files (ANF) account, single pool and volume
+# If not present, assume that there is an existing NFS share for the users home directory
 anf:
-  # Size of the ANF pool and unique volume
+  # Size of the ANF pool and unique volume (min: 4TB, max: 100TB)
   homefs_size_tb: 4
   # Service level of the ANF volume, can be: Standard, Premium, Ultra
   homefs_service_level: Standard
@@ -74,6 +75,7 @@ network:
         name: compute
         address_prefixes: "10.0.16.0/20"
         create: true
+  # Specify the Application Security Groups mapping if already existing
 # asg:
 #   resource_group: # name of the resource group containing the ASG. Default to the resource group containing azhop resources
 #   names: # list of ASG names mapping to the one defined in az-hop
@@ -95,7 +97,7 @@ network:
 #     asg-ondemand: asg-ondemand
 #     asg-deployer: asg-deployer
 #     asg-guacamole: asg-guacamole
-
+    
 #  peering: # This list is optional, and can be used to create VNet Peerings in the same subscription.
 #    - vnet_name: #"VNET Name to Peer to"
 #      vnet_resource_group: #"Resource Group of the VNET to peer to"
@@ -122,7 +124,9 @@ lustre_base_plan: "azhpc:azurehpc-lustre:azurehpc-lustre-2_12" # publisher:produ
 # Jumpbox VM configuration
 jumpbox:
   vm_size: Standard_B2ms
-  #ssh_port: 2222 # SSH port used on the public IP, default to 22
+  # SSH port under which the jumpbox SSH server listens on the public IP. Default to 22
+  # Change this to, e.g., 2222, if security policies (like "zero trust") in your tenant automatically block access to port 22 from the internet
+  #ssh_port: 2222
 # Active directory VM configuration
 ad:
   vm_size: Standard_B2ms
@@ -130,7 +134,7 @@ ad:
 # On demand VM configuration
 ondemand:
   vm_size: Standard_D4s_v5
-  #fqdn: azhop.foo.com # When provided it will be used for the certificate server name, but only in a non public IP configuration
+  #fqdn: azhop.foo.com # When provided it will be used for the certificate server name
   generate_certificate: true # Generate an SSL certificate for the OnDemand portal. Default to true
 # Grafana VM configuration
 grafana:
@@ -270,13 +274,6 @@ images:
     hyper_v: V2
     os_type: Linux
     version: 7.9
-  - name: centos-7.8-desktop-3d
-    publisher: azhop
-    offer: CentOS
-    sku: 7_8
-    hyper_v: V1
-    os_type: Linux
-    version: 7.8
   - name: azhop-ubuntu18.04
     publisher: azhop
     offer: Ubuntu
@@ -310,6 +307,8 @@ queues:
     # marketplace image name or custom image id
 #    image: OpenLogic:CentOS-HPC:7_9-gen2:latest
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    # Image plan specification (when needed for the image). Terms must be accepted prior to deployment
+#    plan: publisher:product:name
     # Set to true if AccelNet need to be enabled. false is the default value
     EnableAcceleratedNetworking: false
     # spot instance support. Default is false
@@ -318,8 +317,6 @@ queues:
     ColocateNodes: false
     # Set to true to enable Enroot for this partition
     enroot_enabled: false
-    # Image plan specification (when needed for the image). Terms must be accepted prior to deployment
-#    plan: publisher:product:name
   - name: hc44rs
     vm_size: Standard_HC44rs
     max_core_count: 440
@@ -339,21 +336,21 @@ queues:
   - name: viz3d
     vm_size: Standard_NV12s_v3
     max_core_count: 48
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
+    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
     ColocateNodes: false
     spot: false
     # Queue dedicated to share GPU remote viz nodes. This name is fixed and can't be changed
   - name: largeviz3d
     vm_size: Standard_NV48s_v3
     max_core_count: 96
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
+    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
     ColocateNodes: false
     spot: false
     # Queue dedicated to non GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz
     vm_size: Standard_D8s_v3
     max_core_count: 200
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
+    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
     ColocateNodes: false
     spot: false
 
@@ -362,8 +359,8 @@ enable_remote_winviz: false # Set to true to enable windows remote visualization
 
 remoteviz:
   - name: winviz # This name is fixed and can't be changed
-    vm_size: Standard_D8a_v4
-    max_core_count: 200
+    vm_size: Standard_NV12s_v3 # Standard_NV8as_v4 Only NVsv3 and NVsV4 are supported
+    max_core_count: 48
     image: "MicrosoftWindowsDesktop:Windows-10:21h1-pron:latest"
     ColocateNodes: false
     spot: false
