@@ -12,7 +12,7 @@ EOF
 
 echo "################### INSTALL CUDA"
 NVIDIA_DRIVER_VERSION=470.82.01 #510.73.08
-CUDA_VERSION=11.4.3 #11.7.0
+CUDA_VERSION=11-4 #11.4.3 #11.7.0
 yum-config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-rhel7.repo
 yum clean all
 yum -y install nvidia-driver-latest-dkms-$NVIDIA_DRIVER_VERSION 
@@ -22,21 +22,13 @@ yum -y install https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x8
 yum -y install https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/nvidia-settings-$NVIDIA_DRIVER_VERSION-1.el7.x86_64.rpm
 yum -y install cuda-drivers-$NVIDIA_DRIVER_VERSION
 
-# browser and codecs
-yum -y localinstall --nogpgcheck https://download1.rpmfusion.org/free/el/rpmfusion-free-release-7.noarch.rpm
-yum -y install firefox ffmpeg ffmpeg-devel
-
-# increase buffer size
-cat << EOF >>/etc/sysctl.conf
-net.core.rmem_max=2097152
-net.core.wmem_max=2097152
-EOF
-
 echo "################### INSTALL NVIDIA GRID DRIVERS"
 systemctl stop nv_peer_mem.service
 systemctl stop nvidia-fabricmanager
 rmmod gdrdrv
 rmmod drm_kms_helper
+nv_hostengine_pid=$(lsof /dev/nvidia0 | tail -n 1 | cut -d' ' -f2)
+kill $nv_hostengine_pid
 rmmod nvidia_drm nvidia_modeset nvidia
 
 init 3
@@ -53,6 +45,11 @@ IgnoreSP=FALSE
 EnableUI=FALSE 
 EOF
 sed -i '/FeatureType=0/d' /etc/nvidia/gridd.conf
+
+echo "Test if nvidia-smi is working"
+set -e
+nvidia-smi
+set +e
 
 echo "################### INSTALL VirtualGL / VNC"
 yum groupinstall -y "X Window system"
@@ -78,6 +75,12 @@ EOF
 chmod +x /etc/rc.d/rc3.d/busidupdate.sh
 /etc/rc.d/rc3.d/busidupdate.sh
 
-echo "Test if nvidia-smi is working"
-set -e
-nvidia-smi
+# browser and codecs
+yum -y localinstall --nogpgcheck https://download1.rpmfusion.org/free/el/rpmfusion-free-release-7.noarch.rpm
+yum -y install firefox ffmpeg ffmpeg-devel
+
+# increase buffer size
+cat << EOF >>/etc/sysctl.conf
+net.core.rmem_max=2097152
+net.core.wmem_max=2097152
+EOF
