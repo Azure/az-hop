@@ -23,12 +23,16 @@ yum -y install https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x8
 yum -y install cuda-drivers-$NVIDIA_DRIVER_VERSION
 
 echo "################### INSTALL NVIDIA GRID DRIVERS"
+echo "################### UNLOAD NVIDIA MODULES"
 systemctl stop nv_peer_mem.service
 systemctl stop nvidia-fabricmanager
 rmmod gdrdrv
 rmmod drm_kms_helper
+lsof /dev/nvidia0
 nv_hostengine_pid=$(lsof /dev/nvidia0 | tail -n 1 | cut -d' ' -f2)
-kill $nv_hostengine_pid
+echo 'Kill process $nv_hostengine_pid'
+sudo kill $nv_hostengine_pid
+lsof /dev/nvidia0
 rmmod nvidia_drm nvidia_modeset nvidia
 
 init 3
