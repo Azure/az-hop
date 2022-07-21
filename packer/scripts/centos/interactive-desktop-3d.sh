@@ -11,8 +11,8 @@ blacklist lbm-nouveau
 EOF
 
 echo "################### INSTALL CUDA"
-NVIDIA_DRIVER_VERSION=470.82.01 #510.73.08
-CUDA_VERSION=11-4 #11.4.3 #11.7.0
+NVIDIA_DRIVER_VERSION=470.82.01
+CUDA_VERSION=11-4
 yum-config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-rhel7.repo
 yum clean all
 yum -y install nvidia-driver-latest-dkms-$NVIDIA_DRIVER_VERSION 
@@ -30,14 +30,14 @@ rmmod gdrdrv
 rmmod drm_kms_helper
 lsof /dev/nvidia0
 nv_hostengine_pid=$(lsof /dev/nvidia0 | tail -n 1 | cut -d' ' -f2)
-echo 'Kill process $nv_hostengine_pid'
-sudo kill $nv_hostengine_pid
+echo "Kill process $nv_hostengine_pid"
+sudo kill -9 $nv_hostengine_pid
 lsof /dev/nvidia0
 rmmod nvidia_drm nvidia_modeset nvidia
 
 init 3
 # Use the direct link which contains the clear version number
-# https://download.microsoft.com/download/6/2/5/625e22a0-34ea-4d03-8738-a639acebc15e/NVIDIA-Linux-x86_64-$NVIDIA_DRIVER_VERSION-grid-azure.run
+# Check which latest version to use from https://github.com/Azure/azhpc-extensions/blob/master/NvidiaGPU/resources.json
 wget -O NVIDIA-Linux-x86_64-grid.run https://download.microsoft.com/download/a/3/c/a3c078a0-e182-4b61-ac9b-ac011dc6ccf4/NVIDIA-Linux-x86_64-$NVIDIA_DRIVER_VERSION-grid-azure.run
 chmod +x NVIDIA-Linux-x86_64-grid.run
 sudo ./NVIDIA-Linux-x86_64-grid.run -s || exit 1
