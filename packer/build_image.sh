@@ -139,6 +139,11 @@ if [ "$image_id" == "" ] || [ $FORCE -eq 1 ]; then
     -var "var_cloud_env=$cloud_env" \
     $PACKER_FILE | tee $logfile
 
+  image_id=$(az image list -g $resource_group --query "[?name=='$image_name'].id" -o tsv)
+  # Tag the image with the checksum 
+  echo "Tagging the source image with checksum $packer_md5"
+  az image update --ids $image_id --tags checksum=$packer_md5 -o tsv
+
 else
   echo "Image $image_name exists, skipping building the image"
 fi

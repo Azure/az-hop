@@ -233,10 +233,40 @@ images:
   #   os_type: Linux # Linux or Windows
   #   version: 7.9 # Version of the image to create the image definition in SIG
 # Pre-defined images
+  - name: azhop-almalinux85-v2-rdma-gpgpu
+    publisher: azhop
+    offer: almalinux
+    sku: 8_5-hpc-gen2
+    hyper_v: V2
+    os_type: Linux
+    version: 8.5
   - name: azhop-centos79-v2-rdma-gpgpu
     publisher: azhop
     offer: CentOS
     sku: 7.9-gen2
+    hyper_v: V2
+    os_type: Linux
+    version: 7.9
+  # Image definition when using a custom image to build compute nodes images
+  - name: azhop-centos79-v2-rdma-ci
+    publisher: azhop
+    offer: CentOS
+    sku: 7.9-gen2-ci
+    hyper_v: V2
+    os_type: Linux
+    version: 7.9
+  # Image definition when using a custom image to build remote viz nodes images
+  - name: azhop-centos79-desktop3d-ci
+    publisher: azhop
+    offer: CentOS
+    sku: 7.9-gen2-desktop3d-ci
+    hyper_v: V2
+    os_type: Linux
+    version: 7.9
+  - name: azhop-centos79-desktop3d
+    publisher: azhop
+    offer: CentOS
+    sku: 7.9-gen2-desktop3d
     hyper_v: V2
     os_type: Linux
     version: 7.9
@@ -261,6 +291,15 @@ images:
     hyper_v: V1
     os_type: Windows
     version: 10.19043
+  # Base image when building your own HPC image and not using the HPC marketplace images
+  - name: base-centos79-v2-rdma
+    publisher: azhop
+    offer: CentOS
+    sku: 7.9-gen2-rdma-nogpu
+    hyper_v: V2
+    os_type: Linux
+    version: 7.9
+
 # List of queues (node arays in Cycle) to be defined
 queues:
   - name: execute # name of the Cycle Cloud node array
