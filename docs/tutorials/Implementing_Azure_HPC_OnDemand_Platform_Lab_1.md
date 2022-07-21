@@ -190,7 +190,7 @@ In this exercise, you will set up an Azure VM that you will use for deployment o
 
    ```bash
    rm ~/az-hop -rf
-   git clone --recursive https://github.com/Azure/az-hop.git -b v1.0.21
+   git clone --recursive https://github.com/Azure/az-hop.git -b v1.0.24
    ```
 
 1. Run the following commands to install all the tools required to provision the **az-hop** environment:
@@ -323,11 +323,11 @@ The az-hop solution provides pre-configured Packer configuration files that can 
 
    Detach from the current screen with `<ctrl>a+d`
 
-1. Within the SSH session to the Azure VM, run the following command to build a custom image based on the **centos-7.8-desktop-3d.json** configuration file.
+1. Within the SSH session to the Azure VM, run the following command to build a custom image based on the **azhop-centos79-desktop3d.json** configuration file.
 
-   > Note: The image creation process based on the **centos-7.8-desktop-3d.json** configuration file relies on a **Standard_NV12s_v3** SKU Azure VM, however this lab assume that you have quota only for **Standard_NV6**, you will have to update the **centos-7.8-desktop-3d.json** to use it as explained below.
+   > Note: The image creation process based on the **azhop-centos79-desktop3d.json** configuration file relies on a **Standard_NV12s_v3** SKU Azure VM, however this lab assume that you have quota only for **Standard_NV6**, you will have to update the **azhop-centos79-desktop3d.json** to use it as explained below.
 
-   Using **vi** or **nano** open the **centos-7.8-desktop-3d.json**, update `vm_size` to **Standard_NV6** and delete the line containing **managed_image_storage_account_type**. The content should look like this
+   Using **vi** or **nano** open the **azhop-centos79-desktop3d.json**, update `vm_size` to **Standard_NV6** and delete the line containing **managed_image_storage_account_type**. The content should look like this
 ```json
    {
       "builders": [
@@ -359,7 +359,7 @@ The az-hop solution provides pre-configured Packer configuration files that can 
    ```bash
    screen -S packer2
    cd packer
-   ./build_image.sh -i centos-7.8-desktop-3d.json
+   ./build_image.sh -i azhop-centos79-desktop3d.json
    ```
 
    > Note: Wait for the process to complete. This might take about 40 minutes.

@@ -23,7 +23,7 @@ images:
 ## Build an image
 Building an image is done by the utility script `packer/build_image.sh` and requires a packer input file. az-hop provides a set of pre-defined image files like :
 - `azhop-centos79-v2-rdma-gpgpu.json` this is an CentOS 7.9 HPC image with the az-hop additions for compute nodes  
-- `centos-7.8.desktop-3d.json` this is an CentOS 7.8 HPC image with the right GPU drivers configured for remote visualization nodes
+- `azhop-centos79-desktop3d.json` this is an CentOS 7.9 HPC image with the right GPU drivers configured for remote visualization nodes
 
 ```bash
 Usage build_image.sh 
@@ -70,7 +70,7 @@ queues:
     vm_size: Standard_NV6
     max_core_count: 24
     image: OpenLogic:CentOS-HPC:7_9-gen2:latest
-#    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
+#    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
     # Queue dedicated to non GPU remote viz nodes. This name is fixed and can't be changed
 ```
 
@@ -87,7 +87,7 @@ queues:
     vm_size: Standard_NV6
     max_core_count: 24
 #    image: OpenLogic:CentOS-HPC:7_9-gen2:latest
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
+    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
 ```
 
 Then update the Cycle project by running this playbook :
@@ -103,7 +103,7 @@ Once done your new images are ready to be used in azhop.
 
 Sometimes you need to add missing runtime packages in the custom image built or change some settings. This can be done by either add a new script in the packer JSON configuration files or by updating one of the existing script called by packer.
 
-For example, below is the content of the `centos-7.8-desktop-3d.json` packer file, if you want to add custom packages one way would be to change the `desktop-packages.sh` located in the `./packer/scripts/centos` directory.
+For example, below is the content of the `azhop-centos79-desktop3d.json` packer file, if you want to add custom packages one way would be to change the `desktop-packages.sh` located in the `./packer/scripts/centos` directory.
 
 ```yml
     "provisioners": [
@@ -117,7 +117,7 @@ For example, below is the content of the `centos-7.8-desktop-3d.json` packer fil
             "inline": [
                 "chmod +x /tmp/*.sh",
                 "/tmp/linux-setup.sh",
-                "/tmp/lustreclient2.12.5_centos7.8.sh",
+                "/tmp/lustreclient.sh 2.12.6",
                 "/tmp/interactive-desktop-3d.sh",
                 "/tmp/desktop-packages.sh",
                 "/tmp/pbspro.sh",

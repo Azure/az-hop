@@ -472,7 +472,6 @@ jobs:
     needs: [deploy, set_image_list]
     strategy: 
       matrix:
-        #packer_file: ["centos-7.8-desktop-3d.json", "azhop-centos79-v2-rdma-gpgpu.json"]
         packer_file: ${{ fromJson(needs.set_image_list.outputs.matrix) }}
     container:
       image: azhop.azurecr.io/hpcrover:2206.1321
