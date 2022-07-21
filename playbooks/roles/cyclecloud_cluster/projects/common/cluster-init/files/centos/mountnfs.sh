@@ -11,6 +11,6 @@ fi
 
 mkdir $homedir_mountpoint
 echo "mount $nfs_home_ip:/$nfs_home_path $homedir_mountpoint"
-mount $nfs_home_ip:/$nfs_home_path $homedir_mountpoint
+mount $nfs_home_ip:/$nfs_home_path $homedir_mountpoint || exit 1
 
 setsebool -P use_nfs_home_dirs 1 || true
