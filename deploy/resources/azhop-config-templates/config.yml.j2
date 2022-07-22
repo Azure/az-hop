@@ -314,7 +314,7 @@ queues:
   - name: viz
     vm_size: Standard_D8s_v3
     max_core_count: 200
-    image: {% if build.deploy_sig == true %}/subscriptions/{{outputs.subscription_id}}/resourceGroups/{{outputs.resource_group}}/providers/Microsoft.Compute/galleries/azhop_{{outputs.resource_postfix}}/images/centos-7.8-desktop-3d/latest{% else %}{{build.images.images["centos-7.8-desktop-3d"].id}}{% endif %}
+    image: {% if build.deploy_sig == true %}/subscriptions/{{outputs.subscription_id}}/resourceGroups/{{outputs.resource_group}}/providers/Microsoft.Compute/galleries/azhop_{{outputs.resource_postfix}}/images/centos-7.8-desktop-3d/latest{% else %}{{build.images["centos-7.8-desktop-3d"].id}}{% endif %}
     ColocateNodes: false
     spot: false
 
