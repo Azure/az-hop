@@ -93,5 +93,7 @@ pun_custom_env:
   OOD_BRAND_LINK_ACTIVE_BG_COLOR: "#212529"
   OOD_JOB_NAME_ILLEGAL_CHARS: "/"
 
+# See https://osc.github.io/ood-documentation/latest/customization.html#pinning-applications-to-the-dashboard
 pinned_apps:
   - category: 'Interactive Apps'
+  # - sys/shell/ssh/ondemand
