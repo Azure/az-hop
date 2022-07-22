@@ -73,6 +73,18 @@ function enable_winviz ()
   fi
 }
 
+function enable_lustre ()
+{
+  ENABLE_LUSTRE=$(yq eval '.lustre' config.yml)
+  if [ "$ENABLE_LUSTRE" == "null" ]; then
+    ENABLE_LUSTRE=false
+    touch $PLAYBOOKS_DIR/lustre.ok
+    touch $PLAYBOOKS_DIR/lustre-sas.ok
+  else
+    ENABLE_LUSTRE=true
+  fi
+}
+
 # Apply pre-reqs
 $THIS_DIR/ansible_prereqs.sh
 
@@ -81,6 +93,7 @@ yamllint config.yml
 get_scheduler
 get_ood_auth
 enable_winviz
+enable_lustre
 
 case $TARGET in
   all)
