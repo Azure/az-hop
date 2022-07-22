@@ -137,6 +137,12 @@
     src: '{{role_path}}/files/brand.json'
     dest: /opt/cycle_server/config/data/brand.json
 
+- name: Fix CSS
+  copy:
+    src: '{{role_path}}/files/fabric.css'
+    dest: /opt/cycle_server/system/web/static/office-ui-fabric-react/css/fabric.css
+  when: cc_version == "8.2.2-1902"
+
 - name: Configure CycleCloud CLI
   command: '/usr/local/bin/cyclecloud initialize --force --batch --name ccportal --url=https://localhost:9443/cyclecloud --verify-ssl=false --username={{cc_admin_user}} --password="{{cc_password}}"'
   args:
