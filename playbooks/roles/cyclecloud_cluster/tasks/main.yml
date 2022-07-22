@@ -32,6 +32,7 @@
     src: '{{role_path}}/projects/common/cluster-init/scripts/2-mountlustre.sh.j2'
     dest: '{{common_project_root}}/specs/default/cluster-init/scripts/2-mountlustre.sh'
     mode: 0777
+  when: ( lustre is defined )
 
 - name: Add Linux joindomain script 
   template:
