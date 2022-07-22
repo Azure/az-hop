@@ -99,6 +99,7 @@ case $TARGET in
   all)
     run_playbook ad
     run_playbook linux
+    run_playbook grafana
     run_playbook lustre-sas
     run_playbook lustre
     run_playbook ccportal
@@ -109,7 +110,6 @@ case $TARGET in
     run_playbook ood-custom
     run_playbook guacamole
     run_playbook guac_spooler
-    run_playbook grafana 
     run_playbook telegraf
     run_playbook chrony
   ;;
