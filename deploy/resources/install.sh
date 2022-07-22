@@ -34,8 +34,8 @@ az deployment group show \
     --query properties.outputs \
     | jq 'to_entries | map({(.key): .value.value}) | add' | yq -P | tee outputs.yml
 
-kv="$(yq .keyvault_name <outputs.yml)"
-adminuser="$(yq .admin_user <outputs.yml)"
+kv="$(yq .keyvault_name outputs.yml)"
+adminuser="$(yq .admin_user outputs.yml)"
 export admin_pass="$(az keyvault secret show --vault-name $kv -n ${adminuser}-password --query "value" -o tsv)"
 
 az keyvault secret show --vault-name $kv -n ${adminuser}-pubkey --query "value" -o tsv > ../${adminuser}_id_rsa.pub
@@ -66,9 +66,11 @@ mkdir -p $azhop_root/playbooks/group_vars
 cd $azhop_root
 ./toolset/scripts/install.sh
 
-cd $azhop_root/packer
-./build_image.sh -i azhop-centos79-v2-rdma-gpgpu.json
-./build_image.sh -i centos-7.8-desktop-3d.json
+if [ "$(yq .deploy_sig build.yml)" == "true" ]; then
+    cd $azhop_root/packer
+    ./build_image.sh -i azhop-centos79-v2-rdma-gpgpu.json
+    ./build_image.sh -i centos-7.8-desktop-3d.json
+fi
 
 cd $azhop_root
 ./create_passwords.sh
