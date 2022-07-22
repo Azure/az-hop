@@ -208,7 +208,7 @@ jobs:
   lustre:
     name: lustre
     runs-on: self-hosted
-    needs: [ad, deploy]
+    needs: [ad, deploy, grafana]
 
     container:
       image: azhop.azurecr.io/hpcrover:2206.1321
