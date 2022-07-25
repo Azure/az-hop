@@ -1,5 +1,12 @@
 # AZ-HOP: Marketplace deployment
 
+## Pre-requisites
+
+- pwgen
+- updated yq version
+- az bicep install
+- az extension add --name ssh
+
 ## Generating the template
 
 All resources are deployed in a single template.  A deployer VM is created with a customData script to perform the install process.  Set the new `build.yaml` and run the following to generate the template:
