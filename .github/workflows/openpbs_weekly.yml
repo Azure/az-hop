@@ -17,6 +17,7 @@ jobs:
       clean: 'true'
       anf_dual: 'false'
       scheduler: 'openpbs'
+      lustre: 'true'
     secrets:
       ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
       ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}

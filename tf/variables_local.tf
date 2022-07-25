@@ -94,11 +94,12 @@ locals {
     key_vault_readers = try(local.configuration_yml["key_vault_readers"], null)
 
     # Lustre
+    lustre_enabled = try(local.configuration_yml["lustre"]["oss_count"] > 0, false)
     lustre_archive_account = try(local.configuration_yml["lustre"]["hsm"]["storage_account"], null)
     lustre_rbh_sku = try(local.configuration_yml["lustre"]["rbh_sku"], "Standard_D8d_v4")
     lustre_mds_sku = try(local.configuration_yml["lustre"]["mds_sku"], "Standard_D8d_v4")
     lustre_oss_sku = try(local.configuration_yml["lustre"]["oss_sku"], "Standard_D32d_v4")
-    lustre_oss_count = try(local.configuration_yml["lustre"]["oss_count"], 2)
+    lustre_oss_count = try(local.configuration_yml["lustre"]["oss_count"], local.lustre_enabled ? 2 : 0)
 
     # Enable Windows Remote Visualization scenarios
     enable_remote_winviz = try(local.configuration_yml["enable_remote_winviz"], false)
