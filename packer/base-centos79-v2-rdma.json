@@ -7,6 +7,7 @@
             "image_offer": "CentOS",
             "image_sku": "7_9-gen2",
             "image_version": "latest",
+            "custom_data_file" : "./scripts/cloud_init.yml",
             "managed_image_resource_group_name": "{{user `var_resource_group`}}",
             "managed_image_name": "{{user `var_image`}}",
             "os_type": "Linux",
