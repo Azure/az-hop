@@ -34,7 +34,7 @@ yamllint $CONFIG_FILE
 #   OPTIONS_FILE=options.json
 # fi
 
-PACKER_OPTIONS="-timestamp-ui"
+PACKER_OPTIONS="-timestamp-ui -debug"
 while (( "$#" )); do
   case "${1}" in
     -i|--image)
