@@ -217,14 +217,6 @@ authentication:
 
 # List of images to be defined
 images:
-  # - name: image_definition_name # Should match the packer configuration file name, one per packer file
-  #   publisher: azhop
-  #   offer: CentOS
-  #   sku: 7_9-gen2
-  #   hyper_v: V2 # V1 or V2 (V1 is the default)
-  #   os_type: Linux # Linux or Windows
-  #   version: 7.9 # Version of the image to create the image definition in SIG
-# Pre-defined images
   - name: azhop-almalinux85-v2-rdma-gpgpu
     publisher: azhop
     offer: almalinux
@@ -239,13 +231,29 @@ images:
     hyper_v: V2
     os_type: Linux
     version: 7.9
-  - name: centos-7.8-desktop-3d
+  # Image definition when using a custom image to build compute nodes images
+  - name: azhop-centos79-v2-rdma-ci
     publisher: azhop
     offer: CentOS
-    sku: 7_8
-    hyper_v: V1
+    sku: 7.9-gen2-ci
+    hyper_v: V2
     os_type: Linux
-    version: 7.8
+    version: 7.9
+  # Image definition when using a custom image to build remote viz nodes images
+  - name: azhop-centos79-desktop3d-ci
+    publisher: azhop
+    offer: CentOS
+    sku: 7.9-gen2-desktop3d-ci
+    hyper_v: V2
+    os_type: Linux
+    version: 7.9
+  - name: azhop-centos79-desktop3d
+    publisher: azhop
+    offer: CentOS
+    sku: 7.9-gen2-desktop3d
+    hyper_v: V2
+    os_type: Linux
+    version: 7.9
   - name: azhop-ubuntu18.04
     publisher: azhop
     offer: Ubuntu
@@ -260,6 +268,14 @@ images:
     hyper_v: V1
     os_type: Windows
     version: 10.19043
+  # Base image when building your own HPC image and not using the HPC marketplace images
+  - name: base-centos79-v2-rdma
+    publisher: azhop
+    offer: CentOS
+    sku: 7.9-gen2-rdma-nogpu
+    hyper_v: V2
+    os_type: Linux
+    version: 7.9
 # List of queues (node arays in Cycle) to be defined
 queues:
   - name: execute # name of the Cycle Cloud node array
@@ -300,21 +316,21 @@ queues:
   - name: viz3d
     vm_size: Standard_NV12s_v3
     max_core_count: 48
-    image: {% if build.deploy_sig == true %}/subscriptions/{{outputs.subscription_id}}/resourceGroups/{{outputs.resource_group}}/providers/Microsoft.Compute/galleries/azhop_{{outputs.resource_postfix}}/images/centos-7.8-desktop-3d/latest{% else %}{{build.images["centos-7.8-desktop-3d"].id}}{% endif %}
+    image: {% if build.deploy_sig == true %}/subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest{% else %}{{build.images["centos-7.8-desktop-3d"].id}}{% endif %}
     ColocateNodes: false
     spot: false
     # Queue dedicated to share GPU remote viz nodes. This name is fixed and can't be changed
   - name: largeviz3d
     vm_size: Standard_NV48s_v3
     max_core_count: 96
-    image: {% if build.deploy_sig == true %}/subscriptions/{{outputs.subscription_id}}/resourceGroups/{{outputs.resource_group}}/providers/Microsoft.Compute/galleries/azhop_{{outputs.resource_postfix}}/images/centos-7.8-desktop-3d/latest{% else %}{{build.images["centos-7.8-desktop-3d"].id}}{% endif %}
+    image: {% if build.deploy_sig == true %}/subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest{% else %}{{build.images["centos-7.8-desktop-3d"].id}}{% endif %}
     ColocateNodes: false
     spot: false
     # Queue dedicated to non GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz
     vm_size: Standard_D8s_v3
     max_core_count: 200
-    image: {% if build.deploy_sig == true %}/subscriptions/{{outputs.subscription_id}}/resourceGroups/{{outputs.resource_group}}/providers/Microsoft.Compute/galleries/azhop_{{outputs.resource_postfix}}/images/centos-7.8-desktop-3d/latest{% else %}{{build.images["centos-7.8-desktop-3d"].id}}{% endif %}
+    image: {% if build.deploy_sig == true %}/subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest{% else %}{{build.images["centos-7.8-desktop-3d"].id}}{% endif %}
     ColocateNodes: false
     spot: false
 
