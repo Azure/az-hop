@@ -25,6 +25,10 @@ on:
         description: 'Use ANF Dual Protocol'
         required: false
         default: 'false' # use it with ${{ github.event.inputs.anf_dual }}
+      lustre:
+        description: 'Deploy a Lustre cluster (true/false) - Default to true'
+        required: false
+        default: 'true' # use it with ${{ github.event.inputs.lustre }}
 
 jobs:
   deploy:
@@ -35,6 +39,7 @@ jobs:
       clean: ${{ github.event.inputs.clean }}
       anf_dual: ${{ github.event.inputs.anf_dual }}
       scheduler: 'slurm'
+      lustre: ${{ github.event.inputs.lustre }}
     secrets:
       ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
       ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}

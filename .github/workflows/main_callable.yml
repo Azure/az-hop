@@ -32,6 +32,11 @@ on:
         required: true
         default: 'openpbs' # use it with ${{ inputs.scheduler }}
         type: string
+      lustre:
+        description: 'Deploy a Lustre cluster (true/false) - Default to true'
+        required: true
+        default: 'true' # use it with ${{ inputs.lustre }}
+        type: string
     secrets:
       ARM_SUBSCRIPTION_ID:
         required: true
@@ -47,6 +52,7 @@ env:
   TF_CLI_ARGS_destroy: '-auto-approve -refresh=false'
   TF_CLI_ARGS_apply: '-auto-approve'
   AZHOP_CONFIGURATION: '.github/workflows/configs/integration.yml'
+  AZHOP_LUSTRE_CONFIGURATION: '.github/workflows/configs/lustre.yml'
   ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
   ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
   ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
@@ -138,6 +144,12 @@ jobs:
               sed_exp="s/10.128/10.$second_octet/g"
               sed -i $sed_exp config.yml
             fi
+          fi
+
+          # Add lustre configuration if lustre is true
+          DEPLOY_LUSTRE=${{ inputs.lustre }}
+          if [ "$DEPLOY_LUSTRE" == "true" ]; then
+            cat $AZHOP_LUSTRE_CONFIGURATION >> config.yml
           fi
 
           # write the name of the resource group in the output of the job so it can be reused in others
