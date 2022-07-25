@@ -1,0 +1,8 @@
+lustre:
+  rbh_sku: "Standard_D8d_v4"
+  mds_sku: "Standard_D8d_v4"
+  oss_sku: "Standard_D16d_v4"
+  oss_count: 2
+  hsm_max_requests: 8
+  mdt_device: "/dev/sdb"
+  ost_device: "/dev/sdb"

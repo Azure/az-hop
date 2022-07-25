@@ -3,6 +3,7 @@
 #
 
 resource "azurerm_network_interface" "lustre-nic" {
+  count                         = local.lustre_enabled ? 1 : 0
   name                          = "lustre-nic"
   location                      = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name           = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
@@ -16,12 +17,13 @@ resource "azurerm_network_interface" "lustre-nic" {
 }
 
 resource "azurerm_linux_virtual_machine" "lustre" {
+  count                 = local.lustre_enabled ? 1 : 0
   name                  = "lustre"
   location              = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name   = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   size                  = local.lustre_mds_sku
   network_interface_ids = [
-    azurerm_network_interface.lustre-nic.id,
+    azurerm_network_interface.lustre-nic[0].id,
   ]
   
   admin_username = local.admin_username
@@ -65,8 +67,8 @@ resource "azurerm_linux_virtual_machine" "lustre" {
 }
 
 resource "azurerm_network_interface_application_security_group_association" "lustre-asg-asso" {
-  for_each = toset(local.asg_associations["lustre"])
-  network_interface_id          = azurerm_network_interface.lustre-nic.id
+  for_each                      = local.lustre_enabled ? toset(local.asg_associations["lustre"]) : []
+  network_interface_id          = azurerm_network_interface.lustre-nic[0].id
   application_security_group_id = local.create_nsg ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
 }
 
@@ -75,6 +77,7 @@ resource "azurerm_network_interface_application_security_group_association" "lus
 #
 
 resource "azurerm_user_assigned_identity" "lustre-oss" {
+  count               = local.lustre_enabled ? 1 : 0
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
 
@@ -140,7 +143,7 @@ resource "azurerm_linux_virtual_machine" "lustre-oss" {
 
   identity {
     type         = "UserAssigned"
-    identity_ids = [ azurerm_user_assigned_identity.lustre-oss.id ]
+    identity_ids = [ azurerm_user_assigned_identity.lustre-oss[0].id ]
   }
 
   lifecycle {
@@ -152,12 +155,13 @@ resource "azurerm_linux_virtual_machine" "lustre-oss" {
 
 # Grant read access to the Keyvault for the lustre-oss identity
 resource "azurerm_key_vault_access_policy" "lustre-oss" {
-  key_vault_id = azurerm_key_vault.azhop.id
-  tenant_id    = local.tenant_id
-  object_id    = azurerm_user_assigned_identity.lustre-oss.principal_id
+  count               = local.lustre_enabled ? 1 : 0
+  key_vault_id        = azurerm_key_vault.azhop.id
+  tenant_id           = local.tenant_id
+  object_id           = azurerm_user_assigned_identity.lustre-oss[0].principal_id
 
-  key_permissions = [ "Get", "List" ]
-  secret_permissions = [ "Get", "List" ]
+  key_permissions     = [ "Get", "List" ]
+  secret_permissions  = [ "Get", "List" ]
 }
 
 # Problem : How to generate associations for all OSS instances as we can't mix count and for_each ???
@@ -187,6 +191,7 @@ resource "azurerm_network_interface_application_security_group_association" "lus
 #
 
 resource "azurerm_network_interface" "robinhood-nic" {
+  count                         = local.lustre_enabled ? 1 : 0
   name                          = "robinhood-nic"
   location                      = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name           = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
@@ -200,12 +205,13 @@ resource "azurerm_network_interface" "robinhood-nic" {
 }
 
 resource "azurerm_linux_virtual_machine" "robinhood" {
+  count                 = local.lustre_enabled ? 1 : 0
   name                  = "robinhood"
   location              = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name   = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   size                  = local.lustre_rbh_sku
   network_interface_ids = [
-    azurerm_network_interface.robinhood-nic.id,
+    azurerm_network_interface.robinhood-nic[0].id,
   ]
 
   admin_username = local.admin_username
@@ -243,7 +249,7 @@ resource "azurerm_linux_virtual_machine" "robinhood" {
   
   identity {
     type         = "UserAssigned"
-    identity_ids = [ azurerm_user_assigned_identity.lustre-oss.id ]
+    identity_ids = [ azurerm_user_assigned_identity.lustre-oss[0].id ]
   }
 
   lifecycle {
@@ -254,7 +260,7 @@ resource "azurerm_linux_virtual_machine" "robinhood" {
 }
 
 resource "azurerm_network_interface_application_security_group_association" "robinhood-asg-asso" {
-  for_each = toset(local.asg_associations["robinhood"])
-  network_interface_id          = azurerm_network_interface.robinhood-nic.id
+  for_each                      = local.lustre_enabled ? toset(local.asg_associations["robinhood"]) : []
+  network_interface_id          = azurerm_network_interface.robinhood-nic[0].id
   application_security_group_id = local.create_nsg ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
 }

@@ -299,6 +299,7 @@
       name: ood-apps-robinhood
       apply: 
         become: true
+    when: ( lustre is defined )
 
   - name: setup azcopy
     shell: |
@@ -309,55 +310,19 @@
     args:
       creates: /usr/local/bin/azcopy
 
-  # - name: Add Lustre server repo
-  #   yum_repository:
-  #     name: lustreserver
-  #     description: Lustre repo
-  #     baseurl: https://downloads.whamcloud.com/public/lustre/lustre-2.12.6/el7/patchless-ldiskfs-server/
-  #     file: LustrePack
-  #     enabled: yes
-  #     gpgcheck: no
-
-  # - name: Add Lustre client repo
-  #   yum_repository:
-  #     name: lustreclient
-  #     description: Lustre repo
-  #     baseurl: https://downloads.whamcloud.com/public/lustre/lustre-2.12.6/el7/client/
-  #     file: LustrePack
-  #     enabled: yes
-  #     gpgcheck: no
-
-  # - name: Add e2fs repo
-  #   yum_repository:
-  #     name: e2fs
-  #     description: Lustre repo
-  #     baseurl: https://downloads.whamcloud.com/public/e2fsprogs/latest/el7/
-  #     file: LustrePack
-  #     enabled: yes
-  #     gpgcheck: no
-
-  # - name: Install lustre packages
-  #   yum:
-  #     name:
-  #       - lustre-client
-  #     state: present
-  #   register: install_rpms
-
-  # - name: run weak-modules
-  #   command: weak-modules --add-kernel --no-initramfs
-  #   when: install_rpms.changed
-
   - name: create lustre mount directory
     file:
       path: /lustre
       state: directory
       mode: 0777
+    when: ( lustre is defined )
 
   - name: Install Lustre Client
     include_role:
       name: lustre
     vars:
       install_client: true
+    when: ( lustre is defined )
 
   - name: create ood initialiser directory
     file:
@@ -373,6 +338,7 @@
         OodFilesApp.candidate_favorite_paths.tap do |paths|
           paths << FavoritePath.new("/lustre", title: "Lustre")
         end
+    when: ( lustre is defined )
 
   # Update file upload staging area to be in /mnt/resource
   - name: Create passenger temp dir

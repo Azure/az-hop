@@ -6,9 +6,9 @@ resource "local_file" "AnsibleInventory" {
       ccportal-ip       = azurerm_network_interface.ccportal-nic.private_ip_address
       grafana-ip        = azurerm_network_interface.grafana-nic.private_ip_address
       guacamole-ip      = try(azurerm_network_interface.guacamole-nic[0].private_ip_address, "0.0.0.0")
-      lustre-ip         = azurerm_network_interface.lustre-nic.private_ip_address
+      lustre-ip         = local.lustre_enabled ? azurerm_network_interface.lustre-nic[0].private_ip_address : "0.0.0.0"
       lustre-oss-ip     = concat(azurerm_network_interface.lustre-oss-nic[*].private_ip_address)
-      robinhood-ip      = azurerm_network_interface.robinhood-nic.private_ip_address
+      robinhood-ip      = local.lustre_enabled ? azurerm_network_interface.robinhood-nic[0].private_ip_address : "0.0.0.0"
       jumpbox-pip       = local.allow_public_ip ? azurerm_public_ip.jumpbox-pip[0].ip_address : azurerm_network_interface.jumpbox-nic.private_ip_address
       jumpbox-user      = azurerm_linux_virtual_machine.jumpbox.admin_username
       jumpbox-ssh-port  = local.jumpbox_ssh_port

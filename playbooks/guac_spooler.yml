@@ -50,5 +50,19 @@
         guac_spooler_slurmdb_user: "{{ slurmdb_user }}"
         guac_spooler_slurmdb_fqdn: "{{slurmdb_fqdn}}"
         guac_spooler_mountpoint: "{{ homedir_mountpoint }}"
+
+    - name: Install Telegraf
+      include_role:
+        name: telegraf
+      vars:
+        influxdb_username: "{{admin_user}}"
+        influxdb_password: "{{password.stdout}}"
+        influxdb_database_name: "telegraf"
+        telegraf_influxdb_urls: 
+          - "http://grafana:8086"
+
+    - name: Configure chrony
+      include_role:
+        name: chrony
     when: ( enable_remote_winviz is defined and enable_remote_winviz )
 

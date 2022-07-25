@@ -3,7 +3,7 @@
   hosts: jumpbox
   become: true
 
-- hosts: jumpbox, scheduler, ondemand, ccportal, lustre, lustre-oss-*, robinhood, grafana, guacamole
+- hosts: jumpbox, scheduler, ondemand, ccportal, grafana
   become: true
   gather_facts: no
   vars_files:
@@ -59,58 +59,6 @@
 
     - name: restart ood
       shell: systemctl try-restart httpd24-httpd.service httpd24-htcacheclean.service
-
-- name: Robinhood metrics
-  hosts: robinhood
-  become: true
-  vars_files:
-    - '{{global_config_file}}'
-  
-  tasks:
-  - name: create telegraf plugin directory
-    file:
-      path: /opt/telegraf/scripts
-      state: directory
-  - name: create rbh_metrics script
-    copy:
-      dest: /opt/telegraf/scripts/rbh_metrics.sh
-      mode: 0755
-      content: |
-        #!/bin/bash
-        while IFS= read -r LINE; do
-            timestamp=$(date +%s%N)
-            rbh-report -u "*" -c 2>/dev/null \
-                | tail -n +2 \
-                | head -n -2 \
-                | sed 's/ *//g' \
-                | awk -F, '{ print "lustre,user="$1",type="$2" count="$3",volume="$4",space_used="$5" " '$timestamp' }'
-            rbh-report --status-info lhsm -c 2>/dev/null \
-                | tail -n +2 \
-                | head -n -2 \
-                | sed 's/ *//g;s/^,/none,/g' \
-                | awk -F, '{ print "lhsm,status="$1",type="$2" count="$3",volume="$4",space_used="$5" " '$timestamp' }'
-        done
-  - name: permissions for rbh lustre.conf
-    file:
-      path: /etc/robinhood.d/lustre.conf
-      group: telegraf
-      mode: '0640'
-  - name: permissions for rbh .dbpassword
-    file:
-      path: /etc/robinhood.d/.dbpassword
-      group: telegraf
-      mode: '0640'
-  - name: add rbh metrics to telegraf config
-    blockinfile:
-      path: /etc/telegraf/telegraf.conf
-      block: |
-        [[inputs.execd]]
-          command = ["/opt/telegraf/scripts/rbh_metrics.sh"]
-          signal = "STDIN"
-  - name: restart telegraf
-    service:
-      name: telegraf
-      state: restarted
 
 - name: PBS metrics
   hosts: scheduler
