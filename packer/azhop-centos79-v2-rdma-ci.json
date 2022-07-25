@@ -3,14 +3,17 @@
         {
             "type": "azure-arm",
             "use_azure_cli_auth": "{{user `var_use_azure_cli_auth`}}",
-            "image_publisher": "OpenLogic",
-            "image_offer": "CentOS-HPC",
-            "image_sku": "7_9-gen2",
-            "image_version": "latest",
             "managed_image_resource_group_name": "{{user `var_resource_group`}}",
             "managed_image_name": "{{user `var_image`}}",
+            "shared_image_gallery": {
+                "subscription": "{{user `var_subscription_id`}}",
+                "resource_group": "{{user `var_resource_group`}}",
+                "gallery_name": "{{user `var_sig_name`}}",
+                "image_name": "base-centos79-v2-rdma",
+                "image_version": "latest"
+            },
             "os_type": "Linux",
-            "vm_size": "Standard_d8s_v3",
+            "vm_size": "Standard_HB120rs_v3",
             "managed_image_storage_account_type": "Premium_LRS",
             "ssh_pty": "true",
             "build_resource_group_name": "{{user `var_resource_group`}}",

@@ -160,13 +160,13 @@ images:
     hyper_v: V2
     os_type: Linux
     version: 7.9
-  - name: centos-7.8-desktop-3d
+  - name: azhop-centos79-desktop3d
     publisher: azhop
     offer: CentOS
-    sku: 7_8
-    hyper_v: V1
+    sku: 7.9-gen2-desktop3d
+    hyper_v: V2
     os_type: Linux
-    version: 7.8
+    version: 7.9
   - name: azhop-ubuntu18.04
     publisher: azhop
     offer: Ubuntu
@@ -215,13 +215,13 @@ queues:
   - name: viz3d
     vm_size: Standard_NV12s_v3
     max_core_count: 48
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
+    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
     ColocateNodes: false
     spot: false
   - name: viz
     vm_size: Standard_D8a_v4
     max_core_count: 200
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
+    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
     ColocateNodes: false
     spot: false
   - name: nc24v3
@@ -231,7 +231,7 @@ queues:
   - name: largeviz3d
     vm_size: Standard_NV48s_v3
     max_core_count: 96
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/centos-7.8-desktop-3d/latest
+    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
     ColocateNodes: false
     spot: false
 

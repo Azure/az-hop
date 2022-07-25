@@ -1,0 +1,5 @@
+#cloud-config
+# Add your cloud init script here to customize the instance before running the installation scripts
+#runcmd:
+# - echo AllowUsers packer >> /etc/ssh/sshd_config
+# - systemctl restart sshd

@@ -36,8 +36,7 @@
             "inline": [
                 "chmod +x /tmp/*.sh",
                 "/tmp/linux-setup.sh || exit 1",
-                "/tmp/pbspro.sh || exit 1",
-                "/tmp/pmix.sh || exit 1",
+                "/tmp/{{user `var_queue_manager`}}.sh || exit 1",
                 "/tmp/telegraf.sh || exit 1",
                 "echo ' This is the end '",
                 "rm -rf /tmp/*.sh",

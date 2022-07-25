@@ -1,6 +1,8 @@
 # Manually adding nodes
 Since version [1.0.9](https://github.com/Azure/az-hop/releases/tag/v1.0.9) users defined with the admin role in `az-hop` are now admins for clusters in Cycle Cloud. This means that nodes can be added or removed from the Cycle Cloud monitoring page.
 
+Note: This feature is restricted to the OpenPBS scheduler.
+
 To add nodes :
 - Browse to the Cycle Cloud portal,
 - In the `Actions` menu of the `Nodes` tab select `Add`,

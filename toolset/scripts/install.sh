@@ -103,29 +103,29 @@ rm -f /tmp/*.zip && rm -f /tmp/*.gz && \
 echo "=============="
 echo "Python version"
 echo "=============="
-python3 --version
+python3 --version || exit 1
 echo "==============="
 echo "Ansible version"
 echo "==============="
-ansible --version
+ansible --version || exit 1
 echo "================="
 echo "Terraform version"
 echo "================="
-terraform --version
+terraform --version || exit 1
 echo "=============="
 echo "Packer version"
 echo "=============="
-packer --version
+packer --version || exit 1
 echo "=========="
 echo "AZ version"
 echo "=========="
-az --version
+az --version || exit 1
 echo "=========="
 echo "AZ Copy version"
 echo "=========="
-azcopy --version
+azcopy --version || exit 1
 echo "=========="
 echo "yq version"
 echo "=========="
-yq --version
+yq --version || exit 1
 echo "End"

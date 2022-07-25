@@ -22,5 +22,9 @@ Powershell.exe -executionpolicy remotesigned try { $ProgressPreference = 'Silent
 call C:\cycle\jetpack\bin\jetpack log "Install the driver silently /s and don't reboot /n"
 472.39_grid_win11_win10_64bit_Azure-SWL.exe /s /n
 
+:: Enable NFS Client
+call C:\cycle\jetpack\bin\jetpack log "Enable NFS Client"
+Powershell.exe -executionpolicy remotesigned try { Enable-WindowsOptionalFeature -FeatureName ServicesForNFS-ClientOnly, ClientForNFS-Infrastructure -Online -NoRestart } catch { exit 255 }
+
 call C:\cycle\jetpack\bin\jetpack log "Reboot"
 shutdown /r /f /t 0 /c "Reboot after domain join"

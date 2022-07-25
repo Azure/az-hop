@@ -97,7 +97,7 @@
 
     - name: Download tomcat
       unarchive:
-        src: https://dlcdn.apache.org/tomcat/tomcat-9/v{{tomcat_version}}/bin/apache-tomcat-{{tomcat_version}}.tar.gz
+        src: https://archive.apache.org/dist/tomcat/tomcat-9/v{{tomcat_version}}/bin/apache-tomcat-{{tomcat_version}}.tar.gz
         dest: /opt/tomcat
         owner: tomcat
         group: tomcat

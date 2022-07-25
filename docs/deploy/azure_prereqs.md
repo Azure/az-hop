@@ -2,13 +2,13 @@
 
 - When using a user account 
   - you need to be **Owner** of the subscription
-- When using a Service Principal Name you need to be :
-  - **Contributor** on the subscription
-  - **User Access Administrator** on the subscription
+- When using a Service Principal Name, the service principal needs to be
+  - **"Contributor"** on the subscription
+  - **"User Access Administrator"** on the subscription
 - When using a managed Identity on a deployer VM it needs to be a **System Managed Identity** with 
-  - **Contributor** on the resource group
-  - **User Access Administrator** on the resource group
-  - **Reader** on the subscription
+  - **"Contributor"** on the resource group
+  - **"User Access Administrator"** on the resource group
+  - **"Reader"** on the subscription
 - Your subscription need to be registered for NetApp resource provider as explained [here](https://docs.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-register#waitlist)
 - If using ANF Dual Protocol be aware of the limitation of one ANF account allow to be domain joined per region in the same subscription
 - The Azure HPC Lustre marketplace image terms need to be accepted
@@ -38,3 +38,10 @@ az vm image terms accept --offer almalinux-hpc --publisher almalinux --plan 8_5-
   - For Remote Visualization
     - 18 cores of Standard NV Family
 
+## Special circumstances
+- When deploying in a zero-trust environment that automatically blocks access to high-risk TCP/UDP ports (e.g. 22) from the internet, follow the [hub and spoke network architecture](https://docs.microsoft.com/en-us/azure/architecture/reference-architectures/hybrid-networking/hub-spoke?tabs=cli). 
+  - In the hub, create:
+    - the VPN gateway and virtual network
+    - virtual machines for self-hosted Github Action runners
+  - Each azhop deployment will be a spoke. 
+    - See [define the deployment](https://azure.github.io/az-hop/deploy/define_environment.html) for how to automatically peer the virtual network of azhop with that of the hub, and for how to change the SSH port of the jumpbox.
