@@ -541,7 +541,7 @@ jobs:
     name: cleanup
     runs-on: ubuntu-latest
     if: always() && inputs.clean == 'true'
-    needs: [deploy, run_tests]
+    needs: [deploy, run_tests, telegraf]
 
     container:
       image: azhop.azurecr.io/hpcrover:2206.1321
