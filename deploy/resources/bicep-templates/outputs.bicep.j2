@@ -1,5 +1,5 @@
 output admin_user string = adminUser
-{%- if slurm.accounting_enabled == true %}
+{%- if queue_manager == "slurm" and slurm.accounting_enabled == true %}
 output slurm_admin_user string = slurmAccountingAdminUser
 {%- endif %}
 output resource_postfix string = resourcePostfix

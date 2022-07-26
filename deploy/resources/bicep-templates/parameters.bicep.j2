@@ -19,7 +19,7 @@ param location string = resourceGroup().location
 // end with a character (x) - requirement for shared image gallery
 var resourcePostfix = '${uniqueString(subscription().subscriptionId, resourceGroup().id)}x'
 
-{%- if slurm.accounting_enabled == true %}
+{%- if queue_manager == "slurm" and slurm.accounting_enabled == true %}
 @description('Slurm accounting admin user')
 param slurmAccountingAdminUser string = 'sqladmin'
 
