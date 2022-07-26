@@ -1,4 +1,4 @@
-{%- if slurm.accounting_enabled == true %}
+{%- if queue_manager == "slurm" and slurm.accounting_enabled == true %}
 resource mysql 'Microsoft.DBforMySQL/servers@2017-12-01' = {
   name: 'azhop-${resourcePostfix}'
   location: location
