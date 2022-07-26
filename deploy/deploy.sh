@@ -16,6 +16,14 @@ if [[ ! -f "${adminuser}_id_rsa" ]]; then
     ssh-keygen -f "${adminuser}_id_rsa"  -N ''
 fi
 
+slurmAdminUserArg=
+slurmAdminPasswordArg=
+
+if [[ $(yq .queue_manager build.yml) == "slurm" && $(yq .slurm.accounting_enabled build.yml) == "true" ]]; then
+    slurmAdminUserArg="slurmAccountingAdminUser=$slurmadmin"
+    slurmAdminPasswordArg="slurmAccountingAdminPassword=$slurmactpassword"
+fi
+
 ./build.sh
 az group create --location westeurope --name $rg
 az deployment group create \
@@ -26,8 +34,7 @@ az deployment group create \
         adminPassword="$winpassword" \
         adminSshPublicKey="$(<${adminuser}_id_rsa.pub)" \
         adminSshPrivateKey="$(<${adminuser}_id_rsa)" \
-        slurmAccountingAdminUser=$slurmadmin \
-        slurmAccountingAdminPassword="$slurmactpassword" \
+        $slurmAdminUserArg $slurmAdminPasswordArg \
     | tee deploy.log
 
 jq '.properties.outputs | to_entries | map({(.key): .value.value}) | add' <deploy.log | yq -P | tee outputs.yml
