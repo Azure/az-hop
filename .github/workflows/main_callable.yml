@@ -243,7 +243,10 @@ jobs:
         run: |
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
-          ./install.sh lustre
+          install_lustre=$(yq eval ".lustre" config.yml)
+          if [ "$install_lustre" != "null" ]; then
+            ./install.sh lustre
+          fi
 
   ood:
     name: ood
@@ -418,7 +421,7 @@ jobs:
   telegraf:
     name: telegraf
     runs-on: self-hosted
-    needs: [grafana, lustre, cycle, deploy, ood, guacamole]
+    needs: [grafana, cycle, deploy, guacamole]
 
     container:
       image: azhop.azurecr.io/hpcrover:2206.1321
@@ -540,7 +543,7 @@ jobs:
     name: cleanup
     runs-on: ubuntu-latest
     if: always() && inputs.clean == 'true'
-    needs: [deploy, run_tests]
+    needs: [deploy, run_tests, telegraf]
 
     container:
       image: azhop.azurecr.io/hpcrover:2206.1321
