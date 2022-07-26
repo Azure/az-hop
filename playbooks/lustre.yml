@@ -68,7 +68,7 @@
 
 
 - hosts: lustre, lustre-oss*, robinhood
-  become: false
+  become: true
   gather_facts: no
   vars_files:
     - '{{global_config_file}}'
