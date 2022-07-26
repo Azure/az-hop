@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -e
 rg=$1
 
 if [ "$rg" == "" ]; then
