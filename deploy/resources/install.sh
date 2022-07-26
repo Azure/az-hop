@@ -76,7 +76,7 @@ echo "* Installing dependencies"
 cd $azhop_root
 ./toolset/scripts/install.sh
 
-if [ "$(yq .deploy_sig build.yml)" == "true" ]; then
+if [ "$(yq .deploy_sig deploy/build.yml)" == "true" ]; then
     echo "* Building images"
     cd $azhop_root/packer
     ./build_image.sh -i azhop-centos79-v2-rdma-gpgpu.json
