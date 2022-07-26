@@ -79,8 +79,8 @@ cd $azhop_root
 if [ "$(yq .deploy_sig deploy/build.yml)" == "true" ]; then
     echo "* Building images"
     cd $azhop_root/packer
-    ./build_image.sh -i azhop-centos79-v2-rdma-gpgpu.json
-    ./build_image.sh -i azhop-centos79-desktop3d.json
+    ./build_image.sh -i azhop-compute-centos-7.9.json
+    ./build_image.sh -i azhop-desktop-centos-7.9.json
 fi
 
 echo "* Generating passwords"

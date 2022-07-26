@@ -232,20 +232,34 @@ images:
   #   os_type: Linux # Linux or Windows
   #   version: 7.9 # Version of the image to create the image definition in SIG
 # Pre-defined images
-  - name: azhop-almalinux85-v2-rdma-gpgpu
+  - name: azhop-compute-almalinux-8.5
     publisher: azhop
-    offer: almalinux
-    sku: 8_5-hpc-gen2
+    offer: compute
+    sku: almalinux-8.5
     hyper_v: V2
     os_type: Linux
-    version: 8.5
-  - name: azhop-centos79-v2-rdma-gpgpu
+    version: 1.0
+  - name: azhop-compute-centos-7.9
     publisher: azhop
-    offer: CentOS
-    sku: 7.9-gen2
+    offer: compute
+    sku: centos-7.9
     hyper_v: V2
     os_type: Linux
-    version: 7.9
+    version: 1.0
+  - name: azhop-compute-ubuntu-18.04
+    publisher: azhop
+    offer: compute
+    sku: ubuntu-18_04
+    hyper_v: V2
+    os_type: Linux
+    version: 1.0
+  - name: azhop-desktop-centos-7.9
+    publisher: azhop
+    offer: desktop
+    sku: centos-7.9
+    hyper_v: V2
+    os_type: Linux
+    version: 1.0
   # Image definition when using a custom image to build compute nodes images
   - name: azhop-centos79-v2-rdma-ci
     publisher: azhop
@@ -262,20 +276,6 @@ images:
     hyper_v: V2
     os_type: Linux
     version: 7.9
-  - name: azhop-centos79-desktop3d
-    publisher: azhop
-    offer: CentOS
-    sku: 7.9-gen2-desktop3d
-    hyper_v: V2
-    os_type: Linux
-    version: 7.9
-  - name: azhop-ubuntu18.04
-    publisher: azhop
-    offer: Ubuntu
-    sku: 10_04
-    hyper_v: V2
-    os_type: Linux
-    version: 18.04
   - name: azhop-win10
     publisher: azhop
     offer: Windows-10

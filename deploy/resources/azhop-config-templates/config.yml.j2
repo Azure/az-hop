@@ -217,20 +217,34 @@ authentication:
 
 # List of images to be defined
 images:
-  - name: azhop-almalinux85-v2-rdma-gpgpu
+  - name: azhop-compute-almalinux-8.5
     publisher: azhop
-    offer: almalinux
-    sku: 8_5-hpc-gen2
+    offer: compute
+    sku: almalinux-8.5
     hyper_v: V2
     os_type: Linux
-    version: 8.5
-  - name: azhop-centos79-v2-rdma-gpgpu
+    version: 1.0
+  - name: azhop-compute-centos-7.9
     publisher: azhop
-    offer: CentOS
-    sku: 7.9-gen2
+    offer: compute
+    sku: centos-7.9
     hyper_v: V2
     os_type: Linux
-    version: 7.9
+    version: 1.0
+  - name: azhop-compute-ubuntu-18.04
+    publisher: azhop
+    offer: compute
+    sku: ubuntu-18_04
+    hyper_v: V2
+    os_type: Linux
+    version: 1.0
+  - name: azhop-desktop-centos-7.9
+    publisher: azhop
+    offer: desktop
+    sku: centos-7.9
+    hyper_v: V2
+    os_type: Linux
+    version: 1.0
   # Image definition when using a custom image to build compute nodes images
   - name: azhop-centos79-v2-rdma-ci
     publisher: azhop
@@ -247,20 +261,6 @@ images:
     hyper_v: V2
     os_type: Linux
     version: 7.9
-  - name: azhop-centos79-desktop3d
-    publisher: azhop
-    offer: CentOS
-    sku: 7.9-gen2-desktop3d
-    hyper_v: V2
-    os_type: Linux
-    version: 7.9
-  - name: azhop-ubuntu18.04
-    publisher: azhop
-    offer: Ubuntu
-    sku: 10_04
-    hyper_v: V2
-    os_type: Linux
-    version: 18.04
   - name: azhop-win10
     publisher: azhop
     offer: Windows-10
@@ -276,6 +276,7 @@ images:
     hyper_v: V2
     os_type: Linux
     version: 7.9
+
 # List of queues (node arays in Cycle) to be defined
 queues:
   - name: execute # name of the Cycle Cloud node array
@@ -286,7 +287,7 @@ queues:
     # marketplace image name or custom image id
     #image: OpenLogic:CentOS-HPC:7_9-gen2:latest
     #image: /subscriptions/{{outputs.subscription_id}}/resourceGroups/{{outputs.resource_group}}/providers/Microsoft.Compute/galleries/azhop_{{outputs.resource_postfix}}/images/azhop-centos79-v2-rdma-gpgpu/latest
-    image: {% if build.deploy_sig == true %}/subscriptions/{{outputs.subscription_id}}/resourceGroups/{{outputs.resource_group}}/providers/Microsoft.Compute/galleries/azhop_{{outputs.resource_postfix}}/images/azhop-centos79-v2-rdma-gpgpu/latest{% else %}{{build.images["azhop-centos79-v2-rdma-gpgpu"].id}}{% endif %}
+    image: {% if build.deploy_sig == true %}/subscriptions/{{outputs.subscription_id}}/resourceGroups/{{outputs.resource_group}}/providers/Microsoft.Compute/galleries/azhop_{{outputs.resource_postfix}}/images/azhop-compute-centos-7.9/latest{% else %}{{build.images["azhop-compute-centos-7.9"].id}}{% endif %}
     # Image plan specification (when needed for the image). Terms must be accepted prior to deployment
 #    plan: publisher:product:name
     # Set to true if AccelNet need to be enabled. false is the default value
@@ -300,37 +301,37 @@ queues:
   - name: hc44rs
     vm_size: Standard_HC44rs
     max_core_count: 440
-    image: {% if build.deploy_sig == true %}/subscriptions/{{outputs.subscription_id}}/resourceGroups/{{outputs.resource_group}}/providers/Microsoft.Compute/galleries/azhop_{{outputs.resource_postfix}}/images/azhop-centos79-v2-rdma-gpgpu/latest{% else %}{{build.images["azhop-centos79-v2-rdma-gpgpu"].id}}{% endif %}
+    image: {% if build.deploy_sig == true %}/subscriptions/{{outputs.subscription_id}}/resourceGroups/{{outputs.resource_group}}/providers/Microsoft.Compute/galleries/azhop_{{outputs.resource_postfix}}/images/azhop-compute-centos-7.9/latest{% else %}{{build.images["azhop-compute-centos-7.9"].id}}{% endif %}
     spot: true
   - name: hb120v2
     vm_size: Standard_HB120rs_v2
     max_core_count: 1200
-    image: {% if build.deploy_sig == true %}/subscriptions/{{outputs.subscription_id}}/resourceGroups/{{outputs.resource_group}}/providers/Microsoft.Compute/galleries/azhop_{{outputs.resource_postfix}}/images/azhop-centos79-v2-rdma-gpgpu/latest{% else %}{{build.images["azhop-centos79-v2-rdma-gpgpu"].id}}{% endif %}
+    image: {% if build.deploy_sig == true %}/subscriptions/{{outputs.subscription_id}}/resourceGroups/{{outputs.resource_group}}/providers/Microsoft.Compute/galleries/azhop_{{outputs.resource_postfix}}/images/azhop-compute-centos-7.9/latest{% else %}{{build.images["azhop-compute-centos-7.9"].id}}{% endif %}
     spot: true
   - name: hb120v3
     vm_size: Standard_HB120rs_v3
     max_core_count: 1200
-    image: {% if build.deploy_sig == true %}/subscriptions/{{outputs.subscription_id}}/resourceGroups/{{outputs.resource_group}}/providers/Microsoft.Compute/galleries/azhop_{{outputs.resource_postfix}}/images/azhop-centos79-v2-rdma-gpgpu/latest{% else %}{{build.images["azhop-centos79-v2-rdma-gpgpu"].id}}{% endif %}
+    image: {% if build.deploy_sig == true %}/subscriptions/{{outputs.subscription_id}}/resourceGroups/{{outputs.resource_group}}/providers/Microsoft.Compute/galleries/azhop_{{outputs.resource_postfix}}/images/azhop-compute-centos-7.9/latest{% else %}{{build.images["azhop-compute-centos-7.9"].id}}{% endif %}
     spot: true
     # Queue dedicated to GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz3d
     vm_size: Standard_NV12s_v3
     max_core_count: 48
-    image: {% if build.deploy_sig == true %}/subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest{% else %}{{build.images["centos-7.8-desktop-3d"].id}}{% endif %}
+    image: {% if build.deploy_sig == true %}/subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-desktop-centos-7.9/latest{% else %}{{build.images["azhop-desktop-centos-7.9"].id}}{% endif %}
     ColocateNodes: false
     spot: false
     # Queue dedicated to share GPU remote viz nodes. This name is fixed and can't be changed
   - name: largeviz3d
     vm_size: Standard_NV48s_v3
     max_core_count: 96
-    image: {% if build.deploy_sig == true %}/subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest{% else %}{{build.images["centos-7.8-desktop-3d"].id}}{% endif %}
+    image: {% if build.deploy_sig == true %}/subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-desktop-centos-7.9/latest{% else %}{{build.images["azhop-desktop-centos-7.9"].id}}{% endif %}
     ColocateNodes: false
     spot: false
     # Queue dedicated to non GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz
     vm_size: Standard_D8s_v3
     max_core_count: 200
-    image: {% if build.deploy_sig == true %}/subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest{% else %}{{build.images["centos-7.8-desktop-3d"].id}}{% endif %}
+    image: {% if build.deploy_sig == true %}/subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-desktop-centos-7.9/latest{% else %}{{build.images["azhop-desktop-centos-7.9"].id}}{% endif %}
     ColocateNodes: false
     spot: false
 
