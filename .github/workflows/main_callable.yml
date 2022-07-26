@@ -221,6 +221,7 @@ jobs:
     name: lustre
     runs-on: self-hosted
     needs: [ad, deploy, grafana]
+    if: inputs.lustre == 'true'
 
     container:
       image: azhop.azurecr.io/hpcrover:2206.1321
@@ -418,7 +419,7 @@ jobs:
   telegraf:
     name: telegraf
     runs-on: self-hosted
-    needs: [grafana, lustre, cycle, deploy, ood, guacamole]
+    needs: [grafana, cycle, deploy, guacamole]
 
     container:
       image: azhop.azurecr.io/hpcrover:2206.1321
