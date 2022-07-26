@@ -221,7 +221,6 @@ jobs:
     name: lustre
     runs-on: self-hosted
     needs: [ad, deploy, grafana]
-    if: inputs.lustre == 'true'
 
     container:
       image: azhop.azurecr.io/hpcrover:2206.1321
@@ -244,7 +243,10 @@ jobs:
         run: |
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
-          ./install.sh lustre
+          install_lustre=$(yq eval ".lustre" config.yml)
+          if [ "$install_lustre" != "null" ]; then
+            ./install.sh lustre
+          fi
 
   ood:
     name: ood
