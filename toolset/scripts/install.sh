@@ -15,7 +15,8 @@ apt install -y \
      wget \
      git \
      dnsutils \
-     yamllint
+     yamllint \
+     pwgen
 #     ca-certificates \
 #     file \
 #     ftp \
