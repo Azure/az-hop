@@ -1,9 +1,11 @@
 #!/bin/bash
 set -e
+set -o pipefail
 rg=$1
+location=${2:-westeurope}
 
 if [ "$rg" == "" ]; then
-    echo "Usage: $0 <resource group>"
+    echo "Usage: $0 <resource group> <location>"
     exit 1
 fi
 
@@ -25,7 +27,7 @@ if [[ $(yq .queue_manager build.yml) == "slurm" && $(yq .slurm.accounting_enable
 fi
 
 ./build.sh
-az group create --location westeurope --name $rg
+az group create --location $location --name $rg
 az deployment group create \
     --resource-group $rg \
     --template-file azureDeploy.bicep \
