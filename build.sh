@@ -43,6 +43,20 @@ while (( "$#" )); do
   esac
 done
 
+if [ -e $TF_FOLDER/terraform.tfstate ]; then
+  echo "----WARNING WARNING WARNING----"
+  echo "Existing Terraform configuration detected"
+  echo "Confirm operation? You are making changes to a live deployment. (y/N)"
+  echo "----WARNING WARNING WARNING----"
+  
+  read CONFIRM
+
+  if [[ ! "$CONFIRM" =~ ^(y|Y)$ ]]; then
+    exit 0
+  fi
+fi 
+
+
 TF_BACKEND_FILE=$TF_FOLDER/backend.tf
 export TF_CLI_ARGS_apply="-auto-approve"
 #export TF_LOG=INFO
