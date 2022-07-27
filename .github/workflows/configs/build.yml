@@ -6,6 +6,8 @@ lock_down_network:
   enforce: false
   grant_access_from: [] # list in CIDR notation
 
+queue_manager: __SCHEDULER__
+
 slurm:
   #admin_user: sqladmin # parameter
   accounting_enabled: true
