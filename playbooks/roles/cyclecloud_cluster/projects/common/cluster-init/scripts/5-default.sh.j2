@@ -29,3 +29,6 @@ esac
 if [ ! -d /usr/share/Modules ]; then
     ln -s /usr/share/modules /usr/share/Modules
 fi
+
+# Add modulefiles from HPC CentOS image to module path
+export MODULEPATH=$MODULEPATH:/usr/share/Modules/modulefiles/
