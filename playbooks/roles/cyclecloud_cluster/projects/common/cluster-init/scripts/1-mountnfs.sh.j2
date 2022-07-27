@@ -5,4 +5,4 @@ read_os
 
 find $script_dir/../files -name "*.sh" -exec chmod +x {} \;
 
-$script_dir/../files/$os_release/mountnfs.sh {{homedir_mountpoint}} {{ anf_home_ip }} {{ anf_home_path }}
+$script_dir/../files/$os_release/mountnfs.sh {{homedir_mountpoint}} {{ anf_home_ip }} {{ anf_home_path }} {{ anf_home_opts }}

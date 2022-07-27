@@ -62,10 +62,6 @@ resource nfsFilesStorageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' =
 resource nfsFilesFileServices 'Microsoft.Storage/storageAccounts/fileServices@2021-09-01' = {
   parent: nfsFilesStorageAccount
   name: 'default'
-  sku: {
-    name: 'Premium_LRS'
-    tier: 'Premium'
-  }
   properties: {
     protocolSettings: {
       smb: {
@@ -93,12 +89,10 @@ resource nfsFilesHome 'Microsoft.Storage/storageAccounts/fileServices/shares@202
     enabledProtocols: 'NFS'
     rootSquash: 'NoRootSquash'
   }
-  dependsOn: [
-    nfsFilesStorageAccount
-  ]
 }
 
-output nfs_home_ip string = 'nfsfiles${resourcePostfix}'
-output nfs_home_path string = '/nfsfiles${resourcePostfix}/home'
+output nfs_home_ip string = 'nfsfiles${resourcePostfix}.file.${environment().suffixes.storage}'
+output nfs_home_path string = '/nfsfiles${resourcePostfix}/nfshome'
+output nfs_home_opts string = 'vers=4,minorversion=1,sec=sys'
 
 {% endif %}
