@@ -5,3 +5,4 @@ domain_dc_ip:
 domain_homedir: /anfhome
 domain_mount_ip:
 domain_mount_path:
+domain_mount_opts:
