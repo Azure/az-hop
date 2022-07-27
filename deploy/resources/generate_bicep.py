@@ -24,6 +24,7 @@ if __name__ == "__main__":
         "asg.bicep.j2",
         "vms.bicep.j2",
         "anf.bicep.j2",
+        "nfsfiles.bicep.j2",
         "sig.bicep.j2",
         "keyvault.bicep.j2",
         "secrets.bicep.j2",

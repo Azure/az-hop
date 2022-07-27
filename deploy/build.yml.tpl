@@ -14,6 +14,8 @@ slurm:
 
 deploy_sig: true
 
+homedir: "anf"
+
 anf:
   dual_protocol: false
   service_level: Standard
