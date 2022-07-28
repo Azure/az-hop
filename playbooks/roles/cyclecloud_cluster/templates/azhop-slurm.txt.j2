@@ -63,14 +63,14 @@ Autoscale = true
         mountpoint = /sched
         export_path = {{mounts.home.export}}/slurm/config
         address = {{mounts.home.server}}
-        #options =
+        options = {{mounts.home.options}}
 
         [[[configuration cyclecloud.mounts.nfs_anfhome]]]
         type = nfs
-        mountpoint = /anfhome
+        mountpoint = {{mounts.home.mountpoint}}
         export_path = {{mounts.home.export}}
         address = {{mounts.home.server}}
-        #options =
+        options = {{mounts.home.options}}
 
     [[node nodearraybase]]
     Abstract = true

@@ -6,7 +6,7 @@ ad_dns                        : {{outputs.ad_private_ip}}
 ad_join_user                  : {{outputs.admin_user}}
 ad_join_domain                : hpc.azure
 ldap_server                   : ad
-homedir_mountpoint            : /anfhome
+homedir_mountpoint            : {{outputs.homedir_mountpoint}}
 anf_home_ip                   : {{outputs.nfs_home_ip}}
 anf_home_path                 : {{outputs.nfs_home_path}}
 anf_home_opts                 : {{outputs.nfs_home_opts}}

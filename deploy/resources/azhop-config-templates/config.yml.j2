@@ -22,9 +22,10 @@ anf:
 mounts:
   # mount settings for the user home directory
   home:
-    mountpoint: /anfhome # /sharedhome for example
-    server: '{{outputs.anf_home_ip}}' # Specify an existing NFS server name or IP, when using the ANF built in use '{{anf_home_ip}}'
-    export: 'home-{{outputs.resource_postfix}}' # Specify an existing NFS export directory, when using the ANF built in use '{{anf_home_path}}'
+    mountpoint: {{outputs.homedir_mountpoint}} # /sharedhome for example
+    server: {{outputs.nfs_home_ip}}
+    export: {{outputs.nfs_home_path}}
+    options: {{outputs.nfs_home_opts}}
 
 # name of the admin account
 admin_user: {{outputs.admin_user}}
