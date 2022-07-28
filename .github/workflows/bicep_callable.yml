@@ -104,6 +104,7 @@ jobs:
 
           # Update the default configuration with the resource group name and dual protocol options
           cp $AZHOP_CONFIGURATION $AZHOP_BUILD_CONFIGURATION
+          SCHEDULER=${{ inputs.scheduler }}
           sed -i "s/__SCHEDULER__/$SCHEDULER/g" $AZHOP_BUILD_CONFIGURATION
 
           # write the name of the resource group in the output of the job so it can be reused in others
