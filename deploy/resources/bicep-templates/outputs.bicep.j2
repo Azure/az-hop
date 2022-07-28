@@ -13,4 +13,4 @@ output resource_group string = resourceGroup().name
 output keyvault_name string = 'kv${resourcePostfix}'
 output storage_name string = 'azhop${resourcePostfix}'
 output mysql_name string = 'azhop-${resourcePostfix}'
-output homedir_mountpoint = homedirMountpoint
+output homedir_mountpoint string = homedirMountpoint
