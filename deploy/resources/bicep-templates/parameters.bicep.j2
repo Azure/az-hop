@@ -1,6 +1,9 @@
 @description('Admin user for the Virtual Machines.')
 param adminUser string
 
+@description('Home directory mountpoint on the VMs.')
+param homedirMountpoint string = '/anfhome'
+
 @description('SSH Public Key for the Virtual Machines.')
 @secure()
 param adminSshPublicKey string
