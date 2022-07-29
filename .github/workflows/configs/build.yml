@@ -100,13 +100,6 @@ vms:
         - Contributor
         - UserAccessAdministrator
     asgs: [ asg-ssh, asg-jumpbox, asg-ad-client, asg-telegraf, asg-nfs-client ]
-  jumpbox:
-    subnet: frontend
-    sku: Standard_B2ms
-    osdisksku: Standard_LRS
-    image: linux_base
-    pip: true
-    asgs: [ asg-ssh, asg-jumpbox, asg-ad-client, asg-telegraf, asg-nfs-client ]
   ad:
     subnet: ad
     windows: true

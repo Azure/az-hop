@@ -115,12 +115,6 @@ lustre_base_image: "azhpc:azurehpc-lustre:azurehpc-lustre-2_12:latest"
 # The lustre plan to use. Only needed when using the default lustre image from the marketplace. use "::" for an empty plan
 lustre_base_plan: "azhpc:azurehpc-lustre:azurehpc-lustre-2_12" # publisher:product:name
 
-# Jumpbox VM configuration
-jumpbox:
-  vm_size: Standard_B2ms
-  # SSH port under which the jumpbox SSH server listens on the public IP. Default to 22
-  # Change this to, e.g., 2222, if security policies (like "zero trust") in your tenant automatically block access to port 22 from the internet
-  #ssh_port: 2222
 # Active directory VM configuration
 ad:
   vm_size: Standard_B2ms

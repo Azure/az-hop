@@ -1,7 +1,7 @@
 ---
 # This looks crazy but in order for this playbook to run from a pipeline, the jumpbox dummy need to be added
-- name: jumpbox dummy
-  hosts: jumpbox
+- name: deployer dummy
+  hosts: deployer
   become: true
 
 - name: Setup Cycle Cloud

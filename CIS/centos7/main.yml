@@ -1,6 +1,6 @@
 ---
 - name: Apply CentOS7 CIS hardening
-  hosts: jumpbox, scheduler, ondemand, grafana, robinhood, lustre*
+  hosts: localhost, scheduler, ondemand, grafana, robinhood, lustre*
   become: true
   vars:
       is_container: false

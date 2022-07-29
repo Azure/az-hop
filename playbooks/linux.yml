@@ -1,6 +1,6 @@
 ---
 - name: Join AD domain and mount anf-home
-  hosts: jumpbox, scheduler, ondemand, grafana
+  hosts: localhost, scheduler, ondemand, grafana
   become: true
   gather_facts: no
   vars_files:

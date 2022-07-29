@@ -1,8 +1,6 @@
 all:
   hosts:
     localhost:
-    jumpbox:
-      ansible_host: {{outputs.jumpbox_private_ip}}
     scheduler:
       ansible_host: {{outputs.scheduler_private_ip}}
     ondemand:
