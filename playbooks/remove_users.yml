@@ -13,7 +13,7 @@
     when: users is defined
 
 - name: Remove Users
-  hosts: localhost
+  hosts: ondemand
   become: true
   vars_files:
     - '{{global_config_file}}'

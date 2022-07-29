@@ -1,4 +1,4 @@
-- hosts: localhost, scheduler, ondemand, ccportal, grafana
+- hosts: scheduler, ondemand, ccportal, grafana
   become: true
   gather_facts: no
   vars_files:

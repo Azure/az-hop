@@ -1,8 +1,3 @@
-# This looks crazy but in order for this playbook to run from a pipeline, the jumpbox dummy need to be added, otherwise there is an unable to connect message
-- name: deployer dummy
-  hosts: deployer
-  become: true
-
 - hosts: ondemand
   gather_facts: no
   become: true

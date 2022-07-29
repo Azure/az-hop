@@ -10,7 +10,7 @@
     when: users is defined
 
 - name: Configure Users
-  hosts: localhost
+  hosts: ondemand
   become: true
   vars_files:
     - '{{global_config_file}}'
