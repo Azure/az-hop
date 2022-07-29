@@ -85,6 +85,8 @@ ad:
 ondemand:
   vm_size: Standard_D8s_v5
   generate_certificate: true
+guacamole:
+  vm_size: Standard_B2ms
 grafana:
   vm_size: Standard_B2ms
 scheduler:
@@ -223,7 +225,7 @@ queues:
     ColocateNodes: false
     spot: false
   - name: viz
-    vm_size: Standard_D8a_v4
+    vm_size: Standard_D8s_v5
     max_core_count: 200
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
     ColocateNodes: false

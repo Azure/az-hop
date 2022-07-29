@@ -346,7 +346,7 @@ queues:
     spot: false
     # Queue dedicated to non GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz
-    vm_size: Standard_D8s_v3
+    vm_size: Standard_D8s_v5
     max_core_count: 200
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
     ColocateNodes: false
