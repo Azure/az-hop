@@ -91,3 +91,8 @@
                 --vaultname "{{ guac_spooler_key_vault }}"
   args:
     chdir: /tmp/cyclecloud-guac
+
+- name: restart guacspooler
+  service:
+    name: guacspoold.service
+    state: restarted
