@@ -35,6 +35,13 @@ This file would need to be converted to ARM in order to publish in the marketpla
 ## Installation
 
 
+## AD notes
+
+# list users
+ldapsearch -v -x -D "hpcadmin@hpc.azure" -W -b "DC=hpc,DC=azure" -H "ldap://ad" "(&(objectClass=user))"
+# list groups
+ldapsearch -v -x -D "hpcadmin@hpc.azure" -W -b "DC=hpc,DC=azure" -H "ldap://ad" "(&(objectClass=group))"
+
 
 ## Terraform
 
