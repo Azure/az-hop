@@ -27,6 +27,7 @@ This will create the bicep template.  This uses the new `build.yaml` as an input
 - mysql.bicep.j2
 - bastion.bicep.j2
 - outputs.bicep.j2
+- vpngateway.bicep.j2
 
 This file would need to be converted to ARM in order to publish in the marketplace.  The bicep script itself will embed the `deploy.sh` and the `build.yml`.
 

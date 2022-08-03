@@ -31,7 +31,8 @@ if __name__ == "__main__":
         "storage.bicep.j2",
         "mysql.bicep.j2",
         "bastion.bicep.j2",
-        "outputs.bicep.j2"
+        "outputs.bicep.j2",
+        "vpngateway.bicep.j2"
     ]
 
     with open(args.output, 'w') as ofile:
