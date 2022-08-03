@@ -58,6 +58,10 @@ vnet:
       cidr: '10.201.5.0/24'
       service_endpoints:
         - Microsoft.Storage
+    gateway:
+      apply_nsg: false
+      name: GatewaySubnet
+      cidr: '10.201.6.0/24'
 
 images:
   lustre:
