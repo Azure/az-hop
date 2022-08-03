@@ -42,7 +42,7 @@ resource vpnGateway 'Microsoft.Network/virtualNetworkGateways@2020-11-01' = {
             id: vpnGatewayPip.id
           }
           subnet: {
-            id: frontendSubnet.id
+            id: gatewaySubnet.id
           }
         }
       }
