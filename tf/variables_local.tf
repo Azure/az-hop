@@ -205,7 +205,6 @@ locals {
         Web = ["443", "80"]
         Ssh    = ["22"]
         Public_Ssh = [local.jumpbox_ssh_port]
-        Socks = ["5985"]
         # DNS, Kerberos, RpcMapper, Ldap, Smb, KerberosPass, LdapSsl, LdapGc, LdapGcSsl, AD Web Services, RpcSam
         DomainControlerTcp = ["53", "88", "135", "389", "445", "464", "686", "3268", "3269", "9389", "49152-65535"]
         # DNS, Kerberos, W32Time, NetBIOS, Ldap, KerberosPass, LdapSsl
@@ -226,6 +225,8 @@ locals {
         MySQL = ["3306", "33060"],
         # Guacamole
         Guacamole = ["8080"]
+        # WinRM
+        WinRM = ["5985", "5986"]
     }
 
     # Array of NSG rules to be applied on the common NSG
@@ -300,7 +301,7 @@ locals {
         AllowGrafanaIn              = ["510", "Inbound", "Allow", "Tcp", "Grafana",            "asg/asg-ondemand",          "asg/asg-grafana"],
 
         # Admin and Deployment
-        AllowSocksIn                = ["520", "Inbound", "Allow", "Tcp", "Socks",              "asg/asg-jumpbox",          "asg/asg-rdp"],
+        AllowWinRMIn                = ["520", "Inbound", "Allow", "Tcp", "WinRM",              "asg/asg-jumpbox",          "asg/asg-rdp"],
         AllowRdpIn                  = ["550", "Inbound", "Allow", "Tcp", "Rdp",                "asg/asg-jumpbox",          "asg/asg-rdp"],
 
         # Guacamole
@@ -378,7 +379,7 @@ locals {
 
         # Admin and Deployment
         AllowRdpOut                 = ["570", "Outbound", "Allow", "Tcp", "Rdp",                "asg/asg-jumpbox",          "asg/asg-rdp"],
-        AllowSocksOut               = ["580", "Outbound", "Allow", "Tcp", "Socks",              "asg/asg-jumpbox",          "asg/asg-rdp"],
+        AllowWinRMOut               = ["580", "Outbound", "Allow", "Tcp", "WinRM",              "asg/asg-jumpbox",          "asg/asg-rdp"],
         AllowDnsOut                 = ["590", "Outbound", "Allow", "*",   "Dns",                "tag/VirtualNetwork",       "tag/VirtualNetwork"],
 
         # Guacamole
@@ -398,6 +399,7 @@ locals {
     hub_nsg_rules = {
         AllowHubSshIn          = ["200", "Inbound", "Allow", "Tcp", "Public_Ssh",               "tag/VirtualNetwork", "asg/asg-jumpbox"],
         AllowHubHttpIn         = ["210", "Inbound", "Allow", "Tcp", "Web",                      "tag/VirtualNetwork", "asg/asg-ondemand"],
+        AllowPackerWinRMIn     = ["560", "Inbound", "Allow", "Tcp", "WinRM",                    "tag/VirtualNetwork", "subnet/compute"],
     }
 
     bastion_nsg_rules = {

@@ -20,6 +20,11 @@
             "winrm_username": "packer",
 
             "build_resource_group_name": "{{user `var_resource_group`}}",
+            "private_virtual_network_with_public_ip": "{{user `var_private_virtual_network_with_public_ip`}}",
+            "virtual_network_name": "{{user `var_virtual_network_name`}}",
+            "virtual_network_subnet_name": "{{user `var_virtual_network_subnet_name`}}",
+            "virtual_network_resource_group_name": "{{user `var_virtual_network_resource_group_name`}}",
+            "build_key_vault_name": "{{user `var_key_vault_name`}}",
             "cloud_environment_name": "{{user `var_cloud_env`}}"
         }
     ],

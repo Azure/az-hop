@@ -204,8 +204,7 @@ queue_manager: openpbs
 slurm:
   # Enable SLURM accounting, this will create a SLURM accounting database in a managed MySQL server instance
   accounting_enabled: false
-  # Enable container support for SLURM using Enroot/Pyxis (global switch)
-  # Each queue with container support must have its own enroot_enabled switch set to true
+  # Enable container support for SLURM using Enroot/Pyxis
   enroot_enabled: false
 
 # Authentication configuration for accessing the az-hop portal
@@ -316,8 +315,6 @@ queues:
     spot: false
     # Set to false to disable creation of placement groups (for SLURM only). Default is true
     ColocateNodes: false
-    # Set to true to enable Enroot for this partition
-    enroot_enabled: false
   - name: hc44rs
     vm_size: Standard_HC44rs
     max_core_count: 440
@@ -349,7 +346,7 @@ queues:
     spot: false
     # Queue dedicated to non GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz
-    vm_size: Standard_D8s_v3
+    vm_size: Standard_D8s_v5
     max_core_count: 200
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
     ColocateNodes: false

@@ -85,6 +85,8 @@ ad:
 ondemand:
   vm_size: Standard_D8s_v5
   generate_certificate: true
+guacamole:
+  vm_size: Standard_B2ms
 grafana:
   vm_size: Standard_B2ms
 scheduler:
@@ -144,6 +146,13 @@ authentication:
   #   OIDCPassClaimsAs: # for AAD use 'environment'
 
 images:
+  - name: azhop-almalinux85-v2-rdma-gpgpu
+    publisher: azhop
+    offer: almalinux
+    sku: 8_5-hpc-gen2
+    hyper_v: V2
+    os_type: Linux
+    version: 8.5
   - name: azhop-centos79-v2-rdma-gpgpu
     publisher: azhop
     offer: CentOS
@@ -198,6 +207,12 @@ queues:
     max_core_count: 2880
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
     spot: true
+  - name: hb120v3al
+    vm_size: Standard_HB120rs_v3
+    max_core_count: 2880
+    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-almalinux85-v2-rdma-gpgpu/latest
+    plan: almalinux:almalinux-hpc:8_5-hpc-gen2
+    spot: true
   - name: hbv3u18
     vm_size: Standard_HB120rs_v3
     max_core_count: 2880
@@ -210,7 +225,7 @@ queues:
     ColocateNodes: false
     spot: false
   - name: viz
-    vm_size: Standard_D8a_v4
+    vm_size: Standard_D8s_v5
     max_core_count: 200
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
     ColocateNodes: false

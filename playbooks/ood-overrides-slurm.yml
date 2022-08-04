@@ -20,6 +20,10 @@ ood_apps:
           scheduler_args += ["-t", "%02d:00:00" % hours]
         end
 
+        if target == "viz3d" or target == "largeviz3d"
+          scheduler_args += ["--gpus=1"]
+        end
+
         # If the user has specified a number of cores, set the job ppn
         cores = reservedcores.to_i
         if cores > 0
