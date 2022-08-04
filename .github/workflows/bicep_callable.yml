@@ -70,11 +70,7 @@ jobs:
     timeout-minutes: 60
 
     container:
-<<<<<<< HEAD
       image: azhop.azurecr.io/hpcrover:2207.2615
-=======
-      image: azhop.azurecr.io/hpcrover:2206.1321
->>>>>>> main
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -107,26 +103,16 @@ jobs:
           fi
 
           # Update the default configuration with the resource group name and dual protocol options
-<<<<<<< HEAD
           cp $AZHOP_CONFIGURATION $AZHOP_BUILD_CONFIGURATION
           SCHEDULER=${{ inputs.scheduler }}
           sed -i "s/__SCHEDULER__/$SCHEDULER/g" $AZHOP_BUILD_CONFIGURATION
-=======
-          cp $AZHOP_CONFIGURATION ./deploy/build.yml
->>>>>>> main
 
           # write the name of the resource group in the output of the job so it can be reused in others
           echo "::set-output name=RESOURCE_GROUP::$RESOURCE_GROUP"
           ls -al ./deploy
-<<<<<<< HEAD
           cat $AZHOP_BUILD_CONFIGURATION
           cd ./deploy
           ./deploy.sh $RESOURCE_GROUP ${{ inputs.location }}
-=======
-          cat ./deploy/build.yml
-          cd ./deploy
-          ./deploy.sh $RESOURCE_GROUP
->>>>>>> main
 
   cleanup:
     name: cleanup
@@ -134,16 +120,6 @@ jobs:
     if: always() && inputs.clean == 'true'
     needs: [deploy]
 
-<<<<<<< HEAD
-=======
-    container:
-      image: azhop.azurecr.io/hpcrover:2206.1321
-      credentials:
-        username: ${{ env.ARM_CLIENT_ID }}
-        password: ${{ env.ARM_CLIENT_SECRET }}
-      options: --user 0
-
->>>>>>> main
     steps:
       - uses: actions/checkout@v3
 
