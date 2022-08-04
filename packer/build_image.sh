@@ -11,6 +11,7 @@ OPTIONS_FILE=options.json
 FORCE=0
 SPN_FILE=spn.json
 CONFIG_FILE=../config.yml
+ANSIBLE_VARIABLES=../playbooks/group_vars/all.yml
 
 if [ $# -lt 2 ]; then
   echo "Usage build_image.sh "
@@ -25,14 +26,6 @@ fi
 
 # Check config syntax
 yamllint $CONFIG_FILE
-
-# No longer needed as we use the jumpbox as an SSH bastion
-# nopip=$(yq eval .locked_down_network.public_ip $CONFIG_FILE)
-# if [ "$nopip" == "false" ]; then
-#   OPTIONS_FILE=options_nopip.json
-# else
-#   OPTIONS_FILE=options.json
-# fi
 
 PACKER_OPTIONS="-timestamp-ui"
 while (( "$#" )); do
@@ -128,15 +121,14 @@ if [ "$image_id" == "" ] || [ $FORCE -eq 1 ]; then
   esac
 
   echo "Build or Rebuid $image_name in $resource_group (writing log to $logfile)"
-    # -var "var_tenant_id=$tenantId" \
-    # -var "var_client_id=$appId" \
-    # -var "var_client_secret=$secret" \
+  key_vault_name=$(yq eval ".key_vault" $ANSIBLE_VARIABLES)
 
   packer build $PACKER_OPTIONS -var-file $OPTIONS_FILE \
     -var "var_use_azure_cli_auth=$use_azure_cli_auth" \
     -var "var_image=$image_name" \
     -var "var_img_version=$version" \
     -var "var_cloud_env=$cloud_env" \
+    -var "var_key_vault_name=$key_vault_name" \
     $PACKER_FILE | tee $logfile
 
   image_id=$(az image list -g $resource_group --query "[?name=='$image_name'].id" -o tsv)
