@@ -51,7 +51,7 @@ export TF_CLI_ARGS_apply="-auto-approve"
 # If an existing terraform state exists for a different resource group, then delete it.
 if [ -e $THIS_DIR/tf/terraform.tfstate ]; then
   rg_in_state=$(jq -r '.resources[] | select(.type=="azurerm_resource_group") | .instances[] | .attributes.name' $THIS_DIR/tf/terraform.tfstate)
-  rg_in_config=$(yq '.resource_group' $AZHOP_CONFIG)
+  rg_in_config=$(yq eval '.resource_group' $AZHOP_CONFIG)
   if [ "$rg_in_state" != "$rg_in_config" ]; then
     echo "Deleting existing terraform state for resource group $rg_in_state"
     rm -rf $THIS_DIR/tf/terraform.tfstate
