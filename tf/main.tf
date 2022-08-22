@@ -101,7 +101,7 @@ resource "azurerm_storage_account" "azhop" {
 
 # create a container for the lustre archive if not using an existing account
 resource "azurerm_storage_container" "lustre_archive" {
-    count                 = (local.lustre_archive_account == null ? 1 : 0)
+    count                 = (local.lustre_archive_account == null ? local.lustre_enabled : 0)
     name                  = "lustre"
     storage_account_name  = azurerm_storage_account.azhop.name
     container_access_type = "private"
