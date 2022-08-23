@@ -167,7 +167,7 @@ lustre:
     storage_container: #only_used_with_existing_storage_account
 # List of users to be created on this environment
 users:
-  # name: username
+  # name: username - must be less than 20 characters
   # uid: uniqueid
   # shell: /bin/bash # default to /bin/bash
   # home: /anfhome/<user_name> # default to /homedir_mountpoint/user_name
