@@ -66,3 +66,29 @@ resource "azurerm_key_vault_secret" "admin_password" {
     ]
   }
 }
+
+resource "azurerm_key_vault_secret" "admin_ssh_private" {
+  depends_on   = [time_sleep.delay_create, azurerm_key_vault_access_policy.admin]
+  name         = format("%s-private", local.admin_username)
+  value        = tls_private_key.internal.private_key_pem
+  key_vault_id = azurerm_key_vault.azhop.id
+
+  lifecycle {
+    ignore_changes = [
+      value
+    ]
+  }
+}
+
+resource "azurerm_key_vault_secret" "admin_ssh_public" {
+  depends_on   = [time_sleep.delay_create, azurerm_key_vault_access_policy.admin] 
+  name         = format("%s-public", local.admin_username)
+  value        = tls_private_key.internal.public_key_openssh
+  key_vault_id = azurerm_key_vault.azhop.id
+
+  lifecycle {
+    ignore_changes = [
+      value
+    ]
+  }
+}
