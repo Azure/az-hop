@@ -81,6 +81,19 @@
 - name: activate pbs config
   shell: /var/spool/pbs/doqmgr.sh 
 
+- name: Add submission hook
+  copy:
+    src: '{{role_path}}/files/submit-hook.py'
+    dest: /opt/cycle/pbspro/submit-hook.py
+
+- name: Register submission hook
+  shell: |
+    /opt/pbs/bin/qmgr -c "create hook submit"
+    /opt/pbs/bin/qmgr -c "import hook submit application/x-python default submit-hook.py"
+    /opt/pbs/bin/qmgr -c "set hook submit event = queuejob"
+  args:
+    chdir: /opt/cycle/pbspro
+
 - name: Restart pbs-server 
   service: 
     name: pbs
