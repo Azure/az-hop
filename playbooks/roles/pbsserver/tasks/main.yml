@@ -6,14 +6,14 @@
 
 - name: Download pbspro 
   unarchive:
-    src: https://github.com/PBSPro/pbspro/releases/download/v19.1.1/pbspro_19.1.1.centos7.zip
+    src: https://github.com/PBSPro/pbspro/releases/download/v{{openpbs_version}}/pbspro_{{openpbs_version}}.centos7.zip
     dest: /mnt/resource
     remote_src: yes
 
 - name: Install pbspro
   yum:
     name: 
-      - /mnt/resource/pbspro_19.1.1.centos7/pbspro-server-19.1.1-0.x86_64.rpm
+      - /mnt/resource/pbspro_{{openpbs_version}}.centos7/pbspro-server-{{openpbs_version}}-0.x86_64.rpm
     state: present
 
 - name: Ensure pbs-server is running.
