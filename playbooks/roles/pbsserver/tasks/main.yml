@@ -58,6 +58,7 @@
     jq '.idle_timeout=900' autoscale.json > tmp_autoscale.json || exit 1
     cp tmp_autoscale.json autoscale.json
     jq '.' autoscale.json || exit 1
+    sed -i 's/pcpu_count/vcpu_count/g' autoscale.json
     rm tmp_autoscale.json
   args:
     chdir: /opt/cycle/pbspro
