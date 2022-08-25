@@ -10,6 +10,7 @@ location: westeurope
 # Name of the resource group to create all resources
 resource_group: azhop
 # If using an existing resource group set to true. Default is false
+# When using an existing resource group make sure the location match the one of the existing resource group
 use_existing_rg: false
 # Additional tags to be added on the Resource Group
 tags:
