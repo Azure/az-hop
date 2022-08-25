@@ -18,8 +18,9 @@ try:
     for var in jb.Variable_List:
         quote = jb.Variable_List[var].find("'")
         if quote != -1:
-            pbs.logmsg(pbs.LOG_DEBUG, "rejecting job because of an unsupported quote in environment variable %s" % var)
-            je.reject("unsupported quote in environment variable %s" % var)
+            jb.Variable_List[var]="Value replaced by the PBS submit hook as it contains a quote"
+            #pbs.logmsg(pbs.LOG_DEBUG, "rejecting job because of an unsupported quote in environment variable %s" % var)
+            #je.reject("unsupported quote in environment variable %s" % var)
 
     je.accept()
 
