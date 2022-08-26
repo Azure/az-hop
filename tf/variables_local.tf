@@ -24,6 +24,7 @@ locals {
         CreatedOn = timestamp()
     }
 
+    ad_ha = try(local.configuration_yml["ad"].high_availability, false)
     # Use a linux custom image reference if the linux_base_image is defined and contains ":"
     use_linux_image_reference = try(length(split(":", local.configuration_yml["linux_base_image"])[1])>0, false)
     # Use a lustre custom image reference if the lustre_base_image is defined and contains ":"

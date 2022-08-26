@@ -24,6 +24,14 @@ all:
       ansible_user: ${jumpbox-user}
       ansible_password: "${ad-passwd}"
       ansible_psrp_proxy: socks5h://localhost:5985
+    ad2:
+      psrp_ssh_proxy: ${jumpbox-pip}
+      ansible_host: ${ad2-ip}
+      ansible_connection: psrp
+      ansible_psrp_protocol: http
+      ansible_user: ${jumpbox-user}
+      ansible_password: "${ad-passwd}"
+      ansible_psrp_proxy: socks5h://localhost:5985
     lustre:
       ansible_host: ${lustre-ip}
 %{ for count in range(lustre-oss-count) }
