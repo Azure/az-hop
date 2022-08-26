@@ -218,6 +218,7 @@ locals {
         Slurmd = ["6818"]
         Lustre = ["635", "988"]
         Nfs = ["111", "635", "2049", "4045", "4046"]
+        SMB = ["445"]
         Telegraf = ["8086"]
         Grafana = ["3000"]
         # HTTPS, AMQP
@@ -360,6 +361,9 @@ locals {
         # NFS
         AllowNfsOut                 = ["440", "Outbound", "Allow", "*",   "Nfs",                "asg/asg-nfs-client",       "subnet/netapp"],
         AllowNfsComputeOut          = ["450", "Outbound", "Allow", "*",   "Nfs",                "subnet/compute",           "subnet/netapp"],
+
+        # SMB
+        AllowSMBComputeOut          = ["455", "Outbound", "Allow", "*",   "SMB",                "subnet/compute",            "subnet/netapp"],
 
         # Telegraf / Grafana
         AllowTelegrafOut            = ["460", "Outbound", "Allow", "Tcp", "Telegraf",           "asg/asg-telegraf",          "asg/asg-grafana"],
