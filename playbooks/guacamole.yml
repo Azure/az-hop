@@ -262,7 +262,7 @@
         content: |
           guacd-hostname: localhost
           guacd-port:     4822
-          ldap-hostname: {{ad_dns}}
+          ldap-hostname: {{ldap_server}}
           ldap-search-bind-dn: cn={{admin_user}},cn=Users,dc=hpc,dc=azure
           ldap-search-bind-password: {{admin_password.stdout}}
           ldap-user-base-dn: dc=hpc,dc=azure

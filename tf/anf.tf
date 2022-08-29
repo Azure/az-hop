@@ -10,9 +10,9 @@ resource "azurerm_netapp_account" "azhop" {
       username            = local.admin_username 
       password            = azurerm_windows_virtual_machine.ad.admin_password 
       smb_server_name     = "anf"
-#      dns_servers         = local.ad_ha ? [azurerm_network_interface.ad-nic.private_ip_address, azurerm_network_interface.ad2-nic[0].private_ip_address] : [azurerm_network_interface.ad-nic.private_ip_address]
-      dns_servers         =  [azurerm_network_interface.ad-nic.private_ip_address]
+      dns_servers         = local.ad_ha ? [azurerm_network_interface.ad-nic.private_ip_address, azurerm_network_interface.ad2-nic[0].private_ip_address] : [azurerm_network_interface.ad-nic.private_ip_address]
       domain              = "hpc.azure"
+      organizational_unit = "CN=Computers"
     }
   }
   lifecycle {

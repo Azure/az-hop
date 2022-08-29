@@ -187,7 +187,7 @@ locals {
     # VM name to list of ASGs associations
     # TODO : Add mapping for names
     asg_associations = {
-        ad        = ["asg-ad", "asg-rdp"]
+        ad        = ["asg-ad", "asg-rdp", "asg-ad-client"] # asg-ad-client will allow the secondary DC scenario
         ccportal  = ["asg-ssh", "asg-cyclecloud", "asg-telegraf", "asg-ad-client"]
         grafana   = ["asg-ssh", "asg-grafana", "asg-ad-client", "asg-telegraf", "asg-nfs-client"]
         jumpbox   = ["asg-ssh", "asg-jumpbox", "asg-ad-client", "asg-telegraf", "asg-nfs-client"]

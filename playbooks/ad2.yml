@@ -33,7 +33,7 @@
         ansible.windows.win_dns_client:
           adapter_names: '*'
           dns_servers:
-          - "{{ad_dns}}"
+          - "{{primary_dns}}"
           - 168.63.129.16
 
       - name: Install AD-Domain-Services
