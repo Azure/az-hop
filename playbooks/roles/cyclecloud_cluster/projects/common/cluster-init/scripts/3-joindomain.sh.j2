@@ -6,19 +6,20 @@ read_os
 ADMIN_DOMAIN={{ ad_join_domain }}
 ADMIN_NAME={{ ad_join_user }}
 ADMIN_PASSWORD={{ cc_password }}
-NAMESERVER={{ ad_dns }}
+PRIMARY_DNS={{ primary_dns }}
+SECONDARY_DNS={{ secondary_dns }}
 LDAP_SERVER={{ ldap_server }}
 
-source $script_dir/../files/$os_release/init_joindomain.sh $NAMESERVER $LDAP_SERVER $ADMIN_DOMAIN
+source $script_dir/../files/$os_release/init_joindomain.sh $PRIMARY_DNS $LDAP_SERVER $ADMIN_DOMAIN
 
 grep -v nameserver /etc/resolv.conf > /etc/resolv.conf.new
-echo "nameserver ${NAMESERVER}" >> /etc/resolv.conf.new
+echo "nameserver ${PRIMARY_DNS}" >> /etc/resolv.conf.new
+echo "nameserver ${SECONDARY_DNS}" >> /etc/resolv.conf.new
 echo "nameserver 168.63.129.16" >> /etc/resolv.conf.new
 mv /etc/resolv.conf.new /etc/resolv.conf
 
-#sed -i "s/nameserver.*/nameserver ${NAMESERVER}\nnameserver 168.63.129.16/g" /etc/resolv.conf
-
-echo "supersede domain-name-servers ${NAMESERVER};" > /etc/dhcp/dhclient.conf
+echo "supersede domain-name-servers ${PRIMARY_DNS};" > /etc/dhcp/dhclient.conf
+echo "supersede domain-name-servers ${SECONDARY_DNS};" >> /etc/dhcp/dhclient.conf
 echo "append domain-name-servers 168.63.129.16;" >> /etc/dhcp/dhclient.conf
 
 sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
