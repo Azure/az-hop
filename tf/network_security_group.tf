@@ -25,7 +25,14 @@ data "azurerm_application_security_group" "asg" {
 
 # Read subnets data so we can dynamically retrieve all CIDR for the NSG rules
 data "azurerm_subnet" "subnets" {
-  depends_on   = [time_sleep.wait_forsubnets] 
+#  depends_on   = [time_sleep.wait_forsubnets] 
+  depends_on   = [azurerm_subnet.ad, 
+                  azurerm_subnet.frontend, 
+                  azurerm_subnet.admin, 
+                  azurerm_subnet.netapp, 
+                  azurerm_subnet.compute, 
+                  azurerm_subnet.bastion, 
+                  azurerm_subnet.gateway] 
   for_each = local.subnets
   name                 = try(local.configuration_yml["network"]["vnet"]["subnets"][each.key]["name"], each.value)
   resource_group_name  = local.create_vnet ? (local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name) : data.azurerm_virtual_network.azhop[0].resource_group_name
