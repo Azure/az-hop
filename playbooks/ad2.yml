@@ -6,8 +6,8 @@
   vars_files:
     - '{{global_config_file}}'
 
-- name: Configure AD Server
-  hosts: ad
+- name: Configure AD Secondary DC
+  hosts: ad2
   gather_facts: no
   vars_files:
     - '{{global_config_file}}'
@@ -29,13 +29,12 @@
       - name: Run command to mitigate AD vulnerability 
         win_command: netsh int ipv4 set global sourceroutingbehavior=drop 
 
-      - name: Set lookup addresses on all visible adapters on the existing secondary DC, fallback on Azure DNS
+      - name: Set lookup addresses on all visible adapters on the existing primary DC, fallback on Azure DNS
         ansible.windows.win_dns_client:
           adapter_names: '*'
           dns_servers:
-          - "{{secondary_dns}}"
+          - "{{primary_dns}}"
           - 168.63.129.16
-        when: ad.high_availability is defined and ad.high_availability
 
       - name: Install AD-Domain-Services
         win_feature:
@@ -57,59 +56,21 @@
         when: ad_ds.failed
         register: ad_ds
 
-      - name: Create AD-Domain
-        ansible.windows.win_domain:
+      - name: Promote server
+        ansible.windows.win_domain_controller:
           dns_domain_name: '{{ad_join_domain}}'
+          domain_admin_user: '{{ad_join_domain}}\{{admin_user}}'
+          domain_admin_password: '{{ad_join_password.stdout}}'
           safe_mode_password: '{{ad_join_password.stdout}}'
+          install_dns: yes
+          state: domain_controller
         register: ad_promotion
-
-      # - name: Promote server
-      #   ansible.windows.win_domain_controller:
-      #     dns_domain_name: '{{ad_join_domain}}'
-      #     domain_admin_user: '{{ad_join_domain}}\{{admin_user}}'
-      #     domain_admin_password: '{{ad_join_password.stdout}}'
-      #     safe_mode_password: '{{ad_join_password.stdout}}'
-      #     install_dns: yes
-      #     state: domain_controller
-      #   register: ad_promotion
-
+        
       - name: Reboot after promotion
         ansible.windows.win_reboot:
           post_reboot_delay: 600
         when: ad_promotion.reboot_required
 
-      - name: update gidnumber Domain Users 
-        community.windows.win_domain_group:
-          name: Domain Users
-          attributes:
-            gidnumber: "{{ (usergroups | selectattr('name', 'match', 'Domain Users') | map(attribute='gid')) | default(5000, true) }}"
-
-      - name: Disable password expiration
-        win_domain_user:
-          name: '{{admin_user}}'
-          state: present
-          password_never_expires: true
-          update_password: on_create
-
-      - name: Add DNS Forwarders
-        community.windows.win_dns_zone:
-          name: '{{item.name}}'
-          type: forwarder
-          dns_servers: "{{item.ips}}"
-          replication: none
-          state: present
-        with_items: '{{dns.forwarders}}'
-        when: dns.forwarders is defined
-
-      - name: Update azhop groups gidnumber
-        community.windows.win_domain_group:
-          name: '{{item.name}}'
-          state: present
-          description: '{{item.description | default("az-hop group - item.name")}}'
-          scope: domainlocal
-          attributes:
-            gidnumber: '{{item.gid}}'
-        loop: "{{usergroups  | selectattr('gid', 'ge', 5001) }}"
 
     always:
       - name: close session on local port
