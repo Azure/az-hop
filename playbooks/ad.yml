@@ -29,6 +29,14 @@
       - name: Run command to mitigate AD vulnerability 
         win_command: netsh int ipv4 set global sourceroutingbehavior=drop 
 
+      - name: Set lookup addresses on all visible adapters on the existing secondary DC, fallback on Azure DNS
+        ansible.windows.win_dns_client:
+          adapter_names: '*'
+          dns_servers:
+          - "{{secondary_dns}}"
+          - 168.63.129.16
+        when: ad.high_availability is defined and ad.high_availability
+
       - name: Install AD-Domain-Services
         win_feature:
           name: AD-Domain-Services
@@ -54,6 +62,16 @@
           dns_domain_name: '{{ad_join_domain}}'
           safe_mode_password: '{{ad_join_password.stdout}}'
         register: ad_promotion
+
+      # - name: Promote server
+      #   ansible.windows.win_domain_controller:
+      #     dns_domain_name: '{{ad_join_domain}}'
+      #     domain_admin_user: '{{ad_join_domain}}\{{admin_user}}'
+      #     domain_admin_password: '{{ad_join_password.stdout}}'
+      #     safe_mode_password: '{{ad_join_password.stdout}}'
+      #     install_dns: yes
+      #     state: domain_controller
+      #   register: ad_promotion
 
       - name: Reboot after promotion
         ansible.windows.win_reboot:
