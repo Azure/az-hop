@@ -184,7 +184,7 @@ The helper script `configure_aad.sh` can be used to
 - Register an AAD application configured to the az-hop environment
 - Create a secret for this AAD application and store it in the az-hop Key Vault
 
-This script need to be run before the `install.sh` or at least before the `ood` step.
+This script need to be run before the `install.sh` or at least before the `ood` step, and by a user with enough privilege to craete an application in AAD (typically a subscription `Owner`)
 
 ## Add/remove/modify cluster node arrays (aka queues/partitions)
 Az-HOP simplifies the addition, removal or modification of the node arrays in an existing CycleCloud cluster.
