@@ -293,7 +293,11 @@ images:
     os_type: Linux
     version: 7.9
 
-# List of queues (node arays in Cycle) to be defined
+# Autoscale default settings for all queues, can be overriden on each queue depending on the VM type if needed
+autoscale:
+  idle_timeout: 1800 # Idle time in seconds before shutting down VMs - default to 1800 like in CycleCloud
+
+# List of queues (node arrays in Cycle) to be defined
 queues:
   - name: execute # name of the Cycle Cloud node array
     # Azure VM Instance type
@@ -304,13 +308,15 @@ queues:
 #    image: OpenLogic:CentOS-HPC:7_9-gen2:latest
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
     # Image plan specification (when needed for the image). Terms must be accepted prior to deployment
-#    plan: publisher:product:name
+    # plan: publisher:product:name
     # Set to true if AccelNet need to be enabled. false is the default value
     EnableAcceleratedNetworking: false
     # spot instance support. Default is false
     spot: false
     # Set to false to disable creation of placement groups (for SLURM only). Default is true
     ColocateNodes: false
+    # Specific idle time in seconds before shutting down VMs, make sure it's lower than autoscale.idle_timeout
+    idle_timeout: 300
   - name: hc44rs
     vm_size: Standard_HC44rs
     max_core_count: 440

@@ -52,6 +52,12 @@ Autoscale = true
         cyclecloud.exports.defaults.samba.enabled = false
         cshared.server.legacy_links_disabled = true
 
+        # Autoscale settings - If not defined default to the CycleCloud value which is 1800 seconds
+        {% if autoscale.idle_timeout is defined %}
+        cyclecloud.cluster.autoscale.idle_time_after_jobs = {{autoscale.idle_timeout}}
+        cyclecloud.cluster.autoscale.idle_time_before_jobs = {{autoscale.idle_timeout}}
+        {% endif %}
+
         [[[volume boot]]] 
         StorageAccountType = StandardSSD_LRS
 
@@ -106,6 +112,10 @@ Autoscale = true
         slurm.hpc = {{ queue.ColocateNodes }}
       {% else %}
         slurm.hpc = true
+      {% endif %}
+      {% if queue.idle_timeout is defined %}
+        cyclecloud.cluster.autoscale.idle_time_after_jobs = {{queue.idle_timeout}}
+        cyclecloud.cluster.autoscale.idle_time_before_jobs = {{queue.idle_timeout}}
       {% endif %}
       {% if enroot_enabled is defined and enroot_enabled %}
         [[[cluster-init enroot:default:1.0.0]]]

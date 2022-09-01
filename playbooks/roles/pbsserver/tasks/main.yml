@@ -53,12 +53,12 @@
   args:
     chdir: /tmp/cyclecloud-pbspro
 
-- name: change node timeout to 15mn instead of 5mn
+- name: change node timeout, default to 15mn
   shell: |
-    jq '.idle_timeout=900' autoscale.json > tmp_autoscale.json || exit 1
+    jq '.idle_timeout={{autoscale.idle_timeout | default(900) }}' autoscale.json > tmp_autoscale.json || exit 1
     cp tmp_autoscale.json autoscale.json
-    jq '.' autoscale.json || exit 1
     sed -i 's/pcpu_count/vcpu_count/g' autoscale.json
+    jq '.' autoscale.json || exit 1
     rm tmp_autoscale.json
   args:
     chdir: /opt/cycle/pbspro
