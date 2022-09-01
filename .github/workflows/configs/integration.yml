@@ -181,6 +181,11 @@ images:
     hyper_v: V1
     os_type: Windows
     version: 10.19043
+
+# Autoscale default settings for all queues, can be overriden on each queue depending on the VM type if needed
+autoscale:
+  idle_timeout: 180 # Idle time in seconds before shutting down VMs - default to 1800 like in CycleCloud
+
 queues:
   - name: execute
     vm_size: Standard_F2s_v2
