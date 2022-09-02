@@ -32,6 +32,10 @@ ood_install_apps:
     version: master
 
 ood_apps:
+  dashboard:
+    env:
+      ood_bc_dynamic_js: true
+
   bc_desktop:
     title: "Linux Desktop"
     cluster: ondemand
@@ -49,27 +53,22 @@ ood_apps:
         help: |
           Select the resource target for the remote desktop session <br>
           - **With GPU** <br>
-            These are standard small GPU nodes for visualization, usually for a single session.<br>
+            These are standard small GPU nodes for visualization for a single user session.<br>
           - **Large With GPU** <br>
-            These are standard large GPU nodes for visualization, usually for multiple sessions sharing the same node.<br>
+            These are standard large GPU nodes for visualization, usually for multiple users sessions sharing the same node.<br>
           - **Without GPU** <br>
-            Same as for **With GPU** but without GPU.
+            Same as for **With GPU** but without a GPU accelerator.
         options:
-         - ["With GPU - Small GPU node for single session", "viz3d"]
-         - ["Large With GPU - Intented for shared sessions", "largeviz3d"]
-         - ["Without GPU - for single session", "viz"]
-        id: 'target'
+         - ["With GPU - Small GPU node for single session", "viz3d", data-hide-reservedcores: true, data-set-reservedcores: 0, data-max-num-hours: 12, data-min-num-hours: 1]
+         - ["Large With GPU - Intented for shared sessions", "largeviz3d", data-hide-reservedcores: false, data-max-reservedcores: 48, data-min-reservedcores: 0, data-max-num-hours: 168, data-min-num-hours: 1]
+         - ["Without GPU - for single session", "viz", data-hide-reservedcores: true, data-set-reservedcores: 0, data-max-num-hours: 12, data-min-num-hours: 1]
       num_hours:
         widget: "number_field"
-        label: "Maximum duration of your remote session"
+        label: "Maximum duration in hours of your remote session"
         value: 1
         help: |
-          This is the maximum duration of your remote session once started. <br> 
-          Enter a value between 0 and 24. <strong>0 means no limit</strong>.
-        min: 0
-        max: 24
+          This is the maximum duration in hours of your remote session once started. <br> 
         step: 1
-        id: 'hours'
       reservedcores:
         widget: "number_field"
         label: "Maximum number of cores of your remote session"
@@ -77,10 +76,7 @@ ood_apps:
         help: |
           This is the maximum number of cores used on a shared node. <br>
           Enter a value between 0 and 48. <strong>0 means all cores are used</strong>.
-        min: 0
-        max: 48
         step: 1
-        id: 'reservedcores'
 
 host_regex: '[^./]+'
 node_uri: '/node'
