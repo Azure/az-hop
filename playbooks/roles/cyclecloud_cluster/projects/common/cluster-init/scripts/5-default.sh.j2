@@ -32,3 +32,10 @@ fi
 
 # Add modulefiles from HPC CentOS image to module path
 export MODULEPATH=$MODULEPATH:/usr/share/Modules/modulefiles/
+
+# Disable the antivirus
+if [ -a /usr/lib/systemd/system/azsecd.service ] ; then
+  systemctl stop azsecd
+  systemctl disable azsecd
+  echo "Disabled azsecd service"
+fi
