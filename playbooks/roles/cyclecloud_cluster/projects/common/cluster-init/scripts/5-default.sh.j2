@@ -32,3 +32,7 @@ fi
 
 # Add modulefiles from HPC CentOS image to module path
 export MODULEPATH=$MODULEPATH:/usr/share/Modules/modulefiles/
+
+# Disable the antivirus
+systemctl stop azsecd
+systemctl disable azsecd
