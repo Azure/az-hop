@@ -44,7 +44,7 @@ ood_apps:
       - desktop
       - target
       - num_hours
-      - reservedcores
+      - bucket
     attributes:
       desktop: xfce
       target:
@@ -59,9 +59,12 @@ ood_apps:
           - **Without GPU** <br>
             Same as for **With GPU** but without a GPU accelerator.
         options:
-         - ["With GPU - Small GPU node for single session", "viz3d", data-hide-reservedcores: true, data-set-reservedcores: 0, data-max-num-hours: 12, data-min-num-hours: 1]
-         - ["Large With GPU - Intented for shared sessions", "largeviz3d", data-hide-reservedcores: false, data-max-reservedcores: 48, data-min-reservedcores: 0, data-max-num-hours: 168, data-min-num-hours: 1]
-         - ["Without GPU - for single session", "viz", data-hide-reservedcores: true, data-set-reservedcores: 0, data-max-num-hours: 12, data-min-num-hours: 1]
+         - ["With GPU - Small GPU node for single session", "viz3d", data-hide-bucket: true, data-set-bucket: 100, data-max-num-hours: 12, data-min-num-hours: 1]
+         - ["Large With GPU - Intented for shared sessions", "largeviz3d", data-max-num-hours: 168, data-min-num-hours: 1]
+         - ["Without GPU - for single session", "viz", data-hide-bucket: true, data-set-bucket: 100, data-max-num-hours: 12, data-min-num-hours: 1]
+        #  - ["With GPU - Small GPU node for single session", "viz3d", data-hide-reservedcores: true, data-set-reservedcores: 0, data-max-num-hours: 12, data-min-num-hours: 1]
+        #  - ["Large With GPU - Intented for shared sessions", "largeviz3d", data-hide-reservedcores: false, data-max-reservedcores: 48, data-min-reservedcores: 0, data-max-num-hours: 168, data-min-num-hours: 1]
+        #  - ["Without GPU - for single session", "viz", data-hide-reservedcores: true, data-set-reservedcores: 0, data-max-num-hours: 12, data-min-num-hours: 1]
       num_hours:
         widget: "number_field"
         label: "Maximum duration in hours of your remote session"
@@ -69,14 +72,24 @@ ood_apps:
         help: |
           This is the maximum duration in hours of your remote session once started. <br> 
         step: 1
-      reservedcores:
-        widget: "number_field"
-        label: "Maximum number of cores of your remote session"
-        value: 4
+      bucket:
+        widget: "select"
+        label: "Node bucket"
         help: |
-          This is the maximum number of cores used on a shared node. <br>
-          Enter a value between 0 and 48. <strong>0 means all cores are used</strong>.
-        step: 1
+          Select how much of the node you want to use <br>
+        options:
+         - [" 25 %", "25"]
+         - [" 50 %", "50"]
+         - ["100 %", "100"]
+
+      # reservedcores:
+      #   widget: "number_field"
+      #   label: "Maximum number of cores of your remote session"
+      #   value: 4
+      #   help: |
+      #     This is the maximum number of cores used on a shared node. <br>
+      #     Enter a value between 0 and 48. <strong>0 means all cores are used</strong>.
+      #   step: 1
 
 host_regex: '[^./]+'
 node_uri: '/node'
