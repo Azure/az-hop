@@ -61,6 +61,13 @@
     line: 'ldap_id_mapping = False'
   notify: restart sssd
 
+- name: configure sssd - ad_gpo_access_control 
+  lineinfile:
+    path: /etc/sssd/sssd.conf
+    regexp: '^ad_gpo_access_control'
+    line: 'ad_gpo_access_control = disabled'
+  notify: restart sssd
+
 # Thes are the options to set in order to register DNS in the AD
 # hostnamectl set-hostname jumpbox.hpc.azure
 # dyndns_update = true
