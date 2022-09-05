@@ -12,7 +12,7 @@ ood_apps:
   bc_desktop:
     submit: |
       <%-
-        node_arrays = {"viz3d" => 24, "viz" => 8, "largeviz3d" => 48}
+        node_arrays = {"viz3d" => 12, "viz" => 8, "largeviz3d" => 48}
 
         scheduler_args = ["-p", target]
 
