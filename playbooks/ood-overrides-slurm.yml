@@ -12,6 +12,8 @@ ood_apps:
   bc_desktop:
     submit: |
       <%-
+        node_arrays = {"viz3d" => 24, "viz" => 8, "largeviz3d" => 48}
+
         scheduler_args = ["-p", target]
 
         # If the user has specified a number of hours, set the job walltime
@@ -24,9 +26,10 @@ ood_apps:
           scheduler_args += ["--gpus=1"]
         end
 
-        # If the user has specified a number of cores, set the job ppn
-        cores = reservedcores.to_i
-        if cores > 0
+        # If the user has specified a node bucket lower than 100%, set the job ppn
+        node_percentage = bucket.to_i
+        if node_percentage < 100
+          cores = (node_arrays[target].to_i * node_percentage) / 100
           scheduler_args += ["--ntasks-per-node=%d" % cores]
         else
           scheduler_args += ["--exclusive"]
