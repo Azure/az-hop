@@ -431,3 +431,8 @@
       - name: Configure cvmfs 
         shell: cvmfs_config setup 
     when:  ( cvmfs_eessi.enabled | default(false) )
+
+  # Generate the node array core lookup file for ondemand - will be only run if the marker file for ondemand exists
+  - import_tasks: nodearray_lookup.yml
+    vars:
+      marker_file: cccluster.ok
