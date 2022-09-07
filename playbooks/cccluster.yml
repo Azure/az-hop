@@ -27,6 +27,7 @@
     register: password
     become: false
 
+
   - name: Init image lookup file
     shell: |
         echo "image_lookup:" > {{lookup_img_file}}
@@ -116,3 +117,8 @@
       enroot_scratch_dir: '/mnt/resource'
       cvmfs_eessi_enabled: '{{cvmfs_eessi.enabled | default(false)}}'
       cc_enable_remote_winviz: '{{enable_remote_winviz | default(false)}}'
+
+  # Generate the node array core lookup file for ondemand - will be only run if the marker file for ondemand exists
+  - import_tasks: nodearray_lookup.yml
+    vars:
+      marker_file: ood.ok
