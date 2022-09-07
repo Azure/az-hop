@@ -12,8 +12,7 @@ ood_apps:
   bc_desktop:
     submit: |
       <%-
-        node_arrays = {"viz3d" => 12, "viz" => 8, "largeviz3d" => 48}
-
+        require "yaml"
         scheduler_args = ["-p", target]
 
         # If the user has specified a number of hours, set the job walltime
@@ -29,8 +28,14 @@ ood_apps:
         # If the user has specified a node bucket lower than 100%, set the job ppn
         node_percentage = bucket.to_i
         if node_percentage < 100
-          cores = (node_arrays[target].to_i * node_percentage) / 100
-          scheduler_args += ["--ntasks-per-node=%d" % cores]
+          node_arrays = YAML.load_file("/etc/ood/config/apps/bc_desktop/config/node_arrays.yml")
+          node_arrays.each do |slot_type|
+            if slot_type["name"] == target
+              cores = (slot_type["vcpuCount"].to_i * node_percentage) / 100
+              scheduler_args += ["--ntasks-per-node=%d" % cores]
+              break
+            end
+          end
         else
           scheduler_args += ["--exclusive"]
         end
