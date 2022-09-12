@@ -1,4 +1,27 @@
 ---
+- name: Configure Jumpbox
+  hosts: jumpbox
+  become: true
+  gather_facts: no
+  vars_files:
+    - '{{global_config_file}}'
+  tasks:
+  - name: Wait 300 seconds for the nodes to be ready
+    wait_for_connection:
+      timeout: 300
+  - name: Gather facts for first time
+    setup:
+  - name: "Ensure SSH AllowTcpForwarding is enabled"
+    lineinfile:
+        state: present
+        dest: /etc/ssh/sshd_config
+        regexp: "^#AllowTcpForwarding|^AllowTcpForwarding"
+        line: 'AllowTcpForwarding yes'
+  - name: restart sssd
+    service:
+      name: sssd 
+      state: restarted
+
 - name: Join AD domain and mount anf-home
   hosts: jumpbox, scheduler, ondemand, grafana
   become: true
