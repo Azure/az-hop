@@ -11,17 +11,22 @@
 
 - name: Install Influxdb
   yum: 
-    name:
-      - https://dl.influxdata.com/influxdb/releases/influxdb-1.8.5.x86_64.rpm
-      - python3-pip
+    name: influxdb2
     state: present
 
-- name: Install required pip packages
-  pip:
-    name: 
-    - certifi==2021.10.8
-    - influxdb
-    executable: pip3
+# - name: Install Influxdb
+#   yum: 
+#     name:
+#       - https://dl.influxdata.com/influxdb/releases/influxdb-1.8.5.x86_64.rpm
+#       - python3-pip
+#     state: present
+
+# - name: Install required pip packages
+#   pip:
+#     name: 
+#     - certifi==2021.10.8
+#     - influxdb
+#     executable: pip3
 
 - name: Start and enable the influxdb service
   service:
