@@ -99,3 +99,9 @@
   service: 
     name: pbs
     state: restarted
+
+- name: create cron entry to remove old accounting files
+  cron:
+    name: "remove PBS accounting files older than 90 days"
+    special_time: daily
+    job: "find /var/spool/pbs/server_logs -mtime +90 -type f -print -exec rm {} +"
