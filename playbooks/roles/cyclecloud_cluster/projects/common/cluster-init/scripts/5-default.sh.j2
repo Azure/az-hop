@@ -39,3 +39,11 @@ if [ -a /usr/lib/systemd/system/azsecd.service ] ; then
   systemctl disable azsecd
   echo "Disabled azsecd service"
 fi
+
+#This is to add domain users for enabling ssh among the VM's
+cat <<EOF >>/etc/ssh/sshd_config
+Match group "domain users"
+  AllowUsers *
+AllowUsers hpcadmin
+EOF
+systemctl restart sshd
