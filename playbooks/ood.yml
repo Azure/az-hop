@@ -285,6 +285,13 @@
           StrictHostKeyChecking=No
       dest: /etc/ssh/ssh_config
 
+  - name: Insert/Update Match group "domain users" configuration block in /etc/ssh/sshd_config
+    blockinfile:
+      path: /etc/ssh/sshd_config
+      block: |
+        Match group "domain users"
+          AllowUsers *
+
   - include_role: 
       name: ood-apps-cyclecloud
       apply: 
