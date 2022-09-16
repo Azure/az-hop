@@ -169,8 +169,9 @@ function nhc_run()
 
 }
 
-
+# All the above tests should be moved into NHC configuration files
 nhc_run
+
 # Check IB device only if IB tools are installed
 #if [ -e /usr/bin/ibv_devinfo ]; then
 #    check_ib_device

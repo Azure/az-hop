@@ -10,7 +10,9 @@
 ### NHC Configuration Variables
 ###
 # * || export MARK_OFFLINE=1 NHC_CHECK_ALL=0
-
+ * || export TIMEOUT=300
+ * || export VERBOSE=1
+ * || export DETACHED_MODE=0
 
 
 #######################################################################
@@ -22,23 +24,32 @@
 ### Filesystem checks
 ###
  * || check_fs_mount_rw -t "nfs" -f "/anfhome"
- * || check_fs_used /anfhome 98%
+ * || check_fs_used /anfhome 90%
  * || check_fs_iused /anfhome 98%
 
 {% if lustre is defined %}
  * || check_fs_mount_rw -t "lustre" -f "/lustre"
- * || check_fs_used /lustre 98%
+ * || check_fs_used /lustre 90%
  * || check_fs_iused /lustre 98%
 {% endif %}
  
+{% if queue_manager == "slurm" and queue_manager is defined %}
+ * || check_fs_mount_rw -t "nfs" -s "*:**" -f "/sched"
+ * || check_fs_used /sched 90%
+ * || check_fs_iused /sched 98%
+{% endif %}
 
 #######################################################################
 ###
 ### Process checks
 ###
 {% if queue_manager == "openpbs" or queue_manager is not defined %}
- * || check_ps_service -r -d qmgr postfix
 {% endif %}
 
+{% if queue_manager == "slurm" and queue_manager is defined %}
+{% endif %}
+
+ * || check_ps_service -S -u root crond
+ * || check_ps_service -r -d qmgr postfix
  * || check_ps_service -S -u root sshd
 
