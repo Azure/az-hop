@@ -17,9 +17,9 @@
         dest: /etc/ssh/sshd_config
         regexp: "^#AllowTcpForwarding|^AllowTcpForwarding"
         line: 'AllowTcpForwarding yes'
-  - name: restart sssd
+  - name: restart sshd
     service:
-      name: sssd 
+      name: sshd 
       state: restarted
 
 - name: Join AD domain and mount anf-home
