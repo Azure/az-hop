@@ -170,8 +170,7 @@ function nhc_run()
 }
 
 
-# Disabling it right now
-#nhc_run
+nhc_run
 # Check IB device only if IB tools are installed
 #if [ -e /usr/bin/ibv_devinfo ]; then
 #    check_ib_device

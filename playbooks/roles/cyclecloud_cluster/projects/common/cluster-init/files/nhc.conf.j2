@@ -21,13 +21,12 @@
 ###
 ### Filesystem checks
 ###
- * || check_fs_mount_rw -t "nfs" -s "{{ anf_home_ip }}:/{{ anf_home_path }}" -f "/anfhome"
+ * || check_fs_mount_rw -t "nfs" -f "/anfhome"
  * || check_fs_used /anfhome 98%
  * || check_fs_iused /anfhome 98%
 
 {% if lustre is defined %}
-# the lustre fs_mount check is failing because the mount is registered with the IP address of the MDS while being done MDS VM name (lustre)
- * || check_fs_mount_rw -t "lustre" -s "lustre@tcp:/LustreFS" -f "/lustre"
+ * || check_fs_mount_rw -t "lustre" -f "/lustre"
  * || check_fs_used /lustre 98%
  * || check_fs_iused /lustre 98%
 {% endif %}
