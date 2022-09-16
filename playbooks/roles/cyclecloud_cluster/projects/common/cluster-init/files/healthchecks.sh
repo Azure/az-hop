@@ -159,12 +159,24 @@ function check_domain_joined()
     done
 }
 
-# Check IB device only if IB tools are installed
-if [ -e /usr/bin/ibv_devinfo ]; then
-    check_ib_device
-fi
+function nhc_run()
+{
+    /usr/sbin/nhc -d
+    if [ $? -eq 1 ]; then
+        1>&2 echo "ERROR : Node Health Checks failed - $(hostname) - $PHYSICAL_HOST"
+        exit 254
+    fi
 
-check_gpu
+}
+
+
+nhc_run
+# Check IB device only if IB tools are installed
+#if [ -e /usr/bin/ibv_devinfo ]; then
+#    check_ib_device
+#fi
+
+#check_gpu
 #check_hostname
 # Removing domain join check as it first run before the node is domain joined
 #check_domain_joined

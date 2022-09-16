@@ -1,0 +1,44 @@
+# NHC Configuration File
+#
+# Lines are in the form "<hostmask>||<check>"
+# Hostmask is a glob, /regexp/, or {noderange}
+# Comments begin with '#'
+#
+
+#######################################################################
+###
+### NHC Configuration Variables
+###
+# * || export MARK_OFFLINE=1 NHC_CHECK_ALL=0
+
+
+
+#######################################################################
+###
+### Filesystem checks
+###
+#######################################################################
+###
+### Filesystem checks
+###
+ * || check_fs_mount_rw -t "nfs" -f "/anfhome"
+ * || check_fs_used /anfhome 98%
+ * || check_fs_iused /anfhome 98%
+
+{% if lustre is defined %}
+ * || check_fs_mount_rw -t "lustre" -f "/lustre"
+ * || check_fs_used /lustre 98%
+ * || check_fs_iused /lustre 98%
+{% endif %}
+ 
+
+#######################################################################
+###
+### Process checks
+###
+{% if queue_manager == "openpbs" or queue_manager is not defined %}
+ * || check_ps_service -r -d qmgr postfix
+{% endif %}
+
+ * || check_ps_service -S -u root sshd
+
