@@ -4,6 +4,7 @@
   register: marker
   delegate_to: localhost
   connection: local
+  become: false
 
 - name: create node array core lookup file for ondemand
   block:
