@@ -49,7 +49,8 @@
 {% if queue_manager == "slurm" and queue_manager is defined %}
 {% endif %}
 
- * || check_ps_service -S -u root crond
- * || check_ps_service -r -d qmgr postfix
+# Not present on Alma and Ubuntu
+# * || check_ps_service -S -u root crond
+# * || check_ps_service -r -d qmgr postfix
  * || check_ps_service -S -u root sshd
 
