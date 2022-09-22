@@ -1,11 +1,21 @@
 #!/bin/bash
+echo " ********************************************************************************** "
+echo " *                                                                                * "
+echo " *     INFINIBAND CONFIGURAION                                                    * "
+echo " *                                                                                * "
+echo " ********************************************************************************** "
 set -ex
+
+# Fix IB module issue
+echo "Configuring openibd..."
+sed -i 's/FORCE_MODE.*$/FORCE_MODE=yes/' /etc/infiniband/openib.conf
 
 #
 # install rdma_rename with NAME_FIXED option
 # based on: https://github.com/Azure/azhpc-images/blob/master/common/install_azure_persistent_rdma_naming.sh
 #
 
+echo "Installing rdma_rename service..."
 apt-get install -y git cmake gcc ninja-build make libnl-3-dev libnl-3-200
 
 pushd /tmp
