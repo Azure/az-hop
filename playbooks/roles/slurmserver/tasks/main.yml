@@ -364,6 +364,22 @@
   tags: [ 'accounting' ]
   when: accounting_enabled
 
+- name: create slurm prolog
+  template:
+    src: templates/prolog.sh.j2
+    dest: /sched/scripts/prolog.sh
+    owner: slurm
+    group: slurm
+    mode: 0755
+
+- name: create slurm epilog
+  template:
+    src: templates/epilog.sh.j2
+    dest: /sched/scripts/epilog.sh
+    owner: slurm
+    group: slurm
+    mode: 0755
+
 - name: ensure slurmctld is running.
   service:
     name: slurmctld
