@@ -24,3 +24,10 @@ cp -fv $SCRIPT_DIR/../files/nhc/nhc_common.conf $NHC_CONFIG_FILE
 if [ -e $NHC_CONFIG_EXTRA  ]; then
     cat $NHC_CONFIG_EXTRA >> $NHC_CONFIG_FILE
 fi
+
+# Add nvidia-smi health checks for GPU SKUs. NOTE: This will not work for NV_v4 as they don't have NVIDIA device
+case $VM_SIZE in
+    nc*|nv*|nd*)
+        echo " * || check_nvsmi_healthmon" >> $NHC_CONFIG_FILE
+    ;;
+esac

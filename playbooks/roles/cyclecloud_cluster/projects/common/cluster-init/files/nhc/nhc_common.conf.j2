@@ -14,18 +14,17 @@
  * || export VERBOSE=1
  * || export DETACHED_MODE=0
 
+### Check that node has been renamed correctly
+ * || HOSTNAME="$HOSTNAME_S"
 
 #######################################################################
 ###
 ### Filesystem checks
 ###
-#######################################################################
 ###
-### Filesystem checks
-###
- * || check_fs_mount_rw -t "nfs" -f "/anfhome"
- * || check_fs_used /anfhome 90%
- * || check_fs_iused /anfhome 98%
+ * || check_fs_mount_rw -t "nfs" -f "{{mounts.home.mountpoint}}"
+ * || check_fs_used {{mounts.home.mountpoint}} 90%
+ * || check_fs_iused {{mounts.home.mountpoint}} 98%
 
 {% if lustre is defined %}
  * || check_fs_mount_rw -t "lustre" -f "/lustre"
@@ -43,6 +42,7 @@
 ###
 ### Process checks
 ###
+### Note: PBS and SLURM daemons will be started after the healthcheck is triggered
 {% if queue_manager == "openpbs" or queue_manager is not defined %}
 {% endif %}
 
@@ -53,4 +53,19 @@
 # * || check_ps_service -S -u root crond
 # * || check_ps_service -r -d qmgr postfix
  * || check_ps_service -S -u root sshd
+ * || check_ps_service -S -u root sssd_be
+ * || check_ps_service -S -u root sssd_nss
+ * || check_ps_service -S -u root sssd_pam
+ * || check_ps_service -S -u telegraf telegraf
 
+#######################################################################
+###
+### Check domain join
+###
+* || check_cmd_output -r 0 -m '/active-directory/' realm list
+
+#######################################################################
+###
+### End of NHC_COMMON
+###
+#######################################################################
