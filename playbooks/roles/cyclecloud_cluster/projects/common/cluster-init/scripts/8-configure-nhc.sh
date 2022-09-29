@@ -25,12 +25,14 @@ if [ -e $NHC_CONFIG_EXTRA  ]; then
     cat $NHC_CONFIG_EXTRA >> $NHC_CONFIG_FILE
 fi
 
-# Add nvidia-smi health checks for GPU SKUs. NOTE: This will not work for NV_v4 as they don't have NVIDIA device
+# Add nvidia-smi health checks for GPU SKUs except NV_v4 as they don't have NVIDIA device
 case $VM_SIZE in
+    nv*v4)
+    ;;
     nc*|nv*|nd*)
         echo " * || check_nvsmi_healthmon" >> $NHC_CONFIG_FILE
     ;;
-    # Check for HDR IB on all HBv2 and HBv3 SKUs
+    # Check HDR InfiniBand on all HBv2 and HBv3 SKUs
     hb*v2|hb*v3)
         echo " * || check_hw_ib 200 mlx5_ib0:1" >> $NHC_CONFIG_FILE
     ;;
