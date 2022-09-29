@@ -23,7 +23,7 @@
     yum:
       name: ca-certificates
       state: latest
-        lock_timeout : 180
+      lock_timeout : 180
 
   - name: Set up PAM authentication
     shell: |
