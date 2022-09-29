@@ -30,4 +30,8 @@ case $VM_SIZE in
     nc*|nv*|nd*)
         echo " * || check_nvsmi_healthmon" >> $NHC_CONFIG_FILE
     ;;
+    # Check for HDR IB on all HBv2 and HBv3 SKUs
+    hb*v2|hb*v3)
+        echo " * || check_hw_ib 200 mlx5_ib0:1" >> $NHC_CONFIG_FILE
+    ;;
 esac
