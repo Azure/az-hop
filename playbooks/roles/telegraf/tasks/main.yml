@@ -14,6 +14,7 @@
   #name: https://dl.influxdata.com/telegraf/releases/telegraf-1.18.2-1.x86_64.rpm
     name: telegraf-1.18.2-1
     state: present
+    lock_timeout : 180
 
 - name: Configure telegraf
   template:

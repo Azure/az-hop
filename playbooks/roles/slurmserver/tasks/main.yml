@@ -74,6 +74,7 @@
   - name: install dependencies
     yum:
       name: python3, python3-pip, rpm-build, readline-devel, pam-devel, perl-ExtUtils-MakeMaker, gcc, mariadb-devel, autoconf
+      lock_timeout : 180
 
   - name: extract slurm tarball version number
     set_fact:
@@ -174,6 +175,7 @@
       - '{{homedir_mountpoint}}/slurm/rpms/slurm-openlava-{{slurm_version}}.el7.x86_64.rpm'
       - '{{homedir_mountpoint}}/slurm/rpms/slurm-slurmdbd-{{slurm_version}}.el7.x86_64.rpm'
     state: present
+    lock_timeout : 180
 
 - name: create slurm config
   template:
@@ -274,6 +276,7 @@
     name:
     -  https://packages.microsoft.com/yumrepos/cyclecloud/jetpack8-{{cc_version}}.x86_64.rpm
     state: present
+    lock_timeout : 180
 
 - name: fix jetpack permissions
   file:

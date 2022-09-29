@@ -5,12 +5,14 @@
     name:
       - epel-release
     state: present
+    lock_timeout : 180
 
 - name: install common packages
   yum: 
     name:
       - jq
     state: present
+    lock_timeout : 180
 
 - name: Download PBS RPMs
   unarchive:
@@ -23,6 +25,7 @@
     name:
       - /mnt/resource/pbspro_{{openpbs_version}}.centos7/pbspro-execution-{{openpbs_version}}-0.x86_64.rpm
     state: present
+    lock_timeout : 180
 
 - name: Configure PBS server name in pbs.conf
   replace : 

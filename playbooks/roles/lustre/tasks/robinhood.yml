@@ -19,6 +19,7 @@
     name:
       - epel-release
     state: present
+    lock_timeout : 180
 
 - name: install robinhood dependencies
   yum:
@@ -28,6 +29,7 @@
       - jemalloc
       - expect
     state: present
+    lock_timeout : 180
 
 - name: install robinhood rpms
   yum:
@@ -36,6 +38,7 @@
       - https://azurehpc.azureedge.net/rpms/robinhood-tools-3.1.6-1.lustre2.12.el7.x86_64.rpm
       - https://azurehpc.azureedge.net/rpms/robinhood-lustre-3.1.6-1.lustre2.12.el7.x86_64.rpm
     state: present
+    lock_timeout : 180
 
 - name: enable and start mariadb service
   service:
@@ -107,13 +110,15 @@
       - php-xml
       - php-pdo
       - php-gd
-    state: present  
+    state: present
+    lock_timeout : 180
 
 - name: install robinhood web ui rpm
   yum:
     name:
       - https://azurehpc.azureedge.net/rpms/robinhood-webgui-3.1.6-1.x86_64.rpm
     state: present
+    lock_timeout : 180
 
 - name: start webserver
   service:
