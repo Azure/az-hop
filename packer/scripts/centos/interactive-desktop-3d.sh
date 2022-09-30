@@ -83,8 +83,8 @@ chmod +x /etc/rc.d/rc3.d/busidupdate.sh
 cat <<EOF >/etc/profile.d/vglrun.sh 
 #!/bin/bash
 # Set the vglrun alias to pickup a GPU device based on the noVNC port so that each session is landing on a different GPU, modulo the number of GPU devices.
-ngpu=$(lspci | grep NVIDIA | wc -l)
-alias vglrun='/usr/bin/vglrun -d :0.$(( ${port:-0} % ${ngpu:-1}))'
+ngpu=\$(lspci | grep NVIDIA | wc -l)
+alias vglrun='/usr/bin/vglrun -d :0.\$(( \${port:-0} % \${ngpu:-1}))'
 EOF
 
 # browser and codecs
