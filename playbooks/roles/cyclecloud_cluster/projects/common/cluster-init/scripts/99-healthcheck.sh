@@ -1,7 +1,7 @@
 #!/bin/bash
 # enable the healthcheck on the node
 cp ../files/healthchecks.sh /opt/cycle/jetpack/config/healthcheck.d/healthchecks.sh
-cp ../files/healthchecks.json /opt/cycle/jetpack/config/healthchecks.json
+#cp ../files/healthchecks.json /opt/cycle/jetpack/config/healthchecks.json
 chmod 777 /opt/cycle/jetpack/config/healthcheck.d/healthchecks.sh
 
 echo "Restarting healthcheck service"

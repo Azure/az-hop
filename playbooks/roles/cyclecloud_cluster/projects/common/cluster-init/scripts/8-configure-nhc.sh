@@ -36,4 +36,8 @@ case $VM_SIZE in
     hb*v2|hb*v3)
         echo " * || check_hw_ib 200 mlx5_ib0:1" >> $NHC_CONFIG_FILE
     ;;
+    hc44rs)
+        echo " * || check_hw_ib 100 mlx5_ib0:1" >> $NHC_CONFIG_FILE
+    ;;
+
 esac
