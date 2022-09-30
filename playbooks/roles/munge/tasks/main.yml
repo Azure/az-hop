@@ -26,10 +26,12 @@
     name:
       - epel-release
     state: present
+    lock_timeout : 180
 
 - name: install munge
   yum:
     name: munge, munge-libs, munge-devel
+    lock_timeout : 180
 
 - name: check local munge dir
   file:

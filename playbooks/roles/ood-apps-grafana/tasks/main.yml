@@ -4,6 +4,7 @@
   yum:
     name: python-flask
     state: present
+    lock_timeout : 180
 
 - name: Create directory
   file:

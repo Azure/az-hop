@@ -20,6 +20,7 @@
       yum:
         name: lustre-client
         state: present
+        lock_timeout : 180
       register: install_rpms
 
     - name: run weak-modules

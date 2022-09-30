@@ -40,6 +40,7 @@
   yum:
     name: ca-certificates
     state: latest
+    lock_timeout : 180
 
 - name: check if cyclecloud-guac-pkg-{{cyclecloud_guac_version}}.tar.gz file exists
   stat: 

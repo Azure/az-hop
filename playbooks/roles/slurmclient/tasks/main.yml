@@ -5,12 +5,14 @@
     name:
       - epel-release
     state: present
+    lock_timeout : 180
 
 - name: install slurmd client utilities
   yum:
     name:
       -  '{{homedir_mountpoint}}/slurm/rpms/slurm-{{cc_slurm_version}}.el7.x86_64.rpm'
     state: present
+    lock_timeout : 180
 
 - name: check slurm config directory
   file:

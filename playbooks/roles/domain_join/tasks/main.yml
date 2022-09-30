@@ -1,6 +1,7 @@
 - name: Install dependencies
   yum:
     name: epel-release, sssd, realmd, oddjob, oddjob-mkhomedir, adcli, samba-common, samba-common-tools, krb5-workstation, openldap-clients, policycoreutils-python, nfs-utils, python3
+    lock_timeout : 180
   notify: restart dbus
 
 - name: Disable SELinux

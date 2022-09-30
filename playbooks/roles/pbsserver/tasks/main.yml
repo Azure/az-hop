@@ -3,6 +3,7 @@
 - name: Install dependencies
   yum:
     name: python3, nfs-utils, jq
+    lock_timeout : 180
 
 - name: Download pbspro 
   unarchive:
@@ -15,6 +16,7 @@
     name: 
       - /mnt/resource/pbspro_{{openpbs_version}}.centos7/pbspro-server-{{openpbs_version}}-0.x86_64.rpm
     state: present
+    lock_timeout : 180
 
 - name: Ensure pbs-server is running.
   service: 

@@ -23,6 +23,8 @@
     yum:
       name: ca-certificates
       state: latest
+      lock_timeout : 180
+
   - name: Set up PAM authentication
     shell: |
       yum install -y mod_authnz_pam
@@ -277,6 +279,7 @@
   - name: add modules for job submission
     yum: 
       name: Lmod, hwloc, numactl 
+      lock_timeout : 180
 
   - name: create ssh_config file
     copy:
@@ -417,16 +420,19 @@
         yum:
           name: https://ecsft.cern.ch/dist/cvmfs/cvmfs-release/cvmfs-release-latest.noarch.rpm 
           state: present
+          lock_timeout : 180
 
       - name: Install cvmfs package
         yum:
           name: cvmfs 
           state: present
+          lock_timeout : 180
 
       - name: Install EESSI config package
         yum:
           name: https://github.com/EESSI/filesystem-layer/releases/download/latest/cvmfs-config-eessi-latest.noarch.rpm
           state: present
+          lock_timeout : 180
 
       - name: Create cvmfs config 
         copy:
