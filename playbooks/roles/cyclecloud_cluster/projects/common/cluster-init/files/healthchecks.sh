@@ -161,6 +161,7 @@ function check_domain_joined()
 
 function nhc_run()
 {
+    log "Running NHC"
     /usr/sbin/nhc -d
     if [ $? -eq 1 ]; then
         1>&2 echo "ERROR : Node Health Checks failed - $(hostname) - $PHYSICAL_HOST"
