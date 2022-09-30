@@ -80,7 +80,6 @@
     name: "jetpack8-{{cc_version}}"
     state: present
     lock_timeout : 180
-    lock_timeout : 180
 
 - name: Create a data record for azhop and start cycleserver
   shell: |
