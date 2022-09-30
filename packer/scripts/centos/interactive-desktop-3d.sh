@@ -79,6 +79,14 @@ EOF
 chmod +x /etc/rc.d/rc3.d/busidupdate.sh
 /etc/rc.d/rc3.d/busidupdate.sh
 
+# Create a vglrun alias
+cat <<EOF >/etc/profile.d/vglrun.sh 
+#!/bin/bash
+# Set the vglrun alias to pickup a GPU device based on the noVNC port so that each session is landing on a different GPU, modulo the number of GPU devices.
+ngpu=\$(lspci | grep NVIDIA | wc -l)
+alias vglrun='/usr/bin/vglrun -d :0.\$(( \${port:-0} % \${ngpu:-1}))'
+EOF
+
 # browser and codecs
 yum -y localinstall --nogpgcheck https://download1.rpmfusion.org/free/el/rpmfusion-free-release-7.noarch.rpm
 yum -y install firefox ffmpeg ffmpeg-devel
