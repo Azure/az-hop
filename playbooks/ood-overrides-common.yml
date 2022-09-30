@@ -24,7 +24,6 @@ clusters:
             module purge
             export PATH="/opt/TurboVNC/bin:$PATH"
             export WEBSOCKIFY_CMD="/usr/bin/websockify"
-            alias vglrun='/usr/bin/vglrun -d :0.$(( ${port:-0} %% $(lspci | grep NVIDIA | wc -l)))'
             %s
 
 ood_install_apps:
