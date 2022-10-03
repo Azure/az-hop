@@ -1,14 +1,21 @@
 #!/bin/bash
-# enable the healthcheck on the node
-cp ../files/healthchecks.sh /opt/cycle/jetpack/config/healthcheck.d/healthchecks.sh
-#cp ../files/healthchecks.json /opt/cycle/jetpack/config/healthchecks.json
-chmod 777 /opt/cycle/jetpack/config/healthcheck.d/healthchecks.sh
+PHYSICAL_HOST=$(strings /var/lib/hyperv/.kvp_pool_3 | grep -A1 PhysicalHostName | head -n 2 | tail -1)
 
-echo "Restarting healthcheck service"
-systemctl restart healthcheck
+function log()
+{
+    timestamp=$(date -u "+%Y-%m-%d %H:%M:%S")
+    echo "$timestamp $1" >> /opt/cycle/jetpack/logs/healthchecks.log 
+}
 
-# force run once on startup
-source /opt/cycle/jetpack/system/bin/cyclecloud-env.sh
+function nhc_run()
+{
+    log "Running NHC"
+    /usr/sbin/nhc -d
+    if [ $? -eq 1 ]; then
+        #1>&2 echo "ERROR : Node Health Checks failed - $(hostname) - $PHYSICAL_HOST"
+        jetpack log "ERROR : Node Health Checks failed - $(hostname) - $PHYSICAL_HOST" --level error
+        jetpack shutdown --unhealthy
+    fi
+}
 
-echo "Run healthcheck"
-healthcheck
+nhc_run
