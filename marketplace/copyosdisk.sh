@@ -1,0 +1,17 @@
+#!/bin/bash
+
+osdisk_name=$1
+osdisk_resource_group=$2
+name=$3
+
+osdisk_sas=$(az disk grant-access --access-level Read --duration-in-seconds 3600 --name $osdisk_name --resource-group $osdisk_resource_group | jq .accessSas -r)
+
+SA_ACCOUNT=azhop
+SA_CONTAINER=images
+
+start=$(date -u -d "-10 minutes" '+%Y-%m-%dT%H:%MZ')
+expiry=$(date -u -d "+1 week" '+%Y-%m-%dT%H:%MZ')
+
+rw_sas=$(az storage container generate-sas --account-name $SA_ACCOUNT --name $SA_CONTAINER --permissions rwdl --start $start --expiry $expiry --output tsv)
+
+azcopy copy "$osdisk_sas" "https://$SA_ACCOUNT.blob.core.windows.net/$SA_CONTAINER/$name?${rw_sas}"
