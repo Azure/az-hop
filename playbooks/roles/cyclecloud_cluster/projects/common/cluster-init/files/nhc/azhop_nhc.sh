@@ -4,7 +4,7 @@ PHYSICAL_HOST=$(strings /var/lib/hyperv/.kvp_pool_3 | grep -A1 PhysicalHostName 
 function log()
 {
     timestamp=$(date -u "+%Y-%m-%d %H:%M:%S")
-    echo "$timestamp $1" >> /opt/cycle/jetpack/logs/healthchecks.log 
+    echo "$timestamp $1" >> /opt/cycle/jetpack/logs/healthchecks.log
 }
 
 function nhc_run()
