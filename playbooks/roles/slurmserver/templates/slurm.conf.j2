@@ -22,6 +22,9 @@ SlurmdDebug=debug
 SlurmdLogFile=/var/log/slurmd/slurmd.log
 TopologyPlugin=topology/tree
 JobSubmitPlugins=job_submit/cyclecloud
+HealthCheckProgram=/usr/sbin/azhop_nhc.sh
+HealthCheckInterval=300
+HealthCheckNodeState=IDLE
 PrivateData=cloud
 TreeWidth=65533
 ResumeTimeout=1800
@@ -41,7 +44,6 @@ JobAcctGatherType=jobacct_gather/none
 {% endif %}
 SrunPortRange=59000-61000
 Include cyclecloud.conf
-{% if enroot_enabled %}
 Prolog=/sched/scripts/prolog.sh
 PrologFlags=Alloc
-{% endif %}
+Epilog=/sched/scripts/epilog.sh

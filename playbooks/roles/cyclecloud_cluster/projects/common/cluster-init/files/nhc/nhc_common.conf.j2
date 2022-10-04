@@ -1,0 +1,71 @@
+# NHC Configuration File
+#
+# Lines are in the form "<hostmask>||<check>"
+# Hostmask is a glob, /regexp/, or {noderange}
+# Comments begin with '#'
+#
+
+#######################################################################
+###
+### NHC Configuration Variables
+###
+# * || export MARK_OFFLINE=1 NHC_CHECK_ALL=0
+ * || export TIMEOUT=300
+ * || export VERBOSE=1
+ * || export DETACHED_MODE=0
+
+### Check that node has been renamed correctly
+ * || HOSTNAME="$HOSTNAME_S"
+
+#######################################################################
+###
+### Filesystem checks
+###
+###
+ * || check_fs_mount_rw -t "nfs" -f "{{mounts.home.mountpoint}}"
+ * || check_fs_used {{mounts.home.mountpoint}} 90%
+ * || check_fs_iused {{mounts.home.mountpoint}} 98%
+
+{% if lustre is defined %}
+ * || check_fs_mount_rw -t "lustre" -f "/lustre"
+ * || check_fs_used /lustre 90%
+ * || check_fs_iused /lustre 98%
+{% endif %}
+ 
+{% if queue_manager == "slurm" and queue_manager is defined %}
+ * || check_fs_mount_rw -t "nfs" -s "*:**" -f "/sched"
+ * || check_fs_used /sched 90%
+ * || check_fs_iused /sched 98%
+{% endif %}
+
+#######################################################################
+###
+### Process checks
+###
+### Note: PBS and SLURM daemons will be started after the healthcheck is triggered
+{% if queue_manager == "openpbs" or queue_manager is not defined %}
+{% endif %}
+
+{% if queue_manager == "slurm" and queue_manager is defined %}
+{% endif %}
+
+# Not present on Alma and Ubuntu
+# * || check_ps_service -S -u root crond
+# * || check_ps_service -r -d qmgr postfix
+ * || check_ps_service -S -u root sshd
+ * || check_ps_service -S -u root sssd_be
+ * || check_ps_service -S -u root sssd_nss
+ * || check_ps_service -S -u root sssd_pam
+ * || check_ps_service -S -u telegraf telegraf
+
+#######################################################################
+###
+### Check domain join
+###
+* || check_cmd_output -r 0 -m '/active-directory/' realm list
+
+#######################################################################
+###
+### End of NHC_COMMON
+###
+#######################################################################
