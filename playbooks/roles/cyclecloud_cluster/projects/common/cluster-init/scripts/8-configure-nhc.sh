@@ -8,6 +8,10 @@ $SCRIPT_DIR/../files/$os_release/init_nhc.sh
 # Install custom checks
 cp -v $SCRIPT_DIR/../files/nhc/scripts/* /etc/nhc/scripts/
 
+# Install azhop_nhc 
+cp -v $SCRIPT_DIR/../files/nhc/azhop_nhc.sh /usr/sbin/
+chmod 755 /usr/sbin/azhop_nhc.sh
+
 NHC_CONFIG_FILE="/etc/nhc/nhc.conf"
 VM_SIZE=$(curl -s --noproxy "*" -H Metadata:true "http://169.254.169.254/metadata/instance/compute?api-version=2019-08-15" | jq -r '.vmSize' | tr '[:upper:]' '[:lower:]' | sed 's/standard_//')
 
