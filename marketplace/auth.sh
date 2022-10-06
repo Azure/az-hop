@@ -1,16 +1,17 @@
 #!/bin/bash
-
+vault_name=$1
 debug=1
+creds=$(az keyvault secret show --query "value" --name marketplace-credentials --vault-name $vault_name -o tsv)
 
-tenantId=$(jq -r .tenant creds.json)
-appId=$(jq -r .appId creds.json)
-password=$(jq -r .password creds.json)
+tenantId=$(echo $creds | jq -r .tenant)
+appId=$(echo $creds | jq -r .appId)
+password=$(echo $creds | jq -r .password)
 
 req=
 res=
 
 print_last() {
-    echo "$req"
+    #echo "$req"
     echo "$res" | jq .
 }
 
