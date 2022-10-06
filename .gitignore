@@ -44,4 +44,4 @@ test-results/
 playwright-report/
 
 marketplace/creds.json
-marketplace/offers/*-final.json
+marketplace/offers/*

@@ -18,7 +18,7 @@ image_sas=$(az storage container generate-sas --account-name $SA_ACCOUNT --name 
 
 sasurl=$(echo "https://$SA_ACCOUNT.blob.core.windows.net/images/azhop-${offer}-${os}-v${version}.vhd?${image_sas}") # no need to escape | sed 's/\&/\\\&/g')
 
-cat <<EOF >temp.json
+cat <<EOF >./offers/temp.json
 {
     "$version": {
     "osVhdUrl": "$sasurl",
@@ -29,7 +29,7 @@ EOF
 
 # For this plan
 # Add the new version to the existing versions
-jq '(.definition.plans[] | select(.planId==$plan)."microsoft-azure-virtualmachines.vmImages") += $version ' --arg plan ${os} --argjson version "$(jq '.' temp.json)" ./offers/azhop-${offer}-${os}.json > ./offers/azhop-${offer}-${os}-final.json
+jq '(.definition.plans[] | select(.planId==$plan)."microsoft-azure-virtualmachines.vmImages") += $version ' --arg plan ${os} --argjson version "$(jq '.' ./offers/temp.json)" ./offers/azhop-${offer}-${os}.json > ./offers/azhop-${offer}-${os}-final.json
 
 #fname=./offers/${offer}-${os}-final.json
 
