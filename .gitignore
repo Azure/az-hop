@@ -42,3 +42,6 @@ node_modules/*
 package-lock.json
 test-results/
 playwright-report/
+
+marketplace/creds.json
+marketplace/offers/*-final.json
