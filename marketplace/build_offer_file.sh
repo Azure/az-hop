@@ -16,7 +16,7 @@ expiry=$(date -u -d "+4 years" '+%Y-%m-%dT%H:%MZ') # 4 years expiration SAS
 icon_sas=$(az storage container generate-sas --account-name $SA_ACCOUNT --name icons --permissions rl --start $start --expiry $expiry --output tsv)
 image_sas=$(az storage container generate-sas --account-name $SA_ACCOUNT --name images --permissions rl --start $start --expiry $expiry --output tsv)
 
-sasurl=$(echo "https://$SA_ACCOUNT.blob.core.windows.net/images/azhop-${offer}-${os}-v${version}.vhd?${image_sas}") # no need to escape | sed 's/\&/\\\&/g')
+sasurl=$(echo "https://$SA_ACCOUNT.blob.core.windows.net/images/azhop-${offer}-${os}-v${version}.vhd?${image_sas}")
 
 cat <<EOF >./offers/temp.json
 {
