@@ -112,7 +112,7 @@ jobs:
 
       - name: Push Offer Update
         run: |
-          set -x
+          set -e
           RESOURCE_GROUP=${{ env.RESOURCE_GROUP }}
           ANSIBLE_VARIABLES=./playbooks/group_vars/all.yml
           CONFIG_FILE=config.yml
@@ -129,17 +129,19 @@ jobs:
           eval_str=".images[] | select(.name == "\"$image_name"\") | .sku"
           sku=$(yq eval "$eval_str" $CONFIG_FILE)
 
-
           cd ./marketplace
 
           ./copyosdisk.sh ${offer}-${sku} $RESOURCE_GROUP
           . auth.sh $key_vault_name
 
+          echo "authenticate_legacy"
           authenticate_legacy
-          get_offer_by_id $publisher $offer > offers/$image_name.json
+          echo "get_offer_by_id"
+          get_offer_by_id $publisher $offer > $image_name.json
+          ls -alt
 
+          echo "build_offer_file"
           ./build_offer_file.sh $offer $sku
-
-          put_offer $publisher $offer ./offers/$image_name-final.json
+          put_offer $publisher $offer $image_name-final.json
 
           get_offer_by_id $publisher $offer
