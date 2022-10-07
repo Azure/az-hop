@@ -1,0 +1,131 @@
+#
+# Copyright (c) Microsoft Corporation
+# Licensed under the MIT License.
+#
+name : marketplace_image
+
+on:
+  workflow_dispatch:
+
+env:
+  ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+  ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+  AZHOP_STATE_CONTAINER: environments
+  AZHOP_STATE_ACCOUNT: azhopstates
+  RESOURCE_GROUP: azhop_build_images
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  set_image_list:
+    name: set_image_list
+    runs-on: ubuntu-latest
+
+    container:
+      image: azhop.azurecr.io/hpcrover:2206.1321
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
+      options: --user 0
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Login azure
+        run: |
+          az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
+          az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
+
+      - name: list all images to be built
+        id: set-image-matrix
+        run: |
+          RESOURCE_GROUP=${{ env.RESOURCE_GROUP }}
+          rg_exists=$(az group exists -n $RESOURCE_GROUP)
+          if [ "$rg_exists" = "true" ]; then
+            ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
+          else
+            echo "Resource group $RESOURCE_GROUP does not exist"
+            exit 1
+          fi
+
+          # Build the list of images from the config file
+          images=$(yq eval ".images[]" config.yml | jq -cRn '[inputs]')
+          echo "::set-output images=matrix::$images"
+    # save the list into the outputs
+    outputs:
+      matrix: ${{ steps.set-image-matrix.outputs.matrix }}
+
+  build_image:
+    name: build_image
+    runs-on: self-hosted
+    needs: [set_image_list]
+    strategy: 
+      matrix:
+        images: ${{ fromJson(needs.set_image_list.outputs.matrix) }}
+    container:
+      image: azhop.azurecr.io/hpcrover:2206.1321
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
+      options: --user 0
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Login azure
+        run: |
+          az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
+          az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
+
+      - name: Build Images
+        run: |
+          RESOURCE_GROUP=${{ env.RESOURCE_GROUP }}
+          ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
+          cd packer
+          ./build_image.sh -i ${{matrix.image.png.name}}.json -k
+
+  put_offer:
+    name: put_offer
+    runs-on: self-hosted
+    needs: [set_image_list, build_image]
+    strategy:
+      matrix:
+        images: ${{ fromJson(needs.set_image_list.outputs.matrix) }}
+    container:
+      image: azhop.azurecr.io/hpcrover:2206.1321
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
+      options: --user 0
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Login azure
+        run: |
+          az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
+          az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
+
+      - name: Build Images
+        run: |
+          RESOURCE_GROUP=${{ env.RESOURCE_GROUP }}
+          ANSIBLE_VARIABLES=../playbooks/group_vars/all.yml
+
+          ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
+
+          cd ./marketplace
+
+          ./copyosdisk.sh ${{matrix.images.name}} $RESOURCE_GROUP
+          key_vault_name=$(yq eval ".key_vault" $ANSIBLE_VARIABLES)
+          . auth.sh $key_vault_name
+
+          authenticate_legacy
+          get_offer_by_id azhpc ${{matrix.images.offer}} > offers/${{matrix.images.name}}.json
+
+          ./build_offer_file.sh ${{matrix.images.offer}} {{matrix.images.sku}}
+
+          put_offer azhpc ${{matrix.images.offer}} ./offers/${{matrix.images.name}}-final.json
