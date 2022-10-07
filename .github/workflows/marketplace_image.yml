@@ -54,7 +54,7 @@ jobs:
 
           # Build the list of images from the config file
           images=$(yq eval ".images[].name" config.yml | jq -cRn '[inputs]')
-          echo "::set-output images=matrix::$images"
+          echo "::set-output name=matrix::$images"
     # save the list into the outputs
     outputs:
       matrix: ${{ steps.set-image-matrix.outputs.matrix }}
