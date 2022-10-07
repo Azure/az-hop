@@ -53,7 +53,7 @@ jobs:
           fi
 
           # Build the list of images from the config file
-          images=$(yq eval ".images[]" config.yml | jq -cRn '[inputs]')
+          images=$(yq eval ".images[].name" config.yml | jq -cRn '[inputs]')
           echo "::set-output images=matrix::$images"
     # save the list into the outputs
     outputs:
@@ -86,11 +86,11 @@ jobs:
           RESOURCE_GROUP=${{ env.RESOURCE_GROUP }}
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           cd packer
-          ./build_image.sh -i ${{matrix.image.png.name}}.json -k
+          ./build_image.sh -i ${{matrix.images}}.json -k
 
   put_offer:
     name: put_offer
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     needs: [set_image_list, build_image]
     strategy:
       matrix:
@@ -112,20 +112,32 @@ jobs:
 
       - name: Build Images
         run: |
+          set -x
           RESOURCE_GROUP=${{ env.RESOURCE_GROUP }}
-          ANSIBLE_VARIABLES=../playbooks/group_vars/all.yml
+          ANSIBLE_VARIABLES=./playbooks/group_vars/all.yml
+          CONFIG_FILE=config.yml
+          image_name=${{matrix.images}}
 
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
 
+          key_vault_name=$(yq eval ".key_vault" $ANSIBLE_VARIABLES)
+
+          eval_str=".images[] | select(.name == "\"$image_name"\") | .offer"
+          offer=$(yq eval "$eval_str" $CONFIG_FILE)
+          eval_str=".images[] | select(.name == "\"$image_name"\") | .publisher"
+          publisher=$(yq eval "$eval_str" $CONFIG_FILE)
+          eval_str=".images[] | select(.name == "\"$image_name"\") | .sku"
+          sku=$(yq eval "$eval_str" $CONFIG_FILE)
+
+
           cd ./marketplace
 
-          ./copyosdisk.sh ${{matrix.images.name}} $RESOURCE_GROUP
-          key_vault_name=$(yq eval ".key_vault" $ANSIBLE_VARIABLES)
+          ./copyosdisk.sh $offer $RESOURCE_GROUP
           . auth.sh $key_vault_name
 
           authenticate_legacy
-          get_offer_by_id azhpc ${{matrix.images.offer}} > offers/${{matrix.images.name}}.json
+          get_offer_by_id $publisher $offer > offers/$image_name.json
 
-          ./build_offer_file.sh ${{matrix.images.offer}} {{matrix.images.sku}}
+          ./build_offer_file.sh $offer $sku
 
-          put_offer azhpc ${{matrix.images.offer}} ./offers/${{matrix.images.name}}-final.json
+          put_offer $publisher $offer ./offers/$image_name-final.json
