@@ -54,16 +54,11 @@ export PATH=$PATH:$BUILD_DIR/bin
 wget "${DOWNLOAD_URL}/${SLURM_PKG}"
 rpmbuild --define "_with_pmix --with-pmix=/opt/pmix/v3" -ta ${SLURM_PKG}
 
-# Download the job submit plugin
-wget https://github.com/Azure/cyclecloud-slurm/releases/download/2.6.2/job_submit_cyclecloud_centos_20.11.7-1.so
-
 #
-# Install SLURM and plugin
+# Install SLURM
 #
 
 dnf -y install /root/rpmbuild/RPMS/x86_64/slurm-${SLURM_VERSION}*.rpm /root/rpmbuild/RPMS/x86_64/slurm-slurmd-${SLURM_VERSION}*.rpm
-cp job_submit_cyclecloud_centos_20.11.7-1.so /usr/lib64/slurm/job_submit_cyclecloud.so
-chmod +x /usr/lib64/slurm/job_submit_cyclecloud.so
 
 #
 # The below is needed to CycleCloud chef recipe

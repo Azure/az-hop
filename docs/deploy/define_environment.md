@@ -339,6 +339,8 @@ queues:
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
     ColocateNodes: false
     spot: false
+    max_hours: 12 # Maximum session duration
+    min_hours: 1 # Minimum session duration - 0 is infinite
     # Queue dedicated to share GPU remote viz nodes. This name is fixed and can't be changed
   - name: largeviz3d
     vm_size: Standard_NV48s_v3
@@ -346,6 +348,8 @@ queues:
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
     ColocateNodes: false
     spot: false
+    max_hours: 12 # Maximum session duration
+    min_hours: 1 # Minimum session duration - 0 is infinite
     # Queue dedicated to non GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz
     vm_size: Standard_D8s_v5
@@ -353,6 +357,8 @@ queues:
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
     ColocateNodes: false
     spot: false
+    max_hours: 12 # Maximum session duration
+    min_hours: 1 # Minimum session duration - 0 is infinite
 
 # Remote Visualization definitions
 enable_remote_winviz: false # Set to true to enable windows remote visualization
