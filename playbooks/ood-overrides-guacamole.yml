@@ -10,5 +10,5 @@ clusters:
 ood_install_apps:
   guacamole:
     dest: "{{ ood_sys_app_dir }}"
-    version: main
+    version: v1.0.0
     repo: https://github.com/xpillons/ondemand_bc_guacamole.git
