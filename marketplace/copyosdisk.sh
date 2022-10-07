@@ -5,9 +5,13 @@ set -o pipefail
 osdisk_name=$1
 osdisk_resource_group=$2
 
+echo "Retrieving the os_disk_id for disk name $osdisk_name"
 os_disk_id=$(az disk list -g azhop_build_images --query "[?name=='$osdisk_name'].id" -o tsv)
-image_version=$(az disk show --id $os_disk_id --query "tags.Version" -o tsv)
 
+echo "Retrieving the image version for os disk"
+image_version=$(az disk show --id $os_disk_id --query "tags.Version" -o tsv)
+echo "Image version is $image_version"
+echo "Create the disk SAS"
 osdisk_sas=$(az disk grant-access --access-level Read --duration-in-seconds 3600 --name $osdisk_name --resource-group $osdisk_resource_group | jq .accessSas -r)
 
 SA_ACCOUNT=azhop

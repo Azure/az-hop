@@ -110,7 +110,7 @@ jobs:
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
-      - name: Build Images
+      - name: Push Offer Update
         run: |
           set -x
           RESOURCE_GROUP=${{ env.RESOURCE_GROUP }}
@@ -132,7 +132,7 @@ jobs:
 
           cd ./marketplace
 
-          ./copyosdisk.sh $offer $RESOURCE_GROUP
+          ./copyosdisk.sh ${offer}-${sku} $RESOURCE_GROUP
           . auth.sh $key_vault_name
 
           authenticate_legacy
@@ -141,3 +141,5 @@ jobs:
           ./build_offer_file.sh $offer $sku
 
           put_offer $publisher $offer ./offers/$image_name-final.json
+
+          get_offer_by_id $publisher $offer
