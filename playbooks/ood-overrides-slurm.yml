@@ -25,13 +25,13 @@ ood_apps:
           scheduler_args += ["--gpus=1"]
         end
 
-        # If the user has specified a node bucket lower than 100%, set the job ppn
-        node_percentage = bucket.to_i
-        if node_percentage < 100
+        # If the user has specified a node ratio greather than 1, set the job ppn
+        node_ratio = bucket.to_i
+        if node_ratio > 1
           node_arrays = YAML.load_file("/etc/ood/config/apps/bc_desktop/config/node_arrays.yml")
           node_arrays.each do |slot_type|
             if slot_type["name"] == target
-              cores = (slot_type["vcpuCount"].to_i * node_percentage) / 100
+              cores = (slot_type["vcpuCount"].to_i / node_ratio)
               scheduler_args += ["--ntasks-per-node=%d" % cores]
               break
             end
