@@ -198,6 +198,7 @@
             def squeue():
                 jobs_running = 0
                 jobs_pending = 0
+                jobs_configuring = 0
                 jobs_other = 0
                 for sinfo_line in subprocess.check_output(["/bin/squeue", "-h", "-o", "%a %D %T"]).split('\n'):
                     data = sinfo_line.split(' ')
@@ -210,10 +211,13 @@
                             jobs_running += 1
                         elif state == 'PENDING':
                             jobs_pending += 1
+                        elif state == 'CONFIGURING':
+                            jobs_configuring += 1
                         else:
                             jobs_other += 1
                 print("slurm_jobs,state=RUNNING jobs="+str(jobs_running)+"i")
                 print("slurm_jobs,state=PENDING jobs="+str(jobs_pending)+"i")
+                print("slurm_jobs,state=CONFIGURING jobs="+str(jobs_configuring)+"i")
                 print("slurm_jobs,state=OTHER jobs="+str(jobs_other)+"i")
 
             sinfo()
