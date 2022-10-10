@@ -18,8 +18,13 @@
         cluster_name: "slurm1"
       when: (queue_manager == "slurm")
 
+    # Remove any forbidden characters from the username so we conform to the keyvaul secret name rules '^[0-9a-zA-Z-]+$'
+    - name: Set secretname
+      set_fact:
+        secretname: "{{ users[0].name | map('regex_replace', '[^0-9a-zA-Z-]', '')|list|join() }}-password"
+
     - name: Read User Password from KV
-      command: az keyvault secret show --vault-name {{key_vault}} -n {{users[0].name}}-password --query "value" -o tsv
+      command: az keyvault secret show --vault-name {{key_vault}} -n {{secretname}}-password --query "value" -o tsv
       delegate_to: localhost
       connection: local
       register: user_password
