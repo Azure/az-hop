@@ -12,7 +12,7 @@ version=$(az disk show --id $os_disk_id --query "tags.Version" -o tsv)
 
 echo "Check if version exists and if not then add a new one"
 
-osVhdUrl=$(jq '.definition.plans[] | select(.planId==$plan) | ."microsoft-azure-virtualmachines.vmImages" | ."$version".osVhdUrl' ${offer}-${os}.json)
+osVhdUrl=$(jq '.definition.plans[] | select(.planId==$plan) | ."microsoft-azure-virtualmachines.vmImages" | ."$version".osVhdUrl' --arg plan ${os} --arg version ${version} ${offer}-${os}.json)
 if [ $"osVhdUrl" != "null" ]; then
     echo "Version $version of plan $plan already exists, exiting"
     exit 
