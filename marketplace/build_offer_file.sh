@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 set -o pipefail
 
 offer=$1
@@ -12,8 +12,8 @@ version=$(az disk show --id $os_disk_id --query "tags.Version" -o tsv)
 
 echo "Check if version exists and if not then add a new one"
 
-osVhdUrl=$(jq '.definition.plans[] | select(.planId==$plan) | ."microsoft-azure-virtualmachines.vmImages" | ."$version".osVhdUrl' --arg plan ${os} --arg version ${version} ${offer}-${os}.json)
-if [ $"osVhdUrl" != "null" ]; then
+exists=$(jq '.definition.plans[] | select(.planId==$plan) | ."microsoft-azure-virtualmachines.vmImages" | has($version)' --arg plan ${os} --arg version ${version} ${offer}-${os}.json)
+if [ "$exists" == "true" ]; then
     echo "Version $version of plan $os already exists, exiting"
     exit 
 fi
