@@ -141,7 +141,10 @@ jobs:
           ls -alt
 
           echo "build_offer_file"
+          rm -f $image_name-final.json
           ./build_offer_file.sh $offer $sku
-          put_offer $publisher $offer $image_name-final.json
-
-          get_offer_by_id $publisher $offer
+          if [ -e $image_name-final.json ]; then
+            echo "New version added, push the new offer"
+            put_offer $publisher $offer $image_name-final.json
+            get_offer_by_id $publisher $offer
+          fi

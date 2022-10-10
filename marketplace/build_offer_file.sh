@@ -10,6 +10,14 @@ SA_ACCOUNT=azhop
 os_disk_id=$(az disk list -g azhop_build_images --query "[?name=='${offer}-${os}'].id" -o tsv)
 version=$(az disk show --id $os_disk_id --query "tags.Version" -o tsv)
 
+echo "Check if version exists and if not then add a new one"
+
+osVhdUrl=$(jq '.definition.plans[] | select(.planId==$plan) | ."microsoft-azure-virtualmachines.vmImages" | ."$version".osVhdUrl' ${offer}-${os}.json)
+if [ $"osVhdUrl" != "null" ]; then
+    echo "Version $version of plan $plan already exists, exiting"
+    exit 
+fi
+
 start=$(date -u -d "-10 minutes" '+%Y-%m-%dT%H:%MZ')
 expiry=$(date -u -d "+4 years" '+%Y-%m-%dT%H:%MZ') # 4 years expiration SAS
 
