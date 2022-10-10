@@ -14,7 +14,7 @@ echo "Check if version exists and if not then add a new one"
 
 osVhdUrl=$(jq '.definition.plans[] | select(.planId==$plan) | ."microsoft-azure-virtualmachines.vmImages" | ."$version".osVhdUrl' --arg plan ${os} --arg version ${version} ${offer}-${os}.json)
 if [ $"osVhdUrl" != "null" ]; then
-    echo "Version $version of plan $plan already exists, exiting"
+    echo "Version $version of plan $os already exists, exiting"
     exit 
 fi
 
