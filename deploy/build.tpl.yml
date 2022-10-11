@@ -85,10 +85,10 @@ images:
     offer: WindowsServer
     sku: 2016-Datacenter-smalldisk
     version: latest
-  azhop-centos79-v2-rdma-gpgpu:
-    id: <existing-marketplace-image-or-marketplace-id>
-  centos-7.8-desktop-3d:
-    id: <existing-marketplace-image-or-marketplace-id>
+  azhop-compute-centos-7.9:
+    id: <existing-marketplace-image-or-marketplace-id> # azhpc:azhop-compute:centos-7_9:latest
+  azhop-desktop-centos-7.9:
+    id: <existing-marketplace-image-or-marketplace-id> # azhpc:azhop-desktop:centos-7_9:latest
     
 vms:
   deployer:
