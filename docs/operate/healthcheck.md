@@ -11,7 +11,7 @@ If the cluster is configured with SLURM, NHC will run:
 
 NHC is implemented in `bash` and can be extended with custom scripts. Different checks can be run depending on the type of the Azure VM.
 
-## Common Checks 
+## Common Checks
 The following checks are performed on all VMs regardless of the type:
 - hostname is correct
 - node is domain joined
