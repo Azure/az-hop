@@ -18,6 +18,7 @@ playbooks/group_vars/*
 playbooks/image_lookup.yml
 playbooks/remoteviz_image_lookup.yml
 playbooks/*.ok
+playbooks/node_arrays.yml
 
 # ssh keys
 *.pub

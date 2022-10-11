@@ -10,7 +10,6 @@
 - [Not deploy ANF](#not-deploy-anf)
 - [Use an existing NFS mount point](#use-an-existing-nfs-mount-point)
 - [Use Azure Active Directory for MFA](#use-azure-active-directory-for-mfa)
-- [Add/remove/modify cluster node arrays (aka queues/partitions)](#addremovemodify-cluster-node-arrays-aka-queuespartitions)
 
 ## How to use an existing VNET ?
 Using an existing VNET can be done by specifying in the `config.yml` file the VNET ID that needs to be used as shown below.
@@ -184,13 +183,4 @@ The helper script `configure_aad.sh` can be used to
 - Register an AAD application configured to the az-hop environment
 - Create a secret for this AAD application and store it in the az-hop Key Vault
 
-This script need to be run before the `install.sh` or at least before the `ood` step.
-
-## Add/remove/modify cluster node arrays (aka queues/partitions)
-Az-HOP simplifies the addition, removal or modification of the node arrays in an existing CycleCloud cluster.
-Simply edit the `config.yml` file with the desired changes in the `queues` section. Then update the `cccluster` and `scheduler` installation with:
-```bash
-./install cccluster
-./install scheduler
-```
-The node arrays changes will appear in the CycleCloud portal and as cluster scheduler partitions.
+This script need to be run before the `install.sh` or at least before the `ood` step, and by a user with enough privilege to craete an application in AAD (typically a subscription `Owner`)

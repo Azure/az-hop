@@ -5,24 +5,27 @@
     name:
       - epel-release
     state: present
+    lock_timeout : 180
 
 - name: install common packages
   yum: 
     name:
       - jq
     state: present
+    lock_timeout : 180
 
 - name: Download PBS RPMs
   unarchive:
-    src: https://github.com/PBSPro/pbspro/releases/download/v19.1.1/pbspro_19.1.1.centos7.zip
+    src: https://github.com/PBSPro/pbspro/releases/download/v{{openpbs_version}}/pbspro_{{openpbs_version}}.centos7.zip
     dest: /mnt/resource
     remote_src: yes
 
 - name: install PBS Client
   yum: 
     name:
-      - /mnt/resource/pbspro_19.1.1.centos7/pbspro-execution-19.1.1-0.x86_64.rpm
+      - /mnt/resource/pbspro_{{openpbs_version}}.centos7/pbspro-execution-{{openpbs_version}}-0.x86_64.rpm
     state: present
+    lock_timeout : 180
 
 - name: Configure PBS server name in pbs.conf
   replace : 

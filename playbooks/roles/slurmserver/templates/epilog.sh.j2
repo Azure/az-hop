@@ -1,0 +1,11 @@
+#!/bin/bash
+
+#if [ "$SLURM_JOB_EXIT_CODE" -ne "0" ] ; then
+#  echo "NHC error. Enabling keepalive..."
+#  jetpack keepalive forever
+#  cd /var/log
+#  tar czf /tmp/messages.tgz messages
+#  cp -v /tmp/messages.tgz /anfhome/slurm/nodelogs/messages.$HOSTNAME.tgz
+#fi
+
+/usr/sbin/azhop_nhc.sh

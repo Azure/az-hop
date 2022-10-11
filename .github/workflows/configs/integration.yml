@@ -75,7 +75,7 @@ locked_down_network:
 
 # Base image configuration. Can be either an image reference or an image_id from the image registry or a custom managed image
 linux_base_image: "OpenLogic:CentOS:7_9-gen2:latest" # publisher:offer:sku:version or image_id
-windows_base_image: "MicrosoftWindowsServer:WindowsServer:2016-Datacenter-smalldisk:latest" # publisher:offer:sku:version or image_id
+windows_base_image: "MicrosoftWindowsServer:WindowsServer:2019-Datacenter-smalldisk:latest" # publisher:offer:sku:version or image_id
 
 jumpbox:
   vm_size: Standard_B2ms
@@ -181,6 +181,11 @@ images:
     hyper_v: V1
     os_type: Windows
     version: 10.19043
+
+# Autoscale default settings for all queues, can be overriden on each queue depending on the VM type if needed
+autoscale:
+  idle_timeout: 180 # Idle time in seconds before shutting down VMs - default to 1800 like in CycleCloud
+
 queues:
   - name: execute
     vm_size: Standard_F2s_v2
@@ -224,12 +229,16 @@ queues:
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
     ColocateNodes: false
     spot: false
+    max_hours: 12 # Maximum session duration
+    min_hours: 1 # Minimum session duration - 0 is infinite
   - name: viz
     vm_size: Standard_D8s_v5
     max_core_count: 200
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
     ColocateNodes: false
     spot: false
+    max_hours: 12 # Maximum session duration
+    min_hours: 1 # Minimum session duration - 0 is infinite
   - name: nc24v3
     vm_size: Standard_NC24rs_v3
     max_core_count: 96
@@ -240,6 +249,8 @@ queues:
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
     ColocateNodes: false
     spot: false
+    max_hours: 12 # Maximum session duration
+    min_hours: 1 # Minimum session duration - 0 is infinite
 
 # Remote Visualization definitions
 enable_remote_winviz: true # Set to true to enable windows remote visualization

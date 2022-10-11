@@ -3,18 +3,20 @@
 - name: Install dependencies
   yum:
     name: python3, nfs-utils, jq
+    lock_timeout : 180
 
 - name: Download pbspro 
   unarchive:
-    src: https://github.com/PBSPro/pbspro/releases/download/v19.1.1/pbspro_19.1.1.centos7.zip
+    src: https://github.com/PBSPro/pbspro/releases/download/v{{openpbs_version}}/pbspro_{{openpbs_version}}.centos7.zip
     dest: /mnt/resource
     remote_src: yes
 
 - name: Install pbspro
   yum:
     name: 
-      - /mnt/resource/pbspro_19.1.1.centos7/pbspro-server-19.1.1-0.x86_64.rpm
+      - /mnt/resource/pbspro_{{openpbs_version}}.centos7/pbspro-server-{{openpbs_version}}-0.x86_64.rpm
     state: present
+    lock_timeout : 180
 
 - name: Ensure pbs-server is running.
   service: 
@@ -53,10 +55,11 @@
   args:
     chdir: /tmp/cyclecloud-pbspro
 
-- name: change node timeout to 15mn instead of 5mn
+- name: change node timeout, default to 15mn
   shell: |
-    jq '.idle_timeout=900' autoscale.json > tmp_autoscale.json || exit 1
+    jq '.idle_timeout={{autoscale.idle_timeout | default(900) }}' autoscale.json > tmp_autoscale.json || exit 1
     cp tmp_autoscale.json autoscale.json
+    sed -i 's/pcpu_count/vcpu_count/g' autoscale.json
     jq '.' autoscale.json || exit 1
     rm tmp_autoscale.json
   args:
@@ -81,7 +84,26 @@
 - name: activate pbs config
   shell: /var/spool/pbs/doqmgr.sh 
 
+- name: Add submission hook
+  copy:
+    src: '{{role_path}}/files/submit-hook.py'
+    dest: /opt/cycle/pbspro/submit-hook.py
+
+- name: Register submission hook
+  shell: |
+    /opt/pbs/bin/qmgr -c "create hook submit"
+    /opt/pbs/bin/qmgr -c "import hook submit application/x-python default submit-hook.py"
+    /opt/pbs/bin/qmgr -c "set hook submit event = queuejob"
+  args:
+    chdir: /opt/cycle/pbspro
+
 - name: Restart pbs-server 
   service: 
     name: pbs
     state: restarted
+
+- name: create cron entry to remove old accounting files
+  cron:
+    name: "remove PBS accounting files older than 90 days"
+    special_time: daily
+    job: "find /var/spool/pbs/server_logs -mtime +90 -type f -print -exec rm {} +"

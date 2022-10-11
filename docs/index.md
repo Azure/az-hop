@@ -12,11 +12,9 @@ Azure HPC OnDemand Platform or **azhop**, delivers an end-2-end deployment mecha
 
 <img src="./images/azhop_architecture.png" width="75%">
 
-# Deployment Guide
-Follow the steps [here](deploy/index.md) for configuring and deploying your AZHOP environmment.
+This documentation encompasses 
 
-# User Guide
-The User guide is available [here](user_guide/index.md)
-
-# Operation Guide
-The User guide is available [here](operate/index.md)
+ * The [Deployment Guide](deploy/index.md) for configuring and deploying your AZHOP environmment.
+ * The [User Guide](user_guide/index.md) explaining how to submit jobs, manage files & more
+ * [Tutorials](deploy/index.md) for specific use cases
+ * The [Administrator Guide](operate/index.md) for cluster admins

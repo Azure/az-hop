@@ -5,8 +5,8 @@
   vars_files:
     - '{{global_config_file}}'
   vars:
-    ondemand_version: 2.0.23
-    ood_core_version: 0.18.1
+    ondemand_version: 2.0.28
+    ood_core_version: 0.21.0
 
   tasks:
   - name: Wait 300 seconds for the nodes to be ready
@@ -19,6 +19,8 @@
     yum:
       name: ca-certificates
       state: latest
+      lock_timeout : 180
+
   - name: Set up PAM authentication
     shell: |
       yum install -y mod_authnz_pam
@@ -273,6 +275,7 @@
   - name: add modules for job submission
     yum: 
       name: Lmod, hwloc, numactl 
+      lock_timeout : 180
 
   - name: create ssh_config file
     copy:
@@ -280,6 +283,13 @@
         Host *
           StrictHostKeyChecking=No
       dest: /etc/ssh/ssh_config
+
+  - name: Insert/Update Match group "domain users" configuration block in /etc/ssh/sshd_config
+    blockinfile:
+      path: /etc/ssh/sshd_config
+      block: |
+        Match group "domain users"
+          AllowUsers *
 
   - include_role: 
       name: ood-apps-cyclecloud
@@ -406,16 +416,19 @@
         yum:
           name: https://ecsft.cern.ch/dist/cvmfs/cvmfs-release/cvmfs-release-latest.noarch.rpm 
           state: present
+          lock_timeout : 180
 
       - name: Install cvmfs package
         yum:
           name: cvmfs 
           state: present
+          lock_timeout : 180
 
       - name: Install EESSI config package
         yum:
           name: https://github.com/EESSI/filesystem-layer/releases/download/latest/cvmfs-config-eessi-latest.noarch.rpm
           state: present
+          lock_timeout : 180
 
       - name: Create cvmfs config 
         copy:
@@ -427,3 +440,8 @@
       - name: Configure cvmfs 
         shell: cvmfs_config setup 
     when:  ( cvmfs_eessi.enabled | default(false) )
+
+  # Generate the node array core lookup file for ondemand - will be only run if the marker file for ondemand exists
+  - import_tasks: nodearray_lookup.yml
+    vars:
+      marker_file: cccluster.ok

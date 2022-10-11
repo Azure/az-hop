@@ -13,6 +13,7 @@ resource "local_file" "AnsibleInventory" {
       jumpbox-user      = azurerm_linux_virtual_machine.jumpbox.admin_username
       jumpbox-ssh-port  = local.jumpbox_ssh_port
       ad-ip             = azurerm_network_interface.ad-nic.private_ip_address
+      ad2-ip            = local.ad_ha ? azurerm_network_interface.ad2-nic[0].private_ip_address : azurerm_network_interface.ad-nic.private_ip_address
       ad-passwd         = azurerm_windows_virtual_machine.ad.admin_password
       lustre-oss-count  = local.lustre_oss_count
     }
@@ -43,6 +44,7 @@ resource "local_file" "global_variables" {
       config_file         = local.configuration_file
       homedir_mountpoint  = local.homedir_mountpoint
       ad-ip               = azurerm_network_interface.ad-nic.private_ip_address
+      ad2-ip              = local.ad_ha ? azurerm_network_interface.ad2-nic[0].private_ip_address : azurerm_network_interface.ad-nic.private_ip_address
       anf-home-ip         = local.create_anf ? element(azurerm_netapp_volume.home[0].mount_ip_addresses, 0) : local.configuration_yml["mounts"]["home"]["server"]
       anf-home-path       = local.create_anf ? azurerm_netapp_volume.home[0].volume_path : local.configuration_yml["mounts"]["home"]["export"]
       ondemand-fqdn       = local.allow_public_ip ? azurerm_public_ip.ondemand-pip[0].fqdn : try( local.configuration_yml["ondemand"]["fqdn"], azurerm_network_interface.ondemand-nic.private_ip_address)
@@ -51,7 +53,7 @@ resource "local_file" "global_variables" {
       key_vault           = azurerm_key_vault.azhop.name
       sig_name            = azurerm_shared_image_gallery.sig.name
       lustre_hsm_storage_account = ( local.lustre_archive_account != null ? local.lustre_archive_account : azurerm_storage_account.azhop.name )
-      lustre_hsm_storage_container = ( local.lustre_archive_account != null ? local.configuration_yml["lustre"]["hsm"]["storage_container"] : azurerm_storage_container.lustre_archive[0].name )
+      lustre_hsm_storage_container = ( local.lustre_archive_account != null ? local.configuration_yml["lustre"]["hsm"]["storage_container"] : (local.lustre_enabled ? azurerm_storage_container.lustre_archive[0].name : "") )
       mysql-fqdn        = local.slurm_accounting ? azurerm_mysql_server.mysql[0].fqdn : ""
       mysql-user        = local.slurm_accounting_admin_user
       jumpbox-ssh-port  = local.jumpbox_ssh_port

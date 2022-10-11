@@ -17,6 +17,7 @@
     - name: Install dependencies
       yum:
         name: epel-release, dstat
+        lock_timeout : 180
 
     - import_tasks: repos.yml
 
@@ -24,6 +25,7 @@
       yum:
         name: lustre, kmod-lustre-osd-ldiskfs, lustre-osd-ldiskfs-mount, lustre-resource-agents, e2fsprogs, lustre-tests
         state: present
+        lock_timeout : 180
       register: install_rpms
 
     - name: Don't format the ResourceDisk

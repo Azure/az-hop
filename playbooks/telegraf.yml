@@ -152,6 +152,80 @@
               signal = "STDIN"
     when: (queue_manager == "openpbs" or queue_manager is not defined)
 
+- name: SLURM metrics
+  hosts: scheduler
+  become: true
+  vars_files:
+    - '{{global_config_file}}'
+  
+  tasks:
+  - name: create telegraf plugin directory
+    file:
+      path: /opt/telegraf/scripts
+      state: directory
+      mode: 0755
+      owner: telegraf
+
+  - name: add SLURM scripts
+    block:
+      - name: create collect_slurm_stats script
+        copy:
+          dest: /opt/telegraf/scripts/collect_slurm_stats.py
+          mode: 0755
+          owner: telegraf
+          content: |
+            #!/usr/bin/env python
+
+            import json
+            import subprocess
+            import sys
+
+            def sinfo():
+                for sinfo_line in subprocess.check_output(["/bin/sinfo", "-h", "-o", "%R %D %F %T"]).split('\n'):
+                    data = sinfo_line.split(' ')
+                    if (data[0] != ''):
+                        partition = data[0]
+                        numnodes = data[1]
+                        nodes_by_state = data[2].split('/')
+                        state = data[3]
+                        print("slurm_nodes,partition="+partition+",state="+state+" nodes="+numnodes+"i")
+
+            def squeue():
+                jobs_running = 0
+                jobs_pending = 0
+                jobs_configuring = 0
+                jobs_other = 0
+                for sinfo_line in subprocess.check_output(["/bin/squeue", "-h", "-o", "%a %D %T"]).split('\n'):
+                    data = sinfo_line.split(' ')
+                    if (data[0] != ''):
+                        account = data[0]
+                        numnodes = data[1]
+                        state = data[2]
+                        # print("slurm2jobs,account="+account+",state="+state+" nodes="+numnodes+"i")
+                        if state == 'RUNNING':
+                            jobs_running += 1
+                        elif state == 'PENDING':
+                            jobs_pending += 1
+                        elif state == 'CONFIGURING':
+                            jobs_configuring += 1
+                        else:
+                            jobs_other += 1
+                print("slurm_jobs,state=RUNNING jobs="+str(jobs_running)+"i")
+                print("slurm_jobs,state=PENDING jobs="+str(jobs_pending)+"i")
+                print("slurm_jobs,state=CONFIGURING jobs="+str(jobs_configuring)+"i")
+                print("slurm_jobs,state=OTHER jobs="+str(jobs_other)+"i")
+
+            sinfo()
+            squeue()
+      - name: add slurm metrics to telegraf config
+        blockinfile:
+          path: /etc/telegraf/telegraf.conf
+          block: |
+            [[inputs.execd]]
+              command = ["/opt/telegraf/scripts/collect_slurm_stats.py"]
+              signal = "STDIN"
+    when: (queue_manager == "slurm")
+
   - name: restart telegraf
     service:
       name: telegraf

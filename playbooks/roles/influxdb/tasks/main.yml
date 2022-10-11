@@ -15,6 +15,7 @@
       - https://dl.influxdata.com/influxdb/releases/influxdb-1.8.5.x86_64.rpm
       - python3-pip
     state: present
+    lock_timeout : 180
 
 - name: Install required pip packages
   pip:
@@ -35,3 +36,14 @@
       password: "{{influxdb_password}}"
       database_name: "{{influxdb_database_name}}"
       validate_certs: no
+
+- name: Change default autogen retention policy - 4 weeks retention policy with 1 day shard group duration
+  community.general.influxdb_retention_policy:
+      username: "{{influxdb_username}}"
+      password: "{{influxdb_password}}"
+      database_name: "{{influxdb_database_name}}"
+      policy_name: "autogen"
+      duration: 4w
+      replication: 1
+      shard_group_duration: 1d
+      default: true

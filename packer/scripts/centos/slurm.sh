@@ -63,16 +63,11 @@ export PATH=$PATH:$BUILD_DIR/bin
 wget "${DOWNLOAD_URL}/${SLURM_PKG}"
 rpmbuild --define "_with_pmix --with-pmix=/opt/pmix/v3" -ta ${SLURM_PKG}
 
-# Download the job submit plugin
-wget https://github.com/Azure/cyclecloud-slurm/releases/download/2.6.2/job_submit_cyclecloud_centos_20.11.7-1.so
-
 #
-# Install SLURM and plugin
+# Install SLURM
 #
 
 yum -y install /root/rpmbuild/RPMS/x86_64/slurm-${SLURM_VERSION}*.rpm /root/rpmbuild/RPMS/x86_64/slurm-slurmd-${SLURM_VERSION}*.rpm
-cp job_submit_cyclecloud_centos_20.11.7-1.so /usr/lib64/slurm/job_submit_cyclecloud.so
-chmod +x /usr/lib64/slurm/job_submit_cyclecloud.so
 
 #
 # The below is needed to CycleCloud chef recipe
@@ -93,12 +88,12 @@ arch=$(uname -m)
 rpm -q enroot || yum install -y https://github.com/NVIDIA/enroot/releases/download/v${ENROOT_VERSION}/enroot-${ENROOT_VERSION_FULL}.el7.${arch}.rpm
 rpm -q enroot+caps || yum install -y https://github.com/NVIDIA/enroot/releases/download/v${ENROOT_VERSION}/enroot+caps-${ENROOT_VERSION_FULL}.el7.${arch}.rpm
 
-# Install NVIDIA container support
-DIST=$(. /etc/os-release; echo $ID$VERSION_ID)
-curl -s -L https://nvidia.github.io/libnvidia-container/$DIST/libnvidia-container.repo > /etc/yum.repos.d/libnvidia-container.repo
+# # Install NVIDIA container support
+# DIST=$(. /etc/os-release; echo $ID$VERSION_ID)
+# curl -s -L https://nvidia.github.io/libnvidia-container/$DIST/libnvidia-container.repo > /etc/yum.repos.d/libnvidia-container.repo
 
-yum -y makecache
-yum -y install libnvidia-container-tools
+# yum -y makecache
+# yum -y install libnvidia-container-tools
 
 # Add kernel boot parameters
 grep user.max_user_namespaces /etc/sysctl.conf || echo 'user.max_user_namespaces = 1417997' >> /etc/sysctl.conf

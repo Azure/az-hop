@@ -2,11 +2,11 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "=3.1.0"
+      version = "=3.19.0"
     }
     random = {
       source  = "hashicorp/random"
-      version = "~> 3.0.0"
+      version = "~> 3.3.0"
     }
   }
   required_version = ">= 0.13"
@@ -14,6 +14,7 @@ terraform {
 
 
 provider "azurerm" {
+  skip_provider_registration = true
   features {}
 }
 
@@ -27,7 +28,7 @@ resource "random_string" "resource_postfix" {
   special = false
   upper = false
   lower = true
-  number = true  
+  numeric = true
 }
 
 resource "random_password" "password" {
@@ -101,7 +102,7 @@ resource "azurerm_storage_account" "azhop" {
 
 # create a container for the lustre archive if not using an existing account
 resource "azurerm_storage_container" "lustre_archive" {
-    count                 = (local.lustre_archive_account == null ? 1 : 0)
+    count                 = (local.lustre_archive_account == null ? ( local.lustre_enabled ? 1 : 0) : 0)
     name                  = "lustre"
     storage_account_name  = azurerm_storage_account.azhop.name
     container_access_type = "private"

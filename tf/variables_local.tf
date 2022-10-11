@@ -24,6 +24,7 @@ locals {
         CreatedOn = timestamp()
     }
 
+    ad_ha = try(local.configuration_yml["ad"].high_availability, false)
     # Use a linux custom image reference if the linux_base_image is defined and contains ":"
     use_linux_image_reference = try(length(split(":", local.configuration_yml["linux_base_image"])[1])>0, false)
     # Use a lustre custom image reference if the lustre_base_image is defined and contains ":"
@@ -46,7 +47,7 @@ locals {
     windows_base_image_reference = {
         publisher = local.use_windows_image_reference ? split(":", local.configuration_yml["windows_base_image"])[0] : "MicrosoftWindowsServer"
         offer     = local.use_windows_image_reference ? split(":", local.configuration_yml["windows_base_image"])[1] : "WindowsServer"
-        sku       = local.use_windows_image_reference ? split(":", local.configuration_yml["windows_base_image"])[2] : "2016-Datacenter-smalldisk"
+        sku       = local.use_windows_image_reference ? split(":", local.configuration_yml["windows_base_image"])[2] : "2019-Datacenter-smalldisk"
         version   = local.use_windows_image_reference ? split(":", local.configuration_yml["windows_base_image"])[3] : "latest"
     }
 
@@ -186,7 +187,7 @@ locals {
     # VM name to list of ASGs associations
     # TODO : Add mapping for names
     asg_associations = {
-        ad        = ["asg-ad", "asg-rdp"]
+        ad        = ["asg-ad", "asg-rdp", "asg-ad-client"] # asg-ad-client will allow the secondary DC scenario
         ccportal  = ["asg-ssh", "asg-cyclecloud", "asg-telegraf", "asg-ad-client"]
         grafana   = ["asg-ssh", "asg-grafana", "asg-ad-client", "asg-telegraf", "asg-nfs-client"]
         jumpbox   = ["asg-ssh", "asg-jumpbox", "asg-ad-client", "asg-telegraf", "asg-nfs-client"]
@@ -217,6 +218,7 @@ locals {
         Slurmd = ["6818"]
         Lustre = ["635", "988"]
         Nfs = ["111", "635", "2049", "4045", "4046"]
+        SMB = ["445"]
         Telegraf = ["8086"]
         Grafana = ["3000"]
         # HTTPS, AMQP
@@ -359,6 +361,9 @@ locals {
         # NFS
         AllowNfsOut                 = ["440", "Outbound", "Allow", "*",   "Nfs",                "asg/asg-nfs-client",       "subnet/netapp"],
         AllowNfsComputeOut          = ["450", "Outbound", "Allow", "*",   "Nfs",                "subnet/compute",           "subnet/netapp"],
+
+        # SMB
+        AllowSMBComputeOut          = ["455", "Outbound", "Allow", "*",   "SMB",                "subnet/compute",            "subnet/netapp"],
 
         # Telegraf / Grafana
         AllowTelegrafOut            = ["460", "Outbound", "Allow", "Tcp", "Telegraf",           "asg/asg-telegraf",          "asg/asg-grafana"],

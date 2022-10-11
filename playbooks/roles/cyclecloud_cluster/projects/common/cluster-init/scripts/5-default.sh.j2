@@ -32,3 +32,18 @@ fi
 
 # Add modulefiles from HPC CentOS image to module path
 export MODULEPATH=$MODULEPATH:/usr/share/Modules/modulefiles/
+
+# Disable the antivirus
+if [ -a /usr/lib/systemd/system/azsecd.service ] ; then
+  systemctl stop azsecd
+  systemctl disable azsecd
+  echo "Disabled azsecd service"
+fi
+
+#This is to add domain users for enabling ssh among the VM's
+cat <<EOF >>/etc/ssh/sshd_config
+Match group "domain users"
+  AllowUsers *
+AllowUsers hpcadmin
+EOF
+systemctl restart sshd

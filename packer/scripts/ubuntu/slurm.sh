@@ -50,11 +50,6 @@ make -j install
 # Create slurmd service
 cp etc/slurmd.service /usr/lib/systemd/system/
 
-# Download the job submit plugin
-wget https://github.com/Azure/cyclecloud-slurm/releases/download/2.6.2/job_submit_cyclecloud_ubuntu_20.11.7-1.so
-cp job_submit_cyclecloud_ubuntu_20.11.7-1.so /usr/lib64/slurm/job_submit_cyclecloud.so
-chmod +x /usr/lib64/slurm/job_submit_cyclecloud.so
-
 #
 # The below is needed to CycleCloud chef recipe to work correctly
 #
@@ -77,14 +72,14 @@ curl -fSsL -O https://github.com/NVIDIA/enroot/releases/download/v3.4.0/enroot_3
 curl -fSsL -O https://github.com/NVIDIA/enroot/releases/download/v3.4.0/enroot+caps_3.4.0-1_${arch}.deb # optional
 apt install -y ./*.deb
 
-# Install NVIDIA container support
-distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
-         && curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
-         && curl -s -L https://nvidia.github.io/libnvidia-container/$distribution/libnvidia-container.list | \
-               sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
-               sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
-apt-get update
-sudo apt install -y curl gawk jq squashfs-tools parallel
-sudo apt install -y libnvidia-container-tools pigz squashfuse # optional
+# # Install NVIDIA container support
+# distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
+#          && curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
+#          && curl -s -L https://nvidia.github.io/libnvidia-container/$distribution/libnvidia-container.list | \
+#                sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+#                sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+# apt-get update
+# sudo apt install -y curl gawk jq squashfs-tools parallel
+# sudo apt install -y libnvidia-container-tools pigz squashfuse # optional
 
 enroot version

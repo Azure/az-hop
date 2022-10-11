@@ -10,6 +10,7 @@ location: westeurope
 # Name of the resource group to create all resources
 resource_group: azhop
 # If using an existing resource group set to true. Default is false
+# When using an existing resource group make sure the location match the one of the existing resource group
 use_existing_rg: false
 # Additional tags to be added on the Resource Group
 tags:
@@ -116,7 +117,7 @@ locked_down_network:
 # Base image configuration. Can be either an image reference or an image_id from the image registry or a custom managed image
 linux_base_image: "OpenLogic:CentOS:7_9-gen2:latest" # publisher:offer:sku:version or image_id
 linux_base_plan: # linux image plan if required, format is publisher:product:name
-windows_base_image: "MicrosoftWindowsServer:WindowsServer:2016-Datacenter-smalldisk:latest" # publisher:offer:sku:version or image_id
+windows_base_image: "MicrosoftWindowsServer:WindowsServer:2019-Datacenter-smalldisk:latest" # publisher:offer:sku:version or image_id
 lustre_base_image: "azhpc:azurehpc-lustre:azurehpc-lustre-2_12:latest"
 # The lustre plan to use. Only needed when using the default lustre image from the marketplace. use "::" for an empty plan
 lustre_base_plan: "azhpc:azurehpc-lustre:azurehpc-lustre-2_12" # publisher:product:name
@@ -131,6 +132,7 @@ jumpbox:
 ad:
   vm_size: Standard_B2ms
   hybrid_benefit: false # Enable hybrid benefit for AD, default to false
+  high_availability : false # Build AD in High Availability mode (2 Domain Controlers) - default to false
 # On demand VM configuration
 ondemand:
   vm_size: Standard_D4s_v5
@@ -167,7 +169,7 @@ lustre:
     storage_container: #only_used_with_existing_storage_account
 # List of users to be created on this environment
 users:
-  # name: username
+  # name: username - must be less than 20 characters
   # uid: uniqueid
   # shell: /bin/bash # default to /bin/bash
   # home: /anfhome/<user_name> # default to /homedir_mountpoint/user_name
@@ -235,7 +237,7 @@ images:
   #   sku: 7_9-gen2
   #   hyper_v: V2 # V1 or V2 (V1 is the default)
   #   os_type: Linux # Linux or Windows
-  #   version: 7.9 # Version of the image to create the image definition in SIG
+  #   version: 7.9 # Version of the image to create the image definition in SIG. Pattern is major.minor where minor is mandatory
 # Pre-defined images
   - name: azhop-almalinux85-v2-rdma-gpgpu
     publisher: azhop
@@ -337,6 +339,8 @@ queues:
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
     ColocateNodes: false
     spot: false
+    max_hours: 12 # Maximum session duration
+    min_hours: 1 # Minimum session duration - 0 is infinite
     # Queue dedicated to share GPU remote viz nodes. This name is fixed and can't be changed
   - name: largeviz3d
     vm_size: Standard_NV48s_v3
@@ -344,6 +348,8 @@ queues:
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
     ColocateNodes: false
     spot: false
+    max_hours: 12 # Maximum session duration
+    min_hours: 1 # Minimum session duration - 0 is infinite
     # Queue dedicated to non GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz
     vm_size: Standard_D8s_v5
@@ -351,6 +357,8 @@ queues:
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
     ColocateNodes: false
     spot: false
+    max_hours: 12 # Maximum session duration
+    min_hours: 1 # Minimum session duration - 0 is infinite
 
 # Remote Visualization definitions
 enable_remote_winviz: false # Set to true to enable windows remote visualization

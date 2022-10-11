@@ -19,6 +19,7 @@
   yum:
     state: latest
     security: yes
+    lock_timeout : 180
 
 - name: install AZ CLI repo
   shell: |
@@ -67,6 +68,7 @@
   yum:
     name: azure-cli, dnsmasq
     state: present
+    lock_timeout : 180
 
 - name: Install CycleCloud
   yum:
@@ -77,6 +79,7 @@
   yum:
     name: "jetpack8-{{cc_version}}"
     state: present
+    lock_timeout : 180
 
 - name: Create a data record for azhop and start cycleserver
   shell: |
@@ -125,7 +128,7 @@
   script: '{{role_path}}/files/configure.py --useManagedIdentity --username {{cc_admin_user}} --acceptTerms --publickey "{{cc_public_key}}" --password "{{cc_password}}" --storageAccount {{cc_storage}}'
 
 - name: Configure AD domain to connect to
-  script: '{{role_path}}/files/configure_ad.py --url "ldap://{{cc_ad_server}}" --domain "@{{cc_domain}}"'
+  script: '{{role_path}}/files/configure_ad.py --url "ldap://{{cc_ldap_server}}" --domain "@{{cc_domain}}"'
 
 - name: Add User Role Record 
   copy:
