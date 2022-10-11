@@ -126,7 +126,7 @@ jumpbox:
 ad:
   vm_size: Standard_B2ms
   hybrid_benefit: false # Enable hybrid benefit for AD, default to false
-  high_availability : false # Build AD in High Availability mode (2 Domain Controlers) - default to false
+  high_availability: false # Build AD in High Availability mode (2 Domain Controlers) - default to false
 # On demand VM configuration
 ondemand:
   vm_size: Standard_D4s_v5
@@ -293,7 +293,11 @@ images:
     os_type: Linux
     version: 7.9
 
-# List of queues (node arays in Cycle) to be defined
+# Autoscale default settings for all queues, can be overriden on each queue depending on the VM type if needed
+autoscale:
+  idle_timeout: 1800 # Idle time in seconds before shutting down VMs - default to 1800 like in CycleCloud
+
+# List of queues (node arrays in Cycle) to be defined
 queues:
   - name: execute # name of the Cycle Cloud node array
     # Azure VM Instance type
@@ -304,13 +308,15 @@ queues:
 #    image: OpenLogic:CentOS-HPC:7_9-gen2:latest
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
     # Image plan specification (when needed for the image). Terms must be accepted prior to deployment
-#    plan: publisher:product:name
+    # plan: publisher:product:name
     # Set to true if AccelNet need to be enabled. false is the default value
     EnableAcceleratedNetworking: false
     # spot instance support. Default is false
     spot: false
     # Set to false to disable creation of placement groups (for SLURM only). Default is true
     ColocateNodes: false
+    # Specific idle time in seconds before shutting down VMs, make sure it's lower than autoscale.idle_timeout
+    idle_timeout: 300
   - name: hc44rs
     vm_size: Standard_HC44rs
     max_core_count: 440
@@ -342,8 +348,8 @@ queues:
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
     ColocateNodes: false
     spot: false
-    max_hours: 12 # Maximum session duration
-    min_hours: 1 # Minimum session duration - 0 is infinite
+    max_hours: 12
+    min_hours: 1
     # Queue dedicated to non GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz
     vm_size: Standard_D8s_v5
@@ -351,8 +357,8 @@ queues:
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
     ColocateNodes: false
     spot: false
-    max_hours: 12 # Maximum session duration
-    min_hours: 1 # Minimum session duration - 0 is infinite
+    max_hours: 12
+    min_hours: 1
 
 # Remote Visualization definitions
 enable_remote_winviz: false # Set to true to enable windows remote visualization
