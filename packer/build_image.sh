@@ -21,6 +21,7 @@ if [ $# -lt 2 ]; then
   echo "  Optional arguments:"
   echo "    -o|--options <options.json>  | file with options for packer generated in the build phase"
   echo "    -f|--force                   | overwrite existing image and always push a new version in the SIG"
+  echo "    -k|--keep                    | keep os disk for future reused"
   exit 1
 fi
 
@@ -28,6 +29,8 @@ fi
 yamllint $CONFIG_FILE
 
 PACKER_OPTIONS="-timestamp-ui"
+KEEP_OS_DISK="false"
+
 while (( "$#" )); do
   case "${1}" in
     -i|--image)
@@ -41,6 +44,10 @@ while (( "$#" )); do
     -f|--force)
       FORCE=1
       PACKER_OPTIONS+=" -force"
+      shift 1
+    ;;
+    -k|--keep)
+      KEEP_OS_DISK="true"
       shift 1
     ;;
     *)
@@ -123,12 +130,19 @@ if [ "$image_id" == "" ] || [ $FORCE -eq 1 ]; then
   echo "Build or Rebuid $image_name in $resource_group (writing log to $logfile)"
   key_vault_name=$(yq eval ".key_vault" $ANSIBLE_VARIABLES)
 
+  echo "Removing os disk if any"
+  os_disk_id=$(az disk list -g azhop_build_images --query "[?name=='$image_name'].id" -o tsv)
+  if [ "$os_disk_id" != "" ]; then
+    az disk delete --ids $os_disk_id -o tsv -y
+  fi
+
   packer build $PACKER_OPTIONS -var-file $OPTIONS_FILE \
     -var "var_use_azure_cli_auth=$use_azure_cli_auth" \
     -var "var_image=$image_name" \
     -var "var_img_version=$version" \
     -var "var_cloud_env=$cloud_env" \
     -var "var_key_vault_name=$key_vault_name" \
+    -var "var_keep_os_disk=$KEEP_OS_DISK" \
     $PACKER_FILE | tee $logfile
 
   image_id=$(az image list -g $resource_group --query "[?name=='$image_name'].id" -o tsv)
@@ -180,10 +194,12 @@ img_version_id=$(az sig image-version list  -r $sig_name -i $image_name -g $reso
 
 if [ "$img_version_id" == "" ] || [ $FORCE -eq 1 ]; then
   # Create an image version Major.Minor.Patch with Patch=YYmmddHHMM
-  patch=$(date +"%g%m%d%H%M" | cut -c 1-9)
-  eval_str=".images[] | select(.name == "\"$image_name"\") | .version"
-  version=$(yq eval "$eval_str" $CONFIG_FILE)
-  version+=".$patch"
+  #patch=$(date +"%g%m%d%H%M" | cut -c 1-9)
+  #eval_str=".images[] | select(.name == "\"$image_name"\") | .version"
+  #version=$(yq eval "$eval_str" $CONFIG_FILE)
+  #version+=".$patch"
+  # Image version is YYY.MMDD.HHMM
+  version=$(date -u +"%Y.%m%d.%H%M")
   echo "Pushing version $version of $image_name in $sig_name"
 
   storage_type=$(az image show --id $image_id --query "storageProfile.osDisk.storageAccountType" -o tsv)
@@ -203,6 +219,13 @@ if [ "$img_version_id" == "" ] || [ $FORCE -eq 1 ]; then
   # Tag the image with the version 
   echo "Tagging the source image with version $version and checksum $packer_md5"
   az image update --ids $image_id --tags Version=$version checksum=$packer_md5 -o tsv
+
+  # Tag the os disk with version
+  if [ "$KEEP_OS_DISK" == "true" ]; then
+    echo "Tagging the os disk with version $version"
+    os_disk_id=$(az disk list -g azhop_build_images --query "[?name=='$image_name'].id" -o tsv)
+    az disk update --ids $os_disk_id --set tags.'Version'=$version -o tsv
+  fi
 else
   echo "Image $image_name version $image_version found in galley $sig_name" 
 fi
