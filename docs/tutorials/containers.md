@@ -1,20 +1,18 @@
 # Containers
 
 ## Support
-Docker containers are supported via NVIDIA [enroot](https://github.com/NVIDIA/enroot) with [pyxis](https://github.com/NVIDIA/pyxis) plugin (SLURM only). Pyxis usage: [link](https://github.com/NVIDIA/pyxis#usage)
+Docker containers are supported via NVIDIA [enroot](https://github.com/NVIDIA/enroot) with [pyxis](https://github.com/NVIDIA/pyxis) plugin (SLURM only). For Pyxis usage please refer to https://github.com/NVIDIA/pyxis#usage
 
 ## Prerequisites
-During deployment ([link](../deploy/define_environment.md)), make sure _enroot_enabled_ option is set to _true_ in **config.yml** in both sections:
- * **slurm** section
- * **queue** section for each queue which will run containers
+During [deployment](../deploy/define_environment.md), make sure _enroot_enabled_ option is set to _true_  in the _slurm_ section of `config.yml`
 
 ## Examples
-### Start an interactive job on Ubuntu
+### Start an interactive job in Ubuntu container
 ```bash
 srun -N1 -p hc44rs --exclusive --container-image=ubuntu --pty bash
 ```
 
-### Reusing a container within a job
+### Reusing a container within a job with `--container-name` switch
 
 #### Allocate a node
 ```bash
