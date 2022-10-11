@@ -27,8 +27,8 @@
 - name: Mount an NFS volume
   mount:
     src: '{{ domain_mount_ip }}:/{{ domain_mount_path }}'
-    path: '{{domain_homedir}}'
-    opts: rw,hard,rsize=65536,wsize=65536,vers=3,tcp
+    path: '{{ domain_homedir }}'
+    opts: '{{ domain_mount_opts}}'
     state: mounted
     fstype: nfs
 
