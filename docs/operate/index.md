@@ -1,5 +1,6 @@
 - [Monitor Nodes](monitor_nodes.md)
 - [Monitor Jobs](monitor_jobs.md)
+- [Node Health Check](healthcheck.md)
 - [Manually add nodes](manually_add_nodes.md)
 - [Upgrade az-hop](upgrade.md)
 - [How To](how_to.md)

@@ -64,13 +64,6 @@ Autoscale = true
         [[[cluster-init cyclecloud/slurm:default:{{cyclecloud_slurm_release}}]]]
         [[[cluster-init common:default:1.0.0]]]
 
-        [[[configuration cyclecloud.mounts.nfs_sched]]]
-        type = nfs
-        mountpoint = /sched
-        export_path = {{mounts.home.export}}/slurm/config
-        address = {{mounts.home.server}}
-        options = {{mounts.home.options}}
-
         [[[configuration cyclecloud.mounts.nfs_anfhome]]]
         type = nfs
         mountpoint = {{mounts.home.mountpoint}}
