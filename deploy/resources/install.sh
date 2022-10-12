@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -e
 echo "* apt updating"
 apt update
 
@@ -18,6 +18,9 @@ wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY} -O /
 
 
 echo "* Cloning az-hop repo"
+if [ -e az-hop ]; then
+    rm -rf az-hop
+fi
 git clone --recursive https://github.com/Azure/az-hop.git -b bicep
 
 cd az-hop
@@ -74,6 +77,7 @@ mkdir -p $azhop_root/playbooks/group_vars
 
 echo "* Installing dependencies"
 cd $azhop_root
+export ANSIBLE_VERBOSITY=2
 ./toolset/scripts/install.sh
 
 if [ "$(yq .deploy_sig deploy/build.yml)" == "true" ]; then
