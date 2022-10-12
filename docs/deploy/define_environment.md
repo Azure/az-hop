@@ -4,7 +4,6 @@ Here is a template for building such configuration file.
 
 ```yml
 ---
----
 # azure location name as returned by the command : az account list-locations -o table
 location: westeurope
 # Name of the resource group to create all resources
@@ -174,7 +173,7 @@ users:
   # shell: /bin/bash # default to /bin/bash
   # home: /anfhome/<user_name> # default to /homedir_mountpoint/user_name
   # groups: list of groups the user belongs to
-  - { name: clusteradmin, uid: 10001, groups: [5001, 6000, 6001] }
+  - { name: clusteradmin, uid: 10001, groups: [5001, 5002, 6000, 6001] }
   - { name: clusteruser, uid: 10002 }
   - { name: user1, uid: 10003, groups: [6000] }
   - { name: user2, uid: 10004, groups: [6001] }
