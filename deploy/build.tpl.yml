@@ -113,7 +113,7 @@ vms:
     sku: Standard_B2ms
     osdisksku: StandardSSD_LRS
     image: win_base
-    asgs: [ asg-ad, asg-rdp ]
+    asgs: [ asg-ad, asg-rdp, asg-ad-client ]
   ondemand:
     subnet: frontend
     sku: Standard_D4s_v5
@@ -209,13 +209,17 @@ nsg_destination_ports:
   Slurmd: ['6818']
   Lustre: ['635', '988']
   Nfs: ['111', '635', '2049', '4045', '4046']
+  SMB: ['445']
   Telegraf: ['8086']
   Grafana: ['3000']
   # HTTPS, AMQP
   CycleCloud: ['9443', '5672']
   # MySQL
   MySQL: ['3306', '33060']
-
+  # Guacamole
+  Guacamole: ['8080']
+  # WinRM
+  WinRM: ['5985', '5986']
 
 # Array of NSG rules to be applied on the common NSG
 # NsgRuleName : [priority, direction, access, protocol, destination_port_range, source, destination]
@@ -285,8 +289,11 @@ _nsg_rules:
     AllowGrafanaIn              : ['510', 'Inbound', 'Allow', 'Tcp', 'Grafana',            'asg/asg-ondemand',          'asg/asg-grafana']
 
     # Admin and Deployment
-    AllowSocksIn                : ['520', 'Inbound', 'Allow', 'Tcp', 'Socks',              'asg/asg-jumpbox',          'asg/asg-rdp']
+    AllowWinRMIn                : ['520', 'Inbound', 'Allow', 'Tcp', 'WinRM',              'asg/asg-jumpbox',          'asg/asg-rdp']
     AllowRdpIn                  : ['550', 'Inbound', 'Allow', 'Tcp', 'Rdp',                'asg/asg-jumpbox',          'asg/asg-rdp']
+
+        # Guacamole
+    AllowGuacamoleRdpIn         : ['610', 'Inbound', 'Allow', 'Tcp', 'Rdp',                 'asg/asg-guacamole',        'subnet/compute']
 
     # Deny all remaining traffic
     DenyVnetInbound             : ['3100', 'Inbound', 'Deny', '*', 'All',                  'tag/VirtualNetwork',       'tag/VirtualNetwork']
@@ -355,8 +362,11 @@ _nsg_rules:
 
     # Admin and Deployment
     AllowRdpOut                 : ['570', 'Outbound', 'Allow', 'Tcp', 'Rdp',                'asg/asg-jumpbox',          'asg/asg-rdp']
-    AllowSocksOut               : ['580', 'Outbound', 'Allow', 'Tcp', 'Socks',              'asg/asg-jumpbox',          'asg/asg-rdp']
+    AllowWinRMOut               : ['580', 'Outbound', 'Allow', 'Tcp', 'WinRM',              'asg/asg-jumpbox',          'asg/asg-rdp']
     AllowDnsOut                 : ['590', 'Outbound', 'Allow', '*',   'Dns',                'tag/VirtualNetwork',       'tag/VirtualNetwork']
+
+    # Guacamole
+    AllowGuacamoleRdpOut        : ['610', 'Outbound', 'Allow', 'Tcp', 'Rdp',                 'asg/asg-guacamole',        'subnet/compute']
 
     # Deny all remaining traffic and allow Internet access
     AllowInternetOutBound       : ['3000', 'Outbound', 'Allow', 'Tcp', 'All',               'tag/VirtualNetwork',       'tag/Internet']
