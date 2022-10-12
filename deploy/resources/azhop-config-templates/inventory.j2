@@ -17,6 +17,7 @@ all:
       ansible_psrp_protocol: http
       ansible_user: {{outputs.admin_user}}
       ansible_password: {{admin_password}}
+{% if build.vms['lustre'] is defined %}
     lustre:
       ansible_host: {{outputs.lustre_private_ip}}
 {% for count in range(1, build.vms['lustre-oss'].count + 1) %}
@@ -25,11 +26,7 @@ all:
 {% endfor %}
     robinhood:
       ansible_host: {{outputs.robinhood_private_ip}}
+{% endif %}
   vars:
     ansible_ssh_user: {{outputs.admin_user}}
-  children:
-    lustre_oss:
-      hosts:
-        {% for count in range(1, build.vms['lustre-oss'].count + 1) %}lustre-oss-{{count}}:
-        {% endfor %}
 

@@ -140,6 +140,7 @@ cyclecloud:
   vm_size: Standard_B2ms
   # version: 8.2.1-1733 # to specify a specific version, see https://packages.microsoft.com/yumrepos/cyclecloud/
 
+{% if build.vms["lustre"] is defined %}
 # Lustre cluster configuration
 lustre:
   rbh_sku: "Standard_D8d_v4"
@@ -154,6 +155,7 @@ lustre:
     # if not included it will use the azhop storage account that is created
     storage_account: #existing_storage_account_name
     storage_container: #only_used_with_existing_storage_account
+{% endif %}
 # List of users to be created on this environment
 users:
   # name: username
