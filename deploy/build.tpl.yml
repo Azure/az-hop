@@ -105,7 +105,7 @@ vms:
       roles:
         - Contributor
         - UserAccessAdministrator
-    asgs: [ asg-ssh, asg-jumpbox, asg-ad-client, asg-telegraf, asg-nfs-client ]
+    asgs: [ asg-ssh, asg-jumpbox, asg-ad-client, asg-telegraf, asg-nfs-client, asg-cyclecloud-client ]
   ad:
     subnet: ad
     windows: true
