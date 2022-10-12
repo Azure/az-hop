@@ -33,7 +33,8 @@
     - name: Build node core lookup
       shell: |
           set -e
-          curl -k -u "{{users[0].name}}:{{user_password.stdout}}" "https://{{ondemand_fqdn}}/cyclecloud/clusters/{{cluster_name}}/status?nodes" | jq '[.nodearrays[] | {name: .name, machineType: .buckets[0].definition.machineType, vcpuCount: .buckets[0].virtualMachine.vcpuCount}]' | yq e -P > node_arrays.yml
+          set -o pipefail
+          curl -k --connect-timeout 30 -u "{{users[0].name}}:{{user_password.stdout}}" "https://{{ondemand_fqdn}}/cyclecloud/clusters/{{cluster_name}}/status?nodes" | jq '[.nodearrays[] | {name: .name, machineType: .buckets[0].definition.machineType, vcpuCount: .buckets[0].virtualMachine.vcpuCount}]' | yq e -P > node_arrays.yml
       args:
         executable: /bin/bash
       delegate_to: localhost
