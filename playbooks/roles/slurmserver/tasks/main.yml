@@ -367,6 +367,12 @@
   tags: [ 'accounting' ]
   when: accounting_enabled
 
+- name: check slurm scripts dir
+  file:
+    path: /sched/scripts
+    mode: 0755
+    state: directory
+
 - name: create slurm prolog
   template:
     src: templates/prolog.sh.j2
