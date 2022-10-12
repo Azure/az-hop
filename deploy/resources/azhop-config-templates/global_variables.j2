@@ -2,7 +2,8 @@ global_ssh_public_key         : {{ssh_public_key}}
 global_cc_storage             : azhop{{outputs.resource_postfix}}
 compute_subnetid              : {{outputs.resource_group}}/{{build.vnet.name}}/{{build.vnet.subnets.compute.name}}
 global_config_file            : {{azhop_root}}/config.yml
-ad_dns                        : {{outputs.ad_private_ip}}
+primary_dns                   : ${outputs.ad_private_ip}
+secondary_dns                 : ${outputs.ad_private_ip}
 ad_join_user                  : {{outputs.admin_user}}
 ad_join_domain                : hpc.azure
 ldap_server                   : ad
