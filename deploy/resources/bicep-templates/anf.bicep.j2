@@ -49,11 +49,21 @@ resource anfHome 'Microsoft.NetApp/netAppAccounts/capacityPools/volumes@2021-10-
     exportPolicy: {
       rules: [
         {
-          ruleIndex: 1
-          allowedClients: '0.0.0.0/0'
-          unixReadWrite: true
-          hasRootAccess: true
-          nfsv3: true
+            ruleIndex: 1
+            unixReadOnly: false
+            unixReadWrite: true
+            cifs: false
+            nfsv3: true
+            nfsv41: false
+            allowedClients: '0.0.0.0/0'
+            kerberos5ReadOnly: false
+            kerberos5ReadWrite: false
+            kerberos5iReadOnly: false
+            kerberos5iReadWrite: false
+            kerberos5pReadOnly: false
+            kerberos5pReadWrite: false
+            hasRootAccess: true
+            chownMode: 'Restricted'
         }
       ]
     }
