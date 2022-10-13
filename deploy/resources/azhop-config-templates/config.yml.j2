@@ -288,7 +288,7 @@ queues:
     # Azure VM Instance type
     vm_size: Standard_F2s_v2
     # maximum number of cores that can be instanciated
-    max_core_count: 1024
+    max_core_count: 128
     # marketplace image name or custom image id
     #image: OpenLogic:CentOS-HPC:7_9-gen2:latest
     #image: /subscriptions/{{outputs.subscription_id}}/resourceGroups/{{outputs.resource_group}}/providers/Microsoft.Compute/galleries/azhop_{{outputs.resource_postfix}}/images/azhop-centos79-v2-rdma-gpgpu/latest
@@ -307,17 +307,17 @@ queues:
     idle_timeout: 300
   - name: hc44rs
     vm_size: Standard_HC44rs
-    max_core_count: 440
+    max_core_count: 352
     image: {% if build.deploy_sig == true %}/subscriptions/{{outputs.subscription_id}}/resourceGroups/{{outputs.resource_group}}/providers/Microsoft.Compute/galleries/{{outputs.sig_name}}/images/azhop-compute-centos-7.9/latest{% else %}{{build.images["azhop-compute-centos-7.9"].id}}{% endif %}
     spot: true
   - name: hb120v2
     vm_size: Standard_HB120rs_v2
-    max_core_count: 1200
+    max_core_count: 960
     image: {% if build.deploy_sig == true %}/subscriptions/{{outputs.subscription_id}}/resourceGroups/{{outputs.resource_group}}/providers/Microsoft.Compute/galleries/{{outputs.sig_name}}/images/azhop-compute-centos-7.9/latest{% else %}{{build.images["azhop-compute-centos-7.9"].id}}{% endif %}
     spot: true
   - name: hb120v3
     vm_size: Standard_HB120rs_v3
-    max_core_count: 1200
+    max_core_count: 960
     image: {% if build.deploy_sig == true %}/subscriptions/{{outputs.subscription_id}}/resourceGroups/{{outputs.resource_group}}/providers/Microsoft.Compute/galleries/{{outputs.sig_name}}/images/azhop-compute-centos-7.9/latest{% else %}{{build.images["azhop-compute-centos-7.9"].id}}{% endif %}
     spot: true
     # Queue dedicated to GPU remote viz nodes. This name is fixed and can't be changed
@@ -341,7 +341,7 @@ queues:
     # Queue dedicated to non GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz
     vm_size: Standard_D8s_v3
-    max_core_count: 200
+    max_core_count: 32
     image: {% if build.deploy_sig == true %}/subscriptions/{{outputs.subscription_id}}/resourceGroups/{{outputs.resource_group}}/providers/Microsoft.Compute/galleries/{{outputs.sig_name}}/images/azhop-desktop-centos-7.9/latest{% else %}{{build.images["azhop-desktop-centos-7.9"].id}}{% endif %}
     ColocateNodes: false
     spot: false
