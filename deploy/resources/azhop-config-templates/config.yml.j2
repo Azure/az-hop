@@ -106,7 +106,7 @@ network:
 locked_down_network:
   enforce: {{build.lock_down_network.enforce}} # true to enforce the lockdown, false to disable it. Default to false
 #   grant_access_from: [a.b.c.d] # Array of CIDR to grant access from, see https://docs.microsoft.com/en-us/azure/storage/common/storage-network-security?tabs=azure-portal#grant-access-from-an-internet-ip-range
-  public_ip: false # Enable public IP creation for Jumpbox, OnDemand and create images. Default to true
+  public_ip: {{build.vms["ondemand"].pip}} # Enable public IP creation for Jumpbox, OnDemand and create images. Default to true
 
 # Base image configuration. Can be either an image reference or an image_id from the image registry or a custom managed image
 linux_base_image: "OpenLogic:CentOS:7_9-gen2:latest" # publisher:offer:sku:version or image_id
