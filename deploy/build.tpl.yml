@@ -105,7 +105,7 @@ vms:
       roles:
         - Contributor
         - UserAccessAdministrator
-    asgs: [ asg-ssh, asg-jumpbox, asg-ad-client, asg-telegraf, asg-nfs-client, asg-cyclecloud-client ]
+    asgs: [ asg-ssh, asg-jumpbox, asg-deployer, asg-ad-client, asg-telegraf, asg-nfs-client ]
   ad:
     subnet: ad
     windows: true
@@ -291,6 +291,7 @@ _nsg_rules:
     # Admin and Deployment
     AllowWinRMIn                : ['520', 'Inbound', 'Allow', 'Tcp', 'WinRM',              'asg/asg-jumpbox',          'asg/asg-rdp']
     AllowRdpIn                  : ['550', 'Inbound', 'Allow', 'Tcp', 'Rdp',                'asg/asg-jumpbox',          'asg/asg-rdp']
+    AllowWebDeployerIn          : ['595', 'Inbound', 'Allow', 'Tcp', 'Web',                'asg/asg-deployer',         'asg/asg-ondemand']
 
         # Guacamole
     AllowGuacamoleRdpIn         : ['610', 'Inbound', 'Allow', 'Tcp', 'Rdp',                 'asg/asg-guacamole',        'subnet/compute']
@@ -364,6 +365,7 @@ _nsg_rules:
     AllowRdpOut                 : ['570', 'Outbound', 'Allow', 'Tcp', 'Rdp',                'asg/asg-jumpbox',          'asg/asg-rdp']
     AllowWinRMOut               : ['580', 'Outbound', 'Allow', 'Tcp', 'WinRM',              'asg/asg-jumpbox',          'asg/asg-rdp']
     AllowDnsOut                 : ['590', 'Outbound', 'Allow', '*',   'Dns',                'tag/VirtualNetwork',       'tag/VirtualNetwork']
+    AllowWebDeployerOut         : ['595', 'Outbound', 'Allow', 'Tcp', 'Web',                'asg/asg-deployer',         'asg/asg-ondemand']
 
     # Guacamole
     AllowGuacamoleRdpOut        : ['610', 'Outbound', 'Allow', 'Tcp', 'Rdp',                 'asg/asg-guacamole',        'subnet/compute']
@@ -373,11 +375,11 @@ _nsg_rules:
     DenyVnetOutbound            : ['3100', 'Outbound', 'Deny',  '*',   'All',               'tag/VirtualNetwork',       'tag/VirtualNetwork']
 
 internet_nsg_rules:
-    AllowInternetSshIn          : ['200', 'Inbound', 'Allow', 'Tcp', 'Public_Ssh',         'tag/Internet', 'asg/asg-jumpbox'] # Only when using a PIP
+#    AllowInternetSshIn          : ['200', 'Inbound', 'Allow', 'Tcp', 'Public_Ssh',         'tag/Internet', 'asg/asg-jumpbox'] # Only when using a PIP
     AllowInternetHttpIn         : ['210', 'Inbound', 'Allow', 'Tcp', 'Web',                'tag/Internet', 'asg/asg-ondemand'] # Only when using a PIP
 
 hub_nsg_rules :
-    AllowHubSshIn               : ['200', 'Inbound', 'Allow', 'Tcp', 'Public_Ssh',               'tag/VirtualNetwork', 'asg/asg-jumpbox']
+#    AllowHubSshIn               : ['200', 'Inbound', 'Allow', 'Tcp', 'Public_Ssh',               'tag/VirtualNetwork', 'asg/asg-jumpbox']
     AllowHubHttpIn              : ['210', 'Inbound', 'Allow', 'Tcp', 'Web',                      'tag/VirtualNetwork', 'asg/asg-ondemand']
 
 bastion_nsg_rules:
