@@ -38,7 +38,8 @@
             "inline": [
                 "chmod +x /tmp/*.sh",
                 "/tmp/linux-setup.sh || exit 1",
-                "/tmp/{{user `var_queue_manager`}}.sh || exit 1",
+                "/tmp/openpbs.sh || exit 1",
+                "/tmp/slurm.sh || exit 1",
                 "/tmp/telegraf.sh || exit 1",
                 "/tmp/lustreclient.sh 2.12.6  || exit 1",
                 "echo ' This is the end '",
