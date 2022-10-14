@@ -25,6 +25,7 @@
         shell: ssh -i {{ lookup('env', 'PWD') }}/{{ansible_ssh_private_key_file}} -fN -D localhost:5985 -p {{jumpbox_ssh_port}} -o StrictHostKeyChecking=no {{admin_user}}@{{ psrp_ssh_proxy }}
         delegate_to: localhost
         connection: local
+        when: (jumpbox is defined)
 
       - name: Run command to mitigate AD vulnerability 
         win_command: netsh int ipv4 set global sourceroutingbehavior=drop 
@@ -117,3 +118,4 @@
         delegate_to: localhost
         connection: local
         ignore_errors: true
+        when: (jumpbox is defined)

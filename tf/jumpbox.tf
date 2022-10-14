@@ -1,5 +1,5 @@
 resource "azurerm_public_ip" "jumpbox-pip" {
-  count               = local.allow_public_ip ? 1 : 0
+  count               = local.allow_public_ip && local.jumpbox_enabled ? 1 : 0
   name                = "jumpbox-pip"
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
@@ -7,6 +7,7 @@ resource "azurerm_public_ip" "jumpbox-pip" {
 }
 
 resource "azurerm_network_interface" "jumpbox-nic" {
+  count               = local.jumpbox_enabled ? 1 : 0
   name                = "jumpbox-nic"
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
@@ -20,13 +21,14 @@ resource "azurerm_network_interface" "jumpbox-nic" {
 }
 
 resource "azurerm_linux_virtual_machine" "jumpbox" {
+  count               = local.jumpbox_enabled ? 1 : 0
   name                = "jumpbox"
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   size                = try(local.configuration_yml["jumpbox"].vm_size, "Standard_D2s_v3")
   admin_username      = local.admin_username
   network_interface_ids = [
-    azurerm_network_interface.jumpbox-nic.id,
+    azurerm_network_interface.jumpbox-nic[0].id,
   ]
   # Set cloud-init only if ssh port is not default
   custom_data = local.jumpbox_ssh_port != "22" ? data.local_file.ci_jumpbox.content_base64 : filebase64("cloud-init/empty.yml")
@@ -68,7 +70,7 @@ resource "azurerm_linux_virtual_machine" "jumpbox" {
 }
 
 resource "azurerm_network_interface_application_security_group_association" "jumpbox-asg-asso" {
-  for_each = toset(local.asg_associations["jumpbox"])
-  network_interface_id          = azurerm_network_interface.jumpbox-nic.id
+  for_each = local.jumpbox_enabled ? toset(local.asg_associations["jumpbox"]) : []
+  network_interface_id          = azurerm_network_interface.jumpbox-nic[0].id
   application_security_group_id = local.create_nsg ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
 }

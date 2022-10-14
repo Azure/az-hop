@@ -1,11 +1,15 @@
 #!/bin/bash
-
+%{ if jumpbox-pip!="0.0.0.0" }
 if [[ $1 == "cyclecloud" ]]; then
   echo go create tunnel to cyclecloud at https://localhost:9443/cyclecloud
-  ssh -i ${jumpbox-user}_id_rsa -fN -L 9443:ccportal:9443 -p ${jumpbox-ssh-port} ${jumpbox-user}@${jumpbox-pip}
+  ssh -i ${admin-user}_id_rsa -fN -L 9443:ccportal:9443 -p ${jumpbox-ssh-port} ${admin-user}@${jumpbox-pip}
 elif [[ $1 == "ad" ]]; then
   echo go create tunnel to ad with rdp to localhost:3390
-  ssh -i ${jumpbox-user}_id_rsa -fN -L 3390:ad:3389 -p ${jumpbox-ssh-port} ${jumpbox-user}@${jumpbox-pip}
+  ssh -i ${admin-user}_id_rsa -fN -L 3390:ad:3389 -p ${jumpbox-ssh-port} ${admin-user}@${jumpbox-pip}
 else
-  exec ssh -i ${jumpbox-user}_id_rsa -o ProxyCommand="ssh -i ${jumpbox-user}_id_rsa -p ${jumpbox-ssh-port} -W %h:%p ${jumpbox-user}@${jumpbox-pip}" "$@"
+  exec ssh -i ${admin-user}_id_rsa -o ProxyCommand="ssh -i ${admin-user}_id_rsa -p ${jumpbox-ssh-port} -W %h:%p ${admin-user}@${jumpbox-pip}" "$@"
 fi
+%{ else }
+  exec ssh -i ${admin-user}_id_rsa "$@"
+fi
+%{ endif }
