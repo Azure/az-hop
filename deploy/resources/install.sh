@@ -1,21 +1,11 @@
 #!/bin/bash
 set -e
+set -o pipefail
 echo "* apt updating"
 apt update
 
-echo "* Installing the Azure CLI"
-while ! which az >/dev/null 2>&1; do
-    curl -sL https://aka.ms/InstallAzureCLIDeb | bash
-done
-
-echo "* Installing jq and git"
-apt install -y jq git
-
-echo "* Installing yq"
-VERSION=v4.25.3
-BINARY=yq_linux_amd64
-wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY} -O /usr/bin/yq && chmod +x /usr/bin/yq
-
+echo "* Installing git"
+apt install -y git
 
 echo "* Cloning az-hop repo"
 if [ -e az-hop ]; then
@@ -25,6 +15,9 @@ git clone --recursive https://github.com/Azure/az-hop.git -b bicep
 
 cd az-hop
 export azhop_root=$(pwd)
+echo "* Installing azhop toolset dependencies"
+./toolset/scripts/install.sh
+
 cd $azhop_root/deploy
 
 echo "* Logging in to Azure"
@@ -75,11 +68,6 @@ mkdir -p $azhop_root/playbooks/group_vars
 
 ./resources/generate_template_file.py -i resources/azhop-config-templates/options.json.j2 -o $azhop_root/packer/options.json
 
-echo "* Installing dependencies"
-cd $azhop_root
-export ANSIBLE_VERBOSITY=2
-./toolset/scripts/install.sh
-
 if [ "$(yq .deploy_sig deploy/build.yml)" == "true" ]; then
     echo "* Building images"
     cd $azhop_root/packer
@@ -92,4 +80,5 @@ cd $azhop_root
 ./create_passwords.sh
 
 echo "* Running Ansible"
+#export ANSIBLE_VERBOSITY=2
 ./install.sh
