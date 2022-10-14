@@ -103,8 +103,8 @@ vms:
         key_permissions: [ All ]
         secret_permissions: [ All ]
       roles:
-        - Contributor
-        - UserAccessAdministrator
+        - b24988ac-6180-42a0-ab88-20f7382dd24c #Contributor
+        - 18d7d88d-d35e-4fb5-a5c3-7773c20a72d9 # User Access Administrator
     asgs: [ asg-ssh, asg-jumpbox, asg-deployer, asg-ad-client, asg-telegraf, asg-nfs-client ]
   ad:
     subnet: ad
@@ -117,14 +117,14 @@ vms:
   ondemand:
     subnet: frontend
     sku: Standard_D4s_v5
-    osdisksku: Standard_LRS
+    osdisksku: StandardSSD_LRS
     image: linux_base
     pip: true
     asgs: [ asg-ssh, asg-ondemand, asg-ad-client, asg-nfs-client, asg-pbs-client, asg-lustre-client, asg-telegraf, asg-guacamole, asg-cyclecloud-client ]
   grafana:
     subnet: admin
     sku: Standard_B2ms
-    osdisksku: Standard_LRS
+    osdisksku: StandardSSD_LRS
     image: linux_base
     asgs: [ asg-ssh, asg-grafana, asg-ad-client, asg-telegraf, asg-nfs-client ]
   guacamole:
@@ -134,13 +134,13 @@ vms:
         secret_permissions: [ Get, List ]
     subnet: admin
     sku: Standard_B2ms
-    osdisksku: Standard_LRS
+    osdisksku: StandardSSD_LRS
     image: linux_base
     asgs: [ asg-ssh, asg-ad-client, asg-telegraf, asg-nfs-client, asg-cyclecloud-client ]
   ccportal:
     subnet: admin
     sku: Standard_B2ms
-    osdisksku: Standard_LRS
+    osdisksku: StandardSSD_LRS
     image: linux_base
     datadisks:
       - name: ccportal-datadisk0
@@ -149,12 +149,12 @@ vms:
         caching: ReadWrite
     identity:
       roles:
-        - Contributor
+        - b24988ac-6180-42a0-ab88-20f7382dd24c #Contributor
     asgs: [ asg-ssh, asg-cyclecloud, asg-telegraf, asg-ad-client ]
   scheduler:
     subnet: admin
     sku: Standard_B2ms
-    osdisksku: Standard_LRS
+    osdisksku: StandardSSD_LRS
     image: linux_base
     asgs: [ asg-ssh, asg-pbs, asg-ad-client, asg-cyclecloud-client, asg-nfs-client, asg-telegraf ]
   lustre:

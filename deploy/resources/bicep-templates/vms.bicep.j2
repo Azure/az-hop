@@ -6,17 +6,13 @@ resource {{ vm_name | replace('-', '_') }}ManagedIdentity 'Microsoft.ManagedIden
 }
     {%- if 'roles' in vm.identity %}
       {%- for role in vm.identity.roles %}
-        {%- if role == 'Contributor' %}
-var {{ vm_name }}{{ role }}Id = resourceId('microsoft.authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')
-        {%- elif role == 'UserAccessAdministrator' %}
-var {{ vm_name }}{{ role }}Id = resourceId('microsoft.authorization/roleDefinitions', '18d7d88d-d35e-4fb5-a5c3-7773c20a72d9')
-        {%- endif %}
-var {{ vm_name }}{{ role }}Ra = guid({{ vm_name }}ManagedIdentity.name, {{ vm_name }}{{ role }}Id, subscription().id)
-resource {{ vm_name | replace('-', '_') }}ManagedIdentity{{ role }} 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  name: {{ vm_name }}{{ role }}Ra
+var {{ vm_name }}{{ role | replace('-', '_') }}Id = resourceId('microsoft.authorization/roleDefinitions', '{{ role }}')
+var {{ vm_name }}{{ role | replace('-', '_') }}Ra = guid({{ vm_name }}ManagedIdentity.name, {{ vm_name }}{{ role | replace('-', '_')}}Id, subscription().id)
+resource {{ vm_name | replace('-', '_') }}ManagedIdentity{{ role | replace('-', '_')}} 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: {{ vm_name }}{{ role | replace('-', '_')}}Ra
   scope: resourceGroup()
   properties: {
-    roleDefinitionId: {{ vm_name }}{{ role }}Id
+    roleDefinitionId: {{ vm_name }}{{ role | replace('-', '_')}}Id
     principalId: {{ vm_name }}ManagedIdentity.properties.principalId
     principalType: 'ServicePrincipal'
   }
