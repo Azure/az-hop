@@ -282,6 +282,10 @@ images:
     os_type: Linux
     version: 7.9
 
+# Autoscale default settings for all queues, can be overriden on each queue depending on the VM type if needed
+autoscale:
+  idle_timeout: 600 # Idle time in seconds before shutting down VMs - default to 1800 like in CycleCloud
+
 # List of queues (node arays in Cycle) to be defined
 queues:
   - name: execute # name of the Cycle Cloud node array
