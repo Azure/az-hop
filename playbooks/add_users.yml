@@ -32,7 +32,7 @@
     when: (jumpbox is defined)
 
 - name: Configure Users
-  hosts: jumpbox
+  hosts: ondemand
   become: true
   vars_files:
     - '{{global_config_file}}'
