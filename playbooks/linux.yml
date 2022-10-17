@@ -22,7 +22,7 @@
       name: sshd 
       state: restarted
 
-- name: Join AD domain and mount anf-home
+- name: Join AD domain and mount anfhome
   hosts: jumpbox, scheduler, ondemand, grafana
   become: true
   gather_facts: no

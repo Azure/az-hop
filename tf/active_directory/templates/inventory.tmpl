@@ -11,7 +11,7 @@ all:
       ansible_host: ${ad-ip}
       ansible_connection: psrp
       ansible_psrp_protocol: http
-      ansible_user: ${jumpbox-user}
+      ansible_user: ${admin-user}
       ansible_password: "${ad-passwd}"
       ansible_psrp_proxy: socks5h://localhost:5985
     ad2:
@@ -19,9 +19,9 @@ all:
       ansible_host: ${ad2-ip}
       ansible_connection: psrp
       ansible_psrp_protocol: http
-      ansible_user: ${jumpbox-user}
+      ansible_user: ${admin-user}
       ansible_password: "${ad-passwd}"
       ansible_psrp_proxy: socks5h://localhost:5985
   vars:
-    ansible_ssh_user: ${jumpbox-user}
-    ansible_ssh_common_args: '-o ProxyCommand="ssh -i ${jumpbox-user}_id_rsa -p ${jumpbox-ssh-port} -W %h:%p ${jumpbox-user}@${jumpbox-pip}"'
+    ansible_ssh_user: ${admin-user}
+    ansible_ssh_common_args: '-o ProxyCommand="ssh -i ${admin-user}_id_rsa -p ${jumpbox-ssh-port} -W %h:%p ${admin-user}@${jumpbox-pip}"'

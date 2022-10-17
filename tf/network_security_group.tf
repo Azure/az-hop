@@ -34,6 +34,7 @@ data "azurerm_subnet" "subnets" {
 
 # Network security group for all subnets, always create this resource so we can add dynamic content
 resource "azurerm_network_security_group" "common" {
+  count               = local.create_nsg ? 1 : 0
   name                = "nsg-common"
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
@@ -65,23 +66,23 @@ resource "azurerm_network_security_group" "common" {
 resource "azurerm_subnet_network_security_group_association" "frontend" {
   count                     = local.create_nsg ? 1 : 0
   subnet_id                 = local.create_admin_subnet ? azurerm_subnet.frontend[0].id : data.azurerm_subnet.frontend[0].id
-  network_security_group_id = azurerm_network_security_group.common.id
+  network_security_group_id = azurerm_network_security_group.common[0].id
 }
 
 resource "azurerm_subnet_network_security_group_association" "ad" {
   count                     = local.create_nsg ? 1 : 0
   subnet_id                 = local.create_admin_subnet ? azurerm_subnet.ad[0].id : data.azurerm_subnet.ad[0].id
-  network_security_group_id = azurerm_network_security_group.common.id
+  network_security_group_id = azurerm_network_security_group.common[0].id
 }
 
 resource "azurerm_subnet_network_security_group_association" "compute" {
   count                     = local.create_nsg ? 1 : 0
   subnet_id                 = local.create_admin_subnet ? azurerm_subnet.compute[0].id : data.azurerm_subnet.compute[0].id
-  network_security_group_id = azurerm_network_security_group.common.id
+  network_security_group_id = azurerm_network_security_group.common[0].id
 }
 
 resource "azurerm_subnet_network_security_group_association" "admin" {
   count                     = local.create_nsg ? 1 : 0
   subnet_id                 = local.create_admin_subnet ? azurerm_subnet.admin[0].id : data.azurerm_subnet.admin[0].id
-  network_security_group_id = azurerm_network_security_group.common.id
+  network_security_group_id = azurerm_network_security_group.common[0].id
 }
