@@ -79,6 +79,10 @@ jq '.properties.outputs | to_entries | map({(.key): .value.value}) | add' <deplo
 
 subscription_id=$(yq .subscription_id <outputs.yml)
 
+# Grant subscription reader for the ccportal-mi
+managedId=$(az identity show -n ccportal-mi -g $rg --query 'principalId' -o tsv)
+az role assignment create --assignee "$managedId" --role "acdd72a7-3385-48ef-bd42-f606fba81ae7" --subscription "$subscription_id" -o tsv | tee deploy.log
+
 echo
 echo "Command to create tunnel:"
 echo "az network bastion tunnel --port 8022 --resource-port 22 --name bastion --resource-group $rg --target-resource-id /subscriptions/$subscription_id/resourceGroups/$rg/providers/Microsoft.Compute/virtualMachines/deployer"
