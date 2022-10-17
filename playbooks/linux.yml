@@ -21,9 +21,10 @@
     service:
       name: sshd 
       state: restarted
+  when: (jumpbox is defined)
 
-- name: Join AD domain and mount anf-home
-  hosts: jumpbox, scheduler, ondemand, grafana
+- name: Join AD domain and mount anfhome
+  hosts: scheduler, ondemand, grafana
   become: true
   gather_facts: no
   vars_files:

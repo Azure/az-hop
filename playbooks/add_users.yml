@@ -9,6 +9,7 @@
   tasks:
   - name: start socks tunnel  
     shell: ssh -i {{ lookup('env', 'PWD') }}/{{ansible_ssh_private_key_file}} -fN -D localhost:5985 -p {{jumpbox_ssh_port}} -o StrictHostKeyChecking=no {{admin_user}}@{{ psrp_ssh_proxy }}
+    when: (jumpbox is defined)
 
 - name: Add domain users
   hosts: ad
@@ -28,6 +29,7 @@
   - name: close session on local port
     shell: ps aux | grep localhost:5985 | grep -v grep | awk '{print "kill -9 " $2}' | sh
     ignore_errors: true
+    when: (jumpbox is defined)
 
 - name: Configure Users
   hosts: jumpbox
