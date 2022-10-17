@@ -48,4 +48,4 @@ Configuration files related to HNC are located in `playbooks/roles/cyclecloud_cl
 |`scripts/`|Directory with custom scripts (bash)|
 
 # References
-LBNL NHC documentation: https://github.com/mej/nhc#table-of-contents-by-gh-md-toc
+LBNL NHC documentation: [https://github.com/mej/nhc#table-of-contents-by-gh-md-toc](https://github.com/mej/nhc#table-of-contents-by-gh-md-toc)
