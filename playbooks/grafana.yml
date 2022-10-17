@@ -1,6 +1,6 @@
 # This looks crazy but in order for this playbook to run from a pipeline, the jumpbox dummy need to be added, otherwise there is an unable to connect message
-- name: deployer dummy
-  hosts: deployer
+- name: jumpbox dummy
+  hosts: jumpbox
   become: true
 
 - hosts: grafana

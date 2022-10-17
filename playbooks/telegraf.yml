@@ -1,4 +1,9 @@
-- hosts: scheduler, ondemand, ccportal, grafana
+# This looks crazy but in order for this playbook to run from a pipeline, the jumpbox dummy need to be added, otherwise there is an unable to connect message
+- name: jumpbox dummy
+  hosts: jumpbox
+  become: true
+
+- hosts: jumpbox, scheduler, ondemand, ccportal, grafana
   become: true
   gather_facts: no
   vars_files:

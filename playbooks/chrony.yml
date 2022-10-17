@@ -1,4 +1,8 @@
-- hosts: ondemand, scheduler, grafana, ccportal
+- name: jumpbox dummy
+  hosts: jumpbox
+  become: true
+
+- hosts: jumpbox, ondemand, scheduler, grafana, ccportal
   become: true
   gather_facts: no
   vars_files:
