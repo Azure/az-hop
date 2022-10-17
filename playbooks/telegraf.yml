@@ -3,7 +3,7 @@
   hosts: jumpbox
   become: true
 
-- hosts: scheduler, ondemand, ccportal, grafana
+- hosts: jumpbox, scheduler, ondemand, ccportal, grafana
   become: true
   gather_facts: no
   vars_files:
