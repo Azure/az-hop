@@ -183,6 +183,9 @@ else
           rgname=$(echo $mds | jq -r '.compute.resourceGroupName')
           echo " - logged in Azure with System Assigned Identity from ${vmname}/${rgname}"
           export TF_VAR_logged_user_objectId=$(az resource list -n $vmname -g $rgname --query [*].identity.principalId --out tsv)
+          if [ "$TF_VAR_logged_user_objectId" == "" ]; then
+            export TF_VAR_logged_user_objectId=$(az resource list -n $vmname -g $rgname --query [*].identity.userAssignedIdentities.*.principalId --out tsv)
+          fi
           export ARM_TENANT_ID=${TF_VAR_tenant_id}
           export ARM_SUBSCRIPTION_ID=${subscription_id}
           export ARM_USE_MSI=true

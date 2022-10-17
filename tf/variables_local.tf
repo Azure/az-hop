@@ -102,6 +102,8 @@ locals {
     lustre_oss_sku = try(local.configuration_yml["lustre"]["oss_sku"], "Standard_D32d_v4")
     lustre_oss_count = try(local.configuration_yml["lustre"]["oss_count"], local.lustre_enabled ? 2 : 0)
 
+    # Use a jumpbox when defined
+    jumpbox_enabled = try(length(local.configuration_yml["jumpbox"]) > 0, false)
     # Enable Windows Remote Visualization scenarios
     enable_remote_winviz = try(local.configuration_yml["enable_remote_winviz"], false)
 
