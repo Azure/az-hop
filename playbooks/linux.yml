@@ -6,22 +6,24 @@
   vars_files:
     - '{{global_config_file}}'
   tasks:
-  - name: Wait 300 seconds for the nodes to be ready
-    wait_for_connection:
-      timeout: 300
-  - name: Gather facts for first time
-    setup:
-  - name: "Ensure SSH AllowTcpForwarding is enabled"
-    lineinfile:
-        state: present
-        dest: /etc/ssh/sshd_config
-        regexp: "^#AllowTcpForwarding|^AllowTcpForwarding"
-        line: 'AllowTcpForwarding yes'
-  - name: restart sshd
-    service:
-      name: sshd 
-      state: restarted
-  when: (jumpbox is defined)
+  - name : configure jumbox
+    block:
+      - name: Wait 300 seconds for the nodes to be ready
+        wait_for_connection:
+          timeout: 300
+      - name: Gather facts for first time
+        setup:
+      - name: "Ensure SSH AllowTcpForwarding is enabled"
+        lineinfile:
+            state: present
+            dest: /etc/ssh/sshd_config
+            regexp: "^#AllowTcpForwarding|^AllowTcpForwarding"
+            line: 'AllowTcpForwarding yes'
+      - name: restart sshd
+        service:
+          name: sshd 
+          state: restarted
+    when: (jumpbox is defined)
 
 - name: Join AD domain and mount anfhome
   hosts: scheduler, ondemand, grafana
