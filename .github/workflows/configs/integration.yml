@@ -154,20 +154,20 @@ images:
     hyper_v: V2
     os_type: Linux
     version: 8.5
-  - name: azhop-centos79-v2-rdma-gpgpu
-    publisher: azhop
-    offer: CentOS
-    sku: 7.9-gen2
-    hyper_v: V2
-    os_type: Linux
-    version: 7.9
-  - name: azhop-centos79-desktop3d
-    publisher: azhop
-    offer: CentOS
-    sku: 7.9-gen2-desktop3d
-    hyper_v: V2
-    os_type: Linux
-    version: 7.9
+  # - name: azhop-centos79-v2-rdma-gpgpu
+  #   publisher: azhop
+  #   offer: CentOS
+  #   sku: 7.9-gen2
+  #   hyper_v: V2
+  #   os_type: Linux
+  #   version: 7.9
+  # - name: azhop-centos79-desktop3d
+  #   publisher: azhop
+  #   offer: CentOS
+  #   sku: 7.9-gen2-desktop3d
+  #   hyper_v: V2
+  #   os_type: Linux
+  #   version: 7.9
   - name: azhop-ubuntu18.04
     publisher: azhop
     offer: Ubuntu
@@ -175,13 +175,13 @@ images:
     hyper_v: V2
     os_type: Linux
     version: 18.04
-  - name: azhop-win10
-    publisher: azhop
-    offer: Windows-10
-    sku: 21h1-pron
-    hyper_v: V1
-    os_type: Windows
-    version: 10.19043
+  # - name: azhop-win10
+  #   publisher: azhop
+  #   offer: Windows-10
+  #   sku: 21h1-pron
+  #   hyper_v: V1
+  #   os_type: Windows
+  #   version: 10.19043
 
 # Autoscale default settings for all queues, can be overriden on each queue depending on the VM type if needed
 autoscale:
@@ -191,27 +191,27 @@ queues:
   - name: execute
     vm_size: Standard_F2s_v2
     max_core_count: 1024
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    image: azhpc:azhop-compute:centos-7_9:latest
     spot: false
   - name: hc44rs
     vm_size: Standard_HC44rs
     max_core_count: 1056
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    image: azhpc:azhop-compute:centos-7_9:latest
     spot: true
   - name: hb60rs
     vm_size: Standard_HB60rs
     max_core_count: 1440
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    image: azhpc:azhop-compute:centos-7_9:latest
     spot: true
   - name: hb120v2
     vm_size: Standard_HB120rs_v2
     max_core_count: 2880
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    image: azhpc:azhop-compute:centos-7_9:latest
     spot: true
   - name: hb120v3
     vm_size: Standard_HB120rs_v3
     max_core_count: 2880
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    image: azhpc:azhop-compute:centos-7_9:latest
     spot: true
   - name: hb120v3al
     vm_size: Standard_HB120rs_v3
@@ -227,7 +227,7 @@ queues:
   - name: viz3d
     vm_size: Standard_NV12s_v3
     max_core_count: 48
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
+    image: azhpc:azhop-desktop:centos-7_9:latest
     ColocateNodes: false
     spot: false
     max_hours: 12 # Maximum session duration
@@ -235,7 +235,7 @@ queues:
   - name: viz
     vm_size: Standard_D8s_v5
     max_core_count: 200
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
+    image: azhpc:azhop-desktop:centos-7_9:latest
     ColocateNodes: false
     spot: false
     max_hours: 12 # Maximum session duration
@@ -243,11 +243,11 @@ queues:
   - name: nc24v3
     vm_size: Standard_NC24rs_v3
     max_core_count: 96
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    image: azhpc:azhop-compute:centos-7_9:latest
   - name: largeviz3d
     vm_size: Standard_NV48s_v3
     max_core_count: 96
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
+    image: azhpc:azhop-desktop:centos-7_9:latest
     ColocateNodes: false
     spot: false
     max_hours: 12 # Maximum session duration
