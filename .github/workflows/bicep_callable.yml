@@ -69,7 +69,7 @@ jobs:
     timeout-minutes: 60
 
     container:
-      image: azhop.azurecr.io/hpcrover:2210.1815
+      image: azhop.azurecr.io/hpcrover:2210.1816
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -116,13 +116,6 @@ jobs:
     runs-on: ubuntu-latest
     if: always() && inputs.clean == 'true'
     needs: [deploy]
-
-    container:
-      image: azhop.azurecr.io/hpcrover:2210.1815
-      credentials:
-        username: ${{ env.ARM_CLIENT_ID }}
-        password: ${{ env.ARM_CLIENT_SECRET }}
-      options: --user 0
 
     steps:
       - uses: actions/checkout@v3
