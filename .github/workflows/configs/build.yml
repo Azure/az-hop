@@ -14,7 +14,7 @@ slurm:
   #admin_user: sqladmin # parameter
   accounting_enabled: true
 
-deploy_sig: true
+deploy_sig: false
 
 homedir: "anf"
 
@@ -81,10 +81,10 @@ images:
     offer: WindowsServer
     sku: 2016-Datacenter-smalldisk
     version: latest
-  azhop-centos79-v2-rdma-gpgpu:
-    id: <existing-marketplace-image-or-marketplace-id>
-  centos-7.8-desktop-3d:
-    id: <existing-marketplace-image-or-marketplace-id>
+  azhop-compute-centos-7.9:
+    id: azhpc:azhop-compute:centos-7_9:latest
+  azhop-desktop-centos-7.9:
+    id: azhpc:azhop-desktop:centos-7_9:latest
     
 vms:
   deployer:
@@ -99,9 +99,9 @@ vms:
         key_permissions: [ All ]
         secret_permissions: [ All ]
       roles:
-        - Contributor
-        - UserAccessAdministrator
-    asgs: [ asg-ssh, asg-jumpbox, asg-ad-client, asg-telegraf, asg-nfs-client ]
+        - b24988ac-6180-42a0-ab88-20f7382dd24c #Contributor
+        - 18d7d88d-d35e-4fb5-a5c3-7773c20a72d9 # User Access Administrator
+    asgs: [ asg-ssh, asg-jumpbox, asg-deployer, asg-ad-client, asg-telegraf, asg-nfs-client ]
   ad:
     subnet: ad
     windows: true
@@ -109,18 +109,18 @@ vms:
     sku: Standard_B2ms
     osdisksku: StandardSSD_LRS
     image: win_base
-    asgs: [ asg-ad, asg-rdp ]
+    asgs: [ asg-ad, asg-rdp, asg-ad-client ]
   ondemand:
     subnet: frontend
     sku: Standard_D4s_v5
-    osdisksku: Standard_LRS
+    osdisksku: StandardSSD_LRS
     image: linux_base
     pip: true
     asgs: [ asg-ssh, asg-ondemand, asg-ad-client, asg-nfs-client, asg-pbs-client, asg-lustre-client, asg-telegraf, asg-guacamole, asg-cyclecloud-client ]
   grafana:
     subnet: admin
     sku: Standard_B2ms
-    osdisksku: Standard_LRS
+    osdisksku: StandardSSD_LRS
     image: linux_base
     asgs: [ asg-ssh, asg-grafana, asg-ad-client, asg-telegraf, asg-nfs-client ]
   guacamole:
@@ -130,13 +130,13 @@ vms:
         secret_permissions: [ Get, List ]
     subnet: admin
     sku: Standard_B2ms
-    osdisksku: Standard_LRS
+    osdisksku: StandardSSD_LRS
     image: linux_base
     asgs: [ asg-ssh, asg-ad-client, asg-telegraf, asg-nfs-client, asg-cyclecloud-client ]
   ccportal:
     subnet: admin
     sku: Standard_B2ms
-    osdisksku: Standard_LRS
+    osdisksku: StandardSSD_LRS
     image: linux_base
     datadisks:
       - name: ccportal-datadisk0
@@ -145,12 +145,12 @@ vms:
         caching: ReadWrite
     identity:
       roles:
-        - Contributor
+        - b24988ac-6180-42a0-ab88-20f7382dd24c #Contributor
     asgs: [ asg-ssh, asg-cyclecloud, asg-telegraf, asg-ad-client ]
   scheduler:
     subnet: admin
     sku: Standard_B2ms
-    osdisksku: Standard_LRS
+    osdisksku: StandardSSD_LRS
     image: linux_base
     asgs: [ asg-ssh, asg-pbs, asg-ad-client, asg-cyclecloud-client, asg-nfs-client, asg-telegraf ]
   lustre:
@@ -205,13 +205,17 @@ nsg_destination_ports:
   Slurmd: ['6818']
   Lustre: ['635', '988']
   Nfs: ['111', '635', '2049', '4045', '4046']
+  SMB: ['445']
   Telegraf: ['8086']
   Grafana: ['3000']
   # HTTPS, AMQP
   CycleCloud: ['9443', '5672']
   # MySQL
   MySQL: ['3306', '33060']
-
+  # Guacamole
+  Guacamole: ['8080']
+  # WinRM
+  WinRM: ['5985', '5986']
 
 # Array of NSG rules to be applied on the common NSG
 # NsgRuleName : [priority, direction, access, protocol, destination_port_range, source, destination]
@@ -281,8 +285,12 @@ _nsg_rules:
     AllowGrafanaIn              : ['510', 'Inbound', 'Allow', 'Tcp', 'Grafana',            'asg/asg-ondemand',          'asg/asg-grafana']
 
     # Admin and Deployment
-    AllowSocksIn                : ['520', 'Inbound', 'Allow', 'Tcp', 'Socks',              'asg/asg-jumpbox',          'asg/asg-rdp']
+    AllowWinRMIn                : ['520', 'Inbound', 'Allow', 'Tcp', 'WinRM',              'asg/asg-jumpbox',          'asg/asg-rdp']
     AllowRdpIn                  : ['550', 'Inbound', 'Allow', 'Tcp', 'Rdp',                'asg/asg-jumpbox',          'asg/asg-rdp']
+    AllowWebDeployerIn          : ['595', 'Inbound', 'Allow', 'Tcp', 'Web',                'asg/asg-deployer',         'asg/asg-ondemand']
+
+        # Guacamole
+    AllowGuacamoleRdpIn         : ['610', 'Inbound', 'Allow', 'Tcp', 'Rdp',                 'asg/asg-guacamole',        'subnet/compute']
 
     # Deny all remaining traffic
     DenyVnetInbound             : ['3100', 'Inbound', 'Deny', '*', 'All',                  'tag/VirtualNetwork',       'tag/VirtualNetwork']
@@ -351,19 +359,23 @@ _nsg_rules:
 
     # Admin and Deployment
     AllowRdpOut                 : ['570', 'Outbound', 'Allow', 'Tcp', 'Rdp',                'asg/asg-jumpbox',          'asg/asg-rdp']
-    AllowSocksOut               : ['580', 'Outbound', 'Allow', 'Tcp', 'Socks',              'asg/asg-jumpbox',          'asg/asg-rdp']
+    AllowWinRMOut               : ['580', 'Outbound', 'Allow', 'Tcp', 'WinRM',              'asg/asg-jumpbox',          'asg/asg-rdp']
     AllowDnsOut                 : ['590', 'Outbound', 'Allow', '*',   'Dns',                'tag/VirtualNetwork',       'tag/VirtualNetwork']
+    AllowWebDeployerOut         : ['595', 'Outbound', 'Allow', 'Tcp', 'Web',                'asg/asg-deployer',         'asg/asg-ondemand']
+
+    # Guacamole
+    AllowGuacamoleRdpOut        : ['610', 'Outbound', 'Allow', 'Tcp', 'Rdp',                 'asg/asg-guacamole',        'subnet/compute']
 
     # Deny all remaining traffic and allow Internet access
     AllowInternetOutBound       : ['3000', 'Outbound', 'Allow', 'Tcp', 'All',               'tag/VirtualNetwork',       'tag/Internet']
     DenyVnetOutbound            : ['3100', 'Outbound', 'Deny',  '*',   'All',               'tag/VirtualNetwork',       'tag/VirtualNetwork']
 
 internet_nsg_rules:
-    AllowInternetSshIn          : ['200', 'Inbound', 'Allow', 'Tcp', 'Public_Ssh',         'tag/Internet', 'asg/asg-jumpbox'] # Only when using a PIP
+#    AllowInternetSshIn          : ['200', 'Inbound', 'Allow', 'Tcp', 'Public_Ssh',         'tag/Internet', 'asg/asg-jumpbox'] # Only when using a PIP
     AllowInternetHttpIn         : ['210', 'Inbound', 'Allow', 'Tcp', 'Web',                'tag/Internet', 'asg/asg-ondemand'] # Only when using a PIP
 
 hub_nsg_rules :
-    AllowHubSshIn               : ['200', 'Inbound', 'Allow', 'Tcp', 'Public_Ssh',               'tag/VirtualNetwork', 'asg/asg-jumpbox']
+#    AllowHubSshIn               : ['200', 'Inbound', 'Allow', 'Tcp', 'Public_Ssh',               'tag/VirtualNetwork', 'asg/asg-jumpbox']
     AllowHubHttpIn              : ['210', 'Inbound', 'Allow', 'Tcp', 'Web',                      'tag/VirtualNetwork', 'asg/asg-ondemand']
 
 bastion_nsg_rules:

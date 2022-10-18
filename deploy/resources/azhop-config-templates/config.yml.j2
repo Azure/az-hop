@@ -294,8 +294,6 @@ queues:
     # maximum number of cores that can be instanciated
     max_core_count: 128
     # marketplace image name or custom image id
-    #image: OpenLogic:CentOS-HPC:7_9-gen2:latest
-    #image: /subscriptions/{{outputs.subscription_id}}/resourceGroups/{{outputs.resource_group}}/providers/Microsoft.Compute/galleries/azhop_{{outputs.resource_postfix}}/images/azhop-centos79-v2-rdma-gpgpu/latest
     image: {% if build.deploy_sig == true %}/subscriptions/{{outputs.subscription_id}}/resourceGroups/{{outputs.resource_group}}/providers/Microsoft.Compute/galleries/azhop_{{outputs.resource_postfix}}/images/azhop-compute-centos-7.9/latest{% else %}{{build.images["azhop-compute-centos-7.9"].id}}{% endif %}
     # Image plan specification (when needed for the image). Terms must be accepted prior to deployment
 #    plan: publisher:product:name
