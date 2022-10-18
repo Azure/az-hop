@@ -11,7 +11,7 @@ echo "* Cloning az-hop repo"
 if [ -e az-hop ]; then
     rm -rf az-hop
 fi
-git clone --recursive https://github.com/Azure/az-hop.git -b bicep
+git clone --recursive https://github.com/Azure/az-hop.git
 
 cd az-hop
 export azhop_root=$(pwd)
@@ -46,6 +46,15 @@ echo "* Getting keys from keyvault"
 az keyvault secret show --vault-name $kv -n ${adminuser}-pubkey --query "value" -o tsv > ../${adminuser}_id_rsa.pub
 az keyvault secret show --vault-name $kv -n ${adminuser}-privkey --query "value" -o tsv > ../${adminuser}_id_rsa
 chmod 600 ../${adminuser}_id_rsa*
+
+# Checkout the branch
+branch="$(yq .branch_name outputs.yml)"
+if [ "$branch" != "main" ]; then
+    echo "Checkout branch $branch"
+    pushd $azhop_root
+    git checkout $branch
+    popd
+fi
 
 echo "* Writing build.yml"
 cat <<EOF >build.yml

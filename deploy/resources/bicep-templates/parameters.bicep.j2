@@ -30,3 +30,6 @@ param slurmAccountingAdminUser string = 'sqladmin'
 @secure()
 param slurmAccountingAdminPassword string
 {%- endif %}
+
+@description('Branch of the azhop repo to pull - Default to main')
+param branchName string = 'main'

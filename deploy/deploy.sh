@@ -3,6 +3,7 @@ set -e
 set -o pipefail
 rg=$1
 location=${2:-westeurope}
+branch=${3:-main}
 
 parameter_file=$rg-$location.params.json
 
@@ -60,6 +61,9 @@ cat <<EOF >$parameter_file
         },
         "slurmAccountingAdminPassword": {
             "value": "$slurmactpassword"
+        },
+        "branchName": {
+            "value": "$branch"
         }
     }
 }
