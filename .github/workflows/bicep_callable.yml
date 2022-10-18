@@ -112,7 +112,10 @@ jobs:
           ls -al ./deploy
           cat $AZHOP_BUILD_CONFIGURATION
           cd ./deploy
-          ./deploy.sh $RESOURCE_GROUP ${{ inputs.location }}
+          branch=$(echo ${GITHUB_REF#refs/heads/})
+          ./deploy.sh $RESOURCE_GROUP ${{ inputs.location }} $branch
+
+          # TODO : Add a step to monitor the cloud-init output
 
   cleanup:
     name: cleanup

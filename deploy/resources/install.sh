@@ -18,6 +18,7 @@ export azhop_root=$(pwd)
 echo "* Installing azhop toolset dependencies"
 ./toolset/scripts/install.sh
 
+mkdir -p $azhop_root/deploy
 cd $azhop_root/deploy
 
 echo "* Logging in to Azure"
