@@ -69,7 +69,7 @@ jobs:
     timeout-minutes: 60
 
     container:
-      image: azhop.azurecr.io/hpcrover:2206.1321
+      image: azhop.azurecr.io/hpcrover:2210.1815
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -118,7 +118,7 @@ jobs:
     needs: [deploy]
 
     container:
-      image: azhop.azurecr.io/hpcrover:2206.1321
+      image: azhop.azurecr.io/hpcrover:2210.1815
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
