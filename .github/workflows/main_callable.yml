@@ -72,7 +72,7 @@ jobs:
     timeout-minutes: 60
 
     container:
-      image: azhop.azurecr.io/hpcrover:2210.1815
+      image: azhop.azurecr.io/hpcrover:2210.1816
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -194,7 +194,7 @@ jobs:
     needs: deploy
 
     container:
-      image: azhop.azurecr.io/hpcrover:2210.1815
+      image: azhop.azurecr.io/hpcrover:2210.1816
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -223,7 +223,7 @@ jobs:
     needs: [ad, deploy, grafana]
 
     container:
-      image: azhop.azurecr.io/hpcrover:2210.1815
+      image: azhop.azurecr.io/hpcrover:2210.1816
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -254,7 +254,7 @@ jobs:
     needs: [cycle_cluster, lustre, deploy]
 
     container:
-      image: azhop.azurecr.io/hpcrover:2210.1815
+      image: azhop.azurecr.io/hpcrover:2210.1816
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -282,7 +282,7 @@ jobs:
     needs: [ad, deploy]
 
     container:
-      image: azhop.azurecr.io/hpcrover:2210.1815
+      image: azhop.azurecr.io/hpcrover:2210.1816
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -310,7 +310,7 @@ jobs:
     needs: [ad, deploy]
 
     container:
-      image: azhop.azurecr.io/hpcrover:2210.1815
+      image: azhop.azurecr.io/hpcrover:2210.1816
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -338,7 +338,7 @@ jobs:
     needs: [cycle, deploy]
 
     container:
-      image: azhop.azurecr.io/hpcrover:2210.1815
+      image: azhop.azurecr.io/hpcrover:2210.1816
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -366,7 +366,7 @@ jobs:
     needs: [add_users, deploy, build_image]
 
     container:
-      image: azhop.azurecr.io/hpcrover:2210.1815
+      image: azhop.azurecr.io/hpcrover:2210.1816
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -395,7 +395,7 @@ jobs:
     needs: [cycle, ood, deploy]
 
     container:
-      image: azhop.azurecr.io/hpcrover:2210.1815
+      image: azhop.azurecr.io/hpcrover:2210.1816
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -424,7 +424,7 @@ jobs:
     needs: [grafana, cycle, deploy, guacamole]
 
     container:
-      image: azhop.azurecr.io/hpcrover:2210.1815
+      image: azhop.azurecr.io/hpcrover:2210.1816
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -453,7 +453,7 @@ jobs:
     needs: [deploy]
 
     container:
-      image: azhop.azurecr.io/hpcrover:2210.1815
+      image: azhop.azurecr.io/hpcrover:2210.1816
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -489,7 +489,7 @@ jobs:
       matrix:
         packer_file: ${{ fromJson(needs.set_image_list.outputs.matrix) }}
     container:
-      image: azhop.azurecr.io/hpcrover:2210.1815
+      image: azhop.azurecr.io/hpcrover:2210.1816
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -517,7 +517,7 @@ jobs:
     runs-on: self-hosted
     needs: [deploy, cycle, ood, cycle_cluster]
     container:
-      image: azhop.azurecr.io/hpcrover:2210.1815
+      image: azhop.azurecr.io/hpcrover:2210.1816
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -546,7 +546,7 @@ jobs:
     needs: [deploy, run_tests, telegraf]
 
     container:
-      image: azhop.azurecr.io/hpcrover:2210.1815
+      image: azhop.azurecr.io/hpcrover:2210.1816
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
