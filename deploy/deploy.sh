@@ -15,6 +15,7 @@ fi
 # When applied on an existing deployment, don't create new passwords
 adminuser=hpcadmin
 slurmadmin=sqladmin
+slurmactpassword=""
 
 if [[ ! -f "${adminuser}_id_rsa" ]]; then
     ssh-keygen -f "${adminuser}_id_rsa"  -N ''
@@ -23,15 +24,12 @@ fi
 slurmAdminUserArg=
 slurmAdminPasswordArg=
 
-if [[ $(yq .queue_manager build.yml) == "slurm" && $(yq .slurm.accounting_enabled build.yml) == "true" ]]; then
-    slurmAdminUserArg="slurmAccountingAdminUser=$slurmadmin"
-    slurmAdminPasswordArg="slurmAccountingAdminPassword=$slurmactpassword"
-fi
-
 if [ ! -e $parameter_file ]; then
 echo "Parameter file doesn't exists, create it"
 winpassword=$(pwgen -s 12 -1)
+if [[ $(yq .queue_manager build.yml) == "slurm" && $(yq .slurm.accounting_enabled build.yml) == "true" ]]; then
 slurmactpassword=$(pwgen -s 12 -1)
+fi
 
 cat <<EOF >$parameter_file
 {
