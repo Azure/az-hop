@@ -47,7 +47,6 @@ echo "Installing AzCLI ..."
 while ! which az >/dev/null 2>&1; do
     curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 done
-
 #
 # Install AzCopy
 #
