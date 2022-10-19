@@ -41,6 +41,7 @@
                 "/tmp/desktop-packages.sh || exit 1",
                 "/tmp/{{user `var_queue_manager`}}.sh || exit 1",
                 "/tmp/telegraf.sh || exit 1",
+                "/tmp/zz-desktop-custom.sh || exit 1",
                 "echo ' This is the end '",
                 "yum history sync",
                 "rm -rf /tmp/*.sh",

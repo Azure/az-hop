@@ -42,6 +42,7 @@
                 "/tmp/slurm.sh || exit 1",
                 "/tmp/telegraf.sh || exit 1",
                 "/tmp/lustreclient.sh 2.12.6  || exit 1",
+                "/tmp/zz-compute-custom.sh || exit 1",
                 "echo ' This is the end '",
                 "yum history sync",
                 "rm -rf /tmp/*.sh",

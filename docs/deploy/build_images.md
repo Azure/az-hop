@@ -122,6 +122,7 @@ For example, below is the content of the `azhop-centos79-desktop3d.json` packer 
                 "/tmp/desktop-packages.sh",
                 "/tmp/pbspro.sh",
                 "/tmp/telegraf.sh",
+                "/tmp/zz-desktop-custom.sh || exit 1",
                 "echo ' This is the end '",
                 "yum history sync",
                 "rm -rf /tmp/scripts",
