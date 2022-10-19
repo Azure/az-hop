@@ -1,0 +1,17 @@
+output admin_user string = adminUser
+{%- if queue_manager == "slurm" and slurm.accounting_enabled == true %}
+output slurm_admin_user string = slurmAccountingAdminUser
+{%- endif %}
+output resource_postfix string = resourcePostfix
+output subscription_id string = subscription().subscriptionId
+output tenant_id string = subscription().tenantId
+output environment_name string = environment().name
+output keyvault_suffix string = environment().suffixes.storage
+output storage_suffix string = environment().suffixes.storage
+output location string = location
+output resource_group string = resourceGroup().name
+output keyvault_name string = 'kv${resourcePostfix}'
+output storage_name string = 'azhop${resourcePostfix}'
+output mysql_name string = 'azhop-${resourcePostfix}'
+output homedir_mountpoint string = homedirMountpoint
+output branch_name string = branchName

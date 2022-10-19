@@ -41,6 +41,7 @@
         domain_homedir: "{{homedir_mountpoint}}"
         domain_mount_ip: "{{anf_home_ip}}"
         domain_mount_path: "{{anf_home_path}}"
+        domain_mount_opts: "{{anf_home_opts}}"
 
     - name: Install Guac Spooler role
       include_role:

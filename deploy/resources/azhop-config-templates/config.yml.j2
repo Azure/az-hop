@@ -1,40 +1,34 @@
-# Define the environment
-An **az-hop** environment is defined in the `config.yml` configuration file. Before starting, use the `config.tpl.yml` template to build a configuration file that fill your needs.
-Here is a template for building such configuration file.
-
-```yml
 ---
 # azure location name as returned by the command : az account list-locations -o table
-location: westeurope
+location: {{outputs.location}}
 # Name of the resource group to create all resources
-resource_group: azhop
+resource_group: {{outputs.resource_group}}
 # If using an existing resource group set to true. Default is false
-# When using an existing resource group make sure the location match the one of the existing resource group
 use_existing_rg: false
 # Additional tags to be added on the Resource Group
 tags:
   env: dev
   project: azhop
-# Define an Azure Netapp Files (ANF) account, single pool and volume
-# If not present, assume that there is an existing NFS share for the users home directory
+# Define an ANF account, single pool and volume
+# If not present assume that there is an existing NFS share for the users home directory
 anf:
-  # Size of the ANF pool and unique volume (min: 4TB, max: 100TB)
-  homefs_size_tb: 4
+  # Size of the ANF pool and unique volume
+  homefs_size_tb: {{build.anf.size_tb}}
   # Service level of the ANF volume, can be: Standard, Premium, Ultra
-  homefs_service_level: Standard
+  homefs_service_level: {{build.anf.service_level}}
   # dual protocol
-  dual_protocol: false # true to enable SMB support. false by default
+  dual_protocol: {{build.anf.dual_protocol}} # true to enable SMB support. false by default
 
 mounts:
   # mount settings for the user home directory
   home:
-    mountpoint: /anfhome # /sharedhome for example
-    server: '{{anf_home_ip}}' # Specify an existing NFS server name or IP, when using the ANF built in use '{{anf_home_ip}}'
-    export: '{{anf_home_path}}' # Specify an existing NFS export directory, when using the ANF built in use '{{anf_home_path}}'
-    options: '{{anf_home_opts}}' # Specify the mount options. Default to rw,hard,rsize=262144,wsize=262144,vers=3,tcp
+    mountpoint: {{outputs.homedir_mountpoint}} # /sharedhome for example
+    server: {{outputs.nfs_home_ip}}
+    export: {{outputs.nfs_home_path}}
+    options: {{outputs.nfs_home_opts}}
 
 # name of the admin account
-admin_user: hpcadmin
+admin_user: {{outputs.admin_user}}
 # Object ID to grant key vault read access
 key_vault_readers: #<object_id>
 # Network
@@ -42,39 +36,39 @@ network:
   # Create Network and Application Security Rules, true by default, false when using an existing VNET if not specified
   create_nsg: true
   vnet:
-    name: hpcvnet # Optional - default to hpcvnet
+    name: {{build.vnet.name}} # Optional - default to hpcvnet
     id: # If a vnet id is set then no network will be created and the provided vnet will be used
-    address_space: "10.0.0.0/16" # Optional - default to "10.0.0.0/16"
+    address_space: {{build.vnet.cidr}} # Optional - default to "10.0.0.0/16"
     # When using an existing VNET, only the subnet names will be used and not the adress_prefixes
     subnets: # all subnets are optionals
     # name values can be used to rename the default to specific names, address_prefixes to change the IP ranges to be used
     # All values below are the default values
       frontend: 
-        name: frontend
-        address_prefixes: "10.0.0.0/24"
+        name: {{build.vnet.subnets.frontend.name}}
+        address_prefixes: {{build.vnet.subnets.frontend.cidr}}
         create: true # create the subnet if true. default to true when not specified, default to false if using an existing VNET when not specified
       admin:
-        name: admin
-        address_prefixes: "10.0.1.0/24"
+        name: {{build.vnet.subnets.admin.name}}
+        address_prefixes: {{build.vnet.subnets.admin.cidr}}
         create: true
       netapp:
-        name: netapp
-        address_prefixes: "10.0.2.0/24"
+        name: {{build.vnet.subnets.netapp.name}}
+        address_prefixes: {{build.vnet.subnets.netapp.cidr}}
         create: true
       ad:
-        name: ad
-        address_prefixes: "10.0.3.0/28"
+        name: {{build.vnet.subnets.ad.name}}
+        address_prefixes: {{build.vnet.subnets.ad.cidr}}
         create: true
       # Bastion and Gateway subnets are optional and can be added if a Bastion or a VPN need to be created in the environment
       # bastion: # Bastion subnet name is always fixed to AzureBastionSubnet
-      #   address_prefixes: "10.0.4.0/27" # CIDR minimal range must be /27
+      #   address_prefixes: "10.0.4.0/26" # CIDR minimal range must be /26
       #   create: true
       # gateway: # Gateway subnet name is always fixed to GatewaySubnet
-      #   address_prefixes: "10.0.4.32/27" # Recommendation is to use /27 or /28 network
+      #   address_prefixes: "10.0.4.64/27" # Recommendation is to use /27 or /28 network
       #   create: true
       compute:
-        name: compute
-        address_prefixes: "10.0.16.0/20"
+        name: {{build.vnet.subnets.compute.name}}
+        address_prefixes: {{build.vnet.subnets.compute.cidr}}
         create: true
   # Specify the Application Security Groups mapping if already existing
 # asg:
@@ -110,9 +104,9 @@ network:
 
 # When working in a locked down network, uncomment and fill out this section
 locked_down_network:
-  enforce: false
+  enforce: {{build.lock_down_network.enforce}} # true to enforce the lockdown, false to disable it. Default to false
 #   grant_access_from: [a.b.c.d] # Array of CIDR to grant access from, see https://docs.microsoft.com/en-us/azure/storage/common/storage-network-security?tabs=azure-portal#grant-access-from-an-internet-ip-range
-  public_ip: true # Enable public IP creation for Jumpbox, OnDemand and create images. Default to true
+  public_ip: {{build.vms["ondemand"].pip}} # Enable public IP creation for Jumpbox, OnDemand and create images. Default to true
 
 # Base image configuration. Can be either an image reference or an image_id from the image registry or a custom managed image
 linux_base_image: "OpenLogic:CentOS:7_9-gen2:latest" # publisher:offer:sku:version or image_id
@@ -122,17 +116,11 @@ lustre_base_image: "azhpc:azurehpc-lustre:azurehpc-lustre-2_12:latest"
 # The lustre plan to use. Only needed when using the default lustre image from the marketplace. use "::" for an empty plan
 lustre_base_plan: "azhpc:azurehpc-lustre:azurehpc-lustre-2_12" # publisher:product:name
 
-# Jumpbox VM configuration, only needed when deploying thru a public IP and without a configured deployer VM
-jumpbox:
-  vm_size: Standard_B2ms
-  # SSH port under which the jumpbox SSH server listens on the public IP. Default to 22
-  # Change this to, e.g., 2222, if security policies (like "zero trust") in your tenant automatically block access to port 22 from the internet
-  #ssh_port: 2222
 # Active directory VM configuration
 ad:
   vm_size: Standard_B2ms
   hybrid_benefit: false # Enable hybrid benefit for AD, default to false
-  high_availability : false # Build AD in High Availability mode (2 Domain Controlers) - default to false
+  high_availability: false # Build AD in High Availability mode (2 Domain Controlers) - default to false
 # On demand VM configuration
 ondemand:
   vm_size: Standard_D4s_v5
@@ -152,8 +140,8 @@ cyclecloud:
   vm_size: Standard_B2ms
   # version: 8.2.1-1733 # to specify a specific version, see https://packages.microsoft.com/yumrepos/cyclecloud/
 
-# Lustre cluster is optional and can be used to create a Lustre cluster in the environment.
-# Comment the whole section if you don't want to create a Lustre cluster.
+{% if build.vms["lustre"] is defined %}
+# Lustre cluster configuration
 lustre:
   rbh_sku: "Standard_D8d_v4"
   mds_sku: "Standard_D8d_v4"
@@ -167,17 +155,16 @@ lustre:
     # if not included it will use the azhop storage account that is created
     storage_account: #existing_storage_account_name
     storage_container: #only_used_with_existing_storage_account
+{% endif %}
 # List of users to be created on this environment
 users:
-  # name: username - must be less than 20 characters
+  # name: username
   # uid: uniqueid
   # shell: /bin/bash # default to /bin/bash
   # home: /anfhome/<user_name> # default to /homedir_mountpoint/user_name
   # groups: list of groups the user belongs to
-  - { name: clusteradmin, uid: 10001, groups: [5001, 5002, 6000, 6001] }
+  - { name: clusteradmin, uid: 10001, groups: [5001, 5002] }
   - { name: clusteruser, uid: 10002 }
-  - { name: user1, uid: 10003, groups: [6000] }
-  - { name: user2, uid: 10004, groups: [6001] }
 
 usergroups:
 # These groups can’t be changed
@@ -189,25 +176,21 @@ usergroups:
   - name: az-hop-localadmins
     gid: 5002
     description: "For users with sudo right or local admin right on nodes"
-# For custom groups use gid >= 6000
-  - name: project1 # For project1 users
-    gid: 6000
-  - name: project2 # For project2 users
-    gid: 6001
 
 # Enable cvmfs-eessi - disabled by default
 # cvmfs_eessi:
 #   enabled: true
 
 # scheduler to be installed and configured (openpbs, slurm)
-queue_manager: openpbs
+queue_manager: {{build.queue_manager}}
 
 # Specific SLURM configuration
 slurm:
   # Enable SLURM accounting, this will create a SLURM accounting database in a managed MySQL server instance
   accounting_enabled: false
-  # Enable container support for SLURM using Enroot/Pyxis
-  enroot_enabled: false
+  # Enable container support for SLURM using Enroot/Pyxis (global switch)
+  # Each queue with container support must have its own enroot_enabled switch set to true
+  enroot_enabled: true
 
 # Authentication configuration for accessing the az-hop portal
 # Default is basic authentication. For oidc authentication you have to specify the following values
@@ -299,16 +282,19 @@ images:
     os_type: Linux
     version: 7.9
 
+# Autoscale default settings for all queues, can be overriden on each queue depending on the VM type if needed
+autoscale:
+  idle_timeout: 600 # Idle time in seconds before shutting down VMs - default to 1800 like in CycleCloud
+
 # List of queues (node arays in Cycle) to be defined
 queues:
   - name: execute # name of the Cycle Cloud node array
     # Azure VM Instance type
     vm_size: Standard_F2s_v2
     # maximum number of cores that can be instanciated
-    max_core_count: 1024
+    max_core_count: 128
     # marketplace image name or custom image id
-#    image: OpenLogic:CentOS-HPC:7_9-gen2:latest
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    image: {% if build.deploy_sig == true %}/subscriptions/{{outputs.subscription_id}}/resourceGroups/{{outputs.resource_group}}/providers/Microsoft.Compute/galleries/azhop_{{outputs.resource_postfix}}/images/azhop-compute-centos-7.9/latest{% else %}{{build.images["azhop-compute-centos-7.9"].id}}{% endif %}
     # Image plan specification (when needed for the image). Terms must be accepted prior to deployment
 #    plan: publisher:product:name
     # Set to true if AccelNet need to be enabled. false is the default value
@@ -317,26 +303,30 @@ queues:
     spot: false
     # Set to false to disable creation of placement groups (for SLURM only). Default is true
     ColocateNodes: false
+    # Set to true to enable Enroot for this partition
+    enroot_enabled: false
+    # Specific idle time in seconds before shutting down VMs, make sure it's lower than autoscale.idle_timeout
+    idle_timeout: 300
   - name: hc44rs
     vm_size: Standard_HC44rs
-    max_core_count: 440
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    max_core_count: 352
+    image: {% if build.deploy_sig == true %}/subscriptions/{{outputs.subscription_id}}/resourceGroups/{{outputs.resource_group}}/providers/Microsoft.Compute/galleries/{{outputs.sig_name}}/images/azhop-compute-centos-7.9/latest{% else %}{{build.images["azhop-compute-centos-7.9"].id}}{% endif %}
     spot: true
   - name: hb120v2
     vm_size: Standard_HB120rs_v2
-    max_core_count: 1200
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    max_core_count: 960
+    image: {% if build.deploy_sig == true %}/subscriptions/{{outputs.subscription_id}}/resourceGroups/{{outputs.resource_group}}/providers/Microsoft.Compute/galleries/{{outputs.sig_name}}/images/azhop-compute-centos-7.9/latest{% else %}{{build.images["azhop-compute-centos-7.9"].id}}{% endif %}
     spot: true
   - name: hb120v3
     vm_size: Standard_HB120rs_v3
-    max_core_count: 1200
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    max_core_count: 960
+    image: {% if build.deploy_sig == true %}/subscriptions/{{outputs.subscription_id}}/resourceGroups/{{outputs.resource_group}}/providers/Microsoft.Compute/galleries/{{outputs.sig_name}}/images/azhop-compute-centos-7.9/latest{% else %}{{build.images["azhop-compute-centos-7.9"].id}}{% endif %}
     spot: true
     # Queue dedicated to GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz3d
     vm_size: Standard_NV12s_v3
     max_core_count: 48
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
+    image: {% if build.deploy_sig == true %}/subscriptions/{{outputs.subscription_id}}/resourceGroups/{{outputs.resource_group}}/providers/Microsoft.Compute/galleries/{{outputs.sig_name}}/images/azhop-desktop-centos-7.9/latest{% else %}{{build.images["azhop-desktop-centos-7.9"].id}}{% endif %}
     ColocateNodes: false
     spot: false
     max_hours: 12 # Maximum session duration
@@ -345,16 +335,16 @@ queues:
   - name: largeviz3d
     vm_size: Standard_NV48s_v3
     max_core_count: 96
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
+    image: {% if build.deploy_sig == true %}/subscriptions/{{outputs.subscription_id}}/resourceGroups/{{outputs.resource_group}}/providers/Microsoft.Compute/galleries/{{outputs.sig_name}}/images/azhop-desktop-centos-7.9/latest{% else %}{{build.images["azhop-desktop-centos-7.9"].id}}{% endif %}
     ColocateNodes: false
     spot: false
     max_hours: 12 # Maximum session duration
     min_hours: 1 # Minimum session duration - 0 is infinite
     # Queue dedicated to non GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz
-    vm_size: Standard_D8s_v5
-    max_core_count: 200
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
+    vm_size: Standard_D8s_v3
+    max_core_count: 32
+    image: {% if build.deploy_sig == true %}/subscriptions/{{outputs.subscription_id}}/resourceGroups/{{outputs.resource_group}}/providers/Microsoft.Compute/galleries/{{outputs.sig_name}}/images/azhop-desktop-centos-7.9/latest{% else %}{{build.images["azhop-desktop-centos-7.9"].id}}{% endif %}
     ColocateNodes: false
     spot: false
     max_hours: 12 # Maximum session duration
@@ -371,4 +361,3 @@ remoteviz:
     ColocateNodes: false
     spot: false
 
-```

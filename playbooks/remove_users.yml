@@ -35,7 +35,7 @@
     when: (jumpbox is defined)
 
 - name: Remove Users
-  hosts: jumpbox
+  hosts: ondemand
   become: true
   vars_files:
     - '{{global_config_file}}'

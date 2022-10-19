@@ -42,3 +42,10 @@ node_modules/*
 package-lock.json
 test-results/
 playwright-report/
+
+# deploy with bicep
+deploy/build.yml
+deploy/deploy.log
+deploy/outputs.yml
+deploy/azureDeploy.*
+deploy/*params.json

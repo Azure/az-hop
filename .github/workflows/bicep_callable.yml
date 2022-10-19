@@ -50,6 +50,7 @@ on:
 env:
   AZHOP_CONFIGURATION: '.github/workflows/configs/build.yml'
   AZHOP_LUSTRE_CONFIGURATION: '.github/workflows/configs/lustre.yml'
+  AZHOP_BUILD_CONFIGURATION: './deploy/build.yml'
   ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
   ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
   ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
@@ -102,14 +103,19 @@ jobs:
           fi
 
           # Update the default configuration with the resource group name and dual protocol options
-          cp $AZHOP_CONFIGURATION ./deploy/build.yml
+          cp $AZHOP_CONFIGURATION $AZHOP_BUILD_CONFIGURATION
+          SCHEDULER=${{ inputs.scheduler }}
+          sed -i "s/__SCHEDULER__/$SCHEDULER/g" $AZHOP_BUILD_CONFIGURATION
 
           # write the name of the resource group in the output of the job so it can be reused in others
           echo "::set-output name=RESOURCE_GROUP::$RESOURCE_GROUP"
           ls -al ./deploy
-          cat ./deploy/build.yml
+          cat $AZHOP_BUILD_CONFIGURATION
           cd ./deploy
-          ./deploy.sh $RESOURCE_GROUP
+          branch=$(echo ${GITHUB_REF#refs/heads/})
+          ./deploy.sh $RESOURCE_GROUP ${{ inputs.location }} $branch
+
+          # TODO : Add a step to monitor the cloud-init output
 
   cleanup:
     name: cleanup
