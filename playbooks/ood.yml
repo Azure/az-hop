@@ -340,15 +340,41 @@
       state: directory
 
   - name: create ood lustre menu option
-    copy:
-      dest: /etc/ood/config/apps/dashboard/initializers/ood.rb
-      content: |
-        # /etc/ood/config/apps/dashboard/initializers/ood.rb
-
-        OodFilesApp.candidate_favorite_paths.tap do |paths|
-          paths << FavoritePath.new("/lustre", title: "Lustre")
-        end
+    lineinfile:
+      path: /etc/ood/config/apps/dashboard/initializers/ood.rb
+      search_string: /lustre
+      line : 'OodFilesApp.candidate_favorite_paths << FavoritePath.new("/lustre", title: "Lustre")'
+      create: yes
+      state: present
     when: ( lustre is defined )
+
+  - name: Create {{item.mountpoint}} directory mountpoint
+    file:
+      path: '{{item.mountpoint}}'
+      state: directory
+      mode: '0755'
+    with_items: '{{mounts}}'
+    when: mounts is defined
+
+  - name: Mount {{ item.server }}:/{{ item.export }}
+    mount:
+      src: '{{ item.server }}:/{{ item.export }}'
+      path: '{{item.mountpoint}}'
+      opts: '{{ item.options}}'
+      state: mounted
+      fstype: nfs
+    with_items: '{{mounts}}'
+    when: mounts is defined
+
+  - name: create mount '{{item.mountpoint}}' menu option
+    lineinfile:
+      path: /etc/ood/config/apps/dashboard/initializers/ood.rb
+      search_string: '{{item.mountpoint}}'
+      line : 'OodFilesApp.candidate_favorite_paths << FavoritePath.new({{item.mountpoint}})'
+      create: yes
+      state: present
+    with_items: '{{mounts}}'
+    when: mounts is defined
 
   # Update file upload staging area to be in /mnt/resource
   - name: Create passenger temp dir
