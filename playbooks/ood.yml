@@ -353,8 +353,8 @@
       path: '{{mounts[item].mountpoint}}'
       state: directory
       mode: '0755'
-    with_items: '{{mounts}}'
-    when: mounts is defined
+    loop: "{{mounts | list}}"
+    when: item != 'home'
 
   - name: Mount "{{ mounts[item].server }}:/{{ mounts[item].export }}"
     mount:
@@ -363,8 +363,8 @@
       opts: '{{ mounts[item].options}}'
       state: mounted
       fstype: nfs
-    with_items: '{{mounts}}'
-    when: mounts is defined
+    loop: "{{mounts | list}}"
+    when: item != 'home'
 
   - name: create mount "{{mounts[item].mountpoint}}" menu option
     lineinfile:
@@ -373,8 +373,8 @@
       line : 'OodFilesApp.candidate_favorite_paths << FavoritePath.new("{{mounts[item].mountpoint}}", title: "{{item}}" )'
       create: yes
       state: present
-    with_items: '{{mounts}}'
-    when: mounts is defined
+    loop: "{{mounts | list}}"
+    when: item != 'home'
 
   # Update file upload staging area to be in /mnt/resource
   - name: Create passenger temp dir
