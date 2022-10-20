@@ -340,15 +340,41 @@
       state: directory
 
   - name: create ood lustre menu option
-    copy:
-      dest: /etc/ood/config/apps/dashboard/initializers/ood.rb
-      content: |
-        # /etc/ood/config/apps/dashboard/initializers/ood.rb
-
-        OodFilesApp.candidate_favorite_paths.tap do |paths|
-          paths << FavoritePath.new("/lustre", title: "Lustre")
-        end
+    lineinfile:
+      path: /etc/ood/config/apps/dashboard/initializers/ood.rb
+      search_string: /lustre
+      line : 'OodFilesApp.candidate_favorite_paths << FavoritePath.new("/lustre", title: "Lustre")'
+      create: yes
+      state: present
     when: ( lustre is defined )
+
+  - name: Create "{{mounts[item].mountpoint}}" directory mountpoint
+    file:
+      path: '{{mounts[item].mountpoint}}'
+      state: directory
+      mode: '0755'
+    loop: "{{mounts | list}}"
+    when: item != 'home'
+
+  - name: Mount "{{ mounts[item].server }}:/{{ mounts[item].export }}"
+    mount:
+      src: '{{ mounts[item].server }}:/{{ mounts[item].export }}'
+      path: '{{mounts[item].mountpoint}}'
+      opts: '{{ mounts[item].options | default("rw,hard,rsize=262144,wsize=262144,vers=3,tcp",true) }}'
+      state: mounted
+      fstype: nfs
+    loop: "{{mounts | list}}"
+    when: item != 'home'
+
+  - name: create mount "{{mounts[item].mountpoint}}" menu option
+    lineinfile:
+      path: /etc/ood/config/apps/dashboard/initializers/ood.rb
+      search_string: '{{mounts[item].mountpoint}}'
+      line : 'OodFilesApp.candidate_favorite_paths << FavoritePath.new("{{mounts[item].mountpoint}}", title: "{{item}}" )'
+      create: yes
+      state: present
+    loop: "{{mounts | list}}"
+    when: item != 'home'
 
   # Update file upload staging area to be in /mnt/resource
   - name: Create passenger temp dir
