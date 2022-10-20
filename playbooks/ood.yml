@@ -348,7 +348,12 @@
       state: present
     when: ( lustre is defined )
 
-  - name: Create {{item.mountpoint}} directory mountpoint
+  - name: debug
+    debug:
+      msg:
+        - "{{mounts}}"
+
+  - name: Create "{{item.mountpoint}}" directory mountpoint
     file:
       path: '{{item.mountpoint}}'
       state: directory
@@ -356,7 +361,7 @@
     with_items: '{{mounts}}'
     when: mounts is defined
 
-  - name: Mount {{ item.server }}:/{{ item.export }}
+  - name: Mount "{{ item.server }}:/{{ item.export }}"
     mount:
       src: '{{ item.server }}:/{{ item.export }}'
       path: '{{item.mountpoint}}'
@@ -366,7 +371,7 @@
     with_items: '{{mounts}}'
     when: mounts is defined
 
-  - name: create mount '{{item.mountpoint}}' menu option
+  - name: create mount "{{item.mountpoint}}" menu option
     lineinfile:
       path: /etc/ood/config/apps/dashboard/initializers/ood.rb
       search_string: '{{item.mountpoint}}'
