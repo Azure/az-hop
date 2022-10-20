@@ -25,13 +25,24 @@ anf:
   # dual protocol
   dual_protocol: false # true to enable SMB support. false by default
 
+# These mounts will be listed in the Files menu of the OnDemand portal and automatically mounted on all compute nodes and remote desktop nodes
 mounts:
   # mount settings for the user home directory
-  home:
+  home: # This home name can't be changed
     mountpoint: /anfhome # /sharedhome for example
     server: '{{anf_home_ip}}' # Specify an existing NFS server name or IP, when using the ANF built in use '{{anf_home_ip}}'
     export: '{{anf_home_path}}' # Specify an existing NFS export directory, when using the ANF built in use '{{anf_home_path}}'
     options: '{{anf_home_opts}}' # Specify the mount options. Default to rw,hard,rsize=262144,wsize=262144,vers=3,tcp
+  mount1:
+    mountpoint: /mount1 
+    server: a.b.c.d # Specify an existing NFS server name or IP
+    export: myexport1 # Specify an existing NFS export name
+    options: my_options # Specify the mount options.
+  mount2:
+    mountpoint: /mount2
+    server: a.b.c.d # Specify an existing NFS server name or IP
+    export: myexport2 # Specify an existing NFS export name
+    options: my_options # Specify the mount options.
 
 # name of the admin account
 admin_user: hpcadmin

@@ -5,4 +5,10 @@ read_os
 
 find $script_dir/../files -name "*.sh" -exec chmod +x {} \;
 
-$script_dir/../files/$os_release/mountnfs.sh {{homedir_mountpoint}} {{ anf_home_ip }} {{ anf_home_path }} {{ anf_home_opts }}
+$script_dir/../files/$os_release/init_mountnfs.sh
+
+{% for mount in mounts %}
+mkdir {{mount.mountpoint}}
+echo "mount {{ mount.server }}:/{{ mount.export }} {{mount.mountpoint}}"
+mount -t nfs -o {{ mount.options | default("rw,hard,rsize=262144,wsize=262144,vers=3,tcp",true) }} {{ mount.server }}:/{{ mount.export }} {{mount.mountpoint}} || exit 1
+{% endfor %}

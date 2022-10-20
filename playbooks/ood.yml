@@ -360,7 +360,7 @@
     mount:
       src: '{{ mounts[item].server }}:/{{ mounts[item].export }}'
       path: '{{mounts[item].mountpoint}}'
-      opts: '{{ mounts[item].options}}'
+      opts: '{{ mounts[item].options | default("rw,hard,rsize=262144,wsize=262144,vers=3,tcp",true) }}'
       state: mounted
       fstype: nfs
     loop: "{{mounts | list}}"
