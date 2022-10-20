@@ -348,34 +348,29 @@
       state: present
     when: ( lustre is defined )
 
-  - name: debug
-    debug:
-      msg:
-        - "{{mounts}}"
-
-  - name: Create "{{item.mountpoint}}" directory mountpoint
+  - name: Create "{{mounts[item].mountpoint}}" directory mountpoint
     file:
-      path: '{{item.mountpoint}}'
+      path: '{{mounts[item].mountpoint}}'
       state: directory
       mode: '0755'
     with_items: '{{mounts}}'
     when: mounts is defined
 
-  - name: Mount "{{ item.server }}:/{{ item.export }}"
+  - name: Mount "{{ mounts[item].server }}:/{{ mounts[item].export }}"
     mount:
-      src: '{{ item.server }}:/{{ item.export }}'
-      path: '{{item.mountpoint}}'
-      opts: '{{ item.options}}'
+      src: '{{ mounts[item].server }}:/{{ mounts[item].export }}'
+      path: '{{mounts[item].mountpoint}}'
+      opts: '{{ mounts[item].options}}'
       state: mounted
       fstype: nfs
     with_items: '{{mounts}}'
     when: mounts is defined
 
-  - name: create mount "{{item.mountpoint}}" menu option
+  - name: create mount "{{mounts[item].mountpoint}}" menu option
     lineinfile:
       path: /etc/ood/config/apps/dashboard/initializers/ood.rb
-      search_string: '{{item.mountpoint}}'
-      line : 'OodFilesApp.candidate_favorite_paths << FavoritePath.new({{item.mountpoint}})'
+      search_string: '{{mounts[item].mountpoint}}'
+      line : 'OodFilesApp.candidate_favorite_paths << FavoritePath.new({{mounts[item].mountpoint}})'
       create: yes
       state: present
     with_items: '{{mounts}}'
