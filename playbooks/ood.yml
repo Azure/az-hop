@@ -370,7 +370,7 @@
     lineinfile:
       path: /etc/ood/config/apps/dashboard/initializers/ood.rb
       search_string: '{{mounts[item].mountpoint}}'
-      line : 'OodFilesApp.candidate_favorite_paths << FavoritePath.new({{mounts[item].mountpoint}})'
+      line : 'OodFilesApp.candidate_favorite_paths << FavoritePath.new("{{mounts[item].mountpoint}}", title: "{{item}}" )'
       create: yes
       state: present
     with_items: '{{mounts}}'
