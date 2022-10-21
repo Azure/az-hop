@@ -26,9 +26,9 @@ slurmAdminPasswordArg=
 
 if [ ! -e $parameter_file ]; then
 echo "Parameter file doesn't exists, create it"
-winpassword=$(pwgen -s 12 -1)
+winpassword=$(openssl rand -base64 24)
 if [[ $(yq .queue_manager build.yml) == "slurm" && $(yq .slurm.accounting_enabled build.yml) == "true" ]]; then
-slurmactpassword=$(pwgen -s 12 -1)
+slurmactpassword=$(openssl rand -base64 24)
 fi
 
 cat <<EOF >$parameter_file
