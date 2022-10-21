@@ -1,3 +1,4 @@
+- [Quickstart](quickstart.md)
 - [Implementing Azure HPC OnDemand Platform](Implementing_Azure_HPC_OnDemand_Platform.md)
 - [Install Spack](spack.md)
 - [OSU Benchmarks](osu_benchmarks.md)
