@@ -1,5 +1,4 @@
-- [Implementing Azure HPC OnDemand Platform Lab 1](Implementing_Azure_HPC_OnDemand_Platform_Lab_1.md)
-- [Implementing Azure HPC OnDemand Platform Lab 2](Implementing_Azure_HPC_OnDemand_Platform_Lab_2.md)
+- [Implementing Azure HPC OnDemand Platform](Implementing_Azure_HPC_OnDemand_Platform.md)
 - [Install Spack](spack.md)
 - [OSU Benchmarks](osu_benchmarks.md)
 - [OPM](opm.md)
