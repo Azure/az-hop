@@ -60,6 +60,11 @@ vnet:
         - Microsoft.Storage
 
 images:
+  ubuntu:
+    publisher: Canonical
+    offer: 0001-com-ubuntu-server-focal
+    sku: 20_04-lts-gen2
+    version: latest
   linux_base:
     publisher: OpenLogic
     offer: CentOS
