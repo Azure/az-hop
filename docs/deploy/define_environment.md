@@ -328,6 +328,9 @@ queues:
     spot: false
     # Set to false to disable creation of placement groups (for SLURM only). Default is true
     ColocateNodes: false
+    # Set the max number of vm's in a VMSS; requires additional limit raise through support ticket for >100; 
+    # 100 is default value; lower numbers will improve scaling for single node jobs or jobs with small number of nodes
+    MaxScalesetSize: 100
   - name: hc44rs
     vm_size: Standard_HC44rs
     max_core_count: 440
