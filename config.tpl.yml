@@ -330,6 +330,9 @@ queues:
     ColocateNodes: false
     # Specific idle time in seconds before shutting down VMs, make sure it's lower than autoscale.idle_timeout
     idle_timeout: 300
+    # Set the max number of vm's in a VMSS; requires additional limit raise through support ticket for >100; 
+    # 100 is default value; lower numbers will improve scaling for single node jobs or jobs with small number of nodes
+    MaxScaleSetSize: 100
   - name: hc44rs
     vm_size: Standard_HC44rs
     max_core_count: 440

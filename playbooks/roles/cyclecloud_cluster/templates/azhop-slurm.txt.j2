@@ -91,6 +91,7 @@ Autoscale = true
   {% if queue.spot is defined %}
     Interruptible = {{queue.spot}}
   {% endif %}
+    Azure.MaxScaleSetSize = {{ queue.MaxScaleSetSize | default(100) }}
     # Lookup image version for that queue
   {% if cc_image_lookup is iterable and queue.name in cc_image_lookup %}
     ImageName = {{ cc_image_lookup[queue.name] }}
