@@ -1,5 +1,6 @@
 #!/bin/bash
 PHYSICAL_HOST=$(strings /var/lib/hyperv/.kvp_pool_3 | grep -A1 PhysicalHostName | head -n 2 | tail -1)
+JETPACK=/opt/cycle/jetpack/bin/jetpack
 
 function log()
 {
@@ -13,8 +14,8 @@ function nhc_run()
     /usr/sbin/nhc -d
     if [ $? -eq 1 ]; then
         #1>&2 echo "ERROR : Node Health Checks failed - $(hostname) - $PHYSICAL_HOST"
-        jetpack log "ERROR : Node Health Checks failed - $(hostname) - $PHYSICAL_HOST" --level error
-        jetpack shutdown --unhealthy
+        $JETPACK log "ERROR : Node Health Checks failed - $(hostname) - $PHYSICAL_HOST" --level error
+        $JETPACK shutdown --unhealthy
     fi
 }
 
