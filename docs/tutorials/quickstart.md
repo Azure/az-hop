@@ -75,7 +75,7 @@ To complete this lab, you must verify that your account has sufficient permissio
 
    - Standard BS Family vCPUs: **12**
    - Standard DSv5 Family vCPUs: **48**
-   - Standard HBrsv3 Family vCPUs: **480**
+   - Standard HBrsv3 Family vCPUs: **360**
    - Standard NV Family vCPUs: **24**
 
 1. If the number of vCPUs isn't sufficient, on the subscription's **Usage + quotas** blade, select **Request Increase**.
