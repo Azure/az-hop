@@ -1,5 +1,8 @@
 #!/bin/bash
 # This code is executed when NHC detects an error
+# Parameters:
+#    1: SLURM node name
+#    2+: Error message
 # Logs following information in CC log and requests CC to terminate the node:
 #    Hostname
 #    Physical host name
@@ -16,4 +19,8 @@ JETPACK=/opt/cycle/jetpack/bin/jetpack
 
 echo "$0:  ERROR : Node Health Checks failed on $HOSTNAME - $PHYSICAL_HOST - $NOTE"
 $JETPACK log "ERROR : Node Health Checks failed - $(hostname) - $PHYSICAL_HOST - $NOTE" --level error
-$JETPACK shutdown --unhealthy
+scontrol update nodename=$HOSTNAME state=drain reason="NHC: $NOTE"
+# Delay shutdown for 5 minutes
+echo "$JETPACK shutdown --unhealthy" | at now +5 minutes
+# To keep the VM online for debugging, replace the line above with the following:
+#  $JETPACK keepalive forever
