@@ -1,3 +1,3 @@
 #!/bin/bash
 
-/usr/sbin/azhop_nhc.sh
+/usr/sbin/nhc -d
