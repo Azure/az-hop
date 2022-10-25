@@ -283,10 +283,24 @@ images:
     hyper_v: V2
     os_type: Linux
     version: 7.9
-  - name: azhop-ubuntu18.04
-    publisher: azhop
-    offer: Ubuntu
-    sku: 10_04
+  - name: azhop-compute-centos-7_9
+    publisher: azhpc
+    offer: azhop-compute
+    sku: centos-7_9
+    hyper_v: V2
+    os_type: Linux
+    version: 7.9
+  - name: azhop-desktop-centos-7_9
+    publisher: azhpc
+    offer: azhop-desktop
+    sku: centos-7_9
+    hyper_v: V2
+    os_type: Linux
+    version: 7.9
+  - name: azhop-compute-ubuntu-1804
+    publisher: azhpc
+    offer: azhop-compute
+    sku: ubuntu-1804
     hyper_v: V2
     os_type: Linux
     version: 18.04
