@@ -6,6 +6,11 @@ name : marketplace_image
 
 on:
   workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publish images on the marketplace'
+        required: false
+        default: 'false' # use it with ${{ github.event.inputs.publish }}
 
 env:
   ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
@@ -91,6 +96,7 @@ jobs:
   put_offer:
     name: put_offer
     runs-on: ubuntu-latest
+    if: inputs.publish == 'true'
     needs: [set_image_list, build_image]
     strategy:
       matrix:
