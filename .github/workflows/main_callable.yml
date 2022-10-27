@@ -475,6 +475,9 @@ jobs:
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           # Build the list of images from the config file
           images=$(yq eval ".images[].name" config.yml | jq -cRn '[inputs]')
+          if [ "$images" == "[]" ]; then
+            images="[none]"
+          fi
           echo "::set-output name=matrix::$images"
     # save the list into the outputs
     outputs:
@@ -487,6 +490,8 @@ jobs:
     strategy: 
       matrix:
         packer_file: ${{ fromJson(needs.set_image_list.outputs.matrix) }}
+        exclude:
+          - packer_file: none
     container:
       image: azhop.azurecr.io/hpcrover:2210.1816
       credentials:
