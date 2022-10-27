@@ -478,6 +478,7 @@ jobs:
           if [ "$images" == "[]" ]; then
             images="[none]"
           fi
+          echo "Image liste : $images"
           echo "::set-output name=matrix::$images"
     # save the list into the outputs
     outputs:
@@ -490,8 +491,6 @@ jobs:
     strategy: 
       matrix:
         packer_file: ${{ fromJson(needs.set_image_list.outputs.matrix) }}
-        exclude:
-          - packer_file: none
     container:
       image: azhop.azurecr.io/hpcrover:2210.1816
       credentials:
@@ -511,6 +510,9 @@ jobs:
 
       - name: Build Images
         run: |
+          if [ "${{matrix.packer_file}}" == "none" ]; then
+            exit 0
+          fi
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           cd packer
