@@ -3,8 +3,13 @@
 # Licensed under the MIT License.
 #
 name : marketplace_image
-
+# Allow only a single instance of this workflow to run at a time
+concurrency: ${{ github.workflow }}
 on:
+  pull_request:
+    types: [ closed ]
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       publish:
