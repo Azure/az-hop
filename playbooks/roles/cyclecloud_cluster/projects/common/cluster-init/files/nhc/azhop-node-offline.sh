@@ -19,8 +19,8 @@ JETPACK=/opt/cycle/jetpack/bin/jetpack
 
 echo "$0:  ERROR : Node Health Checks failed on $HOSTNAME - $PHYSICAL_HOST - $NOTE"
 $JETPACK log "ERROR : Node Health Checks failed - $(hostname) - $PHYSICAL_HOST - $NOTE" --level error
-scontrol update nodename=$HOSTNAME state=drain reason="NHC: $NOTE"
-# Delay shutdown for 5 minutes
-echo "$JETPACK shutdown --unhealthy" | at now +5 minutes
+/usr/libexec/nhc/node-mark-offline $HOSTNAME $NOTE
+# Delay shutdown for 2 minutes
+echo "$JETPACK shutdown --unhealthy" | at now +2 minutes
 # To keep the VM online for debugging, replace the line above with the following:
 #  $JETPACK keepalive forever
