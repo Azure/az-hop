@@ -477,7 +477,7 @@ jobs:
           images=$(yq eval ".images[].name" config.yml | jq -cRn '[inputs]')
           echo "Image liste : $images"
           if [ "$images" == "[]" ]; then
-            images="[none]"
+            images="[\"none\"]"
           fi
           echo "Image liste : $images"
           echo "::set-output name=matrix::$images"
