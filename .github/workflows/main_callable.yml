@@ -117,6 +117,11 @@ jobs:
             sed -i "s/__SCHEDULER__/$SCHEDULER/g" config.yml
             LOCATION=${{ inputs.location }}
             sed -i "s/__LOCATION__/$LOCATION/g" config.yml
+            # Add lustre configuration if lustre is true
+            DEPLOY_LUSTRE=${{ inputs.lustre }}
+            if [ "$DEPLOY_LUSTRE" == "true" ]; then
+              cat $AZHOP_LUSTRE_CONFIGURATION >> config.yml
+            fi
 
             # If peering, then find out which IP range can be used
             peered_vnet=$(yq eval ".network.peering[0].vnet_name" config.yml)
@@ -144,12 +149,6 @@ jobs:
               sed_exp="s/10.128/10.$second_octet/g"
               sed -i $sed_exp config.yml
             fi
-          fi
-
-          # Add lustre configuration if lustre is true
-          DEPLOY_LUSTRE=${{ inputs.lustre }}
-          if [ "$DEPLOY_LUSTRE" == "true" ]; then
-            cat $AZHOP_LUSTRE_CONFIGURATION >> config.yml
           fi
 
           # write the name of the resource group in the output of the job so it can be reused in others
