@@ -475,6 +475,7 @@ jobs:
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           # Build the list of images from the config file
           images=$(yq eval ".images[].name" config.yml | jq -cRn '[inputs]')
+          echo "Image liste : $images"
           if [ "$images" == "[]" ]; then
             images="[none]"
           fi
