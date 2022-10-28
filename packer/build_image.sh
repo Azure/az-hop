@@ -131,7 +131,7 @@ if [ "$image_id" == "" ] || [ $FORCE -eq 1 ]; then
   key_vault_name=$(yq eval ".key_vault" $ANSIBLE_VARIABLES)
 
   echo "Removing os disk if any"
-  os_disk_id=$(az disk list -g azhop_build_images --query "[?name=='$image_name'].id" -o tsv)
+  os_disk_id=$(az disk list -g $resource_group --query "[?name=='$image_name'].id" -o tsv)
   if [ "$os_disk_id" != "" ]; then
     az disk delete --ids $os_disk_id -o tsv -y
   fi
@@ -223,7 +223,7 @@ if [ "$img_version_id" == "" ] || [ $FORCE -eq 1 ]; then
   # Tag the os disk with version
   if [ "$KEEP_OS_DISK" == "true" ]; then
     echo "Tagging the os disk with version $version"
-    os_disk_id=$(az disk list -g azhop_build_images --query "[?name=='$image_name'].id" -o tsv)
+    os_disk_id=$(az disk list -g $resource_group --query "[?name=='$image_name'].id" -o tsv)
     az disk update --ids $os_disk_id --set tags.'Version'=$version -o tsv
   fi
 else
