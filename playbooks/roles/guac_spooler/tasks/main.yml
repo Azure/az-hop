@@ -1,4 +1,9 @@
 ---
+- name: Install dependencies
+  yum:
+    name: jq
+    lock_timeout : 180
+
 - name: Read Password from KV
   command: az keyvault secret show --vault-name {{guac_spooler_key_vault}} -n {{guac_spooler_admin_user}}-password --query "value" -o tsv
   delegate_to: localhost
