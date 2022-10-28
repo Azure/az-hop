@@ -134,15 +134,11 @@
   copy:
     src: '{{role_path}}/files/user_role_record.txt'
     dest: /opt/cycle_server/config/data/user_role_record.txt
-  args:
-    creates: /opt/cycle_server/config/data/user_role_record.txt.imported
 
 - name: Rebranding record
   copy:
     src: '{{role_path}}/files/brand.json'
     dest: /opt/cycle_server/config/data/brand.json
-  args:
-    creates: /opt/cycle_server/config/data/brand.json.imported
 
 - name: Fix CSS
   copy:
