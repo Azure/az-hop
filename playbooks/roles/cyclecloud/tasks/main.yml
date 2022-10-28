@@ -60,9 +60,9 @@
     mkdir /opt/cycle_server
     echo "UUID=$disk_uuid /opt/cycle_server xfs defaults,nofail 1 2" >> /etc/fstab
     mount -a
-    touch /tmp/data_disk_mounted
+    touch /opt/cycle_server/data_disk_mounted
   args:
-    creates: /tmp/data_disk_mounted
+    creates: /opt/cycle_server/data_disk_mounted
 
 - name: Install pre-reqs packages
   yum:
@@ -93,7 +93,7 @@
     /opt/cycle_server/cycle_server await_startup
     /opt/cycle_server/cycle_server execute 'update Application.Setting set Value = undefined where Name == "site_id" || Name == "reported_version"'
   args:
-    creates: /opt/cycle_server/config/data/azhop.txt.ok
+    creates: /opt/cycle_server/config/data/azhop.txt.imported
 
 - name: Extract and install the CLI
   shell: |
@@ -103,16 +103,16 @@
     CS_ROOT=/opt/cycle_server
     unzip $CS_ROOT/tools/cyclecloud-cli.zip
     pushd cyclecloud-cli-installer
-    ./install.sh --system
+    ./install.sh --system -y
     popd
     # Update properties
     sed -i 's/webServerMaxHeapSize\=2048M/webServerMaxHeapSize\=4096M/' $CS_ROOT/config/cycle_server.properties
     sed -i 's/webServerPort\=8080/webServerPort\=80/' $CS_ROOT/config/cycle_server.properties
     sed -i 's/webServerSslPort\=8443/webServerSslPort\=443/' $CS_ROOT/config/cycle_server.properties
     sed -i 's/webServerEnableHttps\=false/webServerEnableHttps=true/' $CS_ROOT/config/cycle_server.properties
-    touch /tmp/cli_installed
+    touch /opt/cycle_server/cli_installed
   args:
-    creates: /tmp/cli_installed
+    creates: /opt/cycle_server/cli_installed
 
 - name: stop cycle_server
   service:
