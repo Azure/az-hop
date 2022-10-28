@@ -242,13 +242,12 @@
           password = {{sqladmin_password.stdout}}
           host = {{slurmdb_fqdn}}
 
-    # TODO : Check if the DB exists before calling this
     - name: Create guacamole database
       shell: |
         set -e
         set -o pipefail
         mysql <<EOF
-        create database guacamole_db;
+        create database if not exists guacamole_db;
         EOF
         cat /opt/guacamole/guacamole-auth-jdbc-{{guac_version}}/mysql/schema/*.sql | mysql guacamole_db
         touch /etc/guacamole/guacamole_db.created
