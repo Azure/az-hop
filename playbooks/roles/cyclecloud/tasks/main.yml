@@ -60,9 +60,9 @@
     mkdir /opt/cycle_server
     echo "UUID=$disk_uuid /opt/cycle_server xfs defaults,nofail 1 2" >> /etc/fstab
     mount -a
-    touch /tmp/data_disk_mounted
+    touch /opt/cycle_server/data_disk_mounted
   args:
-    creates: /tmp/data_disk_mounted
+    creates: /opt/cycle_server/data_disk_mounted
 
 - name: Install pre-reqs packages
   yum:
