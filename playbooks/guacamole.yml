@@ -249,7 +249,13 @@
         mysql <<EOF
         create database if not exists guacamole_db;
         EOF
-        cat /opt/guacamole/guacamole-auth-jdbc-{{guac_version}}/mysql/schema/*.sql | mysql guacamole_db
+        if [[ ! -z "`mysql -qfsBe "CALL sys.table_exists('guacamole_db', 'guacamole_connection_group', @exists); SELECT @exists;" 2>&1`" ]];
+        then
+          echo "DATABASE ALREADY INITIALIZED"
+        else
+          echo "INITIALIZING DATABASE"
+          cat /opt/guacamole/guacamole-auth-jdbc-{{guac_version}}/mysql/schema/*.sql | mysql guacamole_db
+        fi
         touch /etc/guacamole/guacamole_db.created
       args:
         creates: /etc/guacamole/guacamole_db.created
