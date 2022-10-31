@@ -60,9 +60,9 @@
     mkdir /opt/cycle_server
     echo "UUID=$disk_uuid /opt/cycle_server xfs defaults,nofail 1 2" >> /etc/fstab
     mount -a
-    touch /opt/cycle_server/data_disk_mounted
+    touch ~/data_disk_mounted
   args:
-    creates: /opt/cycle_server/data_disk_mounted
+    creates: ~/data_disk_mounted
 
 - name: Install pre-reqs packages
   yum:
@@ -74,6 +74,7 @@
   yum:
     name: "cyclecloud8-{{cc_version}}"
     state: present
+    lock_timeout : 180
 
 - name: Install Jetpack
   yum:
