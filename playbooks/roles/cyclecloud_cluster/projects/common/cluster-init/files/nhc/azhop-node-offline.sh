@@ -20,7 +20,11 @@ JETPACK=/opt/cycle/jetpack/bin/jetpack
 echo "$0:  ERROR : Node Health Checks failed on $HOSTNAME - $PHYSICAL_HOST - $NOTE"
 $JETPACK log "ERROR : Node Health Checks failed - $(hostname) - $PHYSICAL_HOST - $NOTE" --level error
 /usr/libexec/nhc/node-mark-offline $HOSTNAME $NOTE
-# Delay shutdown for 2 minutes
-echo "$JETPACK shutdown --unhealthy" | at now +2 minutes
+if [ -e /var/run/inslurmepilog ] ; then
+    # When run from SLURM epilog, delay shutdown for 2 minutes to allow job to finish
+    echo "$JETPACK shutdown --unhealthy" | at now +2 minutes
+else
+    $JETPACK shutdown --unhealthy
+fi
 # To keep the VM online for debugging, replace the line above with the following:
 #  $JETPACK keepalive forever

@@ -8,4 +8,6 @@
 #  cp -v /tmp/messages.tgz /anfhome/slurm/nodelogs/messages.$HOSTNAME.tgz
 #fi
 
+touch /var/run/inslurmepilog
 /usr/sbin/nhc
+rm -f /var/run/inslurmepilog
