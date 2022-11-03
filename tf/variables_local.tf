@@ -24,6 +24,38 @@ locals {
         CreatedOn = timestamp()
     }
 
+    # the PUID for telemetry is meant to be unique and identifies azhop, so it should not be changed
+    telem_azhop_puid  = "58d16d1a-5b7c-11ed-8042-00155d5d7a47"
+
+    # local to determine if the user chose to disable telemetry of azhop
+    optout_telemetry = try(local.configuration_yml["optout_telemetry"], false)
+
+    telem_azhop_name = substr(
+        format(
+            "pid-%s",
+            local.telem_azhop_puid
+        ),
+        0,
+        64
+    )
+
+    # empty arm template to create the telemetry resource
+    telem_arm_subscription_template_content = <<TEMPLATE
+    {
+        "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+        "contentVersion": "1.0.0.0",
+        "parameters": {},
+        "variables": {},
+        "resources": [],
+        "outputs": {
+            "telemetry": {
+                "type": "String",
+                "value": "For more information, see https://aka.ms/azhop-telemetry"
+            }
+        }
+    }
+    TEMPLATE
+
     ad_ha = try(local.configuration_yml["ad"].high_availability, false)
     # Use a linux custom image reference if the linux_base_image is defined and contains ":"
     use_linux_image_reference = try(length(split(":", local.configuration_yml["linux_base_image"])[1])>0, false)
