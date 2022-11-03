@@ -50,7 +50,7 @@ locals {
         "outputs": {
             "telemetry": {
                 "type": "String",
-                "value": "For more information, see https://aka.ms/azhop-telemetry"
+                "value": "For more information, see https://azure.github.io/az-hop/deploy/telemetry.html"
             }
         }
     }
