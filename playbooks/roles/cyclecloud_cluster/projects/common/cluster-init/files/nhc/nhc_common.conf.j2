@@ -14,14 +14,7 @@
  * || export TIMEOUT=300
  * || export VERBOSE=1
  * || export DETACHED_MODE=0
-{% if queue_manager == "openpbs" or queue_manager is not defined %}
- * || export NHC_RM=pbs
- * || export PBSNODES=/opt/pbs/bin/pbsnodes
- {% endif %}
-
-{% if queue_manager == "slurm" and queue_manager is defined %}
- * || export NHC_RM=slurm
-{% endif %}
+ * || export NHC_RM={{queue_manager | default(openpbs) }}
 
 ### Check that node has been renamed correctly
  * || HOSTNAME="$HOSTNAME_S"
