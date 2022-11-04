@@ -11,7 +11,7 @@ homedir_mountpoint            : {{outputs.homedir_mountpoint}}
 anf_home_ip                   : {{outputs.nfs_home_ip}}
 anf_home_path                 : {{outputs.nfs_home_path}}
 anf_home_opts                 : {{outputs.nfs_home_opts}}
-{% if (build.vms["ondemand"].pip is defined) and (build.vms["ondemand"].pip | lower ) == 'true') %}
+{% if (build.vms["ondemand"].pip is defined) and ((build.vms["ondemand"].pip | lower ) == 'true') %}
 ondemand_fqdn                 : {{ outputs.ondemand_fqdn }}
 {% else %}
 ondemand_fqdn                 : {{ outputs.ondemand_private_ip }}
