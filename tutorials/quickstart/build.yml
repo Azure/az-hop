@@ -109,7 +109,7 @@ vms:
     sku: Standard_D4s_v5
     osdisksku: StandardSSD_LRS
     image: linux_base
-    pip: false
+    pip: true
     asgs: [ asg-ssh, asg-ondemand, asg-ad-client, asg-nfs-client, asg-pbs-client, asg-lustre-client, asg-telegraf, asg-guacamole, asg-cyclecloud-client ]
   grafana:
     subnet: admin

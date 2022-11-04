@@ -72,8 +72,13 @@ resource {{ vmname | replace('-', '_') }}Pip 'Microsoft.Network/publicIPAddresse
     publicIPAllocationMethod: 'Dynamic'
     publicIPAddressVersion: 'IPv4'
     idleTimeoutInMinutes: 4
+    dnsSettings: {
+      domainNameLabel : '{{ vmname | replace('-', '_')}}${resourcePostfix}'
+    }
   }
 }
+output {{ vmname | replace('-', '_') }}_fqdn string = {{ vmname | replace('-', '_') }}Pip.properties.dnsSettings.fqdn
+
     {%- endif %}
 
 resource {{ vmname | replace('-', '_') }}Vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
