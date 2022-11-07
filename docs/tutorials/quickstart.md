@@ -35,11 +35,12 @@
       * [Task 1: Deprovision the Azure resources](#task-1-deprovision-the-azure-resources)
 <!--te-->
 <!-- https://github.com/ekalinin/github-markdown-toc -->
+<!-- ./gh-md-toc --insert --no-backup --hide-footer -->
 
 # Quickstart guide
-This quickstart guide will show you how to build and use an OnDemand HPC cluster on Azure thru the deployment of an simple **Azure HPC On-Demand Platform** environment. In this light environment, there is no Lustre cluster, no Window Viz nodes. `Az-hop` azure marketplace images for compute and remote visualization nodes will be used.
+This quickstart guide will show you how to build and use an OnDemand HPC cluster on Azure thru the deployment of an simple **Azure HPC On-Demand Platform** environment. In this light environment, there is no Lustre cluster, no Window Viz nodes. `Az-hop` CentOS 7.9 Azure marketplace images for compute and remote desktop nodes will be used.
 
-When provisioning a complete `az-hop` environemnt a deployer VM and a bastion will be included. Once deployed, cloud init script is run from the deployer VM to install and configure all components needed, thru Ansible playbooks. This second step is longer as it needs to install and configure a Domain Control, CycleCloud, OpenOndemand, PBS, Grafana and many others things. The use of Ansible will allows this system to be updated and in case of failure the installtion to be retried.
+When provisioning a complete `az-hop` environemnt a deployer VM and a bastion will be included. Once deployed, a cloud init script is run from the deployer VM to install and configure all components needed using Ansible playbooks. This second step is longer as it needs to install and configure a Domain Control, CycleCloud, OpenOndemand, PBS, Grafana and many others things. The use of Ansible will allows this system to be updated and in case of failure the installation to be retried.
 
 ## Requirements
 
@@ -75,7 +76,7 @@ To complete this lab, you must verify that your account has sufficient permissio
 
    - Standard BS Family vCPUs: **12**
    - Standard DSv5 Family vCPUs: **48**
-   - Standard HBrsv3 Family vCPUs: **360**
+   - Standard HBrsv2 Family vCPUs: **360**
    - Standard NV Family vCPUs: **24**
 
 1. If the number of vCPUs isn't sufficient, on the subscription's **Usage + quotas** blade, select **Request Increase**.
@@ -148,6 +149,8 @@ In this task, you will prepare the `build.yml` file used by the deploy helper sc
 
 1. Review the `build.yml` file content, which describe the resources that will be provisionned. In addition to these an Azure Bastion will also be automatically created to be used to connect securely to this environment.
 
+> Note : If your subscription policy requires you to run without public IP then update your `build.yml` configuration file and set `vms.ondemand.pip` to `false`.
+
 1. Run the pre-requisites script to install any missing components
    ```bash
    cd deploy
@@ -175,7 +178,7 @@ While the deployment is in progress, you can check the resource group content fr
 Once the deployment is done, you can now access the deployer VM thru Azure Bastion 
 
 ### Task 5 : Connect to the `deployer` VM thru Azure Bastion
-In this task you will connect to the Deplpyer VM thru Azure Bastion to monitor the ansible playbooks progress.
+In this task you will connect to the Deployer VM thru Azure Bastion to monitor the ansible playbooks progress.
 
 > Note: Azure Bastion allows users to connect to Azure VMs without relying on public endpoints and helps provide protection against brute force exploits that target operating system level credentials.
 

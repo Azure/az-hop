@@ -11,7 +11,11 @@ homedir_mountpoint            : {{outputs.homedir_mountpoint}}
 anf_home_ip                   : {{outputs.nfs_home_ip}}
 anf_home_path                 : {{outputs.nfs_home_path}}
 anf_home_opts                 : {{outputs.nfs_home_opts}}
-ondemand_fqdn                 : {{outputs.ondemand_private_ip}}
+{% if (build.vms["ondemand"].pip is defined) and ((build.vms["ondemand"].pip | lower ) == 'true') %}
+ondemand_fqdn                 : {{ outputs.ondemand_fqdn }}
+{% else %}
+ondemand_fqdn                 : {{ outputs.ondemand_private_ip }}
+{% endif %}
 ansible_ssh_private_key_file  : {{outputs.admin_user}}_id_rsa
 subscription_id               : {{outputs.subscription_id}}
 tenant_id                     : {{outputs.tenant_id}}
@@ -24,4 +28,3 @@ slurmdb_user                  : {{outputs.slurm_admin_user}}
 azure_environment             : AZUREPUBLICCLOUD
 key_vault_suffix              : vault.azure.net
 blob_storage_suffix           : blob.core.windows.net
-
