@@ -110,11 +110,12 @@ resource "azurerm_storage_container" "lustre_archive" {
 
 
 # This is the azhop telemetry deployment that is only created if telemetry is enabled.
-# It is deployed to the primary subscription
-resource "azurerm_subscription_template_deployment" "telemetry_azhop" {
+# It is deployed to the resource group
+resource "azurerm_resource_group_template_deployment" "telemetry_azhop" {
     count            = local.optout_telemetry ? 0 : 1
     provider         = azurerm
     name             = local.telem_azhop_name
-    location         = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+    resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
+    deployment_mode = "Incremental"
     template_content = local.telem_arm_subscription_template_content
 }
