@@ -105,6 +105,7 @@ az deployment group create \
     --resource-group $rg \
     --template-file azureDeploy.bicep \
     --parameters @$parameter_file \
+    --name "pid-58d16d1a-5b7c-11ed-8042-00155d5d7a47" \
     | tee deploy.log
 
 jq '.properties.outputs | to_entries | map({(.key): .value.value}) | add' <deploy.log | yq -P | tee outputs.yml
