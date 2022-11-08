@@ -104,7 +104,7 @@ az group create --location $location --name $rg
 az deployment group create \
     --resource-group $rg \
     --template-file azureDeploy.bicep \
-    --parameters @$parameter_file
+    --parameters @$parameter_file \
     | tee deploy.log
 
 jq '.properties.outputs | to_entries | map({(.key): .value.value}) | add' <deploy.log | yq -P | tee outputs.yml
