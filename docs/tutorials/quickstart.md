@@ -497,22 +497,34 @@ In this exercise, you will install and configure Spack from Code Server, as docu
    ```bash
    [clusteradmin@hb120v2-1 ~]$ ~/azurehpc/experimental/azhop/spack/install.sh
    Cloning into '/anfhome/clusteradmin/spack'...
-   remote: Enumerating objects: 389726, done.
-   remote: Counting objects: 100% (18/18), done.
-   remote: Compressing objects: 100% (17/17), done.
-   remote: Total 389726 (delta 1), reused 9 (delta 0), pack-reused 389708
-   Receiving objects: 100% (389726/389726), 173.48 MiB | 48.70 MiB/s, done.
-   Resolving deltas: 100% (167923/167923), done.
-   Checking out files: 100% (9513/9513), done.
-   Checking out files: 100% (6826/6826), done.
-   Branch releases/v0.18 set up to track remote branch releases/v0.18 from origin.
-   Switched to a new branch 'releases/v0.18'
+   remote: Enumerating objects: 402411, done.
+   remote: Counting objects: 100% (163/163), done.
+   remote: Compressing objects: 100% (122/122), done.
+   remote: Total 402411 (delta 70), reused 83 (delta 19), pack-reused 402248
+   Receiving objects: 100% (402411/402411), 200.65 MiB | 45.82 MiB/s, done.
+   Resolving deltas: 100% (161555/161555), done.
+   Note: checking out '13e6f87ef6527954b152eaea303841978e83b992'.
+
+   You are in 'detached HEAD' state. You can look around, make experimental
+   changes and commit them, and you can discard any commits you make in this
+   state without impacting any branches by performing another checkout.
+
+   If you want to create a new branch to retain commits you create, you may
+   do so (now or later) by using -b with the checkout command again. Example:
+
+   git checkout -b new_branch_name
+
+   Checking out files: 100% (9474/9474), done.
+
    [clusteradmin@hb120v2-1 ~]$ ~/azurehpc/experimental/azhop/spack/configure.sh
+   Configuring for OpenMPI Version 4.1.1
+   Configuring for HPCX Version 2.9.0
+   Configuring for GCC version 9.2.0
    Add GCC compiler
    ==> Added 1 new compiler to /anfhome/clusteradmin/.spack/linux/compilers.yaml
-       gcc@9.2.0
+      gcc@9.2.0
    ==> Compilers are defined in the following files:
-       /anfhome/clusteradmin/.spack/linux/compilers.yaml
+      /anfhome/clusteradmin/.spack/linux/compilers.yaml
    Configure external MPI packages
    Configure local settings
    ```
@@ -607,7 +619,7 @@ Duration: 60 minutes
 
 ### Task 1: Build OpenFOAM
 
-1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hb120v3-1 ~]$**  prompt, run the following command to build OpenFOAM 8:
+1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hb120v2-1 ~]$**  prompt, run the following command to build OpenFOAM 8:
 
    ```bash
    . ~/spack/share/spack/setup-env.sh
@@ -617,7 +629,7 @@ Duration: 60 minutes
    > Note: Wait for the build to complete. This might take about 50 minutes.
 ### Task 2: Running the motorbike tutorial on a single node
 
-1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hb120v3-1 ~]$**  prompt, run the following command to load OpenFOAM modules:
+1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hb120v2-1 ~]$**  prompt, run the following command to load OpenFOAM modules:
    ```bash
    spack load openfoam-org@8
    ```
@@ -644,7 +656,7 @@ The following updates are needed:
 - Add FOAM_MPIRUN_FLAGS to the mpirun command when using runParallel (needed for all version of OpenFOAM)
 - Reconstruct the single partition after the solve
 
-1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hb120v3-1 ~]$**  prompt, run the following commands:
+1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hb120v2-1 ~]$**  prompt, run the following commands:
 
    ```bash
       cd ~/motorBike
@@ -670,12 +682,12 @@ $PBS_O_WORKDIR/Allrun -cores $(wc -l <$PBS_NODEFILE)
 1. Save that file under `~/motorBike/submit.sh`
 
 1. Run the OpenFOAM job
-Here we ask for 2 node from the node array **hb120v3** using 120 cores on each, and asking to be exclusive on these 2 nodes.
+Here we ask for 2 node from the node array **hb120v2** using 120 cores on each, and asking to be exclusive on these 2 nodes.
 
 ```bash
 cd ~/motorBike
 rm log.*
-qsub -l select=2:slot_type=hb120v3:ncpus=120:mpiprocs=120,place=scatter:excl submit.sh
+qsub -l select=2:slot_type=hb120v2:ncpus=120:mpiprocs=120,place=scatter:excl submit.sh
 ```
 
 1. Monitor the job and wait for the job to be finished
