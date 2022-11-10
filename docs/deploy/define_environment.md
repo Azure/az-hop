@@ -306,6 +306,7 @@ images:
     version: 7.9
 
 # List of queues (node arrays in Cycle) to be defined
+# don't use queue names longer than 8 characters in order to leave space for node suffix, as hostnames are limited to 15 chars due to domain join and NETBIOS constraints.
 queues:
   - name: execute # name of the Cycle Cloud node array
     # Azure VM Instance type

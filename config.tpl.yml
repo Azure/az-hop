@@ -320,6 +320,7 @@ autoscale:
   idle_timeout: 1800 # Idle time in seconds before shutting down VMs - default to 1800 like in CycleCloud
 
 # List of queues (node arrays in Cycle) to be defined
+# don't use queue names longer than 8 characters in order to leave space for node suffix, as hostnames are limited to 15 chars due to domain join and NETBIOS constraints.
 queues:
   - name: execute # name of the Cycle Cloud node array
     # Azure VM Instance type
