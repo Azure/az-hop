@@ -88,7 +88,7 @@
     # create a data record to identify this installation as an az-hop VM
     cat > /opt/cycle_server/config/data/azhop.txt <<EOF
     AdType = "Application.Setting"
-    Name = "site_id"
+    Name = "distribution_method"
     Value = "azhop"
     EOF
     /opt/cycle_server/cycle_server await_startup
