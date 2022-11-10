@@ -28,16 +28,11 @@ mounts:
     server: '{{anf_home_ip}}' # Specify an existing NFS server name or IP, when using the ANF built in use '{{anf_home_ip}}'
     export: '{{anf_home_path}}' # Specify an existing NFS export directory, when using the ANF built in use '{{anf_home_path}}'
     options: '{{anf_home_opts}}' # Specify the mount options. Default to rw,hard,rsize=262144,wsize=262144,vers=3,tcp
-  mount1:
-    mountpoint: /mount1 
-    server: a.b.c.d # Specify an existing NFS server name or IP
-    export: myexport1 # Specify an existing NFS export name
-    options: my_options # Specify the mount options.
-  mount2:
-    mountpoint: /mount2
-    server: a.b.c.d # Specify an existing NFS server name or IP
-    export: myexport2 # Specify an existing NFS export name
-    options: my_options # Specify the mount options.
+#  mount1:
+#    mountpoint: /mount1 
+#    server: a.b.c.d # Specify an existing NFS server name or IP
+#    export: myexport1 # Specify an existing NFS export name
+#    options: my_options # Specify the mount options.
 
 # name of the admin account
 admin_user: hpcadmin
@@ -331,9 +326,10 @@ queues:
     vm_size: Standard_F2s_v2
     # maximum number of cores that can be instanciated
     max_core_count: 1024
-    # marketplace image name or custom image id
-#    image: OpenLogic:CentOS-HPC:7_9-gen2:latest
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    # Use the pre-built azhop image from the marketplace
+    image: azhpc:azhop-compute:centos-7_9:latest
+    # Use this image ID when building your own custom images
+    #image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
     # Image plan specification (when needed for the image). Terms must be accepted prior to deployment
     # plan: publisher:product:name
     # Set to true if AccelNet need to be enabled. false is the default value
@@ -350,23 +346,26 @@ queues:
   - name: hc44rs
     vm_size: Standard_HC44rs
     max_core_count: 440
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    image: azhpc:azhop-compute:centos-7_9:latest
     spot: true
   - name: hb120v2
     vm_size: Standard_HB120rs_v2
     max_core_count: 1200
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    image: azhpc:azhop-compute:centos-7_9:latest
     spot: true
   - name: hb120v3
     vm_size: Standard_HB120rs_v3
     max_core_count: 1200
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    image: azhpc:azhop-compute:centos-7_9:latest
     spot: true
     # Queue dedicated to GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz3d
     vm_size: Standard_NV12s_v3
     max_core_count: 48
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
+    # Use the pre-built azhop image from the marketplace
+    image: azhpc:azhop-desktop:centos-7_9:latest
+    # Use this image ID when building your own custom images
+    #image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
     ColocateNodes: false
     spot: false
     max_hours: 12 # Maximum session duration
@@ -375,7 +374,7 @@ queues:
   - name: largeviz3d
     vm_size: Standard_NV48s_v3
     max_core_count: 96
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
+    image: azhpc:azhop-desktop:centos-7_9:latest
     ColocateNodes: false
     spot: false
     max_hours: 12
@@ -384,7 +383,7 @@ queues:
   - name: viz
     vm_size: Standard_D8s_v5
     max_core_count: 200
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
+    image: azhpc:azhop-desktop:centos-7_9:latest
     ColocateNodes: false
     spot: false
     max_hours: 12

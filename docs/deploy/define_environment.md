@@ -33,16 +33,11 @@ mounts:
     server: '{{anf_home_ip}}' # Specify an existing NFS server name or IP, when using the ANF built in use '{{anf_home_ip}}'
     export: '{{anf_home_path}}' # Specify an existing NFS export directory, when using the ANF built in use '{{anf_home_path}}'
     options: '{{anf_home_opts}}' # Specify the mount options. Default to rw,hard,rsize=262144,wsize=262144,vers=3,tcp
-  mount1:
-    mountpoint: /mount1 
-    server: a.b.c.d # Specify an existing NFS server name or IP
-    export: myexport1 # Specify an existing NFS export name
-    options: my_options # Specify the mount options.
-  mount2:
-    mountpoint: /mount2
-    server: a.b.c.d # Specify an existing NFS server name or IP
-    export: myexport2 # Specify an existing NFS export name
-    options: my_options # Specify the mount options.
+#  mount1:
+#    mountpoint: /mount1 
+#    server: a.b.c.d # Specify an existing NFS server name or IP
+#    export: myexport1 # Specify an existing NFS export name
+#    options: my_options # Specify the mount options.
 
 # name of the admin account
 admin_user: hpcadmin
@@ -310,47 +305,53 @@ images:
     os_type: Linux
     version: 7.9
 
-# List of queues (node arays in Cycle) to be defined
+# List of queues (node arrays in Cycle) to be defined
 queues:
   - name: execute # name of the Cycle Cloud node array
     # Azure VM Instance type
     vm_size: Standard_F2s_v2
     # maximum number of cores that can be instanciated
     max_core_count: 1024
-    # marketplace image name or custom image id
-#    image: OpenLogic:CentOS-HPC:7_9-gen2:latest
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    # Use the pre-built azhop image from the marketplace
+    image: azhpc:azhop-compute:centos-7_9:latest
+    # Use this image ID when building your own custom images
+    #image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
     # Image plan specification (when needed for the image). Terms must be accepted prior to deployment
-#    plan: publisher:product:name
+    # plan: publisher:product:name
     # Set to true if AccelNet need to be enabled. false is the default value
     EnableAcceleratedNetworking: false
     # spot instance support. Default is false
     spot: false
     # Set to false to disable creation of placement groups (for SLURM only). Default is true
     ColocateNodes: false
+    # Specific idle time in seconds before shutting down VMs, make sure it's lower than autoscale.idle_timeout
+    idle_timeout: 300
     # Set the max number of vm's in a VMSS; requires additional limit raise through support ticket for >100; 
     # 100 is default value; lower numbers will improve scaling for single node jobs or jobs with small number of nodes
     MaxScaleSetSize: 100
   - name: hc44rs
     vm_size: Standard_HC44rs
     max_core_count: 440
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    image: azhpc:azhop-compute:centos-7_9:latest
     spot: true
   - name: hb120v2
     vm_size: Standard_HB120rs_v2
     max_core_count: 1200
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    image: azhpc:azhop-compute:centos-7_9:latest
     spot: true
   - name: hb120v3
     vm_size: Standard_HB120rs_v3
     max_core_count: 1200
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    image: azhpc:azhop-compute:centos-7_9:latest
     spot: true
     # Queue dedicated to GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz3d
     vm_size: Standard_NV12s_v3
     max_core_count: 48
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
+    # Use the pre-built azhop image from the marketplace
+    image: azhpc:azhop-desktop:centos-7_9:latest
+    # Use this image ID when building your own custom images
+    #image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
     ColocateNodes: false
     spot: false
     max_hours: 12 # Maximum session duration
@@ -359,20 +360,20 @@ queues:
   - name: largeviz3d
     vm_size: Standard_NV48s_v3
     max_core_count: 96
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
+    image: azhpc:azhop-desktop:centos-7_9:latest
     ColocateNodes: false
     spot: false
-    max_hours: 12 # Maximum session duration
-    min_hours: 1 # Minimum session duration - 0 is infinite
+    max_hours: 12
+    min_hours: 1
     # Queue dedicated to non GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz
     vm_size: Standard_D8s_v5
     max_core_count: 200
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
+    image: azhpc:azhop-desktop:centos-7_9:latest
     ColocateNodes: false
     spot: false
-    max_hours: 12 # Maximum session duration
-    min_hours: 1 # Minimum session duration - 0 is infinite
+    max_hours: 12
+    min_hours: 1
 
 # Remote Visualization definitions
 enable_remote_winviz: false # Set to true to enable windows remote visualization
