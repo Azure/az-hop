@@ -10,9 +10,11 @@
 ### NHC Configuration Variables
 ###
 # * || export MARK_OFFLINE=1 NHC_CHECK_ALL=0
+ * || export OFFLINE_NODE=/usr/libexec/nhc/azhop-node-offline.sh
  * || export TIMEOUT=300
  * || export VERBOSE=1
  * || export DETACHED_MODE=0
+ * || export NHC_RM={{queue_manager | default(openpbs) }}
 
 ### Check that node has been renamed correctly
  * || HOSTNAME="$HOSTNAME_S"
@@ -56,7 +58,8 @@
  * || check_ps_service -S -u root sssd_be
  * || check_ps_service -S -u root sssd_nss
  * || check_ps_service -S -u root sssd_pam
- * || check_ps_service -S -u telegraf telegraf
+ * || check_ps_service -S -0 -u telegraf telegraf
+ * || check_ps_service -s -0 -u root azsecd
 
 #######################################################################
 ###

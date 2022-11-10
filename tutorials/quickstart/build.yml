@@ -76,10 +76,12 @@ images:
     sku: 2019-Datacenter-smalldisk
     version: latest
   azhop-compute-centos-7.9:
-    id: azhpc:azhop-compute:centos-7_9:latest # azhpc:azhop-compute:centos-7_9:latest
+    id: azhpc:azhop-compute:centos-7_9:latest
   azhop-desktop-centos-7.9:
-    id: azhpc:azhop-desktop:centos-7_9:latest # azhpc:azhop-desktop:centos-7_9:latest
-    
+    id: azhpc:azhop-desktop:centos-7_9:latest
+  azhop-desktop-centos-7.9-gen1:
+    id: azhpc:azhop-desktop:centos-7_9-gen1:latest
+
 vms:
   deployer:
     run_deploy_script: true
@@ -109,7 +111,7 @@ vms:
     sku: Standard_D4s_v5
     osdisksku: StandardSSD_LRS
     image: linux_base
-    pip: false
+    pip: true
     asgs: [ asg-ssh, asg-ondemand, asg-ad-client, asg-nfs-client, asg-pbs-client, asg-lustre-client, asg-telegraf, asg-guacamole, asg-cyclecloud-client ]
   grafana:
     subnet: admin

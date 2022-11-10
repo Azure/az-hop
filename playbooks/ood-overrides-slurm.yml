@@ -8,6 +8,7 @@ clusters:
 ood_install_apps:
   codeserver:
     repo: https://github.com/vgamayunov/bc_osc_codeserver.git
+    version: codeserver4.8.1
 ood_apps:
   bc_desktop:
     submit: |

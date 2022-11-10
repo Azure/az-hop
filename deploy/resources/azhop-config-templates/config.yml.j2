@@ -178,8 +178,8 @@ usergroups:
     description: "For users with sudo right or local admin right on nodes"
 
 # Enable cvmfs-eessi - disabled by default
-# cvmfs_eessi:
-#   enabled: true
+cvmfs_eessi:
+  enabled: true
 
 # scheduler to be installed and configured (openpbs, slurm)
 queue_manager: {{build.queue_manager}}
@@ -309,24 +309,24 @@ queues:
     idle_timeout: 300
   - name: hc44rs
     vm_size: Standard_HC44rs
-    max_core_count: 352
+    max_core_count: 176
     image: {% if build.deploy_sig == true %}/subscriptions/{{outputs.subscription_id}}/resourceGroups/{{outputs.resource_group}}/providers/Microsoft.Compute/galleries/{{outputs.sig_name}}/images/azhop-compute-centos-7.9/latest{% else %}{{build.images["azhop-compute-centos-7.9"].id}}{% endif %}
     spot: true
   - name: hb120v2
     vm_size: Standard_HB120rs_v2
-    max_core_count: 960
+    max_core_count: 480
     image: {% if build.deploy_sig == true %}/subscriptions/{{outputs.subscription_id}}/resourceGroups/{{outputs.resource_group}}/providers/Microsoft.Compute/galleries/{{outputs.sig_name}}/images/azhop-compute-centos-7.9/latest{% else %}{{build.images["azhop-compute-centos-7.9"].id}}{% endif %}
     spot: true
   - name: hb120v3
     vm_size: Standard_HB120rs_v3
-    max_core_count: 960
+    max_core_count: 480
     image: {% if build.deploy_sig == true %}/subscriptions/{{outputs.subscription_id}}/resourceGroups/{{outputs.resource_group}}/providers/Microsoft.Compute/galleries/{{outputs.sig_name}}/images/azhop-compute-centos-7.9/latest{% else %}{{build.images["azhop-compute-centos-7.9"].id}}{% endif %}
     spot: true
     # Queue dedicated to GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz3d
-    vm_size: Standard_NV12s_v3
-    max_core_count: 48
-    image: {% if build.deploy_sig == true %}/subscriptions/{{outputs.subscription_id}}/resourceGroups/{{outputs.resource_group}}/providers/Microsoft.Compute/galleries/{{outputs.sig_name}}/images/azhop-desktop-centos-7.9/latest{% else %}{{build.images["azhop-desktop-centos-7.9"].id}}{% endif %}
+    vm_size: Standard_NV6
+    max_core_count: 24
+    image: {% if build.deploy_sig == true %}/subscriptions/{{outputs.subscription_id}}/resourceGroups/{{outputs.resource_group}}/providers/Microsoft.Compute/galleries/{{outputs.sig_name}}/images/azhop-desktop-centos-7.9-gen1/latest{% else %}{{build.images["azhop-desktop-centos-7.9-gen1"].id}}{% endif %}
     ColocateNodes: false
     spot: false
     max_hours: 12 # Maximum session duration
@@ -342,7 +342,7 @@ queues:
     min_hours: 1 # Minimum session duration - 0 is infinite
     # Queue dedicated to non GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz
-    vm_size: Standard_D8s_v3
+    vm_size: Standard_D8s_v5
     max_core_count: 32
     image: {% if build.deploy_sig == true %}/subscriptions/{{outputs.subscription_id}}/resourceGroups/{{outputs.resource_group}}/providers/Microsoft.Compute/galleries/{{outputs.sig_name}}/images/azhop-desktop-centos-7.9/latest{% else %}{{build.images["azhop-desktop-centos-7.9"].id}}{% endif %}
     ColocateNodes: false

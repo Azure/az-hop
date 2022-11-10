@@ -16,8 +16,8 @@
    * [Exercise 2: Review the main az-hop features](#exercise-2-review-the-main-az-hop-features)
       * [Task 1: Using file explorer](#task-1-using-file-explorer)
       * [Task 2: Using shell access](#task-2-using-shell-access)
-      * [Task 3: Running Intel MPI PingPong jobs from the Job composer](#task-3-running-intel-mpi-pingpong-jobs-from-the-job-composer)
-      * [Task 4: Create jobs based on a non-default Azure HPC OnDemand Platform template](#task-4-create-jobs-based-on-a-non-default-azure-hpc-ondemand-platform-template)
+      * [Task 3: Hello World job](#task-3-hello-world-job)
+      * [Task 4: Running Intel MPI PingPong jobs from the Job composer](#task-4-running-intel-mpi-pingpong-jobs-from-the-job-composer)
       * [Task 5: Running interactive apps using Code Server and Linux Desktop](#task-5-running-interactive-apps-using-code-server-and-linux-desktop)
    * [Exercise 3: Set up Spack](#exercise-3-set-up-spack)
       * [Task 1: Create a Code Server session](#task-1-create-a-code-server-session)
@@ -35,11 +35,12 @@
       * [Task 1: Deprovision the Azure resources](#task-1-deprovision-the-azure-resources)
 <!--te-->
 <!-- https://github.com/ekalinin/github-markdown-toc -->
+<!-- ./gh-md-toc --insert --no-backup --hide-footer -->
 
 # Quickstart guide
-This quickstart guide will show you how to build and use an OnDemand HPC cluster on Azure thru the deployment of an simple **Azure HPC On-Demand Platform** environment. In this light environment, there is no Lustre cluster, no Window Viz nodes. `Az-hop` azure marketplace images for compute and remote visualization nodes will be used.
+This quickstart guide will show you how to build and use an OnDemand HPC cluster on Azure thru the deployment of an simple **Azure HPC On-Demand Platform** environment. In this light environment, there is no Lustre cluster, no Window Viz nodes. `Az-hop` CentOS 7.9 Azure marketplace images for compute and remote desktop nodes will be used.
 
-When provisioning a complete `az-hop` environemnt a deployer VM and a bastion will be included. Once deployed, cloud init script is run from the deployer VM to install and configure all components needed, thru Ansible playbooks. This second step is longer as it needs to install and configure a Domain Control, CycleCloud, OpenOndemand, PBS, Grafana and many others things. The use of Ansible will allows this system to be updated and in case of failure the installtion to be retried.
+When provisioning a complete `az-hop` environemnt a deployer VM and a bastion will be included. Once deployed, a cloud init script is run from the deployer VM to install and configure all components needed using Ansible playbooks. This second step is longer as it needs to install and configure a Domain Control, CycleCloud, OpenOndemand, PBS, Grafana and many others things. The use of Ansible will allows this system to be updated and in case of failure the installation to be retried.
 
 ## Requirements
 
@@ -75,7 +76,7 @@ To complete this lab, you must verify that your account has sufficient permissio
 
    - Standard BS Family vCPUs: **12**
    - Standard DSv5 Family vCPUs: **48**
-   - Standard HBrsv3 Family vCPUs: **360**
+   - Standard HBrsv2 Family vCPUs: **360**
    - Standard NV Family vCPUs: **24**
 
 1. If the number of vCPUs isn't sufficient, on the subscription's **Usage + quotas** blade, select **Request Increase**.
@@ -148,6 +149,8 @@ In this task, you will prepare the `build.yml` file used by the deploy helper sc
 
 1. Review the `build.yml` file content, which describe the resources that will be provisionned. In addition to these an Azure Bastion will also be automatically created to be used to connect securely to this environment.
 
+> Note : If your subscription policy requires you to run without public IP then update your `build.yml` configuration file and set `vms.ondemand.pip` to `false`.
+
 1. Run the pre-requisites script to install any missing components
    ```bash
    cd deploy
@@ -175,7 +178,7 @@ While the deployment is in progress, you can check the resource group content fr
 Once the deployment is done, you can now access the deployer VM thru Azure Bastion 
 
 ### Task 5 : Connect to the `deployer` VM thru Azure Bastion
-In this task you will connect to the Deplpyer VM thru Azure Bastion to monitor the ansible playbooks progress.
+In this task you will connect to the Deployer VM thru Azure Bastion to monitor the ansible playbooks progress.
 
 > Note: Azure Bastion allows users to connect to Azure VMs without relying on public endpoints and helps provide protection against brute force exploits that target operating system level credentials.
 
@@ -224,7 +227,7 @@ The `az-hop` environment is only accessible thru an Open OnDemand portal, to ret
    sudo su -
    cd /az-hop
    grep ondemand_fqdn ./playbooks/group_vars/all.yml
-   ondemand_fqdn                 : 10.201.0.5
+   ondemand_fqdn                 : ondemandk6x4nkh3hhmsux.westeurope.cloudapp.azure.com
    ```
 
 The default admin user created on this `az-hop` environment is called `clusteradmin`. To retrieve the password generated and stored in the keyvault, run the following helper script :
@@ -302,7 +305,7 @@ In this exercise, you will review the main features of the Azure HPC OnDemand Pl
 1. Switch to the browser tab with the **Azure CycleCloud for Azure HPC On-Demand Platform** page. After some time (less than a minute), a new **execute** instance is created.
 1. Review the newly created job's progress, including the new VM creation.
 
-### Task 3: Running Intel MPI PingPong jobs from the Job composer
+### Task 3: Hello World job
 
 1. On the lab computer, in the browser window displaying the Azure HPC On-Demand Platform portal, navigate to the **Dashboard** page.
 On the **Dashboard** page, select the **Jobs** menu title, and from the drop-down menu, select **Job Composer**.
@@ -319,7 +322,7 @@ On the **Dashboard** page, select the **Jobs** menu title, and from the drop-dow
    > Note: The status of the jobs should change to **Queued**.
 
 1. On the lab computer, in the browser window displaying the Azure HPC On-Demand Platform portal, select the **Azure HPC On-Demand Platform** header. Select the **Monitoring** menu, and from the drop-down list, select **Azure CycleCloud**.
-1. In the **Azure CycleCloud for Azure HPC On-Demand Platform** portal, monitor the status of the cluster and note that the number of nodes increases to **2**, which initially are listed in the **acquiring** state. This can takes a minute to come.
+1. In the **Azure CycleCloud for Azure HPC On-Demand Platform** portal, monitor the status of the cluster and note that the number of nodes increased to **2**, which initially are listed in the **acquiring** state. This can takes a minute to come.
 1. On the **Nodes** tab, verify that **execute** appears in the **Template** column, the **Nodes** column contains the entry **2**, and the **Last status** column displays the **Creating VM** message.
 1. In the **Azure CycleCloud for Azure HPC On-Demand Platform** portal, on the **pbs1** page, select the **Scalesets** tab. Note a scaleset that hosts the cluster nodes with its size set to **2**.
 1. Select the entry on the **Nodes** tab, and then review the details of the cluster nodes in the lower section of the page, including:
@@ -341,11 +344,11 @@ On the **Dashboard** page, select the **Jobs** menu title, and from the drop-dow
 1. Navigate back to the **Job Composer** page, and note that all jobs are now completed.
 1. Select one of the completed job, and in the right panel, under **Folder Contents** click on the **STDIN.o??** file to look at it's content.
 
-1. Navigate back to the **Azure CycleCloud for Azure HPC On-Demand Platform** portal and monitor the node status until it changes to terminating, which will result eventually in their deletion. This should be done after about 15 of idle time.
+1. Navigate back to the **Azure CycleCloud for Azure HPC On-Demand Platform** portal and monitor the node status until it changes to terminating, which will result eventually in their deletion. This should be done after about 15 minutes of idle time.
 1. In the **Azure CycleCloud for Azure HPC On-Demand Platform** portal, on the **pbs1** page, select the **Scalesets** tab.
 1. Note that the scaleset hosting the cluster nodes persists but its size is set to **0**.
 
-### Task 4: Create jobs based on a non-default Azure HPC OnDemand Platform template
+### Task 4: Running Intel MPI PingPong jobs from the Job composer
 
 1. On the lab computer, in the browser window, switch back to the **Azure HPC On-Demand Platform** portal.
 1. Select the **Jobs** menu, and from the drop-down menu, select **Job Composer**.
@@ -353,6 +356,10 @@ On the **Dashboard** page, select the **Jobs** menu title, and from the drop-dow
 1. On the **Templates** page, in the list of predefined templates, select the **Intel MPI PingPong** entry, and then select **Create New Job**.
 
    > Note: The Message Passing Interface (MPI) ping-pong tests measure network latency and throughput between nodes in the cluster by sending packets of data back and forth between paired nodes repeatedly. The *latency* is the average of half of the time that it takes for a packet to make a round trip between a pair of nodes, in microseconds. The *throughput* is the average rate of data transfer between a pair of nodes, in MB/second.
+
+   > Note: This will automatically create a job named **Intel MPI PingPong** that targets the **hb120v3** slot_type, as this lab is setup for **hb120v2** you will have to update the job file.
+1. In the **Submit Script** from the right panel, click on the button **Open Editor** at the bottom. This will open a new tab with the pingpong script open.
+1. On line 3, change **hb120v3** to **hb120v2**. Click on the **Save** button and close the tab.
 
 1. Create two additional jobs based on the **Intel MPI PingPong** job by expanding the **+ New Job** button and chosing the **From Selected Job**.
 1. Note that, as before, all three jobs are currently in the **Not Submitted** state. To submit them, select each one of them, and then select **Submit**.
@@ -369,11 +376,12 @@ On the **Dashboard** page, select the **Jobs** menu title, and from the drop-dow
 
    > Note: If the jobs are still listed as **Queued**, wait for a few more minutes, and then refresh the page again.
 
+1. To review the job output, switch to the **Azure HPC On-Demand Platform** portal, select the **Jobs** menu, and then from the drop-down menu, select **Job Composer**.
+1. On the **Jobs** page, select any of the **Intel MPI PingPong** job entries, and in the **Folder Contents** section, select **PingPong.o??**.
+
 1. Navigate to the **Azure CycleCloud for Azure HPC On-Demand Platform** portal and monitor the node status until it changes to terminating, resulting eventually in their deletion.
 1. In the **Azure CycleCloud for Azure HPC On-Demand Platform** portal, on the **pbs1** page, select the **Scalesets** tab.
 1. Note that the scaleset hosting the cluster nodes persists but its size is set to **0**.
-1. To review the job output, switch to the **Azure HPC On-Demand Platform** portal, select the **Jobs** menu, and then from the drop-down menu, select **Job Composer**.
-1. On the **Jobs** page, select any of the **Intel MPI PingPong** job entries, and in the **Folder Contents** section, select **PingPong.o??**.
 
    > Note: This will automatically open another web browser tab displaying the output of the job.
 
@@ -424,7 +432,7 @@ On the **Dashboard** page, select the **Jobs** menu title, and from the drop-dow
 
    > Note: Wait until the status of the node changes to **Ready**. This should take about 10 minutes.
 
-   > Note: The **viz3d** node provisioning will fail if your subscription doesn't offer **Standard_NV12s_v3** SKU in the Azure region hosting your az-hop deployment.
+   > Note: The **viz3d** node provisioning will fail if your subscription doesn't offer **Standard_NV6** SKU in the Azure region hosting your az-hop deployment.
 
 1. Switch back to the **My Interactive Sessions** page, and then verify that the corresponding job's status has changed to **Running**.
 1. Use the **Delete** button to delete one of the **Linux Desktop** session by selecting **Confirm** when prompted.
@@ -434,7 +442,7 @@ On the **Dashboard** page, select the **Jobs** menu title, and from the drop-dow
 
 1. Open a terminal and run `nvidia-smi` to validate that GPU is enabled
 1. In the open terminal run `/opt/VirtualGL/bin/glxspheres64` and observed the performances. This is running witout GPU acceleration and should deliver about **40 frames/sec**.
-1. Close the **GLX Spheres** window and rerun it by prefexing the command with vglrun to offload Opengl to the GPU: `vglrun /opt/VirtualGL/bin/glxspheres64`. Performances should be increased to about **450 frames/sec** depending on your screen size, quality and compression options.
+1. Close the **GLX Spheres** window and rerun it by prefexing the command with vglrun to offload Opengl to the GPU: `vglrun /opt/VirtualGL/bin/glxspheres64`. Performances should be increased to about **400 frames/sec** depending on your screen size, quality and compression options.
 1. Start a new terminal and launch `nvidia-smi` to check the GPU usage which should be about **35%**.
 
 > Note: The `vglrun` command can be called for all applications which use Opengl to offload calls to the GPU.
@@ -455,11 +463,11 @@ In this exercise, you will install and configure Spack from Code Server, as docu
 
    > Note: This will open another browser tab displaying the **Code Server** launching page.
 
-1. On the **Code Server** launching page, in the **Maximum duration of your remote session** field, enter **3**. In the **Slot Type** text box, enter **hb120v3**, and then select **Launch**.
+1. On the **Code Server** launching page, in the **Maximum duration of your remote session** field, enter **3**. In the **Slot Type** text box, enter **hb120v2**, and then select **Launch**.
 
    > Note: This will initiate the provisioning of a compute node of the type you specified. Note that this creates a new job and the **Queued** status for this job is displayed on the same page.
 
-1. Switch to the **Azure CycleCloud for Azure HPC On-Demand Platform** portal and monitor the progress of the **hb120v3** node provisioning.
+1. Switch to the **Azure CycleCloud for Azure HPC On-Demand Platform** portal and monitor the progress of the **hb120v2** node provisioning.
 
    > Note: Wait until the node status changes to **Ready**. This should take about 5 minutes.
 
@@ -469,7 +477,7 @@ In this exercise, you will install and configure Spack from Code Server, as docu
 
 1. Review the interface, and then close the **Welcome** tab.
 1. Select the **Application** menu, from the drop-down menu select **Terminal**, and then from the sub-menu that opens, select **New Terminal**.
-1. In the **Terminal** pane, at the **[clusteradmin@hb120v3-1 ~]$** prompt, run the following command to clone the azurehpc repo and use the azhop/spack branch:
+1. In the **Terminal** pane, at the **[clusteradmin@hb120v2-1 ~]$** prompt, run the following command to clone the azurehpc repo and use the azhop/spack branch:
 
    ```bash
    git clone https://github.com/Azure/azurehpc.git
@@ -487,24 +495,36 @@ In this exercise, you will install and configure Spack from Code Server, as docu
    > Note: The output should resemble the following listing:
 
    ```bash
-   [clusteradmin@hb120v3-1 ~]$ ~/azurehpc/experimental/azhop/spack/install.sh
+   [clusteradmin@hb120v2-1 ~]$ ~/azurehpc/experimental/azhop/spack/install.sh
    Cloning into '/anfhome/clusteradmin/spack'...
-   remote: Enumerating objects: 389726, done.
-   remote: Counting objects: 100% (18/18), done.
-   remote: Compressing objects: 100% (17/17), done.
-   remote: Total 389726 (delta 1), reused 9 (delta 0), pack-reused 389708
-   Receiving objects: 100% (389726/389726), 173.48 MiB | 48.70 MiB/s, done.
-   Resolving deltas: 100% (167923/167923), done.
-   Checking out files: 100% (9513/9513), done.
-   Checking out files: 100% (6826/6826), done.
-   Branch releases/v0.18 set up to track remote branch releases/v0.18 from origin.
-   Switched to a new branch 'releases/v0.18'
-   [clusteradmin@hb120v3-1 ~]$ ~/azurehpc/experimental/azhop/spack/configure.sh
+   remote: Enumerating objects: 402411, done.
+   remote: Counting objects: 100% (163/163), done.
+   remote: Compressing objects: 100% (122/122), done.
+   remote: Total 402411 (delta 70), reused 83 (delta 19), pack-reused 402248
+   Receiving objects: 100% (402411/402411), 200.65 MiB | 45.82 MiB/s, done.
+   Resolving deltas: 100% (161555/161555), done.
+   Note: checking out '13e6f87ef6527954b152eaea303841978e83b992'.
+
+   You are in 'detached HEAD' state. You can look around, make experimental
+   changes and commit them, and you can discard any commits you make in this
+   state without impacting any branches by performing another checkout.
+
+   If you want to create a new branch to retain commits you create, you may
+   do so (now or later) by using -b with the checkout command again. Example:
+
+   git checkout -b new_branch_name
+
+   Checking out files: 100% (9474/9474), done.
+
+   [clusteradmin@hb120v2-1 ~]$ ~/azurehpc/experimental/azhop/spack/configure.sh
+   Configuring for OpenMPI Version 4.1.1
+   Configuring for HPCX Version 2.9.0
+   Configuring for GCC version 9.2.0
    Add GCC compiler
    ==> Added 1 new compiler to /anfhome/clusteradmin/.spack/linux/compilers.yaml
-       gcc@9.2.0
+      gcc@9.2.0
    ==> Compilers are defined in the following files:
-       /anfhome/clusteradmin/.spack/linux/compilers.yaml
+      /anfhome/clusteradmin/.spack/linux/compilers.yaml
    Configure external MPI packages
    Configure local settings
    ```
@@ -519,8 +539,8 @@ In this exercise, you will install and configure Spack from Code Server, as docu
    > Note: The output should resemble the following listing:
 
    ```bash
-   [clusteradmin@hb120v3-1 ~]$
-   [clusteradmin@hb120v3-1 ~]$ spack compilers
+   [clusteradmin@hb120v2-1 ~]$
+   [clusteradmin@hb120v2-1 ~]$ spack compilers
    ==> Available compilers
    -- gcc centos7-x86_64 -------------------------------------------
    gcc@9.2.0
@@ -533,7 +553,7 @@ In this exercise, you will build and run some of the OSU Benchmarks used to meas
 
 Duration: 30 minutes
 ### Task 1: Build OSU Benchmarks with OpenMPI
-1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hb120v3-1 ~]$**  prompt, run the following command to load Spack modules:
+1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hb120v2-1 ~]$**  prompt, run the following command to load Spack modules:
 
    ```bash
    . ~/spack/share/spack/setup-env.sh
@@ -542,7 +562,7 @@ Duration: 30 minutes
 1. List modules available. These contains the all the modules provided in the Azure HPC marketplace image, like Intel MPI, OpenMPI, HPCX and MVAPICH2.
 
    ```bash
-   [clusteradmin@hb120v3-1 ~]$ module avail
+   [clusteradmin@hb120v2-1 ~]$ module avail
 
    --------------------------------------------------------------------------------------------- /usr/share/Modules/modulefiles ---------------------------------------------------------------------------------------------
       amd/aocl              dot          module-git     modules            mpi/hpcx               mpi/impi_2021.4.0    mpi/impi-2021    mpi/mvapich2-2.3.6    mpi/openmpi-4.1.1 (D)    use.own
@@ -578,12 +598,12 @@ chmod +x ~/osu_benchmarks.sh
 ### Task 3: Submit OSU jobs
 1. Submit a first job for running the bandwidth benchmarks. Note the **slot_type** used in the select statement to specify on which CycleCloud node array to submit to. 
 ```bash
-qsub -N BW -joe -koe -l select=2:slot_type=hb120v3 -- osu_benchmarks.sh osu_bw
+qsub -N BW -joe -koe -l select=2:slot_type=hb120v2 -- osu_benchmarks.sh osu_bw
 ```
 
 1. And a second one for the latency test
 ```bash
-qsub -N LAT -joe -koe -l select=2:slot_type=hb120v3 -- osu_benchmarks.sh osu_latency
+qsub -N LAT -joe -koe -l select=2:slot_type=hb120v2 -- osu_benchmarks.sh osu_latency
 ```
 
 1. Check the jobs statuses within the terminal or thru the web UI as well as the node provisioning state in the CycleCloud portal.
@@ -599,7 +619,7 @@ Duration: 60 minutes
 
 ### Task 1: Build OpenFOAM
 
-1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hb120v3-1 ~]$**  prompt, run the following command to build OpenFOAM 8:
+1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hb120v2-1 ~]$**  prompt, run the following command to build OpenFOAM 8:
 
    ```bash
    . ~/spack/share/spack/setup-env.sh
@@ -609,7 +629,7 @@ Duration: 60 minutes
    > Note: Wait for the build to complete. This might take about 50 minutes.
 ### Task 2: Running the motorbike tutorial on a single node
 
-1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hb120v3-1 ~]$**  prompt, run the following command to load OpenFOAM modules:
+1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hb120v2-1 ~]$**  prompt, run the following command to load OpenFOAM modules:
    ```bash
    spack load openfoam-org@8
    ```
@@ -636,7 +656,7 @@ The following updates are needed:
 - Add FOAM_MPIRUN_FLAGS to the mpirun command when using runParallel (needed for all version of OpenFOAM)
 - Reconstruct the single partition after the solve
 
-1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hb120v3-1 ~]$**  prompt, run the following commands:
+1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hb120v2-1 ~]$**  prompt, run the following commands:
 
    ```bash
       cd ~/motorBike
@@ -662,12 +682,12 @@ $PBS_O_WORKDIR/Allrun -cores $(wc -l <$PBS_NODEFILE)
 1. Save that file under `~/motorBike/submit.sh`
 
 1. Run the OpenFOAM job
-Here we ask for 2 node from the node array **hb120v3** using 120 cores on each, and asking to be exclusive on these 2 nodes.
+Here we ask for 2 node from the node array **hb120v2** using 120 cores on each, and asking to be exclusive on these 2 nodes.
 
 ```bash
 cd ~/motorBike
 rm log.*
-qsub -l select=2:slot_type=hb120v3:ncpus=120:mpiprocs=120,place=scatter:excl submit.sh
+qsub -l select=2:slot_type=hb120v2:ncpus=120:mpiprocs=120,place=scatter:excl submit.sh
 ```
 
 1. Monitor the job and wait for the job to be finished

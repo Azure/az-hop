@@ -222,7 +222,7 @@ queues:
   - name: hbv3u18
     vm_size: Standard_HB120rs_v3
     max_core_count: 2880
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-compute-ubuntu-1804:latest
+    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-compute-ubuntu-1804/latest
     spot: true
   - name: viz3d
     vm_size: Standard_NV12s_v3

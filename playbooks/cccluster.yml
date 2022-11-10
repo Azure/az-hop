@@ -49,7 +49,7 @@
         img_name=${img_def##*/}
         sig_rg=$(echo $image | cut -d'/' -f 5)
         sig_name=$(echo $image | cut -d'/' -f 9)
-        img_id=$(az sig image-version list -g $sig_rg -r $sig_name -i $img_name --query "[].id" -o tsv | sort | tail -n 1)
+        img_id=$(az sig image-version list -g $sig_rg -r $sig_name -i $img_name --query "[].[publishingProfile.publishedDate, id]" -o tsv | sort -V -r | head -n1 | cut -f2 | xargs)
         if [ "$img_id" == "" ]; then
           echo "unable to retrieve image id for $img_name"
           exit 1
@@ -73,7 +73,9 @@
       if [ "$version" == "latest" ]; then
         img_def=${image%/*}
         img_name=${img_def##*/}
-        img_id=$(az sig image-version list -g {{ resource_group }} -r {{ sig_name }} -i $img_name --query "[].id" -o tsv | sort | tail -n 1)
+        sig_rg=$(echo $image | cut -d'/' -f 5)
+        sig_name=$(echo $image | cut -d'/' -f 9)
+        img_id=$(az sig image-version list -g $sig_rg -r $sig_name -i $img_name --query "[].[publishingProfile.publishedDate, id]" -o tsv | sort -V -r | head -n1 | cut -f2 | xargs)
         if [ "$img_id" == "" ]; then
           echo "unable to retrieve image id for $img_name"
           exit 1
