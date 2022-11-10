@@ -40,7 +40,13 @@ else
   esac
 fi
 
-sed -i "s/^keyvault_readers: \[/keyvault_readers: \[$logged_user_objectId,/g" build.yml
+# Grant read permission to the current user on the deployed KeyVault
+set +e
+grep $logged_user_objectId build.yml
+if [ $? -eq 1 ]; then
+    sed -i "s/^keyvault_readers: \[/keyvault_readers: \[$logged_user_objectId,/g" build.yml
+fi
+set -e
 
 # When applied on an existing deployment, don't create new passwords
 adminuser=hpcadmin

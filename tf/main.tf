@@ -107,3 +107,18 @@ resource "azurerm_storage_container" "lustre_archive" {
     storage_account_name  = azurerm_storage_account.azhop.name
     container_access_type = "private"
 }
+
+
+# This is the azhop telemetry deployment that is only created if telemetry is enabled.
+# It is deployed to the resource group
+resource "azurerm_resource_group_template_deployment" "telemetry_azhop" {
+    depends_on       = [azurerm_linux_virtual_machine.ondemand,
+                        azurerm_linux_virtual_machine.ccportal,
+                        azurerm_linux_virtual_machine.scheduler]
+    count            = local.optout_telemetry ? 0 : 1
+    provider         = azurerm
+    name             = local.telem_azhop_name
+    resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
+    deployment_mode = "Incremental"
+    template_content = local.telem_arm_subscription_template_content
+}
