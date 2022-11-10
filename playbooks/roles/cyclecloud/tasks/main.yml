@@ -92,7 +92,7 @@
     Value = "azhop"
     EOF
     /opt/cycle_server/cycle_server await_startup
-    /opt/cycle_server/cycle_server execute 'update Application.Setting set Value = undefined where Name == "site_id" || Name == "reported_version"'
+    #/opt/cycle_server/cycle_server execute 'update Application.Setting set Value = undefined where Name == "site_id" || Name == "reported_version"'
   args:
     creates: /opt/cycle_server/config/data/azhop.txt.imported
 
