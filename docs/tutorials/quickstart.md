@@ -31,7 +31,12 @@
       * [Task 2: Running the motorbike tutorial on a single node](#task-2-running-the-motorbike-tutorial-on-a-single-node)
       * [Task 3: Running the motorbike tutorial on multiple nodes](#task-3-running-the-motorbike-tutorial-on-multiple-nodes)
       * [Task 4: Visualize the motorbike tutorial result](#task-4-visualize-the-motorbike-tutorial-result)
-   * [Exercise 6: Deprovision Azure HPC OnDemand Platform environment](#exercise-6-deprovision-azure-hpc-ondemand-platform-environment)
+   * [Exercise 6: Run OpenFOAM DrivAer-Fastback simulation using EESSI stack](#exercise-6-run-openfoam-drivaer-fastback-simulation-using-eessi-stack)
+      * [Task 1: Prepare the DrivAer-Fastback example](#task-1-prepare-the-drivaer-fastback-example)
+      * [Task 2: Submit PBS job](#task-2-submit-pbs-job)
+      * [Task 3: Create Linux Desktop session for visualization](#task-3-create-linux-desktop-session-for-visualization)
+      * [Task 4: Visualize the DrivAer-Fastback simulation results](#task-4-visualize-the-drivaer-fastback-simulation-results)
+   * [Exercise 7: Deprovision Azure HPC OnDemand Platform environment](#exercise-7-deprovision-azure-hpc-ondemand-platform-environment)
       * [Task 1: Deprovision the Azure resources](#task-1-deprovision-the-azure-resources)
 <!--te-->
 <!-- https://github.com/ekalinin/github-markdown-toc -->
@@ -159,7 +164,7 @@ In this task, you will prepare the `build.yml` file used by the deploy helper sc
 
 ### Task 4 : Deploy the environment
 
-1. Retrieve the azure location name in which you will deploy this environment by running this command. 
+1. Retrieve the azure location name in which you will deploy this environment by running this command.
 
 > Note: The `name` column contains one of the value to be used in the deployment command.
 
@@ -175,7 +180,7 @@ In this task, you will prepare the `build.yml` file used by the deploy helper sc
 
 While the deployment is in progress, you can check the resource group content from the Azure portal and the status of the deployment thru the link at the right of the `Deployments` property. The deployment should be done in about 8 minutes.
 
-Once the deployment is done, you can now access the deployer VM thru Azure Bastion 
+Once the deployment is done, you can now access the deployer VM thru Azure Bastion
 
 ### Task 5 : Connect to the `deployer` VM thru Azure Bastion
 In this task you will connect to the Deployer VM thru Azure Bastion to monitor the ansible playbooks progress.
@@ -199,11 +204,11 @@ Once connected in the `deployer` VM run the following command to display the clo
    ```bash
    tail -f /var/log/cloud-init-output.log
 
-   Friday 21 October 2022  14:06:09 +0000 (0:00:02.071)       0:00:05.380 ******** 
-   =============================================================================== 
+   Friday 21 October 2022  14:06:09 +0000 (0:00:02.071)       0:00:05.380 ********
+   ===============================================================================
    chrony ------------------------------------------------------------------ 5.19s
    include_role ------------------------------------------------------------ 0.13s
-   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    total ------------------------------------------------------------------- 5.32s
    ```
 
@@ -217,7 +222,7 @@ Once the cloud init script is finished you should have these 2 lines at the end 
 
 Confirm there are no errors in the playbooks execution by running this command
    ```
-   grep "failed=1" /var/log/cloud-init-output.log 
+   grep "failed=1" /var/log/cloud-init-output.log
    ```
 
 ### Task 7 : Retrieve the homepage URL and user account to connect with
@@ -292,11 +297,11 @@ In this exercise, you will review the main features of the Azure HPC OnDemand Pl
 
    ```bash
    [clusteradmin@ondemand ~]$ qstat -anw1
-   scheduler: 
+   scheduler:
                                                                                                       Req'd  Req'd   Elap
    Job ID                         Username        Queue           Jobname         SessID   NDS  TSK   Memory Time  S Time
    ------------------------------ --------------- --------------- --------------- -------- ---- ----- ------ ----- - -----
-   0.scheduler                    clusteradmin    workq           STDIN                --     1     1    --    --  Q  --   -- 
+   0.scheduler                    clusteradmin    workq           STDIN                --     1     1    --    --  Q  --   --
    [clusteradmin@ondemand ~]$
    ```
 
@@ -596,7 +601,7 @@ chmod +x ~/osu_benchmarks.sh
 ```
 
 ### Task 3: Submit OSU jobs
-1. Submit a first job for running the bandwidth benchmarks. Note the **slot_type** used in the select statement to specify on which CycleCloud node array to submit to. 
+1. Submit a first job for running the bandwidth benchmarks. Note the **slot_type** used in the select statement to specify on which CycleCloud node array to submit to.
 ```bash
 qsub -N BW -joe -koe -l select=2:slot_type=hb120v2 -- osu_benchmarks.sh osu_bw
 ```
@@ -735,8 +740,109 @@ Next, you can visualize the simulation results.
 - Click the "Play" button on the toolbar at the top of the window to advance to the end of the simulation.
 - On the Active Variables Control toolbar you will find a drop down box where you can select variables. For example, select "p" for pressure.
 
+## Exercise 6: Run OpenFOAM DrivAer-Fastback simulation using EESSI stack
 
-## Exercise 6: Deprovision Azure HPC OnDemand Platform environment
+The Az-HOP deployment in this tutorial comes with the [EESSI software stack](https://eessi.github.io/docs) pre-configured on all compute nodes.
+In this exercise you will run and analyze the DrivAer-Fastback CFD simulation with 3 million cells without having to build OpenFOAM by using `OpenFOAM/9-foss-2021a` available in EESSI.
+
+### Task 1: Prepare the DrivAer-Fastback example
+
+1. Clone the OpenFOAM-9 repository from GitHub:
+   ```bash
+   git clone https://github.com/OpenFOAM/OpenFOAM-9.git
+   ```
+
+2. Copy the DrivAer-Fastback tutorial to your home directory:
+   ```bash
+   cp -r OpenFOAM-9/tutorials/incompressible/simpleFoam/drivaerFastback ~
+   ```
+
+3. Apply the following changes to the default tutorial:
+   * Add `FOAM_MPIRUN_FLAGS` to the `mpirun` command when using `runParallel` (needed for all version of OpenFOAM)
+   * Decompress the geometry
+   * Rename `constant/geometry` to 'constant/triSurface`
+   * Reconstruct the single partition after the solve
+
+   Here are the commands:
+   ```bash
+   cd ~/drivaerFastback
+   sed -i '/RunFunctions/a source <(declare -f runParallel | sed "s/mpirun/mpirun \\\$FOAM_MPIRUN_FLAGS/g")' Allrun
+   sed -i 's#/bin/sh#/bin/bash#g' Allrun
+   gunzip constant/geometry/*
+   mv constant/geometry constant/triSurface
+   sed -i 's/# runApplication reconstructPar/runApplication reconstructPar/g' Allrun
+   ```
+
+### Task 2: Submit PBS job
+
+   1. Create a PBS submit script as `~/drivaerFastback/submit.sh`. When running on multiple nodes it is necessary to export all the OpenFOAM environment variables (unless you add loading the modules in `.bashrc`). This is done with the `FOAM_MPIRUN_FLAGS` that we added to the `runParallel` in the previous step. The script will run for the number of cores specified to PBS (`select` x `mpiprocs`):
+   ```bash
+   #!/bin/bash
+
+   source /cvmfs/pilot.eessi-hpc.org/versions/2021.12/init/bash
+   ml OpenFOAM/9-foss-2021a
+   source $FOAM_BASH
+   $PBS_O_WORKDIR/Allclean
+
+   ranks_per_numa=30
+   export FOAM_MPIRUN_FLAGS="-mca pml ucx -hostfile $PBS_NODEFILE $(env |grep 'WM_\|FOAM_' | cut -d'=' -f1 | sed 's/^/-x /g' | tr '\n' ' ') -x MPI_BUFFER_SIZE -x UCX_POSIX_USE_PROC_LINK=n -x PATH --map-by ppr:${ranks_per_numa}:numa"
+   $PBS_O_WORKDIR/Allrun -m M -cores $(wc -l <$PBS_NODEFILE)
+   ```
+
+   2. Submit the OpenFOAM batch job, requesting our job to be exclusively allocated to two HB120rs_v2 nodes from the node array `hb120v2`:
+   ```bash
+   cd ~/drivaerFastback
+   qsub -l select=2:slot_type=hb120v2:ncpus=120:mpiprocs=120,place=scatter:excl submit.sh
+   ```
+
+   3. Monitor the job until its completion by using the `qstat` command.
+
+### Task 3: Create Linux Desktop session for visualization
+
+   1. On the lab computer, in the browser window, switch back to the **Azure HPC On-Demand Platform** portal, and then in the **Interactive Apps** section, select **Linux Desktop**.
+   2. On the **Linux Desktop** launching page, from the **Session target** drop-down list, ensure that **With GPU** entry is selected. In the **Maximum duration of your remote session** field, enter **1**,  and then select **Launch**.
+
+   > Note: This will begin compute node provisioning of the type you specified. This also creates a new job with its **Queued** status displaying on the same page.
+
+   3. Switch back to the **Linux Desktop** launching page, and then verify that the corresponding job's status has changed to **Running**.
+   4. Adjust **Compression** and **Image quality** according to your preferences, and then select **Launch Linux Desktop**.
+
+   > Note: This will open another browser tab displaying the Linux Desktop session.
+
+   5. Within the Linux Desktop session, start **Terminal Emulator**.
+
+   6. Install the **Paraview** viewer:
+   ```bash
+   wget "https://www.paraview.org/paraview-downloads/download.php?submit=Download&version=v5.10&type=binary&os=Linux&downloadFile=ParaView-5.10.1-MPI-Linux-Python3.9-x86_64.tar.gz" -O ParaView-5.10.1-MPI-Linux-Python3.9-x86_64.tar.gz
+
+   tar xvf ParaView-5.10.1-MPI-Linux-Python3.9-x86_64.tar.gz
+   ```
+
+### Task 4: Visualize the DrivAer-Fastback simulation results
+
+   1. Create a case file and launch Paraview:
+   ```bash
+   touch ~/drivaerFastback/case.foam
+   vglrun ./ParaView-5.10.1-MPI-Linux-Python3.9-x86_64/bin/paraview
+   ```
+
+   2. Within **Paraview** open the case `~/motorBike/case.foam`
+
+   3. When the model is loaded, you can load the car geometry as follows:
+      - In the bottom left pane, in the "Mesh Regions" list, unselect "internalMesh" and select the    following fields:
+        - `patch/body`
+        - `patch/frontWheels`
+        - `patch/ground`
+        - `patch/inlet`
+        - `patch/rearWheels`
+      - Click "Apply" above the list
+      - You should now see the model geometry, and you can move/rotate/zoom using the mouse
+
+   4. To visualize the simulation results, click the "Play" button on the toolbar at the top of the window to advance to the end of the simulation.
+
+   5. On the Active Variables Control toolbar you will find a drop down box where you can select variables. For example, select "p" for pressure.
+
+## Exercise 7: Deprovision Azure HPC OnDemand Platform environment
 
 Duration: 5 minutes
 
