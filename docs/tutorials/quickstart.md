@@ -829,7 +829,12 @@ In this exercise you will run and analyze the DrivAer-Fastback CFD simulation wi
    2. Within **Paraview** open the case `~/motorBike/case.foam`
 
    3. When the model is loaded, you can load the car geometry as follows:
-      - In the bottom left pane, in the "Mesh Regions" list, unselect "internalMesh" and select TO_BE_ADDED
+      - In the bottom left pane, in the "Mesh Regions" list, unselect "internalMesh" and select the    following fields:
+        - `patch/body`
+        - `patch/frontWheels`
+        - `patch/ground`
+        - `patch/inlet`
+        - `patch/rearWheels`
       - Click "Apply" above the list
       - You should now see the model geometry, and you can move/rotate/zoom using the mouse
 
