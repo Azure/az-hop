@@ -748,11 +748,13 @@ In this exercise you will run and analyze the DrivAer-Fastback CFD simulation wi
 ### Task 1: Prepare the DrivAer-Fastback example
 
 1. Clone the OpenFOAM-9 repository from GitHub:
+
    ```bash
    git clone https://github.com/OpenFOAM/OpenFOAM-9.git
    ```
 
 2. Copy the DrivAer-Fastback tutorial to your home directory:
+
    ```bash
    cp -r OpenFOAM-9/tutorials/incompressible/simpleFoam/drivaerFastback ~
    ```
@@ -764,6 +766,7 @@ In this exercise you will run and analyze the DrivAer-Fastback CFD simulation wi
    * Reconstruct the single partition after the solve
 
    Here are the commands:
+
    ```bash
    cd ~/drivaerFastback
    sed -i '/RunFunctions/a source <(declare -f runParallel | sed "s/mpirun/mpirun \\\$FOAM_MPIRUN_FLAGS/g")' Allrun
@@ -776,6 +779,7 @@ In this exercise you will run and analyze the DrivAer-Fastback CFD simulation wi
 ### Task 2: Submit PBS job
 
    1. Create a PBS submit script as `~/drivaerFastback/submit.sh`. When running on multiple nodes it is necessary to export all the OpenFOAM environment variables (unless you add loading the modules in `.bashrc`). This is done with the `FOAM_MPIRUN_FLAGS` that we added to the `runParallel` in the previous step. The script will run for the number of cores specified to PBS (`select` x `mpiprocs`):
+
    ```bash
    #!/bin/bash
 
@@ -790,6 +794,7 @@ In this exercise you will run and analyze the DrivAer-Fastback CFD simulation wi
    ```
 
    2. Submit the OpenFOAM batch job, requesting our job to be exclusively allocated to two HB120rs_v2 nodes from the node array `hb120v2`:
+
    ```bash
    cd ~/drivaerFastback
    qsub -l select=2:slot_type=hb120v2:ncpus=120:mpiprocs=120,place=scatter:excl submit.sh
@@ -812,6 +817,7 @@ In this exercise you will run and analyze the DrivAer-Fastback CFD simulation wi
    5. Within the Linux Desktop session, start **Terminal Emulator**.
 
    6. Install the **Paraview** viewer:
+
    ```bash
    wget "https://www.paraview.org/paraview-downloads/download.php?submit=Download&version=v5.10&type=binary&os=Linux&downloadFile=ParaView-5.10.1-MPI-Linux-Python3.9-x86_64.tar.gz" -O ParaView-5.10.1-MPI-Linux-Python3.9-x86_64.tar.gz
 
@@ -821,6 +827,7 @@ In this exercise you will run and analyze the DrivAer-Fastback CFD simulation wi
 ### Task 4: Visualize the DrivAer-Fastback simulation results
 
    1. Create a case file and launch Paraview:
+   
    ```bash
    touch ~/drivaerFastback/case.foam
    vglrun ./ParaView-5.10.1-MPI-Linux-Python3.9-x86_64/bin/paraview
