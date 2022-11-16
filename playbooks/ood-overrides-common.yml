@@ -31,6 +31,10 @@ ood_install_apps:
     dest: "{{ ood_sys_app_dir }}"
     version: master
 
+  jupyter:
+    dest: "{{ ood_sys_app_dir }}"
+    version: master
+
 ood_apps:
   dashboard:
     env:
