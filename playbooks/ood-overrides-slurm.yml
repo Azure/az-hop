@@ -11,7 +11,7 @@ ood_install_apps:
     version: codeserver4.8.1
   jupyter:
     dest: "{{ ood_sys_app_dir }}"
-    repo: https://github.com/pedwards/bc_osc_jupyter.git
+    repo: https://github.com/edwardsp/bc_osc_jupyter.git
     version: master
     
 ood_apps:
