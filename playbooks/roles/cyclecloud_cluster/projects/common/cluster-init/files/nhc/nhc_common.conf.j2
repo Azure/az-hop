@@ -24,7 +24,7 @@
 ### Filesystem checks
 ###
 ###
- * || check_fs_mount_rw -t "nfs" -f "{{mounts.home.mountpoint}}"
+ * || check_fs_mount_rw -f "{{mounts.home.mountpoint}}"
  * || check_fs_used {{mounts.home.mountpoint}} 90%
  * || check_fs_iused {{mounts.home.mountpoint}} 98%
 
