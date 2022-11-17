@@ -35,7 +35,7 @@
 {% endif %}
  
 {% if queue_manager == "slurm" and queue_manager is defined %}
- * || check_fs_mount_rw -t "nfs" -s "*:**" -f "/sched"
+ * || check_fs_mount_rw -s "*:**" -f "/sched"
  * || check_fs_used /sched 90%
  * || check_fs_iused /sched 98%
 {% endif %}
