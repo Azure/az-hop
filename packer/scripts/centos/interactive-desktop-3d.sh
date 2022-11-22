@@ -91,6 +91,12 @@ EOF
 yum -y localinstall --nogpgcheck https://download1.rpmfusion.org/free/el/rpmfusion-free-release-7.noarch.rpm
 yum -y install firefox ffmpeg ffmpeg-devel
 
+# Install archive manager
+yum -y install xarchiver
+rm -f /usr/libexec/thunar-archive-plugin/gnome-file-roller.tap
+ln -s /usr/libexec/thunar-archive-plugin/xarchiver.tap /usr/libexec/thunar-archive-plugin/gnome-file-roller.tap
+update-desktop-database /usr/share/applications
+
 # increase buffer size
 cat << EOF >>/etc/sysctl.conf
 net.core.rmem_max=2097152
