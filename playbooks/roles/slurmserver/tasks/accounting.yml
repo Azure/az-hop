@@ -22,6 +22,7 @@
     owner: slurm 
     group: slurm
     mode: 0644
+    timeout: 180
 
 - name: ensure slurmdbd is restarted.
   service:
