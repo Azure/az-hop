@@ -165,6 +165,7 @@
       get_url:
         url: https://downloads.apache.org/guacamole/{{guac_version}}/binary/guacamole-{{guac_version}}.war
         dest: /etc/guacamole/guacamole.war
+        timeout: 180
 
     - name: Create a symbolic link for guacamole client
       file:
@@ -195,6 +196,8 @@
       get_url:
         url: 'https://dev.mysql.com/get/mysql80-community-release-el7-4.noarch.rpm'
         dest: /etc/guacamole/
+        timeout: 180
+
     - name: Install mysql80-community RPM
       shell: rpm -Uvh --force /etc/guacamole/mysql80-community-release-el7-4.noarch.rpm
     - name: Install MySQL CLI 8.0.26
@@ -213,6 +216,8 @@
         url: 'https://www.digicert.com/CACerts/BaltimoreCyberTrustRoot.crt.pem'
         dest: /etc/guacamole/BaltimoreCyberTrustRoot.crt.pem
         mode: 0644
+        timeout: 180
+
     - name: Install MySQL Java Connector
       yum: 
         name: https://downloads.mysql.com/archives/get/p/3/file/mysql-connector-java-8.0.26-1.el7.noarch.rpm
