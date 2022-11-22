@@ -94,6 +94,7 @@
     get_url:
       url: 'https://download.schedmd.com/slurm/slurm-{{slurm_version_short}}.tar.bz2'
       dest: /mnt/resource
+      timeout: 180
     when: slurm_rpms.stat.exists == False
 
   - name: download cc source code
@@ -150,6 +151,7 @@
     get_url:
       url: https://github.com/Azure/cyclecloud-slurm/releases/download/{{cyclecloud_slurm_release}}/{{ item }}
       dest: '{{homedir_mountpoint}}/slurm/rpms'
+      timeout: 180
     with_items:
       - 'slurm-{{slurm_version}}.el7.x86_64.rpm'
       - 'slurm-devel-{{slurm_version}}.el7.x86_64.rpm'
@@ -213,6 +215,7 @@
   get_url:
     url: https://raw.githubusercontent.com/Azure/cyclecloud-slurm/{{cyclecloud_slurm_release}}/specs/default/chef/site-cookbooks/slurm/files/default/{{ item }}
     dest: /opt/cycle/slurm
+    timeout: 180
   with_items:
     - clusterwrapper.py
     - cyclecloud_nodeinfo.sh
@@ -265,11 +268,13 @@
   get_url:
     url: https://github.com/Azure/cyclecloud-slurm/releases/download/{{cyclecloud_slurm_release}}/cyclecloud_api-8.1.0-py2.py3-none-any.whl
     dest: /opt/cycle/slurm
+    timeout: 180
 
 - name: download cc jobsubmit plugin
   get_url:
     url: https://github.com/Azure/cyclecloud-slurm/releases/download/{{cyclecloud_slurm_release}}/job_submit_cyclecloud_centos_{{slurm_version}}.so
     dest: /usr/lib64/slurm/job_submit_cyclecloud.so
+    timeout: 180
   when: not build_rpms
 
 - name: install cc job_submit plugin
