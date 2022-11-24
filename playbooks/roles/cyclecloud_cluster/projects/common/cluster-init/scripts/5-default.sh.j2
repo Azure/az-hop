@@ -7,7 +7,8 @@
 chmod 700 -R /mnt/cluster-init
 
 # change access to resource so that temp jobs can be written there
-# FIXME : /mnt/resource doesn't exists on Ubuntu
+# on Ubuntu and AlmaLinux resource disk is mounted in /mnt
+[ -d /mnt/resource ] || mkdir /mnt/resource
 chmod 777 /mnt/resource
 
 # Grant sudo for users in the az-hop-localadmins group

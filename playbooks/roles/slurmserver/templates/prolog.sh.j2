@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Make sure /mnt/resource is mounted
-mount | grep resource || mount /mnt/resource
-
 ## Enroot support
 # Exit if enroot is not in the image
 [ -d /etc/enroot ] || exit 0
