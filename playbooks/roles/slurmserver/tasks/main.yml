@@ -222,6 +222,8 @@
     - cyclecloud_slurm.py
     - cyclecloud_slurm.sh
     - cyclecloud_slurm_test.py
+    - get_acct_info.sh
+    - job_submit.lua
     - resume_fail_program.sh
     - resume_program.sh
     - return_to_idle.sh
@@ -229,50 +231,14 @@
     - slurmcc.py
     - slurmcc_test.py
     - slurmctld.override
+    - start_nodes.sh
     - suspend_program.sh
     - terminate_nodes.sh
 
-- name: check execute bit for cyclecloud_slurm.sh
-  file:
-    path: /opt/cycle/slurm/cyclecloud_slurm.sh
-    mode: 0755
-    owner: slurm
-    group: slurm
-
-- name: check execute bit for return_to_idle.sh
-  file:
-    path: /opt/cycle/slurm/return_to_idle.sh
-    mode: 0755
-    owner: slurm
-    group: slurm
-
-- name: check execute bit for terminate_nodes.sh
-  file:
-    path: /opt/cycle/slurm/terminate_nodes.sh
-    mode: 0755
-    owner: slurm
-    group: slurm
-
-- name: check execute bit for resume_fail_program.sh
-  file:
-    path: /opt/cycle/slurm/resume_fail_program.sh
-    mode: 0700
-    owner: slurm
-    group: slurm
-
-- name: check execute bit for resume_program.sh
-  file:
-    path: /opt/cycle/slurm/resume_program.sh
-    mode: 0700
-    owner: slurm
-    group: slurm
-
-- name: check execute bit for suspend_program.sh
-  file:
-    path: /opt/cycle/slurm/suspend_program.sh
-    mode: 0700
-    owner: slurm
-    group: slurm
+- name: check execute bit for /opt/cycle/slurm/*.sh
+  shell: |
+    chmod 755 /opt/cycle/slurm/*.sh
+    chown slurm:slurm /opt/cycle/slurm/*.sh
 
 - name: install CycleCloud repo
   shell: |
