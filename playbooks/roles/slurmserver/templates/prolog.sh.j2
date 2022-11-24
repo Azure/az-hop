@@ -4,9 +4,6 @@
 # Exit if enroot is not in the image
 [ -d /etc/enroot ] || exit 0
 
-mkdir -pv /run/enroot {{ enroot_scratch_dir }}/{enroot-cache,enroot-data,enroot-temp,enroot-runtime}
-chmod -v 777 /run/enroot {{ enroot_scratch_dir }}/{enroot-cache,enroot-data,enroot-temp,enroot-runtime}
-
 # Exit if no NVIDIA devices detected
 [ -c /dev/nvidia0 ] || exit 0
 
