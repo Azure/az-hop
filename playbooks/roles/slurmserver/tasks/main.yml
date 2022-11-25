@@ -155,7 +155,7 @@
     with_items:
       - 'slurm-{{slurm_version}}.el7.x86_64.rpm'
       - 'slurm-{{slurm_version}}.el8.x86_64.rpm'
-      - 'slurm-{{slurm_version}}_amd64.deb'
+      - 'slurm_{{slurm_version}}_amd64.deb'
       - 'slurm-contribs-{{slurm_version}}.el7.x86_64.rpm'
       - 'slurm-contribs-{{slurm_version}}.el8.x86_64.rpm'
       - 'slurm-contribs_{{slurm_version}}_amd64.deb'
@@ -171,8 +171,8 @@
       - 'slurm-openlava-{{slurm_version}}.el7.x86_64.rpm'
       - 'slurm-openlava-{{slurm_version}}.el8.x86_64.rpm'
       - 'slurm-openlava_{{slurm_version}}_amd64.deb'
-      - 'slurm-pam-slurm-{{slurm_version}}.el7.x86_64.rpm'
-      - 'slurm-pam-slurm-{{slurm_version}}.el8.x86_64.rpm'
+      - 'slurm-pam_slurm-{{slurm_version}}.el7.x86_64.rpm'
+      - 'slurm-pam_slurm-{{slurm_version}}.el8.x86_64.rpm'
       - 'slurm-pam-slurm_{{slurm_version}}_amd64.deb'
       - 'slurm-perlapi-{{slurm_version}}.el7.x86_64.rpm'
       - 'slurm-perlapi-{{slurm_version}}.el8.x86_64.rpm'
@@ -297,20 +297,26 @@
     dest: /opt/cycle/slurm
     timeout: 180
 
-- name: download cc jobsubmit plugin
-  get_url:
-    url: https://github.com/Azure/cyclecloud-slurm/releases/download/{{cyclecloud_slurm_release}}/job_submit_cyclecloud_centos_{{slurm_version}}.so
-    dest: /usr/lib64/slurm/job_submit_cyclecloud.so
-    timeout: 180
-  when: not build_rpms
+# - name: download cc jobsubmit plugin
+#   get_url:
+#     url: https://github.com/Azure/cyclecloud-slurm/releases/download/{{cyclecloud_slurm_release}}/job_submit_cyclecloud_centos_{{slurm_version}}.so
+#     dest: /usr/lib64/slurm/job_submit_cyclecloud.so
+#     timeout: 180
+#   when: not build_rpms
 
-- name: install cc job_submit plugin
+# - name: install cc job_submit plugin
+#   copy:
+#     src: '{{homedir_mountpoint}}/slurm/job_submit_cyclecloud.so'
+#     dest: /usr/lib64/slurm/job_submit_cyclecloud.so
+#     mode: 0755
+#     remote_src: yes
+#   when: build_rpms
+- name: install cc job_submit.lua plugin
   copy:
-    src: '{{homedir_mountpoint}}/slurm/job_submit_cyclecloud.so'
-    dest: /usr/lib64/slurm/job_submit_cyclecloud.so
+    src: /opt/cycle/slurm/job_submit.lua
+    dest: /etc/slurm/job_submit.lua
     mode: 0755
     remote_src: yes
-  when: build_rpms
 
 - name: install cc autoscale api
   shell: |
