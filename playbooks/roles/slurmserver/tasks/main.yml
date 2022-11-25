@@ -419,6 +419,10 @@
 
 - name: check slurm connection
   command: "sinfo -l"
+  retries: 5
+  delay: 3
+  register: result
+  until: result.rc == 0
 
 - name: create slurm logrotate config
   copy:
