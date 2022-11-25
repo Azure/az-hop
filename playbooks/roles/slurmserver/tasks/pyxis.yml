@@ -44,7 +44,7 @@
 
 - name: create pyxis.conf
   copy:
-    content: "required /usr/lib64/slurm/spank_pyxis.so"
+    content: "required /usr/lib64/slurm/spank_pyxis.so runtime_path=/mnt/resource/enroot-runtime"
     dest: /sched/plugstack.conf.d/pyxis.conf
     owner: slurm
     group: slurm

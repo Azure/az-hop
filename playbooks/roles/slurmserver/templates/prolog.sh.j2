@@ -1,14 +1,8 @@
 #!/bin/bash
 
-# Make sure /mnt/resource is mounted
-mount | grep resource || mount /mnt/resource
-
 ## Enroot support
 # Exit if enroot is not in the image
 [ -d /etc/enroot ] || exit 0
-
-mkdir -pv /run/enroot {{ enroot_scratch_dir }}/{enroot-cache,enroot-data,enroot-temp}
-chmod -v 777 /run/enroot {{ enroot_scratch_dir }}/{enroot-cache,enroot-data,enroot-temp}
 
 # Exit if no NVIDIA devices detected
 [ -c /dev/nvidia0 ] || exit 0

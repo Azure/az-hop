@@ -3,6 +3,9 @@
 # Exit if Enroot is not in the image
 [ -d /etc/enroot ] || exit 0
 
+mkdir -pv /run/enroot /mnt/resource/{enroot-cache,enroot-data,enroot-temp,enroot-runtime}
+chmod -v 777 /run/enroot /mnt/resource/{enroot-cache,enroot-data,enroot-temp,enroot-runtime}
+
 # Use local temporary disk for enroot
 cat <<EOF > /etc/enroot/enroot.conf
 ENROOT_RUNTIME_PATH /run/enroot/user-\$(id -u)
