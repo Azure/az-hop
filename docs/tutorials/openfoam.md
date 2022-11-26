@@ -124,7 +124,7 @@ qsub -l select=${nodes}:slot_type=hb120v2:ncpus=120:mpiprocs=${ppn},place=scatte
 
 ## Visualizing
 
-ParaView can be used for vizualisation of OpenFOAM cases.  To install ParaView, download the installer from [here](https://www.paraview.org/download/).  The `tgz` installer can be used that only requires extracting.
+ParaView can be used for visualization of OpenFOAM cases.  To install ParaView, download the installer from [here](https://www.paraview.org/download/).  The `tgz` installer can be used that only requires extracting.
 
 Start a remote desktop session from the portal.  Navigate to the case directory and create a `case.foam` file:
 

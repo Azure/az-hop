@@ -29,7 +29,7 @@ sudo ./toolset/scripts/install.sh
 ```
 
 ## From a deployer VM
-`az-hop` can be deployed directly from an Ubuntu 20.04 (prefered) or a CentOS 7.9 VM on Azure, preferably behind a Bastion.
+`az-hop` can be deployed directly from an Ubuntu 20.04 (preferred) or a CentOS 7.9 VM on Azure, preferably behind a Bastion.
 In that case do the following :
 
 - Create a Bastion

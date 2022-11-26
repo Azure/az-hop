@@ -12,7 +12,7 @@ git clone https://github.com/Azure/azurehpc.git
 qsub -l select=1:slot_type=hc44rs -I
 ```
 
-### Wait the node to be provisioned (10 mn)
+### Wait the node to be provisioned (10 min)
 In the interactive session, install and configure spack
 ```bash
 ~/azurehpc/experimental/azhop/spack/install.sh

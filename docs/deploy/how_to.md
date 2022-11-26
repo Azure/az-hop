@@ -127,7 +127,7 @@ openssl req -nodes -new -x509 -keyout certificate.key -out certificate.crt
 
 Copy both files `certificate.key` and `certificate.crt` in the `./playbooks` directory and renamed them `<ondemand_fqdn>.crt` and `<ondemand_fqdn>.key`. The `ondemand_fdqn` variable value can be found in the `./playbooks/group_vars/all.yml` file.
 
-> Note: If you have an intermediate or chain file make sur to name it `<ondemand_fqdn>_chain.crt` 
+> Note: If you have an intermediate or chain file make sure to name it `<ondemand_fqdn>_chain.crt` 
 The playbook configuring OnDemand is expecting to find these files and will copy them in the ondemand VM when the no PIP option is set.
 
 ## Not deploy ANF
@@ -183,4 +183,4 @@ The helper script `configure_aad.sh` can be used to
 - Register an AAD application configured to the az-hop environment
 - Create a secret for this AAD application and store it in the az-hop Key Vault
 
-This script need to be run before the `install.sh` or at least before the `ood` step, and by a user with enough privilege to craete an application in AAD (typically a subscription `Owner`)
+This script need to be run before the `install.sh` or at least before the `ood` step, and by a user with enough privilege to create an application in AAD (typically a subscription `Owner`)
