@@ -1,6 +1,6 @@
 theme: jekyll-theme-cayman
 title: Welcome to the Azure HPC OnDemand Platform's homepage !
-description: Azure HPC OnDemand Platform (azhop) deliver a complete HPC cluster solution ready for users to run applications that is easy to deploy and managed.
+description: Azure HPC OnDemand Platform (azhop) deliver a complete HPC cluster solution ready for users to run applications that is easy to deploy and manage.
 plugins:
   - jekyll-relative-links
 relative_links:
