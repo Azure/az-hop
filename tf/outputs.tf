@@ -55,7 +55,7 @@ resource "local_file" "global_variables" {
       sig_name            = azurerm_shared_image_gallery.sig.name
       lustre_hsm_storage_account = ( local.lustre_archive_account != null ? local.lustre_archive_account : azurerm_storage_account.azhop.name )
       lustre_hsm_storage_container = ( local.lustre_archive_account != null ? local.configuration_yml["lustre"]["hsm"]["storage_container"] : (local.lustre_enabled ? azurerm_storage_container.lustre_archive[0].name : "") )
-      mysql-fqdn        = local.slurm_accounting ? azurerm_mysql_server.mysql[0].fqdn : ""
+      mysql-fqdn        = local.slurm_accounting ? azurerm_mariadb_server.mysql[0].fqdn : ""
       mysql-user        = local.slurm_accounting_admin_user
       jumpbox-ssh-port  = local.jumpbox_ssh_port
     }
