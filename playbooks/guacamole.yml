@@ -224,6 +224,12 @@
         state: present
         lock_timeout : 180
 
+    - name: Install MariaDB Java Connector
+      get_url: 
+        url: https://dlm.mariadb.com/2678616/Connectors/java/connector-java-3.1.0/mariadb-java-client-3.1.0.jar
+        dest: /etc/guacamole/lib/mariadb-java-client-3.1.0.jar
+        timeout : 180
+
     - name: Create a symbolic link for the mysql java connector
       file:
         src: /usr/share/java/mysql-connector-java.jar
