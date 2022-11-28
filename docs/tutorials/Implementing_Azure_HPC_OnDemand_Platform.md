@@ -393,7 +393,7 @@ The az-hop solution provides pre-configured Packer configuration files that can 
    - **screen -ls** : to list sessions
    - **screen -r [name]**: to reattach to the session [name]
 
-A typical output of a sucessful image build should end like this
+A typical output of a successful image build should end like this
 ```
 Creating an image definition for azhop-centos79-v2-rdma-gpgpu
 Read image definition from ../config.yml
@@ -591,8 +591,8 @@ In this exercise, you will review the main features of the Azure HPC OnDemand Pl
 
 1. Open a terminal and run `nvidia-smi` to validate that GPU is enabled
 1. In the open terminal run `glxspheres64` and observed the performances. This is running witout GPU acceleration and should deliver about **40 frames/sec**.
-1. Close the **GLX Spheres** window and rerun it by prefexing the command with vglrun to offload Opengl to the GPU: `vglrun glxspheres64`. Performances should be increased to about **400 frames/sec** depending on your screen size, quality and compression options.
-1. Start a new terminal and launch `nvidia-smi` to check the GPU usage which should be aboud **35%**.
+1. Close the **GLX Spheres** window and rerun it by prefixing the command with vglrun to offload Opengl to the GPU: `vglrun glxspheres64`. Performances should be increased to about **400 frames/sec** depending on your screen size, quality and compression options.
+1. Start a new terminal and launch `nvidia-smi` to check the GPU usage which should be about **35%**.
 
 > Note: The `vglrun` command can be called for all applications which use Opengl to offload calls to the GPU.
 
@@ -1312,7 +1312,7 @@ When the model is loaded, you can view the geometry like this:
 
 Next, you can visualize the simulation results.
 - Click the "Play" button on the toolbar at the top of the window to advance to the end of the simulation.
-- On the Active Variables Coontrol toolbar you will find a drop down box where you can select variables. For example, select "p" for pressure.
+- On the Active Variables Control toolbar you will find a drop down box where you can select variables. For example, select "p" for pressure.
 
 
 ## Exercise 9: Deprovision Azure HPC OnDemand Platform environment
@@ -1324,5 +1324,5 @@ In this exercise, you will deprovision the Azure HPC OnDemand Platform lab envir
 ### Task 1: Deprovision the Azure resources
 
 1. On the lab computer, switch to the browser window displaying the Azure portal
-1. Remove the resource group you have choosen to deploy azhop in.
+1. Remove the resource group you have chosen to deploy azhop in.
 

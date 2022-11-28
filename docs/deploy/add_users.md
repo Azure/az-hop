@@ -11,7 +11,7 @@ You can specify in which groups users belongs to but at least they are all in th
 - `az-hop-localadmins` : For users with Linux sudo right or Windows localadmin right on compute or viz nodes
 ## Add users in the configuration file
 
-Open the configuration file used to deploy your environment and add new users in the `users` dictionnary, and configure `usergroups` like below :
+Open the configuration file used to deploy your environment and add new users in the `users` dictionary, and configure `usergroups` like below :
 
 ```yml
 users:
@@ -39,7 +39,7 @@ usergroups:
 
 ## Create users passwords
 
-Run the `create_passwords.sh` scripts. This will create a password for each new users, and store it in the keyvault deployed in this environment, under the secret named `<user>-password`
+Run the `create_passwords.sh` scripts. This will create a password for each new users, and store it in the key vault deployed in this environment, under the secret named `<user>-password`
 
 ```bash
 $./create_passwords.sh

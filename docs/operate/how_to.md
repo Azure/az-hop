@@ -51,7 +51,7 @@ Then rerun the playbooks `cccluster` and `scheduler` (only for SLURM) installati
 There are two placeholder scripts named `zz-compute-custom.sh` and `zz-desktop-custom.sh` respectively for extending the compute nodes and remote desktop nodes image configuration. These scripts are in each OS section in the `./packer/scripts/<os>/` directory.
 Just update the related custom scripts with your content before building the image.
 
-## How to delet a Windows Remote Desktop session ?
+## How to delete a Windows Remote Desktop session ?
 As an admin you may need to delete user's Windows Remote Desktop jobs. To do this :
 1. In the active jobs, select **All Jobs** for the **Windows Remote Desktop** cluster
 1. Note the job Ids and owner values

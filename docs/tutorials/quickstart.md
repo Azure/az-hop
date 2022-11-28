@@ -45,7 +45,7 @@
 # Quickstart guide
 This quickstart guide will show you how to build and use an OnDemand HPC cluster on Azure thru the deployment of an simple **Azure HPC On-Demand Platform** environment. In this light environment, there is no Lustre cluster, no Window Viz nodes. `Az-hop` CentOS 7.9 Azure marketplace images for compute and remote desktop nodes will be used.
 
-When provisioning a complete `az-hop` environemnt a deployer VM and a bastion will be included. Once deployed, a cloud init script is run from the deployer VM to install and configure all components needed using Ansible playbooks. This second step is longer as it needs to install and configure a Domain Control, CycleCloud, OpenOndemand, PBS, Grafana and many others things. The use of Ansible will allows this system to be updated and in case of failure the installation to be retried.
+When provisioning a complete `az-hop` environment a deployer VM and a bastion will be included. Once deployed, a cloud init script is run from the deployer VM to install and configure all components needed using Ansible playbooks. This second step is longer as it needs to install and configure a Domain Control, CycleCloud, OpenOndemand, PBS, Grafana and many others things. The use of Ansible will allows this system to be updated and in case of failure the installation to be retried.
 
 ## Requirements
 
@@ -447,7 +447,7 @@ On the **Dashboard** page, select the **Jobs** menu title, and from the drop-dow
 
 1. Open a terminal and run `nvidia-smi` to validate that GPU is enabled
 1. In the open terminal run `/opt/VirtualGL/bin/glxspheres64` and observed the performances. This is running witout GPU acceleration and should deliver about **40 frames/sec**.
-1. Close the **GLX Spheres** window and rerun it by prefexing the command with vglrun to offload Opengl to the GPU: `vglrun /opt/VirtualGL/bin/glxspheres64`. Performances should be increased to about **400 frames/sec** depending on your screen size, quality and compression options.
+1. Close the **GLX Spheres** window and rerun it by prefixing the command with vglrun to offload Opengl to the GPU: `vglrun /opt/VirtualGL/bin/glxspheres64`. Performances should be increased to about **400 frames/sec** depending on your screen size, quality and compression options.
 1. Start a new terminal and launch `nvidia-smi` to check the GPU usage which should be about **35%**.
 
 > Note: The `vglrun` command can be called for all applications which use Opengl to offload calls to the GPU.
@@ -857,5 +857,5 @@ In this exercise, you will deprovision the Azure HPC OnDemand Platform lab envir
 ### Task 1: Deprovision the Azure resources
 
 1. On the lab computer, switch to the browser window displaying the Azure portal
-1. Delete the resource group you have choosen to deploy azhop in.
+1. Delete the resource group you have chosen to deploy azhop in.
 

@@ -1,5 +1,5 @@
 # Installation
-Once the whole infrastrtucture has been deployed you need to install and configure the softwares. To do so the `install.sh` utility script is used.
+Once the whole infrastructure has been deployed you need to install and configure the software. To do so the `install.sh` utility script is used.
 
 ## Install and configure the deployed environment
 The installation is done with Ansible playbooks and can be applied as a whole or by components, but there is an order to follow as playbooks have dependencies :
@@ -27,4 +27,4 @@ If you need to apply only a subset then run
 ```
 When requesting the execution of a specific playbook, the script will force execution even if the playbook successfully completed on a previous run.
 
-In case of a transient failure, the install script can be reapplied as most of the settings are idempotent. The script contains a checkpointing mechanism, each sucessfully applied target will have a `.ok` file created in the playbooks directory. If you want to re-apply a target, delete this file and rerun the install script.
+In case of a transient failure, the install script can be reapplied as most of the settings are idempotent. The script contains a checkpointing mechanism, each successfully applied target will have a `.ok` file created in the playbooks directory. If you want to re-apply a target, delete this file and rerun the install script.

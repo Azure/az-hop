@@ -10,7 +10,7 @@ This can be done by running this command
 ```
 
 ## Accessing the CycleCloud portal
-By default every users can access the CycleCloud portal as a readonly user. If you need admin access, then you have to create an ssh tunnel, but run it from the outside of the toolchain container as the container won't allow port redirection.
+By default every users can access the CycleCloud portal as a read only user. If you need admin access, then you have to create an ssh tunnel, but run it from the outside of the toolchain container as the container won't allow port redirection.
 
 ```bash
 ./bin/connect cyclecloud
