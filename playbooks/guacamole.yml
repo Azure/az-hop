@@ -189,52 +189,56 @@
       with_items:
         - guacamole-auth-ldap-{{guac_version}}/guacamole-auth-ldap-{{guac_version}}.jar
         - guacamole-auth-jdbc-{{guac_version}}/mysql/guacamole-auth-jdbc-mysql-{{guac_version}}.jar
-        #- guacamole-auth-quickconnect-1.3.0/guacamole-auth-quickconnect-1.3.0.jar
 
-    # Install 8.0.26 because starting on Oct-1 2021, 8.0.27 doesn't allow connecting so a single server managed MySql instance
     - name: download mysql80-community
       get_url:
-        url: 'https://dev.mysql.com/get/mysql80-community-release-el7-4.noarch.rpm'
+        url: 'https://dev.mysql.com/get/mysql80-community-release-el7-7.noarch.rpm'
         dest: /etc/guacamole/
         timeout: 180
 
     - name: Install mysql80-community RPM
-      shell: rpm -Uvh --force /etc/guacamole/mysql80-community-release-el7-4.noarch.rpm
-    - name: Install MySQL CLI 8.0.26
+      shell: rpm -Uvh --force /etc/guacamole/mysql80-community-release-el7-7.noarch.rpm
+    - name: Install MySQL CLI 8.0.31
       yum:
         name:
-          - mysql-community-libs-8.0.26
-          - mysql-community-client-plugins-8.0.26
-          - mysql-community-client-8.0.26
-          - mysql-community-common-8.0.26
-          - mysql-community-libs-compat-8.0.26
+          - mysql-community-libs
+          - mysql-community-client-plugins
+          - mysql-community-client
+          - mysql-community-common
+          - mysql-community-libs-compat
         state: present
         lock_timeout : 180
 
     - name: download certificate
       get_url:
-        url: 'https://www.digicert.com/CACerts/BaltimoreCyberTrustRoot.crt.pem'
+        url: 'https://www.digicert.com/CACerts/BaltimoreCyberTrustRoot.crt.pem' #https://cacerts.digicert.com/DigiCertGlobalRootG2.crt.pem
         dest: /etc/guacamole/BaltimoreCyberTrustRoot.crt.pem
         mode: 0644
         timeout: 180
 
-    - name: Install MySQL Java Connector
-      yum: 
-        name: https://downloads.mysql.com/archives/get/p/3/file/mysql-connector-java-8.0.26-1.el7.noarch.rpm
-        state: present
-        lock_timeout : 180
+    # - name: Install MySQL Java Connector
+    #   yum: 
+    #     name: https://downloads.mysql.com/archives/get/p/3/file/mysql-connector-java-8.0.26-1.el7.noarch.rpm
+    #     state: present
+    #     lock_timeout : 180
 
     - name: Install MariaDB Java Connector
       get_url: 
-        url: https://dlm.mariadb.com/2678616/Connectors/java/connector-java-3.1.0/mariadb-java-client-3.1.0.jar
-        dest: /etc/guacamole/lib/mariadb-java-client-3.1.0.jar
+        url: https://dlm.mariadb.com/2678392/Connectors/java/connector-java-2.7.7/mariadb-java-client-2.7.7.jar
+        dest: /usr/share/java/mariadb-java-client-2.7.7.jar
         timeout : 180
 
-    - name: Create a symbolic link for the mysql java connector
+    - name: Create a symbolic link for the mariadb java connector
       file:
-        src: /usr/share/java/mysql-connector-java.jar
-        dest: /etc/guacamole/lib/mysql-connector-java.jar
+        src: /usr/share/java/mariadb-java-client-2.7.7.jar
+        dest: /etc/guacamole/lib/mariadb-java-client-2.7.7.jar
         state: link
+
+    # - name: Create a symbolic link for the mysql java connector
+    #   file:
+    #     src: /usr/share/java/mysql-connector-java.jar
+    #     dest: /etc/guacamole/lib/mysql-connector-java.jar
+    #     state: link
 
     - name: Read SQLAdmin Password from KV
       command: az keyvault secret show --vault-name {{key_vault}} -n {{ slurmdb_user }}-password --query "value" -o tsv
@@ -260,8 +264,8 @@
         mysql <<EOF
         create database if not exists guacamole_db;
         EOF
-        if [[ ! -z "`mysql -qfsBe "CALL sys.table_exists('guacamole_db', 'guacamole_connection_group', @exists); SELECT @exists;" 2>&1`" ]];
-        then
+        COUNT=$(mysql -NqfsBe "select count(table_name) from information_schema.tables where table_schema='guacamole_db' and table_name='guacamole_user';")
+        if [ "$COUNT" != "0" ]; then
           echo "DATABASE ALREADY INITIALIZED"
         else
           echo "INITIALIZING DATABASE"
@@ -292,6 +296,7 @@
           ldap-username-attribute: sAMAccountName
           ldap-user-search-filter: (|(objectCategory=CN=Person,CN=Schema,CN=Configuration,DC=hpc,DC=azure))
 
+          mysql-driver: mariadb
           mysql-hostname: {{slurmdb_fqdn}}
           mysql-port: 3306
           mysql-database: guacamole_db

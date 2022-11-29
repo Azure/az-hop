@@ -1,7 +1,23 @@
 ---
 - name: Install dependencies
   yum:
-    name: jq
+    name: jq, gcc, python3-devel, openssl
+    lock_timeout : 180
+
+- name: Download MariaDB repo tool
+  get_url: 
+    url: https://downloads.mariadb.com/MariaDB/mariadb_repo_setup
+    dest: ~/mariadb_repo_setup
+    timeout : 180
+
+- name: Configure MariaDB repo
+  shell: |
+    echo "367a80b01083c34899958cdd62525104a3de6069161d309039e84048d89ee98b ~/mariadb_repo_setup" | sha256sum -c -
+    ~/mariadb_repo_setup
+
+- name: Install MariaDB Connector/C
+  yum:
+    name: MariaDB-shared, MariaDB-devel
     lock_timeout : 180
 
 - name: Read Password from KV
@@ -27,6 +43,13 @@
     state: directory
     owner: root
 
+- name: download certificate
+  get_url:
+    url: 'https://www.digicert.com/CACerts/BaltimoreCyberTrustRoot.crt.pem'
+    dest: /etc/guacamole/BaltimoreCyberTrustRoot.crt.pem
+    mode: 0644
+    timeout: 180
+
 - name: configure guacamole
   copy:
     dest: /etc/guacamole/guacamole.properties
@@ -38,6 +61,7 @@
       mysql-password: {{sqladmin_password.stdout}}
       mysql-server-timezone: GMT
       mysql-auto-create-accounts: true
+      mysql-ssl_ca: /etc/guacamole/BaltimoreCyberTrustRoot.crt.pem
     owner: root
     mode: 0640
 
