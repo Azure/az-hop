@@ -13,6 +13,7 @@
 - name: Configure MariaDB repo
   shell: |
     echo "367a80b01083c34899958cdd62525104a3de6069161d309039e84048d89ee98b ~/mariadb_repo_setup" | sha256sum -c -
+    chmod +x ~/mariadb_repo_setup
     ~/mariadb_repo_setup
 
 - name: Install MariaDB Connector/C
