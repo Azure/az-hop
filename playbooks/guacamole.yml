@@ -259,9 +259,6 @@
           echo "INITIALIZING DATABASE"
           cat /opt/guacamole/guacamole-auth-jdbc-{{guac_version}}/mysql/schema/*.sql | mysql guacamole_db
         fi
-        touch /etc/guacamole/guacamole_db.created
-      args:
-        creates: /etc/guacamole/guacamole_db.created
 
     - name: Read Password from KV
       command: az keyvault secret show --vault-name {{key_vault}} -n {{admin_user}}-password --query "value" -o tsv
