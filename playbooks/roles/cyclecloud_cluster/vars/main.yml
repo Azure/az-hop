@@ -3,7 +3,7 @@ common_project_root: '{{project_root}}/common'
 openpbs_project_root: '{{project_root}}/openpbs'
 enroot_project_root: '{{project_root}}/enroot'
 cc_queue_manager:
-cyclecloud_slurm_release: 2.6.2
+cyclecloud_slurm_release: 2.7.0
 slurm_version: 20.11.9-1
 # slurm uid/gid match cyclecloud-slurm cookbook values
 slurm_uid: 11100
