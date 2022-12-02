@@ -445,21 +445,20 @@
       git describe --always --tags
     register: azhop_version
 
+  - name: create OOD_VERSION if not exists
+    shell: |
+      cp /opt/ood/VERSION /opt/ood/OOD_VERSION
+    args: 
+      creates: /opt/ood/OOD_VERSION
+
   - name: retrieve OnDemand version
     shell: |
-      cat /opt/ood/VERSION
+      cat /opt/ood/OOD_VERSION
     register: ood_version
 
-  - name: Create azhop version file
+  - name: Override OOD version with azhop version
     shell: |
-      echo "{{ood_version.stdout}} with azhop {{azhop_version.stdout}}" > /opt/ood/AZHOP_VERSION
-
-  - name: Update OOD footer to use azhop config file
-    lineinfile:
-      path: /var/www/ood/apps/sys/dashboard/app/apps/ood_app.rb
-      search_string: '("VERSION")'
-      line : 'file = path.join("AZHOP_VERSION")'
-      state: present
+      echo "{{ood_version.stdout}} | AZHOP {{azhop_version.stdout}}" > /opt/ood/VERSION
 
   - name: restart ood
     shell: systemctl try-restart httpd24-httpd.service httpd24-htcacheclean.service
