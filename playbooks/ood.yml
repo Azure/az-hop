@@ -438,6 +438,29 @@
   #         ListenBacklog          511
   #       </IfModule>
 
+  - name: retrieve azhop version
+    delegate_to: localhost
+    connection: local
+    shell: |
+      git describe --always --tags
+    register: azhop_version
+
+  - name: retrieve OnDemand version
+    shell: |
+      cat /opt/ood/VERSION
+    register: ood_version
+
+  - name: Create azhop version file
+    shell: |
+      echo "{{ood_version.stdout}} with azhop {{azhop_version.stdout}}" > /opt/ood/AZHOP_VERSION
+
+  - name: Update OOD footer to use azhop config file
+    lineinfile:
+      path: /var/www/ood/apps/sys/dashboard/app/apps/ood_app.rb
+      search_string: '("VERSION")'
+      line : 'file = path.join("AZHOP_VERSION")'
+      state: present
+
   - name: restart ood
     shell: systemctl try-restart httpd24-httpd.service httpd24-htcacheclean.service
 
