@@ -11,6 +11,8 @@ resource_group: azhop
 # If using an existing resource group set to true. Default is false
 # When using an existing resource group make sure the location match the one of the existing resource group
 use_existing_rg: false
+# If set to true, will disable telemetry for azhop. See https://azure.github.io/az-hop/deploy/telemetry.html.
+#optout_telemetry: true
 # Additional tags to be added on the Resource Group
 tags:
   env: dev
@@ -108,6 +110,7 @@ network:
 #  peering: # This list is optional, and can be used to create VNet Peerings in the same subscription.
 #    - vnet_name: #"VNET Name to Peer to"
 #      vnet_resource_group: #"Resource Group of the VNET to peer to"
+#      vnet_allow_gateway: false # optional: allow gateway transit (default: true)
 
 # Specify DNS forwarders available in the network
 # dns:
@@ -138,7 +141,7 @@ jumpbox:
 ad:
   vm_size: Standard_B2ms
   hybrid_benefit: false # Enable hybrid benefit for AD, default to false
-  high_availability : false # Build AD in High Availability mode (2 Domain Controlers) - default to false
+  high_availability: false # Build AD in High Availability mode (2 Domain Controlers) - default to false
 # On demand VM configuration
 ondemand:
   vm_size: Standard_D4s_v5
@@ -282,10 +285,24 @@ images:
     hyper_v: V2
     os_type: Linux
     version: 7.9
-  - name: azhop-ubuntu18.04
-    publisher: azhop
-    offer: Ubuntu
-    sku: 10_04
+  - name: azhop-compute-centos-7_9
+    publisher: azhpc
+    offer: azhop-compute
+    sku: centos-7_9
+    hyper_v: V2
+    os_type: Linux
+    version: 7.9
+  - name: azhop-desktop-centos-7_9
+    publisher: azhpc
+    offer: azhop-desktop
+    sku: centos-7_9
+    hyper_v: V2
+    os_type: Linux
+    version: 7.9
+  - name: azhop-compute-ubuntu-1804
+    publisher: azhpc
+    offer: azhop-compute
+    sku: ubuntu-1804
     hyper_v: V2
     os_type: Linux
     version: 18.04
@@ -304,6 +321,10 @@ images:
     hyper_v: V2
     os_type: Linux
     version: 7.9
+
+# Autoscale default settings for all queues, can be overriden on each queue depending on the VM type if needed
+autoscale:
+  idle_timeout: 1800 # Idle time in seconds before shutting down VMs - default to 1800 like in CycleCloud
 
 # List of queues (node arrays in Cycle) to be defined
 # don't use queue names longer than 8 characters in order to leave space for node suffix, as hostnames are limited to 15 chars due to domain join and NETBIOS constraints.
@@ -335,16 +356,19 @@ queues:
     max_core_count: 440
     image: azhpc:azhop-compute:centos-7_9:latest
     spot: true
+    EnableAcceleratedNetworking: true
   - name: hb120v2
     vm_size: Standard_HB120rs_v2
     max_core_count: 1200
     image: azhpc:azhop-compute:centos-7_9:latest
     spot: true
+    EnableAcceleratedNetworking: true
   - name: hb120v3
     vm_size: Standard_HB120rs_v3
     max_core_count: 1200
     image: azhpc:azhop-compute:centos-7_9:latest
     spot: true
+    EnableAcceleratedNetworking: true
     # Queue dedicated to GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz3d
     vm_size: Standard_NV12s_v3
@@ -355,6 +379,7 @@ queues:
     #image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
     ColocateNodes: false
     spot: false
+    EnableAcceleratedNetworking: true
     max_hours: 12 # Maximum session duration
     min_hours: 1 # Minimum session duration - 0 is infinite
     # Queue dedicated to share GPU remote viz nodes. This name is fixed and can't be changed
@@ -363,6 +388,7 @@ queues:
     max_core_count: 96
     image: azhpc:azhop-desktop:centos-7_9:latest
     ColocateNodes: false
+    EnableAcceleratedNetworking: true
     spot: false
     max_hours: 12
     min_hours: 1
@@ -373,6 +399,7 @@ queues:
     image: azhpc:azhop-desktop:centos-7_9:latest
     ColocateNodes: false
     spot: false
+    EnableAcceleratedNetworking: true
     max_hours: 12
     min_hours: 1
 
@@ -386,5 +413,6 @@ remoteviz:
     image: "MicrosoftWindowsDesktop:Windows-10:21h1-pron:latest"
     ColocateNodes: false
     spot: false
+    EnableAcceleratedNetworking: true
 
 ```

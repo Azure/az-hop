@@ -198,38 +198,45 @@ queues:
     max_core_count: 1056
     image: azhpc:azhop-compute:centos-7_9:latest
     spot: true
+    EnableAcceleratedNetworking: true
   - name: hb60rs
     vm_size: Standard_HB60rs
     max_core_count: 1440
     image: azhpc:azhop-compute:centos-7_9:latest
     spot: true
+    EnableAcceleratedNetworking: true
   - name: hb120v2
     vm_size: Standard_HB120rs_v2
     max_core_count: 2880
     image: azhpc:azhop-compute:centos-7_9:latest
     spot: true
+    EnableAcceleratedNetworking: true
   - name: hb120v3
     vm_size: Standard_HB120rs_v3
     max_core_count: 2880
     image: azhpc:azhop-compute:centos-7_9:latest
     spot: true
+    EnableAcceleratedNetworking: true
   - name: hb120v3al
     vm_size: Standard_HB120rs_v3
     max_core_count: 2880
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-almalinux85-v2-rdma-gpgpu/latest
     plan: almalinux:almalinux-hpc:8_5-hpc-gen2
     spot: true
+    EnableAcceleratedNetworking: true
   - name: hbv3u18
     vm_size: Standard_HB120rs_v3
     max_core_count: 2880
     image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-compute-ubuntu-1804/latest
     spot: true
+    EnableAcceleratedNetworking: true
   - name: viz3d
     vm_size: Standard_NV12s_v3
     max_core_count: 48
     image: azhpc:azhop-desktop:centos-7_9:latest
     ColocateNodes: false
     spot: false
+    EnableAcceleratedNetworking: true
     max_hours: 12 # Maximum session duration
     min_hours: 1 # Minimum session duration - 0 is infinite
   - name: viz
@@ -238,18 +245,21 @@ queues:
     image: azhpc:azhop-desktop:centos-7_9:latest
     ColocateNodes: false
     spot: false
+    EnableAcceleratedNetworking: true
     max_hours: 12 # Maximum session duration
     min_hours: 1 # Minimum session duration - 0 is infinite
   - name: nc24v3
     vm_size: Standard_NC24rs_v3
     max_core_count: 96
     image: azhpc:azhop-compute:centos-7_9:latest
+    EnableAcceleratedNetworking: true
   - name: largeviz3d
     vm_size: Standard_NV48s_v3
     max_core_count: 96
     image: azhpc:azhop-desktop:centos-7_9:latest
     ColocateNodes: false
     spot: false
+    EnableAcceleratedNetworking: true
     max_hours: 12 # Maximum session duration
     min_hours: 1 # Minimum session duration - 0 is infinite
 
@@ -263,3 +273,4 @@ remoteviz:
     image: "MicrosoftWindowsDesktop:Windows-10:21h1-pron:latest"
     ColocateNodes: false
     spot: false
+    EnableAcceleratedNetworking: true
