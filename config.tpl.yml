@@ -351,16 +351,19 @@ queues:
     max_core_count: 440
     image: azhpc:azhop-compute:centos-7_9:latest
     spot: true
+    EnableAcceleratedNetworking: true
   - name: hb120v2
     vm_size: Standard_HB120rs_v2
     max_core_count: 1200
     image: azhpc:azhop-compute:centos-7_9:latest
     spot: true
+    EnableAcceleratedNetworking: true
   - name: hb120v3
     vm_size: Standard_HB120rs_v3
     max_core_count: 1200
     image: azhpc:azhop-compute:centos-7_9:latest
     spot: true
+    EnableAcceleratedNetworking: true
     # Queue dedicated to GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz3d
     vm_size: Standard_NV12s_v3
@@ -371,6 +374,7 @@ queues:
     #image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
     ColocateNodes: false
     spot: false
+    EnableAcceleratedNetworking: true
     max_hours: 12 # Maximum session duration
     min_hours: 1 # Minimum session duration - 0 is infinite
     # Queue dedicated to share GPU remote viz nodes. This name is fixed and can't be changed
@@ -379,6 +383,7 @@ queues:
     max_core_count: 96
     image: azhpc:azhop-desktop:centos-7_9:latest
     ColocateNodes: false
+    EnableAcceleratedNetworking: true
     spot: false
     max_hours: 12
     min_hours: 1
@@ -389,6 +394,7 @@ queues:
     image: azhpc:azhop-desktop:centos-7_9:latest
     ColocateNodes: false
     spot: false
+    EnableAcceleratedNetworking: true
     max_hours: 12
     min_hours: 1
 
@@ -402,3 +408,4 @@ remoteviz:
     image: "MicrosoftWindowsDesktop:Windows-10:21h1-pron:latest"
     ColocateNodes: false
     spot: false
+    EnableAcceleratedNetworking: true
