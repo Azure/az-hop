@@ -279,7 +279,7 @@
 
   - name: add modules for job submission
     yum: 
-      name: Lmod, hwloc, numactl 
+      name: Lmod, hwloc, numactl, jq
       lock_timeout : 180
 
   - name: create ssh_config file
