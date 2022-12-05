@@ -5,15 +5,6 @@ clusters:
       job:
         adapter: slurm
 
-ood_install_apps:
-  codeserver:
-    repo: https://github.com/vgamayunov/bc_osc_codeserver.git
-    version: codeserver4.8.1
-  jupyter:
-    dest: "{{ ood_sys_app_dir }}"
-    repo: https://github.com/edwardsp/bc_osc_jupyter.git
-    version: master
-    
 ood_apps:
   bc_desktop:
     submit: |
