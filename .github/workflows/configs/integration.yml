@@ -147,13 +147,13 @@ authentication:
   #   OIDCPassClaimsAs: # for AAD use 'environment'
 
 images:
-  - name: azhop-almalinux85-v2-rdma-gpgpu
-    publisher: azhop
-    offer: almalinux
-    sku: 8_5-hpc-gen2
-    hyper_v: V2
-    os_type: Linux
-    version: 8.5
+  # - name: azhop-almalinux85-v2-rdma-gpgpu
+  #   publisher: azhop
+  #   offer: almalinux
+  #   sku: 8_5-hpc-gen2
+  #   hyper_v: V2
+  #   os_type: Linux
+  #   version: 8.5
   # - name: azhop-centos79-v2-rdma-gpgpu
   #   publisher: azhop
   #   offer: CentOS
@@ -168,13 +168,13 @@ images:
   #   hyper_v: V2
   #   os_type: Linux
   #   version: 7.9
-  - name: azhop-compute-ubuntu-1804
-    publisher: azhpc
-    offer: azhop-compute
-    sku: ubuntu-1804
-    hyper_v: V2
-    os_type: Linux
-    version: 18.04
+  # - name: azhop-compute-ubuntu-1804
+  #   publisher: azhpc
+  #   offer: azhop-compute
+  #   sku: ubuntu-1804
+  #   hyper_v: V2
+  #   os_type: Linux
+  #   version: 18.04
   # - name: azhop-win10
   #   publisher: azhop
   #   offer: Windows-10
@@ -217,17 +217,17 @@ queues:
     image: azhpc:azhop-compute:centos-7_9:latest
     spot: true
     EnableAcceleratedNetworking: true
-  - name: hb120v3al
-    vm_size: Standard_HB120rs_v3
-    max_core_count: 2880
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-almalinux85-v2-rdma-gpgpu/latest
-    plan: almalinux:almalinux-hpc:8_5-hpc-gen2
-    spot: true
-    EnableAcceleratedNetworking: true
+  # - name: hb120v3al
+  #   vm_size: Standard_HB120rs_v3
+  #   max_core_count: 2880
+  #   image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-almalinux85-v2-rdma-gpgpu/latest
+  #   plan: almalinux:almalinux-hpc:8_5-hpc-gen2
+  #   spot: true
+  #   EnableAcceleratedNetworking: true
   - name: hbv3u18
     vm_size: Standard_HB120rs_v3
     max_core_count: 2880
-    image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-compute-ubuntu-1804/latest
+    image: azhpc:azhop-compute:ubuntu-18_04:latest
     spot: true
     EnableAcceleratedNetworking: true
   - name: viz3d
