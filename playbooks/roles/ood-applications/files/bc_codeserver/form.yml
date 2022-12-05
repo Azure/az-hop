@@ -1,11 +1,11 @@
 ---
 cluster: "ondemand"
 form:
-  - hours
+  - bc_num_hours
   - slot_type
   - working_dir
 attributes:
-  hours:
+  bc_num_hours:
     widget: "number_field"
     label: "Maximum duration of your remote session"
     value: 1
@@ -14,7 +14,6 @@ attributes:
     min: 1
     max: 48
     step: 1
-    id: 'hours'
   slot_type:
     id: 'slot_type'
     value: 'execute'
