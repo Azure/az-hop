@@ -12,12 +12,10 @@ elsif working_dir.file?
 end
 %>
 
-export PATH=/mnt/resource/$USER/code-server-4.8.3-linux-amd64/bin:$PATH
 if ! which code-server; then
     mkdir -p /mnt/resource/$USER
     pushd /mnt/resource/$USER
     curl -fsSL https://code-server.dev/install.sh | sh -s -- --version 4.8.3
-#    wget -qO- https://github.com/cdr/code-server/releases/download/v4.8.3/code-server-4.8.3-linux-amd64.tar.gz | tar zxv
     popd
 fi
 
