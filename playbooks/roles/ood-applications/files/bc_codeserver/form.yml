@@ -1,0 +1,27 @@
+---
+cluster: "ondemand"
+form:
+  - hours
+  - slot_type
+  - working_dir
+attributes:
+  hours:
+    widget: "number_field"
+    label: "Maximum duration of your remote session"
+    value: 1
+    help: |
+      This is the maximum duration of your session.
+    min: 1
+    max: 48
+    step: 1
+    id: 'hours'
+  slot_type:
+    id: 'slot_type'
+    value: 'execute'
+  working_dir:
+    label: "Working Directory"
+    data-filepicker: true
+    data-target-file-type: dirs  # Valid values are: files, dirs, or both
+    readonly: false
+    help: "Select your project directory; defaults to $HOME"
+  
