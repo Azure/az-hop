@@ -51,6 +51,8 @@
 - name: mount data disk
   shell: |
     set -e
+    # If cycle_server is already mounted, exit
+    if grep -q cycle_server /etc/fstab; then exit 0; fi
     parted /dev/disk/azure/scsi1/lun0 --script -- mklabel gpt
     parted -a optimal /dev/disk/azure/scsi1/lun0 mkpart primary 0% 100%
     # try a sleep here to wait for the symlink
@@ -59,10 +61,7 @@
     disk_uuid=$(blkid -o value -s UUID  /dev/disk/azure/scsi1/lun0-part1)
     mkdir /opt/cycle_server
     echo "UUID=$disk_uuid /opt/cycle_server xfs defaults,nofail 1 2" >> /etc/fstab
-    mount -a
-    touch ~/data_disk_mounted
-  args:
-    creates: ~/data_disk_mounted
+    mount /opt/cycle_server
 
 - name: Install pre-reqs packages
   yum:
