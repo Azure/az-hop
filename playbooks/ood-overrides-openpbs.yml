@@ -6,9 +6,6 @@ clusters:
         adapter: pbspro
         exec: /opt/pbs
 
-ood_install_apps:
-  codeserver:
-    repo: https://github.com/edwardsp/bc_osc_codeserver.git
 ood_apps:
   bc_desktop:
     submit: |

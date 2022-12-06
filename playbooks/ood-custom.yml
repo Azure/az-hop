@@ -11,3 +11,8 @@
         src: 'files/ood_templates/{{qmanager}}/' # inside directories are copied
         dest: '/var/www/ood/apps/sys/myjobs/templates/'
 
+    - include_role: 
+        name: ood-applications
+        apply: 
+          become: true
+

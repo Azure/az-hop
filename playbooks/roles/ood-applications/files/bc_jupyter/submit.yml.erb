@@ -1,0 +1,15 @@
+---
+batch_connect:
+  template: "basic"
+script:
+  native:
+    - "-p"
+    - "<%= slot_type %>"
+    - "-N"
+    - "1"
+    - "--exclusive"
+    - "--container-image=<%= container_image %>"
+    - "--export=ALL"
+<%- if container_mounts != "" -%>
+    - "--container-mounts=<%= container_mounts %>"
+<%- end -%>

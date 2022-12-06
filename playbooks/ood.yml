@@ -296,22 +296,6 @@
         Match group "domain users"
           AllowUsers *
 
-  - include_role: 
-      name: ood-apps-cyclecloud
-      apply: 
-        become: true
-
-  - include_role: 
-      name: ood-apps-grafana
-      apply: 
-        become: true
-
-  - include_role: 
-      name: ood-apps-robinhood
-      apply: 
-        become: true
-    when: ( lustre is defined )
-
   - name: setup azcopy
     shell: |
       # Install azcopy
