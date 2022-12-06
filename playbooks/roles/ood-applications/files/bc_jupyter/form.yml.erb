@@ -7,7 +7,6 @@ form:
   - container_image
   - bc_num_hours
   - slot_type
-  - working_dir
 attributes:
   bc_num_hours:
     widget: "number_field"
@@ -31,9 +30,3 @@ attributes:
     value: "jupyter/scipy-notebook"
     help: |
       This image requires jupyter installed and in the path.
-  working_dir:
-    label: "Working Directory"
-    data-filepicker: true
-    data-target-file-type: dirs  # Valid values are: files, dirs, or both
-    readonly: false
-    help: "Select your project directory; defaults to $HOME"
