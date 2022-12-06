@@ -2,6 +2,8 @@
 # Based on: https://github.com/Azure/cyclecloud-slurm/blob/master/specs/default/cluster-init/files/00-build-slurm.sh
 set -e
 
+INSTALL_SLURM=no
+
 SLURM_VERSION=20.11.9
 BUILD_DIR=/mnt/slurm
 mkdir -p $BUILD_DIR
@@ -49,23 +51,31 @@ git checkout v3.1
 make -j
 make install
 
-ln -s `which $PYTHON` $BUILD_DIR/bin/python
-export PATH=$PATH:$BUILD_DIR/bin
-wget "${DOWNLOAD_URL}/${SLURM_PKG}"
-rpmbuild --define "_with_pmix --with-pmix=/opt/pmix/v3" -ta ${SLURM_PKG}
 
-#
-# Install SLURM
-#
+if [ "$INSTALL_SLURM" = "yes" ]; then
+    #
+    # Build SLURM
+    #
 
-dnf -y install /root/rpmbuild/RPMS/x86_64/slurm-${SLURM_VERSION}*.rpm /root/rpmbuild/RPMS/x86_64/slurm-slurmd-${SLURM_VERSION}*.rpm
+    ln -s `which $PYTHON` $BUILD_DIR/bin/python
+    export PATH=$PATH:$BUILD_DIR/bin
+    wget "${DOWNLOAD_URL}/${SLURM_PKG}"
+    rpmbuild --define "_with_pmix --with-pmix=/opt/pmix/v3" -ta ${SLURM_PKG}
 
-#
-# The below is needed to CycleCloud chef recipe
-#
-systemctl stop munge
-userdel munge
-mkdir -p /etc/slurm
+    #
+    # Install SLURM
+    #
+
+    dnf -y install /root/rpmbuild/RPMS/x86_64/slurm-${SLURM_VERSION}*.rpm /root/rpmbuild/RPMS/x86_64/slurm-slurmd-${SLURM_VERSION}*.rpm
+
+    #
+    # The below is needed to CycleCloud chef recipe
+    #
+    systemctl stop munge
+    userdel munge
+    mkdir -p /etc/slurm
+
+fi
 
 #
 # Install Enroot
