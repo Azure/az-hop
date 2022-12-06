@@ -8,7 +8,7 @@ After entering the number of hours, click on the `Launch` button. This will queu
 
 <img src="../images/remote_desktop_queued.png" width="100%">
 
-If no machines are available to serve your request, and if there are enough quota, a new machine will be provisionned. You can use the `Monitoring / Cycle Cloud` menu to access the Cycle Cloud portal and check the provisioning status.
+If no machines are available to serve your request, and if there are enough quota, a new machine will be provisioned. You can use the `Monitoring / Cycle Cloud` menu to access the Cycle Cloud portal and check the provisioning status.
 
 Once a node is available to be used, your queued remote session request will be updated like in the screenshot below. Choose which level of `Compression=` and `Image Quality` you want and then click on the `Launch Remote Desktop` button. Note that the time remaining is displayed so you know how long you can work on this session. Be aware that you can't expand that time and a new session will have to be created. This is also from here that you can delete your session once done to release the resources.
 

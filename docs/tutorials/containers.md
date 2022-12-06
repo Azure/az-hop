@@ -23,7 +23,7 @@ salloc -N1 -p hc44rs --exclusive
 ```bash
 srun --container-image=ubuntu --container-name=ubuntu_dev --pty bash
 ```
-When `--container-name` option is specified, the container will not be automatically removed aftert the slurm task is complete.
+When `--container-name` option is specified, the container will not be automatically removed after the slurm task is complete.
 
 #### Install any packages inside the container
 ```bash

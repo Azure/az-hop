@@ -26,11 +26,6 @@ clusters:
             export WEBSOCKIFY_CMD="/usr/bin/websockify"
             %s
 
-ood_install_apps:
-  codeserver:
-    dest: "{{ ood_sys_app_dir }}"
-    version: master
-
 ood_apps:
   dashboard:
     env:

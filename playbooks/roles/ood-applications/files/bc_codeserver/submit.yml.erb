@@ -1,0 +1,15 @@
+---
+batch_connect:
+  template: "basic"
+script:
+  native:
+<%- if OodAppkit.clusters[cluster].job_config[:adapter] == 'slurm' -%>
+    - "-p"
+    - "<%= slot_type %>"
+    - "-N"
+    - "1"
+    - "--exclusive"
+<%- else -%>
+    - "-l"
+    - "select=1:slot_type=<%= slot_type %>"
+<%- end -%>

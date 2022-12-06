@@ -7,7 +7,7 @@ Set the `Maximum duration` for your session, `slot_type` and `Working Directory`
 
 <img src="../images/code_server_request.png" width="100%">
 
-If no machine are available, your request will be queued and a new VM will be provisionned.
+If no machine are available, your request will be queued and a new VM will be provisioned.
 
 <img src="../images/code_server_queued.png" width="100%">
 

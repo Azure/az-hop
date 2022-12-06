@@ -7,7 +7,7 @@ If a job is not starting, check which **slot_type** have been used in the job re
 <img src="../images/cyclecloud_messages.png" width="100%">
 
 There are several reasons why a job won't start, the most known being :
-- the node renaming is failing (for whatever reason), hence it won't be registered in the scheduler. Workaround is to add a new node thru a fake job if possible, and the failed node will automatically being removed after 15mn.
+- the node renaming is failing (for whatever reason), hence it won't be registered in the scheduler. Workaround is to add a new node thru a fake job if possible, and the failed node will automatically being removed after 15min.
 - the `slot_type` is case sensitive, so make sure the slot_type in the job is correct,
-- an init script is failing to run. Workaround is to add a new node thru a fake job if possible, and the failed node will automatically being removed after 15mn.
+- an init script is failing to run. Workaround is to add a new node thru a fake job if possible, and the failed node will automatically being removed after 15min.
 - there is not enough quota to run that job.

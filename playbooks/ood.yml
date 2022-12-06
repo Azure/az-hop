@@ -279,7 +279,7 @@
 
   - name: add modules for job submission
     yum: 
-      name: Lmod, hwloc, numactl 
+      name: Lmod, hwloc, numactl, jq
       lock_timeout : 180
 
   - name: create ssh_config file
@@ -295,22 +295,6 @@
       block: |
         Match group "domain users"
           AllowUsers *
-
-  - include_role: 
-      name: ood-apps-cyclecloud
-      apply: 
-        become: true
-
-  - include_role: 
-      name: ood-apps-grafana
-      apply: 
-        become: true
-
-  - include_role: 
-      name: ood-apps-robinhood
-      apply: 
-        become: true
-    when: ( lustre is defined )
 
   - name: setup azcopy
     shell: |
@@ -437,6 +421,28 @@
   #         ThreadLimit            512
   #         ListenBacklog          511
   #       </IfModule>
+
+  - name: retrieve azhop version
+    delegate_to: localhost
+    connection: local
+    shell: |
+      git describe --always --tags
+    register: azhop_version
+
+  - name: create OOD_VERSION if not exists
+    shell: |
+      cp /opt/ood/VERSION /opt/ood/OOD_VERSION
+    args: 
+      creates: /opt/ood/OOD_VERSION
+
+  - name: retrieve OnDemand version
+    shell: |
+      cat /opt/ood/OOD_VERSION
+    register: ood_version
+
+  - name: Override OOD version with azhop version
+    shell: |
+      echo "{{ood_version.stdout}} | AZHOP {{azhop_version.stdout}}" > /opt/ood/VERSION
 
   - name: restart ood
     shell: systemctl try-restart httpd24-httpd.service httpd24-htcacheclean.service

@@ -29,7 +29,7 @@ if __name__ == "__main__":
         "keyvault.bicep.j2",
         "secrets.bicep.j2",
         "storage.bicep.j2",
-        "mysql.bicep.j2",
+        "mariadb.bicep.j2",
         "bastion.bicep.j2",
         "outputs.bicep.j2",
         "vpngateway.bicep.j2",

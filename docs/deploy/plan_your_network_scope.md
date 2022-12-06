@@ -1,5 +1,5 @@
 # Plan your networking IP range
-Az-hop needs several subnets to work, while some of these are optional like `Bastion` and the `Gateway` others are mandatory. When peering the az-hop vnet to others vnet or to your enterprise thru a VPN you have to plan correctingly your addresse range to avoid conflicts. Below are examples to help you defined these ranges based on how large you want to size your compute infrastructure.
+Az-hop needs several subnets to work, while some of these are optional like `Bastion` and the `Gateway` others are mandatory. When peering the az-hop vnet to others vnet or to your enterprise thru a VPN you have to plan accordingly your address range to avoid conflicts. Below are examples to help you defined these ranges based on how large you want to size your compute infrastructure.
 
 ## 28 nodes system => 10.0.0.0/25
 

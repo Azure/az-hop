@@ -13,6 +13,6 @@ fi
 
 if ! rpm -q telegraf; then
   echo "#### Telegraf Installation:"
-  yum -y install https://dl.influxdata.com/telegraf/releases/telegraf-1.18.2-1.x86_64.rpm jq
+  yum -y install telegraf jq
 fi
 
