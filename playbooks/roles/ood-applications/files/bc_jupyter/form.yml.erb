@@ -7,6 +7,7 @@ form:
   - container_image
   - bc_num_hours
   - slot_type
+  - container_mounts
 attributes:
   bc_num_hours:
     widget: "number_field"
@@ -30,3 +31,10 @@ attributes:
     value: "jupyter/scipy-notebook"
     help: |
       This image requires jupyter installed and in the path.
+  container_mounts:
+    id: "container_mounts"
+    label: "Additional Container Mounts"
+    widget: "text_field"
+    value: ""
+    help: |
+      Comma-separated list of additional mount[s] inside the container. Format: SRC:DST[,SRC:DST...]

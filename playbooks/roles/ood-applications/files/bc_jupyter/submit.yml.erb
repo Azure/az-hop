@@ -10,3 +10,6 @@ script:
     - "--exclusive"
     - "--container-image=<%= container_image %>"
     - "--export=ALL"
+<%- if container_mounts != "" -%>
+    - "--container-mounts=<%= container_mounts %>"
+<%- end -%>
