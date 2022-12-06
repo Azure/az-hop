@@ -1,12 +1,15 @@
+<%-
+  node_arrays = YAML.load_file("/etc/ood/config/apps/bc_desktop/config/node_arrays.yml")
+-%>
 ---
 cluster: "ondemand"
 form:
   - container_image
-  - hours
+  - bc_num_hours
   - slot_type
   - working_dir
 attributes:
-  hours:
+  bc_num_hours:
     widget: "number_field"
     label: "Maximum duration of your remote session"
     value: 1
@@ -15,10 +18,12 @@ attributes:
     min: 1
     max: 48
     step: 1
-    id: "hours"
   slot_type:
-    id: "slot_type"
-    value: "execute"
+    widget: select
+    options:
+      <%- node_arrays.each do |slot_type| %>
+      - '<%= slot_type["name"]%>'
+      <%- end %>
   container_image:
     id: "container_image"
     label: "Container Image"
