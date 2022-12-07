@@ -19,7 +19,6 @@ DOWNLOAD_URL="https://download.schedmd.com/slurm"
 cd $BUILD_DIR
 
 dnf -y install epel-release && dnf -q makecache
-dnf -y install munge
 
 if [ "$SLURM_VERSION" \> "20" ]; then
     PYTHON=python3
@@ -30,7 +29,6 @@ fi
 dnf install -y dnf-plugins-core
 dnf config-manager --set-enabled powertools
 
-dnf install -y make $PYTHON which rpm-build munge-devel munge-libs readline-devel openssl openssl-devel pam-devel perl-ExtUtils-MakeMaker gcc mysql mysql-devel wget gtk2-devel.x86_64 glib2-devel.x86_64 libtool m4 automake rsync
 if [ ! -e $BUILD_DIR/bin ]; then
     mkdir -p $BUILD_DIR/bin
 fi
@@ -53,6 +51,10 @@ make install
 
 
 if [ "$INSTALL_SLURM" = "yes" ]; then
+
+    dnf install -y make $PYTHON which rpm-build readline-devel openssl openssl-devel pam-devel perl-ExtUtils-MakeMaker gcc mysql mysql-devel wget gtk2-devel.x86_64 glib2-devel.x86_64 libtool m4 automake rsync
+    dnf install -y munge munge-devel munge-libs 
+
     #
     # Build SLURM
     #
