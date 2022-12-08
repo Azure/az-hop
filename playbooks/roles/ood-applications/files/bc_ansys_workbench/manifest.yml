@@ -1,0 +1,10 @@
+---
+name: ANSYS Workbench
+category: Interactive Apps
+subcategory: GUIs
+role: batch_connect
+description: |
+  This app will launch an [ANSYS Workbench] within a [Turbo VNC].
+
+  [ANSYS Workbench]: https://www.ansys.com/
+  [Turbo VNC]: https://www.turbovnc.org/

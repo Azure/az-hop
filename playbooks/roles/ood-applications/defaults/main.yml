@@ -8,3 +8,4 @@ ood_azhop_apps:
     - { name: "bc_guacamole", enabled: '{{enable_remote_winviz | default(false)}}' }
     - { name: "bc_codeserver", enabled: true }
     - { name: "bc_jupyter", enabled: '{{queue_manager is defined and queue_manager == "slurm"}}' }
+    - { name: "bc_ansys_workbench", enabled: true }
