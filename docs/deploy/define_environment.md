@@ -417,11 +417,11 @@ remoteviz:
 
 # Application settings
 applications:
-  - bc_codeserver:
+  bc_codeserver:
     enabled: true
-  - bc_jupyter:
+  bc_jupyter:
     enabled: true
-  - bc_ansys_workbench:
+  bc_ansys_workbench:
     enabled: false
 
 ```
