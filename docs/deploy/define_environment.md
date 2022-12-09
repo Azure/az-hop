@@ -415,4 +415,13 @@ remoteviz:
     spot: false
     EnableAcceleratedNetworking: true
 
+# Application settings
+applications:
+  - bc_codeserver:
+    enabled: true
+  - bc_jupyter:
+    enabled: true
+  - bc_ansys_workbench:
+    enabled: false
+
 ```

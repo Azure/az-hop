@@ -1,5 +1,4 @@
 ---
-
 - name: install application dependencies
   yum:
     name: python-flask
