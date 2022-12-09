@@ -1,0 +1,59 @@
+---
+cluster:
+  - "ondemand"
+form:
+  - bc_num_hours
+  - target
+  - bucket
+  - version
+  - ansys_home
+attributes:
+  bc_num_hours:
+    widget: "number_field"
+    label: "Maximum duration in hours of your session"
+    value: 1
+    help: |
+      This is the maximum duration in hours of your session once started. <br> 
+    step: 1
+  ansys_home:
+    label: "Ansys Home Directory"
+    help: |
+      Specify the Ansys Home Directory to be used when starting Ansys Workbench
+    value: "/anfhome/apps/ansys"
+  target:
+    widget: "select"
+    label: "Session target"
+    help: |
+      Select the resource target for the remote desktop session <br>
+      - **With GPU** <br>
+        These are standard small GPU nodes for visualization for a single user session.<br>
+      - **Large With GPU** <br>
+        These are standard large GPU nodes for visualization, usually for multiple users sessions sharing the same node.<br>
+      - **Without GPU** <br>
+        Same as for **With GPU** but without a GPU accelerator.
+    options:
+      - ["With GPU - Small GPU node for single session", "viz3d", data-hide-bucket: true, data-set-bucket: 1, 
+          data-max-bc-num-hours: "8", 
+          data-min-bc-num-hours: "1"]
+      - ["Large With GPU - Intented for shared sessions", "largeviz3d", 
+          data-max-bc-num-hours: "8", 
+          data-min-bc-num-hours: "1"]
+      - ["Without GPU - for single session", "viz", data-hide-bucket: true, data-set-bucket: 1, 
+          data-max-bc-num-hours: "8", 
+          data-min-bc-num-hours: "1"]
+  bucket:
+      widget: "select"
+      label: "Node bucket"
+      help: |
+          Select how much of the node you want to use <br>
+      options:
+      - [" 1/8 of the node", "8"]
+      - [" 1/4 of the node", "4"]
+      - [" 1/2 of the node", "2"]
+      - [" the full node", "1"]
+  version:
+      widget: select
+      label: "ANSYS Workbench version"
+      help: "This defines the version of ANSYS you want to load."
+      options:
+      - [ "2021 R2", "v212" ]
