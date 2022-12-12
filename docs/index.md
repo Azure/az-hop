@@ -16,5 +16,5 @@ This documentation encompasses
 
  * The [Deployment Guide](deploy/index.md) for configuring and deploying your AZHOP environmment.
  * The [User Guide](user_guide/index.md) explaining how to submit jobs, manage files & more
- * [Tutorials](deploy/index.md) for specific use cases
+ * [Tutorials](tutorials/index.md) for specific use cases
  * The [Administrator Guide](operate/index.md) for cluster admins
