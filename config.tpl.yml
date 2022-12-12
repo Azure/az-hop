@@ -157,20 +157,20 @@ cyclecloud:
   # version: 8.3.0-3062 # to specify a specific version, see https://packages.microsoft.com/yumrepos/cyclecloud/
 
 # Lustre cluster is optional and can be used to create a Lustre cluster in the environment.
-# Comment the whole section if you don't want to create a Lustre cluster.
-lustre:
-  rbh_sku: "Standard_D8d_v4"
-  mds_sku: "Standard_D8d_v4"
-  oss_sku: "Standard_D32d_v4"
-  oss_count: 2
-  hsm_max_requests: 8
-  mdt_device: "/dev/sdb"
-  ost_device: "/dev/sdb"
-  hsm:
-    # optional to use existing storage for the archive
-    # if not included it will use the azhop storage account that is created
-    storage_account: #existing_storage_account_name
-    storage_container: #only_used_with_existing_storage_account
+# Uncomment the whole section if you want to create a Lustre cluster.
+# lustre:
+#   rbh_sku: "Standard_D8d_v4"
+#   mds_sku: "Standard_D8d_v4"
+#   oss_sku: "Standard_D32d_v4"
+#   oss_count: 2
+#   hsm_max_requests: 8
+#   mdt_device: "/dev/sdb"
+#   ost_device: "/dev/sdb"
+#   hsm:
+#     # optional to use existing storage for the archive
+#     # if not included it will use the azhop storage account that is created
+#     storage_account: #existing_storage_account_name
+#     storage_container: #only_used_with_existing_storage_account
 # List of users to be created on this environment
 users:
   # name: username - must be less than 20 characters
@@ -178,10 +178,10 @@ users:
   # shell: /bin/bash # default to /bin/bash
   # home: /anfhome/<user_name> # default to /homedir_mountpoint/user_name
   # groups: list of groups the user belongs to
-  - { name: clusteradmin, uid: 10001, groups: [5001, 5002, 6000, 6001] }
-  - { name: clusteruser, uid: 10002 }
-  - { name: user1, uid: 10003, groups: [6000] }
-  - { name: user2, uid: 10004, groups: [6001] }
+  - { name: clusteradmin, uid: 10001, groups: [5001, 5002] }
+  - { name: hpcuser, uid: 10002 }
+  # - { name: user1, uid: 10003, groups: [6000] }
+  # - { name: user2, uid: 10004, groups: [6001] }
 
 usergroups:
 # These groups can’t be changed
@@ -194,10 +194,10 @@ usergroups:
     gid: 5002
     description: "For users with sudo right or local admin right on nodes"
 # For custom groups use gid >= 6000
-  - name: project1 # For project1 users
-    gid: 6000
-  - name: project2 # For project2 users
-    gid: 6001
+  # - name: project1 # For project1 users
+  #   gid: 6000
+  # - name: project2 # For project2 users
+  #   gid: 6001
 
 # Enable cvmfs-eessi - disabled by default
 # cvmfs_eessi:
