@@ -37,3 +37,8 @@ c.NotebookApp.notebook_dir = '${NOTEBOOK_ROOT}'
 c.NotebookApp.disable_check_xsrf = True
 EOL
 )
+
+<%- if OodAppkit.clusters[context.cluster].job_config[:adapter] == 'pbspro' -%>
+enroot import docker://<%=context.container_image%>
+enroot create --name jupyter <%= context.container_image.gsub("/","+") %>.sqsh
+<%- end -%>
