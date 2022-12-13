@@ -4,7 +4,7 @@ batch_connect:
 script:
   native:
 <%- if OodAppkit.clusters[cluster].job_config[:adapter] == 'slurm' -%>
-  - "-p"
+    - "-p"
     - "<%= slot_type %>"
     - "-N"
     - "1"
