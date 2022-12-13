@@ -6,7 +6,7 @@
             "image_publisher": "almalinux",
             "image_offer": "almalinux-hpc",
             "image_sku": "8_5-hpc-gen2",
-            "image_version": "latest",
+            "image_version": "8.5.20211210",
             "plan_info": {
                 "plan_name": "8_5-hpc-gen2",
                 "plan_publisher": "almalinux",
