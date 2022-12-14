@@ -357,7 +357,7 @@ mounts:
     mountpoint: /anfhome # /sharedhome for example
     server: '{{anf_home_ip}}' # Specify an existing NFS server name or IP, when using the ANF built in use '{{anf_home_ip}}'
     export: '{{anf_home_path}}' # Specify an existing NFS export directory, when using the ANF built in use '{{anf_home_path}}'
-    options: "rw,hard,rsize=262144,wsize=262144,vers=3,tcp" # Specify the mount options. Default to rw,hard,rsize=262144,wsize=262144,vers=3,tcp
+    options: "rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev" # Specify the mount options. Default to rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev
 #  mount1:
 #    mountpoint: /mount1 
 #    server: a.b.c.d # Specify an existing NFS server name or IP
@@ -1267,7 +1267,7 @@ mounts:
     mountpoint: <mount point name> # /sharedhome for example
     server: <server name or IP> # Specify an existing NFS server name or IP, when using the ANF built in use '{{anf_home_ip}}'
     export: <export directory> # Specify an existing NFS export directory, when using the ANF built in use '{{anf_home_path}}'
-    options: "rw,hard,rsize=262144,wsize=262144,vers=3,tcp" # Specify the mount options.
+    options: "rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev" # Specify the mount options.
 ```
 
 ## Use Azure Active Directory for MFA
