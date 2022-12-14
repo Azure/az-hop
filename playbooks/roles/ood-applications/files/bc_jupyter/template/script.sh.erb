@@ -2,7 +2,7 @@
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 <%- if OodAppkit.clusters[context.cluster].job_config[:adapter] == 'pbspro' -%>
-enroot start --rw -e NOTEBOOK_ROOT="$NOTEBOOK_ROOT" -e CONFIG_FILE="$CONFIG_FILE" jupyter $THIS_DIR/start_jupyter.sh
+$THIS_DIR/start_container.sh $CONTAINER_NAME $THIS_DIR/start_jupyter.sh
 <%- else -%>
 $THIS_DIR/start_jupyter.sh
 <%- end -%>
