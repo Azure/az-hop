@@ -425,6 +425,7 @@
   - name: retrieve azhop version
     delegate_to: localhost
     connection: local
+    become: false
     shell: |
       git describe --always --tags
     register: azhop_version
