@@ -418,4 +418,5 @@ applications:
     enabled: true
   bc_ansys_workbench:
     enabled: false
-
+  bc_vmd:
+    enabled: false

@@ -1,0 +1,10 @@
+---
+name: Visual Molecular Dynamics (VMD)
+category: Interactive Apps
+subcategory: GUIs
+role: batch_connect
+description: |
+  This app will launch [VMD] within a [Turbo VNC].
+
+  [VMD]: https://www.ks.uiuc.edu/Research/vmd/
+  [Turbo VNC]: https://www.turbovnc.org/

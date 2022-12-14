@@ -1,0 +1,50 @@
+---
+<%-
+
+require "yaml"
+node_arrays = YAML.load_file("/etc/ood/config/apps/bc_desktop/config/node_arrays.yml")
+node_ratio = bucket.to_i
+
+if OodAppkit.clusters[cluster].job_config[:adapter] == 'slurm'
+  scheduler_args = ["-p", target]
+
+  if target == "viz3d" or target == "largeviz3d"
+    scheduler_args += ["--gpus=1"]
+  end
+
+  # If the user has specified a node ratio greather than 1, set the job ppn
+  if node_ratio > 1
+    node_arrays.each do |slot_type|
+      if slot_type["name"] == target
+        cores = (slot_type["vcpuCount"].to_i / node_ratio)
+        scheduler_args += ["--ntasks-per-node=%d" % cores]
+        break
+      end
+    end
+  else
+    scheduler_args += ["--exclusive"]
+  end
+else
+  scheduler_args = ["-q", "vizq"]
+  if node_ratio > 1
+    node_arrays.each do |slot_type|
+      if slot_type["name"] == target
+        cores = (slot_type["vcpuCount"].to_i / node_ratio)
+        scheduler_args += ["-l", "select=1:slot_type=%s:ncpus=%d" % [target, cores]]
+        break
+      end
+    end
+  else
+    scheduler_args += ["-l", "select=1:slot_type=%s,place=scatter:excl" % target]
+  end
+end
+
+-%>
+
+batch_connect:
+  template: "vnc"
+script:
+  native:
+  <%- scheduler_args.each do |arg| %>
+    - "<%= arg %>"
+  <%- end %>

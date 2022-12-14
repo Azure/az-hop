@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+<%- gpu = context.target.include?("3d") -%>
+
+# Clean the environment
+module purge
+
+# Set working directory to home directory
+cd "${HOME}"
+
+#
+# Launch Xfce Window Manager and Panel
+#
+
+(
+  module restore
+  export XDG_CONFIG_HOME="<%= session.staged_root.join("config") %>"
+  export XDG_DATA_HOME="<%= session.staged_root.join("share") %>"
+  export XDG_CACHE_HOME="$(mktemp -d)"
+  xfwm4 --compositor=off --daemon --sm-client-disable
+  xsetroot -solid "#D3D3D3"
+  xfsettingsd --sm-client-disable
+  xfce4-panel --sm-client-disable
+) &
+
+#
+# Start VMD
+#
+
+VMD_HOME_DIR="<%= context.vmd_home %>"
+
+<%- if gpu -%>
+set -x
+vglrun $VMD_HOME_DIR/bin/vmd
+<%- else -%>
+set -x
+$VMD_HOME_DIR/bin/vmd
+<%- end -%>
