@@ -97,23 +97,6 @@
   args:
     chdir: /opt/cycle/pbspro
 
-- name: Add enroot hook
-  copy:
-    src: '{{role_path}}/files/enroot-hook.py'
-    dest: /opt/cycle/pbspro/enroot-hook.py
-
-- name: Register enroot hook
-  shell: |
-    /opt/pbs/bin/qmgr -c "create hook enroot"
-    /opt/pbs/bin/qmgr -c "set hook enroot enabled = true"
-    /opt/pbs/bin/qmgr -c "set hook enroot event = execjob_prologue"
-    /opt/pbs/bin/qmgr -c "set hook enroot event += execjob_end"
-    /opt/pbs/bin/qmgr -c "set hook enroot alarm = 30"
-    #/opt/pbs/bin/qmgr -c "set hook enroot order = 1"
-    /opt/pbs/bin/qmgr -c "import hook enroot application/x-python default enroot-hook.py"
-  args:
-    chdir: /opt/cycle/pbspro
-
 - name: Restart pbs-server 
   service: 
     name: pbs
