@@ -9,3 +9,4 @@ ood_azhop_apps:
     - { name: "bc_codeserver", enabled: '{{applications.bc_codeserver.enabled | default(true)}}' }
     - { name: "bc_jupyter", enabled: '{{ (applications.bc_jupyter.enabled | default(true)) and (queue_manager is defined and queue_manager == "slurm") }}' }
     - { name: "bc_ansys_workbench", enabled: '{{applications.bc_ansys_workbench.enabled | default(false)}}' }
+    - { name: "bc_vmd", enabled: '{{applications.bc_vmd.enabled | default(false)}}' }
