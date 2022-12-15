@@ -155,14 +155,41 @@
       timeout: 180
     with_items:
       - 'slurm-{{slurm_version}}.el7.x86_64.rpm'
+      - 'slurm-{{slurm_version}}.el8.x86_64.rpm'
+      - 'slurm_{{slurm_version}}_amd64.deb'
+      - 'slurm-contribs-{{slurm_version}}.el7.x86_64.rpm'
+      - 'slurm-contribs-{{slurm_version}}.el8.x86_64.rpm'
+      - 'slurm-contribs_{{slurm_version}}_amd64.deb'
       - 'slurm-devel-{{slurm_version}}.el7.x86_64.rpm'
+      - 'slurm-devel-{{slurm_version}}.el8.x86_64.rpm'
+      - 'slurm-devel_{{slurm_version}}_amd64.deb'
       - 'slurm-example-configs-{{slurm_version}}.el7.x86_64.rpm'
-      - 'slurm-slurmctld-{{slurm_version}}.el7.x86_64.rpm'
-      - 'slurm-slurmd-{{slurm_version}}.el7.x86_64.rpm'
-      - 'slurm-perlapi-{{slurm_version}}.el7.x86_64.rpm'
-      - 'slurm-torque-{{slurm_version}}.el7.x86_64.rpm'
+      - 'slurm-example-configs-{{slurm_version}}.el8.x86_64.rpm'
+      - 'slurm-example-configs_{{slurm_version}}_amd64.deb'
+      - 'slurm-libpmi-{{slurm_version}}.el7.x86_64.rpm'
+      - 'slurm-libpmi-{{slurm_version}}.el8.x86_64.rpm'
+      - 'slurm-libpmi_{{slurm_version}}_amd64.deb'
       - 'slurm-openlava-{{slurm_version}}.el7.x86_64.rpm'
+      - 'slurm-openlava-{{slurm_version}}.el8.x86_64.rpm'
+      - 'slurm-openlava_{{slurm_version}}_amd64.deb'
+      - 'slurm-pam_slurm-{{slurm_version}}.el7.x86_64.rpm'
+      - 'slurm-pam_slurm-{{slurm_version}}.el8.x86_64.rpm'
+      - 'slurm-pam-slurm_{{slurm_version}}_amd64.deb'
+      - 'slurm-perlapi-{{slurm_version}}.el7.x86_64.rpm'
+      - 'slurm-perlapi-{{slurm_version}}.el8.x86_64.rpm'
+      - 'slurm-perlapi_{{slurm_version}}_amd64.deb'
+      - 'slurm-slurmctld-{{slurm_version}}.el7.x86_64.rpm'
+      - 'slurm-slurmctld-{{slurm_version}}.el8.x86_64.rpm'
+      - 'slurm-slurmctld_{{slurm_version}}_amd64.deb'
+      - 'slurm-slurmd-{{slurm_version}}.el7.x86_64.rpm'
+      - 'slurm-slurmd-{{slurm_version}}.el8.x86_64.rpm'
+      - 'slurm-slurmd_{{slurm_version}}_amd64.deb'
       - 'slurm-slurmdbd-{{slurm_version}}.el7.x86_64.rpm'
+      - 'slurm-slurmdbd-{{slurm_version}}.el8.x86_64.rpm'
+      - 'slurm-slurmdbd_{{slurm_version}}_amd64.deb'
+      - 'slurm-torque-{{slurm_version}}.el7.x86_64.rpm'
+      - 'slurm-torque-{{slurm_version}}.el8.x86_64.rpm'
+      - 'slurm-torque_{{slurm_version}}_amd64.deb'
   when: not build_rpms
 
 - name: install slurm
@@ -288,6 +315,13 @@
     remote_src: yes
   when: build_rpms
 
+# - name: install cc job_submit.lua plugin
+#   copy:
+#     src: /opt/cycle/slurm/job_submit.lua
+#     dest: /etc/slurm/job_submit.lua
+#     mode: 0755
+#     remote_src: yes
+
 - name: install cc autoscale api
   shell: |
       /opt/cycle/jetpack/system/embedded/bin/pip install /opt/cycle/slurm/cyclecloud_api-8.1.0-py2.py3-none-any.whl  2>&1
@@ -392,6 +426,10 @@
 
 - name: check slurm connection
   command: "sinfo -l"
+  retries: 5
+  delay: 3
+  register: result
+  until: result.rc == 0
 
 - name: create slurm logrotate config
   copy:
