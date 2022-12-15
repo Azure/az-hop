@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+<%- gpu = context.target.include?("3d") -%>
+
+# Clean the environment
+module purge
+
+# Set working directory to home directory
+cd "${HOME}"
+
+#
+# Launch Xfce Window Manager and Panel
+#
+
+(
+  module restore
+  export XDG_CONFIG_HOME="<%= session.staged_root.join("config") %>"
+  export XDG_DATA_HOME="<%= session.staged_root.join("share") %>"
+  export XDG_CACHE_HOME="$(mktemp -d)"
+  xfwm4 --compositor=off --daemon --sm-client-disable
+  xsetroot -solid "#D3D3D3"
+  xfsettingsd --sm-client-disable
+  export XFCE_PANEL_MIGRATE_DEFAULT=yes
+  xfce4-panel --sm-client-disable
+) &
+
+#
+# Start ANSYS Workbench
+#
+
+# Another ANSYS job with the same job name (file) is already running in this
+# directory or the file.lock file has not been deleted from an abnormally
+# terminated ANSYS run.  To disable this check, set the ANSYS_LOCK environment
+# variable to OFF.
+export ANSYS_LOCK="OFF"
+
+# For debugging purpose
+#export WBTracing=true
+#export ANSYS_FRAMEWORK_DEVELOPMENT=1
+
+<%- unless gpu -%>
+# Disable hardware rendering mode
+export CUE_GRAPHICS="mesa"
+<%- end -%>
+
+ANSYS_HOME_DIR="<%= context.ansys_home %>"
+ANSYS_VERSION="<%= context.version %>"
+
+# Launch ANSYS Workbench
+<%- if gpu -%>
+set -x
+vglrun $ANSYS_HOME_DIR/$ANSYS_VERSION/Framework/bin/Linux64/runwb2
+<%- else -%>
+set -x
+$ANSYS_HOME_DIR/$ANSYS_VERSION/Framework/bin/Linux64/runwb2
+<%- end -%>

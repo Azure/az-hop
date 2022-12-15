@@ -1,0 +1,21 @@
+---
+- name: install application dependencies
+  yum:
+    name: python-flask
+    state: present
+    lock_timeout : 180
+
+- name: Create or remove application directories
+  file:
+    path: "{{ ood_sys_app_dir }}/{{ item.name }}"
+    state: "{{'directory' if item.enabled else 'absent'}}"
+    mode: 0755
+  loop: '{{ood_azhop_apps}}'
+
+- name: Copy application files
+  copy:
+    src: '{{role_path}}/files/{{ item.name }}'
+    dest: /var/www/ood/apps/sys/
+    mode: 0755
+  when: item.enabled
+  loop: '{{ood_azhop_apps}}'

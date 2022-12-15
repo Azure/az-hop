@@ -51,6 +51,7 @@
     owner: slurm
     group: slurm
     state: link
+    force: true
 
 - name: check slurmctld log dir
   file:
@@ -198,12 +199,14 @@
     src: /sched/slurm.conf
     dest: /etc/slurm/slurm.conf
     state: link
+    force: true
 
 - name: symbolic link for cgroup.conf
   file:
     src: /sched/cgroup.conf
     dest: /etc/slurm/cgroup.conf
     state: link
+    force: true
 
 - name: check slurm autoscale dir
   file:
@@ -305,6 +308,7 @@
     src: /sched/cyclecloud.conf
     dest: /etc/slurm/cyclecloud.conf
     state: link
+    force: true
 
 - name: cyclecloud_slurm.sh upgrade_conf
   shell: |
@@ -337,12 +341,14 @@
     src: /sched/gres.conf
     dest: /etc/slurm/gres.conf
     state: link
+    force: true
 
 - name: symbolic link for topology.conf
   file:
     src: /sched/topology.conf
     dest: /etc/slurm/topology.conf
     state: link
+    force: true
 
 - include: accounting.yml
   become: true

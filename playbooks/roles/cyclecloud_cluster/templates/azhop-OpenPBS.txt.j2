@@ -78,4 +78,7 @@ Autoscale = true
         cyclecloud.cluster.autoscale.idle_time_after_jobs = {{queue.idle_timeout}}
         cyclecloud.cluster.autoscale.idle_time_before_jobs = {{queue.idle_timeout}}
         {% endif %}
+      {% if (enroot_enabled | default(false)) %}
+        [[[cluster-init enroot:default:1.0.0]]]
+      {% endif %}
 {% endfor %}
