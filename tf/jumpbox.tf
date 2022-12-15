@@ -37,6 +37,11 @@ resource "azurerm_linux_virtual_machine" "jumpbox" {
     public_key = tls_private_key.internal.public_key_openssh
   }
 
+  identity {
+    type         = "UserAssigned"
+    identity_ids = [ azurerm_user_assigned_identity.azure_monitor_identity.id ]
+  }
+
   os_disk {
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
@@ -73,4 +78,35 @@ resource "azurerm_network_interface_application_security_group_association" "jum
   for_each = local.jumpbox_enabled ? toset(local.asg_associations["jumpbox"]) : []
   network_interface_id          = azurerm_network_interface.jumpbox-nic[0].id
   application_security_group_id = local.create_nsg ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
+}
+
+resource "azurerm_virtual_machine_extension" "AzureMonitorLinuxAgent" {
+  depends_on = [
+    azurerm_linux_virtual_machine.jumpbox,
+    azurerm_user_assigned_identity.azure_monitor_identity
+  ]
+  name                       = "AzureMonitorLinuxAgent"
+  virtual_machine_id         = azurerm_linux_virtual_machine.jumpbox[0].id
+  publisher                  = "Microsoft.Azure.Monitor"
+  type                       = "AzureMonitorLinuxAgent"
+  type_handler_version       = "1.0"
+  auto_upgrade_minor_version = true
+
+  settings                   = <<SETTINGS
+  {
+    "authentication": {
+      "managedIdentity": {
+        "identifier-name": "mi_res_id",
+        "identifier-value": "${azurerm_user_assigned_identity.azure_monitor_identity.id}" 
+      }
+    }
+  }
+  SETTINGS
+}
+
+resource "azurerm_monitor_data_collection_rule_association" "dcra_vm_metrics" {
+    name                = "vm-data-collection-ra"
+    target_resource_id = azurerm_linux_virtual_machine.jumpbox[0].id
+    data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_data_collection_rule.id
+    description = "Data Collection Rule Association for VM Metrics"
 }
