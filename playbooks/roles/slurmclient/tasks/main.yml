@@ -12,6 +12,7 @@
     name:
       -  '{{homedir_mountpoint}}/slurm/rpms/slurm-{{cc_slurm_version}}.el7.x86_64.rpm'
     state: present
+    allow_downgrade: yes
     lock_timeout : 180
 
 - name: check slurm config directory
