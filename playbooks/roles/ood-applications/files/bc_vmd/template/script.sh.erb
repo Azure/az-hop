@@ -31,8 +31,8 @@ VMD_HOME_DIR="<%= context.vmd_home %>"
 
 <%- if gpu -%>
 set -x
-vglrun $VMD_HOME_DIR/bin/vmd
+xfce4-terminal -e "vglrun $VMD_HOME_DIR/bin/vmd" -T "VMD Terminal" --disable-server
 <%- else -%>
 set -x
-$VMD_HOME_DIR/bin/vmd
+xfce4-terminal -e "$VMD_HOME_DIR/bin/vmd" -T "VMD Terminal" --disable-server
 <%- end -%>
