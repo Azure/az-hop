@@ -112,7 +112,7 @@
       influxdb_database_name: "telegraf"
       telegraf_influxdb_urls: 
         - "http://grafana:8086"
-      cc_slurm_version: 20.11.7-1
+      cc_slurm_version: 20.11.9-1
       slurm_uid: 11100
       slurm_gid: 11100
       munge_uid: 11101
