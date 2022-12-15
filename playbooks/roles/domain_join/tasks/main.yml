@@ -33,17 +33,14 @@
     fstype: nfs
 
 # Fix bug https://bugzilla.redhat.com/show_bug.cgi?id=1858930
-- name: Update rpc-statd-notify.service
+- name: Update service dependencies on network-online.target
   replace:
-    path: /usr/lib/systemd/system/rpc-statd-notify.service
-    regexp: 'After=local-fs.target network-online.target nss-lookup.target'
-    replace: 'After=local-fs.target network.target nss-lookup.target'
-
-- name: Update rpc-statd.service
-  replace:
-    path: /usr/lib/systemd/system/rpc-statd.service
-    regexp: 'After=network-online.target nss-lookup.target rpcbind.socket'
-    replace: 'After=network.target nss-lookup.target rpcbind.socket'
+    path: '/usr/lib/systemd/system/{{item}}'
+    regexp: 'network-online.target'
+    replace: 'network.target'
+  with_items:
+    - rpc-statd-notify.service
+    - rpc-statd.service
 
   # - name: store kerberos password => this is not working
   #   shell: echo "{{domain_password}}" | kinit {{ domain_admin }}@{{ domain_name | upper }}
