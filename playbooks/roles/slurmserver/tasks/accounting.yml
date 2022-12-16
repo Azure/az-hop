@@ -1,5 +1,5 @@
 - name: Read slurmdb Password from KV
-  command: az keyvault secret show --vault-name {{key_vault}} -n {{slurmdb_user}}-password --query "value" -o tsv
+  command: az keyvault secret show --vault-name {{key_vault}} -n {{database_user}}-password --query "value" -o tsv
   delegate_to: localhost
   connection: local
   register: slurmdb_password_out

@@ -190,15 +190,7 @@
         - guacamole-auth-ldap-{{guac_version}}/guacamole-auth-ldap-{{guac_version}}.jar
         - guacamole-auth-jdbc-{{guac_version}}/mysql/guacamole-auth-jdbc-mysql-{{guac_version}}.jar
 
-    - name: download mysql80-community
-      get_url:
-        url: 'https://dev.mysql.com/get/mysql80-community-release-el7-7.noarch.rpm'
-        dest: /etc/guacamole/
-        timeout: 180
-
-    - name: Install mysql80-community RPM
-      shell: rpm -Uvh --force /etc/guacamole/mysql80-community-release-el7-7.noarch.rpm
-    - name: Install MySQL CLI 8.0.31
+    - name: Cleanup any previous installed MySQL packages
       yum:
         name:
           - mysql-community-libs
@@ -206,6 +198,24 @@
           - mysql-community-client
           - mysql-community-common
           - mysql-community-libs-compat
+        state: absent
+        lock_timeout : 180
+
+    - name: Download MariaDB repo tool
+      get_url: 
+        url: https://downloads.mariadb.com/MariaDB/mariadb_repo_setup
+        dest: ~/mariadb_repo_setup
+        timeout : 180
+
+    - name: Configure MariaDB repo
+      shell: |
+        echo "367a80b01083c34899958cdd62525104a3de6069161d309039e84048d89ee98b ~/mariadb_repo_setup" | sha256sum -c -
+        chmod +x ~/mariadb_repo_setup
+        ~/mariadb_repo_setup
+
+    - name: Install MariaDB client
+      yum:
+        name: MariaDB-client
         state: present
         lock_timeout : 180
 
@@ -229,35 +239,35 @@
         state: link
 
     - name: Read SQLAdmin Password from KV
-      command: az keyvault secret show --vault-name {{key_vault}} -n {{ slurmdb_user }}-password --query "value" -o tsv
+      command: az keyvault secret show --vault-name {{key_vault}} -n {{ database_user }}-password --query "value" -o tsv
       delegate_to: localhost
       connection: local
       register: sqladmin_password
       become: false
       run_once: true
 
-    - name: Configure MySQL access
+    - name: Configure MariaDB access
       copy:
         dest: /root/.my.cnf
         content: |
           [client]
-          user = {{ slurmdb_user }}@{{ slurmdb_fqdn }}
+          user = {{ database_user }}@{{ database_fqdn }}
           password = {{sqladmin_password.stdout}}
-          host = {{slurmdb_fqdn}}
+          host = {{database_fqdn}}
 
     - name: Create guacamole database
       shell: |
         set -e
         set -o pipefail
-        mysql <<EOF
+        mariadb <<EOF
         create database if not exists guacamole_db;
         EOF
-        COUNT=$(mysql -NqfsBe "select count(table_name) from information_schema.tables where table_schema='guacamole_db' and table_name='guacamole_user';")
+        COUNT=$(mariadb -NqfsBe "select count(table_name) from information_schema.tables where table_schema='guacamole_db' and table_name='guacamole_user';")
         if [ "$COUNT" != "0" ]; then
           echo "DATABASE ALREADY INITIALIZED"
         else
           echo "INITIALIZING DATABASE"
-          cat /opt/guacamole/guacamole-auth-jdbc-{{guac_version}}/mysql/schema/*.sql | mysql guacamole_db
+          cat /opt/guacamole/guacamole-auth-jdbc-{{guac_version}}/mysql/schema/*.sql | mariadb guacamole_db
         fi
 
     - name: Read Password from KV
@@ -282,10 +292,10 @@
           ldap-user-search-filter: (|(objectCategory=CN=Person,CN=Schema,CN=Configuration,DC=hpc,DC=azure))
 
           mysql-driver: mariadb
-          mysql-hostname: {{slurmdb_fqdn}}
+          mysql-hostname: {{database_fqdn}}
           mysql-port: 3306
           mysql-database: guacamole_db
-          mysql-username: {{ slurmdb_user }}@{{slurmdb_fqdn}}
+          mysql-username: {{ database_user }}@{{database_fqdn}}
           mysql-password: {{sqladmin_password.stdout}}
           mysql-server-timezone: GMT
           mysql-auto-create-accounts: true
