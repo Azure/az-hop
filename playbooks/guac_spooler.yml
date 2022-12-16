@@ -51,6 +51,7 @@
         guac_spooler_admin_user: "{{admin_user}}"
         guac_spooler_database_user: "{{ database_user }}"
         guac_spooler_database_fqdn: "{{database_fqdn}}"
+        guac_spooler_database_ip: "{{database_ip}}"
         guac_spooler_mountpoint: "{{ homedir_mountpoint }}"
 
     - name: Install Telegraf
