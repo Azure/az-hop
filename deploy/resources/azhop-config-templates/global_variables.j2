@@ -23,8 +23,8 @@ key_vault                     : kv{{outputs.resource_postfix}}
 sig_name                      : azhop_{{outputs.resource_postfix}}
 lustre_hsm_storage_account    : azhop{{outputs.resource_postfix}}
 lustre_hsm_storage_container  : lustre
-slurmdb_fqdn                  : {{outputs.mysql_fqdn}}
-slurmdb_user                  : {{outputs.slurm_admin_user}}
+database_fqdn                 : {{outputs.mysql_fqdn}}
+database_user                 : {{outputs.slurm_admin_user}}
 azure_environment             : AZUREPUBLICCLOUD
 key_vault_suffix              : vault.azure.net
 blob_storage_suffix           : blob.core.windows.net

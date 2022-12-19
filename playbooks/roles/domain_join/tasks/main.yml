@@ -32,6 +32,16 @@
     state: mounted
     fstype: nfs
 
+# Fix bug https://bugzilla.redhat.com/show_bug.cgi?id=1858930
+- name: Update service dependencies on network-online.target
+  replace:
+    path: '/usr/lib/systemd/system/{{item}}'
+    regexp: 'network-online.target'
+    replace: 'network.target'
+  with_items:
+    - rpc-statd-notify.service
+    - rpc-statd.service
+
   # - name: store kerberos password => this is not working
   #   shell: echo "{{domain_password}}" | kinit {{ domain_admin }}@{{ domain_name | upper }}
 
