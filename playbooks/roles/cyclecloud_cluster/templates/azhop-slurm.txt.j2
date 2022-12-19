@@ -22,6 +22,23 @@ Autoscale = true
     # Slurm autoscaling supports both Terminate and Deallocate shutdown policies
     ShutdownPolicy = Terminate
 
+    CloudInit = '''#!/bin/bash
+echo "cloud-init is removing slurm from the image ..." >> /tmp/cloud-init.txt
+date >> /tmp/cloud-init.txt
+case `grep "^ID=" /etc/os-release | cut -d= -f2 | xargs` in
+    centos|rhel|almalinux|rocky|oraclelinux)
+        yum remove munge* slurm* -y >> /tmp/cloud-init.txt
+        ;;
+    ubuntu|debian)
+        apt-get remove munge* slurm* -y >> /tmp/cloud-init.txt
+        ;;
+    *)
+        echo "Unsupported OS" >> /tmp/cloud-init.txt
+        ;;
+esac
+echo "cloud-init done" >> /tmp/cloud-init.txt
+'''
+
         [[[configuration]]]
         slurm.install = true
         slurm.version = {{ slurm_version }}
@@ -78,10 +95,6 @@ Autoscale = true
         #slurm.node_prefix = ${ifThenElse(NodeNamePrefix=="Cluster Prefix", StrJoin("-", ClusterName, ""), NodeNamePrefix)}
         slurm.use_nodename_as_hostname = true
         slurm.dampen_memory = 8 # Reservation of 8% of the node's memory
-        CloudInit='''#!/bin/bash
-        rpm -e $(rpm -qa | grep -i slurm)
-        rpm -e $(rpm -qa | grep -i munge)
-        '''
         [[[cluster-init cyclecloud/slurm:execute:{{cyclecloud_slurm_release}}]]]
 
 {% for queue in cc_queues %}
