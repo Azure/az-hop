@@ -54,6 +54,7 @@
    * [Not deploy ANF](#not-deploy-anf)
    * [Use an existing NFS mount point](#use-an-existing-nfs-mount-point)
    * [Use Azure Active Directory for MFA](#use-azure-active-directory-for-mfa)
+   * [Use an existing Azure Database for MariaDB server](#use-an-existing-azure-database-for-mariadb-server)
 * [Helper Scripts](#helper-scripts)
    * [ansible_prereqs.sh](#ansible_prereqssh)
    * [azhop_states.sh](#azhop_statessh)
@@ -66,7 +67,7 @@
 * [Telemetry](#telemetry)
 <!--te-->
 <!-- https://github.com/ekalinin/github-markdown-toc -->
-<!-- ./gh-md-toc --insert --no-backup --hide-footer deployment.md -->
+<!-- gh-md-toc --insert --no-backup --hide-footer docs/deploy/index.md -->
 
 # Overview
 Deploying a green field `azhop` environemnt can be done by following these few steps :
@@ -429,7 +430,8 @@ network:
 #     asg-ondemand: asg-ondemand
 #     asg-deployer: asg-deployer
 #     asg-guacamole: asg-guacamole
-    
+#     asg-mariadb-client: asg-mariadb-client
+
 #  peering: # This list is optional, and can be used to create VNet Peerings in the same subscription.
 #    - vnet_name: #"VNET Name to Peer to"
 #      vnet_resource_group: #"Resource Group of the VNET to peer to"
@@ -540,6 +542,15 @@ slurm:
   accounting_enabled: false
   # Enable container support for SLURM using Enroot/Pyxis
   enroot_enabled: false
+
+# If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values
+database:
+  # Admin user of the database for which the password will be retrieved from the azhop keyvault
+  user: sqladmin
+  # FQDN of the managed instance
+  fqdn: 
+  # IP of the managed private endpoint if the FQDN is not registered in a private DNS
+  ip: 
 
 # Authentication configuration for accessing the az-hop portal
 # Default is basic authentication. For oidc authentication you have to specify the following values
@@ -1296,6 +1307,22 @@ The helper script `configure_aad.sh` can be used to
 - Create a secret for this AAD application and store it in the az-hop Key Vault
 
 This script need to be run before the `install.sh` or at least before the `ood` step, and by a user with enough privilege to create an application in AAD (typically a subscription `Owner`)
+
+## Use an existing Azure Database for MariaDB server
+An existing instance of an Azure Database for MariaDB server can be used to store the SLURM accounting data and/or the Windows Remote Desktop session requests. To enable it update the configuration file with these settings :
+
+```yml
+# If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values
+database:
+  # Admin user of the database for which the password will be retrieved from the azhop keyvault
+  user: sqladmin
+  # FQDN of the managed instance
+  fqdn: 
+  # IP of the managed private endpoint if the FQDN is not registered in a private DNS
+  ip: 
+```
+
+Store the database user password in the `azhop` keyvault as a secret with the name `<database.user>-password`
 
 # Helper Scripts
 

@@ -1,8 +1,8 @@
-- name: Read slurmdb Password from KV
-  command: az keyvault secret show --vault-name {{key_vault}} -n {{slurmdb_user}}-password --query "value" -o tsv
+- name: Read database Password from KV
+  command: az keyvault secret show --vault-name {{key_vault}} -n {{database_user}}-password --query "value" -o tsv
   delegate_to: localhost
   connection: local
-  register: slurmdb_password_out
+  register: database_password_out
   become: false
 
 - name: configure slurmdbd
@@ -13,7 +13,7 @@
     group: slurm
     mode: 0600
   vars:
-    slurmdb_password: "{{slurmdb_password_out.stdout}}"
+    database_password: "{{database_password_out.stdout}}"
 
 - name: download certificate
   get_url:
