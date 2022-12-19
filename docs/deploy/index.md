@@ -429,7 +429,8 @@ network:
 #     asg-ondemand: asg-ondemand
 #     asg-deployer: asg-deployer
 #     asg-guacamole: asg-guacamole
-    
+#     asg-mariadb-client: asg-mariadb-client
+
 #  peering: # This list is optional, and can be used to create VNet Peerings in the same subscription.
 #    - vnet_name: #"VNET Name to Peer to"
 #      vnet_resource_group: #"Resource Group of the VNET to peer to"
@@ -540,6 +541,15 @@ slurm:
   accounting_enabled: false
   # Enable container support for SLURM using Enroot/Pyxis
   enroot_enabled: false
+
+# If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values
+database:
+  # Admin user of the database for which the password will be retrieved from the azhop keyvault
+  user: sqladmin
+  # FQDN of the managed instance
+  fqdn: 
+  # IP of the managed private endpoint if the FQDN is not registered in a private DNS
+  ip: 
 
 # Authentication configuration for accessing the az-hop portal
 # Default is basic authentication. For oidc authentication you have to specify the following values

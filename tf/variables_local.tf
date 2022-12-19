@@ -142,10 +142,12 @@ locals {
     # Queue manager
     queue_manager = try(local.configuration_yml["queue_manager"], "openpbs")
 
-    # Slurm Accounting Database
-    slurm_accounting = local.enable_remote_winviz || try(local.configuration_yml["slurm"].accounting_enabled, false)
-    slurm_accounting_admin_user = "sqladmin"
-    
+    # Create Database
+    create_database  = ( local.enable_remote_winviz || try(local.configuration_yml["slurm"].accounting_enabled, false) ) && (! local.use_existing_database)
+    use_existing_database = try(length(local.configuration_yml["database"].fqdn) > 0 ? true : false, false)
+#    slurm_accounting = local.enable_remote_winviz || try(local.configuration_yml["slurm"].accounting_enabled, false)
+    database_user = local.create_database ? "sqladmin" : (local.use_existing_database ? try(local.configuration_yml["database"].user, "") : "")
+
     # VNET
     create_vnet = try(length(local.vnet_id) > 0 ? false : true, true)
     vnet_id = try(local.configuration_yml["network"]["vnet"]["id"], null)
@@ -212,7 +214,6 @@ locals {
         asg-deployer = "asg-deployer"
         asg-guacamole = "asg-guacamole"
         asg-mariadb-client = "asg-mariadb-client"
-        asg-mariadb-server = "asg-mariadb-server"
     }
     #asgs = local.create_nsg ? local._default_asgs :  try(local.configuration_yml["network"]["asg"]["names"], local._default_asgs)
     asgs = try(local.configuration_yml["network"]["asg"]["names"], local._default_asgs)
@@ -347,7 +348,7 @@ locals {
         AllowGuacamoleRdpIn         = ["610", "Inbound", "Allow", "Tcp", "Rdp",                 "asg/asg-guacamole",         "subnet/compute"],
 
         # MariaDB
-        AllowMariaDBIn              = ["700", "Inbound", "Allow", "Tcp", "MariaDB",             "asg/asg-mariadb-client",    "asg/asg-mariadb-server"],
+        AllowMariaDBIn              = ["700", "Inbound", "Allow", "Tcp", "MariaDB",             "asg/asg-mariadb-client",    "subnet/admin"],
 
         # Deny all remaining traffic
         DenyVnetInbound             = ["3100", "Inbound", "Deny", "*", "All",                  "tag/VirtualNetwork",       "tag/VirtualNetwork"],
@@ -431,7 +432,7 @@ locals {
         AllowGuacamoleRdpOut        = ["610", "Outbound", "Allow", "Tcp", "Rdp",                 "asg/asg-guacamole",         "subnet/compute"],
 
         # MariaDB
-        AllowMariaDBOut             = ["700", "Outbound", "Allow", "Tcp", "MariaDB",             "asg/asg-mariadb-client",    "asg/asg-mariadb-server"],
+        AllowMariaDBOut             = ["700", "Outbound", "Allow", "Tcp", "MariaDB",             "asg/asg-mariadb-client",    "subnet/admin"],
 
         # Deny all remaining traffic and allow Internet access
         AllowInternetOutBound       = ["3000", "Outbound", "Allow", "Tcp", "All",               "tag/VirtualNetwork",       "tag/Internet"],
