@@ -38,8 +38,9 @@ resource "azurerm_linux_virtual_machine" "jumpbox" {
   }
 
   identity {
-    type         = "UserAssigned"
-    identity_ids = [ azurerm_user_assigned_identity.azure_monitor_identity.id ]
+    type         = "SystemAssigned"
+    //type         = "UserAssigned"
+    //identity_ids = [ azurerm_user_assigned_identity.azure_monitor_identity.id ]
   }
 
   os_disk {
@@ -82,8 +83,8 @@ resource "azurerm_network_interface_application_security_group_association" "jum
 
 resource "azurerm_virtual_machine_extension" "AzureMonitorLinuxAgent" {
   depends_on = [
-    azurerm_linux_virtual_machine.jumpbox,
-    azurerm_user_assigned_identity.azure_monitor_identity
+    azurerm_linux_virtual_machine.jumpbox
+    #azurerm_user_assigned_identity.azure_monitor_identity
   ]
   name                       = "AzureMonitorLinuxAgent"
   virtual_machine_id         = azurerm_linux_virtual_machine.jumpbox[0].id
@@ -92,7 +93,7 @@ resource "azurerm_virtual_machine_extension" "AzureMonitorLinuxAgent" {
   type_handler_version       = "1.0"
   auto_upgrade_minor_version = true
 
-  settings                   = <<SETTINGS
+/*  settings                   = <<SETTINGS
   {
     "authentication": {
       "managedIdentity": {
@@ -101,7 +102,7 @@ resource "azurerm_virtual_machine_extension" "AzureMonitorLinuxAgent" {
       }
     }
   }
-  SETTINGS
+  SETTINGS*/
 }
 
 resource "azurerm_monitor_data_collection_rule_association" "dcra_vm_metrics" {
@@ -109,4 +110,11 @@ resource "azurerm_monitor_data_collection_rule_association" "dcra_vm_metrics" {
     target_resource_id = azurerm_linux_virtual_machine.jumpbox[0].id
     data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_data_collection_rule.id
     description = "Data Collection Rule Association for VM Metrics"
+}
+
+resource "azurerm_monitor_data_collection_rule_association" "dcra_vm_insights" {
+    name                = "vm-insights-collection-ra"
+    target_resource_id = azurerm_linux_virtual_machine.jumpbox[0].id
+    data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_insights_collection_rule.id
+    description = "Data Collection Rule Association for VM Insights"
 }

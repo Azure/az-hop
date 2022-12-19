@@ -5,13 +5,13 @@ resource "azurerm_log_analytics_workspace" "azhop_workspace" {
     sku                 = "PerGB2018"
     retention_in_days   = 30
 }
-
+/*
 resource "azurerm_user_assigned_identity" "azure_monitor_identity" {
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   name                = "azure-monitor-identity"
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
 }
-
+*/
 resource "azurerm_monitor_action_group" "azhop_action_group" {
   name                = "azhop-ag"
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
@@ -88,3 +88,29 @@ resource "azurerm_monitor_data_collection_rule" "vm_data_collection_rule" {
   }
 }
 
+resource "azurerm_monitor_data_collection_rule" "vm_insights_collection_rule" {
+  name                = "vm-insights-collection-rule"
+  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
+  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+  kind = "Linux"
+  destinations {
+    log_analytics {
+      workspace_resource_id = azurerm_log_analytics_workspace.azhop_workspace.id
+      name = "vm-insights-logs"
+    }
+  }
+  data_flow {
+    streams = ["Microsoft-InsightsMetrics"]
+    destinations = ["vm-insights-logs"]
+  }
+
+  data_sources {
+    performance_counter {
+        streams                       = ["Microsoft-InsightsMetrics"]
+        sampling_frequency_in_seconds = 60
+        counter_specifiers            = ["\\VmInsights\\DetailedMetrics"
+                                         ]
+        name                          = "vm-insights"
+    }
+  }
+}
