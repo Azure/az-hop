@@ -192,6 +192,20 @@
       - 'slurm-torque_{{slurm_version}}_amd64.deb'
   when: not build_rpms
 
+- name: query the size of the installed slurm RPM
+  shell: rpm -qi slurm | grep Size | awk '{print $3}'
+  register: installed_slurm_size
+  ignore_errors: yes
+
+- name: get the size of the slurm RPM package file
+  shell: rpm -qi {{homedir_mountpoint}}/slurm/rpms/slurm-{{slurm_version}}.el7.x86_64.rpm | grep Size | awk '{print $3}'
+  register: downloaded_slurm_size
+  ignore_errors: yes
+
+- name: uninstall slurm if the installed RPM size is different than the downloaded version
+  shell: yum remove -y slurm*
+  when: installed_slurm_size.stdout|int != downloaded_slurm_size.stdout|int
+
 - name: install slurm
   yum:
     name:
@@ -205,7 +219,7 @@
       - '{{homedir_mountpoint}}/slurm/rpms/slurm-openlava-{{slurm_version}}.el7.x86_64.rpm'
       - '{{homedir_mountpoint}}/slurm/rpms/slurm-slurmdbd-{{slurm_version}}.el7.x86_64.rpm'
     state: present
-    allow_downgrade: true
+    # allow_downgrade: true
     lock_timeout : 180
 
 - name: create slurm config
