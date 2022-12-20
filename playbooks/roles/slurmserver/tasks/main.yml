@@ -198,7 +198,7 @@
   ignore_errors: yes
 
 - name: get the size of the slurm RPM package file
-  shell: rpm -qi {{homedir_mountpoint}}/slurm/rpms/slurm-{{slurm_version}}.el7.x86_64.rpm | grep Size | awk '{print $3}'
+  shell: rpm -qip {{homedir_mountpoint}}/slurm/rpms/slurm-{{slurm_version}}.el7.x86_64.rpm | grep Size | awk '{print $3}'
   register: downloaded_slurm_size
   ignore_errors: yes
 
