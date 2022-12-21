@@ -1,6 +1,6 @@
-netsh interface ipv4 set dns name="Ethernet" static {{ primary_dns }}
-netsh interface ipv4 add dns name="Ethernet" {{ secondary_dns }} index=2
-netsh interface ipv4 add dns name="Ethernet" 168.63.129.16 index=3
+:: netsh interface ipv4 set dns name="Ethernet" static {{ primary_dns }}
+:: netsh interface ipv4 add dns name="Ethernet" {{ secondary_dns }} index=2
+:: netsh interface ipv4 add dns name="Ethernet" 168.63.129.16 index=3
 
 reg add "HKLM\System\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
 

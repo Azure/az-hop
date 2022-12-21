@@ -1,7 +1,7 @@
 #!/bin/bash
-ad_dns=$1
-ldap_server=$2
-ad_join_domain=$3
+# ad_dns=$1
+# ldap_server=$2
+# ad_join_domain=$3
 
 packages="sssd libsss-simpleifp0 sssd-dbus sssd-tools realmd oddjob oddjob-mkhomedir adcli samba-common krb5-user ldap-utils packagekit resolvconf"
 
@@ -29,10 +29,10 @@ else
   echo "options timeout:1 attempts:5" >> /etc/resolv.conf
 fi
 
-# needed for ubuntu
-if ! grep "$ad_dns" /etc/hosts; then
-  echo "$ad_dns $ldap_server.$ad_join_domain $ldap_server" >> /etc/hosts
-fi
+# needed for ubuntu => no more needed with correct private DNS records
+# if ! grep "$ad_dns" /etc/hosts; then
+#   echo "$ad_dns $ldap_server.$ad_join_domain $ldap_server" >> /etc/hosts
+# fi
 
 function enforce_hostname() {
   local system_hostname=$1

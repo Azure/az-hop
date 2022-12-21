@@ -107,7 +107,7 @@
       cc_remoteviz: '{{remoteviz}}'
       cc_image_lookup: '{{image_lookup}}'
       cc_domain: '{{ad_join_domain}}'
-      cc_ldap_server: '{{primary_dns}}'
+      cc_ldap_server: '{{ldap_server}}'
       cc_queue_manager: '{{ queue_manager | default("openpbs") }}'
       influxdb_database_name: "telegraf"
       telegraf_influxdb_urls: 
