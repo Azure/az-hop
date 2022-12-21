@@ -250,7 +250,7 @@
       apply:
         become: true
     vars:
-      cc_slurm_version: 20.11.9-1
+      cc_slurm_version: '{{slurm.slurm_version | default("20.11.9")}}-1'
       enroot_enabled: '{{slurm.enroot_enabled | default(false)}}'
     when: ( queue_manager is defined and queue_manager == "slurm" )
 
