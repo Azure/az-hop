@@ -4,10 +4,10 @@
     name: jq, gcc, python3-devel, openssl
     lock_timeout : 180
 
-- name: Add MariaDB IP in /etc/hosts
-  lineinfile:
-    path: /etc/hosts
-    line: "{{guac_spooler_database_ip}} {{guac_spooler_database_fqdn}}"
+# - name: Add MariaDB IP in /etc/hosts
+#   lineinfile:
+#     path: /etc/hosts
+#     line: "{{guac_spooler_database_ip}} {{guac_spooler_database_fqdn}}"
 
 - name: Download MariaDB repo tool
   get_url: 

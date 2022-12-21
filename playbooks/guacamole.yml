@@ -238,10 +238,10 @@
         dest: /etc/guacamole/lib/mariadb-java-client-2.7.7.jar
         state: link
 
-    - name: Add MariaDB IP in /etc/hosts
-      lineinfile:
-        path: /etc/hosts
-        line: "{{database_ip}} {{database_fqdn}}"
+    # - name: Add MariaDB IP in /etc/hosts
+    #   lineinfile:
+    #     path: /etc/hosts
+    #     line: "{{database_ip}} {{database_fqdn}}"
 
     - name: Read SQLAdmin Password from KV
       command: az keyvault secret show --vault-name {{key_vault}} -n {{ database_user }}-password --query "value" -o tsv

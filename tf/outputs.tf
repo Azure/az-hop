@@ -56,7 +56,7 @@ resource "local_file" "global_variables" {
       lustre_hsm_storage_account = ( local.lustre_archive_account != null ? local.lustre_archive_account : azurerm_storage_account.azhop.name )
       lustre_hsm_storage_container = ( local.lustre_archive_account != null ? local.configuration_yml["lustre"]["hsm"]["storage_container"] : (local.lustre_enabled ? azurerm_storage_container.lustre_archive[0].name : "") )
       database-fqdn       = local.create_database ? azurerm_mariadb_server.mariadb[0].fqdn : (local.use_existing_database ? local.configuration_yml["database"].fqdn : "")
-      database-ip         = local.create_database ? azurerm_private_endpoint.mariadb[0].private_service_connection[0].private_ip_address : (local.use_existing_database ? try(local.configuration_yml["database"].ip, "") : "")
+      #database-ip         = local.create_database ? azurerm_private_endpoint.mariadb[0].private_service_connection[0].private_ip_address : (local.use_existing_database ? try(local.configuration_yml["database"].ip, "") : "")
       database-user       = local.database_user
       jumpbox-ssh-port    = local.jumpbox_ssh_port
     }
