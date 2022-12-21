@@ -8,15 +8,15 @@
   selinux:
     state: disabled
 
-- name: create dhclient config
-  copy:
-    content: "supersede domain-name-servers {{ domain_primary_dns }};\nappend domain-name-servers {{ domain_secondary_dns }};\nappend domain-name-servers 168.63.129.16;"
-    dest: "/etc/dhcp/dhclient.conf"
+# - name: create dhclient config
+#   copy:
+#     content: "supersede domain-name-servers {{ domain_primary_dns }};\nappend domain-name-servers {{ domain_secondary_dns }};\nappend domain-name-servers 168.63.129.16;"
+#     dest: "/etc/dhcp/dhclient.conf"
 
-- name: restart NetworkManager
-  service:
-    name: NetworkManager
-    state: restarted
+# - name: restart NetworkManager
+#   service:
+#     name: NetworkManager
+#     state: restarted
 
 - name: Creates home directory mountpoint
   file:

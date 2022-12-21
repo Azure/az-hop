@@ -43,8 +43,8 @@ resource "local_file" "global_variables" {
       resource_group      = local.resource_group
       config_file         = local.configuration_file
       homedir_mountpoint  = local.homedir_mountpoint
-      ad-ip               = azurerm_network_interface.ad-nic.private_ip_address
-      ad2-ip              = local.ad_ha ? azurerm_network_interface.ad2-nic[0].private_ip_address : azurerm_network_interface.ad-nic.private_ip_address
+      # ad-ip               = azurerm_network_interface.ad-nic.private_ip_address
+      # ad2-ip              = local.ad_ha ? azurerm_network_interface.ad2-nic[0].private_ip_address : azurerm_network_interface.ad-nic.private_ip_address
       anf-home-ip         = local.create_anf ? element(azurerm_netapp_volume.home[0].mount_ip_addresses, 0) : local.configuration_yml["mounts"]["home"]["server"]
       anf-home-path       = local.create_anf ? azurerm_netapp_volume.home[0].volume_path : local.configuration_yml["mounts"]["home"]["export"]
       homedir_options     = try(local.configuration_yml["mounts"]["home"]["options"], "rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev")

@@ -92,15 +92,16 @@
           password_never_expires: true
           update_password: on_create
 
-      - name: Add DNS Forwarders
-        community.windows.win_dns_zone:
-          name: '{{item.name}}'
-          type: forwarder
-          dns_servers: "{{item.ips}}"
-          replication: none
-          state: present
-        with_items: '{{dns.forwarders}}'
-        when: dns.forwarders is defined
+# DNS Forwarder are no longer done by ADDS
+      # - name: Add DNS Forwarders
+      #   community.windows.win_dns_zone:
+      #     name: '{{item.name}}'
+      #     type: forwarder
+      #     dns_servers: "{{item.ips}}"
+      #     replication: none
+      #     state: present
+      #   with_items: '{{dns.forwarders}}'
+      #   when: dns.forwarders is defined
 
       - name: Update azhop groups gidnumber
         community.windows.win_domain_group:

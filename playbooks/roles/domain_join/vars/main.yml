@@ -1,8 +1,8 @@
 domain_user: hpcadmin
 domain_password:
 domain_name: hpc.azure
-domain_primary_dns:
-domain_secondary_dns:
+# domain_primary_dns:
+# domain_secondary_dns:
 domain_homedir: /anfhome
 domain_mount_ip:
 domain_mount_path:
