@@ -161,3 +161,26 @@ resource "azurerm_monitor_data_collection_rule" "vm_insights_collection_rule" {
     }
   }
 }
+
+resource "azurerm_monitor_metric_alert" "vm_availability_alert" {
+  name                = "vm-availability-alert"
+  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
+  scopes              = [local.create_rg ? azurerm_resource_group.rg[0].id : data.azurerm_resource_group.rg[0].id]
+  description         = "Alert when VM is not available"
+  severity            = 3
+  enabled             = true
+  frequency           = "PT5M"
+  window_size         = "PT5M"
+  target_resource_type = "Microsoft.Compute/virtualMachines"
+  target_resource_location = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+  criteria {
+    metric_namespace = "Microsoft.Compute/virtualMachines"
+    metric_name      = "VmAvailabilityMetric"
+    aggregation      = "Average"
+    operator         = "LessThan"
+    threshold        = 1
+  }
+  action {
+    action_group_id = azurerm_monitor_action_group.azhop_action_group.id
+  }
+}
