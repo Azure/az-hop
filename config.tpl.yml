@@ -29,7 +29,7 @@ mounts:
     mountpoint: /anfhome # /sharedhome for example
     server: '{{anf_home_ip}}' # Specify an existing NFS server name or IP, when using the ANF built in use '{{anf_home_ip}}'
     export: '{{anf_home_path}}' # Specify an existing NFS export directory, when using the ANF built in use '{{anf_home_path}}'
-    options: "rw,hard,rsize=262144,wsize=262144,vers=3,tcp" # Specify the mount options. Default to rw,hard,rsize=262144,wsize=262144,vers=3,tcp
+    options: "rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev" # Specify the mount options. Default to rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev
 #  mount1:
 #    mountpoint: /mount1 
 #    server: a.b.c.d # Specify an existing NFS server name or IP
@@ -101,6 +101,7 @@ network:
 #     asg-ondemand: asg-ondemand
 #     asg-deployer: asg-deployer
 #     asg-guacamole: asg-guacamole
+#     asg-mariadb-client: asg-mariadb-client
     
 #  peering: # This list is optional, and can be used to create VNet Peerings in the same subscription.
 #    - vnet_name: #"VNET Name to Peer to"
@@ -208,10 +209,19 @@ queue_manager: openpbs
 
 # Specific SLURM configuration
 slurm:
-  # Enable SLURM accounting, this will create a SLURM accounting database in a managed MySQL server instance
+  # Enable SLURM accounting, this will create a SLURM accounting database in a managed MariaDB server instance
   accounting_enabled: false
   # Enable container support for SLURM using Enroot/Pyxis
   enroot_enabled: false
+
+# If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values
+database:
+  # Admin user of the database for which the password will be retrieved from the azhop keyvault
+  user: sqladmin
+  # FQDN of the managed instance
+  fqdn: 
+  # IP of the managed private endpoint if the FQDN is not registered in a private DNS
+  ip: 
 
 # Authentication configuration for accessing the az-hop portal
 # Default is basic authentication. For oidc authentication you have to specify the following values
@@ -418,4 +428,5 @@ applications:
     enabled: true
   bc_ansys_workbench:
     enabled: false
-
+  bc_vmd:
+    enabled: false

@@ -22,8 +22,8 @@ PurgeUsageAfter=24month
 LogFile=/var/log/slurmctld/slurmdbd.log
 PidFile=/var/run/slurmdbd.pid
 SlurmUser=slurm
-StorageHost={{ slurmdb_fqdn}}
-StoragePass="{{ slurmdb_password }}"
-StorageUser={{ slurmdb_user }}@{{ slurmdb_fqdn }}
+StorageHost={{ database_ip}}
+StoragePass="{{ database_password }}"
+StorageUser={{ database_user }}@{{ database_fqdn }}
 StorageType=accounting_storage/mysql
 StorageParameters=SSL_CA=/etc/slurm/BaltimoreCyberTrustRoot.crt.pem

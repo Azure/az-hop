@@ -4,6 +4,11 @@
     name: jq, gcc, python3-devel, openssl
     lock_timeout : 180
 
+- name: Add MariaDB IP in /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    line: "{{guac_spooler_database_ip}} {{guac_spooler_database_fqdn}}"
+
 - name: Download MariaDB repo tool
   get_url: 
     url: https://downloads.mariadb.com/MariaDB/mariadb_repo_setup
@@ -30,7 +35,7 @@
   run_once: true
 
 - name: Read SQLAdmin Password from KV
-  command: az keyvault secret show --vault-name {{guac_spooler_key_vault}} -n {{ guac_spooler_slurmdb_user }}-password --query "value" -o tsv
+  command: az keyvault secret show --vault-name {{guac_spooler_key_vault}} -n {{ guac_spooler_database_user }}-password --query "value" -o tsv
   delegate_to: localhost
   connection: local
   register: sqladmin_password
@@ -55,10 +60,10 @@
   copy:
     dest: /etc/guacamole/guacamole.properties
     content: |
-      mysql-hostname: {{guac_spooler_slurmdb_fqdn}}
+      mysql-hostname: {{guac_spooler_database_fqdn}}
       mysql-port: 3306
       mysql-database: guacamole_db
-      mysql-username: {{ guac_spooler_slurmdb_user }}@{{guac_spooler_slurmdb_fqdn}}
+      mysql-username: {{ guac_spooler_database_user }}@{{guac_spooler_database_fqdn}}
       mysql-password: {{sqladmin_password.stdout}}
       mysql-server-timezone: GMT
       mysql-auto-create-accounts: true

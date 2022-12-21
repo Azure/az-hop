@@ -1,4 +1,5 @@
 # Export the module function if it exists
+THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 [[ $(type -t module) == "function" ]] && export -f module
 
 # Find available port to run server on
@@ -37,3 +38,9 @@ c.NotebookApp.notebook_dir = '${NOTEBOOK_ROOT}'
 c.NotebookApp.disable_check_xsrf = True
 EOL
 )
+
+<%- if OodAppkit.clusters[context.cluster].job_config[:adapter] == 'pbspro' -%>
+# TODO : Use the job ID for the container name
+export CONTAINER_NAME=jupyter.$PBS_JOBID
+$THIS_DIR/get_container.sh <%=context.container_image%> $CONTAINER_NAME
+<%- end -%>

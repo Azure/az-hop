@@ -4,7 +4,7 @@ category: Interactive Apps
 subcategory: Servers
 role: batch_connect
 description: |
-  This app will launch a [Jupyter] server on a SLURM cluster running [Enroot]
+  This app will launch a [Jupyter] server on a cluster running [Enroot]
 
   [Jupyter]: https://jupyter.org/
   [Enroot]: https://github.com/NVIDIA/enroot

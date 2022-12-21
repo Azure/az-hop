@@ -69,7 +69,7 @@ Autoscale = true
         mountpoint = /sched
         export_path = {{mounts.home.export}}/slurm/config
         address = {{mounts.home.server}}
-        options = {{ mounts.home.options | default("rw,hard,rsize=262144,wsize=262144,vers=3,tcp",true) }}
+        options = {{ mounts.home.options | default("rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev",true) }}
 
     [[node nodearraybase]]
     Abstract = true
