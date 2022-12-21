@@ -167,3 +167,40 @@ resource "azurerm_network_interface_application_security_group_association" "ccp
   network_interface_id          = azurerm_network_interface.ccportal-nic.id
   application_security_group_id = local.create_nsg ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
 }
+
+resource "azurerm_virtual_machine_extension" "AzureMonitorLinuxAgent_ccportal" {
+  depends_on = [
+    azurerm_linux_virtual_machine.ccportal
+  ]
+  name                       = "AzureMonitorLinuxAgent"
+  virtual_machine_id         = azurerm_linux_virtual_machine.ccportal.id
+  publisher                  = "Microsoft.Azure.Monitor"
+  type                       = "AzureMonitorLinuxAgent"
+  type_handler_version       = "1.0"
+  auto_upgrade_minor_version = true
+
+  settings                   = <<SETTINGS
+  {
+    "authentication": {
+      "managedIdentity": {
+        "identifier-name": "mi_res_id",
+        "identifier-value": "${azurerm_user_assigned_identity.ccportal.id}" 
+      }
+    }
+  }
+  SETTINGS
+}
+
+resource "azurerm_monitor_data_collection_rule_association" "dcra_ccportal_metrics" {
+    name                = "ccportal-data-collection-ra"
+    target_resource_id = azurerm_linux_virtual_machine.ccportal.id
+    data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_data_collection_rule.id
+    description = "CCPortal Data Collection Rule Association for VM Metrics"
+}
+
+resource "azurerm_monitor_data_collection_rule_association" "dcra_ccportal_insights" {
+    name                = "ccportal-insights-collection-ra"
+    target_resource_id = azurerm_linux_virtual_machine.ccportal.id
+    data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_insights_collection_rule.id
+    description = "CCPortal Data Collection Rule Association for VM Insights"
+}

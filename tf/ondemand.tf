@@ -31,6 +31,10 @@ resource "azurerm_linux_virtual_machine" "ondemand" {
     azurerm_network_interface.ondemand-nic.id,
   ]
 
+  identity {
+    type         = "SystemAssigned"
+  }
+
   admin_ssh_key {
     username   = local.admin_username
     public_key = tls_private_key.internal.public_key_openssh
@@ -72,4 +76,30 @@ resource "azurerm_network_interface_application_security_group_association" "ond
   for_each = toset(local.asg_associations["ondemand"])
   network_interface_id          = azurerm_network_interface.ondemand-nic.id
   application_security_group_id = local.create_nsg ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
+}
+
+resource "azurerm_virtual_machine_extension" "AzureMonitorLinuxAgent_ondemand" {
+  depends_on = [
+    azurerm_linux_virtual_machine.ondemand
+  ]
+  name                       = "AzureMonitorLinuxAgent"
+  virtual_machine_id         = azurerm_linux_virtual_machine.ondemand.id
+  publisher                  = "Microsoft.Azure.Monitor"
+  type                       = "AzureMonitorLinuxAgent"
+  type_handler_version       = "1.0"
+  auto_upgrade_minor_version = true
+}
+
+resource "azurerm_monitor_data_collection_rule_association" "dcra_ondemand_metrics" {
+    name                = "ondemand-data-collection-ra"
+    target_resource_id = azurerm_linux_virtual_machine.ondemand.id
+    data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_data_collection_rule.id
+    description = "OnDemand Data Collection Rule Association for VM Metrics"
+}
+
+resource "azurerm_monitor_data_collection_rule_association" "dcra_ondemand_insights" {
+    name                = "ondemand-insights-collection-ra"
+    target_resource_id = azurerm_linux_virtual_machine.ondemand.id
+    data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_insights_collection_rule.id
+    description = "OnDemand Data Collection Rule Association for VM Insights"
 }

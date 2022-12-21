@@ -19,6 +19,9 @@ resource "azurerm_linux_virtual_machine" "scheduler" {
   network_interface_ids = [
     azurerm_network_interface.scheduler-nic.id,
   ]
+  identity {
+    type         = "SystemAssigned"
+  }
 
   admin_ssh_key {
     username   = local.admin_username
@@ -57,8 +60,34 @@ resource "azurerm_linux_virtual_machine" "scheduler" {
   }
 }
 
+resource "azurerm_virtual_machine_extension" "AzureMonitorLinuxAgent_sched" {
+  depends_on = [
+    azurerm_linux_virtual_machine.scheduler
+  ]
+  name                       = "AzureMonitorLinuxAgent"
+  virtual_machine_id         = azurerm_linux_virtual_machine.scheduler.id
+  publisher                  = "Microsoft.Azure.Monitor"
+  type                       = "AzureMonitorLinuxAgent"
+  type_handler_version       = "1.0"
+  auto_upgrade_minor_version = true
+}
+
 resource "azurerm_network_interface_application_security_group_association" "scheduler-asg-asso" {
   for_each = toset(local.asg_associations["scheduler"])
   network_interface_id          = azurerm_network_interface.scheduler-nic.id
   application_security_group_id = local.create_nsg ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
+}
+
+resource "azurerm_monitor_data_collection_rule_association" "dcra_sched_metrics" {
+    name                = "sched-data-collection-ra"
+    target_resource_id = azurerm_linux_virtual_machine.scheduler.id
+    data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_data_collection_rule.id
+    description = "Scheduler Data Collection Rule Association for VM Metrics"
+}
+
+resource "azurerm_monitor_data_collection_rule_association" "dcra_sched_insights" {
+    name                = "sched-insights-collection-ra"
+    target_resource_id = azurerm_linux_virtual_machine.scheduler.id
+    data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_insights_collection_rule.id
+    description = "Scheduler Data Collection Rule Association for VM Insights"
 }
