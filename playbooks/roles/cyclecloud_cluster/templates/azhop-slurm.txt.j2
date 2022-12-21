@@ -22,8 +22,25 @@ Autoscale = true
     # Slurm autoscaling supports both Terminate and Deallocate shutdown policies
     ShutdownPolicy = Terminate
 
+    CloudInit = '''#!/bin/bash
+echo "cloud-init is removing slurm from the image ..." >> /tmp/cloud-init.txt
+date >> /tmp/cloud-init.txt
+case `grep "^ID=" /etc/os-release | cut -d= -f2 | xargs` in
+    centos|rhel|almalinux|rocky|oraclelinux)
+        yum remove munge* slurm* -y >> /tmp/cloud-init.txt
+        ;;
+    ubuntu|debian)
+        apt-get remove munge* slurm* -y >> /tmp/cloud-init.txt
+        ;;
+    *)
+        echo "Unsupported OS" >> /tmp/cloud-init.txt
+        ;;
+esac
+echo "cloud-init done" >> /tmp/cloud-init.txt
+'''
+
         [[[configuration]]]
-        slurm.install = false
+        slurm.install = true
         slurm.version = {{ slurm_version }}
         slurm.user.uid = {{ slurm_uid }}
         slurm.user.gid = {{ slurm_gid }}

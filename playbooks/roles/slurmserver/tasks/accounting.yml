@@ -30,14 +30,20 @@
     state: restarted
     enabled: yes
 
-- name: Wait a maximum of 60 seconds until slurmdbd is running
-  wait_for:
-    path: /var/log/slurmctld/slurmdbd.log
-    search_regex: slurmdbd version \d+.\d+.\d+ started
-    timeout: 60
+# How to wait for the service to be started ?
+# - name: Wait a maximum of 60 seconds until slurmdbd is running
+#   wait_for:
+#     path: /var/log/slurmctld/slurmdbd.log
+#     search_regex: slurmdbd version \d+.\d+.\d+ started
+#     timeout: 60
 
+# retry this command 5 times before failing, this should ensure the slurmdb service is ready
 - name: check slurmdb connection
   command: "sacctmgr list cluster"
+  retries: 5
+  delay: 5
+  register: result
+  until: result.rc == 0
 
 - name: check if cluster exists in the accounting database
   shell: sacctmgr -np show cluster slurm|wc -l

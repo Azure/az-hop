@@ -2,6 +2,8 @@
 # Based on: https://github.com/Azure/cyclecloud-slurm/blob/master/specs/default/cluster-init/files/00-build-slurm.sh
 set -e
 
+INSTALL_SLURM=no
+
 SLURM_VERSION=20.11.9
 BUILD_DIR=/mnt/slurm
 mkdir -p $BUILD_DIR
@@ -36,46 +38,49 @@ cd ../build/v3/
 make -j install >/dev/null
 cd ../../install/v3/
 
-#
-# Build SLURM
-#
+if [ "$INSTALL_SLURM" = "yes" ]; then
 
-SLURM_FOLDER="slurm-${SLURM_VERSION}"
-SLURM_PKG="slurm-${SLURM_VERSION}.tar.bz2"
-DOWNLOAD_URL="https://download.schedmd.com/slurm"
+    #
+    # Build SLURM
+    #
 
-cd $BUILD_DIR
+    SLURM_FOLDER="slurm-${SLURM_VERSION}"
+    SLURM_PKG="slurm-${SLURM_VERSION}.tar.bz2"
+    DOWNLOAD_URL="https://download.schedmd.com/slurm"
 
-# munge is in EPEL
-yum -y install epel-release && yum -q makecache
+    cd $BUILD_DIR
 
-if [ "$SLURM_VERSION" \> "20" ]; then
-    PYTHON=python3
-else
-    PYTHON=python2
+    # munge is in EPEL
+    yum -y install epel-release && yum -q makecache
+
+    if [ "$SLURM_VERSION" \> "20" ]; then
+        PYTHON=python3
+    else
+        PYTHON=python2
+    fi
+
+    yum install -y make $PYTHON which rpm-build munge-devel munge-libs readline-devel openssl openssl-devel pam-devel perl-ExtUtils-MakeMaker gcc mysql mysql-devel wget gtk2-devel.x86_64 glib2-devel.x86_64 libtool-2.4.2 m4 automake rsync
+    mkdir -p $BUILD_DIR/bin
+
+    ln -s `which $PYTHON` $BUILD_DIR/bin/python
+    export PATH=$PATH:$BUILD_DIR/bin
+    wget "${DOWNLOAD_URL}/${SLURM_PKG}"
+    rpmbuild --define "_with_pmix --with-pmix=/opt/pmix/v3" -ta ${SLURM_PKG}
+
+    #
+    # Install SLURM
+    #
+
+    yum -y install /root/rpmbuild/RPMS/x86_64/slurm-${SLURM_VERSION}*.rpm /root/rpmbuild/RPMS/x86_64/slurm-slurmd-${SLURM_VERSION}*.rpm
+
+    #
+    # The below is needed to CycleCloud chef recipe
+    #
+    systemctl stop munge
+    userdel munge
+    mkdir -p /etc/slurm
+
 fi
-
-yum install -y make $PYTHON which rpm-build munge-devel munge-libs readline-devel openssl openssl-devel pam-devel perl-ExtUtils-MakeMaker gcc mysql mysql-devel wget gtk2-devel.x86_64 glib2-devel.x86_64 libtool-2.4.2 m4 automake rsync
-mkdir -p $BUILD_DIR/bin
-
-ln -s `which $PYTHON` $BUILD_DIR/bin/python
-export PATH=$PATH:$BUILD_DIR/bin
-wget "${DOWNLOAD_URL}/${SLURM_PKG}"
-rpmbuild --define "_with_pmix --with-pmix=/opt/pmix/v3" -ta ${SLURM_PKG}
-
-#
-# Install SLURM
-#
-
-yum -y install /root/rpmbuild/RPMS/x86_64/slurm-${SLURM_VERSION}*.rpm /root/rpmbuild/RPMS/x86_64/slurm-slurmd-${SLURM_VERSION}*.rpm
-
-#
-# The below is needed to CycleCloud chef recipe
-#
-systemctl stop munge
-userdel munge
-mkdir -p /etc/slurm
-
 
 #
 # Install Enroot
