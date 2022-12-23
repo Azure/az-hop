@@ -35,7 +35,7 @@
       vars:
         domain_admin: "{{admin_user}}"
         domain_password: "{{password.stdout}}"
-        domain_name: "{{ad_join_domain}}"
+        domain_name: "{{domain_name}}"
         # domain_primary_dns: "{{primary_dns}}"
         # domain_secondary_dns: "{{secondary_dns}}"
         domain_homedir: "{{homedir_mountpoint}}"

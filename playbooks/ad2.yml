@@ -59,8 +59,8 @@
 
       - name: Promote server
         ansible.windows.win_domain_controller:
-          dns_domain_name: '{{ad_join_domain}}'
-          domain_admin_user: '{{ad_join_domain}}\{{admin_user}}'
+          dns_domain_name: '{{domain_name}}'
+          domain_admin_user: '{{domain_name}}\{{admin_user}}'
           domain_admin_password: '{{ad_join_password.stdout}}'
           safe_mode_password: '{{ad_join_password.stdout}}'
           install_dns: yes

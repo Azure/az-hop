@@ -3,7 +3,7 @@ global_cc_storage             : azhop{{outputs.resource_postfix}}
 compute_subnetid              : {{outputs.resource_group}}/{{build.vnet.name}}/{{build.vnet.subnets.compute.name}}
 global_config_file            : {{azhop_root}}/config.yml
 ad_join_user                  : {{outputs.admin_user}}
-ad_join_domain                : hpc.azure
+domain_name                   : hpc.azure
 ldap_server                   : ad
 homedir_mountpoint            : {{outputs.homedir_mountpoint}}
 anf_home_ip                   : {{outputs.nfs_home_ip}}
