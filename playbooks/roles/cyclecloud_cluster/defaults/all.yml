@@ -2,7 +2,6 @@ cc_region:
 cc_subnetid:
 cc_admin_user:
 cc_domain:
-cc_ldap_server:
 cc_password:
 cc_queues:
 cc_remoteviz:

@@ -1,7 +1,4 @@
 #!/bin/bash
-# ad_dns=$1
-# ldap_server=$2
-# domain_name=$3
 
 packages="sssd libsss-simpleifp0 sssd-dbus sssd-tools realmd oddjob oddjob-mkhomedir adcli samba-common krb5-user ldap-utils packagekit resolvconf"
 
@@ -28,11 +25,6 @@ if grep "^options " /etc/resolv.conf; then
 else
   echo "options timeout:1 attempts:5" >> /etc/resolv.conf
 fi
-
-# needed for ubuntu => no more needed with correct private DNS records
-# if ! grep "$ad_dns" /etc/hosts; then
-#   echo "$ad_dns $ldap_server.$domain_name $ldap_server" >> /etc/hosts
-# fi
 
 function enforce_hostname() {
   local system_hostname=$1
