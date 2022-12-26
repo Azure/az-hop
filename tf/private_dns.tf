@@ -1,4 +1,4 @@
-
+# https://www.techopedia.com/2/31981/networking/networking-hardware/dismissing-the-myth-that-active-directory-requires-microsoft-dns
 resource "azurerm_private_dns_zone" "azhop_private_dns" {
   name                = "hpc.azure"
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
@@ -12,25 +12,21 @@ resource "azurerm_private_dns_zone_virtual_network_link" "azhop_dns_link" {
   registration_enabled  = true
 }
 
-# Add a pointer record for the Main Domain Controler
-resource "azurerm_private_dns_a_record" "dc" {
-  name                = "dc"
-  resource_group_name = azurerm_private_dns_zone.azhop_private_dns.resource_group_name
-  zone_name           = azurerm_private_dns_zone.azhop_private_dns.name
-  ttl                 = 300
-  records             = [azurerm_network_interface.ad-nic.private_ip_address]
-}
 ## Domain entries
 resource "azurerm_private_dns_srv_record" "ldap_tcp" {
   name                = "_ldap._tcp"
   resource_group_name = azurerm_private_dns_zone.azhop_private_dns.resource_group_name
   zone_name           = azurerm_private_dns_zone.azhop_private_dns.name
   ttl                 = 3600
-  record {
-    priority = 1
+
+  dynamic "record" {
+    for_each = local.domain_controlers
+    content {
+    priority = 0
     weight   = 100
     port     = 389
-    target   = "dc.hpc.azure."
+    target   = "${record.value}.hpc.azure."
+    }
   }
 }
 resource "azurerm_private_dns_srv_record" "kpasswd_tcp" {
@@ -38,11 +34,14 @@ resource "azurerm_private_dns_srv_record" "kpasswd_tcp" {
   resource_group_name = azurerm_private_dns_zone.azhop_private_dns.resource_group_name
   zone_name           = azurerm_private_dns_zone.azhop_private_dns.name
   ttl                 = 3600
-  record {
-    priority = 1
+  dynamic "record" {
+    for_each = local.domain_controlers
+    content {
+    priority = 0
     weight   = 100
     port     = 464
-    target   = "dc.hpc.azure."
+    target   = "${record.value}.hpc.azure."
+    }
   }
 }
 resource "azurerm_private_dns_srv_record" "kerberos_tcp" {
@@ -50,11 +49,14 @@ resource "azurerm_private_dns_srv_record" "kerberos_tcp" {
   resource_group_name = azurerm_private_dns_zone.azhop_private_dns.resource_group_name
   zone_name           = azurerm_private_dns_zone.azhop_private_dns.name
   ttl                 = 3600
-  record {
-    priority = 1
+  dynamic "record" {
+    for_each = local.domain_controlers
+    content {
+    priority = 0
     weight   = 100
     port     = 88
-    target   = "dc.hpc.azure."
+    target   = "${record.value}.hpc.azure."
+    }
   }
 }
 resource "azurerm_private_dns_srv_record" "gc_tcp" {
@@ -62,11 +64,14 @@ resource "azurerm_private_dns_srv_record" "gc_tcp" {
   resource_group_name = azurerm_private_dns_zone.azhop_private_dns.resource_group_name
   zone_name           = azurerm_private_dns_zone.azhop_private_dns.name
   ttl                 = 3600
-  record {
-    priority = 1
+  dynamic "record" {
+    for_each = local.domain_controlers
+    content {
+    priority = 0
     weight   = 100
-    port     = 88
-    target   = "dc.hpc.azure."
+    port     = 3268
+    target   = "${record.value}.hpc.azure."
+    }
   }
 }
 resource "azurerm_private_dns_srv_record" "kerberos_udp" {
@@ -74,11 +79,14 @@ resource "azurerm_private_dns_srv_record" "kerberos_udp" {
   resource_group_name = azurerm_private_dns_zone.azhop_private_dns.resource_group_name
   zone_name           = azurerm_private_dns_zone.azhop_private_dns.name
   ttl                 = 3600
-  record {
-    priority = 1
+  dynamic "record" {
+    for_each = local.domain_controlers
+    content {
+    priority = 0
     weight   = 100
     port     = 88
-    target   = "dc.hpc.azure."
+    target   = "${record.value}.hpc.azure."
+    }
   }
 }
 resource "azurerm_private_dns_srv_record" "kpasswd_udp" {
@@ -86,11 +94,14 @@ resource "azurerm_private_dns_srv_record" "kpasswd_udp" {
   resource_group_name = azurerm_private_dns_zone.azhop_private_dns.resource_group_name
   zone_name           = azurerm_private_dns_zone.azhop_private_dns.name
   ttl                 = 3600
-  record {
-    priority = 1
+  dynamic "record" {
+    for_each = local.domain_controlers
+    content {
+    priority = 0
     weight   = 100
     port     = 464
-    target   = "dc.hpc.azure."
+    target   = "${record.value}.hpc.azure."
+    }
   }
 }
 
@@ -100,11 +111,14 @@ resource "azurerm_private_dns_srv_record" "ldap_tcpdc_msdcs" {
   resource_group_name = azurerm_private_dns_zone.azhop_private_dns.resource_group_name
   zone_name           = azurerm_private_dns_zone.azhop_private_dns.name
   ttl                 = 3600
-  record {
-    priority = 1
+  dynamic "record" {
+    for_each = local.domain_controlers
+    content {
+    priority = 0
     weight   = 100
     port     = 389
-    target   = "dc.hpc.azure."
+    target   = "${record.value}.hpc.azure."
+    }
   }
 }
 resource "azurerm_private_dns_srv_record" "kerberos_tcpdc_msdcs" {
@@ -112,11 +126,14 @@ resource "azurerm_private_dns_srv_record" "kerberos_tcpdc_msdcs" {
   resource_group_name = azurerm_private_dns_zone.azhop_private_dns.resource_group_name
   zone_name           = azurerm_private_dns_zone.azhop_private_dns.name
   ttl                 = 3600
-  record {
-    priority = 1
+  dynamic "record" {
+    for_each = local.domain_controlers
+    content {
+    priority = 0
     weight   = 100
     port     = 88
-    target   = "dc.hpc.azure."
+    target   = "${record.value}.hpc.azure."
+    }
   }
 }
 resource "azurerm_private_dns_srv_record" "ldap_tcp_gc_msdcs" {
@@ -124,11 +141,14 @@ resource "azurerm_private_dns_srv_record" "ldap_tcp_gc_msdcs" {
   resource_group_name = azurerm_private_dns_zone.azhop_private_dns.resource_group_name
   zone_name           = azurerm_private_dns_zone.azhop_private_dns.name
   ttl                 = 3600
-  record {
-    priority = 1
+  dynamic "record" {
+    for_each = local.domain_controlers
+    content {
+    priority = 0
     weight   = 100
-    port     = 3268 
-    target   = "dc.hpc.azure."
+    port     = 3268
+    target   = "${record.value}.hpc.azure."
+    }
   }
 }
 resource "azurerm_private_dns_srv_record" "ldap_tcppdc_msdcs" {
@@ -137,10 +157,10 @@ resource "azurerm_private_dns_srv_record" "ldap_tcppdc_msdcs" {
   zone_name           = azurerm_private_dns_zone.azhop_private_dns.name
   ttl                 = 3600
   record {
-    priority = 1
+    priority = 0
     weight   = 100
     port     = 389
-    target   = "dc.hpc.azure."
+    target   = "ad.hpc.azure."
   }
 }
 resource "azurerm_private_dns_srv_record" "ldapdefault-first-site-name_sitesdc_msdcs" {
@@ -148,11 +168,14 @@ resource "azurerm_private_dns_srv_record" "ldapdefault-first-site-name_sitesdc_m
   resource_group_name = azurerm_private_dns_zone.azhop_private_dns.resource_group_name
   zone_name           = azurerm_private_dns_zone.azhop_private_dns.name
   ttl                 = 3600
-  record {
-    priority = 1
+  dynamic "record" {
+    for_each = local.domain_controlers
+    content {
+    priority = 0
     weight   = 100
     port     = 389
-    target   = "dc.hpc.azure."
+    target   = "${record.value}.hpc.azure."
+    }
   }
 }
 resource "azurerm_private_dns_srv_record" "kerberosdefault-first-site-name_sitesdc_msdcs" {
@@ -160,11 +183,14 @@ resource "azurerm_private_dns_srv_record" "kerberosdefault-first-site-name_sites
   resource_group_name = azurerm_private_dns_zone.azhop_private_dns.resource_group_name
   zone_name           = azurerm_private_dns_zone.azhop_private_dns.name
   ttl                 = 3600
-  record {
-    priority = 1
+  dynamic "record" {
+    for_each = local.domain_controlers
+    content {
+    priority = 0
     weight   = 100
     port     = 88
-    target   = "dc.hpc.azure."
+    target   = "${record.value}.hpc.azure."
+    }
   }
 }
 resource "azurerm_private_dns_srv_record" "ldapdefault-first-site-name_sitesgc_msdcs" {
@@ -172,10 +198,13 @@ resource "azurerm_private_dns_srv_record" "ldapdefault-first-site-name_sitesgc_m
   resource_group_name = azurerm_private_dns_zone.azhop_private_dns.resource_group_name
   zone_name           = azurerm_private_dns_zone.azhop_private_dns.name
   ttl                 = 3600
-  record {
-    priority = 1
+  dynamic "record" {
+    for_each = local.domain_controlers
+    content {
+    priority = 0
     weight   = 100
-    port     = 3268 
-    target   = "dc.hpc.azure."
+    port     = 3268
+    target   = "${record.value}.hpc.azure."
+    }
   }
 }
