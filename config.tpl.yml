@@ -47,37 +47,37 @@ network:
   vnet:
     name: hpcvnet # Optional - default to hpcvnet
     id: # If a vnet id is set then no network will be created and the provided vnet will be used
-    address_space: "10.0.0.0/16" # Optional - default to "10.0.0.0/16"
+    address_space: "10.0.0.0/23" 
     # When using an existing VNET, only the subnet names will be used and not the adress_prefixes
     subnets: # all subnets are optionals
     # name values can be used to rename the default to specific names, address_prefixes to change the IP ranges to be used
     # All values below are the default values
       frontend: 
         name: frontend
-        address_prefixes: "10.0.0.0/24"
+        address_prefixes: "10.0.0.0/29"
         create: true # create the subnet if true. default to true when not specified, default to false if using an existing VNET when not specified
       admin:
         name: admin
-        address_prefixes: "10.0.1.0/24"
+        address_prefixes: "10.0.0.16/28"
         create: true
       netapp:
         name: netapp
-        address_prefixes: "10.0.2.0/24"
+        address_prefixes: "10.0.0.32/28"
         create: true
       ad:
         name: ad
-        address_prefixes: "10.0.3.0/28"
+        address_prefixes: "10.0.0.8/29"
         create: true
       # Bastion and Gateway subnets are optional and can be added if a Bastion or a VPN need to be created in the environment
       # bastion: # Bastion subnet name is always fixed to AzureBastionSubnet
-      #   address_prefixes: "10.0.4.0/27" # CIDR minimal range must be /27
+      #   address_prefixes: "10.0.0.64/26" # CIDR minimal range must be /26
       #   create: true
       # gateway: # Gateway subnet name is always fixed to GatewaySubnet
-      #   address_prefixes: "10.0.4.32/27" # Recommendation is to use /27 or /28 network
+      #   address_prefixes: "10.0.0.128/27" # Recommendation is to use /27 or /26 network
       #   create: true
       compute:
         name: compute
-        address_prefixes: "10.0.16.0/20"
+        address_prefixes: "10.0.1.0/24"
         create: true
   # Specify the Application Security Groups mapping if already existing
 # asg:

@@ -11,14 +11,14 @@
       * [Clone the repo](#clone-the-repo-1)
       * [Set up the toolchain](#set-up-the-toolchain-1)
 * [Plan your networking IP range](#plan-your-networking-ip-range)
-   * [28 nodes system =&gt; 10.0.0.0/25](#28-nodes-system--1000025)
-   * [124 nodes system =&gt; 10.0.0.0/24](#124-nodes-system--1000024)
-   * [252 nodes system =&gt; 10.0.0.0/23](#252-nodes-system--1000023)
-   * [508 nodes system =&gt; 10.0.0.0/22](#508-nodes-system--1000022)
-   * [1020 nodes system =&gt; 10.0.0.0/21](#1020-nodes-system--1000021)
-   * [2044 nodes system =&gt; 10.0.0.0/20](#2044-nodes-system--1000020)
-   * [4092 nodes system =&gt; 10.0.0.0/19](#4092-nodes-system--1000019)
-   * [8188 nodes system =&gt; 10.0.0.0/19](#8188-nodes-system--1000019)
+   * [59 nodes system =&gt; 10.0.0.0/25](#59-nodes-system--1000025)
+   * [123 nodes system =&gt; 10.0.0.0/24](#123-nodes-system--1000024)
+   * [251 nodes system =&gt; 10.0.0.0/23](#251-nodes-system--1000023)
+   * [507 nodes system =&gt; 10.0.0.0/22](#507-nodes-system--1000022)
+   * [1019 nodes system =&gt; 10.0.0.0/21](#1019-nodes-system--1000021)
+   * [2043 nodes system =&gt; 10.0.0.0/20](#2043-nodes-system--1000020)
+   * [4091 nodes system =&gt; 10.0.0.0/19](#4091-nodes-system--1000019)
+   * [8187 nodes system =&gt; 10.0.0.0/19](#8187-nodes-system--1000019)
 * [Define the environment](#define-the-environment)
 * [Deploy your environment](#deploy-your-environment)
    * [Build the infrastructure](#build-the-infrastructure)
@@ -211,116 +211,116 @@ sudo ./toolset/scripts/install.sh
 # Plan your networking IP range
 `Az-hop` needs several subnets to work, while some of these are optional like `Bastion` and the `Gateway` others are mandatory. When peering the az-hop vnet to others vnet or to your enterprise thru a VPN you have to plan accordingly your address range to avoid conflicts. Below are examples to help you defined these ranges based on how large you want to size your compute infrastructure.
 
-## 28 nodes system => 10.0.0.0/25
+> Note: Be aware that for each subnet, Azure will reserve 5 IP addresses for it's internal usage
+
+## 59 nodes system => 10.0.0.0/25
 
 | Subnet | CIDR |    IP Range       | Nb IPs | First IP | Usable IPs |
 |--------|-----:|:-----------------:|-------:|---------:|-----------:|
-| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 4 |
-| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 4 |
-| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 12 |
-| netapp | 10.0.0.32/**29** | 10.0.0.32 - 10.0.0.39 | 8 | 10.0.0.36 | 4 |
-| empty | | | | | |
-| gateway | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 12 |
-| bastion | 10.0.0.64/**27** | 10.0.0.64 - 10.0.0.95 | 32 | 10.0.0.64 | 28 |
-| compute | 10.0.0.96/**27** | 10.0.0.96 - 10.0.0.127 | 32 | 10.0.0.96 | 28 |
+| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 3 |
+| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 3 |
+| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 11 |
+| netapp | 10.0.0.32/**28** | 10.0.0.32 - 10.0.0.47 | 16 | 10.0.0.36 | 11 |
+| gateway | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 11 |
+| compute | 10.0.0.64/**26** | 10.0.0.64 - 10.0.0.127 | 64 | 10.0.0.96 | 59 |
 
-## 124 nodes system => 10.0.0.0/24
+> Note: Bastion is not supported in this scenario because it requires a /26 subnet and there is not enough space for it in this configuration. In that case, consider using a larger range.
 
-| Subnet | CIDR |    IP Range       | Nb IPs | First IP | Usable IPs |
-|--------|-----:|:-----------------:|-------:|---------:|-----------:|
-| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 4 |
-| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 4 |
-| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 12 |
-| netapp | 10.0.0.32/**29** | 10.0.0.32 - 10.0.0.39 | 8 | 10.0.0.36 | 4 |
-| empty | | | | | |
-| gateway | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 12 |
-| bastion | 10.0.0.64/**27** | 10.0.0.64 - 10.0.0.95 | 32 | 10.0.0.64 | 28 |
-| empty | | | | | |
-| compute | 10.0.0.128/**25** | 10.0.0.128 - 10.0.0.255 | 128 | 10.0.0.132 | 124 |
-
-## 252 nodes system => 10.0.0.0/23
+## 123 nodes system => 10.0.0.0/24
 
 | Subnet | CIDR |    IP Range       | Nb IPs | First IP | Usable IPs |
 |--------|-----:|:-----------------:|-------:|---------:|-----------:|
-| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 4 |
-| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 4 |
-| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 12 |
-| netapp | 10.0.0.32/**29** | 10.0.0.32 - 10.0.0.39 | 8 | 10.0.0.36 | 4 |
-| empty | | | | | |
-| gateway | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 12 |
-| bastion | 10.0.0.64/**27** | 10.0.0.64 - 10.0.0.95 | 32 | 10.0.0.64 | 28 |
-| empty | | | | | |
-| compute | 10.0.1.0/**24** | 10.0.1.0 - 10.0.1.255 | 256 | 10.0.1.0 | 252 |
+| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 3 |
+| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 3 |
+| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 11 |
+| netapp | 10.0.0.32/**28** | 10.0.0.32 - 10.0.0.47 | 16 | 10.0.0.36 | 11 |
+| gateway | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 11 |
+| bastion | 10.0.0.64/**26** | 10.0.0.64 - 10.0.0.127 | 64 | 10.0.0.64 | 59 |
+| compute | 10.0.0.128/**25** | 10.0.0.128 - 10.0.0.255 | 128 | 10.0.0.132 | 123 |
 
-## 508 nodes system => 10.0.0.0/22
+## 251 nodes system => 10.0.0.0/23
 
 | Subnet | CIDR |    IP Range       | Nb IPs | First IP | Usable IPs |
 |--------|-----:|:-----------------:|-------:|---------:|-----------:|
-| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 4 |
-| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 4 |
-| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 12 |
-| netapp | 10.0.0.32/**29** | 10.0.0.32 - 10.0.0.39 | 8 | 10.0.0.36 | 4 |
+| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 3 |
+| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 3 |
+| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 11 |
+| netapp | 10.0.0.32/**28** | 10.0.0.32 - 10.0.0.47 | 16 | 10.0.0.36 | 11 |
 | empty | | | | | |
-| gateway | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 12 |
-| bastion | 10.0.0.64/**27** | 10.0.0.64 - 10.0.0.95 | 32 | 10.0.0.64 | 28 |
+| bastion | 10.0.0.64/**26** | 10.0.0.64 - 10.0.0.127 | 64 | 10.0.0.64 | 59 |
+| gateway | 10.0.0.128/**27** | 10.0.0.128 - 10.0.0.159 | 32 | 10.0.0.48 | 27 |
 | empty | | | | | |
-| compute | 10.0.2.0/**23** | 10.0.2.0 - 10.0.3.255 | 512 | 10.0.2.0 | 508 |
+| compute | 10.0.1.0/**24** | 10.0.1.0 - 10.0.1.255 | 256 | 10.0.1.0 | 251 |
 
-## 1020 nodes system => 10.0.0.0/21
-
-| Subnet | CIDR |    IP Range       | Nb IPs | First IP | Usable IPs |
-|--------|-----:|:-----------------:|-------:|---------:|-----------:|
-| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 4 |
-| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 4 |
-| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 12 |
-| netapp | 10.0.0.32/**29** | 10.0.0.32 - 10.0.0.39 | 8 | 10.0.0.36 | 4 |
-| empty | | | | | |
-| gateway | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 12 |
-| bastion | 10.0.0.64/**27** | 10.0.0.64 - 10.0.0.95 | 32 | 10.0.0.64 | 28 |
-| empty | | | | | |
-| compute | 10.0.4.0/**22** | 10.0.4.0 - 10.0.7.255 | 1024 | 10.0.4.0 | 1020 |
-
-## 2044 nodes system => 10.0.0.0/20
+## 507 nodes system => 10.0.0.0/22
 
 | Subnet | CIDR |    IP Range       | Nb IPs | First IP | Usable IPs |
 |--------|-----:|:-----------------:|-------:|---------:|-----------:|
-| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 4 |
-| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 4 |
-| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 12 |
-| netapp | 10.0.0.32/**29** | 10.0.0.32 - 10.0.0.39 | 8 | 10.0.0.36 | 4 |
+| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 3 |
+| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 3 |
+| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 11 |
+| netapp | 10.0.0.32/**28** | 10.0.0.32 - 10.0.0.47 | 16 | 10.0.0.36 | 11 |
 | empty | | | | | |
-| gateway | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 12 |
-| bastion | 10.0.0.64/**27** | 10.0.0.64 - 10.0.0.95 | 32 | 10.0.0.64 | 28 |
+| bastion | 10.0.0.64/**26** | 10.0.0.64 - 10.0.0.127 | 64 | 10.0.0.64 | 59 |
+| gateway | 10.0.0.128/**27** | 10.0.0.128 - 10.0.0.159 | 32 | 10.0.0.48 | 27 |
 | empty | | | | | |
-| compute | 10.0.8.0/**21** | 10.0.8.0 - 10.0.15.255 | 2048 | 10.0.8.0 | 2044 |
+| compute | 10.0.2.0/**23** | 10.0.2.0 - 10.0.3.255 | 512 | 10.0.2.0 | 507 |
 
-## 4092 nodes system => 10.0.0.0/19
-
-| Subnet | CIDR |    IP Range       | Nb IPs | First IP | Usable IPs |
-|--------|-----:|:-----------------:|-------:|---------:|-----------:|
-| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 4 |
-| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 4 |
-| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 12 |
-| netapp | 10.0.0.32/**29** | 10.0.0.32 - 10.0.0.39 | 8 | 10.0.0.36 | 4 |
-| empty | | | | | |
-| gateway | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 12 |
-| bastion | 10.0.0.64/**27** | 10.0.0.64 - 10.0.0.95 | 32 | 10.0.0.64 | 28 |
-| empty | | | | | |
-| compute | 10.0.16.0/**20** | 10.0.16.0 - 10.0.31.255 | 4096 | 10.0.16.0 | 4096 |
-
-## 8188 nodes system => 10.0.0.0/19
+## 1019 nodes system => 10.0.0.0/21
 
 | Subnet | CIDR |    IP Range       | Nb IPs | First IP | Usable IPs |
 |--------|-----:|:-----------------:|-------:|---------:|-----------:|
-| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 4 |
-| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 4 |
-| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 12 |
-| netapp | 10.0.0.32/**29** | 10.0.0.32 - 10.0.0.39 | 8 | 10.0.0.36 | 4 |
+| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 3 |
+| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 3 |
+| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 11 |
+| netapp | 10.0.0.32/**28** | 10.0.0.32 - 10.0.0.47 | 16 | 10.0.0.36 | 11 |
 | empty | | | | | |
-| gateway | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 12 |
-| bastion | 10.0.0.64/**27** | 10.0.0.64 - 10.0.0.95 | 32 | 10.0.0.64 | 28 |
+| bastion | 10.0.0.64/**26** | 10.0.0.64 - 10.0.0.127 | 64 | 10.0.0.64 | 59 |
+| gateway | 10.0.0.128/**27** | 10.0.0.128 - 10.0.0.159 | 32 | 10.0.0.48 | 27 |
 | empty | | | | | |
-| compute | 10.0.32.0/**19** | 10.0.32.0 - 10.0.63.255 | 8192 | 10.0.32.0 | 8188 |
+| compute | 10.0.4.0/**22** | 10.0.4.0 - 10.0.7.255 | 1024 | 10.0.4.0 | 1019 |
+
+## 2043 nodes system => 10.0.0.0/20
+
+| Subnet | CIDR |    IP Range       | Nb IPs | First IP | Usable IPs |
+|--------|-----:|:-----------------:|-------:|---------:|-----------:|
+| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 3 |
+| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 3 |
+| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 11 |
+| netapp | 10.0.0.32/**28** | 10.0.0.32 - 10.0.0.47 | 16 | 10.0.0.36 | 11 |
+| empty | | | | | |
+| bastion | 10.0.0.64/**26** | 10.0.0.64 - 10.0.0.127 | 64 | 10.0.0.64 | 59 |
+| gateway | 10.0.0.128/**27** | 10.0.0.128 - 10.0.0.159 | 32 | 10.0.0.48 | 27 |
+| empty | | | | | |
+| compute | 10.0.8.0/**21** | 10.0.8.0 - 10.0.15.255 | 2048 | 10.0.8.0 | 2043 |
+
+## 4091 nodes system => 10.0.0.0/19
+
+| Subnet | CIDR |    IP Range       | Nb IPs | First IP | Usable IPs |
+|--------|-----:|:-----------------:|-------:|---------:|-----------:|
+| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 3 |
+| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 3 |
+| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 11 |
+| netapp | 10.0.0.32/**28** | 10.0.0.32 - 10.0.0.47 | 16 | 10.0.0.36 | 11 |
+| empty | | | | | |
+| bastion | 10.0.0.64/**26** | 10.0.0.64 - 10.0.0.127 | 64 | 10.0.0.64 | 59 |
+| gateway | 10.0.0.128/**27** | 10.0.0.128 - 10.0.0.159 | 32 | 10.0.0.48 | 27 |
+| empty | | | | | |
+| compute | 10.0.16.0/**20** | 10.0.16.0 - 10.0.31.255 | 4096 | 10.0.16.0 | 4091 |
+
+## 8187 nodes system => 10.0.0.0/19
+
+| Subnet | CIDR |    IP Range       | Nb IPs | First IP | Usable IPs |
+|--------|-----:|:-----------------:|-------:|---------:|-----------:|
+| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 3 |
+| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 3 |
+| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 11 |
+| netapp | 10.0.0.32/**28** | 10.0.0.32 - 10.0.0.47 | 16 | 10.0.0.36 | 11 |
+| empty | | | | | |
+| bastion | 10.0.0.64/**26** | 10.0.0.64 - 10.0.0.127 | 64 | 10.0.0.64 | 59 |
+| gateway | 10.0.0.128/**27** | 10.0.0.128 - 10.0.0.159 | 32 | 10.0.0.48 | 27 |
+| empty | | | | | |
+| compute | 10.0.32.0/**19** | 10.0.32.0 - 10.0.63.255 | 8192 | 10.0.32.0 | 8187 |
 
 # Define the environment
 An **az-hop** environment is defined in the `config.yml` configuration file. Before starting, copy the `config.tpl.yml` template to your own `config.yml` configuration file and update it ccordingly to your requirments.
@@ -374,9 +374,7 @@ network:
   # Create Network and Application Security Rules, true by default, false when using an existing VNET if not specified
   create_nsg: true
   vnet:
-    name: hpcvnet # Optional - default to hpcvnet
-    id: # If a vnet id is set then no network will be created and the provided vnet will be used
-    address_space: "10.0.0.0/24" # Optional - default to "10.0.0.0/16"
+    address_space: "10.0.0.0/23" 
     # When using an existing VNET, only the subnet names will be used and not the adress_prefixes
     subnets: # all subnets are optionals
     # name values can be used to rename the default to specific names, address_prefixes to change the IP ranges to be used
@@ -391,7 +389,7 @@ network:
         create: true
       netapp:
         name: netapp
-        address_prefixes: "10.0.0.32/29"
+        address_prefixes: "10.0.0.32/28"
         create: true
       ad:
         name: ad
@@ -399,14 +397,14 @@ network:
         create: true
       # Bastion and Gateway subnets are optional and can be added if a Bastion or a VPN need to be created in the environment
       # bastion: # Bastion subnet name is always fixed to AzureBastionSubnet
-      #   address_prefixes: "10.0.0.64/27" # CIDR minimal range must be /27
+      #   address_prefixes: "10.0.0.64/26" # CIDR minimal range must be /26
       #   create: true
       # gateway: # Gateway subnet name is always fixed to GatewaySubnet
-      #   address_prefixes: "10.0.0.48/28" # Recommendation is to use /27 or /28 network
+      #   address_prefixes: "10.0.0.128/27" # Recommendation is to use /27 or /26 network
       #   create: true
       compute:
         name: compute
-        address_prefixes: "10.0.0.128/25"
+        address_prefixes: "10.0.1.0/24"
         create: true
   # Specify the Application Security Groups mapping if already existing
 # asg:
