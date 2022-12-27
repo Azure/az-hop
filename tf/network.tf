@@ -10,7 +10,7 @@ resource "azurerm_virtual_network" "azhop" {
   name                = try(local.configuration_yml["network"]["vnet"]["name"], "hpcvnet")
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
-  address_space       = [try(local.configuration_yml["network"]["vnet"]["address_space"], "10.0.0.0/16")]
+  address_space       = [try(local.configuration_yml["network"]["vnet"]["address_space"], "10.0.0.0/23")]
 }
 # Resource group of the existing vnet
 data "azurerm_resource_group" "rg_vnet" {
@@ -31,7 +31,7 @@ resource "azurerm_subnet" "frontend" {
   name                 = try(local.configuration_yml["network"]["vnet"]["subnets"]["frontend"]["name"], "frontend")
   virtual_network_name = local.create_vnet ? azurerm_virtual_network.azhop[count.index].name : data.azurerm_virtual_network.azhop[count.index].name
   resource_group_name  = local.create_vnet ? azurerm_virtual_network.azhop[count.index].resource_group_name : data.azurerm_virtual_network.azhop[count.index].resource_group_name
-  address_prefixes     = [try(local.configuration_yml["network"]["vnet"]["subnets"]["frontend"]["address_prefixes"], "10.0.0.0/24")]
+  address_prefixes     = [try(local.configuration_yml["network"]["vnet"]["subnets"]["frontend"]["address_prefixes"], "10.0.0.0/29")]
 }
 
 # admin subnet
@@ -47,7 +47,7 @@ resource "azurerm_subnet" "admin" {
   name                 = try(local.configuration_yml["network"]["vnet"]["subnets"]["admin"]["name"], "admin")
   virtual_network_name = local.create_vnet ? azurerm_virtual_network.azhop[count.index].name : data.azurerm_virtual_network.azhop[count.index].name
   resource_group_name  = local.create_vnet ? azurerm_virtual_network.azhop[count.index].resource_group_name : data.azurerm_virtual_network.azhop[count.index].resource_group_name
-  address_prefixes     = [try(local.configuration_yml["network"]["vnet"]["subnets"]["admin"]["address_prefixes"], "10.0.1.0/24")]
+  address_prefixes     = [try(local.configuration_yml["network"]["vnet"]["subnets"]["admin"]["address_prefixes"], "10.0.0.16/28")]
   service_endpoints    = ["Microsoft.Storage", "Microsoft.KeyVault"]
 }
 
@@ -64,7 +64,7 @@ resource "azurerm_subnet" "netapp" {
   name                 = try(local.configuration_yml["network"]["vnet"]["subnets"]["netapp"]["name"], "netapp")
   virtual_network_name = local.create_vnet ? azurerm_virtual_network.azhop[count.index].name : data.azurerm_virtual_network.azhop[count.index].name
   resource_group_name  = local.create_vnet ? azurerm_virtual_network.azhop[count.index].resource_group_name : data.azurerm_virtual_network.azhop[count.index].resource_group_name
-  address_prefixes     = [try(local.configuration_yml["network"]["vnet"]["subnets"]["netapp"]["address_prefixes"], "10.0.2.0/24")]
+  address_prefixes     = [try(local.configuration_yml["network"]["vnet"]["subnets"]["netapp"]["address_prefixes"], "10.0.0.32/28")]
   delegation {
     name = "netapp"
 
@@ -88,7 +88,7 @@ resource "azurerm_subnet" "ad" {
   name                 = try(local.configuration_yml["network"]["vnet"]["subnets"]["ad"]["name"], "ad")
   virtual_network_name = local.create_vnet ? azurerm_virtual_network.azhop[count.index].name : data.azurerm_virtual_network.azhop[count.index].name
   resource_group_name  = local.create_vnet ? azurerm_virtual_network.azhop[count.index].resource_group_name : data.azurerm_virtual_network.azhop[count.index].resource_group_name
-  address_prefixes     = [try(local.configuration_yml["network"]["vnet"]["subnets"]["ad"]["address_prefixes"], "10.0.3.0/28")]
+  address_prefixes     = [try(local.configuration_yml["network"]["vnet"]["subnets"]["ad"]["address_prefixes"], "10.0.0.0/29")]
 }
 
 # bastion subnet
@@ -104,7 +104,7 @@ resource "azurerm_subnet" "bastion" {
   name                 = "AzureBastionSubnet"
   virtual_network_name = local.create_vnet ? azurerm_virtual_network.azhop[count.index].name : data.azurerm_virtual_network.azhop[count.index].name
   resource_group_name  = local.create_vnet ? azurerm_virtual_network.azhop[count.index].resource_group_name : data.azurerm_virtual_network.azhop[count.index].resource_group_name
-  address_prefixes     = [try(local.bastion_subnet["address_prefixes"], "10.0.4.0/27")]
+  address_prefixes     = [try(local.bastion_subnet["address_prefixes"], "10.0.0.64/26")]
 }
 
 # Gateway subnet
@@ -120,7 +120,7 @@ resource "azurerm_subnet" "gateway" {
   name                 = "GatewaySubnet"
   virtual_network_name = local.create_vnet ? azurerm_virtual_network.azhop[count.index].name : data.azurerm_virtual_network.azhop[count.index].name
   resource_group_name  = local.create_vnet ? azurerm_virtual_network.azhop[count.index].resource_group_name : data.azurerm_virtual_network.azhop[count.index].resource_group_name
-  address_prefixes     = [try(local.gateway_subnet["address_prefixes"], "10.0.4.32/27")]
+  address_prefixes     = [try(local.gateway_subnet["address_prefixes"], "10.0.0.128/27")]
 }
 
 # compute subnet
@@ -136,7 +136,7 @@ resource "azurerm_subnet" "compute" {
   name                 = try(local.configuration_yml["network"]["vnet"]["subnets"]["compute"]["name"], "compute")
   virtual_network_name = local.create_vnet ? azurerm_virtual_network.azhop[count.index].name : data.azurerm_virtual_network.azhop[count.index].name
   resource_group_name  = local.create_vnet ? azurerm_virtual_network.azhop[count.index].resource_group_name : data.azurerm_virtual_network.azhop[count.index].resource_group_name
-  address_prefixes     = [try(local.configuration_yml["network"]["vnet"]["subnets"]["compute"]["address_prefixes"], "10.0.16.0/20")]
+  address_prefixes     = [try(local.configuration_yml["network"]["vnet"]["subnets"]["compute"]["address_prefixes"], "10.0.1.0/24")]
   service_endpoints    = ["Microsoft.Storage"]
 }
 
