@@ -47,6 +47,7 @@
    * [How to use an existing VNET ?](#how-to-use-an-existing-vnet-)
       * [Pre-requisities for using an existing VNET](#pre-requisities-for-using-an-existing-vnet)
       * [Creating a standalone VNET for AZ-HOP](#creating-a-standalone-vnet-for-az-hop)
+   * [How to use DNS forwarders ?](#how-to-use-dns-forwarders-)
    * [How to deploy ANF with Dual protocol](#how-to-deploy-anf-with-dual-protocol)
    * [Deploy in a locked down network environment](#deploy-in-a-locked-down-network-environment)
    * [Disable Public IP scenario](#disable-public-ip-scenario)
@@ -1167,7 +1168,6 @@ network:
       compute:
         name: dynamic
 ```
-
 ### Pre-requisities for using an existing VNET
 - There is a need of a minimum of 5 IP addresses for the infrastructure VMs
 - Allow enough IP addresses for the Lustre cluster, default being 4 : Robinhood + Lustre + 2*OSS
@@ -1180,6 +1180,27 @@ There is a way to easily create a standalone VNET for **azhop** without doing a 
 - run the build command specify the *tf/network* subdirectory `./build -a [plan, apply, destroy] -f tf/network`
 - Save your config file and create a new one in which you now specify the VNET ID created above
 - Build your **azhop** environment
+
+## How to use DNS forwarders ?
+**azhop** rely on [Azure DNS Private Resolver](https://learn.microsoft.com/en-us/azure/dns/dns-private-resolver-overview) in order to forward DNS queries to external DNS servers thru an outbound endpoint which need to be created in it's own subnet. You need to configure the `outbounddns` subnet with a minimum of /28 adress space in your `config.yml` configuration file. If you use an existing subnet it has to be dedicated to the resolver and has to be delegated to `Microsoft.Network/dnsResolvers` as explainned in documentation of the [Azure DNS Private Resolver](https://learn.microsoft.com/en-us/azure/dns/dns-private-resolver-overview)
+
+Once the resolver has been created thru the `./build.sh` command, you can configure the forwarders to sent request to, in the `config.yml` configuration file like below.
+
+```yml
+# Specify DNS forwarders available in the network
+dns:
+  forwarders:
+    - { name: foo.bar.com, ips: "10.2.0.4" }
+    - { name: foo.com, ips: "10.2.0.4, 10.2.0.5" }
+```
+
+To add these rules just run the `dns` ansible playbook.
+
+```bash
+./install.sh dns
+```
+
+You can also add rules manually in the DNS forwarding ruleset built.
 
 ## How to deploy ANF with Dual protocol
 When using Windows nodes you may want to use SMB to mount ANF volumes, as a result ANF need to be configure to use dual protocol and the ANF account need to be domain joined. This imply to break out the deployment in two main steps because the Domain Controler need to be configured before provisioning ANF. Follow the steps below to deploy ANF with Dual Protocol enabled :

@@ -1,0 +1,14 @@
+---
+- name: Configure DNS Rules
+  hosts: localhost
+  gather_facts: no
+  vars_files:
+    - '{{global_config_file}}'
+
+  tasks:
+  - name: Update DNS Resolver Forwarding rule
+    command: az dns-resolver forwarding-rule create --ruleset-name "{{dns_ruleset_name}}" --name "{{item.name | map('regex_replace', '[\.]', '_') | list | join() }}" --domain-name "{{item.name}}." {{ ['--target-dns-servers port=53 ip-address'] | product(item.ips | split(',') | ansible.utils.ipaddr('address')) | map('join','=') | join(' ')}} --resource-group "{{resource_group}}"
+    connection: local
+    with_items: '{{dns.forwarders}}'
+    when: dns.forwarders is defined
+
