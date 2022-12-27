@@ -54,6 +54,11 @@ network:
         name: netapp
         address_prefixes: "10.128.0.32/28"
         create: true
+      # the outbounddns is optional and only when deploying an Azure Private DNS Resolver
+      outbounddns:
+        name: outbounddns
+        address_prefixes: "10.128.0.48/28"
+        create: true
       # gateway: # Gateway subnet name is always fixed to GatewaySubnet
       #   address_prefixes: "10.128.0.48/28" # Recommendation is to use /27 or /28 network
       #   create: true

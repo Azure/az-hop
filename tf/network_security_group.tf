@@ -1,13 +1,14 @@
-resource "time_sleep" "wait_forsubnets" {
-  depends_on   = [azurerm_subnet.ad, 
-                  azurerm_subnet.frontend, 
-                  azurerm_subnet.admin, 
-                  azurerm_subnet.netapp, 
-                  azurerm_subnet.compute, 
-                  azurerm_subnet.bastion, 
-                  azurerm_subnet.gateway] 
-  create_duration = "20s"
-}
+# resource "time_sleep" "wait_forsubnets" {
+#   depends_on   = [azurerm_subnet.ad, 
+#                   azurerm_subnet.frontend, 
+#                   azurerm_subnet.admin, 
+#                   azurerm_subnet.netapp, 
+#                   azurerm_subnet.compute, 
+#                   azurerm_subnet.bastion, 
+#                   azurerm_subnet.gateway,
+#                   azurerm_subnet.outbounddns]
+#   create_duration = "20s"
+# }
 
 # Application security groups
 resource "azurerm_application_security_group" "asg" {
@@ -25,7 +26,15 @@ data "azurerm_application_security_group" "asg" {
 
 # Read subnets data so we can dynamically retrieve all CIDR for the NSG rules
 data "azurerm_subnet" "subnets" {
-  depends_on   = [time_sleep.wait_forsubnets] 
+#  depends_on   = [time_sleep.wait_forsubnets]
+  depends_on   = [azurerm_subnet.ad, 
+                  azurerm_subnet.frontend, 
+                  azurerm_subnet.admin, 
+                  azurerm_subnet.netapp, 
+                  azurerm_subnet.compute, 
+                  azurerm_subnet.bastion, 
+                  azurerm_subnet.gateway,
+                  azurerm_subnet.outbounddns]
   for_each = local.subnets
   name                 = try(local.configuration_yml["network"]["vnet"]["subnets"][each.key]["name"], each.value)
   resource_group_name  = local.create_vnet ? (local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name) : data.azurerm_virtual_network.azhop[0].resource_group_name
@@ -84,5 +93,11 @@ resource "azurerm_subnet_network_security_group_association" "compute" {
 resource "azurerm_subnet_network_security_group_association" "admin" {
   count                     = local.create_nsg ? 1 : 0
   subnet_id                 = local.create_admin_subnet ? azurerm_subnet.admin[0].id : data.azurerm_subnet.admin[0].id
+  network_security_group_id = azurerm_network_security_group.common[0].id
+}
+
+resource "azurerm_subnet_network_security_group_association" "outbounddns" {
+  count                     = local.create_nsg ? 1 : 0
+  subnet_id                 = local.create_outbounddns_subnet ? azurerm_subnet.outbounddns[0].id : data.azurerm_subnet.outbounddns[0].id
   network_security_group_id = azurerm_network_security_group.common[0].id
 }

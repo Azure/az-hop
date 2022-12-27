@@ -186,9 +186,14 @@ locals {
     no_gateway_subnet = try(length(local.gateway_subnet) > 0 ? false : true, true )
     create_gateway_subnet  = try(local.gateway_subnet["create"], local.create_vnet )
 
+    outbounddns_subnet = try(local.configuration_yml["network"]["vnet"]["subnets"]["outbounddns"], null)
+    no_outbounddns_subnet = try(length(local.outbounddns_subnet) > 0 ? false : true, true )
+    create_outbounddns_subnet  = try(local.outbounddns_subnet["create"], local.create_vnet )
+
     subnets = merge(local._subnets, 
                     local.no_bastion_subnet ? {} : {bastion = "AzureBastionSubnet"},
-                    local.no_gateway_subnet ? {} : {gateway = "GatewaySubnet"}
+                    local.no_gateway_subnet ? {} : {gateway = "GatewaySubnet"},
+                    local.no_outbounddns_subnet ? {} : {outbounddns = "outbounddns"}
                     )
 
     # Application Security Groups
