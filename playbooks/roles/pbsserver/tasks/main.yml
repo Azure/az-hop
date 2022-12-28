@@ -5,6 +5,12 @@
     name: python3, nfs-utils, jq
     lock_timeout : 180
 
+# This is to workaround an issue on name resolution with PBS
+- name: Add scheduler IP in /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    line: "{{ansible_facts['default_ipv4']['address']}} {{ansible_facts['hostname']}}"
+
 - name: Download pbspro 
   unarchive:
     src: https://github.com/PBSPro/pbspro/releases/download/v{{openpbs_version}}/pbspro_{{openpbs_version}}.centos7.zip
