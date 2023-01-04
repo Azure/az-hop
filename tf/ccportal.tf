@@ -244,3 +244,38 @@ resource "azurerm_monitor_scheduled_query_rules_alert_v2" "ccportal_volume_alert
     }
 }
 
+resource "azurerm_monitor_scheduled_query_rules_alert_v2" "ccportal_service_alert" {
+    name = "ccportal-service-alert"
+    location = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+    resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
+
+
+    evaluation_frequency = "PT5M"
+    window_duration = "PT5M"
+    scopes = [azurerm_linux_virtual_machine.ccportal.id]
+    severity = 3
+
+    criteria {
+        query = <<-QUERY
+          Syslog
+          | where TimeGenerated >= ago(5min) and Facility == "daemon" and (SyslogMessage == "Stopped CycleCloud." or SyslogMessage == "webserver is already stopped.")
+          QUERY
+        time_aggregation_method = "Count"
+        operator = "GreaterThan"
+        threshold = 0
+        failing_periods {
+            minimum_failing_periods_to_trigger_alert = 1
+            number_of_evaluation_periods = 1
+        }
+    }
+
+    auto_mitigation_enabled = false
+    description = "Alert when the cycle_server service is stopped on the ccportal VM"
+    display_name = "CycleCloud stopped on ccportal"
+    enabled = true
+    query_time_range_override = "P2D"
+
+    action {
+        action_groups = [azurerm_monitor_action_group.azhop_action_group.id]
+    }
+}

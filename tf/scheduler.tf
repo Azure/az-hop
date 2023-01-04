@@ -91,3 +91,42 @@ resource "azurerm_monitor_data_collection_rule_association" "dcra_sched_insights
     data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_insights_collection_rule.id
     description = "Scheduler Data Collection Rule Association for VM Insights"
 }
+
+resource "azurerm_monitor_scheduled_query_rules_alert_v2" "sched_volume_alert" {
+    name = "sched-volume-alert"
+    location = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+    resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
+
+
+    evaluation_frequency = "PT5M"
+    window_duration = "PT5M"
+    scopes = [azurerm_linux_virtual_machine.scheduler.id]
+    severity = 3
+
+    criteria {
+        query = <<-QUERY
+          InsightsMetrics
+          | where TimeGenerated >= ago(5min) and Name == "FreeSpacePercentage" and Val <= 20 and Tags !contains "anfhome"
+          | project TimeGenerated, Computer, Name, Val, Tags, _ResourceId
+          | summarize arg_max(TimeGenerated, *) by Tags
+          | project Tags, Val, Computer, _ResourceId
+          QUERY
+        time_aggregation_method = "Count"
+        operator = "GreaterThan"
+        threshold = 0
+        failing_periods {
+            minimum_failing_periods_to_trigger_alert = 1
+            number_of_evaluation_periods = 1
+        }
+    }
+
+    auto_mitigation_enabled = true
+    description = "Alert when the volumes of the scheduler VM is above 80%"
+    display_name = "scheduler volumes full"
+    enabled = true
+    query_time_range_override = "P2D"
+
+    action {
+        action_groups = [azurerm_monitor_action_group.azhop_action_group.id]
+    }
+}
