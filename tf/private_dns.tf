@@ -9,7 +9,25 @@ resource "azurerm_private_dns_zone_virtual_network_link" "azhop_dns_link" {
   resource_group_name   = azurerm_private_dns_zone.azhop_private_dns.resource_group_name
   private_dns_zone_name = azurerm_private_dns_zone.azhop_private_dns.name
   virtual_network_id    = local.create_vnet ? azurerm_virtual_network.azhop[0].id : data.azurerm_virtual_network.azhop[0].id
-  registration_enabled  = true
+  registration_enabled  = false
+}
+
+## Domain Controlers entries
+resource "azurerm_private_dns_a_record" "ad" {
+  name                = "ad"
+  resource_group_name = azurerm_private_dns_zone.azhop_private_dns.resource_group_name
+  zone_name           = azurerm_private_dns_zone.azhop_private_dns.name
+  ttl                 = 3600
+  records             = [azurerm_network_interface.ad-nic.private_ip_address]
+}
+
+resource "azurerm_private_dns_a_record" "ad2" {
+  count               = local.ad_ha ? 1 : 0
+  name                = "ad2"
+  resource_group_name = azurerm_private_dns_zone.azhop_private_dns.resource_group_name
+  zone_name           = azurerm_private_dns_zone.azhop_private_dns.name
+  ttl                 = 3600
+  records             = [azurerm_network_interface.ad2-nic[0].private_ip_address]
 }
 
 ## Domain entries

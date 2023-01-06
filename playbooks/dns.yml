@@ -12,13 +12,13 @@
     with_items: '{{dns.forwarders}}'
     when: dns.forwarders is defined
 
-  - name: set IP list
-    set_fact:
-      data: "{{'10.174.1.0/24' | ansible.utils.usable_range }}"
+  # - name: set IP list
+  #   set_fact:
+  #     data: "{{'10.174.1.0/24' | ansible.utils.usable_range }}"
   
-  - name: debug
-    debug:
-      msg:
+  # - name: debug
+  #   debug:
+  #     msg:
         # - "{{'devserver01'[:-1]}}"
         # - "{{(item | ansible.utils.usable_range).usable_ips}}" # list of usable IPs in that range
         # - "{{ item | ansible.utils.ipaddr('revdns') | regex_replace('^[0-9]+\\.', '') }}" # Reverse DNS zone for that subnet
@@ -30,8 +30,8 @@
         # - "{{ item | ansible.utils.ipaddr('size') }}"
         # - "{{ (('10.174.1.6'.split('.'))[4])|join('.')}}" # extract last octet of IP
 #    loop: "{{'10.174.1.0/24' | ansible.utils.usable_range | selectattr(data.usable_ips) | list}}"
-    with_items:
-      - "{{network.vnet.subnets.compute.address_prefixes}}"
+    # with_items:
+    #   - "{{network.vnet.subnets.compute.address_prefixes}}"
       # - 10.241.235.128/25
       # - 10.0.32.0/19
 
