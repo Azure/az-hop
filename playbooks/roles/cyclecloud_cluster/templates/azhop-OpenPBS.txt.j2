@@ -23,8 +23,8 @@ Autoscale = true
         keepalive.timeout = 3600 # The amount of time in seconds to keep a node "alive" if it has not finished installing/configuring software.
         cyclecloud.converge_on_boot = true
         # False => This is to avoid hostnames to be renamed ip-XXXXXXXX
-        cyclecloud.hosts.standalone_dns.enabled = false
-        #cyclecloud.dns.domain = {{domain_name}}
+        # Must be true to Allow Private DNS Zone usage
+        cyclecloud.hosts.standalone_dns.enabled = true
 
         # Disable normal NFS exports and mounts
         cyclecloud.mounts.sched.disabled = true
