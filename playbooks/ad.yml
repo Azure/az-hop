@@ -30,6 +30,12 @@
       - name: Run command to mitigate AD vulnerability 
         win_command: netsh int ipv4 set global sourceroutingbehavior=drop 
 
+      - name: Set lookup addresses on all visible adapters on Azure DNS
+        ansible.windows.win_dns_client:
+          adapter_names: '*'
+          dns_servers:
+          - 168.63.129.16
+
       - name: Install AD-Domain-Services
         win_feature:
           name: AD-Domain-Services
