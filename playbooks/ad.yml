@@ -30,14 +30,6 @@
       - name: Run command to mitigate AD vulnerability 
         win_command: netsh int ipv4 set global sourceroutingbehavior=drop 
 
-      # - name: Set lookup addresses on all visible adapters on the existing secondary DC, fallback on Azure DNS
-      #   ansible.windows.win_dns_client:
-      #     adapter_names: '*'
-      #     dns_servers:
-      #     - "{{secondary_dns}}"
-      #     - 168.63.129.16
-      #   when: ad.high_availability is defined and ad.high_availability
-
       - name: Install AD-Domain-Services
         win_feature:
           name: AD-Domain-Services
@@ -91,17 +83,6 @@
           state: present
           password_never_expires: true
           update_password: on_create
-
-# DNS Forwarder are no longer done by ADDS
-      # - name: Add DNS Forwarders
-      #   community.windows.win_dns_zone:
-      #     name: '{{item.name}}'
-      #     type: forwarder
-      #     dns_servers: "{{item.ips}}"
-      #     replication: none
-      #     state: present
-      #   with_items: '{{dns.forwarders}}'
-      #   when: dns.forwarders is defined
 
       - name: Update azhop groups gidnumber
         community.windows.win_domain_group:
