@@ -244,6 +244,29 @@ resource "azurerm_monitor_scheduled_query_rules_alert_v2" "ccportal_volume_alert
     }
 }
 
+resource "azurerm_monitor_metric_alert" "ccportal_disk_alert" {
+  name                = "ccportal-disk-alert"
+  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
+  scopes              = [azurerm_linux_virtual_machine.ccportal.id]
+  description         = "Alert when cyclecloud VM disk is 80% full"
+  severity            = 3
+  enabled             = true
+  frequency           = "PT5M"
+  window_size         = "PT5M"
+  target_resource_type = "Microsoft.Compute/virtualMachines"
+  target_resource_location = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+  criteria {
+    metric_namespace = "Azure.VM.Linux.GuestMetrics"
+    metric_name      = "disk/free_percent"
+    aggregation      = "Average"
+    operator         = "LessThanOrEqual"
+    threshold        = 20
+  }
+  action {
+    action_group_id = azurerm_monitor_action_group.azhop_action_group.id
+  }
+}
+
 resource "azurerm_monitor_scheduled_query_rules_alert_v2" "ccportal_service_alert" {
     name = "ccportal-service-alert"
     location = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location

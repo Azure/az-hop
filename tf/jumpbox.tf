@@ -106,6 +106,7 @@ resource "azurerm_virtual_machine_extension" "AzureMonitorLinuxAgent" {
 }
 
 resource "azurerm_monitor_data_collection_rule_association" "dcra_vm_metrics" {
+    count               = local.jumpbox_enabled ? 1 : 0
     name                = "vm-data-collection-ra"
     target_resource_id = azurerm_linux_virtual_machine.jumpbox[0].id
     data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_data_collection_rule.id
@@ -113,8 +114,73 @@ resource "azurerm_monitor_data_collection_rule_association" "dcra_vm_metrics" {
 }
 
 resource "azurerm_monitor_data_collection_rule_association" "dcra_vm_insights" {
+    count               = local.jumpbox_enabled ? 1 : 0
     name                = "vm-insights-collection-ra"
     target_resource_id = azurerm_linux_virtual_machine.jumpbox[0].id
     data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_insights_collection_rule.id
     description = "Data Collection Rule Association for VM Insights"
+}
+
+resource "azurerm_monitor_scheduled_query_rules_alert_v2" "jb_volume_alert" {
+    count               = local.jumpbox_enabled ? 1 : 0
+    name = "jb-volume-alert"
+    location = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+    resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
+
+
+    evaluation_frequency = "PT5M"
+    window_duration = "PT5M"
+    scopes = [azurerm_linux_virtual_machine.jumpbox[0].id]
+    severity = 3
+
+    criteria {
+        query = <<-QUERY
+          InsightsMetrics
+          | where TimeGenerated >= ago(5min) and Name == "FreeSpacePercentage" and Val <= 20 and Tags !contains "anfhome"
+          | project TimeGenerated, Computer, Name, Val, Tags, _ResourceId
+          | summarize arg_max(TimeGenerated, *) by Tags
+          | project Tags, Val, Computer, _ResourceId
+          QUERY
+        time_aggregation_method = "Count"
+        operator = "GreaterThan"
+        threshold = 0
+        failing_periods {
+            minimum_failing_periods_to_trigger_alert = 1
+            number_of_evaluation_periods = 1
+        }
+    }
+
+    auto_mitigation_enabled = true
+    description = "Alert when the volumes of the jumpbox VM is above 80%"
+    display_name = "jumpbox volumes full"
+    enabled = true
+    query_time_range_override = "P2D"
+
+    action {
+        action_groups = [azurerm_monitor_action_group.azhop_action_group.id]
+    }
+}
+
+resource "azurerm_monitor_metric_alert" "jb_disk_alert" {
+  count               = local.jumpbox_enabled ? 1 : 0
+  name                = "jb-disk-alert"
+  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
+  scopes              = [azurerm_linux_virtual_machine.jumpbox[0].id]
+  description         = "Alert when Jumpbox VM disk is 80% full"
+  severity            = 3
+  enabled             = true
+  frequency           = "PT5M"
+  window_size         = "PT5M"
+  target_resource_type = "Microsoft.Compute/virtualMachines"
+  target_resource_location = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+  criteria {
+    metric_namespace = "Azure.VM.Linux.GuestMetrics"
+    metric_name      = "disk/free_percent"
+    aggregation      = "Average"
+    operator         = "LessThanOrEqual"
+    threshold        = 20
+  }
+  action {
+    action_group_id = azurerm_monitor_action_group.azhop_action_group.id
+  }
 }
