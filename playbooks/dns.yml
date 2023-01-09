@@ -22,8 +22,8 @@
         # - "{{'devserver01'[:-1]}}"
         # - "{{(item | ansible.utils.usable_range).usable_ips}}" # list of usable IPs in that range
         # - "{{ item | ansible.utils.ipaddr('revdns') | regex_replace('^[0-9]+\\.', '') }}" # Reverse DNS zone for that subnet
-        - "{{ (item | ansible.utils.ipaddr('revdns') | split('.'))[1:-1]|join('.')}}"
-        - "{{ (item | ansible.utils.ipaddr('revdns') | regex_replace('^[0-9]+\\.', ''))[:-1] }}" # Reverse DNS zone for that subnet with no ending .
+        # - "{{ (item | ansible.utils.ipaddr('revdns') | split('.'))[1:-1]|join('.')}}"
+        # - "{{ (item | ansible.utils.ipaddr('revdns') | regex_replace('^[0-9]+\\.', ''))[:-1] }}" # Reverse DNS zone for that subnet with no ending .
         # - "{{ item |  ansible.utils.usable_range }}"
         # - "{{ item | ansible.utils.ipaddr('next_usable') }}"
         # - "ip-{{ item | ansible.utils.ip4_hex }}"
