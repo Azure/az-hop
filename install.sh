@@ -98,6 +98,7 @@ enable_lustre
 case $TARGET in
   all)
     run_playbook ad
+    run_playbook dns
     run_playbook linux
     run_playbook grafana
     run_playbook lustre-sas
