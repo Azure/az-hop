@@ -65,7 +65,7 @@ resource "azurerm_netapp_volume" "home" {
 }
 
 resource "azurerm_monitor_metric_alert" "anf_alert" {
-  count = local.create_anf ? 1 : 0
+  count = local.create_anf && local.create_alerts ? 1 : 0
   name                = "anf-alert-${random_string.resource_postfix.result}"
   resource_group_name = azurerm_netapp_account.azhop[0].resource_group_name
   scopes              = [azurerm_netapp_volume.home[0].id]
@@ -84,7 +84,7 @@ resource "azurerm_monitor_metric_alert" "anf_alert" {
     threshold        = 80
   }
   action {
-    action_group_id = azurerm_monitor_action_group.azhop_action_group.id
+    action_group_id = azurerm_monitor_action_group.azhop_action_group[0].id
   }
 }
 

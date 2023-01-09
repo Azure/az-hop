@@ -13,12 +13,13 @@ resource "azurerm_user_assigned_identity" "azure_monitor_identity" {
 }
 */
 resource "azurerm_monitor_action_group" "azhop_action_group" {
+  count               = local.create_alerts ? 1 : 0
   name                = "azhop-ag"
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   short_name          = "azhop-ag"
   email_receiver {
     name         = "azhop-email-receiver"
-    email_address = "egallardo@microsoft.com" #need to make this into a variable - potentially can make alerting optional as well
+    email_address = local.alert_email
   }
 }
 
@@ -163,6 +164,7 @@ resource "azurerm_monitor_data_collection_rule" "vm_insights_collection_rule" {
 }
 
 resource "azurerm_monitor_metric_alert" "vm_availability_alert" {
+  count               = local.create_alerts ? 1 : 0
   name                = "vm-availability-alert"
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   scopes              = [local.create_rg ? azurerm_resource_group.rg[0].id : data.azurerm_resource_group.rg[0].id]
@@ -181,6 +183,7 @@ resource "azurerm_monitor_metric_alert" "vm_availability_alert" {
     threshold        = 1
   }
   action {
-    action_group_id = azurerm_monitor_action_group.azhop_action_group.id
+    action_group_id = azurerm_monitor_action_group.azhop_action_group[0].id
   }
 }
+

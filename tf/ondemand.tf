@@ -105,6 +105,7 @@ resource "azurerm_monitor_data_collection_rule_association" "dcra_ondemand_insig
 }
 
 resource "azurerm_monitor_scheduled_query_rules_alert_v2" "od_volume_alert" {
+    count = local.create_alerts ? 1 : 0
     name = "od-volume-alert"
     location = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
     resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
@@ -139,11 +140,12 @@ resource "azurerm_monitor_scheduled_query_rules_alert_v2" "od_volume_alert" {
     query_time_range_override = "P2D"
 
     action {
-        action_groups = [azurerm_monitor_action_group.azhop_action_group.id]
+        action_groups = [azurerm_monitor_action_group.azhop_action_group[0].id]
     }
 }
 
 resource "azurerm_monitor_metric_alert" "ondemand_disk_alert" {
+  count = local.create_alerts ? 1 : 0
   name                = "ondemand-disk-alert"
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   scopes              = [azurerm_linux_virtual_machine.ondemand.id]
@@ -162,6 +164,6 @@ resource "azurerm_monitor_metric_alert" "ondemand_disk_alert" {
     threshold        = 20
   }
   action {
-    action_group_id = azurerm_monitor_action_group.azhop_action_group.id
+    action_group_id = azurerm_monitor_action_group.azhop_action_group[0].id
   }
 }
