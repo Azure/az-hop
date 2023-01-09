@@ -489,6 +489,8 @@ var config = {
 
 }
 
+var resourcePostfix = '${uniqueString(subscription().subscriptionId, azhopResourceGroupName)}x'
+
 resource azhopResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: azhopResourceGroupName
   location: location
@@ -535,7 +537,9 @@ module azhopBastion './bastion.bicep' = if (deployBastion) {
   }
 }
 
-module azhopVm './vm.bicep' = [ for vm in items(config.vms): {
+var vmItems = items(config.vms)
+
+module azhopVm './vm.bicep' = [ for vm in vmItems: {
   name: 'azhopVm${vm.key}'
   scope: azhopResourceGroup
   params: {
@@ -548,3 +552,37 @@ module azhopVm './vm.bicep' = [ for vm in items(config.vms): {
     secrets: secrets
   }
 }]
+
+var keyvaultSecrets = [
+  {
+    name: '${adminUser}-password'
+    value: secrets.adminPassword
+  }
+  {
+    name: '${adminUser}-pubkey'
+    value: secrets.adminSshPublicKey
+  }
+  {
+    name: '${adminUser}-privkey'
+    value: secrets.adminSshPrivateKey
+  }
+]
+
+module azhopKeyvault './keyvault.bicep' = {
+  name: 'azhop'
+  scope: azhopResourceGroup
+  params: {
+    location: location
+    resourcePostfix: resourcePostfix
+    subnetId: subnetIds.admin
+    keyvaultReaderOids: config.keyvault_readers
+    lockDownNetwork: config.lock_down_network.enforce
+    allowableIps: config.lock_down_network.grant_access_from
+    identityPerms: [ for i in range(0, length(vmItems)): {
+      principalId: azhopVm[i].outputs.principalId
+      key_permissions: (contains(vmItems[i].value, 'identity') && contains(vmItems[i].value.identity, 'keyvault')) ? vmItems[i].value.identity.keyvault.key_permissions : []
+      secret_permissions: (contains(vmItems[i].value, 'identity') && contains(vmItems[i].value.identity, 'keyvault')) ? vmItems[i].value.identity.keyvault.secret_permissions : []
+    }]
+    secrets: keyvaultSecrets
+  }
+}
