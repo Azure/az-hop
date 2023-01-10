@@ -140,3 +140,26 @@ resource "azurerm_subnet" "compute" {
   service_endpoints    = ["Microsoft.Storage"]
 }
 
+# outbounddns subnet
+data "azurerm_subnet" "outbounddns" {
+  count                = local.create_outbounddns_subnet ? 0 : (local.no_outbounddns_subnet ? 0 : 1)
+  name                 = try(local.configuration_yml["network"]["vnet"]["subnets"]["outbounddns"]["name"], "outbounddns")
+  resource_group_name  = try(split("/", local.vnet_id)[4], "foo")
+  virtual_network_name = try(split("/", local.vnet_id)[8], "foo")
+}
+
+resource "azurerm_subnet" "outbounddns" {
+  count                = local.create_outbounddns_subnet ? (local.no_outbounddns_subnet ? 0 : 1) : 0
+  name                 = try(local.configuration_yml["network"]["vnet"]["subnets"]["outbounddns"]["name"], "outbounddns")
+  virtual_network_name = local.create_vnet ? azurerm_virtual_network.azhop[count.index].name : data.azurerm_virtual_network.azhop[count.index].name
+  resource_group_name  = local.create_vnet ? azurerm_virtual_network.azhop[count.index].resource_group_name : data.azurerm_virtual_network.azhop[count.index].resource_group_name
+  address_prefixes     = [try(local.configuration_yml["network"]["vnet"]["subnets"]["outbounddns"]["address_prefixes"], "10.0.0.48/28")]
+  delegation {
+    name = "Microsoft.Network.dnsResolvers"
+
+    service_delegation {
+      name    = "Microsoft.Network/dnsResolvers"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
+    }
+  }
+}

@@ -2,10 +2,8 @@ global_ssh_public_key         : '${ssh_public_key}'
 global_cc_storage             : ${cc_storage}
 compute_subnetid              : ${compute_subnetid}
 global_config_file            : ${config_file}
-primary_dns                   : ${ad-ip}
-secondary_dns                 : ${ad2-ip}
 ad_join_user                  : ${admin_username}
-ad_join_domain                : hpc.azure
+domain_name                   : hpc.azure
 ldap_server                   : ad
 anf_home_ip                   : ${anf-home-ip}
 homedir_mountpoint            : ${homedir_mountpoint}
@@ -21,8 +19,8 @@ lustre_hsm_storage_account    : ${lustre_hsm_storage_account}
 lustre_hsm_storage_container  : ${lustre_hsm_storage_container}
 database_fqdn                 : ${database-fqdn}
 database_user                 : ${database-user}
-database_ip                   : ${database-ip}
 azure_environment             : ${azure_environment}
 key_vault_suffix              : ${key_vault_suffix}
 blob_storage_suffix           : ${blob_storage_suffix}
 jumpbox_ssh_port              : ${jumpbox-ssh-port}
+dns_ruleset_name              : ${dns-ruleset-name}

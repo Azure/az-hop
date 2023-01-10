@@ -173,9 +173,10 @@ jobs:
             set -e
             ./azhop_state.sh upload ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
 
-            # Configure AD
+            # Configure AD and DNS
             ./install.sh ad
-            
+            ./install.sh dns
+
             # Build the remaining infrastructure
             set +e
             ./build.sh -a apply -f tf
@@ -214,6 +215,7 @@ jobs:
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           ./install.sh ad
+          ./install.sh dns
           ./install.sh linux
 
   lustre:
