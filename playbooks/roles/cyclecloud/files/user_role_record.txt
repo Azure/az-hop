@@ -14,4 +14,4 @@ AdType = "Application.Role"
 Description = "AZHOP Cluster Admin"
 GroupRole = false
 Name = "azhop Cluster Admin"
-Allow = {"Clusters/Manage", "Fixed.ClusterMetadata", "Clusters/Administer", "Clusters/Connect"}
+Allow = {"Clusters/Manage", "Fixed.ClusterMetadata"}
