@@ -241,8 +241,8 @@ esac
 
 
 # -parallelism=30
-TF_LOG="TRACE"
-TF_LOG_PATH="$THIS_DIR/tf/terraform.log"
+export TF_LOG="INFO"
+export TF_LOG_PATH="$THIS_DIR/tf/terraform.log"
 rm -f $TF_LOG_PATH
 retries=1
 do_retry=true
