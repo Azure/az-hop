@@ -168,3 +168,4 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-06-01' = [ for (
 
 //output private_ip string = nic.properties.ipConfigurations[0].properties.privateIPAddress
 output fqdn string = contains(vm, 'pip') && vm.pip ? publicIp.properties.dnsSettings.fqdn : ''
+output privateIps array = [ for i in range(0, count): nic[i].properties.ipConfigurations[0].properties.privateIPAddress ]

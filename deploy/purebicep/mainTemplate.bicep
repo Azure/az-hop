@@ -1,5 +1,28 @@
 targetScope = 'subscription'
 
+/*
+
+Tasks
+
+- anf (anf.bicep)
+- asg (network.bicep)
+- bastion (bastion.bicep)
+- keyvault (keyvault.bicep)
+- mariadb (mariadb.bicep)
+- network (network.bicep)
+- nfsfiles (nfsfiles.bicep)
+- nsg (network.bicep)
+- outputs
+- parameters (mainTemplate.bicep)
+- secrets (keyvault.bicep)
+- sig (sig.bicep)
+- storage (storage.bicep)
+- telemetry (telemetry.bicep)
+- vms (vm.bicep)
+- vpngateway (vpngateway.bicep)
+
+*/
+
 param azhopResourceGroupName string
 
 @description('Azure region to use')
@@ -60,10 +83,10 @@ var config = {
   anf: {
     dual_protocol: false
     service_level: 'Standard'
-    size_tb: 4
+    size_gb: 4096
   }
 
-  vnet:{
+  vnet: {
     tags: {
       NRMSBastion: ''
     }
@@ -553,23 +576,31 @@ module azhopVm './vm.bicep' = [ for vm in vmItems: {
   }
 }]
 
-var keyvaultSecrets = [
-  {
-    name: '${adminUser}-password'
-    value: secrets.adminPassword
-  }
-  {
-    name: '${adminUser}-pubkey'
-    value: secrets.adminSshPublicKey
-  }
-  {
-    name: '${adminUser}-privkey'
-    value: secrets.adminSshPrivateKey
-  }
-]
+var keyvaultSecrets = union(
+  [
+    {
+      name: '${adminUser}-password'
+      value: secrets.adminPassword
+    }
+    {
+      name: '${adminUser}-pubkey'
+      value: secrets.adminSshPublicKey
+    }
+    {
+      name: '${adminUser}-privkey'
+      value: secrets.adminSshPrivateKey
+    }
+  ],
+  (config.queue_manager == 'slurm' && config.slurm.accounting_enabled) ? [
+    {
+      name: '${config.slurm.admin_user}-password'
+      value: secrets.slurmAccountingAdminPassword
+    }
+  ] : []
+)
 
 module azhopKeyvault './keyvault.bicep' = {
-  name: 'azhop'
+  name: 'azhopKeyvault'
   scope: azhopResourceGroup
   params: {
     location: location
@@ -584,5 +615,80 @@ module azhopKeyvault './keyvault.bicep' = {
       secret_permissions: (contains(vmItems[i].value, 'identity') && contains(vmItems[i].value.identity, 'keyvault')) ? vmItems[i].value.identity.keyvault.secret_permissions : []
     }]
     secrets: keyvaultSecrets
+  }
+}
+
+module azhopStorage './storage.bicep' = {
+  name: 'azhopStorage'
+  scope: azhopResourceGroup
+  params:{
+    location: location
+    resourcePostfix: resourcePostfix
+    lockDownNetwork: config.lock_down_network.enforce
+    allowableIps: config.lock_down_network.grant_access_from
+    subnetIds: [ subnetIds.admin, subnetIds.compute ]
+  }
+}
+
+module azhopSig './sig.bicep' = if (config.deploy_sig) {
+  name: 'azhopSig'
+  scope: azhopResourceGroup
+  params: {
+    location: location
+    resourcePostfix: resourcePostfix
+  }
+}
+
+module azhopMariaDB './mariadb.bicep' = if (config.queue_manager == 'slurm' && config.slurm.accounting_enabled) {
+  name: 'azhopMariaDB'
+  scope: azhopResourceGroup
+  params: {
+    location: location
+    resourcePostfix: resourcePostfix
+    adminUser: config.slurm.admin_user
+    adminPassword: secrets.slurmAccountingAdminPassword
+    adminSubnetId: subnetIds.admin
+    frontendSubnetId: subnetIds.frontend
+  }
+}
+
+module azhopTelemetry './telemetry.bicep' = {
+  name: 'azhopTelemetry'
+  scope: azhopResourceGroup
+}
+
+module azhopVpnGateway './vpngateway.bicep' = if (config.deploy_gateway) {
+  name: 'azhopVpnGateway'
+  scope: azhopResourceGroup
+  params: {
+    location: location
+    subnetId: subnetIds.gateway
+  }
+}
+
+module azhopAnf './anf.bicep' = if (config.homedir == 'anf') {
+  name: 'azhopAnf'
+  scope: azhopResourceGroup
+  params: {
+    location: location
+    resourcePostfix: resourcePostfix
+    dualProtocol: config.anf.dual_protocol
+    subnetId: subnetIds.netapp
+    adUser: config.admin_user
+    adPassword: secrets.adminPassword
+    adDns: azhopVm[indexOf(map(vmItems, item => item.key), 'ad')].outputs.privateIps[0]
+    serviceLevel: config.anf.service_level
+    sizeGB: config.anf.size_gb
+  }
+}
+
+module azhopNfsFiles './nfsfiles.bicep' = if (config.homedir == 'nfsfiles') {
+  name: 'azhopNfsFiles'
+  scope: azhopResourceGroup
+  params: {
+    location: location
+    resourcePostfix: resourcePostfix
+    allowedSubnetIds: [ subnetIds.admin, subnetIds.compute, subnetIds.frontend ]
+    sizeGB: 1024
   }
 }
