@@ -241,7 +241,6 @@ esac
 
 
 # -parallelism=30
-set -x
 set +e
 export TF_LOG="INFO"
 export TF_LOG_PATH="$THIS_DIR/tf/terraform.log"
