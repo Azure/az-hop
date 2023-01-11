@@ -42,6 +42,7 @@ jobs:
       anf_dual: ${{ github.event.inputs.anf_dual }}
       scheduler: ${{ github.event.inputs.scheduler }}
       lustre: ${{ github.event.inputs.lustre }}
+      deploy_only: false
     secrets:
       ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
       ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
