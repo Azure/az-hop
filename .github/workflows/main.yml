@@ -31,6 +31,10 @@ on:
         description: 'Deploy a Lustre cluster (true/false) - Default to true'
         required: false
         default: 'true' # use it with ${{ github.event.inputs.lustre }}
+      deploy_only:
+        description: 'Deploy only - Default to false'
+        required: false
+        default: 'false' # use it with ${{ github.event.inputs.deploy_only }}
 
 jobs:
   deploy:
@@ -42,6 +46,7 @@ jobs:
       anf_dual: ${{ github.event.inputs.anf_dual }}
       scheduler: ${{ github.event.inputs.scheduler }}
       lustre: ${{ github.event.inputs.lustre }}
+      deploy_only: ${{ github.event.inputs.deploy_only }}
     secrets:
       ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
       ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
