@@ -37,7 +37,7 @@ az deployment group show \
     -g $resource_group \
     -n $deployment_name \
     --query properties.outputs \
-    | tee azhopOutputs.json
+    > azhopOutputs.json
 
 kv=$(jq -r .keyvaultName.value azhopOutputs.json)
 adminuser=$(jq -r .azhopConfig.value.admin_user azhopOutputs.json)
@@ -50,7 +50,7 @@ chmod 600 ../${adminuser}_id_rsa*
 
 echo "* Generating config files from templates"
 # config.yml
-jq '.azhopInventory.value.all.hosts *= (.lustre_oss_private_ips.value | to_entries | map({("lustre-oss-" + (.key + 1 | tostring)): {"ansible_host": .value}}) | add) | .azhopInventory.value' azhopOutputs.json | yq -P > $azhop_root/config.yml
+jq .azhopConfig.value azhopOutputs.json | yq -P  > $azhop_root/config.yml
 
 mkdir -p $azhop_root/bin
 jq -r .azhopGetSecretScript.value azhopOutputs.json > $azhop_root/bin/get_secret
@@ -59,13 +59,13 @@ jq -r .azhopConnectScript.value azhopOutputs.json > $azhop_root/bin/connect
 chmod +x $azhop_root/bin/connect
 
 mkdir -p $azhop_root/playbooks/group_vars
-jq .azhopGlobalConfig.value | yq -P > $azhop_root/playbooks/group_vars/all.yml
+jq .azhopGlobalConfig.value azhopOutputs.json | yq -P > $azhop_root/playbooks/group_vars/all.yml
 
-jq .azhopInventory.value | yq -P > $azhop_root/playbooks/inventory
+jq '.azhopInventory.value.all.hosts *= (.lustre_oss_private_ips.value | to_entries | map({("lustre-oss-" + (.key + 1 | tostring)): {"ansible_host": .value}}) | add) | .azhopInventory.value' azhopOutputs.json | yq -P > $azhop_root/playbooks/inventory
 
-jq .azhopPackerOptions.value > $azhop_root/packer/options.json
+jq .azhopPackerOptions.value azhopOutputs.json > $azhop_root/packer/options.json
 
-if [ "$(yq .deploy_sig deploy/build.yml)" == "true" ]; then
+if [ "$(jq -r .azhopConfig.value.features.sig azhopOutputs.json)" == "true" ]; then
     echo "* Building images"
     cd $azhop_root/packer
     ./build_image.sh -i azhop-compute-centos-7.9.json
