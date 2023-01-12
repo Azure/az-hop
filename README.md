@@ -1,3 +1,4 @@
+[![Daily Deployment](https://github.com/Azure/az-hop/actions/workflows/deploy_daily.yml/badge.svg)](https://github.com/Azure/az-hop/actions/workflows/deploy_daily.yml)
 # Azure HPC On-Demand Platform, your deployment to be HPC-Ready! 
 
 Azure HPC On-Demand Platform, provides the end to end deployment mechanism for a base HPC infrastructure on Azure. Industry standard tools like Terraform, Ansible and Packer are used to provision and configure this environment containing :
