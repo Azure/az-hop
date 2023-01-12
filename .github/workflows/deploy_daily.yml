@@ -6,7 +6,7 @@ name : deploy_daily
 
 on:
   schedule:
-    - cron: "10 0 * * *" # At 00:10 Daily
+    - cron: "10 10 * * *" # At 10:10 Daily
 
 jobs:
   deploy:
