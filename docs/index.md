@@ -12,6 +12,8 @@ Azure HPC OnDemand Platform or **azhop**, delivers an end-2-end deployment mecha
 
 <img src="./images/azhop_architecture.png" width="75%">
 
+> Note **azhop** will be deployed in your tenant and in any location, the main constraint when choosing a location will be the VM types to use for your workload.
+
 This documentation encompasses 
 
  * The [Deployment Guide](deploy/index.md) for configuring and deploying your AZHOP environmment.
