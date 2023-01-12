@@ -164,8 +164,7 @@ var config = {
   vms: union(
     {
       deployer: {
-        deploy_script: loadTextContent('install.sh')
-        replace(loadTextContent('resources/install.sh', '__INSERT_AZHOP_BRANCH__', branchName))
+        deploy_script: replace(loadTextContent('install.sh'), '__INSERT_AZHOP_BRANCH__', branchName)
         subnet: 'frontend'
         sku: 'Standard_B2ms'
         osdisksku: 'Standard_LRS'
