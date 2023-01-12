@@ -1,9 +1,10 @@
 targetScope = 'resourceGroup'
 
 param location string = resourceGroup().location
-param deployGateway bool = true
-param deployBastion bool = true
-param publicIp bool = false
+param deployGateway bool
+param deployBastion bool
+param deployLustre bool
+param publicIp bool
 param vnet object
 param asgNames array
 param servicePorts object
@@ -13,7 +14,8 @@ var securityRules = [ for rule in items(union(
     nsgRules.default,
     publicIp ? nsgRules.internet : nsgRules.hub,
     deployBastion ? nsgRules.bastion : {},
-    deployGateway ? nsgRules.gateway : {}
+    deployGateway ? nsgRules.gateway : {},
+    deployLustre ? nsgRules.lustre : {}
   )): {
   name: rule.key
   properties: union(

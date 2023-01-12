@@ -9,8 +9,12 @@ param allowableIps array
 param identityPerms array
 param secrets array
 
+var kvName = 'kv${resourcePostfix}'
+
+output keyvaultName string = kvName
+
 resource kv 'Microsoft.KeyVault/vaults@2021-10-01' = {
-  name: 'kv${resourcePostfix}'
+  name: kvName
   location: location
   properties: {
     enabledForDiskEncryption: true
