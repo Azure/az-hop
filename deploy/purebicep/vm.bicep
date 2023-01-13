@@ -9,6 +9,7 @@ param subnetId string
 param adminUser string
 @secure()
 param secrets object
+param asgIds object
 
 var role_lookup = {
   Contributor: resourceId('microsoft.authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')
@@ -64,6 +65,7 @@ resource nic 'Microsoft.Network/networkInterfaces@2020-06-01' = [ for vmPrefix i
         name: '${name}${vmPrefix}-ipconfig'
         properties: union(
           {
+            applicationSecurityGroups: map(vm.asgs, asg => { id: asgIds[asg] })
             subnet: {
               id: subnetId
             }

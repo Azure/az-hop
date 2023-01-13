@@ -9,6 +9,7 @@ param deployGateway bool = true
 param deployBastion bool = true
 param deployLustre bool = true
 param publicIp bool = false
+param keyvaultReaderOid string
 
 param adminUser string
 
@@ -36,7 +37,7 @@ param slurmAccountingAdminPassword string = ''
 
 var config = {
   admin_user: adminUser
-  keyvault_readers: []
+  keyvault_readers: [ keyvaultReaderOid ]
 
   public_ip: publicIp
   deploy_gateway: deployGateway

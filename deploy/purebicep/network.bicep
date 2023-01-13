@@ -49,6 +49,8 @@ resource asgs 'Microsoft.Network/applicationSecurityGroups@2022-07-01' = [ for n
   location: location
 }]
 
+output asgIds array = [ for i in range(0, length(asgNames)): { '${asgs[i].name}': asgs[i].id } ]
+
 resource commonNsg 'Microsoft.Network/networkSecurityGroups@2022-07-01' = {
   name: 'nsg-common'
   location: location
