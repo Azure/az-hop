@@ -98,6 +98,7 @@ enable_lustre
 case $TARGET in
   all)
     run_playbook ad
+    run_playbook dns
     run_playbook linux
     run_playbook grafana
     run_playbook lustre-sas
@@ -117,7 +118,7 @@ case $TARGET in
     run_playbook lustre-sas
     run_playbook lustre
   ;;
-  ad | ad2 | linux | add_users | ccportal | chrony | cccluster | scheduler | grafana | telegraf | ood-custom | remove_users | tests | guacamole | guac_spooler)
+  ad | ad2 | linux | add_users | ccportal | chrony | cccluster | scheduler | grafana | telegraf | ood-custom | remove_users | tests | guacamole | guac_spooler | dns)
     run_playbook $TARGET
   ;;
   ood)

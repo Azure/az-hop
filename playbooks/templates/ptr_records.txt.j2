@@ -1,0 +1,14 @@
+$TTL 10
+$ORIGIN {{ (item | ansible.utils.ipaddr('revdns') | split('.'))[1:]|join('.')}}
+    
+@ 3600 IN SOA azureprivatedns.net. azureprivatedns-host.microsoft.com. (
+              1 ; serial
+              3600 ; refresh
+              300 ; retry
+              2419200 ; expire
+              10 ; minimum
+              )
+
+{% for address in (item | ansible.utils.usable_range).usable_ips %}
+{{((address.split('.'))[::-1])[:1]|join('.')}} 3600 IN PTR ip-{{ address | ansible.utils.ip4_hex }}.{{domain_name}}
+{% endfor %}

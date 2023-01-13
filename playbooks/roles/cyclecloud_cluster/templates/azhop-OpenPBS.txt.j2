@@ -24,7 +24,6 @@ Autoscale = true
         cyclecloud.converge_on_boot = true
         # False => This is to avoid hostnames to be renamed ip-XXXXXXXX
         cyclecloud.hosts.standalone_dns.enabled = false
-        #cyclecloud.dns.domain = {{ad_join_domain}}
 
         # Disable normal NFS exports and mounts
         cyclecloud.mounts.sched.disabled = true
@@ -78,4 +77,7 @@ Autoscale = true
         cyclecloud.cluster.autoscale.idle_time_after_jobs = {{queue.idle_timeout}}
         cyclecloud.cluster.autoscale.idle_time_before_jobs = {{queue.idle_timeout}}
         {% endif %}
+      {% if (enroot_enabled | default(false)) %}
+        [[[cluster-init enroot:default:1.0.0]]]
+      {% endif %}
 {% endfor %}

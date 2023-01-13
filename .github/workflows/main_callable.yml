@@ -37,6 +37,12 @@ on:
         required: true
         default: 'true' # use it with ${{ inputs.lustre }}
         type: string
+      deploy_only:
+        description: 'Deploy only - Default to false'
+        required: false
+        default: 'false' # use it with ${{ inputs.deploy_only }}
+        type: string
+
     secrets:
       ARM_SUBSCRIPTION_ID:
         required: true
@@ -173,9 +179,10 @@ jobs:
             set -e
             ./azhop_state.sh upload ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
 
-            # Configure AD
+            # Configure AD and DNS
             ./install.sh ad
-            
+            ./install.sh dns
+
             # Build the remaining infrastructure
             set +e
             ./build.sh -a apply -f tf
@@ -191,6 +198,7 @@ jobs:
     name: ad
     runs-on: self-hosted
     needs: deploy
+    if: inputs.deploy_only == 'false'
 
     container:
       image: azhop.azurecr.io/hpcrover:2210.1816
@@ -214,12 +222,14 @@ jobs:
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           ./install.sh ad
+          ./install.sh dns
           ./install.sh linux
 
   lustre:
     name: lustre
     runs-on: self-hosted
     needs: [ad, deploy, grafana]
+    if: inputs.deploy_only == 'false'
 
     container:
       image: azhop.azurecr.io/hpcrover:2210.1816
@@ -251,6 +261,7 @@ jobs:
     name: ood
     runs-on: self-hosted
     needs: [cycle_cluster, lustre, deploy]
+    if: inputs.deploy_only == 'false'
 
     container:
       image: azhop.azurecr.io/hpcrover:2210.1816
@@ -279,6 +290,7 @@ jobs:
     name: grafana
     runs-on: self-hosted
     needs: [ad, deploy]
+    if: inputs.deploy_only == 'false'
 
     container:
       image: azhop.azurecr.io/hpcrover:2210.1816
@@ -307,6 +319,7 @@ jobs:
     name: cycle
     runs-on: self-hosted
     needs: [ad, deploy]
+    if: inputs.deploy_only == 'false'
 
     container:
       image: azhop.azurecr.io/hpcrover:2210.1816
@@ -335,6 +348,7 @@ jobs:
     name: add_users
     runs-on: self-hosted
     needs: [cycle, deploy]
+    if: inputs.deploy_only == 'false'
 
     container:
       image: azhop.azurecr.io/hpcrover:2210.1816
@@ -363,6 +377,7 @@ jobs:
     name: cycle_cluster
     runs-on: self-hosted
     needs: [add_users, deploy, build_image]
+    if: inputs.deploy_only == 'false'
 
     container:
       image: azhop.azurecr.io/hpcrover:2210.1816
@@ -392,6 +407,7 @@ jobs:
     name: guacamole
     runs-on: self-hosted
     needs: [cycle, ood, deploy]
+    if: inputs.deploy_only == 'false'
 
     container:
       image: azhop.azurecr.io/hpcrover:2210.1816
@@ -421,6 +437,7 @@ jobs:
     name: telegraf
     runs-on: self-hosted
     needs: [grafana, cycle, deploy, guacamole]
+    if: inputs.deploy_only == 'false'
 
     container:
       image: azhop.azurecr.io/hpcrover:2210.1816
@@ -450,6 +467,7 @@ jobs:
     name: set_image_list
     runs-on: ubuntu-latest
     needs: [deploy]
+    if: inputs.deploy_only == 'false'
 
     container:
       image: azhop.azurecr.io/hpcrover:2210.1816
@@ -489,6 +507,7 @@ jobs:
     name: build_image
     runs-on: self-hosted
     needs: [deploy, set_image_list]
+    if: inputs.deploy_only == 'false'
     strategy: 
       matrix:
         packer_file: ${{ fromJson(needs.set_image_list.outputs.matrix) }}
@@ -523,6 +542,7 @@ jobs:
     name: run_tests
     runs-on: self-hosted
     needs: [deploy, cycle, ood, cycle_cluster]
+    if: inputs.deploy_only == 'false'
     container:
       image: azhop.azurecr.io/hpcrover:2210.1816
       credentials:

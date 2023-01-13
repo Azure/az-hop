@@ -47,6 +47,9 @@ echo "Installing AzCLI ..."
 while ! which az >/dev/null 2>&1; do
     curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 done
+echo "Allow installing AZCLI extensions without prompt"
+az config set extension.use_dynamic_install=yes_without_prompt
+
 #
 # Install AzCopy
 #
@@ -67,6 +70,7 @@ pip3 install ansible==5.8.0
 echo "Installing Ansible playbooks pre-reqs"
 pip3 install pypsrp
 pip3 install PySocks
+pip3 install netaddr
 
 ansible-galaxy collection install ansible.windows
 ansible-galaxy collection install community.windows

@@ -11,14 +11,14 @@
       * [Clone the repo](#clone-the-repo-1)
       * [Set up the toolchain](#set-up-the-toolchain-1)
 * [Plan your networking IP range](#plan-your-networking-ip-range)
-   * [28 nodes system =&gt; 10.0.0.0/25](#28-nodes-system--1000025)
-   * [124 nodes system =&gt; 10.0.0.0/24](#124-nodes-system--1000024)
-   * [252 nodes system =&gt; 10.0.0.0/23](#252-nodes-system--1000023)
-   * [508 nodes system =&gt; 10.0.0.0/22](#508-nodes-system--1000022)
-   * [1020 nodes system =&gt; 10.0.0.0/21](#1020-nodes-system--1000021)
-   * [2044 nodes system =&gt; 10.0.0.0/20](#2044-nodes-system--1000020)
-   * [4092 nodes system =&gt; 10.0.0.0/19](#4092-nodes-system--1000019)
-   * [8188 nodes system =&gt; 10.0.0.0/19](#8188-nodes-system--1000019)
+   * [59 nodes system =&gt; 10.0.0.0/25](#59-nodes-system--1000025)
+   * [123 nodes system =&gt; 10.0.0.0/24](#123-nodes-system--1000024)
+   * [251 nodes system =&gt; 10.0.0.0/23](#251-nodes-system--1000023)
+   * [507 nodes system =&gt; 10.0.0.0/22](#507-nodes-system--1000022)
+   * [1019 nodes system =&gt; 10.0.0.0/21](#1019-nodes-system--1000021)
+   * [2043 nodes system =&gt; 10.0.0.0/20](#2043-nodes-system--1000020)
+   * [4091 nodes system =&gt; 10.0.0.0/19](#4091-nodes-system--1000019)
+   * [8187 nodes system =&gt; 10.0.0.0/19](#8187-nodes-system--1000019)
 * [Define the environment](#define-the-environment)
 * [Deploy your environment](#deploy-your-environment)
    * [Build the infrastructure](#build-the-infrastructure)
@@ -47,6 +47,7 @@
    * [How to use an existing VNET ?](#how-to-use-an-existing-vnet-)
       * [Pre-requisities for using an existing VNET](#pre-requisities-for-using-an-existing-vnet)
       * [Creating a standalone VNET for AZ-HOP](#creating-a-standalone-vnet-for-az-hop)
+   * [How to use DNS forwarders ?](#how-to-use-dns-forwarders-)
    * [How to deploy ANF with Dual protocol](#how-to-deploy-anf-with-dual-protocol)
    * [Deploy in a locked down network environment](#deploy-in-a-locked-down-network-environment)
    * [Disable Public IP scenario](#disable-public-ip-scenario)
@@ -54,6 +55,7 @@
    * [Not deploy ANF](#not-deploy-anf)
    * [Use an existing NFS mount point](#use-an-existing-nfs-mount-point)
    * [Use Azure Active Directory for MFA](#use-azure-active-directory-for-mfa)
+   * [Use an existing Azure Database for MariaDB server](#use-an-existing-azure-database-for-mariadb-server)
 * [Helper Scripts](#helper-scripts)
    * [ansible_prereqs.sh](#ansible_prereqssh)
    * [azhop_states.sh](#azhop_statessh)
@@ -66,7 +68,7 @@
 * [Telemetry](#telemetry)
 <!--te-->
 <!-- https://github.com/ekalinin/github-markdown-toc -->
-<!-- ./gh-md-toc --insert --no-backup --hide-footer deployment.md -->
+<!-- gh-md-toc --insert --no-backup --hide-footer docs/deploy/index.md -->
 
 # Overview
 Deploying a green field `azhop` environemnt can be done by following these few steps :
@@ -210,116 +212,118 @@ sudo ./toolset/scripts/install.sh
 # Plan your networking IP range
 `Az-hop` needs several subnets to work, while some of these are optional like `Bastion` and the `Gateway` others are mandatory. When peering the az-hop vnet to others vnet or to your enterprise thru a VPN you have to plan accordingly your address range to avoid conflicts. Below are examples to help you defined these ranges based on how large you want to size your compute infrastructure.
 
-## 28 nodes system => 10.0.0.0/25
+> Note: Be aware that for each subnet, Azure will reserve 5 IP addresses for it's internal usage
+
+## 59 nodes system => 10.0.0.0/25
 
 | Subnet | CIDR |    IP Range       | Nb IPs | First IP | Usable IPs |
 |--------|-----:|:-----------------:|-------:|---------:|-----------:|
-| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 4 |
-| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 4 |
-| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 12 |
-| netapp | 10.0.0.32/**29** | 10.0.0.32 - 10.0.0.39 | 8 | 10.0.0.36 | 4 |
-| empty | | | | | |
-| gateway | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 12 |
-| bastion | 10.0.0.64/**27** | 10.0.0.64 - 10.0.0.95 | 32 | 10.0.0.64 | 28 |
-| compute | 10.0.0.96/**27** | 10.0.0.96 - 10.0.0.127 | 32 | 10.0.0.96 | 28 |
+| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 3 |
+| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 3 |
+| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 11 |
+| netapp | 10.0.0.32/**28** | 10.0.0.32 - 10.0.0.47 | 16 | 10.0.0.36 | 11 |
+| gateway | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 11 |
+| compute | 10.0.0.64/**26** | 10.0.0.64 - 10.0.0.127 | 64 | 10.0.0.96 | 59 |
 
-## 124 nodes system => 10.0.0.0/24
+> Note: Bastion is not supported in this scenario because it requires a /26 subnet and there is not enough space for it in this configuration. In that case, consider using a larger range.
 
-| Subnet | CIDR |    IP Range       | Nb IPs | First IP | Usable IPs |
-|--------|-----:|:-----------------:|-------:|---------:|-----------:|
-| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 4 |
-| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 4 |
-| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 12 |
-| netapp | 10.0.0.32/**29** | 10.0.0.32 - 10.0.0.39 | 8 | 10.0.0.36 | 4 |
-| empty | | | | | |
-| gateway | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 12 |
-| bastion | 10.0.0.64/**27** | 10.0.0.64 - 10.0.0.95 | 32 | 10.0.0.64 | 28 |
-| empty | | | | | |
-| compute | 10.0.0.128/**25** | 10.0.0.128 - 10.0.0.255 | 128 | 10.0.0.132 | 124 |
-
-## 252 nodes system => 10.0.0.0/23
+## 123 nodes system => 10.0.0.0/24
 
 | Subnet | CIDR |    IP Range       | Nb IPs | First IP | Usable IPs |
 |--------|-----:|:-----------------:|-------:|---------:|-----------:|
-| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 4 |
-| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 4 |
-| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 12 |
-| netapp | 10.0.0.32/**29** | 10.0.0.32 - 10.0.0.39 | 8 | 10.0.0.36 | 4 |
-| empty | | | | | |
-| gateway | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 12 |
-| bastion | 10.0.0.64/**27** | 10.0.0.64 - 10.0.0.95 | 32 | 10.0.0.64 | 28 |
-| empty | | | | | |
-| compute | 10.0.1.0/**24** | 10.0.1.0 - 10.0.1.255 | 256 | 10.0.1.0 | 252 |
+| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 3 |
+| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 3 |
+| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 11 |
+| netapp | 10.0.0.32/**28** | 10.0.0.32 - 10.0.0.47 | 16 | 10.0.0.36 | 11 |
+| gateway or outbounddns | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 11 |
+| bastion | 10.0.0.64/**26** | 10.0.0.64 - 10.0.0.127 | 64 | 10.0.0.64 | 59 |
+| compute | 10.0.0.128/**25** | 10.0.0.128 - 10.0.0.255 | 128 | 10.0.0.132 | 123 |
 
-## 508 nodes system => 10.0.0.0/22
+> Note : This configuration doesn't support alltogether gateway, bastion and outbounddns, you have to choose which one you need to deploy or use a larger IP range
 
-| Subnet | CIDR |    IP Range       | Nb IPs | First IP | Usable IPs |
-|--------|-----:|:-----------------:|-------:|---------:|-----------:|
-| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 4 |
-| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 4 |
-| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 12 |
-| netapp | 10.0.0.32/**29** | 10.0.0.32 - 10.0.0.39 | 8 | 10.0.0.36 | 4 |
-| empty | | | | | |
-| gateway | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 12 |
-| bastion | 10.0.0.64/**27** | 10.0.0.64 - 10.0.0.95 | 32 | 10.0.0.64 | 28 |
-| empty | | | | | |
-| compute | 10.0.2.0/**23** | 10.0.2.0 - 10.0.3.255 | 512 | 10.0.2.0 | 508 |
-
-## 1020 nodes system => 10.0.0.0/21
+## 251 nodes system => 10.0.0.0/23
 
 | Subnet | CIDR |    IP Range       | Nb IPs | First IP | Usable IPs |
 |--------|-----:|:-----------------:|-------:|---------:|-----------:|
-| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 4 |
-| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 4 |
-| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 12 |
-| netapp | 10.0.0.32/**29** | 10.0.0.32 - 10.0.0.39 | 8 | 10.0.0.36 | 4 |
+| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 3 |
+| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 3 |
+| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 11 |
+| netapp | 10.0.0.32/**28** | 10.0.0.32 - 10.0.0.47 | 16 | 10.0.0.36 | 11 |
+| outbounddns | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 11 |
+| bastion | 10.0.0.64/**26** | 10.0.0.64 - 10.0.0.127 | 64 | 10.0.0.64 | 59 |
+| gateway | 10.0.0.128/**27** | 10.0.0.128 - 10.0.0.159 | 32 | 10.0.0.48 | 27 |
 | empty | | | | | |
-| gateway | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 12 |
-| bastion | 10.0.0.64/**27** | 10.0.0.64 - 10.0.0.95 | 32 | 10.0.0.64 | 28 |
-| empty | | | | | |
-| compute | 10.0.4.0/**22** | 10.0.4.0 - 10.0.7.255 | 1024 | 10.0.4.0 | 1020 |
+| compute | 10.0.1.0/**24** | 10.0.1.0 - 10.0.1.255 | 256 | 10.0.1.0 | 251 |
 
-## 2044 nodes system => 10.0.0.0/20
-
-| Subnet | CIDR |    IP Range       | Nb IPs | First IP | Usable IPs |
-|--------|-----:|:-----------------:|-------:|---------:|-----------:|
-| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 4 |
-| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 4 |
-| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 12 |
-| netapp | 10.0.0.32/**29** | 10.0.0.32 - 10.0.0.39 | 8 | 10.0.0.36 | 4 |
-| empty | | | | | |
-| gateway | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 12 |
-| bastion | 10.0.0.64/**27** | 10.0.0.64 - 10.0.0.95 | 32 | 10.0.0.64 | 28 |
-| empty | | | | | |
-| compute | 10.0.8.0/**21** | 10.0.8.0 - 10.0.15.255 | 2048 | 10.0.8.0 | 2044 |
-
-## 4092 nodes system => 10.0.0.0/19
+## 507 nodes system => 10.0.0.0/22
 
 | Subnet | CIDR |    IP Range       | Nb IPs | First IP | Usable IPs |
 |--------|-----:|:-----------------:|-------:|---------:|-----------:|
-| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 4 |
-| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 4 |
-| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 12 |
-| netapp | 10.0.0.32/**29** | 10.0.0.32 - 10.0.0.39 | 8 | 10.0.0.36 | 4 |
+| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 3 |
+| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 3 |
+| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 11 |
+| netapp | 10.0.0.32/**28** | 10.0.0.32 - 10.0.0.47 | 16 | 10.0.0.36 | 11 |
+| outbounddns | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 11 |
+| bastion | 10.0.0.64/**26** | 10.0.0.64 - 10.0.0.127 | 64 | 10.0.0.64 | 59 |
+| gateway | 10.0.0.128/**27** | 10.0.0.128 - 10.0.0.159 | 32 | 10.0.0.48 | 27 |
 | empty | | | | | |
-| gateway | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 12 |
-| bastion | 10.0.0.64/**27** | 10.0.0.64 - 10.0.0.95 | 32 | 10.0.0.64 | 28 |
-| empty | | | | | |
-| compute | 10.0.16.0/**20** | 10.0.16.0 - 10.0.31.255 | 4096 | 10.0.16.0 | 4096 |
+| compute | 10.0.2.0/**23** | 10.0.2.0 - 10.0.3.255 | 512 | 10.0.2.0 | 507 |
 
-## 8188 nodes system => 10.0.0.0/19
+## 1019 nodes system => 10.0.0.0/21
 
 | Subnet | CIDR |    IP Range       | Nb IPs | First IP | Usable IPs |
 |--------|-----:|:-----------------:|-------:|---------:|-----------:|
-| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 4 |
-| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 4 |
-| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 12 |
-| netapp | 10.0.0.32/**29** | 10.0.0.32 - 10.0.0.39 | 8 | 10.0.0.36 | 4 |
+| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 3 |
+| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 3 |
+| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 11 |
+| netapp | 10.0.0.32/**28** | 10.0.0.32 - 10.0.0.47 | 16 | 10.0.0.36 | 11 |
+| outbounddns | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 11 |
+| bastion | 10.0.0.64/**26** | 10.0.0.64 - 10.0.0.127 | 64 | 10.0.0.64 | 59 |
+| gateway | 10.0.0.128/**27** | 10.0.0.128 - 10.0.0.159 | 32 | 10.0.0.48 | 27 |
 | empty | | | | | |
-| gateway | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 12 |
-| bastion | 10.0.0.64/**27** | 10.0.0.64 - 10.0.0.95 | 32 | 10.0.0.64 | 28 |
+| compute | 10.0.4.0/**22** | 10.0.4.0 - 10.0.7.255 | 1024 | 10.0.4.0 | 1019 |
+
+## 2043 nodes system => 10.0.0.0/20
+
+| Subnet | CIDR |    IP Range       | Nb IPs | First IP | Usable IPs |
+|--------|-----:|:-----------------:|-------:|---------:|-----------:|
+| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 3 |
+| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 3 |
+| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 11 |
+| netapp | 10.0.0.32/**28** | 10.0.0.32 - 10.0.0.47 | 16 | 10.0.0.36 | 11 |
+| outbounddns | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 11 |
+| bastion | 10.0.0.64/**26** | 10.0.0.64 - 10.0.0.127 | 64 | 10.0.0.64 | 59 |
+| gateway | 10.0.0.128/**27** | 10.0.0.128 - 10.0.0.159 | 32 | 10.0.0.48 | 27 |
 | empty | | | | | |
-| compute | 10.0.32.0/**19** | 10.0.32.0 - 10.0.63.255 | 8192 | 10.0.32.0 | 8188 |
+| compute | 10.0.8.0/**21** | 10.0.8.0 - 10.0.15.255 | 2048 | 10.0.8.0 | 2043 |
+
+## 4091 nodes system => 10.0.0.0/19
+
+| Subnet | CIDR |    IP Range       | Nb IPs | First IP | Usable IPs |
+|--------|-----:|:-----------------:|-------:|---------:|-----------:|
+| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 3 |
+| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 3 |
+| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 11 |
+| netapp | 10.0.0.32/**28** | 10.0.0.32 - 10.0.0.47 | 16 | 10.0.0.36 | 11 |
+| outbounddns | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 11 |
+| bastion | 10.0.0.64/**26** | 10.0.0.64 - 10.0.0.127 | 64 | 10.0.0.64 | 59 |
+| gateway | 10.0.0.128/**27** | 10.0.0.128 - 10.0.0.159 | 32 | 10.0.0.48 | 27 |
+| empty | | | | | |
+| compute | 10.0.16.0/**20** | 10.0.16.0 - 10.0.31.255 | 4096 | 10.0.16.0 | 4091 |
+
+## 8187 nodes system => 10.0.0.0/19
+
+| Subnet | CIDR |    IP Range       | Nb IPs | First IP | Usable IPs |
+|--------|-----:|:-----------------:|-------:|---------:|-----------:|
+| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 3 |
+| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 3 |
+| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 11 |
+| netapp | 10.0.0.32/**28** | 10.0.0.32 - 10.0.0.47 | 16 | 10.0.0.36 | 11 |
+| outbounddns | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 11 |
+| bastion | 10.0.0.64/**26** | 10.0.0.64 - 10.0.0.127 | 64 | 10.0.0.64 | 59 |
+| gateway | 10.0.0.128/**27** | 10.0.0.128 - 10.0.0.159 | 32 | 10.0.0.48 | 27 |
+| empty | | | | | |
+| compute | 10.0.32.0/**19** | 10.0.32.0 - 10.0.63.255 | 8192 | 10.0.32.0 | 8187 |
 
 # Define the environment
 An **az-hop** environment is defined in the `config.yml` configuration file. Before starting, copy the `config.tpl.yml` template to your own `config.yml` configuration file and update it ccordingly to your requirments.
@@ -357,7 +361,7 @@ mounts:
     mountpoint: /anfhome # /sharedhome for example
     server: '{{anf_home_ip}}' # Specify an existing NFS server name or IP, when using the ANF built in use '{{anf_home_ip}}'
     export: '{{anf_home_path}}' # Specify an existing NFS export directory, when using the ANF built in use '{{anf_home_path}}'
-    options: "rw,hard,rsize=262144,wsize=262144,vers=3,tcp" # Specify the mount options. Default to rw,hard,rsize=262144,wsize=262144,vers=3,tcp
+    options: "rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev" # Specify the mount options. Default to rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev
 #  mount1:
 #    mountpoint: /mount1 
 #    server: a.b.c.d # Specify an existing NFS server name or IP
@@ -373,9 +377,7 @@ network:
   # Create Network and Application Security Rules, true by default, false when using an existing VNET if not specified
   create_nsg: true
   vnet:
-    name: hpcvnet # Optional - default to hpcvnet
-    id: # If a vnet id is set then no network will be created and the provided vnet will be used
-    address_space: "10.0.0.0/24" # Optional - default to "10.0.0.0/16"
+    address_space: "10.0.0.0/23" 
     # When using an existing VNET, only the subnet names will be used and not the adress_prefixes
     subnets: # all subnets are optionals
     # name values can be used to rename the default to specific names, address_prefixes to change the IP ranges to be used
@@ -390,22 +392,27 @@ network:
         create: true
       netapp:
         name: netapp
-        address_prefixes: "10.0.0.32/29"
+        address_prefixes: "10.0.0.32/28"
         create: true
+      # the outbounddns is optional and only when deploying an Azure Private DNS Resolver
+      # outbounddns:
+      #   name: outbounddns
+      #   address_prefixes: "10.0.0.48/28"
+      #   create: true
       ad:
         name: ad
         address_prefixes: "10.0.0.8/29"
         create: true
       # Bastion and Gateway subnets are optional and can be added if a Bastion or a VPN need to be created in the environment
       # bastion: # Bastion subnet name is always fixed to AzureBastionSubnet
-      #   address_prefixes: "10.0.0.64/27" # CIDR minimal range must be /27
+      #   address_prefixes: "10.0.0.64/26" # CIDR minimal range must be /26
       #   create: true
       # gateway: # Gateway subnet name is always fixed to GatewaySubnet
-      #   address_prefixes: "10.0.0.48/28" # Recommendation is to use /27 or /28 network
+      #   address_prefixes: "10.0.0.128/27" # Recommendation is to use /27 or /26 network
       #   create: true
       compute:
         name: compute
-        address_prefixes: "10.0.0.128/25"
+        address_prefixes: "10.0.1.0/24"
         create: true
   # Specify the Application Security Groups mapping if already existing
 # asg:
@@ -429,7 +436,8 @@ network:
 #     asg-ondemand: asg-ondemand
 #     asg-deployer: asg-deployer
 #     asg-guacamole: asg-guacamole
-    
+#     asg-mariadb-client: asg-mariadb-client
+
 #  peering: # This list is optional, and can be used to create VNet Peerings in the same subscription.
 #    - vnet_name: #"VNET Name to Peer to"
 #      vnet_resource_group: #"Resource Group of the VNET to peer to"
@@ -540,6 +548,18 @@ slurm:
   accounting_enabled: false
   # Enable container support for SLURM using Enroot/Pyxis
   enroot_enabled: false
+  # SLURM version to install. Currently supported: only 20.11.9 and 22.05.3.
+  # Other versions can be installed by building from source (See build_rpms setting in the slurmserver role)
+  slurm_version: 20.11.9
+
+# If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values
+database:
+  # Admin user of the database for which the password will be retrieved from the azhop keyvault
+  user: sqladmin
+  # FQDN of the managed instance
+  fqdn: 
+  # IP of the managed private endpoint if the FQDN is not registered in a private DNS
+  ip: 
 
 # Authentication configuration for accessing the az-hop portal
 # Default is basic authentication. For oidc authentication you have to specify the following values
@@ -1148,7 +1168,6 @@ network:
       compute:
         name: dynamic
 ```
-
 ### Pre-requisities for using an existing VNET
 - There is a need of a minimum of 5 IP addresses for the infrastructure VMs
 - Allow enough IP addresses for the Lustre cluster, default being 4 : Robinhood + Lustre + 2*OSS
@@ -1161,6 +1180,27 @@ There is a way to easily create a standalone VNET for **azhop** without doing a 
 - run the build command specify the *tf/network* subdirectory `./build -a [plan, apply, destroy] -f tf/network`
 - Save your config file and create a new one in which you now specify the VNET ID created above
 - Build your **azhop** environment
+
+## How to use DNS forwarders ?
+**azhop** rely on [Azure DNS Private Resolver](https://learn.microsoft.com/en-us/azure/dns/dns-private-resolver-overview) in order to forward DNS queries to external DNS servers thru an outbound endpoint which need to be created in it's own subnet. You need to configure the `outbounddns` subnet with a minimum of /28 adress space in your `config.yml` configuration file. If you use an existing subnet it has to be dedicated to the resolver and has to be delegated to `Microsoft.Network/dnsResolvers` as explainned in documentation of the [Azure DNS Private Resolver](https://learn.microsoft.com/en-us/azure/dns/dns-private-resolver-overview)
+
+Once the resolver has been created thru the `./build.sh` command, you can configure the forwarders to sent request to, in the `config.yml` configuration file like below.
+
+```yml
+# Specify DNS forwarders available in the network
+dns:
+  forwarders:
+    - { name: foo.bar.com, ips: "10.2.0.4" }
+    - { name: foo.com, ips: "10.2.0.4, 10.2.0.5" }
+```
+
+To add these rules just run the `dns` ansible playbook.
+
+```bash
+./install.sh dns
+```
+
+You can also add rules manually in the DNS forwarding ruleset built.
 
 ## How to deploy ANF with Dual protocol
 When using Windows nodes you may want to use SMB to mount ANF volumes, as a result ANF need to be configure to use dual protocol and the ANF account need to be domain joined. This imply to break out the deployment in two main steps because the Domain Controler need to be configured before provisioning ANF. Follow the steps below to deploy ANF with Dual Protocol enabled :
@@ -1267,7 +1307,7 @@ mounts:
     mountpoint: <mount point name> # /sharedhome for example
     server: <server name or IP> # Specify an existing NFS server name or IP, when using the ANF built in use '{{anf_home_ip}}'
     export: <export directory> # Specify an existing NFS export directory, when using the ANF built in use '{{anf_home_path}}'
-    options: "rw,hard,rsize=262144,wsize=262144,vers=3,tcp" # Specify the mount options.
+    options: "rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev" # Specify the mount options.
 ```
 
 ## Use Azure Active Directory for MFA
@@ -1296,6 +1336,22 @@ The helper script `configure_aad.sh` can be used to
 - Create a secret for this AAD application and store it in the az-hop Key Vault
 
 This script need to be run before the `install.sh` or at least before the `ood` step, and by a user with enough privilege to create an application in AAD (typically a subscription `Owner`)
+
+## Use an existing Azure Database for MariaDB server
+An existing instance of an Azure Database for MariaDB server can be used to store the SLURM accounting data and/or the Windows Remote Desktop session requests. To enable it update the configuration file with these settings :
+
+```yml
+# If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values
+database:
+  # Admin user of the database for which the password will be retrieved from the azhop keyvault
+  user: sqladmin
+  # FQDN of the managed instance
+  fqdn: 
+  # IP of the managed private endpoint if the FQDN is not registered in a private DNS
+  ip: 
+```
+
+Store the database user password in the `azhop` keyvault as a secret with the name `<database.user>-password`
 
 # Helper Scripts
 

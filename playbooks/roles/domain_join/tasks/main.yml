@@ -8,10 +8,10 @@
   selinux:
     state: disabled
 
-- name: create dhclient config
-  copy:
-    content: "supersede domain-name-servers {{ domain_primary_dns }};\nappend domain-name-servers {{ domain_secondary_dns }};\nappend domain-name-servers 168.63.129.16;"
-    dest: "/etc/dhcp/dhclient.conf"
+- name: Remove /etc/dhcp/dhclient.conf
+  file:
+    path: /etc/dhcp/dhclient.conf
+    state: absent
 
 - name: restart NetworkManager
   service:
@@ -31,6 +31,16 @@
     opts: '{{ domain_mount_opts}}'
     state: mounted
     fstype: nfs
+
+# Fix bug https://bugzilla.redhat.com/show_bug.cgi?id=1858930
+- name: Update service dependencies on network-online.target
+  replace:
+    path: '/usr/lib/systemd/system/{{item}}'
+    regexp: 'network-online.target'
+    replace: 'network.target'
+  with_items:
+    - rpc-statd-notify.service
+    - rpc-statd.service
 
   # - name: store kerberos password => this is not working
   #   shell: echo "{{domain_password}}" | kinit {{ domain_admin }}@{{ domain_name | upper }}

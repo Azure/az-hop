@@ -3,6 +3,7 @@ batch_connect:
   template: "basic"
 script:
   native:
+<%- if OodAppkit.clusters[cluster].job_config[:adapter] == 'slurm' -%>
     - "-p"
     - "<%= slot_type %>"
     - "-N"
@@ -10,6 +11,13 @@ script:
     - "--exclusive"
     - "--container-image=<%= container_image %>"
     - "--export=ALL"
-<%- if container_mounts != "" -%>
+  <%- if container_mounts != "" -%>
     - "--container-mounts=<%= container_mounts %>"
+  <%- end -%>
+<%- else -%>
+    - "-l"
+    - "select=1:slot_type=<%= slot_type %>"
+    - "-v"
+    - "enroot=1"
 <%- end -%>
+

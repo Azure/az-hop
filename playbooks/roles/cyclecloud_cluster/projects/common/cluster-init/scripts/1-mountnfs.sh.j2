@@ -10,5 +10,5 @@ $script_dir/../files/$os_release/init_mountnfs.sh
 {% for mount in mounts %}
 mkdir {{mounts[mount].mountpoint}}
 echo "mount {{ mounts[mount].server }}:/{{ mounts[mount].export }} {{mounts[mount].mountpoint}}"
-mount -t nfs -o {{ mounts[mount].options | default("rw,hard,rsize=262144,wsize=262144,vers=3,tcp",true) }} {{ mounts[mount].server }}:/{{ mounts[mount].export }} {{mounts[mount].mountpoint}} || exit 1
+mount -t nfs -o {{ mounts[mount].options | default("rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev",true) }} {{ mounts[mount].server }}:/{{ mounts[mount].export }} {{mounts[mount].mountpoint}} || exit 1
 {% endfor %}

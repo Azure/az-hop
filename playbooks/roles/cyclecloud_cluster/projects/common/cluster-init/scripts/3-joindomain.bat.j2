@@ -1,16 +1,13 @@
-netsh interface ipv4 set dns name="Ethernet" static {{ primary_dns }}
-netsh interface ipv4 add dns name="Ethernet" {{ secondary_dns }} index=2
-netsh interface ipv4 add dns name="Ethernet" 168.63.129.16 index=3
 
 reg add "HKLM\System\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
 
-Powershell.exe -executionpolicy remotesigned try { $password = ConvertTo-SecureString "{{ cc_password | replace("%", "%%")}}" -asPlainText -Force; $credential = New-Object System.Management.Automation.PSCredential('{{ ad_join_domain }}\{{ ad_join_user }}',$password); Add-Computer -DomainName '{{ ad_join_domain }}' -Credential $credential } catch { exit 255 }
+Powershell.exe -executionpolicy remotesigned try { $password = ConvertTo-SecureString "{{ cc_password | replace("%", "%%")}}" -asPlainText -Force; $credential = New-Object System.Management.Automation.PSCredential('{{ domain_name }}\{{ ad_join_user }}',$password); Add-Computer -DomainName '{{ domain_name }}' -Credential $credential } catch { exit 255 }
 
 if %ERRORLEVEL% neq 0 ( 
    exit 1
 )
 
-:: call C:\cycle\jetpack\bin\jetpack log "Successfully join domain {{ ad_join_domain }}"
+:: call C:\cycle\jetpack\bin\jetpack log "Successfully join domain {{ domain_name }}"
 :: Create a schedule task to finalize settings after the reboot as we need to reboot to finish the domain join
 schtasks /create /tn "azhop-configuration" /sc onstart /ru system /tr "%~dp0\..\files\windows\4-configure-rdp.bat"
 
