@@ -58,6 +58,7 @@ module azhopNetwork './network.bicep' = {
 }
 
 var subnetIds = azhopNetwork.outputs.subnetIds
+var asgNameToIdLookup = reduce(azhopNetwork.outputs.asgIds, {}, (cur, next) => union(cur, next))
 
 module azhopBastion './bastion.bicep' = if (config.deploy_bastion) {
   name: 'azhopBastion'
@@ -79,6 +80,7 @@ module azhopVm './vm.bicep' = [ for vm in vmItems: {
     subnetId: subnetIds[vm.value.subnet]
     adminUser: config.admin_user
     secrets: secrets
+    asgIds: asgNameToIdLookup
   }
 }]
 
