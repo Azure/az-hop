@@ -104,3 +104,4 @@ output subnetIds object = reduce(
   (cur, next) => union(cur, next)
 )
 
+output vnetId string = virtualNetwork.id

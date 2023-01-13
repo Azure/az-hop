@@ -32,6 +32,7 @@ param adminSshPrivateKey string = ''
 param adminPassword string = ''
 
 @description('Password for the Slurm accounting admin user')
+// todo: change to database admin password
 @secure()
 param slurmAccountingAdminPassword string = ''
 
@@ -123,6 +124,13 @@ var config = {
         name: 'GatewaySubnet'
         cidr: '10.201.6.0/24'
       }
+      outbounddns: {
+        name: 'outbounddns'
+        cidr: '10.201.7.0/24'
+        delegations: [
+          'Microsoft.Network/dnsResolvers'
+        ]
+      }
     }
   }
 
@@ -199,7 +207,7 @@ var config = {
         image: 'linux_base'
         pip: false
         asgs: union(
-          [ 'asg-ssh', 'asg-ondemand', 'asg-ad-client', 'asg-nfs-client', 'asg-pbs-client', 'asg-telegraf', 'asg-guacamole', 'asg-cyclecloud-client' ],
+          [ 'asg-ssh', 'asg-ondemand', 'asg-ad-client', 'asg-nfs-client', 'asg-pbs-client', 'asg-telegraf', 'asg-guacamole', 'asg-cyclecloud-client', 'asg-mariadb-client' ],
           deployLustre ? [ 'asg-lustre-client' ] : []
         )
       }
@@ -221,7 +229,7 @@ var config = {
         sku: 'Standard_B2ms'
         osdisksku: 'StandardSSD_LRS'
         image: 'linux_base'
-        asgs: [ 'asg-ssh', 'asg-ad-client', 'asg-telegraf', 'asg-nfs-client', 'asg-cyclecloud-client' ]
+        asgs: [ 'asg-ssh', 'asg-ad-client', 'asg-telegraf', 'asg-nfs-client', 'asg-cyclecloud-client', 'asg-mariadb-client' ]
       }
       ccportal: {
         subnet: 'admin'
@@ -248,7 +256,7 @@ var config = {
         sku: 'Standard_B2ms'
         osdisksku: 'StandardSSD_LRS'
         image: 'linux_base'
-        asgs: [ 'asg-ssh', 'asg-pbs', 'asg-ad-client', 'asg-cyclecloud-client', 'asg-nfs-client', 'asg-telegraf' ]
+        asgs: [ 'asg-ssh', 'asg-pbs', 'asg-ad-client', 'asg-cyclecloud-client', 'asg-nfs-client', 'asg-telegraf', 'asg-mariadb-client' ]
       }
     },
     deployLustre ? {
@@ -289,7 +297,7 @@ var config = {
     } : {}
   )
 
-  asg_names: union([ 'asg-ssh', 'asg-rdp', 'asg-jumpbox', 'asg-ad', 'asg-ad-client', 'asg-pbs', 'asg-pbs-client', 'asg-cyclecloud', 'asg-cyclecloud-client', 'asg-nfs-client', 'asg-telegraf', 'asg-grafana', 'asg-robinhood', 'asg-ondemand', 'asg-deployer', 'asg-guacamole' ],
+  asg_names: union([ 'asg-ssh', 'asg-rdp', 'asg-jumpbox', 'asg-ad', 'asg-ad-client', 'asg-pbs', 'asg-pbs-client', 'asg-cyclecloud', 'asg-cyclecloud-client', 'asg-nfs-client', 'asg-telegraf', 'asg-grafana', 'asg-robinhood', 'asg-ondemand', 'asg-deployer', 'asg-guacamole', 'asg-mariadb-client' ],
     deployLustre ? [ 'asg-lustre', 'asg-lustre-client' ] : []
   )
 
@@ -316,7 +324,7 @@ var config = {
     Grafana: ['3000']
     // HTTPS, AMQP
     CycleCloud: ['9443', '5672']
-    MySQL: ['3306', '33060']
+    MariaDB: ['3306', '33060']
     Guacamole: ['8080']
     WinRM: ['5985', '5986']
   }
@@ -383,6 +391,9 @@ var config = {
       // Guacamole
       AllowGuacamoleRdpIn         : ['610', 'Inbound', 'Allow', 'Tcp', 'Rdp', 'asg', 'asg-guacamole', 'subnet', 'compute']
     
+      // MariaDB
+      AllowMariaDBIn              : ['700', 'Inbound', 'Allow', 'Tcp', 'MariaDB', 'asg', 'asg-mariadb-client', 'subnet', 'admin']
+
       // Deny all remaining traffic
       DenyVnetInbound             : ['3100', 'Inbound', 'Deny', '*', 'All', 'tag', 'VirtualNetwork', 'tag', 'VirtualNetwork']
     
@@ -449,7 +460,10 @@ var config = {
     
       // Guacamole
       AllowGuacamoleRdpOut        : ['610', 'Outbound', 'Allow', 'Tcp', 'Rdp', 'asg', 'asg-guacamole', 'subnet', 'compute']
-    
+      
+      // MariaDB
+      AllowMariaDBOut             : ['700', 'Outbound', 'Allow', 'Tcp', 'MariaDB', 'asg', 'asg-mariadb-client', 'subnet', 'admin']
+      
       // Deny all remaining traffic and allow Internet access
       AllowInternetOutBound       : ['3000', 'Outbound', 'Allow', 'Tcp', 'All', 'tag', 'VirtualNetwork', 'tag', 'Internet']
       DenyVnetOutbound            : ['3100', 'Outbound', 'Deny', '*', 'All', 'tag', 'VirtualNetwork', 'tag', 'VirtualNetwork']

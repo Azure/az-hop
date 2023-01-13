@@ -20,6 +20,7 @@ param adminSshPrivateKey string = ''
 @secure()
 param adminPassword string = ''
 
+// todo: change to database admin password
 @description('Password for the Slurm accounting admin user')
 @secure()
 param slurmAccountingAdminPassword string = ''
@@ -153,6 +154,8 @@ module azhopMariaDB './mariadb.bicep' = if (config.queue_manager == 'slurm' && c
     adminPassword: secrets.slurmAccountingAdminPassword
     adminSubnetId: subnetIds.admin
     frontendSubnetId: subnetIds.frontend
+    vnetId: azhopNetwork.outputs.vnetId
+    sslEnforcement: false // TODO: based whether guacamole is enabled (guac doesn't support ssl atm)
   }
 }
 
@@ -190,6 +193,16 @@ module azhopNfsFiles './nfsfiles.bicep' = if (config.homedir == 'nfsfiles') {
     resourcePostfix: resourcePostfix
     allowedSubnetIds: [ subnetIds.admin, subnetIds.compute, subnetIds.frontend ]
     sizeGB: 1024
+  }
+}
+
+module azhopPrivateZone './privatezone.bicep' = {
+  name: 'azhopPrivateZone'
+  params: {
+    privateDnsZoneName: 'hpc.azure'
+    vnetId: azhopNetwork.outputs.vnetId
+    adVmName: 'ad'
+    adVmIp: azhopVm[indexOf(map(vmItems, item => item.key), 'ad')].outputs.privateIps[0]
   }
 }
 
@@ -689,10 +702,8 @@ output azhopGlobalConfig object = union(
     global_cc_storage             : 'azhop${resourcePostfix}'
     compute_subnetid              : '${azhopResourceGroupName}/${config.vnet.name}/${config.vnet.subnets.compute.name}'
     global_config_file            : '/az-hop/config.yml'
-    primary_dns                   : azhopVm[indexOf(map(vmItems, item => item.key), 'ad')].outputs.privateIps[0]
-    secondary_dns                 : azhopVm[indexOf(map(vmItems, item => item.key), 'ad')].outputs.privateIps[0]
     ad_join_user                  : config.admin_user
-    ad_join_domain                : 'hpc.azure'
+    domain_name                   : 'hpc.azure'
     ldap_server                   : 'ad'
     homedir_mountpoint            : config.homedir_mountpoint
     ondemand_fqdn                 : config.public_ip ? azhopVm[indexOf(map(vmItems, item => item.key), 'ondemand')].outputs.fqdn : azhopVm[indexOf(map(vmItems, item => item.key), 'ondemand')].outputs.privateIps[0]
@@ -703,8 +714,8 @@ output azhopGlobalConfig object = union(
     sig_name                      : (config.deploy_sig) ? 'azhop_${resourcePostfix}' : ''
     lustre_hsm_storage_account    : 'azhop${resourcePostfix}'
     lustre_hsm_storage_container  : 'lustre'
-    slurmdb_fqdn                  : azhopMariaDB.outputs.mysql_fqdn
-    slurmdb_user                  : config.slurm.admin_user
+    database_fqdn                 : azhopMariaDB.outputs.mariaDb_fqdn
+    database_user                 : config.slurm.admin_user
     azure_environment             : envNameToCloudMap[environment().name]
     key_vault_suffix              : substring(kvSuffix, 1, length(kvSuffix) - 1) //'vault.azure.net' - remove leading dot from env
     blob_storage_suffix           : environment().suffixes.storage //'blob.core.windows.net'
