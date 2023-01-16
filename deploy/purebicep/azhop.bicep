@@ -716,8 +716,8 @@ output azhopGlobalConfig object = union(
     database_fqdn                 : azhopMariaDB.outputs.mariaDb_fqdn
     database_user                 : config.slurm.admin_user
     azure_environment             : envNameToCloudMap[environment().name]
-    key_vault_suffix              : substring(kvSuffix, 1, length(kvSuffix) - 1) //'vault.azure.net' - remove leading dot from env
-    blob_storage_suffix           : environment().suffixes.storage //'blob.core.windows.net'
+    key_vault_suffix              : substring(kvSuffix, 1, length(kvSuffix) - 1) // vault.azure.net - remove leading dot from env
+    blob_storage_suffix           : 'blob.${environment().suffixes.storage}' // blob.core.windows.net
     jumpbox_ssh_port              : 22
   },
   config.homedir == 'anf' ? {
