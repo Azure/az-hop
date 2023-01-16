@@ -9,7 +9,7 @@ cat <<EOF >"${REQUEST_FILE}"
 {
     "command": "create",
     "queue": "winviz",
-    "max_walltime": "00:10:00"
+    "max_walltime": "<%= context.bc_num_hours * 3600 %>"
 }
 EOF
 if [ $? -ne 0 ]; then
