@@ -57,7 +57,8 @@ locals {
     TEMPLATE
 
     alert_email = try(local.configuration_yml["alerting"]["admin_mail"], null)
-    create_alerts = local.alert_email != null && local.alert_email != "admin.mail@contoso.com" && try(local.configuration_yml["alerting"]["enabled"], false) ? true : false   
+    create_alerts = local.alert_email != null && local.alert_email != "admin.mail@contoso.com" && try(local.configuration_yml["alerting"]["enabled"], false) ? true : false
+    anf_vol_threshold = try(local.configuration_yml["anf"]["alert_threshold"], 80)  # default to 80% if not specified 
 
     ad_ha = try(local.configuration_yml["ad"].high_availability, false)
     # Use a linux custom image reference if the linux_base_image is defined and contains ":"

@@ -69,7 +69,7 @@ resource "azurerm_monitor_metric_alert" "anf_alert" {
   name                = "anf-alert-${random_string.resource_postfix.result}"
   resource_group_name = azurerm_netapp_account.azhop[0].resource_group_name
   scopes              = [azurerm_netapp_volume.home[0].id]
-  description         = "Alert when ANF volume usage exceeds 80%"
+  description         = "Alert when ANF volume usage exceeds ${local.anf_vol_threshold}%"
   severity            = 3
   enabled             = true
   frequency           = "PT1M"
@@ -81,7 +81,7 @@ resource "azurerm_monitor_metric_alert" "anf_alert" {
     metric_name      = "VolumeConsumedSizePercentage"
     aggregation      = "Average"
     operator         = "GreaterThan"
-    threshold        = 80
+    threshold        = local.anf_vol_threshold
   }
   action {
     action_group_id = azurerm_monitor_action_group.azhop_action_group[0].id

@@ -26,6 +26,8 @@ anf:
   homefs_service_level: Standard
   # dual protocol
   dual_protocol: false # true to enable SMB support. false by default
+  # If alerting is enabled, this value will be used to determine when to trigger alerts 
+  alert_threshold: 80 # alert when ANF volume reaches this threshold
 
 # These mounts will be listed in the Files menu of the OnDemand portal and automatically mounted on all compute nodes and remote desktop nodes
 mounts:
