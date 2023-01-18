@@ -277,27 +277,25 @@ module ActiveJobs
       attributes.push Attribute.new "Job Id", self.pbsid
       attributes.push Attribute.new "Job Name", self.jobname
       attributes.push Attribute.new "User", self.username
+      attributes.push Attribute.new "Walltime", pretty_time(info.native["walltime"].to_i)
+      attributes.push Attribute.new "Node List", self.nodes.join(", ") unless self.nodes.blank?
       attributes.push Attribute.new "Queue", self.queue
-      attributes.push Attribute.new "Start Time", self.starttime
-      attributes.push Attribute.new "Walltime Used", self.walltime_used
       attributes.push Attribute.new "Status", self.status
-
       {
         "Connection ID" => "connection_id",
         "Client ID" => "client_id",
-        "Hostname" => "hostname"
       }.each do |k,v|
         attributes.push Attribute.new k, info.native[v] if info.native[v]
       end
 
       self.native_attribs = attributes
 
-      self.submit_args = ''
-      self.output_path = ''
+      #self.submit_args = ''
+      #self.output_path = ''
 
-      output_pathname = Pathname.new(ENV["HOME"])
-      self.file_explorer_url = build_file_explorer_url(output_pathname)
-      self.shell_url = build_shell_url(output_pathname, self.cluster)
+      #output_pathname = Pathname.new(ENV["HOME"])
+      #self.file_explorer_url = build_file_explorer_url(output_pathname)
+      #self.shell_url = build_shell_url(output_pathname, self.cluster)
 
       self
     end
