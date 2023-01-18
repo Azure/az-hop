@@ -261,6 +261,13 @@ images:
   #   os_type: Linux # Linux or Windows
   #   version: 7.9 # Version of the image to create the image definition in SIG. Pattern is major.minor where minor is mandatory
 # Pre-defined images
+  - name: azhop-almalinux86-v2-rdma-gpgpu
+    publisher: azhop
+    offer: almalinux
+    sku: 8_6-hpc-gen2
+    hyper_v: V2
+    os_type: Linux
+    version: 8.6
   - name: azhop-almalinux85-v2-rdma-gpgpu
     publisher: azhop
     offer: almalinux

@@ -23,4 +23,4 @@ gpgcheck=0
 EOF
 
 dnf -y install kmod-lustre-client lustre-client || exit 1
-#weak-modules --add-kernel $(uname -r) || exit 1
+weak-modules --add-kernel $(uname -r) || exit 1
