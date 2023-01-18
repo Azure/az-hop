@@ -11,6 +11,8 @@ param deployLustre bool = true
 param publicIp bool = false
 param keyvaultReaderOid string
 
+param softwareInstall bool = true
+
 param adminUser string
 
 @description('Branch of the azhop repo to pull - Default to main')
@@ -51,8 +53,6 @@ var config = {
   }
 
   queue_manager: 'slurm'
-
-  vpn_gateway: true
 
   slurm: {
     admin_user: 'sqladmin'
@@ -172,25 +172,28 @@ var config = {
       
   vms: union(
     {
-      deployer: {
-        deploy_script: replace(loadTextContent('install.sh'), '__INSERT_AZHOP_BRANCH__', branchName)
-        subnet: 'frontend'
-        sku: 'Standard_B2ms'
-        osdisksku: 'Standard_LRS'
-        image: 'ubuntu'
-        pip: false
-        identity: {
-          keyvault: {
-            key_permissions: [ 'All' ]
-            secret_permissions: [ 'All' ]
+      deployer: union(
+        {
+          subnet: 'frontend'
+          sku: 'Standard_B2ms'
+          osdisksku: 'Standard_LRS'
+          image: 'ubuntu'
+          pip: false
+          identity: {
+            keyvault: {
+              key_permissions: [ 'All' ]
+              secret_permissions: [ 'All' ]
+            }
+            roles: [
+              'Contributor'
+              'UserAccessAdministrator'
+            ]
           }
-          roles: [
-            'Contributor'
-            'UserAccessAdministrator'
-          ]
-        }
-        asgs: [ 'asg-ssh', 'asg-jumpbox', 'asg-deployer', 'asg-ad-client', 'asg-telegraf', 'asg-nfs-client' ]
-      }
+          asgs: [ 'asg-ssh', 'asg-jumpbox', 'asg-deployer', 'asg-ad-client', 'asg-telegraf', 'asg-nfs-client' ]
+        }, softwareInstall ? {
+          deploy_script: replace(loadTextContent('install.sh'), '__INSERT_AZHOP_BRANCH__', branchName)
+        } : {}
+      )
       ad: {
         subnet: 'ad'
         windows: true
