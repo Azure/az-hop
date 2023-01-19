@@ -138,7 +138,7 @@ Run the `az account show` to display the current account and subscription used. 
 1. Run the following commands to clone the public `az-hop` gihub repository in your Cloud Shell session.
 
    ```bash
-   git clone https://github.com/Azure/az-hop.git
+   git clone https://github.com/Azure/az-hop.git -b v1.0.29
    ```
 
 ### Task 3 : Prepare the configuration file used to build the `az-hop` environment
