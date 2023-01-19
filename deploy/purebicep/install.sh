@@ -61,7 +61,7 @@ chmod +x $azhop_root/bin/connect
 mkdir -p $azhop_root/playbooks/group_vars
 jq .azhopGlobalConfig.value azhopOutputs.json | yq -P > $azhop_root/playbooks/group_vars/all.yml
 
-jq '.azhopInventory.value.all.hosts *= (.lustre_oss_private_ips.value | to_entries | map({("lustre-oss-" + (.key + 1 | tostring)): {"ansible_host": .value}}) | add) | .azhopInventory.value' azhopOutputs.json | yq -P > $azhop_root/playbooks/inventory
+jq '.azhopInventory.value.all.hosts *= (.lustre_oss_private_ips.value | to_entries | map({("lustre-oss-" + (.key + 1 | tostring)): {"ansible_host": .value}}) | add // {}) | .azhopInventory.value' azhopOutputs.json | yq -P > $azhop_root/playbooks/inventory
 
 jq .azhopPackerOptions.value azhopOutputs.json > $azhop_root/packer/options.json
 
