@@ -713,7 +713,7 @@ output azhopGlobalConfig object = union(
     sig_name                      : (config.deploy_sig) ? 'azhop_${resourcePostfix}' : ''
     lustre_hsm_storage_account    : 'azhop${resourcePostfix}'
     lustre_hsm_storage_container  : 'lustre'
-    database_fqdn                 : azhopMariaDB.outputs.mariaDb_fqdn
+    database_fqdn                 : (config.queue_manager == 'slurm' && config.slurm.accounting_enabled) ? azhopMariaDB.outputs.mariaDb_fqdn : ''
     database_user                 : config.slurm.admin_user
     azure_environment             : envNameToCloudMap[environment().name]
     key_vault_suffix              : substring(kvSuffix, 1, length(kvSuffix) - 1) // vault.azure.net - remove leading dot from env

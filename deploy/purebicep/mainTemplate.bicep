@@ -11,6 +11,9 @@ param deployGateway bool = false
 param deployBastion bool = false
 @description('Deploy a Lustre Cluster or not. Default to false')
 param deployLustre bool = true
+@description('Deploy a SIG or not. Default to false')
+param deploySIG bool = false
+
 @description('Enable the usage of Public IP. Default to true')
 param publicIp bool = true
 param keyvaultReaderOid string = ''
@@ -44,6 +47,9 @@ param adminPassword string = ''
 @secure()
 param slurmAccountingAdminPassword string = ''
 
+@description('Queue manager to configure - Default to slurm')
+param queue_manager string = 'slurm'
+
 var config = {
   admin_user: adminUser
   keyvault_readers: (keyvaultReaderOid != '') ? [ keyvaultReaderOid ] : []
@@ -58,7 +64,7 @@ var config = {
     grant_access_from: []
   }
 
-  queue_manager: 'slurm'
+  queue_manager: queue_manager
 
   slurm: {
     admin_user: 'sqladmin'
@@ -66,7 +72,7 @@ var config = {
     enroot_enabled: true
   }
 
-  deploy_sig: false
+  deploy_sig: deploySIG
 
   homedir: 'nfsfiles'
   homedir_mountpoint: '/anfhome'
