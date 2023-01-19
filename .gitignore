@@ -51,3 +51,4 @@ deploy/deploy.log
 deploy/outputs.yml
 deploy/azureDeploy.*
 deploy/*params.json
+*parameters.json

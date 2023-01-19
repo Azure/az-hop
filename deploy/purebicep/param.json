@@ -1,0 +1,18 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "azhopResourceGroupName": { "value": "" },
+      "adminUser": { "value": "hpcadmin" },
+      "autogenerateSecrets": { "value": true },
+      "softwareInstall": { "value": true },
+      "deployGateway": { "value": false},
+      "deployBastion": { "value": false},
+      "deployLustre": { "value": false},
+      "deploySIG": { "value": false},
+      "publicIp": { "value": true},
+      "keyvaultReaderOid": {"value": ""},
+      "branchName": {"value": "main"},
+      "queue_manager": {"value": "slurm"}
+    }
+}
