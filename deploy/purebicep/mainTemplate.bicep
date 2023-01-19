@@ -46,7 +46,7 @@ param slurmAccountingAdminPassword string = ''
 
 var config = {
   admin_user: adminUser
-  keyvault_readers: [ keyvaultReaderOid ]
+  keyvault_readers: (keyvaultReaderOid != '') ? [ keyvaultReaderOid ] : []
 
   public_ip: publicIp
   deploy_gateway: deployGateway
