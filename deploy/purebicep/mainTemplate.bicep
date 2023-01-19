@@ -5,15 +5,21 @@ param azhopResourceGroupName string
 @description('Azure region to use')
 param location string = deployment().location
 
-param deployGateway bool = true
-param deployBastion bool = true
+@description('Deploy a VPN Gateway or not. Default to false')
+param deployGateway bool = false
+@description('Deploy a an Azure Bastion or not. Default to false')
+param deployBastion bool = false
+@description('Deploy a Lustre Cluster or not. Default to false')
 param deployLustre bool = true
-param publicIp bool = false
-param keyvaultReaderOid string
+@description('Enable the usage of Public IP. Default to true')
+param publicIp bool = true
+param keyvaultReaderOid string = ''
 
+@description('Run software installation from the Deployer VM. Default to true')
 param softwareInstall bool = true
 
-param adminUser string
+@description('Admin user name for VMs. Default to hpcadmin')
+param adminUser string = 'hpcadmin'
 
 @description('Branch of the azhop repo to pull - Default to main')
 param branchName string = 'main'

@@ -16,8 +16,8 @@ Create parameter file, `mainTemplate.parameters.json`:
     "autogenerateSecrets": {
       "value": true
     },
-    "keyvaultReaderOid": {
-      "value": ""
+    "softwareInstall": {
+      "value": true
     }
   }
 }
