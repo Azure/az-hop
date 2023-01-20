@@ -141,7 +141,7 @@ convert_parameter ".locked_down_network.public_ip" ".parameters.publicIp"
 
 rm $TMP_PARAMS
 
-#az deployment sub create --template-file mainTemplate.bicep --location $location --parameters @$BICEP_PARAMS
+az deployment sub create --template-file mainTemplate.bicep --location $location --parameters @$BICEP_PARAMS
 
 deployment_name=azhop
 echo "* Getting deployment output"

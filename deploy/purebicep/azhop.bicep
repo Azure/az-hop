@@ -25,6 +25,9 @@ param adminPassword string = ''
 @secure()
 param slurmAccountingAdminPassword string = ''
 
+@description('Run software installation from the Deployer VM. Default to true')
+param softwareInstall bool = true
+
 param config object
 
 var resourcePostfix = '${uniqueString(subscription().subscriptionId, azhopResourceGroupName)}x'
@@ -758,6 +761,8 @@ output azhopInventory object = {
           ansible_psrp_protocol: 'http'
           ansible_user: config.admin_user
           ansible_password: secrets.adminPassword
+          psrp_ssh_proxy: softwareInstall ? '' : azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIps[0]
+          ansible_psrp_proxy: softwareInstall ? '' : 'socks5h://localhost:5985'
         }
       },
       config.deploy_lustre ? {

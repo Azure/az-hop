@@ -529,6 +529,7 @@ module azhopDeployment './azhop.bicep' = {
     adminSshPrivateKey: adminSshPrivateKey
     adminPassword: adminPassword
     slurmAccountingAdminPassword: slurmAccountingAdminPassword
+    softwareInstall: softwareInstall
     config: config
   }
 }
