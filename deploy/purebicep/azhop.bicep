@@ -26,7 +26,7 @@ param adminPassword string = ''
 param slurmAccountingAdminPassword string = ''
 
 @description('Run software installation from the Deployer VM. Default to true')
-param softwareInstall bool = true
+param softwareInstallFromDeployer bool = true
 
 param config object
 
@@ -740,7 +740,7 @@ output azhopInventory object = {
     hosts: union (
       {
         localhost: {
-          psrp_ssh_proxy: softwareInstall ? '' : azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIps[0]
+          psrp_ssh_proxy: softwareInstallFromDeployer ? '' : azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIps[0]
         }
         scheduler: {
           ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'scheduler')].outputs.privateIps[0]
@@ -763,11 +763,11 @@ output azhopInventory object = {
           ansible_psrp_protocol: 'http'
           ansible_user: config.admin_user
           ansible_password: secrets.adminPassword
-          psrp_ssh_proxy: softwareInstall ? '' : azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIps[0]
-          ansible_psrp_proxy: softwareInstall ? '' : 'socks5h://localhost:5985'
+          psrp_ssh_proxy: softwareInstallFromDeployer ? '' : azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIps[0]
+          ansible_psrp_proxy: softwareInstallFromDeployer ? '' : 'socks5h://localhost:5985'
         }
       },
-      softwareInstall ? {} : {
+      softwareInstallFromDeployer ? {} : {
         jumpbox : {
           ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIps[0]
           ansible_ssh_port: 22
@@ -785,6 +785,7 @@ output azhopInventory object = {
     )
     vars: {
       ansible_ssh_user: config.admin_user
+      ansible_ssh_common_args: softwareInstallFromDeployer ? '' : '-o ProxyCommand="ssh -i ${config.admin_user}_id_rsa -p 22 -W %h:%p ${config.admin}_user@${azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIps[0]}"'
     }
   }
 }

@@ -19,7 +19,7 @@ param publicIp bool = true
 param keyvaultReaderOid string = ''
 
 @description('Run software installation from the Deployer VM. Default to true')
-param softwareInstall bool = true
+param softwareInstallFromDeployer bool = true
 
 @description('Admin user name for VMs. Default to hpcadmin')
 param adminUser string = 'hpcadmin'
@@ -202,7 +202,7 @@ var config = {
             ]
           }
           asgs: [ 'asg-ssh', 'asg-jumpbox', 'asg-deployer', 'asg-ad-client', 'asg-telegraf', 'asg-nfs-client' ]
-        }, softwareInstall ? {
+        }, softwareInstallFromDeployer ? {
           deploy_script: replace(loadTextContent('install.sh'), '__INSERT_AZHOP_BRANCH__', branchName)
         } : {}
       )
@@ -529,7 +529,7 @@ module azhopDeployment './azhop.bicep' = {
     adminSshPrivateKey: adminSshPrivateKey
     adminPassword: adminPassword
     slurmAccountingAdminPassword: slurmAccountingAdminPassword
-    softwareInstall: softwareInstall
+    softwareInstallFromDeployer: softwareInstallFromDeployer
     config: config
   }
 }
