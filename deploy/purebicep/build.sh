@@ -153,6 +153,8 @@ az deployment group show \
     > azhopOutputs.json
 
 # Update config path 
+jq '. | .azhopGlobalConfig.value.global_config_file=$param' --arg param $(pwd)/../../config.yml azhopOutputs.json > $TMP_PARAMS
+cp $TMP_PARAMS azhopOutputs.json
 
 kv=$(jq -r .keyvaultName.value azhopOutputs.json)
 adminuser=$(jq -r .azhopConfig.value.admin_user azhopOutputs.json)
