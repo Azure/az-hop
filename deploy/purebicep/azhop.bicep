@@ -785,7 +785,7 @@ output azhopInventory object = {
     )
     vars: {
       ansible_ssh_user: config.admin_user
-      ansible_ssh_common_args: softwareInstallFromDeployer ? '' : '-o ProxyCommand="ssh -i ${config.admin_user}_id_rsa -p 22 -W %h:%p ${config.admin}_user@${azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIps[0]}"'
+      ansible_ssh_common_args: softwareInstallFromDeployer ? '' : '-o ProxyCommand="ssh -i ${config.admin_user}_id_rsa -p 22 -W %h:%p ${config.admin_user}@${azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIps[0]}"'
     }
   }
 }
