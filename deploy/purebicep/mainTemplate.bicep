@@ -50,6 +50,9 @@ param slurmAccountingAdminPassword string = ''
 @description('Queue manager to configure - Default to slurm')
 param queue_manager string = 'slurm'
 
+@description('SSH Port to communicate with the deployer VM - Default to 22')
+param deployer_ssh_port string = '22'
+
 var config = {
   admin_user: adminUser
   keyvault_readers: (keyvaultReaderOid != '') ? [ keyvaultReaderOid ] : []
@@ -204,7 +207,9 @@ var config = {
           asgs: [ 'asg-ssh', 'asg-jumpbox', 'asg-deployer', 'asg-ad-client', 'asg-telegraf', 'asg-nfs-client' ]
         }, softwareInstallFromDeployer ? {
           deploy_script: replace(loadTextContent('install.sh'), '__INSERT_AZHOP_BRANCH__', branchName)
-        } : {}
+        } : {
+          deploy_script: deployer_ssh_port != '22' ? replace(loadTextContent('jumpbox.yml'), '__SSH_PORT__', deployer_ssh_port) : ''
+        }
       )
       ad: {
         subnet: 'ad'
@@ -321,6 +326,7 @@ var config = {
     Bastion: ['22', '3389']
     Web: ['443', '80']
     Ssh: ['22']
+    Public_Ssh: [deployer_ssh_port]
     Socks: ['5985']
     // DNS, Kerberos, RpcMapper, Ldap, Smb, KerberosPass, LdapSsl, LdapGc, LdapGcSsl, AD Web Services, RpcSam
     DomainControlerTcp: ['53', '88', '135', '389', '445', '464', '636', '3268', '3269', '9389', '49152-65535']
@@ -501,8 +507,8 @@ var config = {
       AllowInternetHttpIn         : ['210', 'Inbound', 'Allow', 'Tcp', 'Web', 'tag', 'Internet', 'asg', 'asg-ondemand']
     }
     hub: {
-      AllowHubSshIn               : ['200', 'Inbound', 'Allow', 'Tcp', 'Ssh', 'tag', 'VirtualNetwork', 'asg', 'asg-jumpbox']
-      AllowHubHttpIn              : ['210', 'Inbound', 'Allow', 'Tcp', 'Web', 'tag', 'VirtualNetwork', 'asg', 'asg-ondemand']
+      AllowHubSshIn               : ['200', 'Inbound', 'Allow', 'Tcp', 'Public_Ssh', 'tag', 'VirtualNetwork', 'asg', 'asg-jumpbox']
+      AllowHubHttpIn              : ['210', 'Inbound', 'Allow', 'Tcp', 'Web',        'tag', 'VirtualNetwork', 'asg', 'asg-ondemand']
     }
     bastion: {
       AllowBastionIn              : ['530', 'Inbound', 'Allow', 'Tcp', 'Bastion', 'subnet', 'bastion', 'tag', 'VirtualNetwork']
@@ -530,6 +536,7 @@ module azhopDeployment './azhop.bicep' = {
     adminPassword: adminPassword
     slurmAccountingAdminPassword: slurmAccountingAdminPassword
     softwareInstallFromDeployer: softwareInstallFromDeployer
+    deployer_ssh_port: deployer_ssh_port
     config: config
   }
 }

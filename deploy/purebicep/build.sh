@@ -138,6 +138,7 @@ convert_parameter ".resource_group" ".parameters.azhopResourceGroupName"
 convert_parameter ".admin_user" ".parameters.adminUser"
 convert_parameter ".queue_manager" ".parameters.queue_manager"
 convert_parameter ".locked_down_network.public_ip" ".parameters.publicIp"
+convert_parameter ".jumpbox.ssh_port" ".parameters.deployer_ssh_port"
 
 rm $TMP_PARAMS
 

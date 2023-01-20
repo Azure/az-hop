@@ -28,6 +28,9 @@ param slurmAccountingAdminPassword string = ''
 @description('Run software installation from the Deployer VM. Default to true')
 param softwareInstallFromDeployer bool = true
 
+@description('SSH Port to communicate with the deployer VM - Default to 22')
+param deployer_ssh_port string = '22'
+
 param config object
 
 var resourcePostfix = '${uniqueString(subscription().subscriptionId, azhopResourceGroupName)}x'
@@ -721,7 +724,7 @@ output azhopGlobalConfig object = union(
     azure_environment             : envNameToCloudMap[environment().name]
     key_vault_suffix              : substring(kvSuffix, 1, length(kvSuffix) - 1) // vault.azure.net - remove leading dot from env
     blob_storage_suffix           : 'blob.${environment().suffixes.storage}' // blob.core.windows.net
-    jumpbox_ssh_port              : 22
+    jumpbox_ssh_port              : deployer_ssh_port
   },
   config.homedir == 'anf' ? {
     anf_home_ip                   : azhopAnf.outputs.nfs_home_ip
@@ -770,7 +773,7 @@ output azhopInventory object = {
       softwareInstallFromDeployer ? {} : {
         jumpbox : {
           ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIps[0]
-          ansible_ssh_port: 22
+          ansible_ssh_port: deployer_ssh_port
           ansible_ssh_common_args: ''
         }
       },
@@ -785,7 +788,7 @@ output azhopInventory object = {
     )
     vars: {
       ansible_ssh_user: config.admin_user
-      ansible_ssh_common_args: softwareInstallFromDeployer ? '' : '-o ProxyCommand="ssh -i ${config.admin_user}_id_rsa -p 22 -W %h:%p ${config.admin_user}@${azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIps[0]}"'
+      ansible_ssh_common_args: softwareInstallFromDeployer ? '' : '-o ProxyCommand="ssh -i ${config.admin_user}_id_rsa -p ${deployer_ssh_port} -W %h:%p ${config.admin_user}@${azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIps[0]}"'
     }
   }
 }

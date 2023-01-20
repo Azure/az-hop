@@ -13,6 +13,7 @@
       "publicIp": { "value": true},
       "keyvaultReaderOid": {"value": ""},
       "branchName": {"value": "main"},
-      "queue_manager": {"value": "slurm"}
+      "queue_manager": {"value": "slurm"},
+      "deployer_ssh_port": {"value": "22"}
     }
 }
