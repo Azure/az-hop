@@ -739,7 +739,9 @@ output azhopInventory object = {
   all: {
     hosts: union (
       {
-        localhost: {}
+        localhost: {
+          psrp_ssh_proxy: softwareInstall ? '' : azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIps[0]
+        }
         scheduler: {
           ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'scheduler')].outputs.privateIps[0]
         }
@@ -765,6 +767,13 @@ output azhopInventory object = {
           ansible_psrp_proxy: softwareInstall ? '' : 'socks5h://localhost:5985'
         }
       },
+      softwareInstall ? {} : {
+        jumpbox : {
+          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIps[0]
+          ansible_ssh_port: 22
+          ansible_ssh_common_args: ''
+        }
+      },
       config.deploy_lustre ? {
         lustre: {
           ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'lustre')].outputs.privateIps[0]
@@ -773,7 +782,7 @@ output azhopInventory object = {
           ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'robinhood')].outputs.privateIps[0]
         }
       } : {}
-    ) 
+    )
     vars: {
       ansible_ssh_user: config.admin_user
     }
