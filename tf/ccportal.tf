@@ -174,11 +174,11 @@ resource "azurerm_role_assignment" "ccportal_rg" {
 
 #USER MANAGE IDENTITY CONFIG
 # Grant Subscription Reader access to Cycle
-resource "azurerm_role_assignment" "ccportal_sub_reader" {
-  scope              = "${data.azurerm_subscription.primary.id}"
-  role_definition_id = "${data.azurerm_subscription.primary.id}${data.azurerm_role_definition.reader.id}"
-  principal_id       = azurerm_user_assigned_identity.ccportal.principal_id
-}
+#resource "azurerm_role_assignment" "ccportal_sub_reader" {
+#  scope              = "${data.azurerm_subscription.primary.id}"
+#  role_definition_id = "${data.azurerm_subscription.primary.id}${data.azurerm_role_definition.reader.id}"
+#  principal_id       = azurerm_user_assigned_identity.ccportal.principal_id
+#}
 
 
 #SYSTEM MANAGE IDENTITY CONFIG
@@ -187,7 +187,7 @@ resource "azurerm_role_assignment" "ccportal_sub_reader" {
   scope              = "${data.azurerm_subscription.primary.id}"
   role_definition_id = "${data.azurerm_subscription.primary.id}${data.azurerm_role_definition.reader.id}"
   principal_id       = azurerm_linux_virtual_machine.ccportal.identity[0].principal_id
-}/**/
+}
 
 resource "azurerm_network_interface_application_security_group_association" "ccportal-asg-asso" {
   for_each = toset(local.asg_associations["ccportal"])
