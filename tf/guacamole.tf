@@ -53,19 +53,16 @@ resource "azurerm_linux_virtual_machine" "guacamole" {
     }
   }
 
-  /*USER MANAGE IDENTITY CONFIG
-  identity {
-    type         = "UserAssigned"
-    identity_ids = [ azurerm_user_assigned_identity.guacamole[0].id ]
-  }
-  */
+  #USER MANAGE IDENTITY CONFIG
+  #identity {
+  #  type         = "UserAssigned"
+  #  identity_ids = [ azurerm_user_assigned_identity.guacamole[0].id ]
+  #}
 
-      /*SYSTEM MANAGE IDENTITY CONFIG*/
+  #SYSTEM MANAGE IDENTITY CONFIG*/
   identity {
     type         = "SystemAssigned"
   }
-  /**/
-
 
   lifecycle {
     ignore_changes = [
@@ -89,7 +86,7 @@ resource "azurerm_key_vault_access_policy" "guacamole" {
   key_vault_id = azurerm_key_vault.azhop.id
   tenant_id    = local.tenant_id
   #object_id    = azurerm_user_assigned_identity.guacamole[0].principal_id
-  object_id    = azurerm_linux_virtual_machine.ccportal[0].identity[0].principal_id
+  object_id    = azurerm_linux_virtual_machine.guacamole[0].identity[0].principal_id
 
   key_permissions = [ "Get", "List" ]
   secret_permissions = [ "Get", "List" ]
