@@ -7,13 +7,13 @@ resource_group: azhop
 # When using an existing resource group make sure the location match the one of the existing resource group
 use_existing_rg: false
 # If set to true, will disable telemetry for azhop. See https://azure.github.io/az-hop/deploy/telemetry.html.
-optout_telemetry: true
+#optout_telemetry: true
 # Additional tags to be added on the Resource Group
 tags:
   env: dev
   project: azhop
   createdBy: bsantacruz@microsoft.com
-  createdOn: 1/20/2023
+  createdOn: 1/22/2023
 # Define an Azure Netapp Files (ANF) account, single pool and volume
 # If not present, assume that there is an existing NFS share for the users home directory
 anf:
@@ -173,13 +173,12 @@ cyclecloud:
    oss_count: 2
    hsm_max_requests: 8
    mdt_device: "/dev/sdb"
-   ost_device: "/dev/sdb"
-   hsm:
-     # optional to use existing storage for the archive
-     # if not included it will use the azhop storage account that is created
+  ost_device: "/dev/sdb"
+#   hsm:
+#     # optional to use existing storage for the archive
+#     # if not included it will use the azhop storage account that is created
 #     storage_account: #existing_storage_account_name
-#    storage_container: #only_used_with_existing_storage_account
-
+#     storage_container: #only_used_with_existing_storage_account
 
 # List of users to be created on this environment
 users:
