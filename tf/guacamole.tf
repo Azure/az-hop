@@ -71,14 +71,13 @@ resource "azurerm_linux_virtual_machine" "guacamole" {
   }
 }
 
-/*USER MANAGE IDENTITY CONFIG
-resource "azurerm_user_assigned_identity" "guacamole" {
-  count               = local.enable_remote_winviz ? 1 : 0
-  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
-  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
-
-  name = "guacamole"
-}*/
+#USER MANAGE IDENTITY CONFIG
+#resource "azurerm_user_assigned_identity" "guacamole" {
+#  count               = local.enable_remote_winviz ? 1 : 0
+#  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+#  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
+#  name = "guacamole"
+#}
 
 # Grant read access to the Keyvault for the guacamole identity
 resource "azurerm_key_vault_access_policy" "guacamole" {

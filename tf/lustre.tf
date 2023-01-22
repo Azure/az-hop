@@ -76,14 +76,13 @@ resource "azurerm_network_interface_application_security_group_association" "lus
 # lustre OSS VMs
 #
 
-/*USER MANAGE IDENTITY CONFIG
-resource "azurerm_user_assigned_identity" "lustre-oss" {
-  count               = local.lustre_enabled ? 1 : 0
-  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
-  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
-
-  name = "lustre-oss"
-}*/
+#USER MANAGE IDENTITY CONFIG
+#resource "azurerm_user_assigned_identity" "lustre-oss" {
+#  count               = local.lustre_enabled ? 1 : 0
+#  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+#  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
+#  name = "lustre-oss"
+#}
 
 resource "azurerm_network_interface" "lustre-oss-nic" {
   count                          = local.lustre_oss_count
