@@ -166,17 +166,17 @@ cyclecloud:
 
 # Lustre cluster is optional and can be used to create a Lustre cluster in the environment.
 # Uncomment the whole section if you want to create a Lustre cluster.
- lustre:
-   rbh_sku: "Standard_D8d_v4"
-   mds_sku: "Standard_D8d_v4"
-   oss_sku: "Standard_D32d_v4"
-   oss_count: 2
-   hsm_max_requests: 8
-   mdt_device: "/dev/sdb"
+lustre:
+  rbh_sku: "Standard_D8d_v4"
+  mds_sku: "Standard_D8d_v4"
+  oss_sku: "Standard_D32d_v4"
+  oss_count: 2
+  hsm_max_requests: 8
+  mdt_device: "/dev/sdb"
   ost_device: "/dev/sdb"
-#   hsm:
-#     # optional to use existing storage for the archive
-#     # if not included it will use the azhop storage account that is created
+# hsm:
+     # optional to use existing storage for the archive
+     # if not included it will use the azhop storage account that is created
 #     storage_account: #existing_storage_account_name
 #     storage_container: #only_used_with_existing_storage_account
 
