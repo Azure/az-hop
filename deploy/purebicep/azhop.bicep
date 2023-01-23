@@ -31,6 +31,9 @@ param softwareInstallFromDeployer bool = true
 @description('SSH Port to communicate with the deployer VM - Default to 22')
 param deployer_ssh_port string = '22'
 
+@description('Identity of the deployer if not deploying from a deployer VM')
+param logged_user_objectId string = ''
+
 param config object
 
 var resourcePostfix = '${uniqueString(subscription().subscriptionId, azhopResourceGroupName)}x'
@@ -123,6 +126,7 @@ module azhopKeyvault './keyvault.bicep' = {
     keyvaultReaderOids: config.keyvault_readers
     lockDownNetwork: config.lock_down_network.enforce
     allowableIps: config.lock_down_network.grant_access_from
+    keyvaultOwnerId: logged_user_objectId
     identityPerms: [ for i in range(0, length(vmItems)): {
       principalId: azhopVm[i].outputs.principalId
       key_permissions: (contains(vmItems[i].value, 'identity') && contains(vmItems[i].value.identity, 'keyvault')) ? vmItems[i].value.identity.keyvault.key_permissions : []

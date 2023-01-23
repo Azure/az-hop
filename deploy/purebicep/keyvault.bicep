@@ -4,6 +4,7 @@ param location string = resourceGroup().location
 param resourcePostfix string
 param subnetId string
 param keyvaultReaderOids array
+param keyvaultOwnerId string
 param lockDownNetwork bool
 param allowableIps array
 param identityPerms array
@@ -57,7 +58,14 @@ resource kv 'Microsoft.KeyVault/vaults@2021-10-01' = {
           secrets: id.secret_permissions
         }
         tenantId: subscription().tenantId
-      })
+      }),
+      keyvaultOwnerId != '' ? [{
+        objectId: keyvaultOwnerId
+        permissions: {
+          secrets: ['All']
+        }
+        tenantId: subscription().tenantId
+      }] : []
     )
   }
 }

@@ -133,7 +133,7 @@ TMP_PARAMS=tmp.parameters.json
 cp param.json $BICEP_PARAMS
 
 set_bicep_param_value ".parameters.softwareInstallFromDeployer" "false"
-set_bicep_param_value ".parameters.keyvaultReaderOid" "$logged_user_objectId"
+set_bicep_param_value ".parameters.logged_user_objectId" "$logged_user_objectId"
 convert_parameter ".resource_group" ".parameters.azhopResourceGroupName"
 convert_parameter ".admin_user" ".parameters.adminUser"
 convert_parameter ".queue_manager" ".parameters.queue_manager"

@@ -18,6 +18,9 @@ param deploySIG bool = false
 param publicIp bool = true
 param keyvaultReaderOid string = ''
 
+@description('Identity of the deployer if not deploying from a deployer VM')
+param logged_user_objectId string = ''
+
 @description('Run software installation from the Deployer VM. Default to true')
 param softwareInstallFromDeployer bool = true
 
@@ -537,6 +540,7 @@ module azhopDeployment './azhop.bicep' = {
     slurmAccountingAdminPassword: slurmAccountingAdminPassword
     softwareInstallFromDeployer: softwareInstallFromDeployer
     deployer_ssh_port: deployer_ssh_port
+    logged_user_objectId: logged_user_objectId
     config: config
   }
 }
