@@ -117,6 +117,16 @@ var keyvaultSecrets = union(
   ] : []
 )
 
+module azhopPeerings './vnetpeering.bicep' = [ for peer in config.peering: {
+  name: 'peer${peer.vnet_name}'
+  params: {
+    vnetName: peer.vnet_name
+    vnetRGName: peer.vnet_resource_group
+    allowGateway: peer.vnet_allow_gateway
+    vnetId: azhopNetwork.outputs.vnetId
+  }
+}]
+
 module azhopKeyvault './keyvault.bicep' = {
   name: 'azhopKeyvault'
   params: {

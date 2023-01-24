@@ -56,6 +56,9 @@ param queue_manager string = 'slurm'
 @description('SSH Port to communicate with the deployer VM - Default to 22')
 param deployer_ssh_port string = '22'
 
+@description('VNet Peerings - Array')
+param vnetPeerings object = null
+
 var config = {
   admin_user: adminUser
   keyvault_readers: (keyvaultReaderOid != '') ? [ keyvaultReaderOid ] : []
@@ -150,6 +153,7 @@ var config = {
         ]
       }
     }
+    peerings: vnetPeerings
   }
 
   images: {
