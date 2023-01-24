@@ -1,6 +1,6 @@
 ---
 # azure location name as returned by the command : az account list-locations -o table
-location: westus2
+location: westeurope
 # Name of the resource group to create all resources
 resource_group: azhop
 # If using an existing resource group set to true. Default is false
@@ -12,8 +12,6 @@ use_existing_rg: false
 tags:
   env: dev
   project: azhop
-  createdBy: bsantacruz@microsoft.com
-  createdOn: 1/22/2023
 # Define an Azure Netapp Files (ANF) account, single pool and volume
 # If not present, assume that there is an existing NFS share for the users home directory
 anf:
@@ -166,20 +164,19 @@ cyclecloud:
 
 # Lustre cluster is optional and can be used to create a Lustre cluster in the environment.
 # Uncomment the whole section if you want to create a Lustre cluster.
-lustre:
-  rbh_sku: "Standard_D8d_v4"
-  mds_sku: "Standard_D8d_v4"
-  oss_sku: "Standard_D32d_v4"
-  oss_count: 2
-  hsm_max_requests: 8
-  mdt_device: "/dev/sdb"
-  ost_device: "/dev/sdb"
-# hsm:
-     # optional to use existing storage for the archive
-     # if not included it will use the azhop storage account that is created
+# lustre:
+#   rbh_sku: "Standard_D8d_v4"
+#   mds_sku: "Standard_D8d_v4"
+#   oss_sku: "Standard_D32d_v4"
+#   oss_count: 2
+#   hsm_max_requests: 8
+#   mdt_device: "/dev/sdb"
+#   ost_device: "/dev/sdb"
+#   hsm:
+#     # optional to use existing storage for the archive
+#     # if not included it will use the azhop storage account that is created
 #     storage_account: #existing_storage_account_name
 #     storage_container: #only_used_with_existing_storage_account
-
 # List of users to be created on this environment
 users:
   # name: username - must be less than 20 characters
