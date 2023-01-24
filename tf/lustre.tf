@@ -76,13 +76,13 @@ resource "azurerm_network_interface_application_security_group_association" "lus
 # lustre OSS VMs
 #
 
-resource "azurerm_user_assigned_identity" "lustre-oss" {
-  count               = local.lustre_enabled ? 1 : 0
-  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
-  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
-
-  name = "lustre-oss"
-}
+#USER MANAGE IDENTITY CONFIG
+#resource "azurerm_user_assigned_identity" "lustre-oss" {
+#  count               = local.lustre_enabled ? 1 : 0
+#  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+#  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
+#  name = "lustre-oss"
+#}
 
 resource "azurerm_network_interface" "lustre-oss-nic" {
   count                          = local.lustre_oss_count
@@ -141,10 +141,17 @@ resource "azurerm_linux_virtual_machine" "lustre-oss" {
     }
   }
 
+  # USER MANAGE IDENTITY CONFIG
+  # identity {
+  #  type         = "UserAssigned"
+  #  identity_ids = [ azurerm_user_assigned_identity.lustre-oss[0].id ]
+  #}
+
+  #SYSTEM MANAGE IDENTITY CONFIG*/
   identity {
-    type         = "UserAssigned"
-    identity_ids = [ azurerm_user_assigned_identity.lustre-oss[0].id ]
+    type         = "SystemAssigned"
   }
+  
 
   lifecycle {
     ignore_changes = [
@@ -158,8 +165,9 @@ resource "azurerm_key_vault_access_policy" "lustre-oss" {
   count               = local.lustre_enabled ? 1 : 0
   key_vault_id        = azurerm_key_vault.azhop.id
   tenant_id           = local.tenant_id
-  object_id           = azurerm_user_assigned_identity.lustre-oss[0].principal_id
-
+  #object_id           = azurerm_user_assigned_identity.lustre-oss[0].principal_id
+  object_id           = azurerm_linux_virtual_machine.lustre-oss[0].identity[0].principal_id
+                        
   key_permissions     = [ "Get", "List" ]
   secret_permissions  = [ "Get", "List" ]
 }
@@ -247,9 +255,15 @@ resource "azurerm_linux_virtual_machine" "robinhood" {
     }
   }
   
+  # USER MANAGE IDENTITY CONFIG
+  #identity {
+  #  type         = "UserAssigned"
+  #  identity_ids = [ azurerm_user_assigned_identity.lustre-oss[0].id ]
+  #}
+
+  # SYSTEM MANAGE IDENTITY CONFIG*/
   identity {
-    type         = "UserAssigned"
-    identity_ids = [ azurerm_user_assigned_identity.lustre-oss[0].id ]
+    type         = "SystemAssigned"
   }
 
   lifecycle {

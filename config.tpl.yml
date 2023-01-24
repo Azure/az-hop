@@ -1,17 +1,20 @@
 ---
 # azure location name as returned by the command : az account list-locations -o table
-location: westeurope
+location: westus2
 # Name of the resource group to create all resources
 resource_group: azhop
 # If using an existing resource group set to true. Default is false
 # When using an existing resource group make sure the location match the one of the existing resource group
 use_existing_rg: false
 # If set to true, will disable telemetry for azhop. See https://azure.github.io/az-hop/deploy/telemetry.html.
-#optout_telemetry: true
+optout_telemetry: true
 # Additional tags to be added on the Resource Group
 tags:
   env: dev
   project: azhop
+  createdBy: bsantacruz@microsoft.com
+  createdOn: 1/24/2023
+
 # Define an Azure Netapp Files (ANF) account, single pool and volume
 # If not present, assume that there is an existing NFS share for the users home directory
 anf:
