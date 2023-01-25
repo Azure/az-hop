@@ -1,10 +1,6 @@
 #!/bin/bash
 # written by Jeff Jones. Slight modifications by Matt Chan
 
-if [ ! -e /etc/redhat-release]; then
-  exit 0
-fi
-
 echo "Resetting /mnt/resource/tmpscratch and /tmp/scratch"
 rm -rf /mnt/resource/tmpscratch
 rm -rf /mnt/nvme/tmpscratch
