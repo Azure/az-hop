@@ -9,6 +9,7 @@ param vnet object
 param asgNames array
 param servicePorts object
 param nsgRules object
+param peerings array
 
 var securityRules = [ for rule in items(union(
     nsgRules.default,
@@ -90,6 +91,20 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2022-07-01' = {
     }]
   }
 }
+
+resource azhop_to_peer 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2022-07-01' = [for peer in peerings: {
+  name: '${peer.vnet_resource_group}-${peer.vnet_name}'
+  parent: virtualNetwork
+  properties: {
+    allowVirtualNetworkAccess: true
+    allowForwardedTraffic: true
+    useRemoteGateways: contains(peer, 'vnet_allow_gateway') ? peer.vnet_allow_gateway : false
+    remoteVirtualNetwork: {
+      id: resourceId(peer.vnet_resource_group, 'Microsoft.Network/virtualNetworks', peer.vnet_name)
+    }
+  }
+}]
+
 
 output subnetIds object = reduce(
   map(

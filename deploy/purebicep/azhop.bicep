@@ -64,6 +64,7 @@ module azhopNetwork './network.bicep' = {
     asgNames: config.asg_names
     servicePorts: config.service_ports
     nsgRules: config.nsg_rules
+    peerings: config.vnet.peerings
   }
 }
 
@@ -117,12 +118,12 @@ var keyvaultSecrets = union(
   ] : []
 )
 
-module azhopPeerings './vnetpeering.bicep' = [ for peer in config.peering: {
+module azhopPeerings './vnetpeering.bicep' = [ for peer in config.vnet.peerings: {
   name: 'peer${peer.vnet_name}'
+  scope: resourceGroup(peer.vnet_resource_group)
   params: {
     vnetName: peer.vnet_name
-    vnetRGName: peer.vnet_resource_group
-    allowGateway: peer.vnet_allow_gateway
+    allowGateway: contains(peer, 'vnet_allow_gateway') ? peer.vnet_allow_gateway : false
     vnetId: azhopNetwork.outputs.vnetId
   }
 }]

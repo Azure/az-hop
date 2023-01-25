@@ -57,7 +57,7 @@ param queue_manager string = 'slurm'
 param deployer_ssh_port string = '22'
 
 @description('VNet Peerings - Array')
-param vnetPeerings object = null
+param vnetPeerings array = []
 
 var config = {
   admin_user: adminUser

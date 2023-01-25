@@ -89,7 +89,7 @@ function set_bicep_param_value()
 
   esac
 
-  jq "$eval_str" --arg param $Value $BICEP_PARAMS > $TMP_PARAMS
+  jq "$eval_str" --arg param "$Value" $BICEP_PARAMS > $TMP_PARAMS
   cp $TMP_PARAMS $BICEP_PARAMS
 
 }
@@ -147,12 +147,15 @@ fi
 # Build the parameters.json file based on the config file content
 location=$(yq '.location' $AZHOP_CONFIG)
 resource_group=$(yq '.resource_group' $AZHOP_CONFIG)
+adminuser=$(yq '.admin_user' $AZHOP_CONFIG)
 BICEP_PARAMS=$resource_group.parameters.json
 TMP_PARAMS=tmp.parameters.json
+AZHOP_DEPLOYMENT_OUTPUT=$resource_group.outputs.json
 
 cp param.json $BICEP_PARAMS
 
 set_bicep_param_value ".parameters.softwareInstallFromDeployer" "false"
+set_bicep_param_value ".parameters.autogenerateSecrets" "false"
 set_bicep_param_value ".parameters.logged_user_objectId" "$logged_user_objectId"
 convert_parameter ".resource_group" ".parameters.azhopResourceGroupName"
 convert_parameter ".admin_user" ".parameters.adminUser"
@@ -161,24 +164,42 @@ convert_parameter ".locked_down_network.public_ip" ".parameters.publicIp"
 convert_parameter ".jumpbox.ssh_port" ".parameters.deployer_ssh_port"
 convert_object_parameter ".network.peering" ".parameters.vnetPeerings"
 
-rm $TMP_PARAMS
+# Check if this is a new deployment or a rerun. A rerun is detected if the same RG is used and if a deployment output exists
+generate_keys=true
+if [ -e $AZHOP_DEPLOYMENT_OUTPUT ]; then
+  kv=$(jq -r .keyvaultName.value $AZHOP_DEPLOYMENT_OUTPUT)
+  if [ "$kv" != null ]; then # read them from the keyvault
+    generate_keys=false
+  fi
+fi
 
+if [ "$generate_keys" == true ]; then
+  if [ ! -e $AZHOP_ROOT/${adminuser}_id_rsa ]; then
+    ssh-keygen -f $AZHOP_ROOT/${adminuser}_id_rsa  -N ""
+  fi
+  set_bicep_param_value ".parameters.adminPassword" "$(openssl rand -base64 24)"
+  set_bicep_param_value ".parameters.slurmAccountingAdminPassword" "$(openssl rand -base64 24)"
+  set_bicep_param_value ".parameters.adminSshPublicKey" "$(cat $AZHOP_ROOT/${adminuser}_id_rsa.pub)"
+  set_bicep_param_value ".parameters.adminSshPrivateKey" "$(cat $AZHOP_ROOT/${adminuser}_id_rsa)"
+fi
+set +e
 az deployment sub create --template-file mainTemplate.bicep --location $location --parameters @$BICEP_PARAMS
 
 deployment_name=azhop
+
 echo "* Getting deployment output"
 az deployment group show \
     -g $resource_group \
     -n $deployment_name \
     --query properties.outputs \
-    > azhopOutputs.json
-
+    > $AZHOP_DEPLOYMENT_OUTPUT
+set -e
 # Update config path 
-jq '. | .azhopGlobalConfig.value.global_config_file=$param' --arg param $(pwd)/../../config.yml azhopOutputs.json > $TMP_PARAMS
-cp $TMP_PARAMS azhopOutputs.json
+jq '. | .azhopGlobalConfig.value.global_config_file=$param' --arg param $(pwd)/../../config.yml $AZHOP_DEPLOYMENT_OUTPUT > $TMP_PARAMS
+cp $TMP_PARAMS $AZHOP_DEPLOYMENT_OUTPUT
 
-kv=$(jq -r .keyvaultName.value azhopOutputs.json)
-adminuser=$(jq -r .azhopConfig.value.admin_user azhopOutputs.json)
+kv=$(jq -r .keyvaultName.value $AZHOP_DEPLOYMENT_OUTPUT)
+adminuser=$(jq -r .azhopConfig.value.admin_user $AZHOP_DEPLOYMENT_OUTPUT)
 
 echo "* Getting keys from keyvault"
 az keyvault secret show --vault-name $kv -n ${adminuser}-pubkey --query "value" -o tsv > $AZHOP_ROOT/${adminuser}_id_rsa.pub
@@ -187,17 +208,17 @@ chmod 600 $AZHOP_ROOT/${adminuser}_id_rsa*
 
 echo "* Generating config files from templates"
 # config.yml
-jq .azhopConfig.value azhopOutputs.json | yq -P  > $AZHOP_ROOT/bicep_config.yml
+jq .azhopConfig.value $AZHOP_DEPLOYMENT_OUTPUT | yq -P  > $AZHOP_ROOT/bicep_config.yml
 
 mkdir -p $AZHOP_ROOT/bin
-jq -r .azhopGetSecretScript.value azhopOutputs.json > $AZHOP_ROOT/bin/get_secret
+jq -r .azhopGetSecretScript.value $AZHOP_DEPLOYMENT_OUTPUT > $AZHOP_ROOT/bin/get_secret
 chmod +x $AZHOP_ROOT/bin/get_secret
-jq -r .azhopConnectScript.value azhopOutputs.json > $AZHOP_ROOT/bin/connect
+jq -r .azhopConnectScript.value $AZHOP_DEPLOYMENT_OUTPUT > $AZHOP_ROOT/bin/connect
 chmod +x $AZHOP_ROOT/bin/connect
 
 mkdir -p $AZHOP_ROOT/playbooks/group_vars
-jq .azhopGlobalConfig.value azhopOutputs.json | yq -P > $AZHOP_ROOT/playbooks/group_vars/all.yml
+jq .azhopGlobalConfig.value $AZHOP_DEPLOYMENT_OUTPUT | yq -P > $AZHOP_ROOT/playbooks/group_vars/all.yml
 
-jq '.azhopInventory.value.all.hosts *= (.lustre_oss_private_ips.value | to_entries | map({("lustre-oss-" + (.key + 1 | tostring)): {"ansible_host": .value}}) | add // {}) | .azhopInventory.value' azhopOutputs.json | yq -P > $AZHOP_ROOT/playbooks/inventory
+jq '.azhopInventory.value.all.hosts *= (.lustre_oss_private_ips.value | to_entries | map({("lustre-oss-" + (.key + 1 | tostring)): {"ansible_host": .value}}) | add // {}) | .azhopInventory.value' $AZHOP_DEPLOYMENT_OUTPUT | yq -P > $AZHOP_ROOT/playbooks/inventory
 
-jq .azhopPackerOptions.value azhopOutputs.json > $AZHOP_ROOT/packer/options.json
+jq .azhopPackerOptions.value $AZHOP_DEPLOYMENT_OUTPUT > $AZHOP_ROOT/packer/options.json
