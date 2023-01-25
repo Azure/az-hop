@@ -53,10 +53,17 @@ resource "azurerm_linux_virtual_machine" "guacamole" {
     }
   }
 
+  #USER MANAGE IDENTITY CONFIG
+  #identity {
+  #  type         = "UserAssigned"
+  #  identity_ids = [ azurerm_user_assigned_identity.guacamole[0].id ]
+  #}
+
+  #SYSTEM MANAGE IDENTITY CONFIG*/
   identity {
-    type         = "UserAssigned"
-    identity_ids = [ azurerm_user_assigned_identity.guacamole[0].id ]
+    type         = "SystemAssigned"
   }
+
   lifecycle {
     ignore_changes = [
       tags
@@ -64,19 +71,21 @@ resource "azurerm_linux_virtual_machine" "guacamole" {
   }
 }
 
-resource "azurerm_user_assigned_identity" "guacamole" {
-  count               = local.enable_remote_winviz ? 1 : 0
-  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
-  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
+#USER MANAGE IDENTITY CONFIG
+#resource "azurerm_user_assigned_identity" "guacamole" {
+#  count               = local.enable_remote_winviz ? 1 : 0
+#  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+#  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
+#  name = "guacamole"
+#}
 
-  name = "guacamole"
-}
 # Grant read access to the Keyvault for the guacamole identity
 resource "azurerm_key_vault_access_policy" "guacamole" {
   count               = local.enable_remote_winviz ? 1 : 0
   key_vault_id = azurerm_key_vault.azhop.id
   tenant_id    = local.tenant_id
-  object_id    = azurerm_user_assigned_identity.guacamole[0].principal_id
+  #object_id    = azurerm_user_assigned_identity.guacamole[0].principal_id
+  object_id    = azurerm_linux_virtual_machine.guacamole[0].identity[0].principal_id
 
   key_permissions = [ "Get", "List" ]
   secret_permissions = [ "Get", "List" ]
