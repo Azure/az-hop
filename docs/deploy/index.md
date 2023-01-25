@@ -71,7 +71,7 @@
 <!-- gh-md-toc --insert --no-backup --hide-footer docs/deploy/index.md -->
 
 # Overview
-Deploying a green field `azhop` environemnt can be done by following these few steps :
+Deploying a green field `azhop` environment can be done by following these few steps :
  - Clone the repo
  - Update the config.yml file with your settings
  - Deploy
@@ -138,13 +138,13 @@ az vm image terms accept --offer almalinux-hpc --publisher almalinux --plan 8_5-
     - the VPN gateway and virtual network
     - virtual machines for self-hosted Github Action runners
   - Each `azhop` deployment will be a spoke. 
-    - See [define the environemnt](#define-the-environment) for how to automatically peer the virtual network of `azhop` with that of the hub, and for how to change the SSH port of the jumpbox.
+    - See [define the environment](#define-the-environment) for how to automatically peer the virtual network of `azhop` with that of the hub, and for how to change the SSH port of the jumpbox.
 
 # Configure the toolchain
 The toolchain can be setup either locally or from a deployer VM. See below for instructions regarding the installation.
 
 ## From a local machine
-The toolchain is built to be run only from Linux and preferably Ubuntu 20.04+. So if you are running a Windows desktop you should use WSL2 with an Ubuntu 20.04 environemnt. All the following commands will have to be run from your Linux shell terminal.
+The toolchain is built to be run only from Linux and preferably Ubuntu 20.04+. So if you are running a Windows desktop you should use WSL2 with an Ubuntu 20.04 environment. All the following commands will have to be run from your Linux shell terminal.
 
 ### Clone the repo
 It's important to clone the repo with its submodule. You can do this with one of these two options.
@@ -184,7 +184,7 @@ Create a deployer VM in its own isolated VNET and if required with an Azure Bast
 > Note: **Contributor** on the `Subscription` can be reduced to `Resource Group` on the specific Resource Group you will deploy in. This Resource Group must be created before granting this role.
 
 ### Clone the repo
-Connec to the VM and clone the repo with its submodule. You can do this with one of these two options.
+Connect to the VM and clone the repo with its submodule. You can do this with one of these two options.
 
 > Note : pick up the latest stable release from [https://github.com/Azure/az-hop/releases](https://github.com/Azure/az-hop/releases) and replace `<version>`
 
@@ -239,7 +239,7 @@ sudo ./toolset/scripts/install.sh
 | bastion | 10.0.0.64/**26** | 10.0.0.64 - 10.0.0.127 | 64 | 10.0.0.64 | 59 |
 | compute | 10.0.0.128/**25** | 10.0.0.128 - 10.0.0.255 | 128 | 10.0.0.132 | 123 |
 
-> Note : This configuration doesn't support alltogether gateway, bastion and outbounddns, you have to choose which one you need to deploy or use a larger IP range
+> Note : This configuration doesn't support altogether gateway, bastion and outbounddns, you have to choose which one you need to deploy or use a larger IP range
 
 ## 251 nodes system => 10.0.0.0/23
 
@@ -326,7 +326,7 @@ sudo ./toolset/scripts/install.sh
 | compute | 10.0.32.0/**19** | 10.0.32.0 - 10.0.63.255 | 8192 | 10.0.32.0 | 8187 |
 
 # Define the environment
-An **az-hop** environment is defined in the `config.yml` configuration file. Before starting, copy the `config.tpl.yml` template to your own `config.yml` configuration file and update it ccordingly to your requirments.
+An **az-hop** environment is defined in the `config.yml` configuration file. Before starting, copy the `config.tpl.yml` template to your own `config.yml` configuration file and update it accordingly to your requirements.
 Here is a template for building such configuration file.
 
 ```yml
@@ -344,7 +344,7 @@ use_existing_rg: false
 tags:
   env: dev
   project: azhop
-# Define an Azure Netapp Files (ANF) account, single pool and volume
+# Define an Azure NetApp Files (ANF) account, single pool and volume
 # If not present, assume that there is an existing NFS share for the users home directory
 anf:
   # Size of the ANF pool and unique volume (min: 4TB, max: 100TB)
@@ -896,7 +896,7 @@ If you need to apply only a subset then run
 ```
 When requesting the execution of a specific playbook, the script will force execution even if the playbook successfully completed on a previous run.
 
-In case of a failure, the install script can be reapplied as most of the settings are idempotent. The script contains a checkpointing mechanism, each successfull target will have a `.ok` file created in the playbooks directory. If you want to re-apply a target, delete this file and rerun the install script.
+In case of a failure, the install script can be reapplied as most of the settings are idempotent. The script contains a checkpointing mechanism, each successful target will have a `.ok` file created in the playbooks directory. If you want to re-apply a target, delete this file and rerun the install script.
 
 # Add Users
 Adding users is done in three steps :
@@ -906,7 +906,7 @@ Adding users is done in three steps :
 
 You can specify in which groups users belongs to, but at least they are all in the `Domain Users (gid: 5000)` domain group. By default there are built-in groups you can't change names otherwise things will break :
 - `Domain Users` : All users will be added to this one by default
-- `az-hop-admins` :  For users with azhop admin privileges like starting/stopping nodes or editing grafana dashboards
+- `az-hop-admins` :  For users with azhop admin privileges like starting/stopping nodes or editing Grafana dashboards
 - `az-hop-localadmins` : For users with Linux sudo rights or Windows Local Admin rights on compute or viz nodes
 
 ## Add users in the configuration file
@@ -1182,7 +1182,7 @@ There is a way to easily create a standalone VNET for **azhop** without doing a 
 - Build your **azhop** environment
 
 ## How to use DNS forwarders ?
-**azhop** rely on [Azure DNS Private Resolver](https://learn.microsoft.com/en-us/azure/dns/dns-private-resolver-overview) in order to forward DNS queries to external DNS servers thru an outbound endpoint which need to be created in it's own subnet. You need to configure the `outbounddns` subnet with a minimum of /28 adress space in your `config.yml` configuration file. If you use an existing subnet it has to be dedicated to the resolver and has to be delegated to `Microsoft.Network/dnsResolvers` as explainned in documentation of the [Azure DNS Private Resolver](https://learn.microsoft.com/en-us/azure/dns/dns-private-resolver-overview)
+**azhop** rely on [Azure DNS Private Resolver](https://learn.microsoft.com/en-us/azure/dns/dns-private-resolver-overview) in order to forward DNS queries to external DNS servers thru an outbound endpoint which need to be created in it's own subnet. You need to configure the `outbounddns` subnet with a minimum of /28 adress space in your `config.yml` configuration file. If you use an existing subnet it has to be dedicated to the resolver and has to be delegated to `Microsoft.Network/dnsResolvers` as explained in documentation of the [Azure DNS Private Resolver](https://learn.microsoft.com/en-us/azure/dns/dns-private-resolver-overview)
 
 Once the resolver has been created thru the `./build.sh` command, you can configure the forwarders to sent request to, in the `config.yml` configuration file like below.
 
@@ -1194,7 +1194,7 @@ dns:
     - { name: foo.com, ips: "10.2.0.4, 10.2.0.5" }
 ```
 
-To add these rules just run the `dns` ansible playbook.
+To add these rules just run the `dns` Ansible playbook.
 
 ```bash
 ./install.sh dns
@@ -1203,7 +1203,7 @@ To add these rules just run the `dns` ansible playbook.
 You can also add rules manually in the DNS forwarding ruleset built.
 
 ## How to deploy ANF with Dual protocol
-When using Windows nodes you may want to use SMB to mount ANF volumes, as a result ANF need to be configure to use dual protocol and the ANF account need to be domain joined. This imply to break out the deployment in two main steps because the Domain Controler need to be configured before provisioning ANF. Follow the steps below to deploy ANF with Dual Protocol enabled :
+When using Windows nodes you may want to use SMB to mount ANF volumes, as a result ANF need to be configure to use dual protocol and the ANF account need to be domain joined. This imply to break out the deployment in two main steps because the Domain Controller need to be configured before provisioning ANF. Follow the steps below to deploy ANF with Dual Protocol enabled :
 
  - Dual protocol must be enabled in the configuration file with this value :
 
@@ -1217,7 +1217,7 @@ dual_protocol: true # true to enable SMB support. false by default
 ./build.sh -f tf/active_directory -a apply
 ```
 
-- Configure the Domain Controler
+- Configure the Domain Controller
 ```bash
 ./install.sh ad
 ```
@@ -1279,10 +1279,10 @@ openssl req -nodes -new -x509 -keyout certificate.key -out certificate.crt
 Copy both files `certificate.key` and `certificate.crt` in the `./playbooks` directory and renamed them `<ondemand_fqdn>.crt` and `<ondemand_fqdn>.key`. The `ondemand_fdqn` variable value can be found in the `./playbooks/group_vars/all.yml` file.
 
 > Note: If you have an intermediate or chain file make sure to name it `<ondemand_fqdn>_chain.crt` 
-The playbook configuring OnDemand is expecting to find these files and will copy them in the ondemand VM when the no PIP option is set.
+The playbook configuring OnDemand is expecting to find these files and will copy them in the OnDemand VM when the no PIP option is set.
 
 ## Not deploy ANF
-By default an Azure Netapp File account, pool and volume are created to host the users home directories, if you don't need to deploy such resources then comment or remove the `anf` section of the configuration file like this. In this case you will have to provide an NSF share for the users home directories see [Use an existing NFS mount point](#use-an-existing-nfs-mount-point)
+By default an Azure NetApp File account, pool and volume are created to host the users home directories, if you don't need to deploy such resources then comment or remove the `anf` section of the configuration file like this. In this case you will have to provide an NSF share for the users home directories see [Use an existing NFS mount point](#use-an-existing-nfs-mount-point)
 
 ```yml
 # Define an ANF account, single pool and volume
@@ -1338,10 +1338,10 @@ The helper script `configure_aad.sh` can be used to
 This script need to be run before the `install.sh` or at least before the `ood` step, and by a user with enough privilege to create an application in AAD (typically a subscription `Owner`)
 
 ## Use an existing Azure Database for MariaDB server
-An existing instance of an Azure Database for MariaDB server can be used to store the SLURM accounting data and/or the Windows Remote Desktop session requests. To enable it update the configuration file with these settings :
+An existing instance of an Azure Database for MariaDB server can be used to store the Slurm accounting data and/or the Windows Remote Desktop session requests. To enable it update the configuration file with these settings :
 
 ```yml
-# If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values
+# If using an existing Managed MariaDB instance for Slurm accounting and/or Guacamole, specify these values
 database:
   # Admin user of the database for which the password will be retrieved from the azhop keyvault
   user: sqladmin
