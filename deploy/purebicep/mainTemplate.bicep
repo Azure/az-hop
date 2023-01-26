@@ -555,7 +555,7 @@ module azhopPeerings './vnetpeering.bicep' = [ for peer in config.vnet.peerings:
   params: {
     vnetName: peer.vnet_name
     vnetResourceGroup: peer.vnet_resource_group
-    allowGateway: contains(peer, 'vnet_allow_gateway') ? peer.vnet_allow_gateway : false
+    allowGateway: contains(peer, 'vnet_allow_gateway') ? peer.vnet_allow_gateway : true
     vnetId: azhopDeployment.outputs.vnetId
   }
 }]
