@@ -1,10 +1,10 @@
 targetScope = 'resourceGroup'
 
+@description('Peer name')
+param name string
+
 @description('VNet name to peer to')
 param vnetName string
-
-@description('VNet Resource group name to peer to')
-param vnetResourceGroup string
 
 @description('allow gateway transit (default: true)')
 param allowGateway bool = true
@@ -18,7 +18,7 @@ resource peeredVirtualNetwork 'Microsoft.Network/virtualNetworks@2022-07-01' exi
 
 // peering to our vnet. The peering to remote vnet is built into the subnet module
 resource peering 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2022-07-01' = {
-  name: '${vnetResourceGroup}-${vnetName}'
+  name: name
   parent: peeredVirtualNetwork
   properties: {
     allowVirtualNetworkAccess: true

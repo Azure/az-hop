@@ -186,7 +186,7 @@ var config = {
       ref: {
         publisher: 'MicrosoftWindowsServer'
         offer: 'WindowsServer'
-        sku: '2016-Datacenter-smalldisk'
+        sku: '2019-Datacenter-smalldisk'
         version: 'latest'
       }
     }
@@ -553,8 +553,8 @@ module azhopPeerings './vnetpeering.bicep' = [ for peer in config.vnet.peerings:
   name: 'peer_from${peer.vnet_name}'
   scope: resourceGroup(peer.vnet_resource_group)
   params: {
+    name: '${azhopResourceGroupName}_${config.vnet.name}'
     vnetName: peer.vnet_name
-    vnetResourceGroup: peer.vnet_resource_group
     allowGateway: contains(peer, 'vnet_allow_gateway') ? peer.vnet_allow_gateway : true
     vnetId: azhopDeployment.outputs.vnetId
   }
