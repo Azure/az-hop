@@ -816,12 +816,29 @@ output azhopPackerOptions object = (config.deploy_sig) ? {
   var_queue_manager: config.queue_manager
 } : {}
 
-output azhopConnectScript string = format('''
+var azhopConnectScript = format('''
 #!/bin/bash
 
 exec ssh -i {0}_id_rsa  "$@"
 
 ''', config.admin_user)
+
+var azhopSSHConnectScript = format('''
+#!/bin/bash
+
+if [[ $1 == "cyclecloud" ]]; then
+  echo go create tunnel to cyclecloud at https://localhost:9443/cyclecloud
+  ssh -i {0}_id_rsa -fN -L 9443:ccportal:9443 -p {1} {0}@{2}
+elif [[ $1 == "ad" ]]; then
+  echo go create tunnel to ad with rdp to localhost:3390
+  ssh -i {0}_id_rsa -fN -L 3390:ad:3389 -p {1} {0}@{2}
+else
+  exec ssh -i {0}_id_rsa -o ProxyCommand="ssh -i {0}_id_rsa -p {1} -W %h:%p {0}@{2}" "$@"
+fi
+''', config.admin_user, deployer_ssh_port, azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIps[0])
+
+output azhopConnectScript string = softwareInstallFromDeployer ? azhopConnectScript : azhopSSHConnectScript
+
 
 output azhopGetSecretScript string = format('''
 #!/bin/bash
@@ -833,3 +850,4 @@ secret_name=$(echo $user-password | tr -dc 'a-zA-Z0-9-')
 az keyvault secret show --vault-name kv{0} -n $secret_name --query "value" -o tsv
 
 ''', resourcePostfix)
+
