@@ -98,7 +98,7 @@ resource azhop_to_peer 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings
   properties: {
     allowVirtualNetworkAccess: true
     allowForwardedTraffic: true
-    useRemoteGateways: contains(peer, 'vnet_allow_gateway') ? peer.vnet_allow_gateway : false
+    useRemoteGateways: contains(peer, 'vnet_allow_gateway') ? peer.vnet_allow_gateway : true
     remoteVirtualNetwork: {
       id: resourceId(peer.vnet_resource_group, 'Microsoft.Network/virtualNetworks', peer.vnet_name)
     }
