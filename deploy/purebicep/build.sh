@@ -164,25 +164,25 @@ convert_parameter ".locked_down_network.public_ip" ".parameters.publicIp"
 convert_parameter ".jumpbox.ssh_port" ".parameters.deployer_ssh_port"
 convert_object_parameter ".network.peering" ".parameters.vnetPeerings"
 
-# Check if this is a new deployment or a rerun. A rerun is detected if the same RG is used and if a deployment output exists
-generate_keys=true
-if [ -e $AZHOP_DEPLOYMENT_OUTPUT ]; then
-  kv=$(jq -r .keyvaultName.value $AZHOP_DEPLOYMENT_OUTPUT)
-  if [ "$kv" != null ]; then # read them from the keyvault
-    generate_keys=false
-  fi
+# Read secrets from the parameter file as we don't know the keyvault name until a proper deployment has been successful
+adminPassword=$(jq -r '.parameters.adminPassword.value' $BICEP_PARAMS)
+if [ "$adminPassword" == "null" ]; then
+  set_bicep_param_value ".parameters.adminPassword" "$(openssl rand -base64 24)"
 fi
-
-if [ "$generate_keys" == true ]; then
+slurmAccountingAdminPassword=$(jq -r '.parameters.slurmAccountingAdminPassword.value' $BICEP_PARAMS)
+if [ "$adminPassword" == "null" ]; then
+  set_bicep_param_value ".parameters.slurmAccountingAdminPassword" "$(openssl rand -base64 24)"
+fi
+adminSshPublicKey=$(jq -r '.parameters.adminSshPublicKey.value' $BICEP_PARAMS)
+if [ "$adminSshPublicKey" == "null" ]; then
+  # generate a new key if it doesn't exists
   if [ ! -e $AZHOP_ROOT/${adminuser}_id_rsa ]; then
     ssh-keygen -f $AZHOP_ROOT/${adminuser}_id_rsa  -N ""
   fi
-  set_bicep_param_value ".parameters.adminPassword" "$(openssl rand -base64 24)"
-  set_bicep_param_value ".parameters.slurmAccountingAdminPassword" "$(openssl rand -base64 24)"
   set_bicep_param_value ".parameters.adminSshPublicKey" "$(cat $AZHOP_ROOT/${adminuser}_id_rsa.pub)"
   set_bicep_param_value ".parameters.adminSshPrivateKey" "$(cat $AZHOP_ROOT/${adminuser}_id_rsa)"
 fi
-set +e
+
 az deployment sub create --template-file mainTemplate.bicep --location $location --parameters @$BICEP_PARAMS
 
 deployment_name=azhop
@@ -193,7 +193,7 @@ az deployment group show \
     -n $deployment_name \
     --query properties.outputs \
     > $AZHOP_DEPLOYMENT_OUTPUT
-set -e
+
 # Update config path 
 jq '. | .azhopGlobalConfig.value.global_config_file=$param' --arg param $(pwd)/../../config.yml $AZHOP_DEPLOYMENT_OUTPUT > $TMP_PARAMS
 cp $TMP_PARAMS $AZHOP_DEPLOYMENT_OUTPUT
