@@ -172,10 +172,10 @@ In this task, you will prepare the `build.yml` file used by the deploy helper sc
    az account list-locations -o table
    ```
 
-1. Run the deploy command and pass the resource group name `azhop_quickstart`, the location to deploy to, and the version of azhop to use.
+1. Run the deploy command and pass the resource group name `azhop_quickstart` and the location to deploy to.
 
    ```bash
-   ./deploy.sh azhop_quickstart <location> v1.0.29
+   ./deploy.sh azhop_quickstart <location>
    ```
 
 While the deployment is in progress, you can check the resource group content from the Azure portal and the status of the deployment thru the link at the right of the `Deployments` property. The deployment should be done in about 8 minutes.
