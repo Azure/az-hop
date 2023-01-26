@@ -68,8 +68,11 @@ module azhopNetwork './network.bicep' = {
   }
 }
 
+output vnetId string = azhopNetwork.outputs.vnetId
+
 var subnetIds = azhopNetwork.outputs.subnetIds
 var asgNameToIdLookup = reduce(azhopNetwork.outputs.asgIds, {}, (cur, next) => union(cur, next))
+
 
 module azhopBastion './bastion.bicep' = if (config.deploy_bastion) {
   name: 'azhopBastion'
@@ -117,17 +120,6 @@ var keyvaultSecrets = union(
     }
   ] : []
 )
-
-module azhopPeerings './vnetpeering.bicep' = [ for peer in config.vnet.peerings: {
-  name: 'peer_from${peer.vnet_name}'
-  scope: resourceGroup(peer.vnet_resource_group)
-  params: {
-    vnetName: config.vnet.name
-    vnetResourceGroup: resourceGroup().name
-    allowGateway: contains(peer, 'vnet_allow_gateway') ? peer.vnet_allow_gateway : false
-    vnetId: azhopNetwork.outputs.vnetId
-  }
-}]
 
 module azhopKeyvault './keyvault.bicep' = {
   name: 'azhopKeyvault'

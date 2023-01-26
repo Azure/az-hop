@@ -549,6 +549,17 @@ module azhopDeployment './azhop.bicep' = {
   }
 }
 
+module azhopPeerings './vnetpeering.bicep' = [ for peer in config.vnet.peerings: {
+  name: 'peer_from${peer.vnet_name}'
+  scope: resourceGroup(peer.vnet_resource_group)
+  params: {
+    vnetName: peer.vnet_name
+    vnetResourceGroup: peer.vnet_resource_group
+    allowGateway: contains(peer, 'vnet_allow_gateway') ? peer.vnet_allow_gateway : false
+    vnetId: azhopDeployment.outputs.vnetId
+  }
+}]
+
 var subscriptionReaderRoleDefinitionId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')
 
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
