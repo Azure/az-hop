@@ -208,7 +208,7 @@ chmod 600 $AZHOP_ROOT/${adminuser}_id_rsa*
 
 echo "* Generating config files from templates"
 # config.yml
-jq .azhopConfig.value $AZHOP_DEPLOYMENT_OUTPUT | yq -P  > $AZHOP_ROOT/bicep_config.yml
+jq .azhopConfig.value $AZHOP_DEPLOYMENT_OUTPUT | yq -P  > $AZHOP_ROOT/config.yml
 
 mkdir -p $AZHOP_ROOT/bin
 jq -r .azhopGetSecretScript.value $AZHOP_DEPLOYMENT_OUTPUT > $AZHOP_ROOT/bin/get_secret
