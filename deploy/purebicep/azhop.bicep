@@ -224,7 +224,9 @@ output ccportalPrincipalId string = azhopVm[indexOf(map(vmItems, item => item.ke
 
 output keyvaultName string = azhopKeyvault.outputs.keyvaultName
 
-output azhopConfig object = {
+var jumpbox = softwareInstallFromDeployer ? {} : { jumpbox : '' } 
+
+output azhopConfig object = union ( jumpbox, {
   location: location
   resource_group: azhopResourceGroupName
   //use_existing_rg: false
@@ -698,7 +700,7 @@ output azhopConfig object = {
       enabled: false
     }
   }
-}
+})
 
 var envNameToCloudMap = {
   AzureCloud: 'AZUREPUBLICCLOUD'
