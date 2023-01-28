@@ -29,12 +29,23 @@
         }
     ],
     "provisioners": [{
-        "type": "powershell",
-        "scripts": [
-          "./scripts/windows/wait-for-agent.ps1",
-          "./scripts/windows/install-choco.ps1",
-          "./scripts/windows/optimize.ps1",
-          "./scripts/windows/sysprep.ps1"
-        ]
-      }]
+      "type": "powershell",
+      "scripts": [
+        "./scripts/windows/wait-for-agent.ps1",
+        "./scripts/windows/install-choco.ps1",
+        "./scripts/windows/optimize.ps1"
+      ]
+    },
+    {
+      "type": "windows-restart",
+      "restart_check_command": "powershell -command \"& {Write-Output 'restarted.'}\"",
+      "restart_timeout": "10m"
+    },
+    {
+      "type": "powershell",
+      "scripts": [
+        "./scripts/windows/sysprep.ps1"
+      ]
+    }
+  ]
 }
