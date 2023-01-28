@@ -156,13 +156,13 @@ cp param.json $BICEP_PARAMS
 
 set_bicep_param_value ".parameters.softwareInstallFromDeployer" "false"
 set_bicep_param_value ".parameters.autogenerateSecrets" "false"
-set_bicep_param_value ".parameters.logged_user_objectId" "$logged_user_objectId"
+set_bicep_param_value ".parameters.loggedUserObjectId" "$logged_user_objectId"
 convert_parameter ".resource_group" ".parameters.azhopResourceGroupName"
 convert_parameter ".admin_user" ".parameters.adminUser"
-convert_parameter ".queue_manager" ".parameters.queue_manager"
+convert_parameter ".queue_manager" ".parameters.queueManager"
 convert_parameter ".locked_down_network.public_ip" ".parameters.publicIp"
-convert_parameter ".jumpbox.ssh_port" ".parameters.deployer_ssh_port"
-convert_parameter ".enable_remote_winviz" ".parameters.enable_remote_winviz"
+convert_parameter ".jumpbox.ssh_port" ".parameters.deployerSshPort"
+convert_parameter ".enable_remote_winviz" ".parameters.enableRemoteWinviz"
 convert_object_parameter ".network.peering" ".parameters.vnetPeerings"
 
 # Read secrets from the parameter file as we don't know the keyvault name until a proper deployment has been successful

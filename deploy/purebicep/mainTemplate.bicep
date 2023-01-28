@@ -19,7 +19,7 @@ param publicIp bool = true
 param keyvaultReaderOid string = ''
 
 @description('Identity of the deployer if not deploying from a deployer VM')
-param logged_user_objectId string = ''
+param loggedUserObjectId string = ''
 
 @description('Run software installation from the Deployer VM. Default to true')
 param softwareInstallFromDeployer bool = true
@@ -51,17 +51,28 @@ param adminPassword string = ''
 param slurmAccountingAdminPassword string = ''
 
 @description('Queue manager to configure - Default to slurm')
-param queue_manager string = 'slurm'
+param queueManager string = 'slurm'
 
 @description('SSH Port to communicate with the deployer VM - Default to 22')
-param deployer_ssh_port string = '22'
+param deployerSshPort string = '22'
 
 @description('VNet Peerings - Array')
 param vnetPeerings array = []
 
 @description('Enable Windows Remote Viz')
-param enable_remote_winviz bool = false
+param enableRemoteWinviz bool = false
 
+param vnetTags object = {}
+param vnetCidr string = '10.0.0.0/23'
+param subnetFrontendCidr string = '10.0.0.0/29'
+param subnetAdCidr string = '10.0.0.8/29'
+param subnetAdminCidr string = '10.0.0.16/28'
+param subnetNetappCidr string = '10.0.0.32/28'
+param subnetOutboundDnsCidr string = '10.0.0.48/28'
+param subnetBastionCidr string = '10.0.0.64/26'
+param subnetGatewayCidr string = '10.0.0.128/27'
+param subnetComputeCidr string = '10.0.1.0/24'
+ 
 
 var config = {
   admin_user: adminUser
@@ -77,7 +88,7 @@ var config = {
     grant_access_from: []
   }
 
-  queue_manager: queue_manager
+  queue_manager: queueManager
 
   slurm: {
     admin_user: 'sqladmin'
@@ -85,7 +96,7 @@ var config = {
     enroot_enabled: true
   }
 
-  enable_remote_winviz : enable_remote_winviz
+  enable_remote_winviz : enableRemoteWinviz
   deploy_sig: deploySIG
 
   homedir: 'nfsfiles'
@@ -98,20 +109,18 @@ var config = {
   }
 
   vnet: {
-    tags: {
-      NRMSBastion: ''
-    }
+    tags: vnetTags
     name: 'hpcvnet'
-    cidr: '10.201.0.0/16'
+    cidr: vnetCidr
     subnets: {
       bastion: {
         apply_nsg: false
         name: 'AzureBastionSubnet'
-        cidr: '10.201.0.0/24'
+        cidr: subnetBastionCidr
       }
       frontend: {
         name: 'frontend'
-        cidr: '10.201.1.0/24'
+        cidr: subnetFrontendCidr
         service_endpoints: [
           'Microsoft.Sql'
           'Microsoft.Storage'
@@ -119,7 +128,7 @@ var config = {
       }
       admin: {
         name: 'admin'
-        cidr: '10.201.2.0/24'
+        cidr: subnetAdminCidr
         service_endpoints: [
           'Microsoft.KeyVault'
           'Microsoft.Sql'
@@ -129,18 +138,18 @@ var config = {
       netapp: {
         apply_nsg: false
         name: 'netapp'
-        cidr: '10.201.3.0/24'
+        cidr: subnetNetappCidr
         delegations: [
           'Microsoft.Netapp/volumes'
         ]
       }
       ad: {
         name: 'ad'
-        cidr: '10.201.4.0/24'
+        cidr: subnetAdCidr
       }
       compute: {
         name: 'compute'
-        cidr: '10.201.5.0/24'
+        cidr: subnetComputeCidr
         service_endpoints: [
           'Microsoft.Storage'
         ]
@@ -148,11 +157,11 @@ var config = {
       gateway: {
         apply_nsg: false
         name: 'GatewaySubnet'
-        cidr: '10.201.6.0/24'
+        cidr: subnetGatewayCidr
       }
       outbounddns: {
         name: 'outbounddns'
-        cidr: '10.201.7.0/24'
+        cidr: subnetOutboundDnsCidr
         delegations: [
           'Microsoft.Network/dnsResolvers'
         ]
@@ -220,7 +229,7 @@ var config = {
         }, softwareInstallFromDeployer ? {
           deploy_script: replace(loadTextContent('install.sh'), '__INSERT_AZHOP_BRANCH__', branchName)
         } : {
-          deploy_script: deployer_ssh_port != '22' ? replace(loadTextContent('jumpbox.yml'), '__SSH_PORT__', deployer_ssh_port) : ''
+          deploy_script: deployerSshPort != '22' ? replace(loadTextContent('jumpbox.yml'), '__SSH_PORT__', deployerSshPort) : ''
         }
       )
       ad: {
@@ -278,7 +287,7 @@ var config = {
         asgs: [ 'asg-ssh', 'asg-pbs', 'asg-ad-client', 'asg-cyclecloud-client', 'asg-nfs-client', 'asg-telegraf', 'asg-mariadb-client' ]
       }
     },
-    enable_remote_winviz ? {
+    enableRemoteWinviz ? {
       guacamole: {
       identity: {
         keyvault: {
@@ -340,7 +349,7 @@ var config = {
     Bastion: ['22', '3389']
     Web: ['443', '80']
     Ssh: ['22']
-    Public_Ssh: [deployer_ssh_port]
+    Public_Ssh: [deployerSshPort]
     Socks: ['5985']
     // DNS, Kerberos, RpcMapper, Ldap, Smb, KerberosPass, LdapSsl, LdapGc, LdapGcSsl, AD Web Services, RpcSam
     DomainControlerTcp: ['53', '88', '135', '389', '445', '464', '636', '3268', '3269', '9389', '49152-65535']
@@ -550,8 +559,8 @@ module azhopDeployment './azhop.bicep' = {
     adminPassword: adminPassword
     slurmAccountingAdminPassword: slurmAccountingAdminPassword
     softwareInstallFromDeployer: softwareInstallFromDeployer
-    deployer_ssh_port: deployer_ssh_port
-    logged_user_objectId: logged_user_objectId
+    deployerSshPort: deployerSshPort
+    loggedUserObjectId: loggedUserObjectId
     config: config
   }
 }

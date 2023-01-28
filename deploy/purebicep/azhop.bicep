@@ -29,10 +29,10 @@ param slurmAccountingAdminPassword string = ''
 param softwareInstallFromDeployer bool = true
 
 @description('SSH Port to communicate with the deployer VM - Default to 22')
-param deployer_ssh_port string = '22'
+param deployerSshPort string = '22'
 
 @description('Identity of the deployer if not deploying from a deployer VM')
-param logged_user_objectId string = ''
+param loggedUserObjectId string = ''
 
 param config object
 
@@ -130,7 +130,7 @@ module azhopKeyvault './keyvault.bicep' = {
     keyvaultReaderOids: config.keyvault_readers
     lockDownNetwork: config.lock_down_network.enforce
     allowableIps: config.lock_down_network.grant_access_from
-    keyvaultOwnerId: logged_user_objectId
+    keyvaultOwnerId: loggedUserObjectId
     identityPerms: [ for i in range(0, length(vmItems)): {
       principalId: azhopVm[i].outputs.principalId
       key_permissions: (contains(vmItems[i].value, 'identity') && contains(vmItems[i].value.identity, 'keyvault')) ? vmItems[i].value.identity.keyvault.key_permissions : []
@@ -735,7 +735,7 @@ output azhopGlobalConfig object = union(
     azure_environment             : envNameToCloudMap[environment().name]
     key_vault_suffix              : substring(kvSuffix, 1, length(kvSuffix) - 1) // vault.azure.net - remove leading dot from env
     blob_storage_suffix           : 'blob.${environment().suffixes.storage}' // blob.core.windows.net
-    jumpbox_ssh_port              : deployer_ssh_port
+    jumpbox_ssh_port              : deployerSshPort
   },
   config.homedir == 'anf' ? {
     anf_home_ip                   : azhopAnf.outputs.nfs_home_ip
@@ -781,7 +781,7 @@ output azhopInventory object = {
       softwareInstallFromDeployer ? {} : {
         jumpbox : {
           ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIps[0]
-          ansible_ssh_port: deployer_ssh_port
+          ansible_ssh_port: deployerSshPort
           ansible_ssh_common_args: ''
         }
       },
@@ -801,7 +801,7 @@ output azhopInventory object = {
     )
     vars: {
       ansible_ssh_user: config.admin_user
-      ansible_ssh_common_args: softwareInstallFromDeployer ? '' : '-o ProxyCommand="ssh -i ${config.admin_user}_id_rsa -p ${deployer_ssh_port} -W %h:%p ${config.admin_user}@${azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIps[0]}"'
+      ansible_ssh_common_args: softwareInstallFromDeployer ? '' : '-o ProxyCommand="ssh -i ${config.admin_user}_id_rsa -p ${deployerSshPort} -W %h:%p ${config.admin_user}@${azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIps[0]}"'
     }
   }
 }
@@ -840,7 +840,7 @@ elif [[ $1 == "ad" ]]; then
 else
   exec ssh -i {0}_id_rsa -o ProxyCommand="ssh -i {0}_id_rsa -p {1} -W %h:%p {0}@{2}" "$@"
 fi
-''', config.admin_user, deployer_ssh_port, azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIps[0])
+''', config.admin_user, deployerSshPort, azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIps[0])
 
 output azhopConnectScript string = softwareInstallFromDeployer ? azhopConnectScript : azhopSSHConnectScript
 

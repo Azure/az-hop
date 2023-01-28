@@ -12,11 +12,21 @@
       "deploySIG": { "value": false},
       "publicIp": { "value": true},
       "keyvaultReaderOid": {"value": ""},
-      "logged_user_objectId": {"value": ""},
+      "loggedUserObjectId": {"value": ""},
       "branchName": {"value": "main"},
-      "queue_manager": {"value": "slurm"},
-      "deployer_ssh_port": {"value": "22"},
+      "queueManager": {"value": "slurm"},
+      "deployerSshPort": {"value": "22"},
       "vnetPeerings" : { "value": "" },
-      "enable_remote_winviz": {"value": false}
+      "enableRemoteWinviz": {"value": false},
+      "vnetTags": { "value": {} },
+      "vnetCidr": { "value": "10.0.0.0/23" },
+      "subnetFrontendCidr": { "value": "10.0.0.0/29" },
+      "subnetAdCidr": { "value": "10.0.0.8/29" },
+      "subnetAdminCidr": { "value": "10.0.0.16/28" },
+      "subnetNetappCidr": { "value": "10.0.0.32/28" },
+      "subnetOutboundDnsCidr": { "value": "10.0.0.48/28" },
+      "subnetBastionCidr": { "value": "10.0.0.64/26" },
+      "subnetGatewayCidr": { "value": "10.0.0.128/27" },
+      "subnetComputeCidr": { "value": "10.0.1.0/24" }
     }
 }
