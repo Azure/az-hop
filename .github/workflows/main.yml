@@ -35,6 +35,10 @@ on:
         description: 'Deploy only - Default to false'
         required: false
         default: 'false' # use it with ${{ github.event.inputs.deploy_only }}
+      use_bicep:
+        description: 'Deploy using Bicep - Default to false'
+        required: false
+        default: 'false' # use it with ${{ github.event.inputs.use_bicep }}
 
 jobs:
   deploy:
@@ -47,6 +51,7 @@ jobs:
       scheduler: ${{ github.event.inputs.scheduler }}
       lustre: ${{ github.event.inputs.lustre }}
       deploy_only: ${{ github.event.inputs.deploy_only }}
+      use_bicep: ${{ github.event.inputs.use_bicep }}
     secrets:
       ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
       ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
