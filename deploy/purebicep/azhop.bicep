@@ -28,9 +28,6 @@ param slurmAccountingAdminPassword string = ''
 @description('Run software installation from the Deployer VM. Default to true')
 param softwareInstallFromDeployer bool = true
 
-@description('SSH Port to communicate with the deployer VM - Default to 22')
-param deployerSshPort string = '22'
-
 @description('Identity of the deployer if not deploying from a deployer VM')
 param loggedUserObjectId string = ''
 
@@ -735,7 +732,7 @@ output azhopGlobalConfig object = union(
     azure_environment             : envNameToCloudMap[environment().name]
     key_vault_suffix              : substring(kvSuffix, 1, length(kvSuffix) - 1) // vault.azure.net - remove leading dot from env
     blob_storage_suffix           : 'blob.${environment().suffixes.storage}' // blob.core.windows.net
-    jumpbox_ssh_port              : deployerSshPort
+    jumpbox_ssh_port              : config.vms.deployer.sshPort
   },
   config.homedir == 'anf' ? {
     anf_home_ip                   : azhopAnf.outputs.nfs_home_ip
@@ -781,7 +778,7 @@ output azhopInventory object = {
       softwareInstallFromDeployer ? {} : {
         jumpbox : {
           ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIps[0]
-          ansible_ssh_port: deployerSshPort
+          ansible_ssh_port: azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIps[0]
           ansible_ssh_common_args: ''
         }
       },
@@ -801,7 +798,7 @@ output azhopInventory object = {
     )
     vars: {
       ansible_ssh_user: config.admin_user
-      ansible_ssh_common_args: softwareInstallFromDeployer ? '' : '-o ProxyCommand="ssh -i ${config.admin_user}_id_rsa -p ${deployerSshPort} -W %h:%p ${config.admin_user}@${azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIps[0]}"'
+      ansible_ssh_common_args: softwareInstallFromDeployer ? '' : '-o ProxyCommand="ssh -i ${config.admin_user}_id_rsa -p ${config.vms.deployer.sshPort} -W %h:%p ${config.admin_user}@${azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIps[0]}"'
     }
   }
 }
@@ -840,7 +837,7 @@ elif [[ $1 == "ad" ]]; then
 else
   exec ssh -i {0}_id_rsa -o ProxyCommand="ssh -i {0}_id_rsa -p {1} -W %h:%p {0}@{2}" "$@"
 fi
-''', config.admin_user, deployerSshPort, azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIps[0])
+''', config.admin_user, config.vms.deployer.sshPort, azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIps[0])
 
 output azhopConnectScript string = softwareInstallFromDeployer ? azhopConnectScript : azhopSSHConnectScript
 

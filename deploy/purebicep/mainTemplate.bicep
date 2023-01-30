@@ -215,6 +215,7 @@ var config = {
           osdisksku: 'Standard_LRS'
           image: 'ubuntu'
           pip: false
+          sshPort: deployerSshPort
           identity: {
             keyvault: {
               key_permissions: [ 'All' ]
@@ -559,7 +560,6 @@ module azhopDeployment './azhop.bicep' = {
     adminPassword: adminPassword
     slurmAccountingAdminPassword: slurmAccountingAdminPassword
     softwareInstallFromDeployer: softwareInstallFromDeployer
-    deployerSshPort: deployerSshPort
     loggedUserObjectId: loggedUserObjectId
     config: config
   }
