@@ -59,6 +59,10 @@ param deployer_ssh_port string = '22'
 @description('VNet Peerings - Array')
 param vnetPeerings array = []
 
+@description('Enable Windows Remote Viz')
+param enable_remote_winviz bool = false
+
+
 var config = {
   admin_user: adminUser
   keyvault_readers: (keyvaultReaderOid != '') ? [ keyvaultReaderOid ] : []
@@ -81,6 +85,7 @@ var config = {
     enroot_enabled: true
   }
 
+  enable_remote_winviz : enable_remote_winviz
   deploy_sig: deploySIG
 
   homedir: 'nfsfiles'
@@ -245,19 +250,6 @@ var config = {
         image: 'linux_base'
         asgs: [ 'asg-ssh', 'asg-grafana', 'asg-ad-client', 'asg-telegraf', 'asg-nfs-client' ]
       }
-      guacamole: {
-        identity: {
-          keyvault: {
-            key_permissions: [ 'Get', 'List' ]
-            secret_permissions: [ 'Get', 'List' ]
-          }
-        }
-        subnet: 'admin'
-        sku: 'Standard_B2ms'
-        osdisksku: 'StandardSSD_LRS'
-        image: 'linux_base'
-        asgs: [ 'asg-ssh', 'asg-ad-client', 'asg-telegraf', 'asg-nfs-client', 'asg-cyclecloud-client', 'asg-mariadb-client' ]
-      }
       ccportal: {
         subnet: 'admin'
         sku: 'Standard_B2ms'
@@ -286,6 +278,21 @@ var config = {
         asgs: [ 'asg-ssh', 'asg-pbs', 'asg-ad-client', 'asg-cyclecloud-client', 'asg-nfs-client', 'asg-telegraf', 'asg-mariadb-client' ]
       }
     },
+    enable_remote_winviz ? {
+      guacamole: {
+      identity: {
+        keyvault: {
+          key_permissions: [ 'Get', 'List' ]
+          secret_permissions: [ 'Get', 'List' ]
+        }
+      }
+      subnet: 'admin'
+      sku: 'Standard_B2ms'
+      osdisksku: 'StandardSSD_LRS'
+      image: 'linux_base'
+      asgs: [ 'asg-ssh', 'asg-ad-client', 'asg-telegraf', 'asg-nfs-client', 'asg-cyclecloud-client', 'asg-mariadb-client' ]
+      }
+    } : {},
     deployLustre ? {
       lustre: {
         subnet: 'admin'

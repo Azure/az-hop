@@ -243,6 +243,7 @@ output azhopConfig object = union ( jumpbox, {
   features: {
     sig: config.deploy_sig
     lustre: config.deploy_lustre
+    winviz: config.enable_remote_winviz
   }
 
   // These mounts will be listed in the Files menu of the OnDemand portal and automatically mounted on all compute nodes and remote desktop nodes
@@ -674,7 +675,7 @@ output azhopConfig object = union ( jumpbox, {
   ]
 
   // Remote Visualization definitions
-  enable_remote_winviz: false // Set to true to enable windows remote visualization
+  enable_remote_winviz: config.enable_remote_winviz // Set to true to enable windows remote visualization
 
   remoteviz: [
     {
@@ -767,9 +768,6 @@ output azhopInventory object = {
         grafana: {
           ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'grafana')].outputs.privateIps[0]
         }
-        guacamole: {
-          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'guacamole')].outputs.privateIps[0]
-        }
         ad: {
           ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'ad')].outputs.privateIps[0]
           ansible_connection: 'psrp'
@@ -793,6 +791,11 @@ output azhopInventory object = {
         }
         robinhood: {
           ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'robinhood')].outputs.privateIps[0]
+        }
+      } : {},
+      config.enable_remote_winviz ? {
+        guacamole: {
+          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'guacamole')].outputs.privateIps[0]
         }
       } : {}
     )

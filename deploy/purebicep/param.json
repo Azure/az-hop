@@ -16,6 +16,7 @@
       "branchName": {"value": "main"},
       "queue_manager": {"value": "slurm"},
       "deployer_ssh_port": {"value": "22"},
-      "vnetPeerings" : { "value": "" }
+      "vnetPeerings" : { "value": "" },
+      "enable_remote_winviz": {"value": false}
     }
 }
