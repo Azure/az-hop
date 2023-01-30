@@ -1,3 +1,12 @@
+# Using bicep instead of Terraform
+This is the scenario to provide compatibility with the existing mode of deploying using a local configuration file from either a local machine or an existing deployer VM.
+- from a local machine "az login" with your user name.
+- from a deployer VM "az login -i", the VM should have system assigned identity with the right roles as defined in the documentation.
+
+```bash
+./build.sh <path_to_config_file.yml>
+```
+
 # Deploying
 
 Create parameter file, `mainTemplate.parameters.json`:

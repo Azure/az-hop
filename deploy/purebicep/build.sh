@@ -206,9 +206,9 @@ az keyvault secret show --vault-name $kv -n ${adminuser}-pubkey --query "value" 
 az keyvault secret show --vault-name $kv -n ${adminuser}-privkey --query "value" -o tsv > $AZHOP_ROOT/${adminuser}_id_rsa
 chmod 600 $AZHOP_ROOT/${adminuser}_id_rsa*
 
+# As we provide the config file in input, generate it with a different name in order to troubleshoot it's generation from bicep
 echo "* Generating config files from templates"
-# config.yml
-jq .azhopConfig.value $AZHOP_DEPLOYMENT_OUTPUT | yq -P  > $AZHOP_ROOT/config.yml
+jq .azhopConfig.value $AZHOP_DEPLOYMENT_OUTPUT | yq -P  > $AZHOP_ROOT/output_config.yml
 
 mkdir -p $AZHOP_ROOT/bin
 jq -r .azhopGetSecretScript.value $AZHOP_DEPLOYMENT_OUTPUT > $AZHOP_ROOT/bin/get_secret
