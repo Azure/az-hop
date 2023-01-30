@@ -152,7 +152,10 @@ BICEP_PARAMS=$resource_group.parameters.json
 TMP_PARAMS=tmp.parameters.json
 AZHOP_DEPLOYMENT_OUTPUT=$resource_group.outputs.json
 
-cp param.json $BICEP_PARAMS
+# Set default param template file if it doesn't exists for the resource group
+if [ ! -e $BICEP_PARAMS ]; then 
+  cp param.json $BICEP_PARAMS
+fi
 
 set_bicep_param_value ".parameters.softwareInstallFromDeployer" "false"
 set_bicep_param_value ".parameters.autogenerateSecrets" "false"
@@ -164,6 +167,15 @@ convert_parameter ".locked_down_network.public_ip" ".parameters.publicIp"
 convert_parameter ".jumpbox.ssh_port" ".parameters.deployerSshPort"
 convert_parameter ".enable_remote_winviz" ".parameters.enableRemoteWinviz"
 convert_object_parameter ".network.peering" ".parameters.vnetPeerings"
+convert_parameter ".network.vnet.address_space" ".parameters.vnetCidr"
+convert_parameter ".network.vnet.subnets.frontend.address_prefixes" ".parameters.subnetFrontendCidr"
+convert_parameter ".network.vnet.subnets.ad.address_prefixes" ".parameters.subnetAdCidr"
+convert_parameter ".network.vnet.subnets.admin.address_prefixes" ".parameters.subnetAdminCidr"
+convert_parameter ".network.vnet.subnets.netapp.address_prefixes" ".parameters.subnetNetappCidr"
+convert_parameter ".network.vnet.subnets.outbounddns.address_prefixes" ".parameters.subnetOutboundDnsCidr"
+convert_parameter ".network.vnet.subnets.bastion.address_prefixes" ".parameters.subnetBastionCidr"
+convert_parameter ".network.vnet.subnets.gateway.address_prefixes" ".parameters.subnetGatewayCidr"
+convert_parameter ".network.vnet.subnets.compute.address_prefixes" ".parameters.subnetComputeCidr"
 
 # Read secrets from the parameter file as we don't know the keyvault name until a proper deployment has been successful
 adminPassword=$(jq -r '.parameters.adminPassword.value' $BICEP_PARAMS)
