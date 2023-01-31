@@ -196,14 +196,15 @@ if [ "$adminSshPublicKey" == "null" ]; then
   set_bicep_param_value ".parameters.adminSshPrivateKey" "$(cat $AZHOP_ROOT/${adminuser}_id_rsa)"
 fi
 
-az deployment sub create --template-file mainTemplate.bicep --location $location --parameters @$BICEP_PARAMS
+timestamp=$(date -u +"%Y.%m%d.%H%M")
+deployment_name=azhop_${timestamp}
 
-deployment_name=azhop
+az deployment sub create --template-file mainTemplate.bicep --location $location -n $deployment_name --parameters @$BICEP_PARAMS
 
 echo "* Getting deployment output"
 az deployment group show \
     -g $resource_group \
-    -n $deployment_name \
+    -n azhop \
     --query properties.outputs \
     > $AZHOP_DEPLOYMENT_OUTPUT
 
