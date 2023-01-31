@@ -1,5 +1,4 @@
 #!/bin/bash
-set -x
 AZHOP_CONFIG=config.yml
 ANSIBLE_VARIABLES=playbooks/group_vars/all.yml
 

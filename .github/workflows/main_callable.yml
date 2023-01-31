@@ -621,5 +621,6 @@ jobs:
 
             echo "removing resource group $RESOURCE_GROUP"
             az group delete -n $RESOURCE_GROUP -y
+            set +e
             ./deploy/purebicep/cleanup.sh
           fi
