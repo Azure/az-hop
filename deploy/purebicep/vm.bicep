@@ -27,7 +27,7 @@ output principalId string = requires_identity ? managedIdentity.properties.princ
 
 var roles = requires_identity && contains(vm.identity, 'roles') ? vm.identity.roles : []
 
-resource roleAssignments 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = [ for role in roles: {
+resource roleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [ for role in roles: {
   name: guid(name, role, resourceGroup().id, subscription().id)
   scope: resourceGroup()
   properties: {

@@ -579,7 +579,7 @@ module azhopPeerings './vnetpeering.bicep' = [ for peer in config.vnet.peerings:
 
 var subscriptionReaderRoleDefinitionId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')
 
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(azhopResourceGroup.id, subscriptionReaderRoleDefinitionId)
   properties: {
     roleDefinitionId: subscriptionReaderRoleDefinitionId
