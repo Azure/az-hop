@@ -72,7 +72,8 @@ param subnetOutboundDnsCidr string = '10.0.0.48/28'
 param subnetBastionCidr string = '10.0.0.64/26'
 param subnetGatewayCidr string = '10.0.0.128/27'
 param subnetComputeCidr string = '10.0.1.0/24'
- 
+
+param azhopConfig object = {}
 
 var config = {
   admin_user: adminUser
@@ -216,6 +217,9 @@ var config = {
           image: 'ubuntu'
           pip: false
           sshPort: deployerSshPort
+          asgs: [ 'asg-ssh', 'asg-jumpbox', 'asg-deployer', 'asg-ad-client', 'asg-telegraf', 'asg-nfs-client' ]
+        }, softwareInstallFromDeployer ? {
+          deploy_script: replace(loadTextContent('install.sh'), '__INSERT_AZHOP_BRANCH__', branchName)
           identity: {
             keyvault: {
               key_permissions: [ 'All' ]
@@ -226,9 +230,6 @@ var config = {
               'UserAccessAdministrator'
             ]
           }
-          asgs: [ 'asg-ssh', 'asg-jumpbox', 'asg-deployer', 'asg-ad-client', 'asg-telegraf', 'asg-nfs-client' ]
-        }, softwareInstallFromDeployer ? {
-          deploy_script: replace(loadTextContent('install.sh'), '__INSERT_AZHOP_BRANCH__', branchName)
         } : {
           deploy_script: deployerSshPort != '22' ? replace(loadTextContent('jumpbox.yml'), '__SSH_PORT__', deployerSshPort) : ''
         }
