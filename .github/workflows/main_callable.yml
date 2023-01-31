@@ -174,6 +174,8 @@ jobs:
           if [ "$anf_dual" != "true" ]; then
             set +e
             if [ "$USE_BICEP" == "true" ]; then
+              # Bicep doesn't support winviz yet
+              sed -i 's/enable_remote_winviz: true/enable_remote_winviz: false/g' config.yml
               pushd deploy/purebicep
               ./build.sh -c ../../config.yml
               build_error=$?
@@ -611,6 +613,7 @@ jobs:
 
             echo "Remove resources from $RESOURCE_GROUP"
             set +e
+            ./deploy/purebicep/cleanup.sh
             ./build.sh -a destroy -f tf
 
             echo "Remove state from $RESOURCE_GROUP"
@@ -618,4 +621,5 @@ jobs:
 
             echo "removing resource group $RESOURCE_GROUP"
             az group delete -n $RESOURCE_GROUP -y
+            ./deploy/purebicep/cleanup.sh
           fi
