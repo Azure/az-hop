@@ -778,7 +778,7 @@ output azhopInventory object = {
       softwareInstallFromDeployer ? {} : {
         jumpbox : {
           ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIps[0]
-          ansible_ssh_port: azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIps[0]
+          ansible_ssh_port: config.vms.deployer.sshPort
           ansible_ssh_common_args: ''
         }
       },
