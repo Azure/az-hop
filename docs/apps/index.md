@@ -25,7 +25,7 @@ applications:
 ```
 
 There are actually 9 application folder under the ood-applications ansible role :
-- bc_ansys_workbench : Ansys Workbench launcher running as a Linux Remote Desktop session
+- [bc_ansys_workbench](playbooks/roles/ood-applications/files/bc_ansys_workbench/readme.md) : Ansys Workbench launcher running as a Linux Remote Desktop session
 - bc_codeserver : VS Code running on a compute node and exposed thru a web page
 - bc_guacamole : Windows Remote Desktop session in a web page using Apache Guacamole
 - bc_jupyter : A jupyter notebook started in a container and exposer thru a web page
