@@ -1,5 +1,17 @@
 <!--ts-->
 * [Application Integration](#application-integration)
+* [Application Catalog](#application-catalog)
+   * [ANSYS Workbench](#ansys-workbench)
+      * [Prerequisites](#prerequisites)
+      * [Versions](#versions)
+      * [Enabling the OnDemand application](#enabling-the-ondemand-application)
+      * [Update a running environment](#update-a-running-environment)
+      * [License](#license)
+   * [Visual Molecular Dynamics](#visual-molecular-dynamics)
+      * [Prerequisites](#prerequisites-1)
+      * [Enabling the OnDemand application](#enabling-the-ondemand-application-1)
+      * [Update a running environment](#update-a-running-environment-1)
+      * [License](#license-1)
 <!--te-->
 # Application Integration
 
@@ -25,11 +37,11 @@ applications:
 ```
 
 There are actually 9 application folder under the ood-applications ansible role :
-- [bc_ansys_workbench](playbooks/roles/ood-applications/files/bc_ansys_workbench/readme.md) : Ansys Workbench launcher running as a Linux Remote Desktop session
+- [bc_ansys_workbench](#ansys-workbench) : Ansys Workbench launcher running as a Linux Remote Desktop session
 - bc_codeserver : VS Code running on a compute node and exposed thru a web page
 - bc_guacamole : Windows Remote Desktop session in a web page using Apache Guacamole
 - bc_jupyter : A jupyter notebook started in a container and exposer thru a web page
-- bc_vmd : A Visual Molecular Dynamics launcher running as a Linux Remote Desktop session
+- [bc_vmd](#visual-molecular-dynamics) : A Visual Molecular Dynamics launcher running as a Linux Remote Desktop session
 - cyclecloud : A python passenger application to launch the Cycle Cloud Web UI
 - dashboard : an override of core OnDemand ruby files for the guacamole integration
 - grafana : A python passenger application to launch the Grafana Web UI
@@ -49,3 +61,73 @@ To add a new Interactive Application named `foo` follow these steps :
 - Browse to the azhop home page, login and restart your web server session by selecting the *Restart Web Server* choice in the *Help* menu.
 - Test your application
 - Your *bc_foo* application files will be copied on the ondemand vm under */var/www/ood/apps/sys/bc_foo/*. You can also connect to the ondemand VM and locally update these files directly to reduce the test cycle. To be applied you need to restart the web server. Don’t forget to synchronize your code back to your development VM when done.
+
+# Application Catalog
+## ANSYS Workbench
+An Open OnDemand Batch Connect application designed for `az-hop` that launches an ANSYS Workbench session within a batch job.
+
+Adapted from https://github.com/OSC/bc_osc_ansys_workbench
+
+### Prerequisites
+[ANSYS Workbench] need to be installed on a file share system accessible by the nodes. 
+The default ANSYS root directory is defined as `/anfhome/apps/ansys`, but it can be changed in the `form.yml.erb` file and is a parameter in the UI.
+
+### Versions
+The default version is `2021R2` and is mapped to the `/anfhome/apps/ansys/v212` folder to launch ANSYS Workbench. If you need to add another version then :
+- Add a new option in the select version widget in the `form.yml.erb` file.
+- make sure that the value used for the option match the folder in which the version will be installed. The path will be the concatenation of the ANSYS root directory and the version value.
+
+### Enabling the OnDemand application
+By default, [ANSYS Workbench] is disabled. To enable it, update the `enabled` property to `true` for the `bc_ansys_workbench` application in `applications` section of your config file.
+
+```yml
+# Application settings
+applications:
+  - bc_ansys_workbench:
+    enabled: true
+```
+
+### Update a running environment
+To update an existing environment you have to applu the `ood-custom` playbook by running this command :
+```bash
+$ ./install.sh ood-custom
+```
+
+[ANSYS Workbench]: https://www.ansys.com/
+
+### License
+
+* Ansys, Ansys Workbench, Ansoft, AUTODYN, CFX, FLUENT, HFSS and any and all ANSYS, Inc. brand, product, service and feature names, logos and slogans are trademarks or registered trademarks of ANSYS, Inc. or its subsidiaries located in the United States or other countries.
+
+## Visual Molecular Dynamics
+An Open OnDemand app designed for `az-hop` that launches VMD session within a batch job.
+
+Adapted from https://github.com/OSC/bc_osc_vmd
+
+### Prerequisites
+
+[VMD] need to be installed on a file share system accessible by the nodes. 
+The default VMD root directory is defined as `/anfhome/apps/vmd`, but it can be changed in the `form.yml.erb` file and is a parameter in the UI.
+
+### Enabling the OnDemand application
+By default, [VMD] is disabled. To enable it, update the `enabled` property to `true` for the `bc_vmd` application in `applications` section of your config file.
+
+```yml
+# Application settings
+applications:
+  - bc_vmd:
+    enabled: true
+```
+
+### Update a running environment
+To update an existing environment you have to applu the `ood-custom` playbook by running this command :
+```bash
+$ ./install.sh ood-custom
+```
+
+[VMD]: http://www.ks.uiuc.edu/Research/vmd/
+
+### License
+
+* VMD and its logo are intellectual property owned by the University of Illinois, and all right, 
+title and interest, including copyright, remain with the University.
