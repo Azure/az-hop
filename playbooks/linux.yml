@@ -23,7 +23,7 @@
       state: restarted
 
 - name: Join AD domain and mount anfhome
-  hosts: jumpbox, scheduler, ondemand, grafana
+  hosts: scheduler, ondemand, grafana
   become: true
   gather_facts: no
   vars_files:

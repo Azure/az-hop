@@ -27,8 +27,10 @@
  * || check_fs_mount_rw -f "{{mounts.home.mountpoint}}"
  * || check_fs_used {{mounts.home.mountpoint}} 90%
  * || check_fs_iused {{mounts.home.mountpoint}} 98%
+ * || check_file_test -d /tmp/scratch
+ * || check_cmd_output -r 0 touch /tmp/scratch/nhctest
 
-{% if lustre is defined %}
+{% if ( features.lustre | default(false) ) %}
  * || check_fs_mount_rw -t "lustre" -f "/lustre"
  * || check_fs_used /lustre 90%
  * || check_fs_iused /lustre 98%
