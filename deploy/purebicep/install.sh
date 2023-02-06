@@ -4,6 +4,9 @@ set -o pipefail
 echo "* apt updating"
 apt update
 
+echo "* Update SSH port"
+sed -i 's/^#Port 22/Port __SSH_PORT__/' /etc/ssh/sshd_config
+
 echo "* Installing git"
 apt install -y git
 
