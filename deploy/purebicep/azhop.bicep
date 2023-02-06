@@ -151,7 +151,7 @@ var config = {
       }
     } : {}
     )
-    peerings: contains(azhopConfig.network,'peering') ? azhopConfig.network.peering : {}
+    peerings: contains(azhopConfig.network,'peering') ? azhopConfig.network.peering : []
   }
 
   images: {
