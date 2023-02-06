@@ -164,9 +164,10 @@ if [ ! -e $BICEP_PARAMS ]; then
   cp param.json $BICEP_PARAMS
 fi
 
-set_bicep_param_value ".parameters.softwareInstallFromDeployer" "false"
+set_bicep_param_value ".parameters.softwareInstallFromDeployer" "true"
 set_bicep_param_value ".parameters.autogenerateSecrets" "false"
 set_bicep_param_value ".parameters.loggedUserObjectId" "$logged_user_objectId"
+set_bicep_param_value ".parameters.branchName" "$(git branch | grep "*" | cut -d' ' -f 2)"
 
 set_bicep_azhopconfig
 

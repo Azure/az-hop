@@ -51,6 +51,9 @@ network:
     name: hpcvnet # Optional - default to hpcvnet
     id: # If a vnet id is set then no network will be created and the provided vnet will be used
     address_space: "10.0.0.0/23" 
+    # Special VNET Tags
+    # tags:
+    #   key1: value1
     # When using an existing VNET, only the subnet names will be used and not the adress_prefixes
     subnets: # all subnets are optionals
     # name values can be used to rename the default to specific names, address_prefixes to change the IP ranges to be used
