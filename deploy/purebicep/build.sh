@@ -105,6 +105,13 @@ function set_bicep_object_value()
   cp $TMP_PARAMS $BICEP_PARAMS
 }
 
+function set_bicep_azhopconfig()
+{
+  jq '. | .parameters.azhopConfig.value=$json' --argjson json "$(yq $AZHOP_CONFIG -o json | jq '.' -c)" $BICEP_PARAMS > $TMP_PARAMS
+  cp $TMP_PARAMS $BICEP_PARAMS
+}
+
+
 check_azcli_version
 
 # Check config syntax
@@ -160,22 +167,25 @@ fi
 set_bicep_param_value ".parameters.softwareInstallFromDeployer" "false"
 set_bicep_param_value ".parameters.autogenerateSecrets" "false"
 set_bicep_param_value ".parameters.loggedUserObjectId" "$logged_user_objectId"
-convert_parameter ".resource_group" ".parameters.azhopResourceGroupName"
-convert_parameter ".admin_user" ".parameters.adminUser"
-convert_parameter ".queue_manager" ".parameters.queueManager"
-convert_parameter ".locked_down_network.public_ip" ".parameters.publicIp"
-convert_parameter ".jumpbox.ssh_port" ".parameters.deployerSshPort"
-convert_parameter ".enable_remote_winviz" ".parameters.enableRemoteWinviz"
-convert_object_parameter ".network.peering" ".parameters.vnetPeerings"
-convert_parameter ".network.vnet.address_space" ".parameters.vnetCidr"
-convert_parameter ".network.vnet.subnets.frontend.address_prefixes" ".parameters.subnetFrontendCidr"
-convert_parameter ".network.vnet.subnets.ad.address_prefixes" ".parameters.subnetAdCidr"
-convert_parameter ".network.vnet.subnets.admin.address_prefixes" ".parameters.subnetAdminCidr"
-convert_parameter ".network.vnet.subnets.netapp.address_prefixes" ".parameters.subnetNetappCidr"
-convert_parameter ".network.vnet.subnets.outbounddns.address_prefixes" ".parameters.subnetOutboundDnsCidr"
-convert_parameter ".network.vnet.subnets.bastion.address_prefixes" ".parameters.subnetBastionCidr"
-convert_parameter ".network.vnet.subnets.gateway.address_prefixes" ".parameters.subnetGatewayCidr"
-convert_parameter ".network.vnet.subnets.compute.address_prefixes" ".parameters.subnetComputeCidr"
+
+set_bicep_azhopconfig
+
+#convert_parameter ".resource_group" ".parameters.azhopResourceGroupName"
+#convert_parameter ".admin_user" ".parameters.adminUser"
+#convert_parameter ".queue_manager" ".parameters.queueManager"
+#convert_parameter ".locked_down_network.public_ip" ".parameters.publicIp"
+#convert_parameter ".jumpbox.ssh_port" ".parameters.deployerSshPort"
+#convert_parameter ".enable_remote_winviz" ".parameters.enableRemoteWinviz"
+#convert_object_parameter ".network.peering" ".parameters.vnetPeerings"
+# convert_parameter ".network.vnet.address_space" ".parameters.vnetCidr"
+# convert_parameter ".network.vnet.subnets.frontend.address_prefixes" ".parameters.subnetFrontendCidr"
+# convert_parameter ".network.vnet.subnets.ad.address_prefixes" ".parameters.subnetAdCidr"
+# convert_parameter ".network.vnet.subnets.admin.address_prefixes" ".parameters.subnetAdminCidr"
+# convert_parameter ".network.vnet.subnets.netapp.address_prefixes" ".parameters.subnetNetappCidr"
+# convert_parameter ".network.vnet.subnets.outbounddns.address_prefixes" ".parameters.subnetOutboundDnsCidr"
+# convert_parameter ".network.vnet.subnets.bastion.address_prefixes" ".parameters.subnetBastionCidr"
+# convert_parameter ".network.vnet.subnets.gateway.address_prefixes" ".parameters.subnetGatewayCidr"
+# convert_parameter ".network.vnet.subnets.compute.address_prefixes" ".parameters.subnetComputeCidr"
 
 # Read secrets from the parameter file as we don't know the keyvault name until a proper deployment has been successful
 adminPassword=$(jq -r '.parameters.adminPassword.value' $BICEP_PARAMS)
@@ -213,7 +223,7 @@ jq '. | .azhopGlobalConfig.value.global_config_file=$param' --arg param $(pwd)/.
 cp $TMP_PARAMS $AZHOP_DEPLOYMENT_OUTPUT
 
 kv=$(jq -r .keyvaultName.value $AZHOP_DEPLOYMENT_OUTPUT)
-adminuser=$(jq -r .azhopConfig.value.admin_user $AZHOP_DEPLOYMENT_OUTPUT)
+#adminuser=$(jq -r .azhopConfig.value.admin_user $AZHOP_DEPLOYMENT_OUTPUT)
 
 echo "* Getting keys from keyvault"
 az keyvault secret show --vault-name $kv -n ${adminuser}-pubkey --query "value" -o tsv > $AZHOP_ROOT/${adminuser}_id_rsa.pub
@@ -221,8 +231,8 @@ az keyvault secret show --vault-name $kv -n ${adminuser}-privkey --query "value"
 chmod 600 $AZHOP_ROOT/${adminuser}_id_rsa*
 
 # As we provide the config file in input, generate it with a different name in order to troubleshoot it's generation from bicep
-echo "* Generating config files from templates"
-jq .azhopConfig.value $AZHOP_DEPLOYMENT_OUTPUT | yq -P  > $AZHOP_ROOT/output_config.yml
+#echo "* Generating config files from templates"
+#jq .azhopConfig.value $AZHOP_DEPLOYMENT_OUTPUT | yq -P  > $AZHOP_ROOT/output_config.yml
 
 mkdir -p $AZHOP_ROOT/bin
 jq -r .azhopGetSecretScript.value $AZHOP_DEPLOYMENT_OUTPUT > $AZHOP_ROOT/bin/get_secret
