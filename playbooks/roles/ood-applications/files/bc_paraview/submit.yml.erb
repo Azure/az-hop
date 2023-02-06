@@ -1,0 +1,30 @@
+---
+<%-
+
+require "yaml"
+node_arrays = YAML.load_file("/etc/ood/config/apps/bc_desktop/config/node_arrays.yml")
+node_ratio = bucket.to_i
+node_count = bc_num_slots.to_i
+
+if OodAppkit.clusters[cluster].job_config[:adapter] == 'slurm'
+
+else
+  scheduler_args = ["-q", "vizq"]
+  node_arrays.each do |slot_type|
+    if slot_type["name"] == bc_slot_type
+      cores = (slot_type["vcpuCount"].to_i / node_ratio)
+      scheduler_args += ["-l", "select=%d:slot_type=%s:ncpus=%d:mpiprocs=%d" % [node_count, bc_slot_type, cores, cores]]
+      break
+    end
+  end
+end
+
+-%>
+
+batch_connect:
+  template: "vnc"
+script:
+  native:
+  <%- scheduler_args.each do |arg| %>
+    - "<%= arg %>"
+  <%- end %>

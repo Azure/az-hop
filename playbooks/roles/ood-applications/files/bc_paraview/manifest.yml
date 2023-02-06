@@ -1,0 +1,10 @@
+---
+name: ParaView
+category: Interactive Apps
+subcategory: GUIs
+role: batch_connect
+description: |
+  This app will launch a [ParaView] within a [Turbo VNC] session.
+
+  [ParaView]: https://www.paraview.org/
+  [Turbo VNC]: https://www.turbovnc.org/
