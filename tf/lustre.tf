@@ -166,7 +166,7 @@ resource "azurerm_key_vault_access_policy" "lustre-oss" {
   key_vault_id        = azurerm_key_vault.azhop.id
   tenant_id           = local.tenant_id
   #object_id           = azurerm_user_assigned_identity.lustre-oss[0].principal_id
-  object_id           = azurerm_linux_virtual_machine.lustre-oss[0].identity.principal_id
+  object_id           = azurerm_linux_virtual_machine.lustre-oss[0].identity[0].principal_id
                         
   key_permissions     = [ "Get", "List" ]
   secret_permissions  = [ "Get", "List" ]
