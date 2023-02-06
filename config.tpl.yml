@@ -441,3 +441,5 @@ applications:
     enabled: false
   bc_vmd:
     enabled: false
+  bc_paraview:
+    enabled: false
