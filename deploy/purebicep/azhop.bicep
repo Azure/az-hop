@@ -268,7 +268,6 @@ var config = {
           deploy_script: replace(replace(loadTextContent('install.sh'), '__INSERT_AZHOP_BRANCH__', branchName), '__SSH_PORT__', string(deployerSshPort))
           identity: {
             keyvault: {
-              key_permissions: [ 'All' ] // I don't think is is required
               secret_permissions: [ 'All' ]
             }
             roles: [
@@ -293,7 +292,6 @@ var config = {
       guacamole: {
       identity: {
         keyvault: {
-          key_permissions: [ 'Get', 'List' ]
           secret_permissions: [ 'Get', 'List' ]
         }
       }
@@ -328,7 +326,6 @@ var config = {
         count: azhopConfig.lustre.oss_count
         identity: {
           keyvault: {
-            key_permissions: [ 'Get', 'List' ]
             secret_permissions: [ 'Get', 'List' ]
           }
         }
@@ -341,7 +338,6 @@ var config = {
       robinhood: {
         identity: {
           keyvault: {
-            key_permissions: [ 'Get', 'List' ]
             secret_permissions: [ 'Get', 'List' ]
           }
         }
@@ -652,7 +648,7 @@ module azhopKeyvault './keyvault.bicep' = {
     keyvaultOwnerId: loggedUserObjectId
     identityPerms: [ for i in range(0, length(vmItems)): {
       principalId: azhopVm[i].outputs.principalId
-      key_permissions: (contains(vmItems[i].value, 'identity') && contains(vmItems[i].value.identity, 'keyvault')) ? vmItems[i].value.identity.keyvault.key_permissions : []
+      key_permissions: (contains(vmItems[i].value, 'identity') && contains(vmItems[i].value.identity, 'keyvault') && contains(vmItems[i].value.identity.keyvault, 'key_permissions')) ? vmItems[i].value.identity.keyvault.key_permissions : []
       secret_permissions: (contains(vmItems[i].value, 'identity') && contains(vmItems[i].value.identity, 'keyvault')) ? vmItems[i].value.identity.keyvault.secret_permissions : []
     }]
     secrets: keyvaultSecrets
