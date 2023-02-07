@@ -28,9 +28,6 @@ param adminPassword string = ''
 @secure()
 param slurmAccountingAdminPassword string = ''
 
-@description('Run software installation from the Deployer VM. Default to true')
-param softwareInstallFromDeployer bool = true
-
 @description('Identity of the deployer if not deploying from a deployer VM')
 param loggedUserObjectId string = ''
 
@@ -40,8 +37,13 @@ param azhopConfig object
 var resourcePostfix = '${uniqueString(subscription().subscriptionId, azhopResourceGroupName)}x'
 
 // Local variables to help in the simplication as functions doesn't exists
-var jumpboxSshPort = contains(azhopConfig.jumpbox, 'ssh_port') ? azhopConfig.jumpbox.ssh_port : 22
+var enablePublicIP = contains(azhopConfig.locked_down_network, 'public_ip') ? azhopConfig.locked_down_network.public_ip : true
+var jumpboxSshPort = deployJumpbox ? (contains(azhopConfig.jumbox, 'ssh_port') ? azhopConfig.jumpbox.ssh_port : 22) : 22
+var deployerSshPort = deployDeployer ? (contains(azhopConfig.deployer, 'ssh_port') ? azhopConfig.deployer.ssh_port : 22) : 22
+
 var deployLustre = contains(azhopConfig, 'lustre') ? true : false
+var deployJumpbox = contains(azhopConfig, 'jumpbox') ? true : false
+var deployDeployer = contains(azhopConfig, 'deployer') ? true : false
 var enableWinViz = contains(azhopConfig, 'enable_remote_winviz') ? azhopConfig.enable_remote_winviz : false
 var highAvailabilityForAD = contains(azhopConfig.ad, 'high_availability') ? azhopConfig.ad.high_availability : false
 
@@ -56,7 +58,7 @@ var config = {
   admin_user: azhopConfig.admin_user
   keyvault_readers: contains(azhopConfig, 'key_vault_readers') ? ( empty(azhopConfig.key_vault_readers) ? [] : [ azhopConfig.key_vault_readers ] ) : []
 
-  public_ip: contains(azhopConfig.locked_down_network, 'public_ip') ? azhopConfig.locked_down_network.public_ip : true
+  public_ip: enablePublicIP
   deploy_gateway: contains(azhopConfig.network.vnet.subnets,'gateway')
   deploy_bastion: contains(azhopConfig.network.vnet.subnets,'bastion')
   deploy_lustre: deployLustre
@@ -69,7 +71,7 @@ var config = {
   queue_manager: contains(azhopConfig, 'queue_manager') ? azhopConfig.queue_manager : 'openpbs'
 
   slurm: {
-    admin_user: contains(azhopConfig, 'database') ? (contains(azhopConfig.database, 'user') ? azhopConfig.database.user : 'sqladmin') : 'sqladmin'
+    admin_user: contains(azhopConfig.database, 'user') ? azhopConfig.database.user : 'sqladmin'
     accounting_enabled: contains(azhopConfig.slurm, 'accounting_enabled') ? azhopConfig.slurm.accounting_enabled : false
     enroot_enabled: contains(azhopConfig.slurm, 'enroot_enabled') ? azhopConfig.slurm.enroot_enabled : false
   }
@@ -197,31 +199,6 @@ var config = {
 
   vms: union(
     {
-      deployer: union(
-        {
-          subnet: 'frontend'
-          sku: azhopConfig.jumpbox.vm_size
-          osdisksku: 'Standard_LRS'
-          image: 'ubuntu'
-          pip: contains(azhopConfig.locked_down_network, 'public_ip') ? azhopConfig.locked_down_network.public_ip : true
-          sshPort: jumpboxSshPort
-          asgs: [ 'asg-ssh', 'asg-jumpbox', 'asg-deployer', 'asg-ad-client', 'asg-telegraf', 'asg-nfs-client' ]
-        }, softwareInstallFromDeployer ? {
-          deploy_script: replace(loadTextContent('install.sh'), '__INSERT_AZHOP_BRANCH__', branchName)
-          identity: {
-            keyvault: {
-              key_permissions: [ 'All' ]
-              secret_permissions: [ 'All' ]
-            }
-            roles: [
-              'Contributor'
-              'UserAccessAdministrator'
-            ]
-          }
-        } : {
-          deploy_script: jumpboxSshPort != 22 ? replace(loadTextContent('jumpbox.yml'), '__SSH_PORT__', string(jumpboxSshPort)) : ''
-        }
-      )
       ad: {
         subnet: 'ad'
         windows: true
@@ -236,7 +213,7 @@ var config = {
         sku: azhopConfig.ondemand.vm_size
         osdisksku: 'StandardSSD_LRS'
         image: 'linux_base'
-        pip: contains(azhopConfig.locked_down_network, 'public_ip') ? azhopConfig.locked_down_network.public_ip : true
+        pip: enablePublicIP
         asgs: union(
           [ 'asg-ssh', 'asg-ondemand', 'asg-ad-client', 'asg-nfs-client', 'asg-pbs-client', 'asg-telegraf', 'asg-guacamole', 'asg-cyclecloud-client', 'asg-mariadb-client' ],
           deployLustre ? [ 'asg-lustre-client' ] : []
@@ -277,6 +254,28 @@ var config = {
         asgs: [ 'asg-ssh', 'asg-pbs', 'asg-ad-client', 'asg-cyclecloud-client', 'asg-nfs-client', 'asg-telegraf', 'asg-mariadb-client' ]
       }
     },
+    deployDeployer ? {
+      deployer: {
+          subnet: 'frontend'
+          sku: azhopConfig.deployer.vm_size
+          osdisksku: 'Standard_LRS'
+          image: 'ubuntu'
+          pip: enablePublicIP
+          sshPort: deployerSshPort
+          asgs: [ 'asg-ssh', 'asg-jumpbox', 'asg-deployer', 'asg-telegraf' ]
+          deploy_script: replace(replace(loadTextContent('install.sh'), '__INSERT_AZHOP_BRANCH__', branchName), '__SSH_PORT__', string(deployerSshPort))
+          identity: {
+            keyvault: {
+              key_permissions: [ 'All' ] // I don't think is is required
+              secret_permissions: [ 'All' ]
+            }
+            roles: [
+              'Contributor'
+              'UserAccessAdministrator'
+            ]
+          }
+        }
+    } : {},
     highAvailabilityForAD ? {
       ad2: {
         subnet: 'ad'
@@ -301,6 +300,17 @@ var config = {
       osdisksku: 'StandardSSD_LRS'
       image: 'linux_base'
       asgs: [ 'asg-ssh', 'asg-ad-client', 'asg-telegraf', 'asg-nfs-client', 'asg-cyclecloud-client', 'asg-mariadb-client' ]
+      }
+    } : {},
+    deployJumpbox ? {
+      jumpbox: {
+        subnet: 'frontend'
+        sku: azhopConfig.jumpbox.vm_size
+        osdisksku: 'StandardSSD_LRS'
+        image: 'linux_base'
+        pip: enablePublicIP
+        asgs: [ 'asg-ssh', 'asg-jumpbox', 'asg-ad-client', 'asg-telegraf', 'asg-nfs-client' ]
+        deploy_script: jumpboxSshPort != 22 ? replace(loadTextContent('jumpbox.yml'), '__SSH_PORT__', string(jumpboxSshPort)) : ''
       }
     } : {},
     deployLustre ? {
@@ -350,7 +360,7 @@ var config = {
     Bastion: ['22', '3389']
     Web: ['443', '80']
     Ssh: ['22']
-    Public_Ssh: [string(jumpboxSshPort)]
+    HubSsh: [string(jumpboxSshPort), string(deployerSshPort)]
     Socks: ['5985']
     // DNS, Kerberos, RpcMapper, Ldap, Smb, KerberosPass, LdapSsl, LdapGc, LdapGcSsl, AD Web Services, RpcSam
     DomainControlerTcp: ['53', '88', '135', '389', '445', '464', '636', '3268', '3269', '9389', '49152-65535']
@@ -531,7 +541,7 @@ var config = {
       AllowInternetHttpIn         : ['210', 'Inbound', 'Allow', 'Tcp', 'Web', 'tag', 'Internet', 'asg', 'asg-ondemand']
     }
     hub: {
-      AllowHubSshIn               : ['200', 'Inbound', 'Allow', 'Tcp', 'Public_Ssh', 'tag', 'VirtualNetwork', 'asg', 'asg-jumpbox']
+      AllowHubSshIn               : ['200', 'Inbound', 'Allow', 'Tcp', 'HubSsh', 'tag', 'VirtualNetwork', 'asg', 'asg-jumpbox']
       AllowHubHttpIn              : ['210', 'Inbound', 'Allow', 'Tcp', 'Web',        'tag', 'VirtualNetwork', 'asg', 'asg-ondemand']
     }
     bastion: {
@@ -794,7 +804,7 @@ output azhopInventory object = {
     hosts: union (
       {
         localhost: {
-          psrp_ssh_proxy: softwareInstallFromDeployer ? '' : azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIps[0]
+          psrp_ssh_proxy: deployJumpbox ? azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIps[0] : ''
         }
         scheduler: {
           ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'scheduler')].outputs.privateIps[0]
@@ -814,8 +824,8 @@ output azhopInventory object = {
           ansible_psrp_protocol: 'http'
           ansible_user: config.admin_user
           ansible_password: secrets.adminPassword
-          psrp_ssh_proxy: softwareInstallFromDeployer ? '' : azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIps[0]
-          ansible_psrp_proxy: softwareInstallFromDeployer ? '' : 'socks5h://localhost:5985'
+          psrp_ssh_proxy: deployJumpbox ? azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIps[0] : ''
+          ansible_psrp_proxy: deployJumpbox ? 'socks5h://localhost:5985' : ''
         }
       },
       indexOf(map(vmItems, item => item.key), 'ad2') > 0 ? {
@@ -825,17 +835,17 @@ output azhopInventory object = {
           ansible_psrp_protocol: 'http'
           ansible_user: config.admin_user
           ansible_password: secrets.adminPassword
-          psrp_ssh_proxy: softwareInstallFromDeployer ? '' : azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIps[0]
-          ansible_psrp_proxy: softwareInstallFromDeployer ? '' : 'socks5h://localhost:5985'
+          psrp_ssh_proxy: deployJumpbox ? azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIps[0] : ''
+          ansible_psrp_proxy: deployJumpbox ? 'socks5h://localhost:5985' : ''
         }
       } : {} ,
-      softwareInstallFromDeployer ? {} : {
+      deployJumpbox ? {
         jumpbox : {
-          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIps[0]
-          ansible_ssh_port: config.vms.deployer.sshPort
+          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIps[0]
+          ansible_ssh_port: config.vms.jumpbox.sshPort
           ansible_ssh_common_args: ''
         }
-      },
+      } : {},
       config.deploy_lustre ? {
         lustre: {
           ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'lustre')].outputs.privateIps[0]
@@ -852,7 +862,7 @@ output azhopInventory object = {
     )
     vars: {
       ansible_ssh_user: config.admin_user
-      ansible_ssh_common_args: softwareInstallFromDeployer ? '' : '-o ProxyCommand="ssh -i ${config.admin_user}_id_rsa -p ${config.vms.deployer.sshPort} -W %h:%p ${config.admin_user}@${azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIps[0]}"'
+      ansible_ssh_common_args: deployJumpbox ? '-o ProxyCommand="ssh -i ${config.admin_user}_id_rsa -p ${config.vms.jumpbox.sshPort} -W %h:%p ${config.admin_user}@${azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIps[0]}"' : ''
     }
   }
 }
@@ -891,9 +901,9 @@ elif [[ $1 == "ad" ]]; then
 else
   exec ssh -i {0}_id_rsa -o ProxyCommand="ssh -i {0}_id_rsa -p {1} -W %h:%p {0}@{2}" "$@"
 fi
-''', config.admin_user, config.vms.deployer.sshPort, azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIps[0])
+''', config.admin_user, config.vms.jumpbox.sshPort, azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIps[0])
 
-output azhopConnectScript string = softwareInstallFromDeployer ? azhopConnectScript : azhopSSHConnectScript
+output azhopConnectScript string = deployDeployer ? azhopConnectScript : azhopSSHConnectScript
 
 
 output azhopGetSecretScript string = format('''

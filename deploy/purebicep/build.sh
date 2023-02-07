@@ -175,10 +175,7 @@ if [ ! -e $BICEP_PARAMS ]; then
 fi
 
 if [ "$AZHOP_FROM" == "local" ]; then
-  set_bicep_param_value ".parameters.softwareInstallFromDeployer" "false"
   set_bicep_param_value ".parameters.loggedUserObjectId" "$logged_user_objectId"
-else
-  set_bicep_param_value ".parameters.softwareInstallFromDeployer" "true"
 fi
 
 set_bicep_param_value ".parameters.autogenerateSecrets" "false"

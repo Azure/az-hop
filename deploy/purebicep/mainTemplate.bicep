@@ -3,14 +3,8 @@ targetScope = 'subscription'
 @description('Azure region to use')
 param location string = deployment().location
 
-// @description('Deploy a SIG or not. Default to false')
-// param deploySIG bool = false
-
 @description('Identity of the deployer if not deploying from a deployer VM')
 param loggedUserObjectId string = ''
-
-@description('Run software installation from the Deployer VM. Default to true')
-param softwareInstallFromDeployer bool = true
 
 @description('Branch of the azhop repo to pull - Default to main')
 param branchName string = 'main'
@@ -53,7 +47,6 @@ module azhopDeployment './azhop.bicep' = {
     adminSshPrivateKey: adminSshPrivateKey
     adminPassword: adminPassword
     slurmAccountingAdminPassword: slurmAccountingAdminPassword
-    softwareInstallFromDeployer: softwareInstallFromDeployer
     loggedUserObjectId: loggedUserObjectId
     branchName: branchName
     azhopConfig: azhopConfig

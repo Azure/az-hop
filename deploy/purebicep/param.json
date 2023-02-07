@@ -3,12 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
       "autogenerateSecrets": { "value": true },
-      "softwareInstallFromDeployer": { "value": true },
-      "deployGateway": { "value": false},
-      "deployBastion": { "value": false},
-      "deploySIG": { "value": false},
       "loggedUserObjectId": {"value": ""},
-      "branchName": {"value": "main"},
-      "vnetTags": { "value": {} }
+      "branchName": {"value": "main"}
     }
 }
