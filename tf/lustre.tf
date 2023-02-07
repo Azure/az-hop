@@ -199,7 +199,6 @@ resource "azurerm_key_vault_access_policy" "lustre-oss-1" {
 
 resource "azurerm_key_vault_access_policy" "lustre-oss" {
   count               = local.lustre_oss_count
-  name                = "lustre-oss-${count.index}"
   key_vault_id        = azurerm_key_vault.azhop.id
   tenant_id           = local.tenant_id
   object_id           = azurerm_linux_virtual_machine.lustre-oss[count.index].identity[0].principal_id
