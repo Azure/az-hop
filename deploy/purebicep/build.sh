@@ -160,9 +160,9 @@ adminPassword=$(jq -r '.parameters.adminPassword.value' $BICEP_PARAMS)
 if [ "$adminPassword" == "null" ]; then
   set_bicep_param_value ".parameters.adminPassword" "$(openssl rand -base64 24)"
 fi
-slurmAccountingAdminPassword=$(jq -r '.parameters.slurmAccountingAdminPassword.value' $BICEP_PARAMS)
+databaseAdminPassword=$(jq -r '.parameters.databaseAdminPassword.value' $BICEP_PARAMS)
 if [ "$adminPassword" == "null" ]; then
-  set_bicep_param_value ".parameters.slurmAccountingAdminPassword" "$(openssl rand -base64 24)"
+  set_bicep_param_value ".parameters.databaseAdminPassword" "$(openssl rand -base64 24)"
 fi
 adminSshPublicKey=$(jq -r '.parameters.adminSshPublicKey.value' $BICEP_PARAMS)
 if [ "$adminSshPublicKey" == "null" ]; then
