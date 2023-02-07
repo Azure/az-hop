@@ -40,7 +40,9 @@ resource "azurerm_linux_virtual_machine" "ccportal" {
 */
 ###
 
-  # SYSTEM MANAGE IDENTITY CONFIG*/
+  #####################################################
+  #  SYSTEM MANAGE IDENTITY CONFIG                    #
+  #####################################################
   identity {
     type         = "SystemAssigned"
   }
@@ -171,8 +173,9 @@ resource "azurerm_role_assignment" "ccportal_rg" {
   principal_id       = azurerm_user_assigned_identity.ccportal.principal_id
 }*/
 
-/*SYSTEM MANAGE IDENTITY CONFIG*/
-# Grant Contributor access to Cycle in the az-hop resource group
+####################################################################
+#  Grant Contributor access to Cycle in the az-hop resource group  #
+####################################################################
 resource "azurerm_role_assignment" "ccportal_rg" {
   scope              = local.create_rg ? azurerm_resource_group.rg[0].id : data.azurerm_resource_group.rg[0].id
   role_definition_id = "${data.azurerm_subscription.primary.id}${data.azurerm_role_definition.contributor.id}"
@@ -189,8 +192,9 @@ resource "azurerm_role_assignment" "ccportal_sub_reader" {
 }
 */
 
-/*SYSTEM MANAGE IDENTITY CONFIG*/
-# Grant Subscription Reader access to Cycle
+###############################################
+#  Grant Subscription Reader access to Cycle  #
+###############################################
 resource "azurerm_role_assignment" "ccportal_sub_reader" {
   scope              = "${data.azurerm_subscription.primary.id}"
   role_definition_id = "${data.azurerm_subscription.primary.id}${data.azurerm_role_definition.reader.id}"

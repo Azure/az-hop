@@ -147,7 +147,9 @@ resource "azurerm_linux_virtual_machine" "lustre-oss" {
   #  identity_ids = [ azurerm_user_assigned_identity.lustre-oss[0].id ]
   #}
 
-  #SYSTEM MANAGE IDENTITY CONFIG*/
+  #####################################################
+  #  SYSTEM MANAGE IDENTITY CONFIG                    #
+  #####################################################
   identity {
     type         = "SystemAssigned"
   }
@@ -160,7 +162,7 @@ resource "azurerm_linux_virtual_machine" "lustre-oss" {
   }
 }
 
-/*
+/* User Manage Identity
 # Grant read access to the Keyvault for the lustre-oss identity
 resource "azurerm_key_vault_access_policy" "lustre-oss" {
   count               = local.lustre_enabled ? 1 : 0
@@ -176,27 +178,6 @@ resource "azurerm_key_vault_access_policy" "lustre-oss" {
 #########################################################################
 #  Grant read access to the Keyvault to lustre-oss-0 and lustre-oss-1   #
 #########################################################################
-/*
-resource "azurerm_key_vault_access_policy" "lustre-oss-0" {
-  count               = local.lustre_enabled ? 1 : 0
-  key_vault_id        = azurerm_key_vault.azhop.id
-  tenant_id           = local.tenant_id
-  object_id           = azurerm_linux_virtual_machine.lustre-oss[0].identity[0].principal_id
-                        
-  key_permissions     = [ "Get", "List" ]
-  secret_permissions  = [ "Get", "List" ]
-}
-
-resource "azurerm_key_vault_access_policy" "lustre-oss-1" {
-  count               = local.lustre_enabled ? 1 : 0
-  key_vault_id        = azurerm_key_vault.azhop.id
-  tenant_id           = local.tenant_id
-  object_id           = azurerm_linux_virtual_machine.lustre-oss[1].identity[0].principal_id
-                        
-  key_permissions     = [ "Get", "List" ]
-  secret_permissions  = [ "Get", "List" ]
-}*/
-
 resource "azurerm_key_vault_access_policy" "lustre-oss" {
   count               = local.lustre_oss_count
   key_vault_id        = azurerm_key_vault.azhop.id
@@ -298,7 +279,9 @@ resource "azurerm_linux_virtual_machine" "robinhood" {
   #  identity_ids = [ azurerm_user_assigned_identity.lustre-oss[0].id ]
   #}
 
-  # SYSTEM MANAGE IDENTITY CONFIG*/
+  #####################################################
+  #  SYSTEM MANAGE IDENTITY CONFIG                    #
+  #####################################################
   identity {
     type         = "SystemAssigned"
   }
