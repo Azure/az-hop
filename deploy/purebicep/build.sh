@@ -53,25 +53,6 @@ function check_azcli_version {
   fi
 }
 
-function convert_parameter()
-{
-  local configParam=$1
-  local bicepParam=$2
-
-  configValue=$(yq $configParam $AZHOP_CONFIG)
-
-  set_bicep_param_value $bicepParam $configValue
-}
-
-function convert_object_parameter()
-{
-  local configParam=$1
-  local bicepParam=$2
-
-  configValue=$(yq $configParam $AZHOP_CONFIG -o json | jq '.' -c)
-  set_bicep_object_value $bicepParam $configValue
-}
-
 function set_bicep_param_value()
 {
   local Param=$1
@@ -93,17 +74,6 @@ function set_bicep_param_value()
   jq "$eval_str" --arg param "$Value" $BICEP_PARAMS > $TMP_PARAMS
   cp $TMP_PARAMS $BICEP_PARAMS
 
-}
-
-function set_bicep_object_value()
-{
-  local Param=$1
-  local Value=$2
-
-  eval_str=". | $Param.value=\$param"
-
-  jq "$eval_str" --argjson param "$Value" $BICEP_PARAMS > $TMP_PARAMS
-  cp $TMP_PARAMS $BICEP_PARAMS
 }
 
 function set_bicep_azhopconfig()
