@@ -160,17 +160,43 @@ resource "azurerm_linux_virtual_machine" "lustre-oss" {
   }
 }
 
+/*
 # Grant read access to the Keyvault for the lustre-oss identity
 resource "azurerm_key_vault_access_policy" "lustre-oss" {
   count               = local.lustre_enabled ? 1 : 0
   key_vault_id        = azurerm_key_vault.azhop.id
   tenant_id           = local.tenant_id
-  #object_id           = azurerm_user_assigned_identity.lustre-oss[0].principal_id
+  object_id           = azurerm_user_assigned_identity.lustre-oss[0].principal_id
+                        
+  key_permissions     = [ "Get", "List" ]
+  secret_permissions  = [ "Get", "List" ]
+}*/
+
+
+#########################################################################
+#  Grant read access to the Keyvault to lustre-oss-0 and lustre-oss-1   #
+#########################################################################
+
+resource "azurerm_key_vault_access_policy" "lustre-oss-0" {
+  count               = local.lustre_enabled ? 1 : 0
+  key_vault_id        = azurerm_key_vault.azhop.id
+  tenant_id           = local.tenant_id
   object_id           = azurerm_linux_virtual_machine.lustre-oss[0].identity[0].principal_id
                         
   key_permissions     = [ "Get", "List" ]
   secret_permissions  = [ "Get", "List" ]
 }
+
+resource "azurerm_key_vault_access_policy" "lustre-oss-1" {
+  count               = local.lustre_enabled ? 1 : 0
+  key_vault_id        = azurerm_key_vault.azhop.id
+  tenant_id           = local.tenant_id
+  object_id           = azurerm_linux_virtual_machine.lustre-oss[1].identity[0].principal_id
+                        
+  key_permissions     = [ "Get", "List" ]
+  secret_permissions  = [ "Get", "List" ]
+}
+
 
 # Problem : How to generate associations for all OSS instances as we can't mix count and for_each ???
 # Solution : Use a combined flatten list
@@ -272,6 +298,22 @@ resource "azurerm_linux_virtual_machine" "robinhood" {
     ]
   }
 }
+
+#####################################################
+#  Grant read access to the Keyvault to robinhood   #
+#####################################################
+
+resource "azurerm_key_vault_access_policy" "robinhood" {
+  count               = local.lustre_enabled ? 1 : 0
+  key_vault_id        = azurerm_key_vault.azhop.id
+  tenant_id           = local.tenant_id
+  object_id           = azurerm_linux_virtual_machine.robinhood[0].identity[0].principal_id
+                        
+  key_permissions     = [ "Get", "List" ]
+  secret_permissions  = [ "Get", "List" ]
+}
+
+
 
 resource "azurerm_network_interface_application_security_group_association" "robinhood-asg-asso" {
   for_each                      = local.lustre_enabled ? toset(local.asg_associations["robinhood"]) : []
