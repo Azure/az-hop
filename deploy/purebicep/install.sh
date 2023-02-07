@@ -6,6 +6,7 @@ apt update
 
 echo "* Update SSH port"
 sed -i 's/^#Port 22/Port __SSH_PORT__/' /etc/ssh/sshd_config
+systemctl restart sshd
 
 echo "* Installing git"
 apt install -y git

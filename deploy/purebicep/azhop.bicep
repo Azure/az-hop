@@ -38,7 +38,7 @@ var resourcePostfix = '${uniqueString(subscription().subscriptionId, azhopResour
 
 // Local variables to help in the simplication as functions doesn't exists
 var enablePublicIP = contains(azhopConfig.locked_down_network, 'public_ip') ? azhopConfig.locked_down_network.public_ip : true
-var jumpboxSshPort = deployJumpbox ? (contains(azhopConfig.jumbox, 'ssh_port') ? azhopConfig.jumpbox.ssh_port : 22) : 22
+var jumpboxSshPort = deployJumpbox ? (contains(azhopConfig.jumpbox, 'ssh_port') ? azhopConfig.jumpbox.ssh_port : 22) : 22
 var deployerSshPort = deployDeployer ? (contains(azhopConfig.deployer, 'ssh_port') ? azhopConfig.deployer.ssh_port : 22) : 22
 
 var deployLustre = contains(azhopConfig, 'lustre') ? true : false
@@ -309,6 +309,7 @@ var config = {
         osdisksku: 'StandardSSD_LRS'
         image: 'linux_base'
         pip: enablePublicIP
+        sshPort: jumpboxSshPort
         asgs: [ 'asg-ssh', 'asg-jumpbox', 'asg-ad-client', 'asg-telegraf', 'asg-nfs-client' ]
         deploy_script: jumpboxSshPort != 22 ? replace(loadTextContent('jumpbox.yml'), '__SSH_PORT__', string(jumpboxSshPort)) : ''
       }
@@ -785,7 +786,7 @@ output azhopGlobalConfig object = union(
     azure_environment             : envNameToCloudMap[environment().name]
     key_vault_suffix              : substring(kvSuffix, 1, length(kvSuffix) - 1) // vault.azure.net - remove leading dot from env
     blob_storage_suffix           : 'blob.${environment().suffixes.storage}' // blob.core.windows.net
-    jumpbox_ssh_port              : config.vms.deployer.sshPort
+    jumpbox_ssh_port              : deployJumpbox ? config.vms.jumpbox.sshPort : 22
   },
   config.homedir == 'anf' ? {
     anf_home_ip                   : azhopAnf.outputs.nfs_home_ip
