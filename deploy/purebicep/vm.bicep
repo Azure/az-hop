@@ -84,10 +84,10 @@ var datadisks = contains(vm, 'datadisks') ? vm.datadisks : []
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-06-01' = [ for (vmPrefix, i) in vmPrefixes: {
   name: '${name}${vmPrefix}'
   location: location
-  plan: contains(image, 'plan') && image.plan == true ? {
-    publisher: image.ref.publisher
-    product: image.ref.offer
-    name: image.ref.sku
+  plan: contains(image, 'plan') && empty(image.plan) == false ? {
+    publisher: split(image.plan,':')[0]
+    product: split(image.plan,':')[1]
+    name: split(image.plan,':')[2]
   } : null
   identity: requires_identity ? {
     type: 'UserAssigned'

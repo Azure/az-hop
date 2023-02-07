@@ -4,6 +4,9 @@ set -o pipefail
 echo "* apt updating"
 apt update
 
+echo "* Update SSH port"
+sed -i 's/^#Port 22/Port __SSH_PORT__/' /etc/ssh/sshd_config
+
 echo "* Installing git"
 apt install -y git
 
@@ -22,7 +25,9 @@ mkdir -p $azhop_root/deploy
 cd $azhop_root/deploy
 
 echo "* Logging in to Azure"
-az login -i
+# Add retry logic as it could take some delay to apply the Managed Identity
+timeout 120s bash -c 'until az login -i; do sleep 10; done'
+
 deployment_name=azhop
 resource_group=$(curl -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2017-08-01" | jq -r .compute.resourceGroupName)
 
@@ -59,6 +64,8 @@ jq -r .azhopConnectScript.value azhopOutputs.json > $azhop_root/bin/connect
 chmod +x $azhop_root/bin/connect
 
 mkdir -p $azhop_root/playbooks/group_vars
+jq '. | .azhopGlobalConfig.value.global_config_file=$param' --arg param $azhop_root/config.yml azhopOutputs.json > tmp.json
+cp tmp.json azhopOutputs.json
 jq .azhopGlobalConfig.value azhopOutputs.json | yq -P > $azhop_root/playbooks/group_vars/all.yml
 
 jq '.azhopInventory.value.all.hosts *= (.lustre_oss_private_ips.value | to_entries | map({("lustre-oss-" + (.key + 1 | tostring)): {"ansible_host": .value}}) | add // {}) | .azhopInventory.value' azhopOutputs.json | yq -P > $azhop_root/playbooks/inventory
