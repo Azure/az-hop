@@ -5,10 +5,10 @@
             "use_azure_cli_auth": "{{user `var_use_azure_cli_auth`}}",
             "image_publisher": "almalinux",
             "image_offer": "almalinux-hpc",
-            "image_sku": "8-hpc-gen2",
+            "image_sku": "8_6-hpc-gen2",
             "image_version": "latest",
             "plan_info": {
-                "plan_name": "8-hpc-gen2",
+                "plan_name": "8_6-hpc-gen2",
                 "plan_publisher": "almalinux",
                 "plan_product": "almalinux-hpc"
             },
