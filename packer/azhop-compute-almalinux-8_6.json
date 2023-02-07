@@ -16,6 +16,8 @@
             "managed_image_name": "{{user `var_image`}}",
             "os_type": "Linux",
             "vm_size": "Standard_d8s_v3",
+            "keep_os_disk": "{{user `var_keep_os_disk`}}",
+            "temp_os_disk_name": "{{user `var_image`}}",
             "managed_image_storage_account_type": "Premium_LRS",
             "ssh_pty": "true",
             "build_resource_group_name": "{{user `var_resource_group`}}",
