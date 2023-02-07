@@ -1,0 +1,7 @@
+#cloud-config
+runcmd:
+  - echo "Update SSH port to __SSH_PORT__"
+  - sed -i 's/^#Port 22/Port __SSH_PORT__/' /etc/ssh/sshd_config
+  - semanage port -a -t ssh_port_t -p tcp __SSH_PORT__
+  - echo "Restart SSH"
+  - systemctl restart sshd

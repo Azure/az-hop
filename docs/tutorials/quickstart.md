@@ -6,7 +6,7 @@
       * [Task 2: Validate a sufficient number of vCPU cores](#task-2-validate-a-sufficient-number-of-vcpu-cores)
    * [Exercise 1: Deploy the Azure HPC OnDemand Platform environment](#exercise-1-deploy-the-azure-hpc-ondemand-platform-environment)
       * [Task 1: Connect to a Cloud Shell session](#task-1-connect-to-a-cloud-shell-session)
-      * [Task 2 : Clone the az-hop github repository](#task-2--clone-the-az-hop-github-repository)
+      * [Task 2 : Clone the az-hop GitHub repository](#task-2--clone-the-az-hop-github-repository)
       * [Task 3 : Prepare the configuration file used to build the az-hop environment](#task-3--prepare-the-configuration-file-used-to-build-the-az-hop-environment)
       * [Task 4 : Deploy the environment](#task-4--deploy-the-environment)
       * [Task 5 : Connect to the deployer VM thru Azure Bastion](#task-5--connect-to-the-deployer-vm-thru-azure-bastion)
@@ -133,12 +133,12 @@ Run the `az account show` to display the current account and subscription used. 
    az account set --subscription '<subscription_ID>'
    ```
 
-### Task 2 : Clone the `az-hop` github repository
+### Task 2 : Clone the `az-hop` GitHub repository
 
 1. Run the following commands to clone the public `az-hop` gihub repository in your Cloud Shell session.
 
    ```bash
-   git clone https://github.com/Azure/az-hop.git
+   git clone https://github.com/Azure/az-hop.git -b v1.0.29
    ```
 
 ### Task 3 : Prepare the configuration file used to build the `az-hop` environment
@@ -152,7 +152,7 @@ In this task, you will prepare the `build.yml` file used by the deploy helper sc
    cp ./tutorials/quickstart/build.yml ./deploy/.
    ```
 
-1. Review the `build.yml` file content, which describe the resources that will be provisionned. In addition to these an Azure Bastion will also be automatically created to be used to connect securely to this environment.
+1. Review the `build.yml` file content, which describe the resources that will be provisioned. In addition to these an Azure Bastion will also be automatically created to be used to connect securely to this environment.
 
 > Note : If your subscription policy requires you to run without public IP then update your `build.yml` configuration file and set `vms.ondemand.pip` to `false`.
 
@@ -172,10 +172,10 @@ In this task, you will prepare the `build.yml` file used by the deploy helper sc
    az account list-locations -o table
    ```
 
-1. Run the deploy command and pass the resource group name `azhop_quickstart` and the location to deploy to.
+1. Run the deploy command and pass the resource group name `azhop_quickstart`, the location to deploy to, and the version of azhop to use.
 
    ```bash
-   ./deploy.sh azhop_quickstart <location>
+   ./deploy.sh azhop_quickstart <location> v1.0.29
    ```
 
 While the deployment is in progress, you can check the resource group content from the Azure portal and the status of the deployment thru the link at the right of the `Deployments` property. The deployment should be done in about 8 minutes.
@@ -183,7 +183,7 @@ While the deployment is in progress, you can check the resource group content fr
 Once the deployment is done, you can now access the deployer VM thru Azure Bastion
 
 ### Task 5 : Connect to the `deployer` VM thru Azure Bastion
-In this task you will connect to the Deployer VM thru Azure Bastion to monitor the ansible playbooks progress.
+In this task you will connect to the Deployer VM thru Azure Bastion to monitor the Ansible playbooks progress.
 
 > Note: Azure Bastion allows users to connect to Azure VMs without relying on public endpoints and helps provide protection against brute force exploits that target operating system level credentials.
 
@@ -226,7 +226,7 @@ Confirm there are no errors in the playbooks execution by running this command
    ```
 
 ### Task 7 : Retrieve the homepage URL and user account to connect with
-The `az-hop` environment is only accessible thru an Open OnDemand portal, to retrieve it's FQDN you have to browse to the az-hop directory and get it from one of the ansible parameter file. As cloud-init was run as root you have to work as root from now on the deploer VM.
+The `az-hop` environment is only accessible thru an Open OnDemand portal, to retrieve it's FQDN you have to browse to the az-hop directory and get it from one of the Ansible parameter file. As cloud-init was run as root you have to work as root from now on the deployer VM.
 
    ```bash
    sudo su -
@@ -415,7 +415,7 @@ On the **Dashboard** page, select the **Jobs** menu title, and from the drop-dow
 1. Review the interface, and then close the **Welcome** tab.
 1. In the top left corner of the page, select the **Application** menu. From the drop-down menu, select **Terminal**, and then in the cascading menu, select **New Terminal**.
 1. In the **Terminal** pane, at the **[clusteradmin@execute-1 ~]$** prompt, enter `qstat` to observe the currently running job.
-1. You can now edit any files located in your home directory, git clone repos and connect to your github account.
+1. You can now edit any files located in your home directory, git clone repos and connect to your GitHub account.
 1. Switch back to the **Azure HPC On-Demand Platform** home page, or the `Dashboard`.
 1. Select **Linux Desktop**.
 1. On the **Linux Desktop** launching page, from the **Session target** drop-down list, ensure that **With GPU - Small GPU node for single session** is selected.
@@ -554,7 +554,7 @@ In this exercise, you will install and configure Spack from Code Server, as docu
    > Note: Verify that gcc 9.2 is referenced in the output.
 
 ## Exercise 4: Build and run OSU Benchmarks
-In this exercise, you will build and run some of the OSU Benchmarks used to measure latency and bandwith using OpenMPI.
+In this exercise, you will build and run some of the OSU Benchmarks used to measure latency and bandwidth using OpenMPI.
 
 Duration: 30 minutes
 ### Task 1: Build OSU Benchmarks with OpenMPI
@@ -712,14 +712,14 @@ Here we ask for 2 node from the node array **hb120v2** using 120 cores on each, 
 
 1. Within the Linux Desktop session, start **Terminal Emulator**.
 
-1. Install the **Paraview** viewer
+1. Install the **ParaView** viewer
 
 ```bash
 wget "https://www.paraview.org/paraview-downloads/download.php?submit=Download&version=v5.10&type=binary&os=Linux&downloadFile=ParaView-5.10.1-MPI-Linux-Python3.9-x86_64.tar.gz" -O ParaView-5.10.1-MPI-Linux-Python3.9-x86_64.tar.gz
 tar xvf ParaView-5.10.1-MPI-Linux-Python3.9-x86_64.tar.gz
 ```
 
-7. Create a case file and launch Paraview
+7. Create a case file and launch ParaView
 
 ```bash
 touch ~/motorBike/case.foam
@@ -728,7 +728,7 @@ vglrun ./ParaView-5.10.1-MPI-Linux-Python3.9-x86_64/bin/paraview
 
 8. Open the model
 
-Within **Paraview** open the case `~/motorBike/case.foam`
+Within **ParaView** open the case `~/motorBike/case.foam`
 
 When the model is loaded, you can view the geometry like this:
 - In the bottom left pane, in the "Mesh Regions" list, unselect "internalMesh" and select "group/motorBikeGroup".
@@ -816,7 +816,7 @@ Here are the commands:
 
 5. Within the Linux Desktop session, start **Terminal Emulator**.
 
-6. Install the **Paraview** viewer:
+6. Install the **ParaView** viewer:
 
    ```bash
    wget "https://www.paraview.org/paraview-downloads/download.php?submit=Download&version=v5.10&type=binary&os=Linux&downloadFile=ParaView-5.10.1-MPI-Linux-Python3.9-x86_64.tar.gz" -O ParaView-5.10.1-MPI-Linux-Python3.9-x86_64.tar.gz
@@ -825,14 +825,14 @@ Here are the commands:
 
 ### Task 4: Visualize the DrivAer-Fastback simulation results
 
-1. Create a case file and launch Paraview:
+1. Create a case file and launch ParaView:
 
    ```bash
    touch ~/drivaerFastback/case.foam
    vglrun ./ParaView-5.10.1-MPI-Linux-Python3.9-x86_64/bin/paraview
    ```
 
-1. Within **Paraview** open the case `~/drivaerFastback/case.foam`
+1. Within **ParaView** open the case `~/drivaerFastback/case.foam`
 
 1. When the model is loaded, you can load the car geometry as follows:
    - In the bottom left pane, in the "Mesh Regions" list, unselect "internalMesh" and select the    following fields:
