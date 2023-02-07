@@ -176,7 +176,7 @@ resource "azurerm_key_vault_access_policy" "lustre-oss" {
 #########################################################################
 #  Grant read access to the Keyvault to lustre-oss-0 and lustre-oss-1   #
 #########################################################################
-
+/*
 resource "azurerm_key_vault_access_policy" "lustre-oss-0" {
   count               = local.lustre_enabled ? 1 : 0
   key_vault_id        = azurerm_key_vault.azhop.id
@@ -195,7 +195,19 @@ resource "azurerm_key_vault_access_policy" "lustre-oss-1" {
                         
   key_permissions     = [ "Get", "List" ]
   secret_permissions  = [ "Get", "List" ]
+}*/
+
+resource "azurerm_key_vault_access_policy" "lustre-oss" {
+  count               = local.lustre_oss_count
+  name                = "lustre-oss-${count.index}"
+  key_vault_id        = azurerm_key_vault.azhop.id
+  tenant_id           = local.tenant_id
+  object_id           = azurerm_linux_virtual_machine.lustre-oss[count.index].identity[0].principal_id
+                        
+  key_permissions     = [ "Get", "List" ]
+  secret_permissions  = [ "Get", "List" ]
 }
+
 
 
 # Problem : How to generate associations for all OSS instances as we can't mix count and for_each ???
@@ -220,9 +232,9 @@ resource "azurerm_network_interface_application_security_group_association" "lus
   application_security_group_id = local.create_nsg ? azurerm_application_security_group.asg[each.value.asg].id : data.azurerm_application_security_group.asg[each.value.asg].id
 }
 
-#
-# Robinhood VM
-#
+#########################################################################
+#   Robinhood VM                                                        #
+#########################################################################
 
 resource "azurerm_network_interface" "robinhood-nic" {
   count                         = local.lustre_enabled ? 1 : 0
@@ -302,7 +314,6 @@ resource "azurerm_linux_virtual_machine" "robinhood" {
 #####################################################
 #  Grant read access to the Keyvault to robinhood   #
 #####################################################
-
 resource "azurerm_key_vault_access_policy" "robinhood" {
   count               = local.lustre_enabled ? 1 : 0
   key_vault_id        = azurerm_key_vault.azhop.id
