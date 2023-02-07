@@ -1,0 +1,219 @@
+---
+
+- name: Install dependencies for AzHop
+  hosts: localhost
+  connection: local
+  gather_facts: true
+
+  vars:
+    yq_version: v4.25.3
+    yq_binary: yq_linux_amd64
+
+  tasks:
+  - name: Identify OS
+    set_fact:
+      ansible_distribution: "{{ ansible_distribution | lower }}"
+
+  - block:
+    - name: Install dependencies (Ubuntu)
+      apt:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - apt-utils
+        - curl
+        - dnsutils
+        - git
+        - gpg
+        - jq
+        - pwg
+        - python3
+        - python3-pip
+        - software-properties-common
+        - sudo
+        - wget
+        - yamllint
+        - yum-utils
+
+    - name: "AzureCLI: Download"
+      get_url:
+        url: https://aka.ms/InstallAzureCLIDeb
+        dest: /tmp/InstallAzureCLIDeb
+        mode: 0755
+
+    - name: "AzureCLI: Install"
+      command: /tmp/InstallAzureCLIDeb
+
+    - name: "AzureCLI: Allow extensions without prompt"
+      command: az config set extension.use_dynamic_install=yes_without_prompt
+
+    - name: "AzCopy: Download and install"
+      unarchive:
+        src: https://aka.ms/downloadazcopy-v10-linux
+        dest: /usr/local/bin
+        remote_src: yes
+        extra_opts:
+          - --strip-components=1
+          - --wildcards '*/azcopy'
+
+    - name: "Terraform: Download the signing key to a new keyring"
+      apt_key:
+        url: https://apt.releases.hashicorp.com/gpg
+        state: present
+
+    - name: "Terraform: Add the HashiCorp Linux repository"
+      apt_repository:
+        repo: deb [arch=amd64] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main
+        state: present
+
+    - name: "Terraform: Install"
+      apt:
+        name: terraform
+        state: present
+
+    - name: "Packer: Install"
+      apt:
+        name: packer
+        state: present
+
+    - name: "yq: Download and install"
+      unarchive:
+        src: "https://github.com/mikefarah/yq/releases/download/{{ yq_version }}/{{ yq_binary }} tar.gz"
+        dest: /usr/local/bin
+        remote_src: yes
+        mode: 0755
+
+    when: ansible_distribution == "ubuntu"
+
+  - block:
+    - name: "Install dependencies for (CentOS)"
+      yum:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - curl
+        - git
+        - jq
+        - python3
+        - python3-pip
+        - yamllint
+
+    - name: "AzureCLI: Add Microsoft key"
+      rpm_key:
+        key: https://packages.microsoft.com/keys/microsoft.asc
+        state: present
+
+    - name: "AzureCLI: Add Microsoft repository"
+      yum_repository:
+        name: azure-cli
+        description: Azure CLI repo
+        baseurl: https://packages.microsoft.com/yumrepos/azure-cli
+        gpgcheck: yes
+        gpgkey: https://packages.microsoft.com/keys/microsoft.asc
+        enabled: yes
+
+    - name: "AzureCLI: Install"
+      yum:
+        name: azure-cli
+        state: present
+
+    - name: "AzCopy: Download and install"
+      unarchive:
+        src: https://aka.ms/downloadazcopy-v10-linux
+        dest: /usr/local/bin
+        remote_src: yes
+        mode: 0755
+        extra_opts:
+          - --strip-components=1
+          - --wildcards '*/azcopy'
+
+    - name: "Terraform: Add repo"
+      yum_repository:
+        name: terraform
+        description: Terraform repo
+        baseurl: https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+        gpgcheck: no
+
+    - name: "Terraform: Install"
+      yum:
+        name: terraform
+        state: present
+
+    - name: "Packer: Install"
+      yum:
+        name: packer
+        state: present
+
+    - name: "yq: Download and install"
+      unarchive:
+        src: "https://github.com/mikefarah/yq/releases/download/{{ yq_version }}/{{ yq_binary }} tar.gz"
+        dest: /usr/local/bin
+        remote_src: yes
+        mode: 0755
+
+    when: ansible_distribution == "centos"
+
+  - block:
+    - name: "Check if homebrew is installed for (macOS)"
+      command: which brew
+      changed_when: false
+      failed_when: false
+      register: homebrew_installed
+
+    - name: "Install homebrew (macOS)"
+      command: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+      when: homebrew_installed.rc != 0
+
+    - name: "Install dependencies (macOS)"
+      homebrew:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - curl
+        - git
+        - jq
+        - python
+        - yamllint
+
+    - name: "AzureCLI: Install"
+      homebrew:
+        name: azure-cli
+        state: present
+
+    - name: "AzCopy: Download and install"
+      unarchive:
+        src: https://aka.ms/downloadazcopy-v10-mac
+        dest: /usr/local/bin
+        remote_src: yes
+        mode: 0755
+
+# Only required because include in unarchive requires full path and
+# the file is downloaded to a tmp dir.
+# Alternatively, we could download the file and then unzip and filter.
+# This approach avoids handling temp files manually.
+    - name: "AzCopy: Clean install notice"
+      file:
+        path: /usr/local/bin/NOTICE.txt
+        state: absent
+
+    - name: "Terraform: Add Hashicorp repo"
+      homebrew_tap:
+        name: hashicorp/tap
+        state: present
+
+    - name: "Terraform: Install"
+      homebrew:
+        name: hashicorp/tap/terraform
+        state: present
+
+    - name: "Packer: Install"
+      homebrew:
+        name: hashicorp/tap/packer
+        state: present
+
+    - name: "yq: Install"
+      homebrew:
+        name: yq
+        state: present
+
+    when: ansible_distribution == "macosx"
