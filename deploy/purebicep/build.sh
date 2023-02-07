@@ -17,8 +17,6 @@ if [ $# -eq 0 ]; then
   echo "Usage build.sh "
   echo "  Required arguments:"
   echo "    -c|--config <configuration file path> "
-  echo "  Optional arguments:"
-  echo "    -i|--installFrom <local|deployer> - Deploy from the local machine or from the deployer VM. Default local "
   echo "   "
 
   exit 1
@@ -28,10 +26,6 @@ while (( "$#" )); do
   case "${1}" in
     -c|--config)
       AZHOP_CONFIG=${2}
-      shift 2
-    ;;
-    -i|--installFrom)
-      AZHOP_FROM=${2} # TODO: Add value check
       shift 2
     ;;
   esac
@@ -124,6 +118,14 @@ check_azcli_version
 # Check config syntax
 yamllint $AZHOP_CONFIG
 unset logged_user_objectId
+
+# If a Jumpbox VM is defined in the config file then assume it's a local deployment, otherwise it's done from the deployer VM
+jumpbox=$(yq '.jumpbox' $AZHOP_CONFIG)
+if [ "$jumpbox" == "null" ]; then
+  AZHOP_FROM="deployer"
+else
+  AZHOP_FROM="local"
+fi
 
 if [ "$AZHOP_FROM" == "local" ]; then
   # Inspired from https://github.com/aztfmod/rover/blob/4098ce32e46f854445ac85839125f21410b439fc/scripts/functions.sh#L807
