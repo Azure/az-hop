@@ -50,8 +50,15 @@ source /etc/profile.d/modules.sh
 module use /usr/share/Modules/modulefiles
 module load mpi/mvapich2
 
-CORES=`cat $PBS_NODEFILE | wc -l`
-HOSTFILE=$PBS_NODEFILE
+if [[ -v PBS_NODEFILE ]]; then
+  # PBS
+  CORES=`cat $PBS_NODEFILE | wc -l`
+  HOSTFILE=$PBS_NODEFILE
+elif [[ -v SLURM_JOB_NODELIST ]]; then
+  # SLURM
+  CORES=`scontrol show hostnames $SLURM_JOB_NODELIST | wc -l`
+  HOSTFILE=$SLURM_JOB_NODELIST
+fi
 
 if [ $CORES -gt 1 ]; then
   # Launch pvserver only if more than one MPI-rank is requested

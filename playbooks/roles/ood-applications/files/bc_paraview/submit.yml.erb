@@ -7,7 +7,23 @@ node_ratio = bucket.to_i
 node_count = bc_num_slots.to_i
 
 if OodAppkit.clusters[cluster].job_config[:adapter] == 'slurm'
+  scheduler_args = ["-p", bc_slot_type]
+  if bc_slot_type == "viz3d" or bc_slot_type == "largeviz3d"
+    scheduler_args += ["--gpus=1"]
+  end
 
+  # If the user has specified a node ratio greather than 1, set the job ppn
+  if node_ratio > 1
+    node_arrays.each do |slot_type|
+      if slot_type["name"] == target
+        cores = (slot_type["vcpuCount"].to_i / node_ratio)
+        scheduler_args += ["--ntasks-per-node=%d" % cores]
+        break
+      end
+    end
+  else
+    scheduler_args += ["--exclusive"]
+  end
 else
   scheduler_args = ["-q", "vizq"]
   node_arrays.each do |slot_type|
