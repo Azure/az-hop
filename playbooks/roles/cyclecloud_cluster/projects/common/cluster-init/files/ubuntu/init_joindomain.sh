@@ -26,6 +26,15 @@ else
   echo "options timeout:1 attempts:5" >> /etc/resolv.conf
 fi
 
+# Disable rdns for libdefaults in /etc/krb5.conf
+if grep "rdns = false" /etc/krb5.conf; then
+  echo "rdns already set to false"
+else
+  echo "set rdns to false for libdefaults"
+  sed -i '/\[libdefaults\]/a\\trdns = false' /etc/krb5.conf
+fi
+
+
 function enforce_hostname() {
   local system_hostname=$1
   local target_hostname=$2
