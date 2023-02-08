@@ -31,7 +31,7 @@ resource kv 'Microsoft.KeyVault/vaults@2021-10-01' = {
       ipRules: map(allowableIps, ip => { value: ip })
       virtualNetworkRules: [
         {
-          id: subnetId // adminSubnet.id
+          id: subnetId
         }
       ]
     }

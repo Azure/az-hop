@@ -24,10 +24,10 @@ param adminSshPrivateKey string = ''
 @secure()
 param adminPassword string = ''
 
-@description('Password for the Slurm accounting admin user')
+@description('Password for the database admin user')
 // todo: change to database admin password
 @secure()
-param slurmAccountingAdminPassword string = ''
+param databaseAdminPassword string = ''
 
 @description('Input configuration file in json format')
 param azhopConfig object
@@ -46,7 +46,7 @@ module azhopDeployment './azhop.bicep' = {
     adminSshPublicKey: adminSshPublicKey
     adminSshPrivateKey: adminSshPrivateKey
     adminPassword: adminPassword
-    slurmAccountingAdminPassword: slurmAccountingAdminPassword
+    databaseAdminPassword: databaseAdminPassword
     loggedUserObjectId: loggedUserObjectId
     branchName: branchName
     azhopConfig: azhopConfig

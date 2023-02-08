@@ -26,7 +26,7 @@ param adminPassword string = ''
 // todo: change to database admin password
 @description('Password for the Slurm accounting admin user')
 @secure()
-param slurmAccountingAdminPassword string = ''
+param databaseAdminPassword string = ''
 
 @description('Identity of the deployer if not deploying from a deployer VM')
 param loggedUserObjectId string = ''
@@ -53,6 +53,8 @@ var windowsBaseImage = contains(azhopConfig, 'windows_base_image') ? azhopConfig
 var lustreBaseImage = contains(azhopConfig, 'lustre_base_image') ? azhopConfig.lustre_base_image : 'azhpc:azurehpc-lustre:azurehpc-lustre-2_12:latest'
 var lustreBasePlan = contains(azhopConfig, 'lustre_base_plan') ? azhopConfig.lustre_base_plan : 'azhpc:azurehpc-lustre:azurehpc-lustre-2_12'
 
+var createDatabase = (config.queue_manager == 'slurm' && config.slurm.accounting_enabled ) || config.enable_remote_winviz
+
 // Convert the azhop configuration file to a pivot format used for the deployment
 var config = {
   admin_user: azhopConfig.admin_user
@@ -77,7 +79,7 @@ var config = {
   }
 
   enable_remote_winviz : enableWinViz
-  deploy_sig: false // TODO
+  deploy_sig: contains(azhopConfig, 'image_gallerie') && contains(azhopConfig.image_gallerie, 'create') ? azhopConfig.image_gallerie.create : false
 
   homedir: 'nfsfiles'
   homedir_mountpoint: azhopConfig.mounts.home.mountpoint
@@ -266,7 +268,6 @@ var config = {
           deploy_script: replace(replace(loadTextContent('install.sh'), '__INSERT_AZHOP_BRANCH__', branchName), '__SSH_PORT__', string(deployerSshPort))
           identity: {
             keyvault: {
-              key_permissions: [ 'All' ] // I don't think is is required
               secret_permissions: [ 'All' ]
             }
             roles: [
@@ -291,7 +292,6 @@ var config = {
       guacamole: {
       identity: {
         keyvault: {
-          key_permissions: [ 'Get', 'List' ]
           secret_permissions: [ 'Get', 'List' ]
         }
       }
@@ -326,7 +326,6 @@ var config = {
         count: azhopConfig.lustre.oss_count
         identity: {
           keyvault: {
-            key_permissions: [ 'Get', 'List' ]
             secret_permissions: [ 'Get', 'List' ]
           }
         }
@@ -339,7 +338,6 @@ var config = {
       robinhood: {
         identity: {
           keyvault: {
-            key_permissions: [ 'Get', 'List' ]
             secret_permissions: [ 'Get', 'List' ]
           }
         }
@@ -566,7 +564,7 @@ var secrets = (autogenerateSecrets) ? azhopSecrets.outputs.secrets : {
   adminSshPublicKey: adminSshPublicKey
   adminSshPrivateKey: adminSshPrivateKey
   adminPassword: adminPassword
-  slurmAccountingAdminPassword: slurmAccountingAdminPassword
+  databaseAdminPassword: databaseAdminPassword
 }
 
 module azhopNetwork './network.bicep' = {
@@ -630,10 +628,10 @@ var keyvaultSecrets = union(
       value: secrets.adminSshPrivateKey
     }
   ],
-  (config.queue_manager == 'slurm' && config.slurm.accounting_enabled) ? [
+  createDatabase ? [
     {
       name: '${config.slurm.admin_user}-password'
-      value: secrets.slurmAccountingAdminPassword
+      value: secrets.databaseAdminPassword
     }
   ] : []
 )
@@ -650,7 +648,7 @@ module azhopKeyvault './keyvault.bicep' = {
     keyvaultOwnerId: loggedUserObjectId
     identityPerms: [ for i in range(0, length(vmItems)): {
       principalId: azhopVm[i].outputs.principalId
-      key_permissions: (contains(vmItems[i].value, 'identity') && contains(vmItems[i].value.identity, 'keyvault')) ? vmItems[i].value.identity.keyvault.key_permissions : []
+      key_permissions: (contains(vmItems[i].value, 'identity') && contains(vmItems[i].value.identity, 'keyvault') && contains(vmItems[i].value.identity.keyvault, 'key_permissions')) ? vmItems[i].value.identity.keyvault.key_permissions : []
       secret_permissions: (contains(vmItems[i].value, 'identity') && contains(vmItems[i].value.identity, 'keyvault')) ? vmItems[i].value.identity.keyvault.secret_permissions : []
     }]
     secrets: keyvaultSecrets
@@ -676,14 +674,13 @@ module azhopSig './sig.bicep' = if (config.deploy_sig) {
   }
 }
 
-var createDatabase = (config.queue_manager == 'slurm' && config.slurm.accounting_enabled ) || config.enable_remote_winviz
 module azhopMariaDB './mariadb.bicep' = if (createDatabase) {
   name: 'azhopMariaDB'
   params: {
     location: location
     resourcePostfix: resourcePostfix
     adminUser: config.slurm.admin_user
-    adminPassword: secrets.slurmAccountingAdminPassword
+    adminPassword: secrets.databaseAdminPassword
     adminSubnetId: subnetIds.admin
     vnetId: azhopNetwork.outputs.vnetId
     sslEnforcement: config.enable_remote_winviz ? false : true // based whether guacamole is enabled (guac doesn't support ssl atm)
@@ -781,7 +778,7 @@ output azhopGlobalConfig object = union(
     sig_name                      : (config.deploy_sig) ? 'azhop_${resourcePostfix}' : ''
     lustre_hsm_storage_account    : 'azhop${resourcePostfix}'
     lustre_hsm_storage_container  : 'lustre'
-    database_fqdn                 : (config.queue_manager == 'slurm' && config.slurm.accounting_enabled) ? azhopMariaDB.outputs.mariaDb_fqdn : ''
+    database_fqdn                 : createDatabase ? azhopMariaDB.outputs.mariaDb_fqdn : ''
     database_user                 : config.slurm.admin_user
     azure_environment             : envNameToCloudMap[environment().name]
     key_vault_suffix              : substring(kvSuffix, 1, length(kvSuffix) - 1) // vault.azure.net - remove leading dot from env
