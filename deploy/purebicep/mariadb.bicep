@@ -61,8 +61,14 @@ resource mariaDbPrivateEndpoint 'Microsoft.Network/privateEndpoints@2022-05-01' 
   }
 }
 
-// TODO : Add support for non public cloud
-var mariaDbPrivateLinkName = 'privatelink.mariadb.database.azure.com'
+var mariaDbEndpointLookup = {
+  AzureCloud: '.mariadb.database.azure.com'
+  AzureUSGovernment: '.mariadb.database.usgovcloudapi.net'
+  AzureGermanCloud: '.mariadb.database.cloudapi.de'
+  AzureChinaCloud: '.mariadb.database.chinacloudapi.cn'
+}
+
+var mariaDbPrivateLinkName =  'privatelink${mariaDbEndpointLookup[environment().name]}'
 
 resource mariaDbPrivateDnsZone 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2022-05-01' = {
   parent: mariaDbPrivateEndpoint
