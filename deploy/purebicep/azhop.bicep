@@ -23,7 +23,6 @@ param adminSshPrivateKey string = ''
 @secure()
 param adminPassword string = ''
 
-// todo: change to database admin password
 @description('Password for the Slurm accounting admin user')
 @secure()
 param databaseAdminPassword string = ''

@@ -73,12 +73,13 @@ jq '.azhopInventory.value.all.hosts *= (.lustre_oss_private_ips.value | to_entri
 
 jq .azhopPackerOptions.value azhopOutputs.json > $azhop_root/packer/options.json
 
-if [ "$(jq -r .azhopConfig.value.features.sig azhopOutputs.json)" == "true" ]; then
-    echo "* Building images"
-    cd $azhop_root/packer
-    ./build_image.sh -i azhop-compute-centos-7.9.json
-    ./build_image.sh -i azhop-desktop-centos-7.9.json
-fi
+# We probably don't want to build custom images as part of the cloud-init step
+# if [ "$(jq -r .azhopConfig.value.features.sig azhopOutputs.json)" == "true" ]; then
+#     echo "* Building images"
+#     cd $azhop_root/packer
+#     ./build_image.sh -i azhop-compute-centos-7.9.json
+#     ./build_image.sh -i azhop-desktop-centos-7.9.json
+# fi
 
 echo "* Generating passwords"
 cd $azhop_root
