@@ -13,6 +13,7 @@ use_existing_rg: false
 alerting:
   enabled: true
   admin_mail: admin.mail@contoso.com
+  local_volume_threshold: 80
 # Additional tags to be added on the Resource Group
 tags:
   env: dev

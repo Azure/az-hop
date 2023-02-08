@@ -60,6 +60,14 @@ locals {
     create_alerts = local.alert_email != null && local.alert_email != "admin.mail@contoso.com" && try(local.configuration_yml["alerting"]["enabled"], false) ? true : false
     anf_vol_threshold = try(local.configuration_yml["anf"]["alert_threshold"], 80)  # default to 80% if not specified 
 
+    # will be used with a KQL query that checks the free space percentage of local volumes
+    # if the user wants to create an alert when local volumes are 80% full, then the free space percentage should be 20%
+    local_vol_threshold = 100 - try(local.configuration_yml["alerting"]["local_volume_threshold"], 20) 
+
+    mounts = try(local.configuration_yml["mounts"], {})
+    mountpoints =  [ for mount in local.mounts : mount.mountpoint ]
+    mountpoints_str = "[ ${join(",", [for mp in local.mountpoints : format("%q", mp)])} ]" //necessary to build generic KQL query on local volumes
+
     ad_ha = try(local.configuration_yml["ad"].high_availability, false)
     # Use a linux custom image reference if the linux_base_image is defined and contains ":"
     use_linux_image_reference = try(length(split(":", local.configuration_yml["linux_base_image"])[1])>0, false)

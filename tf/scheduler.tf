@@ -106,11 +106,12 @@ resource "azurerm_monitor_scheduled_query_rules_alert_v2" "sched_volume_alert" {
 
     criteria {
         query = <<-QUERY
+          let mountpoints = dynamic(${local.mountpoints_str});
           InsightsMetrics
-          | where TimeGenerated >= ago(5min) and Name == "FreeSpacePercentage" and Val <= 20 and Tags !contains "anfhome"
+          | where TimeGenerated >= ago(5min) and Name == "FreeSpacePercentage" and Val <= ${local.local_vol_threshold} and not(Tags has_any (mountpoints) )
           | project TimeGenerated, Computer, Name, Val, Tags, _ResourceId
           | summarize arg_max(TimeGenerated, *) by Tags
-          | project Tags, Val, Computer, _ResourceId
+          | project Tags, Name, Val, Computer, _ResourceId
           QUERY
         time_aggregation_method = "Count"
         operator = "GreaterThan"
@@ -122,7 +123,7 @@ resource "azurerm_monitor_scheduled_query_rules_alert_v2" "sched_volume_alert" {
     }
 
     auto_mitigation_enabled = true
-    description = "Alert when the volumes of the scheduler VM is above 80%"
+    description = "Alert when the volumes of the scheduler VM is above ${100 - local.local_vol_threshold}%"
     display_name = "scheduler volumes full"
     enabled = true
     query_time_range_override = "P2D"
@@ -130,28 +131,4 @@ resource "azurerm_monitor_scheduled_query_rules_alert_v2" "sched_volume_alert" {
     action {
         action_groups = [azurerm_monitor_action_group.azhop_action_group[0].id]
     }
-}
-
-resource "azurerm_monitor_metric_alert" "sched_disk_alert" {
-  count = local.create_alerts ? 1 : 0
-  name                = "sched-disk-alert"
-  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
-  scopes              = [azurerm_linux_virtual_machine.scheduler.id]
-  description         = "Alert when scheduler VM disk is 80% full"
-  severity            = 3
-  enabled             = true
-  frequency           = "PT5M"
-  window_size         = "PT5M"
-  target_resource_type = "Microsoft.Compute/virtualMachines"
-  target_resource_location = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
-  criteria {
-    metric_namespace = "Azure.VM.Linux.GuestMetrics"
-    metric_name      = "disk/free_percent"
-    aggregation      = "Average"
-    operator         = "LessThanOrEqual"
-    threshold        = 20
-  }
-  action {
-    action_group_id = azurerm_monitor_action_group.azhop_action_group[0].id
-  }
 }
