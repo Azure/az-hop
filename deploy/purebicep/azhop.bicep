@@ -79,7 +79,7 @@ var config = {
   }
 
   enable_remote_winviz : enableWinViz
-  deploy_sig: false // TODO
+  deploy_sig: contains(azhopConfig, 'image_gallerie') && contains(azhopConfig.image_gallerie, 'create') ? azhopConfig.image_gallerie.create : false
 
   homedir: 'nfsfiles'
   homedir_mountpoint: azhopConfig.mounts.home.mountpoint
