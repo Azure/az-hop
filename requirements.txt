@@ -2,3 +2,4 @@ pypsrp
 PySocks
 netaddr
 yamllint
+ansible
