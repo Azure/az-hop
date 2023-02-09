@@ -39,6 +39,15 @@ c.NotebookApp.disable_check_xsrf = True
 EOL
 )
 
+export AMLSDKSUBSCRIPTION="<%=context.subscription%>"
+export AMLSDKRESOURCEGROUP="<%=context.resource_group%>"
+export AMLSDKWORKSPACE="<%=context.workspace%>"
+export AMLSDKSKU="<%=context.sku%>"
+export AMLSDKINSTANCECOUNT="<%=context.instance_count%>"
+export AMLSDKJOBCODE="<%=context.code%>"
+# the whitespace is required to handle parameters with "--"
+export AMLSDKJOBINPUTS=" <%=context.job_inputs%>"
+
 <%- if OodAppkit.clusters[context.cluster].job_config[:adapter] == 'pbspro' -%>
 # TODO : Use the job ID for the container name
 export CONTAINER_NAME=jupyter.$PBS_JOBID

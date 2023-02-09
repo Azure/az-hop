@@ -13,8 +13,13 @@ cp amlwrapperfunctions.py "${NOTEBOOK_ROOT}"/
 cd "${NOTEBOOK_ROOT}"
 echo "TTT - $(date)"
 
+
+echo "notebook root= ${NOTEBOOK_ROOT}"
 echo "building main notebook"
-python nbbuilder.py -s "TBD"
+# have to be careful with AMLSDKJOBINPUTS as it may start with "--"
+set -o xtrace
+python nbbuilder.py -s $AMLSDKSUBSCRIPTION -rg $AMLSDKRESOURCEGROUP -ws $AMLSDKWORKSPACE -mt $AMLSDKSKU -mi $AMLSDKINSTANCECOUNT -j $AMLSDKJOBCODE -ji " $AMLSDKJOBINPUTS"
+set +o xtrace
 
 
 # List available kernels for debugging purposes
