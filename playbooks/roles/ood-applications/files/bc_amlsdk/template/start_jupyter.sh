@@ -7,8 +7,14 @@ echo "TTT - $(date)"
 #
 
 # Set working directory to notebook root directory
+
+cp nbbuilder.py "${NOTEBOOK_ROOT}"/
 cd "${NOTEBOOK_ROOT}"
 echo "TTT - $(date)"
+
+echo "building main notebook"
+python nbbuilder.py -s "TBD"
+
 
 # List available kernels for debugging purposes
 set -x
