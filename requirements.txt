@@ -1,3 +1,4 @@
 pypsrp
 PySocks
 netaddr
+yamllint

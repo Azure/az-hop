@@ -4,11 +4,10 @@ set -e
 set -o pipefail
 
 ANSIBLE_VERSION_UBUNTU=5.8.0
-ANSIBLE_VERSION_CENTOS=4.10.0
+ANSIBLE_VERSION_CENTOS=5.8.0
 
 # Version check
 os_type=$(uname | awk '{print tolower($0)}')
-echo $os_type
 if [[ "$os_type" == "darwin" ]]; then
   ANSIBLE_VERSION=$ANSIBLE_VERSION_MACOS
 elif [[ "$os_type" == "linux" ]]; then

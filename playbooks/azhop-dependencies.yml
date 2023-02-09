@@ -40,7 +40,6 @@
         - software-properties-common
         - sudo
         - wget
-        - yamllint
       become: true
 
     - name: "AzureCLI: Install Microsoft ring (Ubuntu)"
@@ -149,14 +148,13 @@
         - curl
         - git
         - jq
-        - python3
-        - python3-pip
-        - yamllint
+      become: true
 
     - name: "AzureCLI: Add Microsoft key (CentOS)"
       rpm_key:
         key: https://packages.microsoft.com/keys/microsoft.asc
         state: present
+      become: true
 
     - name: "AzureCLI: Add Microsoft repository (CentOS)"
       yum_repository:
@@ -166,21 +164,41 @@
         gpgcheck: yes
         gpgkey: https://packages.microsoft.com/keys/microsoft.asc
         enabled: yes
+      become: true
 
     - name: "AzureCLI: Install (CentOS)"
       yum:
         name: azure-cli
         state: present
+      become: true
 
-    - name: "AzCopy: Download and install (CentOS)"
-      unarchive:
-        src: https://aka.ms/downloadazcopy-v10-linux
-        dest: /usr/local/bin
-        remote_src: yes
+    - name: "AzCopy: Download (CentOS)"
+      get_url:
+        url: "http://aka.ms/{{ linux_azcopy_file }}"
+        dest: "/tmp/{{ linux_azcopy_file }}"
         mode: 0755
-        extra_opts:
-          - --strip-components=1
-          - --wildcards '*/azcopy'
+
+    - name: "AzCopy: Extract (CentOS)"
+      # Unable to use the unarchive module to extract the azcopy binary equivalent to below:
+      #command: tar -xvf /tmp/{{ linux_azcopy_file }} --strip-components=1 --wildcards '*/azcopy'
+      unarchive:
+        src: /tmp/{{ linux_azcopy_file }}
+        dest: /tmp
+        mode: 0755
+
+    - name: "AzCopy: Find azcopy (CentOS)"
+      find:
+        paths: /tmp
+        patterns: "azcopy"
+        file_type: file
+        recurse: true
+      register: azcopy_file_path
+
+    - name: "AzCopy: Install (CentOS)"
+      copy:
+        src: "{{ azcopy_file_path.files[0].path }}"
+        dest: /usr/local/bin/azcopy
+        mode: 0755
 
     - name: "Terraform: Add repo (CentOS)"
       yum_repository:
@@ -188,16 +206,19 @@
         description: Terraform repo
         baseurl: https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
         gpgcheck: no
+      become: true
 
     - name: "Terraform: Install (CentOS)"
       yum:
         name: terraform
         state: present
+      become: true
 
     - name: "Packer: Install (CentOS)"
       yum:
         name: packer
         state: present
+      become: true
 
     - name: "yq: Download and install (CentOS)"
       unarchive:
@@ -227,8 +248,6 @@
         - curl
         - git
         - jq
-        - python
-        - yamllint
 
     - name: "AzureCLI: Install (macOS)"
       homebrew:
