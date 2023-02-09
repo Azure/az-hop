@@ -79,7 +79,7 @@ function enable_lustre ()
   if [ "$FEATURE_LUSTRE_IN_CONFIG" != "null" ]; then
     ENABLE_LUSTRE=$(yq '.lustre.create' ./config.yml | tr '[:upper:]' '[:lower:]')
   else
-    LUSTRE_VM_IN_CONFIG=$(yq eval '.lustre' config.yml)
+    LUSTRE_VM_IN_CONFIG=$(yq eval '.lustre.oss_count' config.yml)
     if [ "$LUSTRE_VM_IN_CONFIG" == "null" ]; then
       ENABLE_LUSTRE=false
     else
