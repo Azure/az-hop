@@ -1,7 +1,5 @@
 #!/bin/bash
 # Installs Ansible. Optionally in a conda environment.
-set -o pipefail
-
 MINICONDA_URL_LINUX_X86="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
 MINICONDA_URL_LINUX_ARM="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-aarch64.sh"
 MINICONDA_URL_MAC_X86="https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh"
@@ -71,7 +69,14 @@ ansible-galaxy collection install -r requirements.yml
 printf "Installing Az-hop dependencies\n"
 ansible-playbook -i playbooks/inventory playbooks/azhop-dependencies.yml
 
+# Ensure submodule exists
+if [ ! -d "playbooks/roles/ood-ansible" ]; then
+    printf "Installing Az-hop git submodule\n"
+    git submodule init
+    git submodule update
+fi
+
 if [ $INSTALL_IN_CONDA = true ]; then
     printf "\nAz-HOP dependencies installed in conda environment. To activate, run:\n"
-    printf "\nsource %s/bin/activate" "${MINICONDA_INSTALL_DIR}"
+    printf "\nsource %s/bin/activate\n\n" "${MINICONDA_INSTALL_DIR}"
 fi

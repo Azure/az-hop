@@ -131,15 +131,22 @@
       become: true
 
     - name: "yq: Download and install (Ubuntu)"
-      unarchive:
-        src: "https://github.com/mikefarah/yq/releases/download/{{ yq_version }}/{{ yq_binary }}.tar.gz"
-        dest: /usr/local/bin
-        remote_src: yes
+      get_url:
+        url: "https://github.com/mikefarah/yq/releases/download/{{ yq_version }}/{{ yq_binary }}"
+        dest: /usr/local/bin/yq
         mode: 0755
 
     when: ansible_distribution == "ubuntu"
 
   - block:
+    - name: "Install EPEL (CentOS)"
+      yum:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - epel-release
+      become: true
+
     - name: "Install dependencies for (CentOS)"
       yum:
         name: "{{ item }}"
@@ -148,6 +155,8 @@
         - curl
         - git
         - jq
+        - libicu
+        - yum-utils
       become: true
 
     - name: "AzureCLI: Add Microsoft key (CentOS)"
@@ -182,7 +191,7 @@
       # Unable to use the unarchive module to extract the azcopy binary equivalent to below:
       #command: tar -xvf /tmp/{{ linux_azcopy_file }} --strip-components=1 --wildcards '*/azcopy'
       unarchive:
-        src: /tmp/{{ linux_azcopy_file }}
+        src: "/tmp/{{ linux_azcopy_file }}"
         dest: /tmp
         mode: 0755
 
@@ -200,12 +209,10 @@
         dest: /usr/local/bin/azcopy
         mode: 0755
 
-    - name: "Terraform: Add repo (CentOS)"
-      yum_repository:
-        name: terraform
-        description: Terraform repo
-        baseurl: https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
-        gpgcheck: no
+    - name: "Terraform: Add Hashicorp repo (CentOS)"
+      get_url:
+        url: "https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo"
+        dest: /etc/yum.repos.d/hashicorp.repo
       become: true
 
     - name: "Terraform: Install (CentOS)"
@@ -221,10 +228,9 @@
       become: true
 
     - name: "yq: Download and install (CentOS)"
-      unarchive:
-        src: "https://github.com/mikefarah/yq/releases/download/{{ yq_version }}/{{ yq_binary }} tar.gz"
-        dest: /usr/local/bin
-        remote_src: yes
+      get_url:
+        url: "https://github.com/mikefarah/yq/releases/download/{{ yq_version }}/{{ yq_binary }}"
+        dest: /usr/local/bin/yq
         mode: 0755
 
     when: ansible_distribution == "centos"

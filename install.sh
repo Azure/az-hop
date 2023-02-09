@@ -93,9 +93,6 @@ function enable_lustre ()
   fi
 }
 
-# Apply pre-reqs
-$THIS_DIR/ansible_prereqs.sh
-
 # Check config syntax
 yamllint config.yml
 get_scheduler

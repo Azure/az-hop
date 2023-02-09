@@ -33,7 +33,6 @@
         echo "image_lookup:" > {{lookup_img_file}}
     args:
       executable: /bin/bash
-      warn: false
     delegate_to: localhost
     connection: local
     become: false
