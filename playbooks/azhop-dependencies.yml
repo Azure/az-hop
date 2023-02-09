@@ -6,6 +6,7 @@
   gather_facts: true
 
   vars:
+    mac_azcopy_file: downloadazcopy-v10-mac
     yq_version: v4.25.3
     yq_binary: yq_linux_amd64
 
@@ -180,21 +181,36 @@
         name: azure-cli
         state: present
 
-    - name: "AzCopy: Download and install"
-      unarchive:
-        src: https://aka.ms/downloadazcopy-v10-mac
-        dest: /usr/local/bin
-        remote_src: yes
+    - name: "AzCopy: Download"
+      get_url:
+        url: "https://aka.ms/{{ mac_azcopy_file }}"
+        dest: "{{ lookup('env', 'TMPDIR') }}/{{ mac_azcopy_file }}"
         mode: 0755
 
-# Only required because include in unarchive requires full path and
-# the file is downloaded to a tmp dir.
-# Alternatively, we could download the file and then unzip and filter.
-# This approach avoids handling temp files manually.
-    - name: "AzCopy: Clean install notice"
+    - name: "AzCopy: Make temp destination directory"
       file:
-        path: /usr/local/bin/NOTICE.txt
-        state: absent
+        path: "{{ lookup('env', 'TMPDIR') }}/azcopy-unzipped"
+        state: directory
+
+    - name: "AzCopy: Extract"
+      unarchive:
+        src: "{{ lookup('env', 'TMPDIR') }}/{{ mac_azcopy_file }}"
+        dest: "{{ lookup('env', 'TMPDIR') }}/azcopy-unzipped"
+        mode: 0755
+
+    - name: "AzCopy: Find azcopy"
+      find:
+        paths: "{{ lookup('env', 'TMPDIR') }}/azcopy-unzipped"
+        patterns: "azcopy"
+        file_type: file
+        recurse: true
+      register: azcopy_file_path
+
+    - name: "AzCopy: Move azcopy"
+      copy:
+        src: "{{ azcopy_file_path.files[0].path }}"
+        dest: /usr/local/bin/azcopy
+        mode: 0755
 
     - name: "Terraform: Add Hashicorp repo"
       homebrew_tap:
