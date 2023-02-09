@@ -743,7 +743,7 @@ module azhopADRecords './privatezone_records.bicep' = {
   }
 }
 
-output ccportalPrincipalId string = azhopVm[indexOf(map(vmItems, item => item.key), 'ccportal')].outputs.principalId
+//output ccportalPrincipalId string = azhopVm[indexOf(map(vmItems, item => item.key), 'ccportal')].outputs.principalId
 
 output keyvaultName string = azhopKeyvault.outputs.keyvaultName
 

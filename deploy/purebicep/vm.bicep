@@ -18,12 +18,12 @@ var role_lookup = {
 
 var requires_identity = contains(vm, 'identity')
 
-resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = if (requires_identity) {
-  name: '${name}-mi'
-  location: location
-}
+// resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = if (requires_identity) {
+//   name: '${name}-mi'
+//   location: location
+// }
 
-output principalId string = requires_identity ? managedIdentity.properties.principalId : ''
+output principalId string = virtualMachine.identity.principalId //requires_identity ? managedIdentity.properties.principalId : ''
 
 var roles = requires_identity && contains(vm.identity, 'roles') ? vm.identity.roles : []
 
@@ -32,7 +32,7 @@ resource roleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = 
   scope: resourceGroup()
   properties: {
     roleDefinitionId: role_lookup[role]
-    principalId: managedIdentity.properties.principalId
+    principalId: virtualMachine.identity.principalId
     principalType: 'ServicePrincipal'
   }
 }]
@@ -89,12 +89,9 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-06-01' = [ for (
     product: split(image.plan,':')[1]
     name: split(image.plan,':')[2]
   } : null
-  identity: requires_identity ? {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${managedIdentity.id}': {}
-    }
-  } : null
+  identity: {
+    type: 'SystemAssigned'
+  }
   properties: {
     hardwareProfile: {
       vmSize: vm.sku
