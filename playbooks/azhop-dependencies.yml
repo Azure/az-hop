@@ -10,6 +10,7 @@
         "aarch64": "arm64",
         "x86_64": "amd64"
     }
+    linux_azcopy_file: downloadazcopy-v10-linux
     mac_azcopy_file: downloadazcopy-v10-mac
     yq_version: v4.25.3
     yq_binary: yq_linux_amd64
@@ -21,7 +22,7 @@
 
   - block:
 
-    - name: Identify architecture
+    - name: "Identify architecture (Ubuntu)"
       set_fact:
         dpkg_arch: "{{ deb_architecture[ansible_architecture] }}"
 
@@ -42,7 +43,7 @@
         - yamllint
       become: true
 
-    - name: "AzureCLI: Install Microsoft ring"
+    - name: "AzureCLI: Install Microsoft ring (Ubuntu)"
       apt_key:
         url: https://packages.microsoft.com/keys/microsoft.asc
         state: present
@@ -54,7 +55,7 @@
         var: ansible_distribution
         var: ansible_distribution_release
 
-    - name: "AzureCLI: Add Microsoft repository (kinetic-22.10)"
+    - name: "AzureCLI: Add Microsoft repository (Ubuntu: kinetic-22.10)"
       apt_repository:
         # Following directions from https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest
         repo: "deb [arch={{ dpkg_arch }}] https://packages.microsoft.com/repos/azure-cli/ jammy main"
@@ -62,58 +63,77 @@
       become: true
       when: ansible_distribution_release == "kinetic"
 
-    - name: "AzureCLI: Add Microsoft repository (non-kinetic)"
+    - name: "AzureCLI: Add Microsoft repository (Ubuntu: non-kinetic)"
       apt_repository:
         repo: "deb [arch={{ dpkg_arch }}] https://packages.microsoft.com/repos/azure-cli/ {{ ansible_distribution_release }} main"
         state: present
       become: true
       when: ansible_distribution_release != "kinetic"
 
-    - name: "AzureCLI: Install"
+    - name: "AzureCLI: Install (Ubuntu)"
       apt:
         name: azure-cli
         state: present
       become: true
 
-    - name: "AzureCLI: Allow extensions without prompt"
+    - name: "AzureCLI: Allow extensions without prompt (Ubuntu)"
       command: az config set extension.use_dynamic_install=yes_without_prompt
 
-    - name: "AzCopy: Download and install"
-      unarchive:
-        src: https://aka.ms/downloadazcopy-v10-linux
-        dest: /usr/local/bin
-        remote_src: yes
-        extra_opts:
-          - --strip-components=1
-          - --wildcards '*/azcopy'
+    - name: "AzCopy: Download (Ubuntu)"
+      get_url:
+        url: "http://aka.ms/{{ linux_azcopy_file }}"
+        dest: "/tmp/{{ linux_azcopy_file }}"
+        mode: 0755
 
-    - name: "Terraform: Download the signing key to a new keyring"
+    - name: "AzCopy: Extract (Ubuntu)"
+      # Unable to use the unarchive module to extract the azcopy binary equivalent to below:
+      #command: tar -xvf /tmp/{{ linux_azcopy_file }} --strip-components=1 --wildcards '*/azcopy'
+      unarchive:
+        src: /tmp/{{ linux_azcopy_file }}
+        dest: /tmp
+        mode: 0755
+
+    - name: "AzCopy: Find azcopy (Ubuntu)"
+      find:
+        paths: /tmp
+        patterns: "azcopy"
+        file_type: file
+        recurse: true
+      register: azcopy_file_path
+
+    - name: "AzCopy: Install (Ubuntu)"
+      copy:
+        src: "{{ azcopy_file_path.files[0].path }}"
+        dest: /usr/local/bin/azcopy
+        mode: 0755
+
+    - name: "Terraform: Download the signing key to a new keyring (Ubuntu)"
       apt_key:
         url: https://apt.releases.hashicorp.com/gpg
         state: present
       become: true
 
-    - name: "Terraform: Add the HashiCorp Linux repository"
+    - name: "Terraform: Add the HashiCorp Linux repository (Ubuntu)"
       apt_repository:
         repo: deb [arch=amd64] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main
         state: present
       become: true
 
-    - name: "Terraform: Install"
+    - name: "Terraform: Install (Ubuntu)"
       apt:
         name: terraform
         state: present
       become: true
 
-    - name: "Packer: Install"
+    - name: "Packer: Install (Ubuntu)"
       apt:
         name: packer
         state: present
       become: true
 
-    - name: "yq: Download and install"
+    - name: "yq: Download and install (Ubuntu)"
       unarchive:
-        src: "https://github.com/mikefarah/yq/releases/download/{{ yq_version }}/{{ yq_binary }} tar.gz"
+        src: "https://github.com/mikefarah/yq/releases/download/{{ yq_version }}/{{ yq_binary }}.tar.gz"
         dest: /usr/local/bin
         remote_src: yes
         mode: 0755
@@ -133,12 +153,12 @@
         - python3-pip
         - yamllint
 
-    - name: "AzureCLI: Add Microsoft key"
+    - name: "AzureCLI: Add Microsoft key (CentOS)"
       rpm_key:
         key: https://packages.microsoft.com/keys/microsoft.asc
         state: present
 
-    - name: "AzureCLI: Add Microsoft repository"
+    - name: "AzureCLI: Add Microsoft repository (CentOS)"
       yum_repository:
         name: azure-cli
         description: Azure CLI repo
@@ -147,12 +167,12 @@
         gpgkey: https://packages.microsoft.com/keys/microsoft.asc
         enabled: yes
 
-    - name: "AzureCLI: Install"
+    - name: "AzureCLI: Install (CentOS)"
       yum:
         name: azure-cli
         state: present
 
-    - name: "AzCopy: Download and install"
+    - name: "AzCopy: Download and install (CentOS)"
       unarchive:
         src: https://aka.ms/downloadazcopy-v10-linux
         dest: /usr/local/bin
@@ -162,24 +182,24 @@
           - --strip-components=1
           - --wildcards '*/azcopy'
 
-    - name: "Terraform: Add repo"
+    - name: "Terraform: Add repo (CentOS)"
       yum_repository:
         name: terraform
         description: Terraform repo
         baseurl: https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
         gpgcheck: no
 
-    - name: "Terraform: Install"
+    - name: "Terraform: Install (CentOS)"
       yum:
         name: terraform
         state: present
 
-    - name: "Packer: Install"
+    - name: "Packer: Install (CentOS)"
       yum:
         name: packer
         state: present
 
-    - name: "yq: Download and install"
+    - name: "yq: Download and install (CentOS)"
       unarchive:
         src: "https://github.com/mikefarah/yq/releases/download/{{ yq_version }}/{{ yq_binary }} tar.gz"
         dest: /usr/local/bin
@@ -210,29 +230,29 @@
         - python
         - yamllint
 
-    - name: "AzureCLI: Install"
+    - name: "AzureCLI: Install (macOS)"
       homebrew:
         name: azure-cli
         state: present
 
-    - name: "AzCopy: Download"
+    - name: "AzCopy: Download (macOS)"
       get_url:
         url: "https://aka.ms/{{ mac_azcopy_file }}"
         dest: "{{ lookup('env', 'TMPDIR') }}/{{ mac_azcopy_file }}"
         mode: 0755
 
-    - name: "AzCopy: Make temp destination directory"
+    - name: "AzCopy: Make temp destination directory (macOS)"
       file:
         path: "{{ lookup('env', 'TMPDIR') }}/azcopy-unzipped"
         state: directory
 
-    - name: "AzCopy: Extract"
+    - name: "AzCopy: Extract (macOS)"
       unarchive:
         src: "{{ lookup('env', 'TMPDIR') }}/{{ mac_azcopy_file }}"
         dest: "{{ lookup('env', 'TMPDIR') }}/azcopy-unzipped"
         mode: 0755
 
-    - name: "AzCopy: Find azcopy"
+    - name: "AzCopy: Find azcopy (macOS)"
       find:
         paths: "{{ lookup('env', 'TMPDIR') }}/azcopy-unzipped"
         patterns: "azcopy"
@@ -240,28 +260,28 @@
         recurse: true
       register: azcopy_file_path
 
-    - name: "AzCopy: Move azcopy"
+    - name: "AzCopy: Move azcopy (macOS)"
       copy:
         src: "{{ azcopy_file_path.files[0].path }}"
         dest: /usr/local/bin/azcopy
         mode: 0755
 
-    - name: "Terraform: Add Hashicorp repo"
+    - name: "Terraform: Add Hashicorp repo (macOS)"
       homebrew_tap:
         name: hashicorp/tap
         state: present
 
-    - name: "Terraform: Install"
+    - name: "Terraform: Install (macOS)"
       homebrew:
         name: hashicorp/tap/terraform
         state: present
 
-    - name: "Packer: Install"
+    - name: "Packer: Install (macOS)"
       homebrew:
         name: hashicorp/tap/packer
         state: present
 
-    - name: "yq: Install"
+    - name: "yq: Install (macOS)"
       homebrew:
         name: yq
         state: present
