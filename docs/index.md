@@ -20,3 +20,4 @@ This documentation encompasses
  * The [User Guide](user_guide/index.md) explaining how to submit jobs, manage files & more
  * [Tutorials](tutorials/index.md) for specific use cases
  * The [Administrator Guide](operate/index.md) for cluster admins
+ * [Application Integration](apps/index.md)

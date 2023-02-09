@@ -42,6 +42,11 @@ on:
         required: false
         default: 'false' # use it with ${{ inputs.deploy_only }}
         type: string
+      use_bicep:
+        description: 'Use bicep for the deployment - Default to false'
+        required: false
+        default: 'false' # use it with ${{ inputs.use_bicep }}
+        type: string
 
     secrets:
       ARM_SUBSCRIPTION_ID:
@@ -162,13 +167,23 @@ jobs:
           ls -al 
           cat config.yml
           anf_dual=$(yq eval '.anf.dual_protocol' config.yml)
+          USE_BICEP=${{ inputs.use_bicep }}
 
           # Check if we need to build with dual protocol
           build_error=0
           if [ "$anf_dual" != "true" ]; then
             set +e
-            ./build.sh -a apply -f tf
-            build_error=$?
+            if [ "$USE_BICEP" == "true" ]; then
+              # Bicep doesn't support winviz yet
+              sed -i 's/enable_remote_winviz: true/enable_remote_winviz: false/g' config.yml
+              pushd deploy/purebicep
+              ./build.sh -c ../../config.yml
+              build_error=$?
+              popd
+            else
+              ./build.sh -a apply -f tf
+              build_error=$?
+            fi
             set -e
             ./azhop_state.sh upload ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
           else
@@ -598,6 +613,7 @@ jobs:
 
             echo "Remove resources from $RESOURCE_GROUP"
             set +e
+            ./deploy/purebicep/cleanup.sh
             ./build.sh -a destroy -f tf
 
             echo "Remove state from $RESOURCE_GROUP"

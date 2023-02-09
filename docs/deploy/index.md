@@ -88,18 +88,18 @@ Get the `adminuser` password to connect with :
 ./bin/get_secret adminuser
 ```
 
-Browse to the URL retrieved above and connect with user `adminuser` and it's password.
+Browse to the URL retrieved above and connect with user `adminuser` and its password.
 
 Below are the detailed instructions to help you building your full `azhop` environment.
 
 # Azure Pre-requisites
 
-- When using a user account 
+- When using a user account
   - you need to be **Owner** of the subscription
 - When using a Service Principal Name, the service principal needs to be
   - **"Contributor"** on the subscription
   - **"User Access Administrator"** on the subscription
-- When using a managed Identity on a deployer VM it needs to be a **System Managed Identity** with 
+- When using a managed Identity on a deployer VM it needs to be a **System Managed Identity** with
   - **"Contributor"** on the resource group
   - **"User Access Administrator"** on the subscription
   - **"Reader"** on the subscription
@@ -133,11 +133,11 @@ az vm image terms accept --offer almalinux-hpc --publisher almalinux --plan 8_5-
     - 24 cores of Standard NVs_v3 Family
 
 ## Special circumstances
-- When deploying in a zero-trust environment that automatically blocks access to high-risk TCP/UDP ports (e.g. 22) from the internet, follow the [hub and spoke network architecture](https://docs.microsoft.com/en-us/azure/architecture/reference-architectures/hybrid-networking/hub-spoke?tabs=cli). 
+- When deploying in a zero-trust environment that automatically blocks access to high-risk TCP/UDP ports (e.g. 22) from the internet, follow the [hub and spoke network architecture](https://docs.microsoft.com/en-us/azure/architecture/reference-architectures/hybrid-networking/hub-spoke?tabs=cli).
   - In the hub, create:
     - the VPN gateway and virtual network
     - virtual machines for self-hosted Github Action runners
-  - Each `azhop` deployment will be a spoke. 
+  - Each `azhop` deployment will be a spoke.
     - See [define the environment](#define-the-environment) for how to automatically peer the virtual network of `azhop` with that of the hub, and for how to change the SSH port of the jumpbox.
 
 # Configure the toolchain
@@ -155,7 +155,7 @@ It's important to clone the repo with its submodule. You can do this with one of
 ```bash
 git clone --recursive https://github.com/Azure/az-hop.git -b <version>
 ```
- 
+
 - Option 2
 ```bash
 git clone https://github.com/Azure/az-hop.git -b <version>
@@ -166,7 +166,7 @@ git submodule update
 
 ### Set up the toolchain
 For Terraform to work properly on  WSL2, on the C drive, make sure to have the "metadata mount" option enabled.
-Afterwards, you can directly run the `install.sh`  script: 
+Afterwards, you can directly run the `install.sh`  script:
 
 ```bash
 sudo ./toolset/scripts/install.sh
@@ -192,7 +192,7 @@ Connect to the VM and clone the repo with its submodule. You can do this with on
 ```bash
 git clone --recursive https://github.com/Azure/az-hop.git -b <version>
 ```
- 
+
 - Option 2
 ```bash
 git clone https://github.com/Azure/az-hop.git -b <version>
@@ -202,7 +202,7 @@ git submodule update
 ```
 
 ### Set up the toolchain
-Run the `install.sh` script: 
+Run the `install.sh` script:
 
 ```bash
 sudo ./toolset/scripts/install.sh
@@ -363,7 +363,7 @@ mounts:
     export: '{{anf_home_path}}' # Specify an existing NFS export directory, when using the ANF built in use '{{anf_home_path}}'
     options: "rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev" # Specify the mount options. Default to rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev
 #  mount1:
-#    mountpoint: /mount1 
+#    mountpoint: /mount1
 #    server: a.b.c.d # Specify an existing NFS server name or IP
 #    export: myexport1 # Specify an existing NFS export name
 #    options: my_options # Specify the mount options.
@@ -377,12 +377,12 @@ network:
   # Create Network and Application Security Rules, true by default, false when using an existing VNET if not specified
   create_nsg: true
   vnet:
-    address_space: "10.0.0.0/23" 
+    address_space: "10.0.0.0/23"
     # When using an existing VNET, only the subnet names will be used and not the adress_prefixes
     subnets: # all subnets are optionals
     # name values can be used to rename the default to specific names, address_prefixes to change the IP ranges to be used
     # All values below are the default values
-      frontend: 
+      frontend:
         name: frontend
         address_prefixes: "10.0.0.0/29"
         create: true # create the subnet if true. default to true when not specified, default to false if using an existing VNET when not specified
@@ -557,9 +557,9 @@ database:
   # Admin user of the database for which the password will be retrieved from the azhop keyvault
   user: sqladmin
   # FQDN of the managed instance
-  fqdn: 
+  fqdn:
   # IP of the managed private endpoint if the FQDN is not registered in a private DNS
-  ip: 
+  ip:
 
 # Authentication configuration for accessing the az-hop portal
 # Default is basic authentication. For oidc authentication you have to specify the following values
@@ -691,7 +691,7 @@ queues:
     ColocateNodes: false
     # Specific idle time in seconds before shutting down VMs, make sure it's lower than autoscale.idle_timeout
     idle_timeout: 300
-    # Set the max number of vm's in a VMSS; requires additional limit raise through support ticket for >100; 
+    # Set the max number of vm's in a VMSS; requires additional limit raise through support ticket for >100;
     # 100 is default value; lower numbers will improve scaling for single node jobs or jobs with small number of nodes
     MaxScaleSetSize: 100
   - name: hc44rs
@@ -772,20 +772,20 @@ applications:
 # Deploy your environment
 
 ## Build the infrastructure
-Building the infrastructure is done thru the `build.sh` utility script, calling terraform. 
+Building the infrastructure is done thru the `build.sh` utility script, calling terraform.
 ```bash
 $ ./build.sh
-Usage build.sh 
+Usage build.sh
   Required arguments:
-    -a|--action [plan, apply, destroy] 
-   
+    -a|--action [plan, apply, destroy]
+
   Optional arguments:
     -f|-folder <relative path> - relative folder name containing the terraform files, default is ./tf
 ```
 Before deploying, make sure your are logged in to Azure, which will be done differently if you are logged in as a user or with a Service Principal Name.
 The build script will use the `config.yml` file which will define the environment to be deployed.
 
-### Login with a user account 
+### Login with a user account
 
 ```bash
 # Login to Azure
@@ -798,20 +798,20 @@ az account show
 az account set -s <subid>
 ```
 
-### Login with a Managed Identity 
+### Login with a Managed Identity
 
 ```bash
 # Login to Azure
 az login -i
 ```
 
-### Login with a Service Principal Name 
+### Login with a Service Principal Name
 When using a Service Principal Name (SPN), you have to login to Azure with this SPN but also set the environment variables used by Terraform to build resources as explained [here](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/service_principal_client_secret).
 
 > Note : The SPN need to have **contributor** and **User Access Administrator** roles on the subscription
 
 ```bash
-# Login to Azure 
+# Login to Azure
 az login --service-principal -u http://<spn_name> -p <spn_secret> --tenant <tenant_id>
 
 # Set Terraform Environment variables
@@ -829,7 +829,7 @@ First checks which resources will be created/updated/deleted by running
 ./build.sh -a plan
 ```
 
-Review the output and if ok then apply the changes by running 
+Review the output and if ok then apply the changes by running
 ```bash
 ./build.sh -a apply
 ```
@@ -884,13 +884,13 @@ The installation is done with Ansible playbooks and can be applied as a whole or
 - telegraf
 - chrony
 
-The simplest is to just run 
+The simplest is to just run
 ```bash
 ./install.sh
 ```
 and let it go. The script will automatically skip playbooks that have been previously executed and completed successfully.
 
-If you need to apply only a subset then run 
+If you need to apply only a subset then run
 ```bash
 ./install.sh <target> # with a single target in the list above
 ```
@@ -973,28 +973,28 @@ images:
     sku: 7.9-gen2
     hyper_v: V2
     os_type: Linux
-    version: 7.9 
+    version: 7.9
 ```
 
 ## Build an image
 Building an image is done by the utility script `packer/build_image.sh` and requires a packer input file. az-hop provides a set of pre-defined image files like :
-- `azhop-centos79-v2-rdma-gpgpu.json` this is an CentOS 7.9 HPC image with the az-hop additions for compute nodes  
+- `azhop-centos79-v2-rdma-gpgpu.json` this is an CentOS 7.9 HPC image with the az-hop additions for compute nodes
 - `azhop-centos79-desktop3d.json` this is an CentOS 7.9 HPC image with the right GPU drivers configured for remote visualization nodes
 
 ```bash
-Usage build_image.sh 
+Usage build_image.sh
   Required arguments:
     -i|--image <image_file.json> | image packer file
-   
+
   Optional arguments:
     -o|--options <options.json>  | file with options for packer generated in the build phase
     -f|--force                   | overwrite existing image and always push a new version in the SIG
 ```
 
 The `build_image.sh` script will :
-- build a managed image with packer, 
-- tag this image with the checksum of the scripts called to build that image, 
-- tag it with a version, 
+- build a managed image with packer,
+- tag this image with the checksum of the scripts called to build that image,
+- tag it with a version,
 - create the image definition in the Shared Image Gallery if it doesn't exists
 - push the managed image in the Shared Image Gallery
 
@@ -1009,7 +1009,7 @@ cd packer
 ## Update the Cycle cluster template
 >NOTE: To be done only when updating a system already configured
 
-Once all images have been built you need to update the configuration file to specify which images to use and then update the Cycle cluster template to match the exact image ID of the images pushed into the Shared Image Gallery. 
+Once all images have been built you need to update the configuration file to specify which images to use and then update the Cycle cluster template to match the exact image ID of the images pushed into the Shared Image Gallery.
 
 To specify the new custom images to use, just comment the default `image: azhpc:azhop-compute:centos-7_9:latest` values and uncomment the line below which contains the image definition to use from the Shared Image Gallery.
 
@@ -1109,7 +1109,7 @@ The `jumpbox` machine is used as an SSH bastion to access to Virtual Machines in
 
 ## SSHing Linux VMs
 
-This can be done by running this command 
+This can be done by running this command
 ```bash
 ./bin/connect hpcadmin@<vm-name or private-ip-address>
 ```
@@ -1138,7 +1138,7 @@ You need to create an ssh tunnel in order to access the AD VM, but run it from t
 Now, with the tunnel, you are able to connect using RDP to the AD VM via `localhost` on port `3390`. Connect with the **hpcadmin** local account, for which you can retrieve the password from with the `get_secret` helper.
 
 
-# How To 
+# How To
 
 ## How to use an existing VNET ?
 Using an existing VNET can be done by specifying in the `config.yml` file the VNET ID that needs to be used as shown below.
@@ -1149,7 +1149,7 @@ network:
     id: /subscriptions/<subscription id>/resourceGroups/<vnet resource group>/providers/Microsoft.Network/virtualNetworks/<vnet name>
 ```
 
-**azhop** subnet names can be mapped to existing subnets names in the provided vnet by specifying then as below. 
+**azhop** subnet names can be mapped to existing subnets names in the provided vnet by specifying then as below.
 > Note : The same subnet name can be used multiple times if needed.
 
 ```yml
@@ -1157,7 +1157,7 @@ network:
   vnet:
     id: /subscriptions/<subscription id>/resourceGroups/<vnet resource group>/providers/Microsoft.Network/virtualNetworks/<vnet name>
     subnets:
-      frontend: 
+      frontend:
         name: ondemand
       admin:
         name: itonly
@@ -1241,7 +1241,7 @@ dual_protocol: true # true to enable SMB support. false by default
 A locked down network environment avoid access from public IPs to the resources used by az-hop like storage accounts and key vault for example. To enable such configuration, uncomment and fill out the `locked_down_network` settings. Use the `grant_access_from` to grant access to specific internet public IPs as documented from [here](https://docs.microsoft.com/en-us/azure/storage/common/storage-network-security?tabs=azure-portal#grant-access-from-an-internet-ip-range)
 
 ```yml
-locked_down_network: 
+locked_down_network:
   enforce: true
   grant_access_from: [a.b.c.d] # Array of CIDR to grant access from.
 ```
@@ -1250,7 +1250,7 @@ locked_down_network:
 To deploy `az-hop` in a no public IP scenario you have to set the `locked_down_network:public_ip` value to `false`. The default value being `true`.
 
 ```yml
-locked_down_network: 
+locked_down_network:
   public_ip: false
 ```
 
@@ -1268,7 +1268,7 @@ Make sure to update your configuration file to specify the FQDN name of the on-d
 ondemand:
   vm_size: Standard_D4s_v5
   fqdn: azhop.foo.com # When provided it will be used for the certificate server name
-  generate_certificate: false 
+  generate_certificate: false
 ```
 If you want to generate your own self signed certificate here is how to proceed
 
@@ -1278,7 +1278,7 @@ openssl req -nodes -new -x509 -keyout certificate.key -out certificate.crt
 
 Copy both files `certificate.key` and `certificate.crt` in the `./playbooks` directory and renamed them `<ondemand_fqdn>.crt` and `<ondemand_fqdn>.key`. The `ondemand_fdqn` variable value can be found in the `./playbooks/group_vars/all.yml` file.
 
-> Note: If you have an intermediate or chain file make sure to name it `<ondemand_fqdn>_chain.crt` 
+> Note: If you have an intermediate or chain file make sure to name it `<ondemand_fqdn>_chain.crt`
 The playbook configuring OnDemand is expecting to find these files and will copy them in the OnDemand VM when the no PIP option is set.
 
 ## Not deploy ANF
@@ -1331,7 +1331,7 @@ authentication:
     OIDCPassRefreshToken: # for AAD use 'On'
     OIDCPassClaimsAs: # for AAD use 'environment'
   ```
-The helper script `configure_aad.sh` can be used to 
+The helper script `configure_aad.sh` can be used to
 - Register an AAD application configured to the az-hop environment
 - Create a secret for this AAD application and store it in the az-hop Key Vault
 
@@ -1346,9 +1346,9 @@ database:
   # Admin user of the database for which the password will be retrieved from the azhop keyvault
   user: sqladmin
   # FQDN of the managed instance
-  fqdn: 
+  fqdn:
   # IP of the managed private endpoint if the FQDN is not registered in a private DNS
-  ip: 
+  ip:
 ```
 
 Store the database user password in the `azhop` keyvault as a secret with the name `<database.user>-password`
@@ -1371,7 +1371,7 @@ This script contains all the pre-reqs needed to run the **azhop** playbooks, and
 This companion script allows you to upload/download all environment status files to/from blobs. Be aware that the Azure storage account and container should be created before running that script.
 
 ```bash
-vscode@d0076264576c:/hpc$ ./azhop_state.sh 
+vscode@d0076264576c:/hpc$ ./azhop_state.sh
 azhop_state command account container resource_group
     command        = download, upload, delete
     account        = azure storage account to read/write state
@@ -1385,10 +1385,10 @@ Script to build the resources needed for an **azhop** environment.
 
 ```bash
 $ ./build.sh
-Usage build.sh 
+Usage build.sh
   Required arguments:
-    -a|--action [plan, apply, destroy] 
-   
+    -a|--action [plan, apply, destroy]
+
   Optional arguments:
     -f|-folder <relative path> - relative folder name containing the terraform files, default is ./tf
 ```
@@ -1413,17 +1413,17 @@ This script apply the applications configuration and settings on the **azhop** e
 - cccluster
 - scheduler
 - ood
-- grafana 
+- grafana
 - telegraf
 - chrony
 
-The simpler is just to run 
+The simpler is just to run
 ```bash
 ./install.sh
 ```
 and let it go
 
-If you need to apply only a subset then run 
+If you need to apply only a subset then run
 ```bash
 ./install.sh <target> # with a single target in the list above
 ```
@@ -1434,26 +1434,26 @@ In case of a transient failure, the install script can be reapplied as most of t
 Script to build images defined the the `config.yml` file and in the `packer/<image_file.json>` packer files.
 
 ```bash
-vscode@d0076264576c:/hpc/packer$ ./build_image.sh 
-Usage build_image.sh 
+vscode@d0076264576c:/hpc/packer$ ./build_image.sh
+Usage build_image.sh
   Required arguments:
     -i|--image <image_file.json> | image packer file
-   
+
   Optional arguments:
     -o|--options <options.json>  | file with options for packer generated in the build phase
     -f|--force                   | overwrite existing image and always push a new version in the SIG
 ```
 
 The `build_image.sh` script will :
-- build a managed image with packer, 
-- tag this image with the checksum of the scripts called to build that image, 
-- tag it with a version, 
+- build a managed image with packer,
+- tag this image with the checksum of the scripts called to build that image,
+- tag it with a version,
 - create the image definition in the Shared Image Gallery if it doesn't exists
 - push the managed image in the Shared Image Gallery
 
 Please read the [Build Images](#build-images) documentation for more details.
 
-## bin/connect 
+## bin/connect
 The `bin/connect` command will be created by terraform in the build phase.  In addition to the specific `cyclecloud` and `ad` commands it can be a general wrapper for `ssh` in order to access resources on the vnet. This will handle proxy-ing through the **jumpbox** and so you can connect directly to the resources on the vnet.  For example, to connect to the ondemand, you can run the following:
 
 ```bash
@@ -1471,7 +1471,7 @@ This utility command will retrieve a user password stored in the keyvault create
 # Telemetry
 When you build your HPC environment on azure via azhop, Microsoft can identify the use of azhop with the deployed Azure resources. Microsoft collects this information to provide the best experiences with their products and to operate their business. The telemetry is collected through customer usage attribution. The data is collected and governed by Microsoft's privacy policies.
 
-If you do not wish to send usage data to Microsoft, you will need update your config file to include the following setting: 
+If you do not wish to send usage data to Microsoft, you will need update your config file to include the following setting:
 
 `optout_telemetry: true`
 

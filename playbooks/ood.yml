@@ -310,14 +310,14 @@
       path: /lustre
       state: directory
       mode: 0777
-    when: ( lustre is defined )
+    when: ( features.lustre | default(false) )
 
   - name: Install Lustre Client
     include_role:
       name: lustre
     vars:
       install_client: true
-    when: ( lustre is defined )
+    when: ( features.lustre | default(false) )
 
   - name: create ood initialiser directory
     file:
@@ -331,7 +331,7 @@
       line : 'OodFilesApp.candidate_favorite_paths << FavoritePath.new("/lustre", title: "Lustre")'
       create: yes
       state: present
-    when: ( lustre is defined )
+    when: ( features.lustre | default(false) )
 
   - name: Create "{{mounts[item].mountpoint}}" directory mountpoint
     file:
