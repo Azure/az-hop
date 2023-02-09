@@ -6,7 +6,8 @@ Adapted from [Batch Connect - OSC ParaView](https://github.com/OSC/bc_osc_paravi
 
 ## Prerequisites
 
-[ParaView] needs to be installed on a file share system accessible by the nodes. The default ParaView root directory
+[ParaView] needs to be installed on a file share system accessible by the nodes. The Ansible playbook will install
+the ParaView binaries under `/anfhome/apps/paraview` by default. The default ParaView root directory
 is defined as `/anfhome/apps/paraview`, but it can be changed in the `form.yml.erb` file and is a parameter in the UI.
 
 ## Versions
