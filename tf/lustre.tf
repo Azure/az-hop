@@ -178,9 +178,9 @@ resource "azurerm_network_interface_application_security_group_association" "lus
   application_security_group_id = local.create_nsg ? azurerm_application_security_group.asg[each.value.asg].id : data.azurerm_application_security_group.asg[each.value.asg].id
 }
 
-#########################################################################
-#   Robinhood VM                                                        #
-#########################################################################
+#
+# Robinhood VM
+#
 
 resource "azurerm_network_interface" "robinhood-nic" {
   count                         = local.lustre_enabled ? 1 : 0
@@ -250,9 +250,9 @@ resource "azurerm_linux_virtual_machine" "robinhood" {
   }
 }
 
-#####################################################
-#  Grant read access to the Keyvault to robinhood   #
-#####################################################
+#
+#  Grant read access to the Keyvault to robinhood
+#
 resource "azurerm_key_vault_access_policy" "robinhood" {
   count               = local.lustre_enabled ? 1 : 0
   key_vault_id        = azurerm_key_vault.azhop.id

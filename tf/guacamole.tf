@@ -66,12 +66,11 @@ resource "azurerm_linux_virtual_machine" "guacamole" {
 
 # Grant read access to the Keyvault for the guacamole identity
 resource "azurerm_key_vault_access_policy" "guacamole" {
-  count               = local.enable_remote_winviz ? 1 : 0
+  count        = local.enable_remote_winviz ? 1 : 0
   key_vault_id = azurerm_key_vault.azhop.id
   tenant_id    = local.tenant_id
   object_id    = azurerm_linux_virtual_machine.guacamole[0].identity[0].principal_id
 
-  key_permissions = [ "Get", "List" ]
   secret_permissions = [ "Get", "List" ]
 }
 
