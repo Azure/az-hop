@@ -2,6 +2,9 @@
 set -e
 yum install -y git
 
+df -h
+
+mkdir -p /mnt/resource
 chmod 777 /mnt/resource
 cd /mnt/resource
 
