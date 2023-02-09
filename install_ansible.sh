@@ -16,6 +16,12 @@ elif [[ "$os_type" == "linux" ]]; then
   os_release=${os_release^^}
   if [[ "$os_release" == "UBUNTU" ]]; then
     ANSIBLE_VERSION=$ANSIBLE_VERSION_UBUNTU
+    # Issue creating virtual environment on Ubuntu
+    # https://bugs.launchpad.net/ubuntu/+source/python3.4/+bug/1290847
+    {
+        trap "sudo -k" EXIT INT QUIT
+        apt install -y python3.10-venv
+    }
   elif [[ "$os_release" == "CENTOS" ]]; then
     ANSIBLE_VERSION=$ANSIBLE_VERSION_CENTOS
   else

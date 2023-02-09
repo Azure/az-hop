@@ -6,6 +6,10 @@
   gather_facts: true
 
   vars:
+    deb_architecture: {
+        "aarch64": "arm64",
+        "x86_64": "amd64"
+    }
     mac_azcopy_file: downloadazcopy-v10-mac
     yq_version: v4.25.3
     yq_binary: yq_linux_amd64
@@ -16,7 +20,12 @@
       ansible_distribution: "{{ ansible_distribution | lower }}"
 
   - block:
-    - name: Install dependencies (Ubuntu)
+
+    - name: Identify architecture
+      set_fact:
+        dpkg_arch: "{{ deb_architecture[ansible_architecture] }}"
+
+    - name: "Install dependencies (Ubuntu)"
       apt:
         name: "{{ item }}"
         state: present
@@ -27,23 +36,44 @@
         - git
         - gpg
         - jq
-        - pwg
-        - python3
-        - python3-pip
         - software-properties-common
         - sudo
         - wget
         - yamllint
-        - yum-utils
+      become: true
 
-    - name: "AzureCLI: Download"
-      get_url:
-        url: https://aka.ms/InstallAzureCLIDeb
-        dest: /tmp/InstallAzureCLIDeb
-        mode: 0755
+    - name: "AzureCLI: Install Microsoft ring"
+      apt_key:
+        url: https://packages.microsoft.com/keys/microsoft.asc
+        state: present
+      become: true
+
+    - name: debug
+      debug:
+        var: ansible_architecture
+        var: ansible_distribution
+        var: ansible_distribution_release
+
+    - name: "AzureCLI: Add Microsoft repository (kinetic-22.10)"
+      apt_repository:
+        # Following directions from https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest
+        repo: "deb [arch={{ dpkg_arch }}] https://packages.microsoft.com/repos/azure-cli/ jammy main"
+        state: present
+      become: true
+      when: ansible_distribution_release == "kinetic"
+
+    - name: "AzureCLI: Add Microsoft repository (non-kinetic)"
+      apt_repository:
+        repo: "deb [arch={{ dpkg_arch }}] https://packages.microsoft.com/repos/azure-cli/ {{ ansible_distribution_release }} main"
+        state: present
+      become: true
+      when: ansible_distribution_release != "kinetic"
 
     - name: "AzureCLI: Install"
-      command: /tmp/InstallAzureCLIDeb
+      apt:
+        name: azure-cli
+        state: present
+      become: true
 
     - name: "AzureCLI: Allow extensions without prompt"
       command: az config set extension.use_dynamic_install=yes_without_prompt
@@ -61,21 +91,25 @@
       apt_key:
         url: https://apt.releases.hashicorp.com/gpg
         state: present
+      become: true
 
     - name: "Terraform: Add the HashiCorp Linux repository"
       apt_repository:
         repo: deb [arch=amd64] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main
         state: present
+      become: true
 
     - name: "Terraform: Install"
       apt:
         name: terraform
         state: present
+      become: true
 
     - name: "Packer: Install"
       apt:
         name: packer
         state: present
+      become: true
 
     - name: "yq: Download and install"
       unarchive:
