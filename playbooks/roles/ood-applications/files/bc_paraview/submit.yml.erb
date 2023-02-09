@@ -4,7 +4,7 @@
 require "yaml"
 node_arrays = YAML.load_file("/etc/ood/config/apps/bc_desktop/config/node_arrays.yml")
 node_ratio = bucket.to_i
-node_count = bc_num_slots.to_i
+node_count = 1
 
 if OodAppkit.clusters[cluster].job_config[:adapter] == 'slurm'
   scheduler_args = ["-p", bc_slot_type]
