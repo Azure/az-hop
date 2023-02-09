@@ -8,10 +8,17 @@ form:
   - bc_num_hours
   - slot_type
   - container_mounts
+  - subscription
+  - resource_group
+  - workspace
+  - sku
+  - instance_count
+  - code
+  - job_inputs
 attributes:
   bc_num_hours:
     widget: "number_field"
-    label: "Maximum duration of your remote session in hours"
+    label: "Maximum duration of your remote session"
     value: 1
     help: |
       This is the maximum duration of your session.
@@ -38,3 +45,41 @@ attributes:
     value: ""
     help: |
       Comma-separated list of additional mount[s] inside the container. Format: SRC:DST[,SRC:DST...]
+  subscription:
+    id: "subscription"
+    label: "Subscription in AzureAML"
+    widget: "text_field"
+    value: ""
+  resource_group:
+    id: "resource_group"
+    label: "Resource Group in AzureML"
+    widget: "text_field"
+    value: ""
+  workspace:
+    id: "workspace"
+    label: "Workspace in AzureML"
+    widget: "text_field"
+    value: ""
+  sku:
+    id: "sku"
+    label: "SKU to run AzureML job"
+    widget: "text_field"
+    value: ""
+  instance_count:
+    id: "instance_count"
+    label: "Number of instances in AzureML cluster"
+    widget: "number_field"
+    value: 1
+    min: 1
+    max: 10
+    step: 1
+  code:
+    id: "code"
+    label: "Code (python) file"
+    widget: "text_field"
+    value: ""
+  job_inputs:
+    id: "job_inputs"
+    label: "Job inputs"
+    widget: "text_field"
+    value: ""
