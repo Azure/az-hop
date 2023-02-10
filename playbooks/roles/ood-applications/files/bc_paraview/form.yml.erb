@@ -1,0 +1,67 @@
+<%-
+  node_arrays = YAML.load_file("/etc/ood/config/apps/bc_desktop/config/node_arrays.yml")
+-%>
+---
+cluster:
+    - "ondemand"
+form:
+    - bc_num_hours
+    - bc_slot_type
+    - bucket
+    - version
+    - paraview_home
+attributes:
+    bc_num_hours:
+        widget: "number_field"
+        label: "Maximum duration in hours of your session"
+        value: 1
+        min: 1
+        max: 8
+        help: |
+            This is the maximum duration in hours of your session once started.
+        step: 1
+    bc_slot_type:
+        widget: "select"
+        label: "Node type"
+        help: |
+            Select the type of node you want to use.
+        options:
+            <%- node_arrays.each do |slot_type| %>
+                <%- if slot_type["name"].include?("viz") -%>
+                    - '<%= slot_type["name"]%>'
+                <%- end -%>
+            <%- end %>
+    bucket:
+        widget: "select"
+        label: "Node bucket"
+        value: 1
+        help: |
+            Select how much of the node you want to use. This affects to total
+            number of MPI ranks ParaView will use for distributed processing / rendering.
+        options:
+            - [" 1/8 of the node", "8"]
+            - [" 1/4 of the node", "4"]
+            - [" 1/2 of the node", "2"]
+            - [" the full node", "1"]
+    version:
+        widget: select
+        label: "ParaView version"
+        help: "This defines the version of ParaView you want to load."
+        options:
+            - [ "ParaView 5.11.0", "5.11.0" ]
+    paraview_home:
+        label: "ParaView Home Directory"
+        help: |
+            Specify the ParaView Home Directory to be used when starting ParaView.
+            ParaView binaries should be located under this root directory.
+            
+            The launch script uses the following path to locate the ParaView executables:
+            `$PARAVIEW_HOME/$PARAVIEW_VERSION/(glx|egl|osmesa)/bin/${executable}`.
+            
+            `glx` is used for launching the ParaView Qt client.  
+            `egl` and `osmesa` are used for launching the ParaView server based on whether GPU
+            support is enabled or not respectively.
+        widget: text_field
+        value: "/anfhome/apps/paraview"
+
+ 

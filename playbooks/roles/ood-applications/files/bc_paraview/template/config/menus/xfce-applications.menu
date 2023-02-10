@@ -1,0 +1,20 @@
+<!DOCTYPE Menu PUBLIC "-//freedesktop//DTD Menu 1.0//EN"
+  "http://www.freedesktop.org/standards/menu-spec/1.0/menu.dtd">
+
+<Menu>
+    <Name>Xfce</Name>
+
+    <DefaultAppDirs/>
+    <DefaultDirectoryDirs/>
+    <DefaultMergeDirs/>
+
+    <Include>
+        <All/>
+    </Include>
+
+    <Layout>
+        <Filename>firefox.desktop</Filename>
+        <Filename>xfce4-terminal.desktop</Filename>
+        <Filename>Thunar.desktop</Filename>
+    </Layout>
+</Menu>
