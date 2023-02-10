@@ -211,7 +211,7 @@ echo "terraform -chdir=$TF_FOLDER $TF_COMMAND $PARAMS"
 # env details from here: https://github.com/hashicorp/terraform-provider-azurerm/blob/main/vendor/github.com/Azure/go-autorest/autorest/azure/environments.go
 # TODO: check az environmentName for AzureChina and AzureGerman
 cloud_env="Public"
-account_env=$(az account show | jq '.environmentName' -r)
+account_env=$(az account show --output json| jq '.environmentName' -r)
 case "$account_env" in
   AzureChinaCloud)
     export TF_VAR_AzureEnvironment=AZURECHINACLOUD
