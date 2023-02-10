@@ -109,15 +109,17 @@ def setupenv(subscription_id, resource_group, workspace_name, machine_type,
 def runjob(filename, job_inputs):
 
     print("Job submitted to AzureML...")
+    codedir = "./src/"
 
     full_command = "python "+filename+" "+job_inputs
 
+    filename = codedir+filename
     if not exists(filename):
         print("Provided file does not exist:", filename)
         return None, None
 
     job = command(
-        code="./src/",  # local path where the code is stored
+        code=codedir,  # local path where the code is stored
         command=full_command,
         #       command="python train.py --epochs ${{inputs.epochs}}",
         #       inputs={"epochs": 1},
