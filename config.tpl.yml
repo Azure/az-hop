@@ -210,8 +210,8 @@ usergroups:
   #   gid: 6001
 
 # Enable cvmfs-eessi - disabled by default
-# cvmfs_eessi:
-#   enabled: true
+cvmfs_eessi:
+  enabled: false
 
 # scheduler to be installed and configured (openpbs, slurm)
 queue_manager: openpbs
