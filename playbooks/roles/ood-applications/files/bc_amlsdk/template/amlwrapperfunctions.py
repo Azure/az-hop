@@ -1,4 +1,6 @@
 import os
+import random
+import string
 from os.path import exists
 from azure.ai.ml import MLClient
 from azure.identity import AzureCliCredential
@@ -20,6 +22,11 @@ class EnvSetup:
 
 
 envsetup = EnvSetup()
+
+
+def get_random_string(length):
+    letters = string.ascii_lowercase
+    return ''.join(random.choice(letters) for i in range(length))
 
 
 def login():
@@ -120,6 +127,8 @@ def runjob(filename, job_inputs):
         print("Provided file does not exist:", filename)
         return None, None
 
+    job_display_name = "azhop-aml-" + get_random_string(6)
+
     job = command(
         code=codedir,
         command=full_command,
@@ -127,12 +136,13 @@ def runjob(filename, job_inputs):
         compute="gpu-cluster",
         instance_count=envsetup.max_instances,
         distribution=MpiDistribution(process_count_per_instance=1),
-        display_name="tensorflow-mnist-distributed-horovod-example"
+        display_name=job_display_name
     )
 
     job_handler = envsetup.ml_client.create_or_update(job)
 
     if job_handler:
-        print("Returning job handler to check its status")
+        print("Returning job handler to check its status. Job display name:",
+              job_display_name)
 
     return job_handler, envsetup.ml_client
