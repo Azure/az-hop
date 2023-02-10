@@ -5,7 +5,7 @@ import argparse
 OUTPUT = "new1.ipynb"
 
 
-def build_notebook(subscription, resourcegroup, workspace,
+def build_notebook(subscription, location, resourcegroup, workspace,
                    machinetype, maxinstances, jobfile, jobinputs):
 
     nb = nbf.v4.new_notebook()
@@ -22,12 +22,14 @@ aml.login()"""
 
     code_setup_tmp = """\
 aml.setupenv(subscription_id='{subscription}',
+             location='{location}',
              resource_group='{resourcegroup}',
              workspace_name='{workspace}',
              machine_type='{machinetype}',
              max_instances={maxinstances})"""
 
     code_setup = code_setup_tmp.format(subscription=subscription,
+                                       location=location,
                                        resourcegroup=resourcegroup,
                                        workspace=workspace,
                                        machinetype=machinetype,
@@ -56,6 +58,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--subscription",
                         help="Subscription", required=True)
+    parser.add_argument("-l", "--location",
+                        help="Location/region", required=True)
     parser.add_argument("-rg", "--resourcegroup",
                         help="Resource Group", required=True)
     parser.add_argument("-ws", "--workspace",
@@ -71,6 +75,7 @@ def main():
 
     args = parser.parse_args()
     subscription = args.subscription
+    location = args.location
     resourcegroup = args.resourcegroup
     workspace = args.workspace
     machinetype = args.machinetype
@@ -78,8 +83,8 @@ def main():
     jobfile = args.jobfile
     jobinputs = args.jobinputs
 
-    build_notebook(subscription, resourcegroup, workspace, machinetype,
-                   maxinstances, jobfile, jobinputs)
+    build_notebook(subscription, location, resourcegroup, workspace,
+                   machinetype, maxinstances, jobfile, jobinputs)
 
 
 if __name__ == '__main__':

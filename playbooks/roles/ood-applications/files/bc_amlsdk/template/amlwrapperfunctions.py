@@ -15,8 +15,7 @@ class EnvSetup:
     max_instances = ""
     ml_client = None
     workspace = None
-    # to be exposed in UI
-    location = "eastus"
+    location = ""
 
 
 envsetup = EnvSetup()
@@ -85,10 +84,11 @@ def setupenv_cluster():
     return ml_client
 
 
-def setupenv(subscription_id, resource_group, workspace_name, machine_type,
-             max_instances):
+def setupenv(subscription_id, location, resource_group, workspace_name,
+             machine_type, max_instances):
 
     envsetup.subscription_id = subscription_id
+    envsetup.location = location
     envsetup.resource_group = resource_group
     envsetup.workspace_name = workspace_name
     envsetup.machine_type = machine_type
@@ -119,13 +119,11 @@ def runjob(filename, job_inputs):
         return None, None
 
     job = command(
-        code=codedir,  # local path where the code is stored
+        code=codedir,
         command=full_command,
-        #       command="python train.py --epochs ${{inputs.epochs}}",
-        #       inputs={"epochs": 1},
         environment="AzureML-tensorflow-2.7-ubuntu20.04-py38-cuda11-gpu@latest",
         compute="gpu-cluster",
-        instance_count=2,
+        instance_count=envsetup.max_instances,
         distribution=MpiDistribution(process_count_per_instance=1),
         display_name="tensorflow-mnist-distributed-horovod-example"
     )

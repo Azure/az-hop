@@ -9,6 +9,7 @@ form:
   - slot_type
   - container_mounts
   - subscription
+  - location
   - resource_group
   - workspace
   - sku
@@ -50,6 +51,11 @@ attributes:
     label: "Subscription in AzureAML"
     widget: "text_field"
     value: ""
+  location:
+    id: "location"
+    label: "Location/region in Azure (e.g.eastus)"
+    widget: "text_field"
+    value: "eastus"
   resource_group:
     id: "resource_group"
     label: "Resource Group in AzureML"
