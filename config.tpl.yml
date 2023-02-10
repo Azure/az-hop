@@ -226,7 +226,9 @@ slurm:
   # Other versions can be installed by building from source (See build_rpms setting in the slurmserver role)
   slurm_version: 20.11.9
   # Name of the SLURM cluster for accounting (optional, default to 'slurm')
-  cluster_name: slurm
+  # WARNING: changing this value on a running cluster will cause slurmctld to fail to start. This is a
+  # safety check to prevent accounting errors. To override, remove /var/spool/slurmd/clustername
+  # cluster_name: slurm
 
 # If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values
 database:
