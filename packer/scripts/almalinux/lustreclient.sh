@@ -3,6 +3,7 @@
 set -ex
    
 DISTRIB_CODENAME=el8
+LUSTRE_VERSION=2.15.1_24_gbaa21ca
 REPO_PATH=/etc/yum.repos.d/amlfs.repo
    
 rpm --import https://packages.microsoft.com/keys/microsoft.asc
@@ -14,4 +15,4 @@ echo -e "enabled=1" >> ${REPO_PATH}
 echo -e "gpgcheck=1" >> ${REPO_PATH}
 echo -e "gpgkey=https://packages.microsoft.com/keys/microsoft.asc" >> ${REPO_PATH}
 
-dnf install -y amlfs-lustre-client-2.15.1_24_gbaa21ca-$(uname -r | sed -e "s/\.$(uname -p)$//" | sed -re 's/[-_]/\./g')-1
+dnf install -y amlfs-lustre-client-${LUSTRE_VERSION}-$(uname -r | sed -e "s/\.$(uname -p)$//" | sed -re 's/[-_]/\./g')-1

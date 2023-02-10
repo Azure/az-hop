@@ -48,7 +48,6 @@
                 "/tmp/openpbs.sh || exit 1",
                 "/tmp/slurm.sh || exit 1",
                 "/tmp/telegraf.sh || exit 1",
-                "/tmp/lustreclient.sh || exit 1",
                 "/tmp/zz-compute-custom.sh || exit 1",
                 "echo ' This is the end '",
                 "yum history sync",

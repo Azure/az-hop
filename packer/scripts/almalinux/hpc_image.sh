@@ -10,7 +10,7 @@ cd /mnt/resource
 
 git clone https://github.com/edwardsp/azhpc-images # -b centos-hpc-20220112
 
-cd ./azhpc-images/alma/alma-8.x/alma-8.6-hpc
+cd ./azhpc-images/alma/alma-8.x/alma-8.7-hpc
 
 ./install.sh
 
