@@ -12,6 +12,7 @@ form:
   - location
   - resource_group
   - workspace
+  - amlenv
   - sku
   - instance_count
   - code
@@ -66,16 +67,24 @@ attributes:
     label: "Workspace in AzureML"
     widget: "text_field"
     value: ""
+  amlenv:
+    id: "amlenv"
+    label: "AzureML env"
+    widget: "text_field"
+    value: "AzureML-tensorflow-2.7-ubuntu20.04-py38-cuda11-gpu@latest"
+    help: |
+      AzureML environment name (libraries, docker conf, etc.)
+      [AzureML DOCS](https://learn.microsoft.com/en-us/azure/machine-learning/how-to-manage-environments-v2?tabs=python)
   sku:
     id: "sku"
     label: "SKU to run AzureML job"
     widget: "text_field"
-    value: ""
+    value: "STANDARD_NC6"
   instance_count:
     id: "instance_count"
     label: "Number of instances in AzureML cluster"
     widget: "number_field"
-    value: 1
+    value: 2
     min: 1
     max: 10
     step: 1

@@ -9,13 +9,14 @@ from azure.ai.ml import command, MpiDistribution
 
 class EnvSetup:
     subscription_id = ""
+    location = ""
     resource_group = ""
     workspace_name = ""
+    amlenv = ""
     machine_type = ""
     max_instances = ""
     ml_client = None
     workspace = None
-    location = ""
 
 
 envsetup = EnvSetup()
@@ -85,12 +86,13 @@ def setupenv_cluster():
 
 
 def setupenv(subscription_id, location, resource_group, workspace_name,
-             machine_type, max_instances):
+             amlenv, machine_type, max_instances):
 
     envsetup.subscription_id = subscription_id
     envsetup.location = location
     envsetup.resource_group = resource_group
     envsetup.workspace_name = workspace_name
+    envsetup.amlenv = amlenv
     envsetup.machine_type = machine_type
     envsetup.max_instances = max_instances
 
@@ -121,7 +123,7 @@ def runjob(filename, job_inputs):
     job = command(
         code=codedir,
         command=full_command,
-        environment="AzureML-tensorflow-2.7-ubuntu20.04-py38-cuda11-gpu@latest",
+        environment=envsetup.amlenv,
         compute="gpu-cluster",
         instance_count=envsetup.max_instances,
         distribution=MpiDistribution(process_count_per_instance=1),

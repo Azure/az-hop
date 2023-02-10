@@ -44,7 +44,7 @@ echo "notebook root= ${NOTEBOOK_ROOT}"
 echo "building main notebook"
 # have to be careful with AMLSDKJOBINPUTS as it may start with "--"
 set -o xtrace
-python nbbuilder.py -s $AMLSDKSUBSCRIPTION -l $AMLSDKLOCATION -rg $AMLSDKRESOURCEGROUP -ws $AMLSDKWORKSPACE -mt $AMLSDKSKU -mi $AMLSDKINSTANCECOUNT -j $AMLSDKJOBCODE -ji " $AMLSDKJOBINPUTS"
+python nbbuilder.py -s $AMLSDKSUBSCRIPTION -l $AMLSDKLOCATION -rg $AMLSDKRESOURCEGROUP -ws $AMLSDKWORKSPACE -ae $AMLSDKAMLENV -mt $AMLSDKSKU -mi $AMLSDKINSTANCECOUNT -j $AMLSDKJOBCODE -ji " $AMLSDKJOBINPUTS"
 set +o xtrace
 
 

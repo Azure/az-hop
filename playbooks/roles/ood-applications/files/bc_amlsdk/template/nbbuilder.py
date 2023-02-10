@@ -6,7 +6,7 @@ OUTPUT = "new1.ipynb"
 
 
 def build_notebook(subscription, location, resourcegroup, workspace,
-                   machinetype, maxinstances, jobfile, jobinputs):
+                   amlenv, machinetype, maxinstances, jobfile, jobinputs):
 
     nb = nbf.v4.new_notebook()
 
@@ -25,6 +25,7 @@ aml.setupenv(subscription_id='{subscription}',
              location='{location}',
              resource_group='{resourcegroup}',
              workspace_name='{workspace}',
+             amlenv='{amlenv}',
              machine_type='{machinetype}',
              max_instances={maxinstances})"""
 
@@ -32,6 +33,7 @@ aml.setupenv(subscription_id='{subscription}',
                                        location=location,
                                        resourcegroup=resourcegroup,
                                        workspace=workspace,
+                                       amlenv=amlenv,
                                        machinetype=machinetype,
                                        maxinstances=maxinstances)
 
@@ -64,6 +66,8 @@ def main():
                         help="Resource Group", required=True)
     parser.add_argument("-ws", "--workspace",
                         help="Workspace", required=True)
+    parser.add_argument("-ae", "--amlenv",
+                        help="AzureML env", required=True)
     parser.add_argument("-mt", "--machinetype",
                         help="Machine Type", required=True)
     parser.add_argument("-mi", "--maxinstances",
@@ -78,13 +82,14 @@ def main():
     location = args.location
     resourcegroup = args.resourcegroup
     workspace = args.workspace
+    amlenv = args.amlenv
     machinetype = args.machinetype
     maxinstances = args.maxinstances
     jobfile = args.jobfile
     jobinputs = args.jobinputs
 
     build_notebook(subscription, location, resourcegroup, workspace,
-                   machinetype, maxinstances, jobfile, jobinputs)
+                   amlenv, machinetype, maxinstances, jobfile, jobinputs)
 
 
 if __name__ == '__main__':
