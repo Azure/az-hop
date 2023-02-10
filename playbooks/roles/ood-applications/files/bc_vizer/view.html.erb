@@ -1,0 +1,20 @@
+<%-
+  base_url  = "/rnode/#{host}/#{port}/?"
+  form_id = "vizer_form#{base_url.gsub('/', '_')}"
+%>
+
+<!-- Zoom on iPad doesn't like opening in a new tab. It won't foward the form parameters. -->
+<script type="text/javascript">
+  function changeTarget() {
+    const agent = navigator.userAgent;
+    if (/Mozilla\/5\.0 \(Macintosh; Intel Mac OS X \d+_\d+_\d+\) AppleWebKit\/\d+\.\d+\.\d+ \(KHTML, like Gecko\)/.test(agent)) {
+      document.getElementById("<%= form_id %>").target = "_self";
+    }
+  }
+</script>
+
+<form id="<%= form_id %>" action="<%= base_url %>" method="get" target="_blank" onsubmit="changeTarget()" >
+  <button class="btn btn-primary" type="submit">
+    <i class="fa fa-cogs"></i>Connect to <b>vizer</b>
+  </button>
+</form>
