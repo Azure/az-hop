@@ -228,7 +228,7 @@ slurm:
   # Name of the SLURM cluster for accounting (optional, default to 'slurm')
   # WARNING: changing this value on a running cluster will cause slurmctld to fail to start. This is a
   # safety check to prevent accounting errors. To override, remove /var/spool/slurmd/clustername
-  # cluster_name: slurm
+  cluster_name: slurm_azhop
 
 # If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values
 database:
