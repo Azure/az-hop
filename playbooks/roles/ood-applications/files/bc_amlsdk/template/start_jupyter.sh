@@ -7,6 +7,27 @@ pip install azure-cli
 pip install azureml-core
 pip install azure-ai-ml
 pip install azure.identity
+
+echo "Installing customized jupyter launcher..."
+pip install jupyter_app_launcher
+jupyter labextension list
+
+JUPYTERAPPLAUNCHERDIR="${NOTEBOOK_ROOT}"/.local/share/jupyter/jupyter_app_launcher/
+mkdir $JUPYTERAPPLAUNCHERDIR
+JUPYTERAPPLAUNCHERCONF=$JUPYTERAPPLAUNCHERDIR/config.yaml
+
+cat << EOF > $JUPYTERAPPLAUNCHERCONF
+- title: AzureML Notebook
+  description: AzureML notebook
+  source: ${NOTEBOOK_ROOT}/new1.ipynb
+  cwd: ${NOTEBOOK_ROOT}
+  type: notebook
+  catalog: Notebook
+  icon: $JUPYTERAPPLAUNCHERDIR/azure-ml.svg
+EOF
+
+cp azure-ml.svg $JUPYTERAPPLAUNCHERDIR
+
 #
 # Start Jupyter server
 #
