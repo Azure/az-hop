@@ -2,6 +2,11 @@
 echo "Starting main script..."
 echo "TTT - $(date)"
 
+echo "Installing azure machine learning tools..."
+pip install azure-cli
+pip install azureml-core
+pip install azure-ai-ml
+pip install azure.identity
 #
 # Start Jupyter server
 #
