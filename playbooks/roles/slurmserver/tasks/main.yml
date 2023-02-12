@@ -230,6 +230,7 @@
     dest: /sched/slurm.conf
     owner: slurm
     group: slurm
+    force: false
 
 - name: create slurm cgroup config
   copy:
