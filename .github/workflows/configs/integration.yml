@@ -6,6 +6,13 @@ tags:
   env: dev
   project: azhop
   scheduler: __SCHEDULER__
+
+#If set to true, it will create alert rules associated with az-hop. Enablement of alerting will require the specification of an admin email to send alerts to.
+alerting:
+  enabled: true
+  admin_mail: admin.mail@contoso.com
+  local_volume_threshold: 80
+
 # Define an ANF account, single pool and volume
 # If not present assume that there is an existing NFS share for the users home directory
 anf:

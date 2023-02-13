@@ -39,8 +39,6 @@ resource "azurerm_linux_virtual_machine" "jumpbox" {
 
   identity {
     type         = "SystemAssigned"
-    //type         = "UserAssigned"
-    //identity_ids = [ azurerm_user_assigned_identity.azure_monitor_identity.id ]
   }
 
   os_disk {
@@ -84,7 +82,6 @@ resource "azurerm_network_interface_application_security_group_association" "jum
 resource "azurerm_virtual_machine_extension" "AzureMonitorLinuxAgent" {
   depends_on = [
     azurerm_linux_virtual_machine.jumpbox
-    #azurerm_user_assigned_identity.azure_monitor_identity
   ]
   name                       = "AzureMonitorLinuxAgent"
   virtual_machine_id         = azurerm_linux_virtual_machine.jumpbox[0].id
@@ -92,17 +89,6 @@ resource "azurerm_virtual_machine_extension" "AzureMonitorLinuxAgent" {
   type                       = "AzureMonitorLinuxAgent"
   type_handler_version       = "1.0"
   auto_upgrade_minor_version = true
-
-/*  settings                   = <<SETTINGS
-  {
-    "authentication": {
-      "managedIdentity": {
-        "identifier-name": "mi_res_id",
-        "identifier-value": "${azurerm_user_assigned_identity.azure_monitor_identity.id}" 
-      }
-    }
-  }
-  SETTINGS*/
 }
 
 resource "azurerm_monitor_data_collection_rule_association" "dcra_vm_metrics" {

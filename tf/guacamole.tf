@@ -90,17 +90,6 @@ resource "azurerm_virtual_machine_extension" "AzureMonitorLinuxAgent_guacamole" 
   type                       = "AzureMonitorLinuxAgent"
   type_handler_version       = "1.0"
   auto_upgrade_minor_version = true
-
-  settings                   = <<SETTINGS
-  {
-    "authentication": {
-      "managedIdentity": {
-        "identifier-name": "mi_res_id",
-        "identifier-value": "${azurerm_user_assigned_identity.guacamole[0].id}" 
-      }
-    }
-  }
-  SETTINGS
 }
 
 resource "azurerm_monitor_data_collection_rule_association" "dcra_guacamole_metrics" {
