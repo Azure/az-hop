@@ -49,12 +49,35 @@
     mode: 0700
     state: directory
 
+- name: Check if munge key exists in KV
+  command: az keyvault secret list --vault-name {{key_vault}} -o tsv --query "contains([].name, 'munge-key')"
+  delegate_to: localhost
+  connection: local
+  register: mungekey_exists
+  become: false
+
+- block:
+  - name: Read munge key from KV
+    command: az keyvault secret show --vault-name {{key_vault}} -n munge-key --query "value" -o tsv
+    delegate_to: localhost
+    connection: local
+    register: mungekey_out
+    become: false
+  - name: Store munge key in file
+    copy:
+      content: "{{mungekey_out.stdout}}"
+      dest: '{{homedir_mountpoint}}/slurm/config/munge/munge.key'
+      mode: 0600
+      force: false
+  when: mungekey_exists.stdout == "true"
+
 - name: generate munge key
   shell: |
     openssl rand -base64 24 > '{{homedir_mountpoint}}/slurm/config/munge/munge.key'
     chmod 600 '{{homedir_mountpoint}}/slurm/config/munge/munge.key'
   args:
     creates: '{{homedir_mountpoint}}/slurm/config/munge/munge.key'
+  when: mungekey_exists.stdout == "false"
 
 - name: install munge key
   copy:
