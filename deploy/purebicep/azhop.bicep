@@ -64,6 +64,7 @@ var config = {
   deploy_gateway: contains(azhopConfig.network.vnet.subnets,'gateway')
   deploy_bastion: contains(azhopConfig.network.vnet.subnets,'bastion')
   deploy_lustre: deployLustre
+  deploy_hybrid_slurm: azhopConfig.slurm.multi_cluster.enabled
 
   lock_down_network: {
     enforce: contains(azhopConfig.locked_down_network, 'enforce') ? azhopConfig.locked_down_network.enforce : false
@@ -371,6 +372,7 @@ var config = {
     Rdp: ['3389']
     Pbs: ['6200', '15001-15009', '17001', '32768-61000', '6817-6819']
     Slurmd: ['6818']
+    Slurmctld: ['6817', '6819']
     Lustre: ['635', '988']
     Nfs: ['111', '635', '2049', '4045', '4046']
     SMB: ['445']
@@ -549,6 +551,10 @@ var config = {
     gateway: {
       AllowInternalWebUsersIn     : ['540', 'Inbound', 'Allow', 'Tcp', 'Web', 'subnet', 'gateway', 'asg', 'asg-ondemand']
     }
+    hybridSlurm: {
+      AllowSlurmFederationIn      : ['406', 'Inbound', 'Allow', '*', 'Slurmctld', 'cidr', azhopConfig.slurm.multi_cluster.ext_subnet, 'asg', 'asg-pbs']
+      AllowSlurmFederationOut     : ['386', 'Outbound', 'Allow', '*', 'Slurmctld', 'asg', 'asg-pbs', 'cidr', azhopConfig.slurm.multi_cluster.ext_subnet]
+    }
   }
 
 }
@@ -574,6 +580,7 @@ module azhopNetwork './network.bicep' = {
     deployGateway: config.deploy_gateway
     deployBastion: config.deploy_bastion
     deployLustre: config.deploy_lustre
+    deployHybridSlurm: config.deploy_hybrid_slurm
     publicIp: config.public_ip
     vnet: config.vnet
     asgNames: config.asg_names
