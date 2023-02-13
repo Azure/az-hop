@@ -46,6 +46,7 @@ var deployJumpbox = contains(azhopConfig, 'jumpbox') ? true : false
 var deployDeployer = contains(azhopConfig, 'deployer') ? true : false
 var enableWinViz = contains(azhopConfig, 'enable_remote_winviz') ? azhopConfig.enable_remote_winviz : false
 var highAvailabilityForAD = contains(azhopConfig.ad, 'high_availability') ? azhopConfig.ad.high_availability : false
+var deployHybridSlurm = contains(azhopConfig.slurm, 'multi_cluster') ? azhopConfig.slurm.multi_cluster.enabled : false
 
 var linuxBaseImage = contains(azhopConfig, 'linux_base_image') ? azhopConfig.linux_base_image : 'OpenLogic:CentOS:7_9-gen2:latest'
 var linuxBasePlan = contains(azhopConfig, 'linux_base_plan') ? azhopConfig.linux_base_plan : ''
@@ -64,7 +65,7 @@ var config = {
   deploy_gateway: contains(azhopConfig.network.vnet.subnets,'gateway')
   deploy_bastion: contains(azhopConfig.network.vnet.subnets,'bastion')
   deploy_lustre: deployLustre
-  deploy_hybrid_slurm: azhopConfig.slurm.multi_cluster.enabled
+  deploy_hybrid_slurm: deployHybridSlurm
 
   lock_down_network: {
     enforce: contains(azhopConfig.locked_down_network, 'enforce') ? azhopConfig.locked_down_network.enforce : false
