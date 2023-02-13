@@ -69,6 +69,8 @@ locals {
     mountpoints_str = "[ ${join(",", [for mp in local.mountpoints : format("%q", mp)])} ]" //necessary to build generic KQL query on local volumes
 
     ad_ha = try(local.configuration_yml["ad"].high_availability, false)
+    domain_controlers = local.ad_ha ? {ad="ad", ad2="ad2"} : {ad="ad"}
+
     # Use a linux custom image reference if the linux_base_image is defined and contains ":"
     use_linux_image_reference = try(length(split(":", local.configuration_yml["linux_base_image"])[1])>0, false)
     # Use a lustre custom image reference if the lustre_base_image is defined and contains ":"
@@ -139,7 +141,7 @@ locals {
     key_vault_readers = try(local.configuration_yml["key_vault_readers"], null)
 
     # Lustre
-    lustre_enabled = try(local.configuration_yml["lustre"]["oss_count"] > 0, false)
+    lustre_enabled = try(local.configuration_yml["features"]["lustre"], try(local.configuration_yml["lustre"]["oss_count"] > 0, false))
     lustre_archive_account = try(local.configuration_yml["lustre"]["hsm"]["storage_account"], null)
     lustre_rbh_sku = try(local.configuration_yml["lustre"]["rbh_sku"], "Standard_D8d_v4")
     lustre_mds_sku = try(local.configuration_yml["lustre"]["mds_sku"], "Standard_D8d_v4")
@@ -154,10 +156,12 @@ locals {
     # Queue manager
     queue_manager = try(local.configuration_yml["queue_manager"], "openpbs")
 
-    # Slurm Accounting Database
-    slurm_accounting = local.enable_remote_winviz || try(local.configuration_yml["slurm"].accounting_enabled, false)
-    slurm_accounting_admin_user = "sqladmin"
-    
+    # Create Database
+    create_database  = ( local.enable_remote_winviz || try(local.configuration_yml["slurm"].accounting_enabled, false) ) && (! local.use_existing_database)
+    use_existing_database = try(length(local.configuration_yml["database"].fqdn) > 0 ? true : false, false)
+#    slurm_accounting = local.enable_remote_winviz || try(local.configuration_yml["slurm"].accounting_enabled, false)
+    database_user = local.create_database ? "sqladmin" : (local.use_existing_database ? try(local.configuration_yml["database"].user, "") : "")
+
     # VNET
     create_vnet = try(length(local.vnet_id) > 0 ? false : true, true)
     vnet_id = try(local.configuration_yml["network"]["vnet"]["id"], null)
@@ -194,9 +198,14 @@ locals {
     no_gateway_subnet = try(length(local.gateway_subnet) > 0 ? false : true, true )
     create_gateway_subnet  = try(local.gateway_subnet["create"], local.create_vnet )
 
+    outbounddns_subnet = try(local.configuration_yml["network"]["vnet"]["subnets"]["outbounddns"], null)
+    no_outbounddns_subnet = try(length(local.outbounddns_subnet) > 0 ? false : true, true )
+    create_outbounddns_subnet  = try(local.outbounddns_subnet["create"], local.create_vnet ? (local.no_outbounddns_subnet ? false : true) : false )
+
     subnets = merge(local._subnets, 
                     local.no_bastion_subnet ? {} : {bastion = "AzureBastionSubnet"},
-                    local.no_gateway_subnet ? {} : {gateway = "GatewaySubnet"}
+                    local.no_gateway_subnet ? {} : {gateway = "GatewaySubnet"},
+                    local.no_outbounddns_subnet ? {} : {outbounddns = "outbounddns"}
                     )
 
     # Application Security Groups
@@ -223,6 +232,7 @@ locals {
         asg-ondemand = "asg-ondemand"
         asg-deployer = "asg-deployer"
         asg-guacamole = "asg-guacamole"
+        asg-mariadb-client = "asg-mariadb-client"
     }
     #asgs = local.create_nsg ? local._default_asgs :  try(local.configuration_yml["network"]["asg"]["names"], local._default_asgs)
     asgs = try(local.configuration_yml["network"]["asg"]["names"], local._default_asgs)
@@ -238,10 +248,10 @@ locals {
         grafana   = ["asg-ssh", "asg-grafana", "asg-ad-client", "asg-telegraf", "asg-nfs-client"]
         jumpbox   = ["asg-ssh", "asg-jumpbox", "asg-ad-client", "asg-telegraf", "asg-nfs-client"]
         lustre    = ["asg-ssh", "asg-lustre", "asg-lustre-client", "asg-telegraf"]
-        ondemand  = ["asg-ssh", "asg-ondemand", "asg-ad-client", "asg-nfs-client", "asg-pbs-client", "asg-lustre-client", "asg-telegraf", "asg-guacamole", "asg-cyclecloud-client"]
+        ondemand  = ["asg-ssh", "asg-ondemand", "asg-ad-client", "asg-nfs-client", "asg-pbs-client", "asg-lustre-client", "asg-telegraf", "asg-guacamole", "asg-cyclecloud-client", "asg-mariadb-client"]
         robinhood = ["asg-ssh", "asg-robinhood", "asg-lustre-client", "asg-telegraf"]
-        scheduler = ["asg-ssh", "asg-pbs", "asg-ad-client", "asg-cyclecloud-client", "asg-nfs-client", "asg-telegraf"]
-        guacamole = ["asg-ssh", "asg-ad-client", "asg-telegraf", "asg-nfs-client", "asg-cyclecloud-client"]
+        scheduler = ["asg-ssh", "asg-pbs", "asg-ad-client", "asg-cyclecloud-client", "asg-nfs-client", "asg-telegraf", "asg-mariadb-client"]
+        guacamole = ["asg-ssh", "asg-ad-client", "asg-telegraf", "asg-nfs-client", "asg-cyclecloud-client", "asg-mariadb-client"]
     }
 
     # Open ports for NSG TCP rules
@@ -269,8 +279,8 @@ locals {
         Grafana = ["3000"]
         # HTTPS, AMQP
         CycleCloud = ["9443", "5672"],
-        # MySQL
-        MySQL = ["3306", "33060"],
+        # MariaDB
+        MariaDB = ["3306", "33060"],
         # Guacamole
         Guacamole = ["8080"]
         # WinRM
@@ -356,6 +366,9 @@ locals {
 #        AllowGuacamoleWebIn         = ["600", "Inbound", "Allow", "Tcp", "Guacamole",           "asg/asg-ondemand",          "asg/asg-guacamole"],
         AllowGuacamoleRdpIn         = ["610", "Inbound", "Allow", "Tcp", "Rdp",                 "asg/asg-guacamole",         "subnet/compute"],
 
+        # MariaDB
+        AllowMariaDBIn              = ["700", "Inbound", "Allow", "Tcp", "MariaDB",             "asg/asg-mariadb-client",    "subnet/admin"],
+
         # Deny all remaining traffic
         DenyVnetInbound             = ["3100", "Inbound", "Deny", "*", "All",                  "tag/VirtualNetwork",       "tag/VirtualNetwork"],
 
@@ -436,6 +449,9 @@ locals {
         # Guacamole
 #        AllowGuacamoleWebOut        = ["600", "Outbound", "Allow", "Tcp", "Guacamole",           "asg/asg-ondemand",         "asg/asg-guacamole"],
         AllowGuacamoleRdpOut        = ["610", "Outbound", "Allow", "Tcp", "Rdp",                 "asg/asg-guacamole",         "subnet/compute"],
+
+        # MariaDB
+        AllowMariaDBOut             = ["700", "Outbound", "Allow", "Tcp", "MariaDB",             "asg/asg-mariadb-client",    "subnet/admin"],
 
         # Deny all remaining traffic and allow Internet access
         AllowInternetOutBound       = ["3000", "Outbound", "Allow", "Tcp", "All",               "tag/VirtualNetwork",       "tag/Internet"],

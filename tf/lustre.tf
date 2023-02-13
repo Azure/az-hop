@@ -76,14 +76,6 @@ resource "azurerm_network_interface_application_security_group_association" "lus
 # lustre OSS VMs
 #
 
-resource "azurerm_user_assigned_identity" "lustre-oss" {
-  count               = local.lustre_enabled ? 1 : 0
-  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
-  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
-
-  name = "lustre-oss"
-}
-
 resource "azurerm_network_interface" "lustre-oss-nic" {
   count                          = local.lustre_oss_count
   name                           = "lustre-oss-nic-${count.index}"
@@ -142,8 +134,7 @@ resource "azurerm_linux_virtual_machine" "lustre-oss" {
   }
 
   identity {
-    type         = "UserAssigned"
-    identity_ids = [ azurerm_user_assigned_identity.lustre-oss[0].id ]
+    type         = "SystemAssigned"
   }
 
   lifecycle {
@@ -153,14 +144,15 @@ resource "azurerm_linux_virtual_machine" "lustre-oss" {
   }
 }
 
-# Grant read access to the Keyvault for the lustre-oss identity
+#########################################################################
+#  Grant read access to the Keyvault to lustre-oss-*0                   #
+#########################################################################
 resource "azurerm_key_vault_access_policy" "lustre-oss" {
-  count               = local.lustre_enabled ? 1 : 0
+  count               = local.lustre_enabled ? local.lustre_oss_count : 0
   key_vault_id        = azurerm_key_vault.azhop.id
   tenant_id           = local.tenant_id
-  object_id           = azurerm_user_assigned_identity.lustre-oss[0].principal_id
+  object_id           = azurerm_linux_virtual_machine.lustre-oss[count.index].identity[0].principal_id
 
-  key_permissions     = [ "Get", "List" ]
   secret_permissions  = [ "Get", "List" ]
 }
 
@@ -248,8 +240,7 @@ resource "azurerm_linux_virtual_machine" "robinhood" {
   }
   
   identity {
-    type         = "UserAssigned"
-    identity_ids = [ azurerm_user_assigned_identity.lustre-oss[0].id ]
+    type         = "SystemAssigned"
   }
 
   lifecycle {
@@ -257,6 +248,18 @@ resource "azurerm_linux_virtual_machine" "robinhood" {
       tags
     ]
   }
+}
+
+#
+#  Grant read access to the Keyvault to robinhood
+#
+resource "azurerm_key_vault_access_policy" "robinhood" {
+  count               = local.lustre_enabled ? 1 : 0
+  key_vault_id        = azurerm_key_vault.azhop.id
+  tenant_id           = local.tenant_id
+  object_id           = azurerm_linux_virtual_machine.robinhood[0].identity[0].principal_id
+
+  secret_permissions  = [ "Get", "List" ]
 }
 
 resource "azurerm_network_interface_application_security_group_association" "robinhood-asg-asso" {

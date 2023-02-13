@@ -3,6 +3,7 @@
 *.tfstate*
 tf/cloud-init/jumpbox.yml
 tf/active_directory/cloud-init/jumpbox.yml
+tf/*.log
 
 # Config files and generated options files
 config.yml
@@ -10,6 +11,7 @@ packer/options*.json
 packer/spn.json
 packer/*.log
 packer/md5sum.txt
+*.arpa
 
 # Ansible auto-generated inventory
 playbooks/inventory*
@@ -49,3 +51,5 @@ deploy/deploy.log
 deploy/outputs.yml
 deploy/azureDeploy.*
 deploy/*params.json
+*parameters.json
+*outputs.json

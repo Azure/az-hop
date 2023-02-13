@@ -22,8 +22,25 @@ Autoscale = true
     # Slurm autoscaling supports both Terminate and Deallocate shutdown policies
     ShutdownPolicy = Terminate
 
+    CloudInit = '''#!/bin/bash
+echo "cloud-init is removing slurm from the image ..." >> /tmp/cloud-init.txt
+date >> /tmp/cloud-init.txt
+case `grep "^ID=" /etc/os-release | cut -d= -f2 | xargs` in
+    centos|rhel|almalinux|rocky|oraclelinux)
+        yum remove munge* slurm* -y >> /tmp/cloud-init.txt
+        ;;
+    ubuntu|debian)
+        apt-get remove munge* slurm* -y >> /tmp/cloud-init.txt
+        ;;
+    *)
+        echo "Unsupported OS" >> /tmp/cloud-init.txt
+        ;;
+esac
+echo "cloud-init done" >> /tmp/cloud-init.txt
+'''
+
         [[[configuration]]]
-        slurm.install = false
+        slurm.install = true
         slurm.version = {{ slurm_version }}
         slurm.user.uid = {{ slurm_uid }}
         slurm.user.gid = {{ slurm_gid }}
@@ -40,7 +57,6 @@ Autoscale = true
         # Disable ip-XXXXXXXX hostname generation
         cyclecloud.hosts.standalone_dns.enabled = false
         cyclecloud.hosts.simple_vpc_dns.enabled = false
-        #cyclecloud.dns.domain = {{ad_join_domain}}
 
         # Disable normal NFS exports and mounts
         cyclecloud.mounts.sched.disabled = true
@@ -69,7 +85,7 @@ Autoscale = true
         mountpoint = /sched
         export_path = {{mounts.home.export}}/slurm/config
         address = {{mounts.home.server}}
-        options = {{ mounts.home.options | default("rw,hard,rsize=262144,wsize=262144,vers=3,tcp",true) }}
+        options = {{ mounts.home.options | default("rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev",true) }}
 
     [[node nodearraybase]]
     Abstract = true

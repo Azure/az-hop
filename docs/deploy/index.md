@@ -11,14 +11,14 @@
       * [Clone the repo](#clone-the-repo-1)
       * [Set up the toolchain](#set-up-the-toolchain-1)
 * [Plan your networking IP range](#plan-your-networking-ip-range)
-   * [28 nodes system =&gt; 10.0.0.0/25](#28-nodes-system--1000025)
-   * [124 nodes system =&gt; 10.0.0.0/24](#124-nodes-system--1000024)
-   * [252 nodes system =&gt; 10.0.0.0/23](#252-nodes-system--1000023)
-   * [508 nodes system =&gt; 10.0.0.0/22](#508-nodes-system--1000022)
-   * [1020 nodes system =&gt; 10.0.0.0/21](#1020-nodes-system--1000021)
-   * [2044 nodes system =&gt; 10.0.0.0/20](#2044-nodes-system--1000020)
-   * [4092 nodes system =&gt; 10.0.0.0/19](#4092-nodes-system--1000019)
-   * [8188 nodes system =&gt; 10.0.0.0/19](#8188-nodes-system--1000019)
+   * [59 nodes system =&gt; 10.0.0.0/25](#59-nodes-system--1000025)
+   * [123 nodes system =&gt; 10.0.0.0/24](#123-nodes-system--1000024)
+   * [251 nodes system =&gt; 10.0.0.0/23](#251-nodes-system--1000023)
+   * [507 nodes system =&gt; 10.0.0.0/22](#507-nodes-system--1000022)
+   * [1019 nodes system =&gt; 10.0.0.0/21](#1019-nodes-system--1000021)
+   * [2043 nodes system =&gt; 10.0.0.0/20](#2043-nodes-system--1000020)
+   * [4091 nodes system =&gt; 10.0.0.0/19](#4091-nodes-system--1000019)
+   * [8187 nodes system =&gt; 10.0.0.0/19](#8187-nodes-system--1000019)
 * [Define the environment](#define-the-environment)
 * [Deploy your environment](#deploy-your-environment)
    * [Build the infrastructure](#build-the-infrastructure)
@@ -47,6 +47,7 @@
    * [How to use an existing VNET ?](#how-to-use-an-existing-vnet-)
       * [Pre-requisities for using an existing VNET](#pre-requisities-for-using-an-existing-vnet)
       * [Creating a standalone VNET for AZ-HOP](#creating-a-standalone-vnet-for-az-hop)
+   * [How to use DNS forwarders ?](#how-to-use-dns-forwarders-)
    * [How to deploy ANF with Dual protocol](#how-to-deploy-anf-with-dual-protocol)
    * [Deploy in a locked down network environment](#deploy-in-a-locked-down-network-environment)
    * [Disable Public IP scenario](#disable-public-ip-scenario)
@@ -54,6 +55,7 @@
    * [Not deploy ANF](#not-deploy-anf)
    * [Use an existing NFS mount point](#use-an-existing-nfs-mount-point)
    * [Use Azure Active Directory for MFA](#use-azure-active-directory-for-mfa)
+   * [Use an existing Azure Database for MariaDB server](#use-an-existing-azure-database-for-mariadb-server)
 * [Helper Scripts](#helper-scripts)
    * [ansible_prereqs.sh](#ansible_prereqssh)
    * [azhop_states.sh](#azhop_statessh)
@@ -66,10 +68,10 @@
 * [Telemetry](#telemetry)
 <!--te-->
 <!-- https://github.com/ekalinin/github-markdown-toc -->
-<!-- ./gh-md-toc --insert --no-backup --hide-footer deployment.md -->
+<!-- gh-md-toc --insert --no-backup --hide-footer docs/deploy/index.md -->
 
 # Overview
-Deploying a green field `azhop` environemnt can be done by following these few steps :
+Deploying a green field `azhop` environment can be done by following these few steps :
  - Clone the repo
  - Update the config.yml file with your settings
  - Deploy
@@ -86,18 +88,18 @@ Get the `adminuser` password to connect with :
 ./bin/get_secret adminuser
 ```
 
-Browse to the URL retrieved above and connect with user `adminuser` and it's password.
+Browse to the URL retrieved above and connect with user `adminuser` and its password.
 
 Below are the detailed instructions to help you building your full `azhop` environment.
 
 # Azure Pre-requisites
 
-- When using a user account 
+- When using a user account
   - you need to be **Owner** of the subscription
 - When using a Service Principal Name, the service principal needs to be
   - **"Contributor"** on the subscription
   - **"User Access Administrator"** on the subscription
-- When using a managed Identity on a deployer VM it needs to be a **System Managed Identity** with 
+- When using a managed Identity on a deployer VM it needs to be a **System Managed Identity** with
   - **"Contributor"** on the resource group
   - **"User Access Administrator"** on the subscription
   - **"Reader"** on the subscription
@@ -131,18 +133,18 @@ az vm image terms accept --offer almalinux-hpc --publisher almalinux --plan 8_5-
     - 24 cores of Standard NVs_v3 Family
 
 ## Special circumstances
-- When deploying in a zero-trust environment that automatically blocks access to high-risk TCP/UDP ports (e.g. 22) from the internet, follow the [hub and spoke network architecture](https://docs.microsoft.com/en-us/azure/architecture/reference-architectures/hybrid-networking/hub-spoke?tabs=cli). 
+- When deploying in a zero-trust environment that automatically blocks access to high-risk TCP/UDP ports (e.g. 22) from the internet, follow the [hub and spoke network architecture](https://docs.microsoft.com/en-us/azure/architecture/reference-architectures/hybrid-networking/hub-spoke?tabs=cli).
   - In the hub, create:
     - the VPN gateway and virtual network
     - virtual machines for self-hosted Github Action runners
-  - Each `azhop` deployment will be a spoke. 
-    - See [define the environemnt](#define-the-environment) for how to automatically peer the virtual network of `azhop` with that of the hub, and for how to change the SSH port of the jumpbox.
+  - Each `azhop` deployment will be a spoke.
+    - See [define the environment](#define-the-environment) for how to automatically peer the virtual network of `azhop` with that of the hub, and for how to change the SSH port of the jumpbox.
 
 # Configure the toolchain
 The toolchain can be setup either locally or from a deployer VM. See below for instructions regarding the installation.
 
 ## From a local machine
-The toolchain is built to be run only from Linux and preferably Ubuntu 20.04+. So if you are running a Windows desktop you should use WSL2 with an Ubuntu 20.04 environemnt. All the following commands will have to be run from your Linux shell terminal.
+The toolchain is built to be run only from Linux and preferably Ubuntu 20.04+. So if you are running a Windows desktop you should use WSL2 with an Ubuntu 20.04 environment. All the following commands will have to be run from your Linux shell terminal.
 
 ### Clone the repo
 It's important to clone the repo with its submodule. You can do this with one of these two options.
@@ -153,7 +155,7 @@ It's important to clone the repo with its submodule. You can do this with one of
 ```bash
 git clone --recursive https://github.com/Azure/az-hop.git -b <version>
 ```
- 
+
 - Option 2
 ```bash
 git clone https://github.com/Azure/az-hop.git -b <version>
@@ -164,7 +166,7 @@ git submodule update
 
 ### Set up the toolchain
 For Terraform to work properly on  WSL2, on the C drive, make sure to have the "metadata mount" option enabled.
-Afterwards, you can directly run the `install.sh`  script: 
+Afterwards, you can directly run the `install.sh`  script:
 
 ```bash
 sudo ./toolset/scripts/install.sh
@@ -182,7 +184,7 @@ Create a deployer VM in its own isolated VNET and if required with an Azure Bast
 > Note: **Contributor** on the `Subscription` can be reduced to `Resource Group` on the specific Resource Group you will deploy in. This Resource Group must be created before granting this role.
 
 ### Clone the repo
-Connec to the VM and clone the repo with its submodule. You can do this with one of these two options.
+Connect to the VM and clone the repo with its submodule. You can do this with one of these two options.
 
 > Note : pick up the latest stable release from [https://github.com/Azure/az-hop/releases](https://github.com/Azure/az-hop/releases) and replace `<version>`
 
@@ -190,7 +192,7 @@ Connec to the VM and clone the repo with its submodule. You can do this with one
 ```bash
 git clone --recursive https://github.com/Azure/az-hop.git -b <version>
 ```
- 
+
 - Option 2
 ```bash
 git clone https://github.com/Azure/az-hop.git -b <version>
@@ -200,7 +202,7 @@ git submodule update
 ```
 
 ### Set up the toolchain
-Run the `install.sh` script: 
+Run the `install.sh` script:
 
 ```bash
 sudo ./toolset/scripts/install.sh
@@ -210,119 +212,121 @@ sudo ./toolset/scripts/install.sh
 # Plan your networking IP range
 `Az-hop` needs several subnets to work, while some of these are optional like `Bastion` and the `Gateway` others are mandatory. When peering the az-hop vnet to others vnet or to your enterprise thru a VPN you have to plan accordingly your address range to avoid conflicts. Below are examples to help you defined these ranges based on how large you want to size your compute infrastructure.
 
-## 28 nodes system => 10.0.0.0/25
+> Note: Be aware that for each subnet, Azure will reserve 5 IP addresses for it's internal usage
+
+## 59 nodes system => 10.0.0.0/25
 
 | Subnet | CIDR |    IP Range       | Nb IPs | First IP | Usable IPs |
 |--------|-----:|:-----------------:|-------:|---------:|-----------:|
-| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 4 |
-| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 4 |
-| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 12 |
-| netapp | 10.0.0.32/**29** | 10.0.0.32 - 10.0.0.39 | 8 | 10.0.0.36 | 4 |
-| empty | | | | | |
-| gateway | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 12 |
-| bastion | 10.0.0.64/**27** | 10.0.0.64 - 10.0.0.95 | 32 | 10.0.0.64 | 28 |
-| compute | 10.0.0.96/**27** | 10.0.0.96 - 10.0.0.127 | 32 | 10.0.0.96 | 28 |
+| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 3 |
+| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 3 |
+| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 11 |
+| netapp | 10.0.0.32/**28** | 10.0.0.32 - 10.0.0.47 | 16 | 10.0.0.36 | 11 |
+| gateway | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 11 |
+| compute | 10.0.0.64/**26** | 10.0.0.64 - 10.0.0.127 | 64 | 10.0.0.96 | 59 |
 
-## 124 nodes system => 10.0.0.0/24
+> Note: Bastion is not supported in this scenario because it requires a /26 subnet and there is not enough space for it in this configuration. In that case, consider using a larger range.
 
-| Subnet | CIDR |    IP Range       | Nb IPs | First IP | Usable IPs |
-|--------|-----:|:-----------------:|-------:|---------:|-----------:|
-| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 4 |
-| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 4 |
-| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 12 |
-| netapp | 10.0.0.32/**29** | 10.0.0.32 - 10.0.0.39 | 8 | 10.0.0.36 | 4 |
-| empty | | | | | |
-| gateway | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 12 |
-| bastion | 10.0.0.64/**27** | 10.0.0.64 - 10.0.0.95 | 32 | 10.0.0.64 | 28 |
-| empty | | | | | |
-| compute | 10.0.0.128/**25** | 10.0.0.128 - 10.0.0.255 | 128 | 10.0.0.132 | 124 |
-
-## 252 nodes system => 10.0.0.0/23
+## 123 nodes system => 10.0.0.0/24
 
 | Subnet | CIDR |    IP Range       | Nb IPs | First IP | Usable IPs |
 |--------|-----:|:-----------------:|-------:|---------:|-----------:|
-| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 4 |
-| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 4 |
-| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 12 |
-| netapp | 10.0.0.32/**29** | 10.0.0.32 - 10.0.0.39 | 8 | 10.0.0.36 | 4 |
-| empty | | | | | |
-| gateway | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 12 |
-| bastion | 10.0.0.64/**27** | 10.0.0.64 - 10.0.0.95 | 32 | 10.0.0.64 | 28 |
-| empty | | | | | |
-| compute | 10.0.1.0/**24** | 10.0.1.0 - 10.0.1.255 | 256 | 10.0.1.0 | 252 |
+| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 3 |
+| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 3 |
+| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 11 |
+| netapp | 10.0.0.32/**28** | 10.0.0.32 - 10.0.0.47 | 16 | 10.0.0.36 | 11 |
+| gateway or outbounddns | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 11 |
+| bastion | 10.0.0.64/**26** | 10.0.0.64 - 10.0.0.127 | 64 | 10.0.0.64 | 59 |
+| compute | 10.0.0.128/**25** | 10.0.0.128 - 10.0.0.255 | 128 | 10.0.0.132 | 123 |
 
-## 508 nodes system => 10.0.0.0/22
+> Note : This configuration doesn't support altogether gateway, bastion and outbounddns, you have to choose which one you need to deploy or use a larger IP range
 
-| Subnet | CIDR |    IP Range       | Nb IPs | First IP | Usable IPs |
-|--------|-----:|:-----------------:|-------:|---------:|-----------:|
-| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 4 |
-| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 4 |
-| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 12 |
-| netapp | 10.0.0.32/**29** | 10.0.0.32 - 10.0.0.39 | 8 | 10.0.0.36 | 4 |
-| empty | | | | | |
-| gateway | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 12 |
-| bastion | 10.0.0.64/**27** | 10.0.0.64 - 10.0.0.95 | 32 | 10.0.0.64 | 28 |
-| empty | | | | | |
-| compute | 10.0.2.0/**23** | 10.0.2.0 - 10.0.3.255 | 512 | 10.0.2.0 | 508 |
-
-## 1020 nodes system => 10.0.0.0/21
+## 251 nodes system => 10.0.0.0/23
 
 | Subnet | CIDR |    IP Range       | Nb IPs | First IP | Usable IPs |
 |--------|-----:|:-----------------:|-------:|---------:|-----------:|
-| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 4 |
-| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 4 |
-| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 12 |
-| netapp | 10.0.0.32/**29** | 10.0.0.32 - 10.0.0.39 | 8 | 10.0.0.36 | 4 |
+| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 3 |
+| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 3 |
+| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 11 |
+| netapp | 10.0.0.32/**28** | 10.0.0.32 - 10.0.0.47 | 16 | 10.0.0.36 | 11 |
+| outbounddns | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 11 |
+| bastion | 10.0.0.64/**26** | 10.0.0.64 - 10.0.0.127 | 64 | 10.0.0.64 | 59 |
+| gateway | 10.0.0.128/**27** | 10.0.0.128 - 10.0.0.159 | 32 | 10.0.0.48 | 27 |
 | empty | | | | | |
-| gateway | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 12 |
-| bastion | 10.0.0.64/**27** | 10.0.0.64 - 10.0.0.95 | 32 | 10.0.0.64 | 28 |
-| empty | | | | | |
-| compute | 10.0.4.0/**22** | 10.0.4.0 - 10.0.7.255 | 1024 | 10.0.4.0 | 1020 |
+| compute | 10.0.1.0/**24** | 10.0.1.0 - 10.0.1.255 | 256 | 10.0.1.0 | 251 |
 
-## 2044 nodes system => 10.0.0.0/20
-
-| Subnet | CIDR |    IP Range       | Nb IPs | First IP | Usable IPs |
-|--------|-----:|:-----------------:|-------:|---------:|-----------:|
-| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 4 |
-| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 4 |
-| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 12 |
-| netapp | 10.0.0.32/**29** | 10.0.0.32 - 10.0.0.39 | 8 | 10.0.0.36 | 4 |
-| empty | | | | | |
-| gateway | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 12 |
-| bastion | 10.0.0.64/**27** | 10.0.0.64 - 10.0.0.95 | 32 | 10.0.0.64 | 28 |
-| empty | | | | | |
-| compute | 10.0.8.0/**21** | 10.0.8.0 - 10.0.15.255 | 2048 | 10.0.8.0 | 2044 |
-
-## 4092 nodes system => 10.0.0.0/19
+## 507 nodes system => 10.0.0.0/22
 
 | Subnet | CIDR |    IP Range       | Nb IPs | First IP | Usable IPs |
 |--------|-----:|:-----------------:|-------:|---------:|-----------:|
-| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 4 |
-| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 4 |
-| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 12 |
-| netapp | 10.0.0.32/**29** | 10.0.0.32 - 10.0.0.39 | 8 | 10.0.0.36 | 4 |
+| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 3 |
+| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 3 |
+| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 11 |
+| netapp | 10.0.0.32/**28** | 10.0.0.32 - 10.0.0.47 | 16 | 10.0.0.36 | 11 |
+| outbounddns | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 11 |
+| bastion | 10.0.0.64/**26** | 10.0.0.64 - 10.0.0.127 | 64 | 10.0.0.64 | 59 |
+| gateway | 10.0.0.128/**27** | 10.0.0.128 - 10.0.0.159 | 32 | 10.0.0.48 | 27 |
 | empty | | | | | |
-| gateway | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 12 |
-| bastion | 10.0.0.64/**27** | 10.0.0.64 - 10.0.0.95 | 32 | 10.0.0.64 | 28 |
-| empty | | | | | |
-| compute | 10.0.16.0/**20** | 10.0.16.0 - 10.0.31.255 | 4096 | 10.0.16.0 | 4096 |
+| compute | 10.0.2.0/**23** | 10.0.2.0 - 10.0.3.255 | 512 | 10.0.2.0 | 507 |
 
-## 8188 nodes system => 10.0.0.0/19
+## 1019 nodes system => 10.0.0.0/21
 
 | Subnet | CIDR |    IP Range       | Nb IPs | First IP | Usable IPs |
 |--------|-----:|:-----------------:|-------:|---------:|-----------:|
-| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 4 |
-| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 4 |
-| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 12 |
-| netapp | 10.0.0.32/**29** | 10.0.0.32 - 10.0.0.39 | 8 | 10.0.0.36 | 4 |
+| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 3 |
+| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 3 |
+| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 11 |
+| netapp | 10.0.0.32/**28** | 10.0.0.32 - 10.0.0.47 | 16 | 10.0.0.36 | 11 |
+| outbounddns | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 11 |
+| bastion | 10.0.0.64/**26** | 10.0.0.64 - 10.0.0.127 | 64 | 10.0.0.64 | 59 |
+| gateway | 10.0.0.128/**27** | 10.0.0.128 - 10.0.0.159 | 32 | 10.0.0.48 | 27 |
 | empty | | | | | |
-| gateway | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 12 |
-| bastion | 10.0.0.64/**27** | 10.0.0.64 - 10.0.0.95 | 32 | 10.0.0.64 | 28 |
+| compute | 10.0.4.0/**22** | 10.0.4.0 - 10.0.7.255 | 1024 | 10.0.4.0 | 1019 |
+
+## 2043 nodes system => 10.0.0.0/20
+
+| Subnet | CIDR |    IP Range       | Nb IPs | First IP | Usable IPs |
+|--------|-----:|:-----------------:|-------:|---------:|-----------:|
+| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 3 |
+| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 3 |
+| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 11 |
+| netapp | 10.0.0.32/**28** | 10.0.0.32 - 10.0.0.47 | 16 | 10.0.0.36 | 11 |
+| outbounddns | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 11 |
+| bastion | 10.0.0.64/**26** | 10.0.0.64 - 10.0.0.127 | 64 | 10.0.0.64 | 59 |
+| gateway | 10.0.0.128/**27** | 10.0.0.128 - 10.0.0.159 | 32 | 10.0.0.48 | 27 |
 | empty | | | | | |
-| compute | 10.0.32.0/**19** | 10.0.32.0 - 10.0.63.255 | 8192 | 10.0.32.0 | 8188 |
+| compute | 10.0.8.0/**21** | 10.0.8.0 - 10.0.15.255 | 2048 | 10.0.8.0 | 2043 |
+
+## 4091 nodes system => 10.0.0.0/19
+
+| Subnet | CIDR |    IP Range       | Nb IPs | First IP | Usable IPs |
+|--------|-----:|:-----------------:|-------:|---------:|-----------:|
+| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 3 |
+| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 3 |
+| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 11 |
+| netapp | 10.0.0.32/**28** | 10.0.0.32 - 10.0.0.47 | 16 | 10.0.0.36 | 11 |
+| outbounddns | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 11 |
+| bastion | 10.0.0.64/**26** | 10.0.0.64 - 10.0.0.127 | 64 | 10.0.0.64 | 59 |
+| gateway | 10.0.0.128/**27** | 10.0.0.128 - 10.0.0.159 | 32 | 10.0.0.48 | 27 |
+| empty | | | | | |
+| compute | 10.0.16.0/**20** | 10.0.16.0 - 10.0.31.255 | 4096 | 10.0.16.0 | 4091 |
+
+## 8187 nodes system => 10.0.0.0/19
+
+| Subnet | CIDR |    IP Range       | Nb IPs | First IP | Usable IPs |
+|--------|-----:|:-----------------:|-------:|---------:|-----------:|
+| frontend | 10.0.0.0/**29** | 10.0.0.0 - 10.0.0.7 | 8 | 10.0.0.4 | 3 |
+| ad | 10.0.0.8/**29** | 10.0.0.8 - 10.0.0.15 | 8 | 10.0.0.12 | 3 |
+| admin | 10.0.0.16/**28** | 10.0.0.16 - 10.0.0.31 | 16 | 10.0.0.20 | 11 |
+| netapp | 10.0.0.32/**28** | 10.0.0.32 - 10.0.0.47 | 16 | 10.0.0.36 | 11 |
+| outbounddns | 10.0.0.48/**28** | 10.0.0.48 - 10.0.0.63 | 16 | 10.0.0.48 | 11 |
+| bastion | 10.0.0.64/**26** | 10.0.0.64 - 10.0.0.127 | 64 | 10.0.0.64 | 59 |
+| gateway | 10.0.0.128/**27** | 10.0.0.128 - 10.0.0.159 | 32 | 10.0.0.48 | 27 |
+| empty | | | | | |
+| compute | 10.0.32.0/**19** | 10.0.32.0 - 10.0.63.255 | 8192 | 10.0.32.0 | 8187 |
 
 # Define the environment
-An **az-hop** environment is defined in the `config.yml` configuration file. Before starting, copy the `config.tpl.yml` template to your own `config.yml` configuration file and update it ccordingly to your requirments.
+An **az-hop** environment is defined in the `config.yml` configuration file. Before starting, copy the `config.tpl.yml` template to your own `config.yml` configuration file and update it accordingly to your requirements.
 Here is a template for building such configuration file.
 
 ```yml
@@ -340,7 +344,7 @@ use_existing_rg: false
 tags:
   env: dev
   project: azhop
-# Define an Azure Netapp Files (ANF) account, single pool and volume
+# Define an Azure NetApp Files (ANF) account, single pool and volume
 # If not present, assume that there is an existing NFS share for the users home directory
 anf:
   # Size of the ANF pool and unique volume (min: 4TB, max: 100TB)
@@ -357,9 +361,9 @@ mounts:
     mountpoint: /anfhome # /sharedhome for example
     server: '{{anf_home_ip}}' # Specify an existing NFS server name or IP, when using the ANF built in use '{{anf_home_ip}}'
     export: '{{anf_home_path}}' # Specify an existing NFS export directory, when using the ANF built in use '{{anf_home_path}}'
-    options: "rw,hard,rsize=262144,wsize=262144,vers=3,tcp" # Specify the mount options. Default to rw,hard,rsize=262144,wsize=262144,vers=3,tcp
+    options: "rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev" # Specify the mount options. Default to rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev
 #  mount1:
-#    mountpoint: /mount1 
+#    mountpoint: /mount1
 #    server: a.b.c.d # Specify an existing NFS server name or IP
 #    export: myexport1 # Specify an existing NFS export name
 #    options: my_options # Specify the mount options.
@@ -373,14 +377,12 @@ network:
   # Create Network and Application Security Rules, true by default, false when using an existing VNET if not specified
   create_nsg: true
   vnet:
-    name: hpcvnet # Optional - default to hpcvnet
-    id: # If a vnet id is set then no network will be created and the provided vnet will be used
-    address_space: "10.0.0.0/24" # Optional - default to "10.0.0.0/16"
+    address_space: "10.0.0.0/23"
     # When using an existing VNET, only the subnet names will be used and not the adress_prefixes
     subnets: # all subnets are optionals
     # name values can be used to rename the default to specific names, address_prefixes to change the IP ranges to be used
     # All values below are the default values
-      frontend: 
+      frontend:
         name: frontend
         address_prefixes: "10.0.0.0/29"
         create: true # create the subnet if true. default to true when not specified, default to false if using an existing VNET when not specified
@@ -390,22 +392,27 @@ network:
         create: true
       netapp:
         name: netapp
-        address_prefixes: "10.0.0.32/29"
+        address_prefixes: "10.0.0.32/28"
         create: true
+      # the outbounddns is optional and only when deploying an Azure Private DNS Resolver
+      # outbounddns:
+      #   name: outbounddns
+      #   address_prefixes: "10.0.0.48/28"
+      #   create: true
       ad:
         name: ad
         address_prefixes: "10.0.0.8/29"
         create: true
       # Bastion and Gateway subnets are optional and can be added if a Bastion or a VPN need to be created in the environment
       # bastion: # Bastion subnet name is always fixed to AzureBastionSubnet
-      #   address_prefixes: "10.0.0.64/27" # CIDR minimal range must be /27
+      #   address_prefixes: "10.0.0.64/26" # CIDR minimal range must be /26
       #   create: true
       # gateway: # Gateway subnet name is always fixed to GatewaySubnet
-      #   address_prefixes: "10.0.0.48/28" # Recommendation is to use /27 or /28 network
+      #   address_prefixes: "10.0.0.128/27" # Recommendation is to use /27 or /26 network
       #   create: true
       compute:
         name: compute
-        address_prefixes: "10.0.0.128/25"
+        address_prefixes: "10.0.1.0/24"
         create: true
   # Specify the Application Security Groups mapping if already existing
 # asg:
@@ -429,7 +436,8 @@ network:
 #     asg-ondemand: asg-ondemand
 #     asg-deployer: asg-deployer
 #     asg-guacamole: asg-guacamole
-    
+#     asg-mariadb-client: asg-mariadb-client
+
 #  peering: # This list is optional, and can be used to create VNet Peerings in the same subscription.
 #    - vnet_name: #"VNET Name to Peer to"
 #      vnet_resource_group: #"Resource Group of the VNET to peer to"
@@ -540,6 +548,18 @@ slurm:
   accounting_enabled: false
   # Enable container support for SLURM using Enroot/Pyxis
   enroot_enabled: false
+  # SLURM version to install. Currently supported: only 20.11.9 and 22.05.3.
+  # Other versions can be installed by building from source (See build_rpms setting in the slurmserver role)
+  slurm_version: 20.11.9
+
+# If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values
+database:
+  # Admin user of the database for which the password will be retrieved from the azhop keyvault
+  user: sqladmin
+  # FQDN of the managed instance
+  fqdn:
+  # IP of the managed private endpoint if the FQDN is not registered in a private DNS
+  ip:
 
 # Authentication configuration for accessing the az-hop portal
 # Default is basic authentication. For oidc authentication you have to specify the following values
@@ -671,7 +691,7 @@ queues:
     ColocateNodes: false
     # Specific idle time in seconds before shutting down VMs, make sure it's lower than autoscale.idle_timeout
     idle_timeout: 300
-    # Set the max number of vm's in a VMSS; requires additional limit raise through support ticket for >100; 
+    # Set the max number of vm's in a VMSS; requires additional limit raise through support ticket for >100;
     # 100 is default value; lower numbers will improve scaling for single node jobs or jobs with small number of nodes
     MaxScaleSetSize: 100
   - name: hc44rs
@@ -752,20 +772,20 @@ applications:
 # Deploy your environment
 
 ## Build the infrastructure
-Building the infrastructure is done thru the `build.sh` utility script, calling terraform. 
+Building the infrastructure is done thru the `build.sh` utility script, calling terraform.
 ```bash
 $ ./build.sh
-Usage build.sh 
+Usage build.sh
   Required arguments:
-    -a|--action [plan, apply, destroy] 
-   
+    -a|--action [plan, apply, destroy]
+
   Optional arguments:
     -f|-folder <relative path> - relative folder name containing the terraform files, default is ./tf
 ```
 Before deploying, make sure your are logged in to Azure, which will be done differently if you are logged in as a user or with a Service Principal Name.
 The build script will use the `config.yml` file which will define the environment to be deployed.
 
-### Login with a user account 
+### Login with a user account
 
 ```bash
 # Login to Azure
@@ -778,20 +798,20 @@ az account show
 az account set -s <subid>
 ```
 
-### Login with a Managed Identity 
+### Login with a Managed Identity
 
 ```bash
 # Login to Azure
 az login -i
 ```
 
-### Login with a Service Principal Name 
+### Login with a Service Principal Name
 When using a Service Principal Name (SPN), you have to login to Azure with this SPN but also set the environment variables used by Terraform to build resources as explained [here](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/service_principal_client_secret).
 
 > Note : The SPN need to have **contributor** and **User Access Administrator** roles on the subscription
 
 ```bash
-# Login to Azure 
+# Login to Azure
 az login --service-principal -u http://<spn_name> -p <spn_secret> --tenant <tenant_id>
 
 # Set Terraform Environment variables
@@ -809,7 +829,7 @@ First checks which resources will be created/updated/deleted by running
 ./build.sh -a plan
 ```
 
-Review the output and if ok then apply the changes by running 
+Review the output and if ok then apply the changes by running
 ```bash
 ./build.sh -a apply
 ```
@@ -864,19 +884,19 @@ The installation is done with Ansible playbooks and can be applied as a whole or
 - telegraf
 - chrony
 
-The simplest is to just run 
+The simplest is to just run
 ```bash
 ./install.sh
 ```
 and let it go. The script will automatically skip playbooks that have been previously executed and completed successfully.
 
-If you need to apply only a subset then run 
+If you need to apply only a subset then run
 ```bash
 ./install.sh <target> # with a single target in the list above
 ```
 When requesting the execution of a specific playbook, the script will force execution even if the playbook successfully completed on a previous run.
 
-In case of a failure, the install script can be reapplied as most of the settings are idempotent. The script contains a checkpointing mechanism, each successfull target will have a `.ok` file created in the playbooks directory. If you want to re-apply a target, delete this file and rerun the install script.
+In case of a failure, the install script can be reapplied as most of the settings are idempotent. The script contains a checkpointing mechanism, each successful target will have a `.ok` file created in the playbooks directory. If you want to re-apply a target, delete this file and rerun the install script.
 
 # Add Users
 Adding users is done in three steps :
@@ -886,7 +906,7 @@ Adding users is done in three steps :
 
 You can specify in which groups users belongs to, but at least they are all in the `Domain Users (gid: 5000)` domain group. By default there are built-in groups you can't change names otherwise things will break :
 - `Domain Users` : All users will be added to this one by default
-- `az-hop-admins` :  For users with azhop admin privileges like starting/stopping nodes or editing grafana dashboards
+- `az-hop-admins` :  For users with azhop admin privileges like starting/stopping nodes or editing Grafana dashboards
 - `az-hop-localadmins` : For users with Linux sudo rights or Windows Local Admin rights on compute or viz nodes
 
 ## Add users in the configuration file
@@ -953,28 +973,28 @@ images:
     sku: 7.9-gen2
     hyper_v: V2
     os_type: Linux
-    version: 7.9 
+    version: 7.9
 ```
 
 ## Build an image
 Building an image is done by the utility script `packer/build_image.sh` and requires a packer input file. az-hop provides a set of pre-defined image files like :
-- `azhop-centos79-v2-rdma-gpgpu.json` this is an CentOS 7.9 HPC image with the az-hop additions for compute nodes  
+- `azhop-centos79-v2-rdma-gpgpu.json` this is an CentOS 7.9 HPC image with the az-hop additions for compute nodes
 - `azhop-centos79-desktop3d.json` this is an CentOS 7.9 HPC image with the right GPU drivers configured for remote visualization nodes
 
 ```bash
-Usage build_image.sh 
+Usage build_image.sh
   Required arguments:
     -i|--image <image_file.json> | image packer file
-   
+
   Optional arguments:
     -o|--options <options.json>  | file with options for packer generated in the build phase
     -f|--force                   | overwrite existing image and always push a new version in the SIG
 ```
 
 The `build_image.sh` script will :
-- build a managed image with packer, 
-- tag this image with the checksum of the scripts called to build that image, 
-- tag it with a version, 
+- build a managed image with packer,
+- tag this image with the checksum of the scripts called to build that image,
+- tag it with a version,
 - create the image definition in the Shared Image Gallery if it doesn't exists
 - push the managed image in the Shared Image Gallery
 
@@ -989,7 +1009,7 @@ cd packer
 ## Update the Cycle cluster template
 >NOTE: To be done only when updating a system already configured
 
-Once all images have been built you need to update the configuration file to specify which images to use and then update the Cycle cluster template to match the exact image ID of the images pushed into the Shared Image Gallery. 
+Once all images have been built you need to update the configuration file to specify which images to use and then update the Cycle cluster template to match the exact image ID of the images pushed into the Shared Image Gallery.
 
 To specify the new custom images to use, just comment the default `image: azhpc:azhop-compute:centos-7_9:latest` values and uncomment the line below which contains the image definition to use from the Shared Image Gallery.
 
@@ -1089,7 +1109,7 @@ The `jumpbox` machine is used as an SSH bastion to access to Virtual Machines in
 
 ## SSHing Linux VMs
 
-This can be done by running this command 
+This can be done by running this command
 ```bash
 ./bin/connect hpcadmin@<vm-name or private-ip-address>
 ```
@@ -1118,7 +1138,7 @@ You need to create an ssh tunnel in order to access the AD VM, but run it from t
 Now, with the tunnel, you are able to connect using RDP to the AD VM via `localhost` on port `3390`. Connect with the **hpcadmin** local account, for which you can retrieve the password from with the `get_secret` helper.
 
 
-# How To 
+# How To
 
 ## How to use an existing VNET ?
 Using an existing VNET can be done by specifying in the `config.yml` file the VNET ID that needs to be used as shown below.
@@ -1129,7 +1149,7 @@ network:
     id: /subscriptions/<subscription id>/resourceGroups/<vnet resource group>/providers/Microsoft.Network/virtualNetworks/<vnet name>
 ```
 
-**azhop** subnet names can be mapped to existing subnets names in the provided vnet by specifying then as below. 
+**azhop** subnet names can be mapped to existing subnets names in the provided vnet by specifying then as below.
 > Note : The same subnet name can be used multiple times if needed.
 
 ```yml
@@ -1137,7 +1157,7 @@ network:
   vnet:
     id: /subscriptions/<subscription id>/resourceGroups/<vnet resource group>/providers/Microsoft.Network/virtualNetworks/<vnet name>
     subnets:
-      frontend: 
+      frontend:
         name: ondemand
       admin:
         name: itonly
@@ -1148,7 +1168,6 @@ network:
       compute:
         name: dynamic
 ```
-
 ### Pre-requisities for using an existing VNET
 - There is a need of a minimum of 5 IP addresses for the infrastructure VMs
 - Allow enough IP addresses for the Lustre cluster, default being 4 : Robinhood + Lustre + 2*OSS
@@ -1162,8 +1181,29 @@ There is a way to easily create a standalone VNET for **azhop** without doing a 
 - Save your config file and create a new one in which you now specify the VNET ID created above
 - Build your **azhop** environment
 
+## How to use DNS forwarders ?
+**azhop** rely on [Azure DNS Private Resolver](https://learn.microsoft.com/en-us/azure/dns/dns-private-resolver-overview) in order to forward DNS queries to external DNS servers thru an outbound endpoint which need to be created in it's own subnet. You need to configure the `outbounddns` subnet with a minimum of /28 adress space in your `config.yml` configuration file. If you use an existing subnet it has to be dedicated to the resolver and has to be delegated to `Microsoft.Network/dnsResolvers` as explained in documentation of the [Azure DNS Private Resolver](https://learn.microsoft.com/en-us/azure/dns/dns-private-resolver-overview)
+
+Once the resolver has been created thru the `./build.sh` command, you can configure the forwarders to sent request to, in the `config.yml` configuration file like below.
+
+```yml
+# Specify DNS forwarders available in the network
+dns:
+  forwarders:
+    - { name: foo.bar.com, ips: "10.2.0.4" }
+    - { name: foo.com, ips: "10.2.0.4, 10.2.0.5" }
+```
+
+To add these rules just run the `dns` Ansible playbook.
+
+```bash
+./install.sh dns
+```
+
+You can also add rules manually in the DNS forwarding ruleset built.
+
 ## How to deploy ANF with Dual protocol
-When using Windows nodes you may want to use SMB to mount ANF volumes, as a result ANF need to be configure to use dual protocol and the ANF account need to be domain joined. This imply to break out the deployment in two main steps because the Domain Controler need to be configured before provisioning ANF. Follow the steps below to deploy ANF with Dual Protocol enabled :
+When using Windows nodes you may want to use SMB to mount ANF volumes, as a result ANF need to be configure to use dual protocol and the ANF account need to be domain joined. This imply to break out the deployment in two main steps because the Domain Controller need to be configured before provisioning ANF. Follow the steps below to deploy ANF with Dual Protocol enabled :
 
  - Dual protocol must be enabled in the configuration file with this value :
 
@@ -1177,7 +1217,7 @@ dual_protocol: true # true to enable SMB support. false by default
 ./build.sh -f tf/active_directory -a apply
 ```
 
-- Configure the Domain Controler
+- Configure the Domain Controller
 ```bash
 ./install.sh ad
 ```
@@ -1201,7 +1241,7 @@ dual_protocol: true # true to enable SMB support. false by default
 A locked down network environment avoid access from public IPs to the resources used by az-hop like storage accounts and key vault for example. To enable such configuration, uncomment and fill out the `locked_down_network` settings. Use the `grant_access_from` to grant access to specific internet public IPs as documented from [here](https://docs.microsoft.com/en-us/azure/storage/common/storage-network-security?tabs=azure-portal#grant-access-from-an-internet-ip-range)
 
 ```yml
-locked_down_network: 
+locked_down_network:
   enforce: true
   grant_access_from: [a.b.c.d] # Array of CIDR to grant access from.
 ```
@@ -1210,7 +1250,7 @@ locked_down_network:
 To deploy `az-hop` in a no public IP scenario you have to set the `locked_down_network:public_ip` value to `false`. The default value being `true`.
 
 ```yml
-locked_down_network: 
+locked_down_network:
   public_ip: false
 ```
 
@@ -1228,7 +1268,7 @@ Make sure to update your configuration file to specify the FQDN name of the on-d
 ondemand:
   vm_size: Standard_D4s_v5
   fqdn: azhop.foo.com # When provided it will be used for the certificate server name
-  generate_certificate: false 
+  generate_certificate: false
 ```
 If you want to generate your own self signed certificate here is how to proceed
 
@@ -1238,11 +1278,11 @@ openssl req -nodes -new -x509 -keyout certificate.key -out certificate.crt
 
 Copy both files `certificate.key` and `certificate.crt` in the `./playbooks` directory and renamed them `<ondemand_fqdn>.crt` and `<ondemand_fqdn>.key`. The `ondemand_fdqn` variable value can be found in the `./playbooks/group_vars/all.yml` file.
 
-> Note: If you have an intermediate or chain file make sure to name it `<ondemand_fqdn>_chain.crt` 
-The playbook configuring OnDemand is expecting to find these files and will copy them in the ondemand VM when the no PIP option is set.
+> Note: If you have an intermediate or chain file make sure to name it `<ondemand_fqdn>_chain.crt`
+The playbook configuring OnDemand is expecting to find these files and will copy them in the OnDemand VM when the no PIP option is set.
 
 ## Not deploy ANF
-By default an Azure Netapp File account, pool and volume are created to host the users home directories, if you don't need to deploy such resources then comment or remove the `anf` section of the configuration file like this. In this case you will have to provide an NSF share for the users home directories see [Use an existing NFS mount point](#use-an-existing-nfs-mount-point)
+By default an Azure NetApp File account, pool and volume are created to host the users home directories, if you don't need to deploy such resources then comment or remove the `anf` section of the configuration file like this. In this case you will have to provide an NSF share for the users home directories see [Use an existing NFS mount point](#use-an-existing-nfs-mount-point)
 
 ```yml
 # Define an ANF account, single pool and volume
@@ -1267,7 +1307,7 @@ mounts:
     mountpoint: <mount point name> # /sharedhome for example
     server: <server name or IP> # Specify an existing NFS server name or IP, when using the ANF built in use '{{anf_home_ip}}'
     export: <export directory> # Specify an existing NFS export directory, when using the ANF built in use '{{anf_home_path}}'
-    options: "rw,hard,rsize=262144,wsize=262144,vers=3,tcp" # Specify the mount options.
+    options: "rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev" # Specify the mount options.
 ```
 
 ## Use Azure Active Directory for MFA
@@ -1291,11 +1331,27 @@ authentication:
     OIDCPassRefreshToken: # for AAD use 'On'
     OIDCPassClaimsAs: # for AAD use 'environment'
   ```
-The helper script `configure_aad.sh` can be used to 
+The helper script `configure_aad.sh` can be used to
 - Register an AAD application configured to the az-hop environment
 - Create a secret for this AAD application and store it in the az-hop Key Vault
 
 This script need to be run before the `install.sh` or at least before the `ood` step, and by a user with enough privilege to create an application in AAD (typically a subscription `Owner`)
+
+## Use an existing Azure Database for MariaDB server
+An existing instance of an Azure Database for MariaDB server can be used to store the Slurm accounting data and/or the Windows Remote Desktop session requests. To enable it update the configuration file with these settings :
+
+```yml
+# If using an existing Managed MariaDB instance for Slurm accounting and/or Guacamole, specify these values
+database:
+  # Admin user of the database for which the password will be retrieved from the azhop keyvault
+  user: sqladmin
+  # FQDN of the managed instance
+  fqdn:
+  # IP of the managed private endpoint if the FQDN is not registered in a private DNS
+  ip:
+```
+
+Store the database user password in the `azhop` keyvault as a secret with the name `<database.user>-password`
 
 # Helper Scripts
 
@@ -1315,7 +1371,7 @@ This script contains all the pre-reqs needed to run the **azhop** playbooks, and
 This companion script allows you to upload/download all environment status files to/from blobs. Be aware that the Azure storage account and container should be created before running that script.
 
 ```bash
-vscode@d0076264576c:/hpc$ ./azhop_state.sh 
+vscode@d0076264576c:/hpc$ ./azhop_state.sh
 azhop_state command account container resource_group
     command        = download, upload, delete
     account        = azure storage account to read/write state
@@ -1329,10 +1385,10 @@ Script to build the resources needed for an **azhop** environment.
 
 ```bash
 $ ./build.sh
-Usage build.sh 
+Usage build.sh
   Required arguments:
-    -a|--action [plan, apply, destroy] 
-   
+    -a|--action [plan, apply, destroy]
+
   Optional arguments:
     -f|-folder <relative path> - relative folder name containing the terraform files, default is ./tf
 ```
@@ -1357,17 +1413,17 @@ This script apply the applications configuration and settings on the **azhop** e
 - cccluster
 - scheduler
 - ood
-- grafana 
+- grafana
 - telegraf
 - chrony
 
-The simpler is just to run 
+The simpler is just to run
 ```bash
 ./install.sh
 ```
 and let it go
 
-If you need to apply only a subset then run 
+If you need to apply only a subset then run
 ```bash
 ./install.sh <target> # with a single target in the list above
 ```
@@ -1378,26 +1434,26 @@ In case of a transient failure, the install script can be reapplied as most of t
 Script to build images defined the the `config.yml` file and in the `packer/<image_file.json>` packer files.
 
 ```bash
-vscode@d0076264576c:/hpc/packer$ ./build_image.sh 
-Usage build_image.sh 
+vscode@d0076264576c:/hpc/packer$ ./build_image.sh
+Usage build_image.sh
   Required arguments:
     -i|--image <image_file.json> | image packer file
-   
+
   Optional arguments:
     -o|--options <options.json>  | file with options for packer generated in the build phase
     -f|--force                   | overwrite existing image and always push a new version in the SIG
 ```
 
 The `build_image.sh` script will :
-- build a managed image with packer, 
-- tag this image with the checksum of the scripts called to build that image, 
-- tag it with a version, 
+- build a managed image with packer,
+- tag this image with the checksum of the scripts called to build that image,
+- tag it with a version,
 - create the image definition in the Shared Image Gallery if it doesn't exists
 - push the managed image in the Shared Image Gallery
 
 Please read the [Build Images](#build-images) documentation for more details.
 
-## bin/connect 
+## bin/connect
 The `bin/connect` command will be created by terraform in the build phase.  In addition to the specific `cyclecloud` and `ad` commands it can be a general wrapper for `ssh` in order to access resources on the vnet. This will handle proxy-ing through the **jumpbox** and so you can connect directly to the resources on the vnet.  For example, to connect to the ondemand, you can run the following:
 
 ```bash
@@ -1415,7 +1471,7 @@ This utility command will retrieve a user password stored in the keyvault create
 # Telemetry
 When you build your HPC environment on azure via azhop, Microsoft can identify the use of azhop with the deployed Azure resources. Microsoft collects this information to provide the best experiences with their products and to operate their business. The telemetry is collected through customer usage attribution. The data is collected and governed by Microsoft's privacy policies.
 
-If you do not wish to send usage data to Microsoft, you will need update your config file to include the following setting: 
+If you do not wish to send usage data to Microsoft, you will need update your config file to include the following setting:
 
 `optout_telemetry: true`
 

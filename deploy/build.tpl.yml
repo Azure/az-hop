@@ -27,20 +27,20 @@ vnet:
   tags:
     NRMSBastion: ''
   name: hpcvnet
-  cidr: '10.201.0.0/16'
+  cidr: '10.201.0.0/22'
   subnets:
     bastion:
       apply_nsg: false
       name: AzureBastionSubnet
-      cidr: '10.201.0.0/24'
+      cidr: '10.201.0.64/26'
     frontend:
       name: frontend
-      cidr: '10.201.1.0/24'
+      cidr: '10.201.0.0/29'
       service_endpoints: 
         - Microsoft.Sql
     admin:
       name: admin
-      cidr: '10.201.2.0/24'
+      cidr: '10.201.0.16/28'
       service_endpoints: 
         - Microsoft.KeyVault
         - Microsoft.Sql
@@ -48,20 +48,20 @@ vnet:
     netapp:
       apply_nsg: false
       name: netapp
-      cidr: '10.201.3.0/24'
+      cidr: '10.201.0.32/28'
       delegation: Microsoft.NetApp/volumes
     ad:
       name: ad
-      cidr: '10.201.4.0/24'
+      cidr: '10.201.0.8/29'
     compute:
       name: compute
-      cidr: '10.201.5.0/24'
+      cidr: '10.201.2.0/23'
       service_endpoints:
         - Microsoft.Storage
     gateway:
       apply_nsg: false
       name: GatewaySubnet
-      cidr: '10.201.6.0/24'
+      cidr: '10.201.0.128/27'
 
 images:
   lustre:

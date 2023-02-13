@@ -30,9 +30,9 @@ resource "azurerm_linux_virtual_machine" "ccportal" {
     storage_account_type = "Standard_LRS"
   }
 
+  # SYSTEM MANAGE IDENTITY CONFIG*/
   identity {
-    type         = "UserAssigned"
-    identity_ids = [ azurerm_user_assigned_identity.ccportal.id ]
+    type         = "SystemAssigned"
   }
 
   dynamic "source_image_reference" {
@@ -84,12 +84,6 @@ data "azurerm_role_definition" "contributor" {
 
 data "azurerm_role_definition" "reader" {
   name = "Reader"
-}
-
-resource "azurerm_user_assigned_identity" "ccportal" {
-  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
-  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
-  name = "ccportal"
 }
 
 # resource "random_uuid" "role" {
@@ -149,17 +143,16 @@ resource "azurerm_user_assigned_identity" "ccportal" {
 
 # Grant Contributor access to Cycle in the az-hop resource group
 resource "azurerm_role_assignment" "ccportal_rg" {
-#  name               = azurerm_user_assigned_identity.ccportal.principal_id
   scope              = local.create_rg ? azurerm_resource_group.rg[0].id : data.azurerm_resource_group.rg[0].id
   role_definition_id = "${data.azurerm_subscription.primary.id}${data.azurerm_role_definition.contributor.id}"
-  principal_id       = azurerm_user_assigned_identity.ccportal.principal_id
+  principal_id       = azurerm_linux_virtual_machine.ccportal.identity[0].principal_id
 }
 
 # Grant Subscription Reader access to Cycle
 resource "azurerm_role_assignment" "ccportal_sub_reader" {
   scope              = "${data.azurerm_subscription.primary.id}"
   role_definition_id = "${data.azurerm_subscription.primary.id}${data.azurerm_role_definition.reader.id}"
-  principal_id       = azurerm_user_assigned_identity.ccportal.principal_id
+  principal_id       = azurerm_linux_virtual_machine.ccportal.identity[0].principal_id
 }
 
 resource "azurerm_network_interface_application_security_group_association" "ccportal-asg-asso" {

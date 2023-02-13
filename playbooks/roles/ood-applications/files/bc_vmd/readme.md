@@ -1,5 +1,5 @@
 # Batch Connect - Ondemand - VMD
-An Open OnDemand app designed for `az-hop` that launches an ANSYS Workbench session within a batch job.
+An Open OnDemand app designed for `az-hop` that launches VMD session within a batch job.
 
 Adapted from https://github.com/OSC/bc_osc_vmd
 

@@ -18,6 +18,11 @@ if [[ `pip3 list PySocks` == *"PySocks"* ]]; then
 else
   pip3 install PySocks
 fi
+if [[ `pip3 list netaddr` == *"netaddr"* ]]; then 
+  echo netaddr is already installed 
+else
+  pip3 install netaddr
+fi
 
 ansible-galaxy collection install ansible.windows
 ansible-galaxy collection install community.windows

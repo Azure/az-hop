@@ -33,7 +33,7 @@ network:
   vnet:
     name: hpcvnet # Optional - default to hpcvnet
     id: # If a vnet id is set then no network will be created and the provided vnet will be used
-    address_space: "10.128.0.0/24" # Optional - default to "10.0.0.0/16"
+    address_space: "10.128.0.0/23" # Optional - default to "10.0.0.0/16"
     # When using an existing VNET, only the subnet names will be used and not the adress_prefixes
     subnets: # all subnets are optionals
     # name values can be used to rename the default to specific names, address_prefixes to change the IP ranges to be used
@@ -52,17 +52,22 @@ network:
         create: true
       netapp:
         name: netapp
-        address_prefixes: "10.128.0.32/29"
+        address_prefixes: "10.128.0.32/28"
         create: true
-      # gateway: # Gateway subnet name is always fixed to GatewaySubnet
-      #   address_prefixes: "10.128.0.48/28" # Recommendation is to use /27 or /28 network
-      #   create: true
-      # bastion: # Bastion subnet name is always fixed to AzureBastionSubnet
-      #   address_prefixes: "10.128.0.64/27" # CIDR minimal range must be /27
-      #   create: true
+      # the outbounddns is optional and only when deploying an Azure Private DNS Resolver
+      outbounddns:
+        name: outbounddns
+        address_prefixes: "10.128.0.48/28"
+        create: true
+      gateway: # Gateway subnet name is always fixed to GatewaySubnet
+        address_prefixes: "10.128.0.128/27" # Recommendation is to use /27 network
+        create: true
+      bastion: # Bastion subnet name is always fixed to AzureBastionSubnet
+        address_prefixes: "10.128.0.64/26" # CIDR minimal range must be /26
+        create: true
       compute:
         name: compute
-        address_prefixes: "10.128.0.128/25"
+        address_prefixes: "10.128.1.0/24"
         create: true
   peering: # This list is optional, and can be used to create VNet Peerings in the same subscription.
     - vnet_name: "azhop_hub" #"VNET Name to Peer to"
@@ -125,6 +130,18 @@ slurm:
   # Enable container support for SLURM using Enroot/Pyxis (global switch)
   # Each queue with container support must have its own enroot_enabled switch set to true
   enroot_enabled: true
+  # SLURM version to install. Currently supported: only 20.11.9 and 22.05.3.
+  # Other versions can be installed by building from source (See build_rpms setting in the slurmserver role)
+  slurm_version: 20.11.9
+
+# If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values
+database:
+  # Admin user of the database for which the password will be retrieved from the azhop keyvault
+  user: sqladmin
+  # FQDN of the managed instance
+  fqdn: 
+  # IP of the managed private endpoint if the FQDN is not registered in a private DNS
+  ip: 
 
 # Authentication configuration for accessing the az-hop portal
 # Default is basic authentication. For oidc authentication you have to specify the following values
@@ -282,4 +299,5 @@ applications:
     enabled: true
   bc_ansys_workbench:
     enabled: false
-
+  bc_vmd:
+    enabled: false

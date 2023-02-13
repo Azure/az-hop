@@ -1,7 +1,7 @@
 # see https://github.com/Azure/azvmimagebuilder/blob/main/solutions/14_Building_Images_WVD/1_Optimize_OS_for_WVD.ps1
 mkdir c:\optimize
 cd c:\optimize
-git clone https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool.git
+git clone https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool.git -b 2.1.2009.1
 cd Virtual-Desktop-Optimization-Tool
 
 # Patch: overide the Windows_VDOT.ps1 - setting 'Set-NetAdapterAdvancedProperty'as it breaks the network connection
@@ -25,6 +25,6 @@ $insert | ForEach-Object { $file.insert($_,"                 Write-Host 'Patch c
 Write-Host $file
 Set-Content $updatePath $file 
 
-.\Windows_VDOT.ps1 -Verbose -AcceptEULA
+.\Windows_VDOT.ps1 -Optimizations All -Verbose -AcceptEULA
 # Force clean exit
 exit 0

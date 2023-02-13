@@ -75,13 +75,21 @@ function enable_winviz ()
 
 function enable_lustre ()
 {
-  ENABLE_LUSTRE=$(yq eval '.lustre' config.yml)
-  if [ "$ENABLE_LUSTRE" == "null" ]; then
-    ENABLE_LUSTRE=false
+  FEATURE_LUSTRE_IN_CONFIG=$(yq eval '.features.lustre' config.yml)
+  if [ "$FEATURE_LUSTRE_IN_CONFIG" != "null" ]; then
+    ENABLE_LUSTRE=$(yq '.features.lustre' ./config.yml | tr '[:upper:]' '[:lower:]')
+  else
+    LUSTRE_VM_IN_CONFIG=$(yq eval '.lustre' config.yml)
+    if [ "$LUSTRE_VM_IN_CONFIG" == "null" ]; then
+      ENABLE_LUSTRE=false
+    else
+      ENABLE_LUSTRE=true
+    fi
+  fi
+  
+  if [ "$ENABLE_LUSTRE" == "false" ]; then
     touch $PLAYBOOKS_DIR/lustre.ok
     touch $PLAYBOOKS_DIR/lustre-sas.ok
-  else
-    ENABLE_LUSTRE=true
   fi
 }
 
@@ -98,6 +106,7 @@ enable_lustre
 case $TARGET in
   all)
     run_playbook ad
+    run_playbook dns
     run_playbook linux
     run_playbook grafana
     run_playbook lustre-sas
@@ -117,7 +126,7 @@ case $TARGET in
     run_playbook lustre-sas
     run_playbook lustre
   ;;
-  ad | ad2 | linux | add_users | ccportal | chrony | cccluster | scheduler | grafana | telegraf | ood-custom | remove_users | tests | guacamole | guac_spooler)
+  ad | ad2 | linux | add_users | ccportal | chrony | cccluster | scheduler | grafana | telegraf | ood-custom | remove_users | tests | guacamole | guac_spooler | dns)
     run_playbook $TARGET
   ;;
   ood)

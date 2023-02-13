@@ -195,12 +195,12 @@
       version: "azhop/{{ood_core_version}}"
       force: yes
 
-  - name: get the ondemand guacamole customization
-    get_url:
-      force: yes
-      dest: /var/www/ood/apps/sys/dashboard/app/models/active_jobs/jobstatusdata.rb
-      url: https://raw.githubusercontent.com/xpillons/ondemand/azhop/release_2.0/apps/dashboard/app/models/active_jobs/jobstatusdata.rb
-      timeout: 180
+  # - name: get the ondemand guacamole customization
+  #   get_url:
+  #     force: yes
+  #     dest: /var/www/ood/apps/sys/dashboard/app/models/active_jobs/jobstatusdata.rb
+  #     url: https://raw.githubusercontent.com/xpillons/ondemand/azhop/release_2.0/apps/dashboard/app/models/active_jobs/jobstatusdata.rb
+  #     timeout: 180
 
 #    not ( ondemand.generate_certificate | default(true) )
 
@@ -250,7 +250,7 @@
       apply:
         become: true
     vars:
-      cc_slurm_version: 20.11.9-1
+      cc_slurm_version: '{{slurm.slurm_version | default("20.11.9")}}-1'
       enroot_enabled: '{{slurm.enroot_enabled | default(false)}}'
     when: ( queue_manager is defined and queue_manager == "slurm" )
 
@@ -310,14 +310,14 @@
       path: /lustre
       state: directory
       mode: 0777
-    when: ( lustre is defined )
+    when: ( features.lustre | default(false) )
 
   - name: Install Lustre Client
     include_role:
       name: lustre
     vars:
       install_client: true
-    when: ( lustre is defined )
+    when: ( features.lustre | default(false) )
 
   - name: create ood initialiser directory
     file:
@@ -331,7 +331,7 @@
       line : 'OodFilesApp.candidate_favorite_paths << FavoritePath.new("/lustre", title: "Lustre")'
       create: yes
       state: present
-    when: ( lustre is defined )
+    when: ( features.lustre | default(false) )
 
   - name: Create "{{mounts[item].mountpoint}}" directory mountpoint
     file:

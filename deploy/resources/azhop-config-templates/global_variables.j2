@@ -2,10 +2,8 @@ global_ssh_public_key         : {{ssh_public_key}}
 global_cc_storage             : azhop{{outputs.resource_postfix}}
 compute_subnetid              : {{outputs.resource_group}}/{{build.vnet.name}}/{{build.vnet.subnets.compute.name}}
 global_config_file            : {{azhop_root}}/config.yml
-primary_dns                   : {{outputs.ad_private_ip}}
-secondary_dns                 : {{outputs.ad_private_ip}}
 ad_join_user                  : {{outputs.admin_user}}
-ad_join_domain                : hpc.azure
+domain_name                   : hpc.azure
 ldap_server                   : ad
 homedir_mountpoint            : {{outputs.homedir_mountpoint}}
 anf_home_ip                   : {{outputs.nfs_home_ip}}
@@ -23,8 +21,8 @@ key_vault                     : kv{{outputs.resource_postfix}}
 sig_name                      : azhop_{{outputs.resource_postfix}}
 lustre_hsm_storage_account    : azhop{{outputs.resource_postfix}}
 lustre_hsm_storage_container  : lustre
-slurmdb_fqdn                  : {{outputs.mysql_fqdn}}
-slurmdb_user                  : {{outputs.slurm_admin_user}}
+database_fqdn                 : {{outputs.mysql_fqdn}}
+database_user                 : {{outputs.slurm_admin_user}}
 azure_environment             : AZUREPUBLICCLOUD
 key_vault_suffix              : vault.azure.net
 blob_storage_suffix           : blob.core.windows.net

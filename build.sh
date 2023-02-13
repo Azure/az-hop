@@ -211,7 +211,7 @@ echo "terraform -chdir=$TF_FOLDER $TF_COMMAND $PARAMS"
 # env details from here: https://github.com/hashicorp/terraform-provider-azurerm/blob/main/vendor/github.com/Azure/go-autorest/autorest/azure/environments.go
 # TODO: check az environmentName for AzureChina and AzureGerman
 cloud_env="Public"
-account_env=$(az account show | jq '.environmentName' -r)
+account_env=$(az account show --output json| jq '.environmentName' -r)
 case "$account_env" in
   AzureChinaCloud)
     export TF_VAR_AzureEnvironment=AZURECHINACLOUD
@@ -241,14 +241,17 @@ esac
 
 
 # -parallelism=30
-TF_LOG="TRACE"
-TF_LOG_PATH="$THIS_DIR/tf/terraform.log"
+set +e
+export TF_LOG="INFO"
+export TF_LOG_PATH="$THIS_DIR/tf/terraform.log"
 rm -f $TF_LOG_PATH
 retries=1
 do_retry=true
+exit_code=0
 while (( $retries < 3 )) && [ "$do_retry" == "true" ]; do
   terraform -chdir=$TF_FOLDER $TF_COMMAND $PARAMS
-  if [ $? -eq 0 ]; then
+  exit_code=$?
+  if [ $exit_code -eq 0 ]; then
     do_retry=false
   else
     grep "RetryableError" $TF_LOG_PATH
@@ -266,3 +269,4 @@ done
 if [ -e $TF_FOLDER/terraform.tfstate ] && [ $TF_FOLDER != $THIS_DIR/tf ]; then
   cp -u -f $TF_FOLDER/terraform.tfstate $THIS_DIR/tf/terraform.tfstate
 fi
+exit $exit_code

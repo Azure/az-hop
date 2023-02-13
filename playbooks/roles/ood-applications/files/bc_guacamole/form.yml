@@ -1,16 +1,14 @@
 ---
 cluster: "guacamole"
-#form:
-#  - hours
-#attributes:
-#   hours:
-#     widget: "number_field"
-#     label: "Maximum duration of your remote session"
-#     value: 1
-#     help: |
-#       This is the maximum duration of your session.
-#     min: 1
-#     max: 48
-#     step: 1
-#     id: 'hours'
-
+form:
+ - bc_num_hours
+attributes:
+  bc_num_hours:
+    widget: "number_field"
+    label: "Maximum duration of your remote session in hours"
+    value: 1
+    help: |
+      This is the maximum duration of your session.
+    min: 1
+    max: 48
+    step: 1

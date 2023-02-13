@@ -21,6 +21,13 @@
         connection: local
         register: ad_join_password
 
+      - name: cleanup any remaining socks tunnel
+        shell: ps aux | grep localhost:5985 | grep -v grep | awk '{print "kill -9 " $2}' | sh
+        delegate_to: localhost
+        connection: local
+        ignore_errors: true
+        when: (jumpbox is defined)
+
       - name: start socks tunnel
         shell: ssh -i {{ lookup('env', 'PWD') }}/{{ansible_ssh_private_key_file}} -fN -D localhost:5985 -p {{jumpbox_ssh_port}} -o StrictHostKeyChecking=no {{admin_user}}@{{ psrp_ssh_proxy }}
         delegate_to: localhost
@@ -30,13 +37,11 @@
       - name: Run command to mitigate AD vulnerability 
         win_command: netsh int ipv4 set global sourceroutingbehavior=drop 
 
-      - name: Set lookup addresses on all visible adapters on the existing secondary DC, fallback on Azure DNS
+      - name: Set lookup addresses on all visible adapters on Azure DNS
         ansible.windows.win_dns_client:
           adapter_names: '*'
           dns_servers:
-          - "{{secondary_dns}}"
           - 168.63.129.16
-        when: ad.high_availability is defined and ad.high_availability
 
       - name: Install AD-Domain-Services
         win_feature:
@@ -60,14 +65,14 @@
 
       - name: Create AD-Domain
         ansible.windows.win_domain:
-          dns_domain_name: '{{ad_join_domain}}'
+          dns_domain_name: '{{domain_name}}'
           safe_mode_password: '{{ad_join_password.stdout}}'
         register: ad_promotion
 
       # - name: Promote server
       #   ansible.windows.win_domain_controller:
-      #     dns_domain_name: '{{ad_join_domain}}'
-      #     domain_admin_user: '{{ad_join_domain}}\{{admin_user}}'
+      #     dns_domain_name: '{{domain_name}}'
+      #     domain_admin_user: '{{domain_name}}\{{admin_user}}'
       #     domain_admin_password: '{{ad_join_password.stdout}}'
       #     safe_mode_password: '{{ad_join_password.stdout}}'
       #     install_dns: yes
@@ -91,16 +96,6 @@
           state: present
           password_never_expires: true
           update_password: on_create
-
-      - name: Add DNS Forwarders
-        community.windows.win_dns_zone:
-          name: '{{item.name}}'
-          type: forwarder
-          dns_servers: "{{item.ips}}"
-          replication: none
-          state: present
-        with_items: '{{dns.forwarders}}'
-        when: dns.forwarders is defined
 
       - name: Update azhop groups gidnumber
         community.windows.win_domain_group:
