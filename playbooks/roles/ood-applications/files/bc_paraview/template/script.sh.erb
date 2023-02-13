@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+
+<%- gpu = context.bc_slot_type.include?("3d") -%>
+
+# Clean the environment
+module purge
+
+# Set working directory to home directory
+cd "${HOME}"
+
+# Launch Xfce Window Manager and Panel
+(
+  module restore
+  export XDG_CONFIG_HOME="<%= session.staged_root.join("config") %>"
+  export XDG_DATA_HOME="<%= session.staged_root.join("share") %>"
+  export XDG_CACHE_HOME="$(mktemp -d)"
+  xfwm4 --compositor=off --daemon --sm-client-disable
+  xsetroot -solid "#D3D3D3"
+  xfsettingsd --sm-client-disable
+
+  # uncomment the following lines to show the panel which can be useful for debugging
+  # export XFCE_PANEL_MIGRATE_DEFAULT=yes
+  # xfce4-panel --sm-client-disable
+) &
+
+<%- if gpu -%>
+GL_LAUNCHER="vglrun"
+PARAVIEW_SERVER_IMPL="egl"
+PARAVIEW_EXTRA_ARGS=
+<%- else -%>
+GL_LAUNCHER=
+PARAVIEW_SERVER_IMPL="osmesa"
+PARAVIEW_EXTRA_ARGS="--mesa --backend swr"
+<%- end -%>
+
+# Start ParaView
+PARAVIEW_HOME_DIR="<%= context.paraview_home %>"
+PARAVIEW_VERSION="<%= context.version %>"
+PARAVIEW_CLIENT="glx/bin/paraview"
+PARAVIEW_SERVER="$PARAVIEW_SERVER_IMPL/bin/pvserver"
+
+# Set the timeout for the ParaView server (in minutes)
+# -5 minutes to allow for client to connect and start rendering
+bc_num_hours=<%= context.bc_num_hours %>
+PARAVIEW_SERVER_TIMEOUT=$((bc_num_hours * 60 - 5))
+
+set -x
+
+source /etc/profile.d/modules.sh
+module use /usr/share/Modules/modulefiles
+module load mpi/mvapich2
+
+if [[ -v PBS_NODEFILE ]]; then
+  # PBS
+  CORES=`cat $PBS_NODEFILE | wc -l`
+  HOSTFILE=$PBS_NODEFILE
+elif [[ -v SLURM_JOB_NODELIST ]]; then
+  # SLURM
+  CORES=`scontrol show hostnames $SLURM_JOB_NODELIST | wc -l`
+  HOSTFILE=$SLURM_JOB_NODELIST
+fi
+
+if [ $CORES -gt 1 ]; then
+  # Launch pvserver only if more than one MPI-rank is requested
+  PARAVIEW_EXTRA_ARGS="$PARAVIEW_EXTRA_ARGS --url cs://$(hostname):11111"
+  (
+    # avoids oversubscription errors
+    export MV2_ENABLE_AFFINITY=0
+
+    $GL_LAUNCHER mpirun -np $CORES \
+          -hostfile $HOSTFILE \
+          $PARAVIEW_HOME_DIR/$PARAVIEW_VERSION/$PARAVIEW_SERVER \
+          --system-mpi \
+          --timeout $PARAVIEW_SERVER_TIMEOUT
+  ) &
+fi
+
+# Launch ParaView client
+$GL_LAUNCHER $PARAVIEW_HOME_DIR/$PARAVIEW_VERSION/$PARAVIEW_CLIENT $PARAVIEW_EXTRA_ARGS
