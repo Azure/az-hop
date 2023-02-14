@@ -37,7 +37,7 @@ SchedulerParameters=max_switch_wait=24:00:00
 {% if accounting_enabled %}
 JobAcctGatherType=jobacct_gather/linux
 AccountingStorageType=accounting_storage/slurmdbd
-AccountingStorageHost=scheduler
+AccountingStorageHost={{external_slurmdbd | default(scheduler)}}
 {% else %}
 AccountingStorageType=accounting_storage/none
 JobAcctGatherType=jobacct_gather/none

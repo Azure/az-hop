@@ -231,6 +231,8 @@
     owner: slurm
     group: slurm
     force: false
+  vars:
+    - external_slurmdbd: "{{ slurm.multi_cluster.slurmdbd | default('scheduler') }}"
 
 - name: create slurm cgroup config
   copy:
