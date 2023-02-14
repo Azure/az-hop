@@ -30,7 +30,7 @@
  * || check_file_test -d /tmp/scratch
  * || check_cmd_output -r 0 touch /tmp/scratch/nhctest
 
-{% if ( features.lustre | default(false) ) %}
+{% if ( lustre.create | default(false) ) %}
  * || check_fs_mount_rw -t "lustre" -f "/lustre"
  * || check_fs_used /lustre 90%
  * || check_fs_iused /lustre 98%

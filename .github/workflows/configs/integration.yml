@@ -143,6 +143,14 @@ database:
   # IP of the managed private endpoint if the FQDN is not registered in a private DNS
   ip: 
 
+# Create a Bastion in the bastion subnet when defined
+bastion:
+  create: false
+
+# Create a VPN Gateway in the gateway subnet when specified
+vpn_gateway:
+  create: false
+
 # Authentication configuration for accessing the az-hop portal
 # Default is basic authentication. For oidc authentication you have to specify the following values
 # The OIDCClient secret need to be stored as a secret named <oidc-client-id>-password in the keyvault used by az-hop
@@ -162,6 +170,9 @@ authentication:
   #   OIDCPassIDTokenAs: # for AAD use 'serialized'
   #   OIDCPassRefreshToken: # for AAD use 'On'
   #   OIDCPassClaimsAs: # for AAD use 'environment'
+
+image_gallerie:
+  create: true # Create the shared image gallerie to store custom images
 
 images:
   # - name: azhop-almalinux85-v2-rdma-gpgpu
