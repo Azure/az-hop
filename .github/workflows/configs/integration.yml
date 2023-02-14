@@ -7,6 +7,10 @@ tags:
   project: azhop
   scheduler: __SCHEDULER__
 
+# Create a log analytics workspace to enable monitoring and alerting
+log_analytics:
+  create: true
+
 #If set to true, it will create alert rules associated with az-hop. Enablement of alerting will require the specification of an admin email to send alerts to.
 alerting:
   enabled: true
