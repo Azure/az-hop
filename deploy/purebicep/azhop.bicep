@@ -46,7 +46,7 @@ var deployJumpbox = contains(azhopConfig, 'jumpbox') ? true : false
 var deployDeployer = contains(azhopConfig, 'deployer') ? true : false
 var enableWinViz = contains(azhopConfig, 'enable_remote_winviz') ? azhopConfig.enable_remote_winviz : false
 var highAvailabilityForAD = contains(azhopConfig.ad, 'high_availability') ? azhopConfig.ad.high_availability : false
-var deployHybridSlurm = contains(azhopConfig.slurm, 'multi_cluster') ? azhopConfig.slurm.multi_cluster.enabled : false
+var deployHybridSlurm = contains(azhopConfig.slurm, 'multi_cluster') ? true : false
 
 var linuxBaseImage = contains(azhopConfig, 'linux_base_image') ? azhopConfig.linux_base_image : 'OpenLogic:CentOS:7_9-gen2:latest'
 var linuxBasePlan = contains(azhopConfig, 'linux_base_plan') ? azhopConfig.linux_base_plan : ''
@@ -553,8 +553,8 @@ var config = {
       AllowInternalWebUsersIn     : ['540', 'Inbound', 'Allow', 'Tcp', 'Web', 'subnet', 'gateway', 'asg', 'asg-ondemand']
     }
     hybridSlurm: {
-      AllowSlurmFederationIn      : ['406', 'Inbound', 'Allow', '*', 'Slurmctld', 'cidr', azhopConfig.slurm.multi_cluster.ext_subnet, 'asg', 'asg-pbs']
-      AllowSlurmFederationOut     : ['386', 'Outbound', 'Allow', '*', 'Slurmctld', 'asg', 'asg-pbs', 'cidr', azhopConfig.slurm.multi_cluster.ext_subnet]
+      AllowSlurmFederationIn      : ['406', 'Inbound', 'Allow', '*', 'Slurmctld', 'cidr', azhopConfig.slurm.multi_cluster.slurmdbd, 'asg', 'asg-pbs']
+      AllowSlurmFederationOut     : ['386', 'Outbound', 'Allow', '*', 'Slurmctld', 'asg', 'asg-pbs', 'cidr', azhopConfig.slurm.multi_cluster.slurmdbd]
     }
   }
 
