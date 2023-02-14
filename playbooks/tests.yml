@@ -26,5 +26,5 @@
       test_user: '{{users[0].name}}'
       test_mounts:
         - '{{mounts.home.mountpoint | default("/anfhome")}}'
-        - '{{ ( features.lustre | default(false) ) | ternary("/lustre", "/") }}'
+        - '{{ ( lustre.create | default(false) ) | ternary("/lustre", "/") }}'
       test_queues: '{{queues}}'
