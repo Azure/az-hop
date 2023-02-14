@@ -56,6 +56,7 @@ locals {
     }
     TEMPLATE
 
+    create_log_analytics_workspace = try(local.configuration_yml["log_analytics"]["create"], false)
     alert_email = try(local.configuration_yml["alerting"]["admin_mail"], null)
     create_alerts = local.alert_email != null && local.alert_email != "admin.mail@contoso.com" && try(local.configuration_yml["alerting"]["enabled"], false) ? true : false
     anf_vol_threshold = try(local.configuration_yml["anf"]["alert_threshold"], 80)  # default to 80% if not specified 

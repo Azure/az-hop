@@ -60,6 +60,12 @@ resource "azurerm_linux_virtual_machine" "scheduler" {
   }
 }
 
+resource "azurerm_network_interface_application_security_group_association" "scheduler-asg-asso" {
+  for_each = toset(local.asg_associations["scheduler"])
+  network_interface_id          = azurerm_network_interface.scheduler-nic.id
+  application_security_group_id = local.create_nsg ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
+}
+
 resource "azurerm_virtual_machine_extension" "AzureMonitorLinuxAgent_sched" {
   depends_on = [
     azurerm_linux_virtual_machine.scheduler
@@ -72,23 +78,19 @@ resource "azurerm_virtual_machine_extension" "AzureMonitorLinuxAgent_sched" {
   auto_upgrade_minor_version = true
 }
 
-resource "azurerm_network_interface_application_security_group_association" "scheduler-asg-asso" {
-  for_each = toset(local.asg_associations["scheduler"])
-  network_interface_id          = azurerm_network_interface.scheduler-nic.id
-  application_security_group_id = local.create_nsg ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
-}
-
 resource "azurerm_monitor_data_collection_rule_association" "dcra_sched_metrics" {
+    count               = local.create_log_analytics_workspace ? 1 : 0
     name                = "sched-data-collection-ra"
     target_resource_id = azurerm_linux_virtual_machine.scheduler.id
-    data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_data_collection_rule.id
+    data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_data_collection_rule[0].id
     description = "Scheduler Data Collection Rule Association for VM Metrics"
 }
 
 resource "azurerm_monitor_data_collection_rule_association" "dcra_sched_insights" {
+    count               = local.create_log_analytics_workspace ? 1 : 0
     name                = "sched-insights-collection-ra"
     target_resource_id = azurerm_linux_virtual_machine.scheduler.id
-    data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_insights_collection_rule.id
+    data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_insights_collection_rule[0].id
     description = "Scheduler Data Collection Rule Association for VM Insights"
 }
 

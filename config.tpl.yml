@@ -9,6 +9,10 @@ use_existing_rg: false
 # If set to true, will disable telemetry for azhop. See https://azure.github.io/az-hop/deploy/telemetry.html.
 #optout_telemetry: true
 
+# Create a log analytics workspace to enable monitoring and alerting
+log_analytics:
+  create: true
+
 #If set to true, it will create alert rules associated with az-hop. Enablement of alerting will require the specification of an admin email to send alerts to.
 alerting:
   enabled: true

@@ -93,18 +93,18 @@ resource "azurerm_virtual_machine_extension" "AzureMonitorLinuxAgent_guacamole" 
 }
 
 resource "azurerm_monitor_data_collection_rule_association" "dcra_guacamole_metrics" {
-    count               = local.enable_remote_winviz ? 1 : 0
+    count               = local.enable_remote_winviz && local.create_log_analytics_workspace ? 1 : 0
     name                = "guacamole-data-collection-ra"
     target_resource_id = azurerm_linux_virtual_machine.guacamole[0].id
-    data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_data_collection_rule.id
+    data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_data_collection_rule[0].id
     description = "Guacamole Data Collection Rule Association for VM Metrics"
 }
 
 resource "azurerm_monitor_data_collection_rule_association" "dcra_guacamole_insights" {
-    count               = local.enable_remote_winviz ? 1 : 0
+    count               = local.enable_remote_winviz && local.create_log_analytics_workspace ? 1 : 0
     name                = "guacamole-insights-collection-ra"
     target_resource_id = azurerm_linux_virtual_machine.guacamole[0].id
-    data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_insights_collection_rule.id
+    data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_insights_collection_rule[0].id
     description = "Guacamole Data Collection Rule Association for VM Insights"
 }
 

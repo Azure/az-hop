@@ -80,9 +80,7 @@ resource "azurerm_network_interface_application_security_group_association" "jum
 }
 
 resource "azurerm_virtual_machine_extension" "AzureMonitorLinuxAgent" {
-  depends_on = [
-    azurerm_linux_virtual_machine.jumpbox
-  ]
+  count                      = local.jumpbox_enabled ? 1 : 0
   name                       = "AzureMonitorLinuxAgent"
   virtual_machine_id         = azurerm_linux_virtual_machine.jumpbox[0].id
   publisher                  = "Microsoft.Azure.Monitor"
@@ -92,18 +90,18 @@ resource "azurerm_virtual_machine_extension" "AzureMonitorLinuxAgent" {
 }
 
 resource "azurerm_monitor_data_collection_rule_association" "dcra_vm_metrics" {
-    count               = local.jumpbox_enabled ? 1 : 0
+    count               = local.jumpbox_enabled && local.create_log_analytics_workspace ? 1 : 0
     name                = "vm-data-collection-ra"
     target_resource_id = azurerm_linux_virtual_machine.jumpbox[0].id
-    data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_data_collection_rule.id
+    data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_data_collection_rule[0].id
     description = "Data Collection Rule Association for VM Metrics"
 }
 
 resource "azurerm_monitor_data_collection_rule_association" "dcra_vm_insights" {
-    count               = local.jumpbox_enabled ? 1 : 0
+    count               = local.jumpbox_enabled && local.create_log_analytics_workspace ? 1 : 0
     name                = "vm-insights-collection-ra"
     target_resource_id = azurerm_linux_virtual_machine.jumpbox[0].id
-    data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_insights_collection_rule.id
+    data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_insights_collection_rule[0].id
     description = "Data Collection Rule Association for VM Insights"
 }
 

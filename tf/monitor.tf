@@ -1,4 +1,5 @@
-resource "azurerm_log_analytics_workspace" "azhop_workspace" { 
+resource "azurerm_log_analytics_workspace" "azhop_workspace" {
+    count               = local.create_log_analytics_workspace ? 1 : 0
     name                = "azhop-${random_string.resource_postfix.result}-ws"
     location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
     resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
@@ -10,7 +11,7 @@ resource "azurerm_monitor_action_group" "azhop_action_group" {
   count               = local.create_alerts ? 1 : 0
   name                = "azhop-${random_string.resource_postfix.result}-ag"
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
-  short_name          = "azhop-${random_string.resource_postfix.result}-ag"
+  short_name          = "azhop-ag" # Need to be 12 characters or less
   email_receiver {
     name         = "azhop-email-receiver"
     email_address = local.alert_email
@@ -18,13 +19,14 @@ resource "azurerm_monitor_action_group" "azhop_action_group" {
 }
 
 resource "azurerm_monitor_data_collection_rule" "vm_data_collection_rule" {
+  count               = local.create_log_analytics_workspace ? 1 : 0
   name                = "vm-data-collection-rule"
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   kind = "Linux"
   destinations {
     log_analytics {
-      workspace_resource_id = azurerm_log_analytics_workspace.azhop_workspace.id
+      workspace_resource_id = azurerm_log_analytics_workspace.azhop_workspace[0].id
       name = "vm-logs"
     }
     azure_monitor_metrics {
@@ -77,13 +79,14 @@ resource "azurerm_monitor_data_collection_rule" "vm_data_collection_rule" {
 }
 
 resource "azurerm_monitor_data_collection_rule" "vm_insights_collection_rule" {
+  count               = local.create_log_analytics_workspace ? 1 : 0
   name                = "vm-insights-collection-rule"
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   kind = "Linux"
   destinations {
     log_analytics {
-      workspace_resource_id = azurerm_log_analytics_workspace.azhop_workspace.id
+      workspace_resource_id = azurerm_log_analytics_workspace.azhop_workspace[0].id
       name = "vm-insights-logs"
     }
   }
