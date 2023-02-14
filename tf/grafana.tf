@@ -63,9 +63,9 @@ resource "azurerm_linux_virtual_machine" "grafana" {
 }
 
 resource "azurerm_virtual_machine_extension" "AzureMonitorLinuxAgent_grafana" {
-  depends_on = [
-    azurerm_linux_virtual_machine.grafana
-  ]
+  # depends_on = [
+  #   azurerm_linux_virtual_machine.grafana
+  # ]
   name                       = "AzureMonitorLinuxAgent"
   virtual_machine_id         = azurerm_linux_virtual_machine.grafana.id
   publisher                  = "Microsoft.Azure.Monitor"
