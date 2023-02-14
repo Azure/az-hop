@@ -5,18 +5,12 @@ resource "azurerm_log_analytics_workspace" "azhop_workspace" {
     sku                 = "PerGB2018"
     retention_in_days   = 30
 }
-/*
-resource "azurerm_user_assigned_identity" "azure_monitor_identity" {
-  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
-  name                = "azure-monitor-identity"
-  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
-}
-*/
+
 resource "azurerm_monitor_action_group" "azhop_action_group" {
   count               = local.create_alerts ? 1 : 0
-  name                = "azhop-ag"
+  name                = "azhop-${random_string.resource_postfix.result}-ag"
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
-  short_name          = "azhop-ag"
+  short_name          = "azhop-${random_string.resource_postfix.result}-ag"
   email_receiver {
     name         = "azhop-email-receiver"
     email_address = local.alert_email
