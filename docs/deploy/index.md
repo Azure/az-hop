@@ -340,6 +340,17 @@ resource_group: azhop
 use_existing_rg: false
 # If set to true, will disable telemetry for azhop. See https://azure.github.io/az-hop/deploy/telemetry.html.
 #optout_telemetry: true
+
+# Create a log analytics workspace to enable monitoring and alerting
+log_analytics:
+  create: true
+
+#If set to true, it will create alert rules associated with az-hop. Enablement of alerting will require the specification of an admin email to send alerts to.
+alerting:
+  enabled: false
+  admin_mail: admin.mail@contoso.com
+  local_volume_threshold: 80
+
 # Additional tags to be added on the Resource Group
 tags:
   env: dev
