@@ -912,7 +912,7 @@ elif [[ $1 == "ad" ]]; then
   echo go create tunnel to ad with rdp to localhost:3390
   ssh -i {0}_id_rsa -fN -L 3390:ad:3389 -p {1} {0}@{2}
 else
-  exec ssh -i {0}_id_rsa -o ProxyCommand="ssh -i {0}_id_rsa -p {1} -W %h:%p {0}@{2}" "$@"
+  exec ssh -i {0}_id_rsa -o ProxyCommand="ssh -i {0}_id_rsa -p {1} -W %h:%p {0}@{2}" -o "User={0}" "$@"
 fi
 ''', config.admin_user, config.vms.jumpbox.sshPort, azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIp)
 
