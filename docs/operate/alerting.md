@@ -5,6 +5,7 @@ The [Azure Monitor Agent](https://learn.microsoft.com/en-us/azure/azure-monitor/
 - CycleCloud
 - OnDemand
 - Jumpbox 
+
 The information exposed by the agent is used by azhop to trigger alerts for key situations that could disrupt your HPC environment in Azure.
 ## Enable Monitoring 
 The monitoring agent requires the deployment of a [log analytics workspace](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/log-analytics-workspace-overview), which provides administrators with a central location for analyzing syslog messages and the performance data of the target VMs. Consequently, to enable monitoring, you will need to specify in your configuration file to allow the creation of the log analytics workspace 
@@ -19,6 +20,7 @@ If alerting is enabled, azhop can alert administrators of the following situatio
 - CycleCloud service is stopped or killed 
 - ANF volume reaches a set threshold 
 - VM disk volumes reach a set threshold
+
 If any of these situations are detected, an email will be sent to administrators, who will be able to view more details on the alert from the Azure Portal.  
 
 ## Enabling Alerts 
