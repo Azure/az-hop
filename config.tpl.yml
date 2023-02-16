@@ -15,6 +15,7 @@ tags:
 # Define an Azure Netapp Files (ANF) account, single pool and volume
 # If not present, assume that there is an existing NFS share for the users home directory
 anf:
+  create: true
   # Size of the ANF pool and unique volume (min: 4TB, max: 100TB)
   homefs_size_tb: 4
   # Service level of the ANF volume, can be: Standard, Premium, Ultra
@@ -22,15 +23,20 @@ anf:
   # dual protocol
   dual_protocol: false # true to enable SMB support. false by default
 
+# For small deployments you can use Azure Files instead of ANF for the home directory
+azurefiles:
+  create: false
+  size_gb: 1024
 
 # These mounts will be listed in the Files menu of the OnDemand portal and automatically mounted on all compute nodes and remote desktop nodes
 mounts:
   # mount settings for the user home directory
   home: # This home name can't be changed
+    type: anf # anf or azurefiles, default to anf. One of the two should be defined in order to mount the home directory
     mountpoint: /anfhome # /sharedhome for example
     server: '{{anf_home_ip}}' # Specify an existing NFS server name or IP, when using the ANF built in use '{{anf_home_ip}}'
     export: '{{anf_home_path}}' # Specify an existing NFS export directory, when using the ANF built in use '{{anf_home_path}}'
-    options: "rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev" # Specify the mount options. Default to rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev
+    options: '{{anf_home_opts}}' # Specify the mount options. Default to rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev
 #  mount1:
 #    mountpoint: /mount1 
 #    server: a.b.c.d # Specify an existing NFS server name or IP
@@ -56,7 +62,7 @@ network:
     subnets: # all subnets are optionals
     # name values can be used to rename the default to specific names, address_prefixes to change the IP ranges to be used
     # All values below are the default values
-      frontend: 
+      frontend:
         name: frontend
         address_prefixes: "10.0.0.0/29"
         create: true # create the subnet if true. default to true when not specified, default to false if using an existing VNET when not specified
@@ -235,9 +241,9 @@ database:
   # Admin user of the database for which the password will be retrieved from the azhop keyvault
   user: sqladmin
   # FQDN of the managed instance
-  fqdn: 
+  fqdn:
   # IP of the managed private endpoint if the FQDN is not registered in a private DNS
-  ip: 
+  ip:
 
 # Create a Bastion in the bastion subnet when defined
 bastion:

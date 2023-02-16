@@ -9,6 +9,7 @@ tags:
 # Define an ANF account, single pool and volume
 # If not present assume that there is an existing NFS share for the users home directory
 anf:
+  create: true
   # Size of the ANF pool and unique volume
   homefs_size_tb: 4
   # Service level of the ANF volume, can be: Standard, Premium, Ultra
@@ -16,13 +17,19 @@ anf:
   # dual protocol
   dual_protocol: __ANF_DUAL__ # true to enable SMB support. false by default
 
+# For small deployments you can use Azure Files instead of ANF for the home directory
+azurefiles:
+  create: false
+  size_gb: 1024
+
 mounts:
   # mount settings for the user home directory
   home:
+    type: anf # anf or azurefiles, default to anf. One of the two should be defined in order to mount the home directory
     mountpoint: /anfhome # /sharedhome for example
     server: '{{anf_home_ip}}' # Specify an existing NFS server name or IP, when using the ANF built in use '{{anf_home_ip}}'
     export: '{{anf_home_path}}' # Specify an existing NFS export directory, when using the ANF built in use '{{anf_home_path}}'
-    options: "rw,hard,rsize=262144,wsize=262144,vers=3,tcp" # Specify the mount options. Default to rw,hard,rsize=262144,wsize=262144,vers=3,tcp
+    options: '{{anf_home_opts}}'
 
 admin_user: hpcadmin
 key_vault_readers: 0bf2513b-59fe-4018-bfd6-5d4844a9a3b9
