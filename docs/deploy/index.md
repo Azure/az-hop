@@ -139,6 +139,7 @@ az vm image terms accept --offer almalinux-hpc --publisher almalinux --plan 8_5-
     - virtual machines for self-hosted Github Action runners
   - Each `azhop` deployment will be a spoke.
     - See [define the environment](#define-the-environment) for how to automatically peer the virtual network of `azhop` with that of the hub, and for how to change the SSH port of the jumpbox.
+- When deploying a cloud-burst cluster, follow the [Cloud burst guide](burst.md)
 
 # Configure the toolchain
 The toolchain can be setup either locally or from a deployer VM. See below for instructions regarding the installation.
@@ -551,6 +552,9 @@ slurm:
   # SLURM version to install. Currently supported: only 20.11.9 and 22.05.3.
   # Other versions can be installed by building from source (See build_rpms setting in the slurmserver role)
   slurm_version: 20.11.9
+  # SLURM multi-cluster and federation support (comment out to disable)
+  multi_cluster:
+    slurmdbd: 10.107.0.22 # IP address of the primary slurmdbd server to connect to
 
 # If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values
 database:
