@@ -19,13 +19,13 @@ anf:
 
 # For small deployments you can use Azure Files instead of ANF for the home directory
 azurefiles:
-  create: false
+  create: true
   size_gb: 1024
 
 mounts:
   # mount settings for the user home directory
   home:
-    type: anf # anf or azurefiles, default to anf. One of the two should be defined in order to mount the home directory
+    type: __HOME_TYPE__ # anf or azurefiles, default to anf. One of the two should be defined in order to mount the home directory
     mountpoint: /anfhome # /sharedhome for example
     server: '{{anf_home_ip}}' # Specify an existing NFS server name or IP, when using the ANF built in use '{{anf_home_ip}}'
     export: '{{anf_home_path}}' # Specify an existing NFS export directory, when using the ANF built in use '{{anf_home_path}}'
