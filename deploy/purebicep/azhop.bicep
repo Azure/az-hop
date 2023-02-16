@@ -99,13 +99,20 @@ var config = {
   enable_remote_winviz : enableWinViz
   deploy_sig: contains(azhopConfig, 'image_gallerie') && contains(azhopConfig.image_gallerie, 'create') ? azhopConfig.image_gallerie.create : false
 
-  homedir: 'nfsfiles'
+  // Default home directory is ANF
+  homedir_type: contains(azhopConfig.mounts.home, 'type') ? azhopConfig.mounts.home.type : 'anf'
   homedir_mountpoint: azhopConfig.mounts.home.mountpoint
 
   anf: {
-    dual_protocol: contains(azhopConfig.anf, 'dual_protocol') ? azhopConfig.anf.dual_protocol : false
-    service_level: contains(azhopConfig.anf, 'homefs_service_level') ? azhopConfig.anf.homefs_service_level : 'Standard'
-    size_gb: contains(azhopConfig.anf, 'homefs_size_tb') ? azhopConfig.anf.homefs_size_tb*1024 : 4096
+    create: contains(azhopConfig, 'anf') && contains(azhopConfig.anf, 'create') ? azhopConfig.anf.create : true
+    dual_protocol: contains(azhopConfig, 'anf') && contains(azhopConfig.anf, 'dual_protocol') ? azhopConfig.anf.dual_protocol : false
+    service_level: contains(azhopConfig, 'anf') && contains(azhopConfig.anf, 'homefs_service_level') ? azhopConfig.anf.homefs_service_level : 'Standard'
+    size_gb: contains(azhopConfig, 'anf') && contains(azhopConfig.anf, 'homefs_size_tb') ? azhopConfig.anf.homefs_size_tb*1024 : 4096
+  }
+
+  azurefiles: {
+    create: contains(azhopConfig, 'azurefiles') && contains(azhopConfig.azurefiles, 'create') ? azhopConfig.azurefiles.create : false
+    size_gb: contains(azhopConfig, 'azurefiles') && contains(azhopConfig.azurefiles, 'size_gb') ? azhopConfig.azurefiles.size_gb : 1024
   }
 
   vnet: {
@@ -714,7 +721,7 @@ module azhopVpnGateway './vpngateway.bicep' = if (config.deploy_gateway) {
   }
 }
 
-module azhopAnf './anf.bicep' = if (config.homedir == 'anf') {
+module azhopAnf './anf.bicep' = if (config.anf.create) {
   name: 'azhopAnf'
   params: {
     location: location
@@ -729,13 +736,13 @@ module azhopAnf './anf.bicep' = if (config.homedir == 'anf') {
   }
 }
 
-module azhopNfsFiles './nfsfiles.bicep' = if (config.homedir == 'nfsfiles') {
+module azhopNfsFiles './nfsfiles.bicep' = if (config.azurefiles.create ) {
   name: 'azhopNfsFiles'
   params: {
     location: location
     resourcePostfix: resourcePostfix
     allowedSubnetIds: [ subnetIds.admin, subnetIds.compute, subnetIds.frontend ]
-    sizeGB: 1024
+    sizeGB: config.azurefiles.size_gb
   }
 }
 
@@ -800,12 +807,12 @@ output azhopGlobalConfig object = union(
     blob_storage_suffix           : 'blob.${environment().suffixes.storage}' // blob.core.windows.net
     jumpbox_ssh_port              : deployJumpbox ? config.vms.jumpbox.sshPort : 22
   },
-  config.homedir == 'anf' ? {
+  config.homedir_type == 'anf' ? {
     anf_home_ip                   : azhopAnf.outputs.nfs_home_ip
     anf_home_path                 : azhopAnf.outputs.nfs_home_path
     anf_home_opts                 : azhopAnf.outputs.nfs_home_opts
   } : {},
-  config.homedir == 'nfsfiles' ? {
+  config.homedir_type == 'azurefiles' ? {
     anf_home_ip                   : azhopNfsFiles.outputs.nfs_home_ip
     anf_home_path                 : azhopNfsFiles.outputs.nfs_home_path
     anf_home_opts                 : azhopNfsFiles.outputs.nfs_home_opts
@@ -912,7 +919,7 @@ elif [[ $1 == "ad" ]]; then
   echo go create tunnel to ad with rdp to localhost:3390
   ssh -i {0}_id_rsa -fN -L 3390:ad:3389 -p {1} {0}@{2}
 else
-  exec ssh -i {0}_id_rsa -o ProxyCommand="ssh -i {0}_id_rsa -p {1} -W %h:%p {0}@{2}" "$@"
+  exec ssh -i {0}_id_rsa -o ProxyCommand="ssh -i {0}_id_rsa -p {1} -W %h:%p {0}@{2}" -o "User={0}" "$@"
 fi
 ''', config.admin_user, config.vms.jumpbox.sshPort, azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIp)
 
