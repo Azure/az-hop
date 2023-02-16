@@ -52,6 +52,16 @@ If the `multi_cluster` setting exists before the cluster is deployed, the NSG ru
 ./install.sh scheduler
 ```
 
+### Login to the scheduler node once it's deployed
+From azhop root directory
+```bash
+./bin/connect hpcadmin@scheduler
+```
+```bash
+[hpcadmin@scheduler ~]$ sudo su -
+[root@scheduler ~]#
+```
+
 ### Check if the clusters are connected
 Use `sacctmgr list cluster` command to verify that all clusters are listed with their correct ControlHost IP addresses.
 ```bash
@@ -85,7 +95,7 @@ slurmctld has been started with "ClusterName=on-prem", but read "slurm" from the
 Running multiple clusters from a shared StateSaveLocation WILL CAUSE CORRUPTION.
 Remove /var/spool/slurmd/clustername to override this safety check if this is intentional (e.g., the ClusterName has changed).
 ```
-To fix this, make sure the cluster is quiet and remove the file `/var/spool/slurmd/clustername` on the scheduler node. Then re-run the scheduler playbook.
+To fix this, make sure the cluster is quiet and remove the file `/var/spool/slurmd/clustername` on the scheduler node. Then re-run the scheduler playbook. Or you can restart the slurm controller `systemctl restart slurmctld` once the clusername file is removed. 
 
 If the munge key is not the same on the scheduler node and the on-premises cluster, the following error will be logged in `/var/log/slurmctld/slurmctld.log`:
 ```bash
