@@ -229,6 +229,9 @@ slurm:
   # WARNING: changing this value on a running cluster will cause slurmctld to fail to start. This is a
   # safety check to prevent accounting errors. To override, remove /var/spool/slurmd/clustername
   cluster_name: slurm_azhop
+  # SLURM multi-cluster andfederation support (comment out to disable)
+  # multi_cluster:
+  #   slurmdbd: 10.107.0.22 # IP address of the primary slurmdbd server to connect to
 
 # If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values
 database:
