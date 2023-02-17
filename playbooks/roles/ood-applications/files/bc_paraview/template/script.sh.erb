@@ -54,7 +54,11 @@ if [[ -v PBS_NODEFILE ]]; then
   HOSTFILE=$PBS_NODEFILE
 elif [[ -v SLURM_JOB_NODELIST ]]; then
   # SLURM
-  RANKS=$SLURM_NTASKS
+  if [[ -v SLURM_NTASKS ]]; then
+    RANKS=$SLURM_NTASKS
+  else
+    RANKS=$SLURM_TASKS_PER_NODE
+  fi
   HOSTFILE=$SLURM_JOB_NODELIST
 fi
 
