@@ -32,6 +32,7 @@ resource "local_file" "CISInventory" {
 resource "local_file" "global_variables" {
   content = templatefile("${local.playbooks_template_dir}/global_variables.tmpl",
     {
+      project_name        = try(local.configuration_yml["project_name"], "az-hop")
       azure_environment   = local.azure_environment
       key_vault_suffix    = local.key_vault_suffix
       blob_storage_suffix = local.blob_storage_suffix
