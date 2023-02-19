@@ -1,4 +1,8 @@
 ---
+# yaml-language-server: $schema=config.schema.json
+
+# name of the cluster
+project_name: az-hop
 # azure location name as returned by the command : az account list-locations -o table
 location: westeurope
 # Name of the resource group to create all resources
@@ -182,11 +186,11 @@ lustre:
   hsm_max_requests: 8
   mdt_device: "/dev/sdb"
   ost_device: "/dev/sdb"
-  hsm:
-    # optional to use existing storage for the archive
-    # if not included it will use the azhop storage account that is created
-    storage_account: #existing_storage_account_name
-    storage_container: #only_used_with_existing_storage_account
+  # optional to use existing storage for the archive
+  # if not included it will use the azhop storage account that is created
+  # hsm:
+  #   storage_account: #existing_storage_account_name
+  #   storage_container: #only_used_with_existing_storage_account
 # List of users to be created on this environment
 users:
   # name: username - must be less than 20 characters
