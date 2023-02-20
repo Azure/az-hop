@@ -97,7 +97,7 @@ var config = {
   }
 
   enable_remote_winviz : enableWinViz
-  deploy_sig: contains(azhopConfig, 'image_gallerie') && contains(azhopConfig.image_gallerie, 'create') ? azhopConfig.image_gallerie.create : false
+  deploy_sig: contains(azhopConfig, 'image_gallery') && contains(azhopConfig.image_gallery, 'create') ? azhopConfig.image_gallery.create : false
 
   // Default home directory is ANF
   homedir_type: contains(azhopConfig.mounts.home, 'type') ? azhopConfig.mounts.home.type : 'anf'

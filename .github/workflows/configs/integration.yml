@@ -178,7 +178,7 @@ authentication:
   #   OIDCPassRefreshToken: # for AAD use 'On'
   #   OIDCPassClaimsAs: # for AAD use 'environment'
 
-image_gallerie:
+image_gallery:
   create: true # Create the shared image gallerie to store custom images
 
 images:
