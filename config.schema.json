@@ -252,12 +252,18 @@
                     "type": "boolean"
                 },
                 "homefs_size_tb": {
+                    "description": "Size of the ANF pool and unique volume (min: 4TB, max: 100TB)",
+                    "maximum": 100,
+                    "minimum": 4,
                     "type": "integer"
                 },
                 "homefs_service_level": {
+                    "description": "Service level of the ANF volume, can be: Standard, Premium, Ultra",
+                    "enum": ["Standard", "Premium", "Ultra"],
                     "type": "string"
                 },
                 "dual_protocol": {
+                    "description": "Whether to enable SMB support. false by default",
                     "type": "boolean"
                 }
             },
