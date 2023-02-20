@@ -77,10 +77,6 @@
                     "description": "The lustre plan to use. Only needed when using the default lustre image from the marketplace. use '::' for an empty plan",
                     "type": "string"
                 },
-                "workstation_base_image": {
-                    "description": "Can be either an image reference or an image_id from the image registry or a custom managed image",
-                    "type": "string"
-                },
                 "jumpbox": {
                     "description": "Jumpbox VM configuration, only needed when deploying thru a public IP and without a configured deployer VM",
                     "$ref": "#/definitions/Jumpbox"
@@ -107,10 +103,6 @@
                 },
                 "cyclecloud": {
                     "description": "CycleCloud VM configuration",
-                    "$ref": "#/definitions/Cyclecloud"
-                },
-                "workstation": {
-                    "description": "Workstation VM configuration",
                     "$ref": "#/definitions/Cyclecloud"
                 },
                 "lustre": {

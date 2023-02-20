@@ -1,8 +1,6 @@
 ---
 # yaml-language-server: $schema=config.schema.json
 
-# name of the cluster
-project_name: az-hop
 # azure location name as returned by the command : az account list-locations -o table
 location: westeurope
 # Name of the resource group to create all resources
