@@ -158,7 +158,7 @@
                     "description": "Create a VPN Gateway in the gateway subnet (optional).",
                     "$ref": "#/definitions/VpnGateway"
                 },
-                "image_gallerie": {
+                "image_gallery": {
                     "description": "Create the shared image gallery to store custom VM images.",
                     "$ref": "#/definitions/ImageGallery"
                 },

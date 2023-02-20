@@ -179,7 +179,7 @@ authentication:
   #   OIDCPassClaimsAs: # for AAD use 'environment'
 
 image_gallery:
-  create: true # Create the shared image gallerie to store custom images
+  create: true # Create the shared image gallery to store custom images
 
 images:
   # - name: azhop-almalinux85-v2-rdma-gpgpu
