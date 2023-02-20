@@ -930,6 +930,11 @@ When requesting the execution of a specific playbook, the script will force exec
 
 In case of a failure, the install script can be reapplied as most of the settings are idempotent. The script contains a checkpointing mechanism, each successful target will have a `.ok` file created in the playbooks directory. If you want to re-apply a target, delete this file and rerun the install script.
 
+Tip: you can pass `--tags` in order to re-run just a specific role or task in an ansible playbook, e.g.
+```bash
+./install.sh ood --tags paraview
+```
+
 # Add Users
 Adding users is done in three steps :
 - Update your `config.yml` file

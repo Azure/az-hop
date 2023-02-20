@@ -1,5 +1,7 @@
 #!/bin/bash
 TARGET=${1:-all}
+shift
+ANSIBLE_TAGS=$@
 set -e
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PLAYBOOKS_DIR=$THIS_DIR/playbooks
@@ -22,7 +24,7 @@ function run_playbook ()
       options+=" --extra-vars=@$PLAYBOOKS_DIR/extra_vars.yml"
     fi
     echo "Running playbook $PLAYBOOKS_DIR/$playbook.yml ..."
-    ansible-playbook -i $INVENTORY $PLAYBOOKS_DIR/$playbook.yml $options || exit 1
+    ansible-playbook -i $INVENTORY $PLAYBOOKS_DIR/$playbook.yml $options $ANSIBLE_TAGS || exit 1
     if [ -e $PLAYBOOKS_DIR/extra_vars.yml ]; then
       rm $PLAYBOOKS_DIR/extra_vars.yml
     fi
