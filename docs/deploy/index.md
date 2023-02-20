@@ -801,19 +801,8 @@ applications:
 
 # Deploy your environment
 
-## Build the infrastructure
-Building the infrastructure is done thru the `build.sh` utility script, calling terraform.
-```bash
-$ ./build.sh
-Usage build.sh
-  Required arguments:
-    -a|--action [plan, apply, destroy]
-
-  Optional arguments:
-    -f|-folder <relative path> - relative folder name containing the terraform files, default is ./tf
-```
+## Azure infrastructure
 Before deploying, make sure your are logged in to Azure, which will be done differently if you are logged in as a user or with a Service Principal Name.
-The build script will use the `config.yml` file which will define the environment to be deployed.
 
 ### Login with a user account
 
@@ -852,14 +841,27 @@ export ARM_TENANT_ID=<tenant_id>
 
 ```
 
-### Build the whole infrastructure
+### Build the Azure infrastructure
 
-First checks which resources will be created/updated/deleted by running
+Building the infrastructure is done thru the `build.sh` utility script, which reads the `config.yml` file and calls terraform.
+
+```bash
+$ ./build.sh
+Usage build.sh 
+  Required arguments:
+    -a|--action [plan, apply, destroy] 
+   
+  Optional arguments:
+    -f|-folder <relative path> - relative folder name containing the terraform files, default is ./tf
+    --no-validate              - skip validation of config.yml
+```
+
+First, check which resources will be created/updated/deleted by running
 ```bash
 ./build.sh -a plan
 ```
 
-Review the output and if ok then apply the changes by running
+Review the output and, if ok, apply the changes by running
 ```bash
 ./build.sh -a apply
 ```
