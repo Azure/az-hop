@@ -104,7 +104,7 @@ jobs:
 
       - name: Login azure
         run: |
-          source miniconda/bin/activate
+          source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
           echo "local user: $(whoami)"
@@ -235,7 +235,7 @@ jobs:
          
       - name: Login azure
         run: |
-          source miniconda/bin/activate
+          source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
@@ -267,7 +267,7 @@ jobs:
          
       - name: Login azure
         run: |
-          source miniconda/bin/activate
+          source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
@@ -300,7 +300,7 @@ jobs:
          
       - name: Login azure
         run: |
-          source miniconda/bin/activate
+          source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
@@ -330,7 +330,7 @@ jobs:
          
       - name: Login azure
         run: |
-          source miniconda/bin/activate
+          source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
@@ -360,7 +360,7 @@ jobs:
          
       - name: Login azure
         run: |
-          source miniconda/bin/activate
+          source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
@@ -390,7 +390,7 @@ jobs:
          
       - name: Login azure
         run: |
-          source miniconda/bin/activate
+          source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
@@ -420,7 +420,7 @@ jobs:
          
       - name: Login azure
         run: |
-          source miniconda/bin/activate
+          source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
@@ -451,7 +451,7 @@ jobs:
          
       - name: Login azure
         run: |
-          source miniconda/bin/activate
+          source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
@@ -482,7 +482,7 @@ jobs:
          
       - name: Login azure
         run: |
-          source miniconda/bin/activate
+          source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
@@ -513,7 +513,7 @@ jobs:
          
       - name: Login azure
         run: |
-          source miniconda/bin/activate
+          source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
@@ -556,7 +556,7 @@ jobs:
          
       - name: Login azure
         run: |
-          source miniconda/bin/activate
+          source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
@@ -589,7 +589,7 @@ jobs:
          
       - name: Login azure
         run: |
-          source miniconda/bin/activate
+          source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
@@ -617,7 +617,7 @@ jobs:
 
       - name: Login azure
         run: |
-          source miniconda/bin/activate
+          source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
