@@ -40,6 +40,7 @@
         - software-properties-common
         - sudo
         - wget
+        - openssh-client
       become: true
 
     - name: "AzureCLI: Install Microsoft ring (Ubuntu)"
