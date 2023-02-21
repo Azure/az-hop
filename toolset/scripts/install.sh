@@ -10,8 +10,8 @@ MINICONDA_URL_MAC_ARM="https://repo.anaconda.com/miniconda/Miniconda3-latest-Mac
 MINICONDA_INSTALL_DIR="miniconda"
 MINICONDA_INSTALL_SCRIPT="miniconda-installer.sh"
 
-# Optional use of virtual environment
-INSTALL_IN_CONDA=false
+# Always use of virtual environment
+INSTALL_IN_CONDA=true
 while [[ $# -gt 0 ]]; do
     opt="$1"
     shift
