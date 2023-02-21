@@ -47,6 +47,11 @@ on:
         required: false
         default: 'false' # use it with ${{ inputs.use_bicep }}
         type: string
+      home_type:
+        description: 'Home directory type anf/azurefiles- Default to anf'
+        required: false
+        default: 'anf' # use it with ${{ inputs.home_type }}
+        type: string
 
     secrets:
       ARM_SUBSCRIPTION_ID:
@@ -128,6 +133,8 @@ jobs:
             sed -i "s/__SCHEDULER__/$SCHEDULER/g" config.yml
             LOCATION=${{ inputs.location }}
             sed -i "s/__LOCATION__/$LOCATION/g" config.yml
+            HOME_TYPE=${{ inputs.home_type }}
+            sed -i "s/__HOME_TYPE__/$HOME_TYPE/g" config.yml
             # Add lustre configuration if lustre is true
             DEPLOY_LUSTRE=${{ inputs.lustre }}
             if [ "$DEPLOY_LUSTRE" == "true" ]; then
@@ -174,8 +181,6 @@ jobs:
           if [ "$anf_dual" != "true" ]; then
             set +e
             if [ "$USE_BICEP" == "true" ]; then
-              # Bicep doesn't support winviz yet
-              sed -i 's/enable_remote_winviz: true/enable_remote_winviz: false/g' config.yml
               pushd deploy/purebicep
               ./build.sh -c ../../config.yml
               build_error=$?

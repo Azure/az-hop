@@ -19,12 +19,18 @@ if [ "$key_vault" != "" ]; then
     az keyvault purge --name $key_vault
 fi
 
-# Remove role assignments for ccportal
-ccportal_id=$(az vm show -n ccportal -g $rg --query 'identity.userAssignedIdentities.*.principalId' -o tsv)
+# Remove role assignments for ccportal at the subscription level
+ccportal_id=$(az vm show -n ccportal -g $rg --query 'identity.principalId' -o tsv)
 if [ "$ccportal_id" != "" ]; then
   echo "Removing role assignments for ccportal"
   az role assignment delete --assignee $ccportal_id
 fi
+
+# Remove Role assignments for ccportal at the resource group level
+az role assignment list --assignee $ccportal_id -g $rg --query "[].{name:roleDefinitionName, scope:scope}" -o tsv | while read name scope; do
+  echo "Removing role assignment $name for ccportal"
+  az role assignment delete --assignee $ccportal_id --role $name --scope $scope
+done
 
 # removing first peer => need to work to do all !!!!
 peered_vnet=$(yq ".network.peering[0].vnet_name" $AZHOP_CONFIG)

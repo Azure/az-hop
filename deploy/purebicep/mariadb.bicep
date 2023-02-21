@@ -6,7 +6,6 @@ param adminUser string
 @secure()
 param adminPassword string
 param adminSubnetId string
-param frontendSubnetId string
 
 param sslEnforcement bool
 param vnetId string
@@ -33,23 +32,7 @@ resource mariaDb 'Microsoft.DBforMariaDB/servers@2018-06-01' = {
     administratorLoginPassword: adminPassword
   }
 }
-/*
-resource mariaDbAdmin 'Microsoft.DBforMariaDB/servers/virtualNetworkRules@2018-06-01' = {
-  name: 'AllowAccessAdmin'
-  parent: mariaDb
-  properties: {
-    virtualNetworkSubnetId: adminSubnetId
-  }
-}
 
-resource mariaDbFrontend 'Microsoft.DBforMariaDB/servers/virtualNetworkRules@2018-06-01' = {
-  name: 'AllowAccessFrontend'
-  parent: mariaDb
-  properties: {
-    virtualNetworkSubnetId: frontendSubnetId
-  }
-}
-*/
 output mariaDb_fqdn string = reference(mariaDb.id, mariaDb.apiVersion, 'full').properties.fullyQualifiedDomainName
 
 resource mariaDbPrivateEndpoint 'Microsoft.Network/privateEndpoints@2022-05-01' = {
@@ -78,7 +61,14 @@ resource mariaDbPrivateEndpoint 'Microsoft.Network/privateEndpoints@2022-05-01' 
   }
 }
 
-var mariaDbPrivateLinkName = 'privatelink.mariadb.database.azure.com'
+var mariaDbEndpointLookup = {
+  AzureCloud: '.mariadb.database.azure.com'
+  AzureUSGovernment: '.mariadb.database.usgovcloudapi.net'
+  AzureGermanCloud: '.mariadb.database.cloudapi.de'
+  AzureChinaCloud: '.mariadb.database.chinacloudapi.cn'
+}
+
+var mariaDbPrivateLinkName =  'privatelink${mariaDbEndpointLookup[environment().name]}'
 
 resource mariaDbPrivateDnsZone 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2022-05-01' = {
   parent: mariaDbPrivateEndpoint

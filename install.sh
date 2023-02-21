@@ -75,11 +75,11 @@ function enable_winviz ()
 
 function enable_lustre ()
 {
-  FEATURE_LUSTRE_IN_CONFIG=$(yq eval '.features.lustre' config.yml)
+  FEATURE_LUSTRE_IN_CONFIG=$(yq eval '.lustre.create' config.yml)
   if [ "$FEATURE_LUSTRE_IN_CONFIG" != "null" ]; then
-    ENABLE_LUSTRE=$(yq '.features.lustre' ./config.yml | tr '[:upper:]' '[:lower:]')
+    ENABLE_LUSTRE=$(yq '.lustre.create' ./config.yml | tr '[:upper:]' '[:lower:]')
   else
-    LUSTRE_VM_IN_CONFIG=$(yq eval '.lustre' config.yml)
+    LUSTRE_VM_IN_CONFIG=$(yq eval '.lustre.oss_count' config.yml)
     if [ "$LUSTRE_VM_IN_CONFIG" == "null" ]; then
       ENABLE_LUSTRE=false
     else

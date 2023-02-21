@@ -1,4 +1,5 @@
 lustre:
+  create: true
   rbh_sku: "Standard_D8d_v4"
   mds_sku: "Standard_D8d_v4"
   oss_sku: "Standard_D16d_v4"

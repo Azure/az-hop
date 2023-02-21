@@ -1,7 +1,7 @@
 [![Daily Deployment](https://github.com/Azure/az-hop/actions/workflows/deploy_daily.yml/badge.svg)](https://github.com/Azure/az-hop/actions/workflows/deploy_daily.yml)
 # Azure HPC On-Demand Platform, your deployment to be HPC-Ready! 
 
-Azure HPC On-Demand Platform, provides the end to end deployment mechanism for a base HPC infrastructure on Azure. Industry standard tools like Terraform, Ansible and Packer are used to provision and configure this environment containing :
+Azure HPC On-Demand Platform (az-hop), provides the end-to-end deployment mechanism for a base HPC infrastructure on Azure. az-hop delivers a complete HPC cluster solution ready for users to run applications, which is easy to deploy and manage for HPC administrators. az-hop leverages the various Azure building blocks and can be used as-is, or easily customized and extended to meet any uncovered requirements. Industry standard tools like Terraform, Ansible and Packer are used to provision and configure this environment containing :
 - An [HPC OnDemand Portal](https://osc.github.io/ood-documentation) for all user access, remote shell access, remote visualization access, job submission, file access and more,
 - An Active Directory for user authentication and domain control,
 - [Open PBS](https://openpbs.org/) or [SLURM](https://slurm.schedmd.com/overview.html) as a Job Scheduler,
