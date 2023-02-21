@@ -932,7 +932,7 @@ In case of a failure, the install script can be reapplied as most of the setting
 
 Tip: you can pass `--tags` in order to re-run just a specific role or task in an ansible playbook, e.g.
 ```bash
-./install.sh ood --tags paraview
+./install.sh ood --tags foo
 ```
 
 # Add Users
