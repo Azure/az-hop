@@ -1,3 +1,5 @@
+
+miniconda*
 # Terraform
 .terraform*
 *.tfstate*
