@@ -44,7 +44,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: azhop.azurecr.io/hpcrover:2210.1816
+      image: azhop.azurecr.io/hpcrover:2302.2113
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -57,6 +57,7 @@ jobs:
          
       - name: Login azure
         run: |
+          source miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
@@ -87,7 +88,7 @@ jobs:
       matrix:
         packer_file: ${{ fromJson(needs.set_image_list.outputs.matrix) }}
     container:
-      image: azhop.azurecr.io/hpcrover:2210.1816
+      image: azhop.azurecr.io/hpcrover:2302.2113
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -100,6 +101,7 @@ jobs:
          
       - name: Login azure
         run: |
+          source miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
