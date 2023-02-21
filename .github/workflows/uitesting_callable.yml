@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     name: init_matrix
     container:
-      image: azhop.azurecr.io/hpcrover:2210.1816
+      image: azhop.azurecr.io/hpcrover:2302.2113
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -52,6 +52,7 @@ jobs:
           submodules: true
       - name: Login azure
         run: |
+          source miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
           echo "local user: $(whoami)"
@@ -81,7 +82,7 @@ jobs:
     timeout-minutes: 60
 
     container:
-      image: azhop.azurecr.io/hpcrover:2210.1816
+      image: azhop.azurecr.io/hpcrover:2302.2113
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -102,6 +103,7 @@ jobs:
           npx playwright install --with-deps
       - name: Login azure
         run: |
+          source miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
           echo "local user: $(whoami)"

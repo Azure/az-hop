@@ -49,6 +49,11 @@ while (( "$#" )); do
   esac
 done
 
+if [ -d ${THIS_DIR}/miniconda ]; then
+  echo "Activating conda environment"
+  source ${THIS_DIR}/miniconda/bin/activate
+fi
+
 TF_BACKEND_FILE=$TF_FOLDER/backend.tf
 export TF_CLI_ARGS_apply="-auto-approve"
 #export TF_LOG=INFO

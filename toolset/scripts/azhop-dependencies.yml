@@ -1,0 +1,315 @@
+---
+
+- name: Install dependencies for AzHop
+  hosts: localhost
+  connection: local
+  gather_facts: true
+
+  vars:
+    deb_architecture: {
+        "aarch64": "arm64",
+        "x86_64": "amd64"
+    }
+    linux_azcopy_file: downloadazcopy-v10-linux
+    mac_azcopy_file: downloadazcopy-v10-mac
+    yq_version: v4.25.3
+    yq_binary: yq_linux_amd64
+
+  tasks:
+  - name: Identify OS
+    set_fact:
+      ansible_distribution: "{{ ansible_distribution | lower }}"
+
+  - block:
+
+    - name: "Identify architecture (Ubuntu)"
+      set_fact:
+        dpkg_arch: "{{ deb_architecture[ansible_architecture] }}"
+
+    - name: "Install dependencies (Ubuntu)"
+      apt:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - apt-utils
+        - curl
+        - dnsutils
+        - git
+        - gpg
+        - jq
+        - software-properties-common
+        - sudo
+        - wget
+        - openssh-client
+      become: true
+
+    - name: "AzureCLI: Install Microsoft ring (Ubuntu)"
+      apt_key:
+        url: https://packages.microsoft.com/keys/microsoft.asc
+        state: present
+      become: true
+
+    - name: debug
+      debug:
+        var: ansible_architecture
+        var: ansible_distribution
+        var: ansible_distribution_release
+
+    - name: "AzureCLI: Add Microsoft repository (Ubuntu: kinetic-22.10)"
+      apt_repository:
+        # Following directions from https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest
+        repo: "deb [arch={{ dpkg_arch }}] https://packages.microsoft.com/repos/azure-cli/ jammy main"
+        state: present
+      become: true
+      when: ansible_distribution_release == "kinetic"
+
+    - name: "AzureCLI: Add Microsoft repository (Ubuntu: non-kinetic)"
+      apt_repository:
+        repo: "deb [arch={{ dpkg_arch }}] https://packages.microsoft.com/repos/azure-cli/ {{ ansible_distribution_release }} main"
+        state: present
+      become: true
+      when: ansible_distribution_release != "kinetic"
+
+    - name: "AzureCLI: Install (Ubuntu)"
+      apt:
+        name: azure-cli
+        state: present
+      become: true
+
+    - name: "AzureCLI: Allow extensions without prompt (Ubuntu)"
+      command: az config set extension.use_dynamic_install=yes_without_prompt
+
+    - name: "AzCopy: Download (Ubuntu)"
+      get_url:
+        url: "http://aka.ms/{{ linux_azcopy_file }}"
+        dest: "/tmp/{{ linux_azcopy_file }}"
+        mode: 0755
+
+    - name: "AzCopy: Extract (Ubuntu)"
+      # Unable to use the unarchive module to extract the azcopy binary equivalent to below:
+      #command: tar -xvf /tmp/{{ linux_azcopy_file }} --strip-components=1 --wildcards '*/azcopy'
+      unarchive:
+        src: /tmp/{{ linux_azcopy_file }}
+        dest: /tmp
+        mode: 0755
+
+    - name: "AzCopy: Find azcopy (Ubuntu)"
+      find:
+        paths: /tmp
+        patterns: "azcopy"
+        file_type: file
+        recurse: true
+      register: azcopy_file_path
+
+    - name: "AzCopy: Install (Ubuntu)"
+      copy:
+        src: "{{ azcopy_file_path.files[0].path }}"
+        dest: /usr/local/bin/azcopy
+        mode: 0755
+
+    - name: "Terraform: Download the signing key to a new keyring (Ubuntu)"
+      apt_key:
+        url: https://apt.releases.hashicorp.com/gpg
+        state: present
+      become: true
+
+    - name: "Terraform: Add the HashiCorp Linux repository (Ubuntu)"
+      apt_repository:
+        repo: deb [arch=amd64] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main
+        state: present
+      become: true
+
+    - name: "Terraform: Install (Ubuntu)"
+      apt:
+        name: terraform
+        state: present
+      become: true
+
+    - name: "Packer: Install (Ubuntu)"
+      apt:
+        name: packer
+        state: present
+      become: true
+
+    - name: "yq: Download and install (Ubuntu)"
+      get_url:
+        url: "https://github.com/mikefarah/yq/releases/download/{{ yq_version }}/{{ yq_binary }}"
+        dest: /usr/local/bin/yq
+        mode: 0755
+
+    when: ansible_distribution == "ubuntu"
+
+  - block:
+    - name: "Install EPEL (CentOS)"
+      yum:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - epel-release
+      become: true
+
+    - name: "Install dependencies for (CentOS)"
+      yum:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - curl
+        - git
+        - jq
+        - libicu
+        - yum-utils
+      become: true
+
+    - name: "AzureCLI: Add Microsoft key (CentOS)"
+      rpm_key:
+        key: https://packages.microsoft.com/keys/microsoft.asc
+        state: present
+      become: true
+
+    - name: "AzureCLI: Add Microsoft repository (CentOS)"
+      yum_repository:
+        name: azure-cli
+        description: Azure CLI repo
+        baseurl: https://packages.microsoft.com/yumrepos/azure-cli
+        gpgcheck: yes
+        gpgkey: https://packages.microsoft.com/keys/microsoft.asc
+        enabled: yes
+      become: true
+
+    - name: "AzureCLI: Install (CentOS)"
+      yum:
+        name: azure-cli
+        state: present
+      become: true
+
+    - name: "AzCopy: Download (CentOS)"
+      get_url:
+        url: "http://aka.ms/{{ linux_azcopy_file }}"
+        dest: "/tmp/{{ linux_azcopy_file }}"
+        mode: 0755
+
+    - name: "AzCopy: Extract (CentOS)"
+      # Unable to use the unarchive module to extract the azcopy binary equivalent to below:
+      #command: tar -xvf /tmp/{{ linux_azcopy_file }} --strip-components=1 --wildcards '*/azcopy'
+      unarchive:
+        src: "/tmp/{{ linux_azcopy_file }}"
+        dest: /tmp
+        mode: 0755
+
+    - name: "AzCopy: Find azcopy (CentOS)"
+      find:
+        paths: /tmp
+        patterns: "azcopy"
+        file_type: file
+        recurse: true
+      register: azcopy_file_path
+
+    - name: "AzCopy: Install (CentOS)"
+      copy:
+        src: "{{ azcopy_file_path.files[0].path }}"
+        dest: /usr/local/bin/azcopy
+        mode: 0755
+
+    - name: "Terraform: Add Hashicorp repo (CentOS)"
+      get_url:
+        url: "https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo"
+        dest: /etc/yum.repos.d/hashicorp.repo
+      become: true
+
+    - name: "Terraform: Install (CentOS)"
+      yum:
+        name: terraform
+        state: present
+      become: true
+
+    - name: "Packer: Install (CentOS)"
+      yum:
+        name: packer
+        state: present
+      become: true
+
+    - name: "yq: Download and install (CentOS)"
+      get_url:
+        url: "https://github.com/mikefarah/yq/releases/download/{{ yq_version }}/{{ yq_binary }}"
+        dest: /usr/local/bin/yq
+        mode: 0755
+
+    when: ansible_distribution == "centos"
+
+  - block:
+    - name: "Check if homebrew is installed for (macOS)"
+      command: which brew
+      changed_when: false
+      failed_when: false
+      register: homebrew_installed
+
+    - name: "Install homebrew (macOS)"
+      command: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+      when: homebrew_installed.rc != 0
+
+    - name: "Install dependencies (macOS)"
+      homebrew:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - curl
+        - git
+        - jq
+
+    - name: "AzureCLI: Install (macOS)"
+      homebrew:
+        name: azure-cli
+        state: present
+
+    - name: "AzCopy: Download (macOS)"
+      get_url:
+        url: "https://aka.ms/{{ mac_azcopy_file }}"
+        dest: "{{ lookup('env', 'TMPDIR') }}/{{ mac_azcopy_file }}"
+        mode: 0755
+
+    - name: "AzCopy: Make temp destination directory (macOS)"
+      file:
+        path: "{{ lookup('env', 'TMPDIR') }}/azcopy-unzipped"
+        state: directory
+
+    - name: "AzCopy: Extract (macOS)"
+      unarchive:
+        src: "{{ lookup('env', 'TMPDIR') }}/{{ mac_azcopy_file }}"
+        dest: "{{ lookup('env', 'TMPDIR') }}/azcopy-unzipped"
+        mode: 0755
+
+    - name: "AzCopy: Find azcopy (macOS)"
+      find:
+        paths: "{{ lookup('env', 'TMPDIR') }}/azcopy-unzipped"
+        patterns: "azcopy"
+        file_type: file
+        recurse: true
+      register: azcopy_file_path
+
+    - name: "AzCopy: Move azcopy (macOS)"
+      copy:
+        src: "{{ azcopy_file_path.files[0].path }}"
+        dest: /usr/local/bin/azcopy
+        mode: 0755
+
+    - name: "Terraform: Add Hashicorp repo (macOS)"
+      homebrew_tap:
+        name: hashicorp/tap
+        state: present
+
+    - name: "Terraform: Install (macOS)"
+      homebrew:
+        name: hashicorp/tap/terraform
+        state: present
+
+    - name: "Packer: Install (macOS)"
+      homebrew:
+        name: hashicorp/tap/packer
+        state: present
+
+    - name: "yq: Install (macOS)"
+      homebrew:
+        name: yq
+        state: present
+
+    when: ansible_distribution == "macosx"

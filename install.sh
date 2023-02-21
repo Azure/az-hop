@@ -8,6 +8,11 @@ PLAYBOOKS_DIR=$THIS_DIR/playbooks
 INVENTORY=$PLAYBOOKS_DIR/inventory
 OOD_AUTH="basic"
 
+if [ -d ${THIS_DIR}/miniconda ]; then
+  echo "Activating conda environment"
+  source ${THIS_DIR}/miniconda/bin/activate
+fi
+
 function run_playbook ()
 {
   local playbook=$1
@@ -95,8 +100,12 @@ function enable_lustre ()
   fi
 }
 
-# Apply pre-reqs
-$THIS_DIR/ansible_prereqs.sh
+# Ensure submodule exists
+if [ ! -d "${PLAYBOOKS_DIR}/roles/ood-ansible/.github" ]; then
+    printf "Installing OOD Ansible submodule\n"
+    git submodule init
+    git submodule update
+fi
 
 # Check config syntax
 yamllint config.yml
