@@ -13,9 +13,9 @@ ENV SSH_PASSWD=${SSH_PASSWD} \
     # TF_PLUGIN_CACHE_DIR="/home/${USERNAME}/.terraform.cache/plugin-cache" \
     DEBIAN_FRONTEND=noninteractive
 
-COPY ./scripts/install.sh /tmp/install.sh
+COPY ./scripts/* /tmp/
 
-RUN chmod +x /tmp/install.sh && /tmp/install.sh
+RUN chmod +x /tmp/install.sh && /tmp/install.sh --conda
 
 RUN echo "Creating ${USERNAME} user..." && \
     useradd --uid $USER_UID -m ${USERNAME} && \
