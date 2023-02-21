@@ -242,6 +242,7 @@ jobs:
 
       - name: Install applications
         run: |
+          source /miniconda/bin/activate
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           ./install.sh ad
@@ -274,6 +275,7 @@ jobs:
 
       - name: Install applications
         run: |
+          source /miniconda/bin/activate
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           install_lustre=$(yq eval ".lustre" config.yml)
@@ -307,6 +309,7 @@ jobs:
 
       - name: Install applications
         run: |
+          source /miniconda/bin/activate
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           ./install.sh ood
@@ -337,6 +340,7 @@ jobs:
 
       - name: Install applications
         run: |
+          source /miniconda/bin/activate
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           ./install.sh grafana
@@ -367,6 +371,7 @@ jobs:
 
       - name: Install applications
         run: |
+          source /miniconda/bin/activate
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           ./install.sh ccportal
@@ -397,6 +402,7 @@ jobs:
 
       - name: Install applications
         run: |
+          source /miniconda/bin/activate
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           ./install.sh add_users
@@ -427,6 +433,7 @@ jobs:
 
       - name: Install applications
         run: |
+          source /miniconda/bin/activate
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           ./install.sh cccluster
@@ -458,6 +465,7 @@ jobs:
 
       - name: Install applications
         run: |
+          source /miniconda/bin/activate
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           ./install.sh guacamole
@@ -489,6 +497,7 @@ jobs:
 
       - name: Install applications
         run: |
+          source /miniconda/bin/activate
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           ./install.sh telegraf
@@ -521,6 +530,7 @@ jobs:
       - name: list all images to be built
         id: set-image-matrix
         run: |
+          source /miniconda/bin/activate
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           # Build the list of images from the config file
@@ -563,6 +573,7 @@ jobs:
 
       - name: Build Images
         run: |
+          source /miniconda/bin/activate
           if [ "${{matrix.packer_file}}" == "none" ]; then
             exit 0
           fi
@@ -596,6 +607,7 @@ jobs:
 
       - name: Run test playbook
         run: |
+          source /miniconda/bin/activate
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           ansible-playbook -v -i playbooks/inventory ./playbooks/tests.yml 
@@ -624,7 +636,7 @@ jobs:
 
       - name: Cleanup
         run: |
-
+          source /miniconda/bin/activate
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           rg_exists=$(az group exists -n $RESOURCE_GROUP)
           if [ "$rg_exists" = "true" ]; then

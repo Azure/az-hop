@@ -57,13 +57,14 @@ jobs:
          
       - name: Login azure
         run: |
-          source miniconda/bin/activate
+          source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: list all images to be built
         id: set-image-matrix
         run: |
+          source /miniconda/bin/activate
           RESOURCE_GROUP=${{ inputs.resource_group }}
           rg_exists=$(az group exists -n $RESOURCE_GROUP)
           if [ "$rg_exists" = "true" ]; then
@@ -107,6 +108,7 @@ jobs:
 
       - name: Build Images
         run: |
+          source /miniconda/bin/activate
           RESOURCE_GROUP=${{ inputs.resource_group }}
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           cd packer
