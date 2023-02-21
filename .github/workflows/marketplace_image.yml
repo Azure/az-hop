@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: azhop.azurecr.io/hpcrover:2302.2113
+      image: azhop.azurecr.io/hpcrover:2302.2117
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -78,7 +78,7 @@ jobs:
       matrix:
         images: ${{ fromJson(needs.set_image_list.outputs.matrix) }}
     container:
-      image: azhop.azurecr.io/hpcrover:2302.2113
+      image: azhop.azurecr.io/hpcrover:2302.2117
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -109,7 +109,7 @@ jobs:
       matrix:
         images: ${{ fromJson(needs.set_image_list.outputs.matrix) }}
     container:
-      image: azhop.azurecr.io/hpcrover:2302.2113
+      image: azhop.azurecr.io/hpcrover:2302.2117
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
