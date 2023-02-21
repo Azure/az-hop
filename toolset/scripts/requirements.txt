@@ -3,3 +3,4 @@ PySocks
 netaddr
 yamllint
 ansible
+jsonschema

@@ -1,144 +1,85 @@
 #!/bin/bash
+# Installs Ansible. Optionally in a conda environment.
+THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+AZHOP_DIR=${THIS_DIR}/../..
 
-echo "APT::Get::Assume-Yes \"true\";" > /etc/apt/apt.conf.d/90assumeyes
-apt-get update
-# Install basic command-line utilities
-# --no-install-recommends \
-apt install -y \
-     sudo \
-     curl \
-     python3 \
-     python3-pip \
-     software-properties-common \
-     apt-utils \
-     jq \
-     wget \
-     git \
-     dnsutils \
-     yamllint \
-     pwgen
-#     ca-certificates \
-#     file \
-#     ftp \
-#     gettext-base \
-#     iproute2 \
-#     iputils-ping \
-#     libcurl4 \
-#     libicu60 \
-#     libunwind8 \
-#     locales \
-#     netcat \
-#     openssh-client \
-#     parallel \
-#     rsync \
-#     shellcheck \
-#     sudo \
-#     telnet \
-#     time \
-#     unzip \
-#     upx \
-#     zip \
-#     tzdata && \
+MINICONDA_URL_LINUX_X86="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
+MINICONDA_URL_LINUX_ARM="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-aarch64.sh"
+MINICONDA_URL_MAC_X86="https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh"
+MINICONDA_URL_MAC_ARM="https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh"
+MINICONDA_INSTALL_DIR="miniconda"
+MINICONDA_INSTALL_SCRIPT="miniconda-installer.sh"
 
-#
-# Install AzCLI
-#
-echo "Installing AzCLI ..."
-while ! which az >/dev/null 2>&1; do
-    curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+# Optional use of virtual environment
+INSTALL_IN_CONDA=false
+while [[ $# -gt 0 ]]; do
+    opt="$1"
+    shift
+    case "$opt" in
+        "--conda")
+	    INSTALL_IN_CONDA=true
+	    shift
+	    ;;
+        "--")
+	    break
+	    ;;
+    esac
 done
-echo "Allow installing AZCLI extensions without prompt"
-az config set extension.use_dynamic_install=yes_without_prompt
 
-#
-# Install AzCopy
-#
-echo "Installing AzCopy ..."
-cd /usr/local/bin
-wget -q https://aka.ms/downloadazcopy-v10-linux -O - | tar zxf - --strip-components 1 --wildcards '*/azcopy'
-chmod 755 /usr/local/bin/azcopy 
-#
+if [ $INSTALL_IN_CONDA = true ]; then
+    os_type=$(uname | awk '{print tolower($0)}')
+    os_arch=$(arch)
+    if [[ "$os_type" == "darwin" ]]; then
+        if [[ "$os_arch" == "arm64" ]]; then
+            miniconda_url=$MINICONDA_URL_MAC_ARM
+        else
+            miniconda_url=$MINICONDA_URL_MAC_X86
+        fi
+    elif [[ "$os_type" == "linux" ]]; then
+        if [[ "$os_arch" == "aarch64" ]]; then
+            miniconda_url=$MINICONDA_URL_LINUX_ARM
+        else
+            miniconda_url=$MINICONDA_URL_LINUX_X86
+        fi
+    else
+        printf "Unsupported OS"
+        exit 1
+    fi
+
+    printf "Installing Ansible in conda environment in %s from %s \n\n" "${MINICONDA_INSTALL_DIR}" "${miniconda_url}"
+
+    # Actually install environment and install in base environment
+    if [[ ! -f ${MINICONDA_INSTALL_SCRIPT} ]]; then
+        wget $miniconda_url -O $MINICONDA_INSTALL_SCRIPT
+    fi
+    bash $MINICONDA_INSTALL_SCRIPT -b -p $MINICONDA_INSTALL_DIR
+
+    source "${MINICONDA_INSTALL_DIR}/bin/activate"
+else
+    printf "Attempting to install Ansible in base environment\n"
+    printf "If this fails, please run this script with the --conda flag\n\n"
+fi
+
 # Install Ansible
-#
-echo "Installing Ansible ..."
-apt-get remove ansible -y
-apt autoremove
-pip3 install ansible==5.8.0
-#add-apt-repository --yes --update ppa:ansible/ansible
-#apt install -y ansible
+printf "Installing Ansible\n"
+python3 -m pip install -r ${THIS_DIR}/requirements.txt
 
-echo "Installing Ansible playbooks pre-reqs"
-pip3 install pypsrp
-pip3 install PySocks
-pip3 install netaddr
+# Install Ansible collections
+printf "Installing Ansible collections\n"
+ansible-galaxy collection install -r ${THIS_DIR}/requirements.yml
 
-ansible-galaxy collection install ansible.windows
-ansible-galaxy collection install community.windows
-ansible-galaxy collection install ansible.posix
-ansible-galaxy collection install community.general
+# Install azhop dependencies
+printf "Installing Az-hop dependencies\n"
+ansible-playbook ${THIS_DIR}/azhop-dependencies.yml
 
-#
-# Install Terraform
-#
-echo "Installing terraform ..."
-#apt update -y && \
-#apt install -y software-properties-common && \
-curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -
-apt-add-repository --yes "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-apt-get remove terraform -y
-apt install -y terraform
+# Ensure submodule exists
+if [ ! -d "${AZHOP_DIR}/playbooks/roles/ood-ansible" ]; then
+    printf "Installing Az-hop git submodule\n"
+    git submodule init
+    git submodule update
+fi
 
-#
-# Install Packer
-#
-echo "Installing packer...."
-apt-get remove packer -y
-apt-get install packer
-
-#
-# Install yq
-#
-echo "Installing yq...."
-VERSION=v4.25.3
-BINARY=yq_linux_amd64
-wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY} -O /usr/bin/yq && chmod +x /usr/bin/yq
-
-#
-# Install jsonschema
-#
-echo "Installing jsonschema...."
-VERSION=4.17.3
-pip3 install jsonschema==$VERSION
-
-# Clean-up
-rm -f /tmp/*.zip && rm -f /tmp/*.gz && \
-
-echo "=============="
-echo "Python version"
-echo "=============="
-python3 --version || exit 1
-echo "==============="
-echo "Ansible version"
-echo "==============="
-ansible --version || exit 1
-echo "================="
-echo "Terraform version"
-echo "================="
-terraform --version || exit 1
-echo "=============="
-echo "Packer version"
-echo "=============="
-packer --version || exit 1
-echo "=========="
-echo "AZ version"
-echo "=========="
-az --version || exit 1
-echo "=========="
-echo "AZ Copy version"
-echo "=========="
-azcopy --version || exit 1
-echo "=========="
-echo "yq version"
-echo "=========="
-yq --version || exit 1
-echo "End"
+if [ $INSTALL_IN_CONDA = true ]; then
+    printf "\nAz-HOP dependencies installed in conda environment. To activate, run:\n"
+    printf "\nsource %s/bin/activate\n\n" "${MINICONDA_INSTALL_DIR}"
+fi
