@@ -113,6 +113,7 @@ jobs:
         id: deploy
         run: |
           set -e
+          source /miniconda/bin/activate
           # If resource group is not specified, generate a random one
           RESOURCE_GROUP=${{ inputs.resource_group }}
           echo "Resource group name is $RESOURCE_GROUP"
