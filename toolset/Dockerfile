@@ -35,7 +35,7 @@ RUN echo "Creating ${USERNAME} user..." && \
         /home/${USERNAME}/.terraform.cache/plugin-cache \
         /home/${USERNAME}/.terraform.cache/tfstates \
         /home/${USERNAME}/.vscode-server \
-        /home/${USERNAME}/.vscode-server-insiders && \
+        /home/${USERNAME}/.vscode-server-insiders \
         /etc/sudoers.d && \
     chown -R ${USER_UID}:${USER_GID} /home/${USERNAME} /hpc/scripts && \
     chmod 777 -R /home/${USERNAME} && \
