@@ -72,13 +72,6 @@ ansible-galaxy collection install -r ${THIS_DIR}/requirements.yml
 printf "Installing Az-hop dependencies\n"
 ansible-playbook ${THIS_DIR}/azhop-dependencies.yml
 
-# Ensure submodule exists
-if [ ! -d "${AZHOP_DIR}/playbooks/roles/ood-ansible" ]; then
-    printf "Installing Az-hop git submodule\n"
-    git submodule init
-    git submodule update
-fi
-
 if [ $INSTALL_IN_CONDA = true ]; then
     printf "\nAz-HOP dependencies installed in conda environment. To activate, run:\n"
     printf "\nsource %s/bin/activate\n\n" "${MINICONDA_INSTALL_DIR}"

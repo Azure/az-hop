@@ -93,6 +93,13 @@ function enable_lustre ()
   fi
 }
 
+# Ensure submodule exists
+if [ ! -d "${PLAYBOOKS_DIR}/roles/ood-ansible/.github" ]; then
+    printf "Installing OOD Ansible submodule\n"
+    git submodule init
+    git submodule update
+fi
+
 # Check config syntax
 yamllint config.yml
 get_scheduler
