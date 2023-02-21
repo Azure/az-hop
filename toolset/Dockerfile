@@ -17,7 +17,7 @@ COPY ./scripts/* /tmp/
 
 RUN echo "APT::Get::Assume-Yes \"true\";" > /etc/apt/apt.conf.d/90assumeyes && \
     apt-get update && \
-    apt install -y wget && \
+    apt install -y wget openssh-client sudo && \
     chmod +x /tmp/install.sh && \
     /tmp/install.sh --conda
 
