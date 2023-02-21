@@ -6,6 +6,7 @@
 - Interactive Applications
   - [Remote Desktop](remote_desktop.md)
   - [Code Server](code_server.md)
+  - [ParaView](paraview.md)
 - Monitoring
   - [CycleCloud](cycle_cloud.md)
   - [Grafana Dashboards](grafana.md)
