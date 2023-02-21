@@ -15,7 +15,7 @@ ENV SSH_PASSWD=${SSH_PASSWD} \
 
 COPY ./scripts/* /tmp/
 
-RUN echo "APT::Get::Assume-Yes \"true\";" > /etc/apt/apt.conf.d/90assumeyes \
+RUN echo "APT::Get::Assume-Yes \"true\";" > /etc/apt/apt.conf.d/90assumeyes && \
     apt-get update && \
     apt install -y wget && \
     chmod +x /tmp/install.sh && \
