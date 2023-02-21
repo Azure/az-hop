@@ -865,6 +865,7 @@ Review the output and, if ok, apply the changes by running
 ```bash
 ./build.sh -a apply
 ```
+Running this command for the first time will take a couple of minutes.
 
 > Note : If you need ANF to be configured for Dual Protocol (NFS+SMB) please see the [How to deploy ANF with Dual protocol](#how-to-deploy-anf-with-dual-protocol) section
 

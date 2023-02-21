@@ -47,8 +47,8 @@ mounts:
 
 # name of the admin account
 admin_user: hpcadmin
-# Object ID to grant key vault read access
-key_vault_readers: #<object_id>
+# List of identities (object ids) to grant read access to az-hop key vault (optional)
+# key_vault_readers:
 # Network
 network:
   # Create Network and Application Security Rules, true by default, false when using an existing VNET if not specified

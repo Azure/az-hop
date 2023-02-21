@@ -47,8 +47,11 @@
                     "type": "string"
                 },
                 "key_vault_readers": {
-                    "description": "Object ID to grant key vault read access",
-                    "type": "null"
+                    "description": "List of identities (object ids) to grant read access to az-hop key vault (optional)",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "network": {
                     "$ref": "#/definitions/Network"
