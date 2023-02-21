@@ -1,7 +1,7 @@
 #!/bin/bash
+set -e
 # Installs Ansible. Optionally in a conda environment.
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-AZHOP_DIR=${THIS_DIR}/../..
 
 MINICONDA_URL_LINUX_X86="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
 MINICONDA_URL_LINUX_ARM="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-aarch64.sh"
@@ -12,19 +12,19 @@ MINICONDA_INSTALL_SCRIPT="miniconda-installer.sh"
 
 # Always use of virtual environment
 INSTALL_IN_CONDA=true
-while [[ $# -gt 0 ]]; do
-    opt="$1"
-    shift
-    case "$opt" in
-        "--conda")
-	    INSTALL_IN_CONDA=true
-	    shift
-	    ;;
-        "--")
-	    break
-	    ;;
-    esac
-done
+# while [[ $# -gt 0 ]]; do
+#     opt="$1"
+#     shift
+#     case "$opt" in
+#         "--conda")
+# 	    INSTALL_IN_CONDA=true
+# 	    shift
+# 	    ;;
+#         "--")
+# 	    break
+# 	    ;;
+#     esac
+# done
 
 if [ $INSTALL_IN_CONDA = true ]; then
     os_type=$(uname | awk '{print tolower($0)}')
