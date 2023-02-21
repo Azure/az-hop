@@ -1,7 +1,7 @@
 #!/bin/bash
+set -e
 # Installs Ansible. Optionally in a conda environment.
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-AZHOP_DIR=${THIS_DIR}/../..
 
 MINICONDA_URL_LINUX_X86="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
 MINICONDA_URL_LINUX_ARM="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-aarch64.sh"
@@ -12,19 +12,19 @@ MINICONDA_INSTALL_SCRIPT="miniconda-installer.sh"
 
 # Always use of virtual environment
 INSTALL_IN_CONDA=true
-while [[ $# -gt 0 ]]; do
-    opt="$1"
-    shift
-    case "$opt" in
-        "--conda")
-	    INSTALL_IN_CONDA=true
-	    shift
-	    ;;
-        "--")
-	    break
-	    ;;
-    esac
-done
+# while [[ $# -gt 0 ]]; do
+#     opt="$1"
+#     shift
+#     case "$opt" in
+#         "--conda")
+# 	    INSTALL_IN_CONDA=true
+# 	    shift
+# 	    ;;
+#         "--")
+# 	    break
+# 	    ;;
+#     esac
+# done
 
 if [ $INSTALL_IN_CONDA = true ]; then
     os_type=$(uname | awk '{print tolower($0)}')
@@ -71,6 +71,36 @@ ansible-galaxy collection install -r ${THIS_DIR}/requirements.yml
 # Install azhop dependencies
 printf "Installing Az-hop dependencies\n"
 ansible-playbook ${THIS_DIR}/azhop-dependencies.yml
+
+echo "=============="
+echo "Python version"
+echo "=============="
+python3 --version || exit 1
+echo "==============="
+echo "Ansible version"
+echo "==============="
+ansible --version || exit 1
+echo "================="
+echo "Terraform version"
+echo "================="
+terraform --version || exit 1
+echo "=============="
+echo "Packer version"
+echo "=============="
+packer --version || exit 1
+echo "=========="
+echo "AZ version"
+echo "=========="
+az --version || exit 1
+echo "=========="
+echo "AZ Copy version"
+echo "=========="
+azcopy --version || exit 1
+echo "=========="
+echo "yq version"
+echo "=========="
+yq --version || exit 1
+echo "End"
 
 if [ $INSTALL_IN_CONDA = true ]; then
     printf "\nAz-HOP dependencies installed in conda environment. To activate, run:\n"
