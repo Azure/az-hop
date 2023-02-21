@@ -19,9 +19,9 @@ RUN echo "APT::Get::Assume-Yes \"true\";" > /etc/apt/apt.conf.d/90assumeyes && \
     apt-get update && \
     apt install -y wget openssh-client sudo && \
     chmod +x /tmp/install.sh && \
-    /tmp/install.sh
-
-RUN echo "Creating ${USERNAME} user..." && \
+    /tmp/install.sh && \
+#
+    echo "Creating ${USERNAME} user..." && \
     useradd --uid $USER_UID -m ${USERNAME} && \
 #
 # Create USERNAME home folder structure
@@ -43,25 +43,21 @@ RUN echo "Creating ${USERNAME} user..." && \
     echo ${USERNAME} ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/${USERNAME} && \
     chmod 0440 /etc/sudoers.d/${USERNAME}
 
-
 WORKDIR /hpc/scripts
 COPY ./scripts/sshd.sh .
 
 #
 # Switch to ${USERNAME} context
 #
-
 USER ${USERNAME}
 
 COPY ./scripts/sshd_config /home/${USERNAME}/.ssh/sshd_config
-
-# ssh server for Azure ACI
-RUN     ssh-keygen -q -N "" -t ecdsa -b 521 -f /home/${USERNAME}/.ssh/ssh_host_ecdsa_key
-
 COPY ./scripts/ssh_config /home/${USERNAME}/.ssh/config
 
-RUN     sudo chown ${USERNAME}:${USERNAME} /home/${USERNAME}/.ssh/config && \
-        sudo chmod 644 /home/${USERNAME}/.ssh/config
+# ssh server for Azure ACI
+RUN ssh-keygen -q -N "" -t ecdsa -b 521 -f /home/${USERNAME}/.ssh/ssh_host_ecdsa_key && \
+    sudo chown ${USERNAME}:${USERNAME} /home/${USERNAME}/.ssh/config && \
+    sudo chmod 644 /home/${USERNAME}/.ssh/config
 
 EXPOSE 22
 CMD  ["/hpc/scripts/sshd.sh"]

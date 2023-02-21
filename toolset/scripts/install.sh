@@ -72,6 +72,36 @@ ansible-galaxy collection install -r ${THIS_DIR}/requirements.yml
 printf "Installing Az-hop dependencies\n"
 ansible-playbook ${THIS_DIR}/azhop-dependencies.yml
 
+echo "=============="
+echo "Python version"
+echo "=============="
+python3 --version || exit 1
+echo "==============="
+echo "Ansible version"
+echo "==============="
+ansible --version || exit 1
+echo "================="
+echo "Terraform version"
+echo "================="
+terraform --version || exit 1
+echo "=============="
+echo "Packer version"
+echo "=============="
+packer --version || exit 1
+echo "=========="
+echo "AZ version"
+echo "=========="
+az --version || exit 1
+echo "=========="
+echo "AZ Copy version"
+echo "=========="
+azcopy --version || exit 1
+echo "=========="
+echo "yq version"
+echo "=========="
+yq --version || exit 1
+echo "End"
+
 if [ $INSTALL_IN_CONDA = true ]; then
     printf "\nAz-HOP dependencies installed in conda environment. To activate, run:\n"
     printf "\nsource %s/bin/activate\n\n" "${MINICONDA_INSTALL_DIR}"
