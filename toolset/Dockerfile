@@ -15,7 +15,9 @@ ENV SSH_PASSWD=${SSH_PASSWD} \
 
 COPY ./scripts/* /tmp/
 
-RUN chmod +x /tmp/install.sh && /tmp/install.sh --conda
+RUN apt install -y wget && \
+    chmod +x /tmp/install.sh && \
+    /tmp/install.sh --conda
 
 RUN echo "Creating ${USERNAME} user..." && \
     useradd --uid $USER_UID -m ${USERNAME} && \
