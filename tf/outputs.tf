@@ -95,7 +95,7 @@ resource "local_file" "packer_pip" {
       virtual_network_name                   = local.create_vnet ? azurerm_virtual_network.azhop[0].name : data.azurerm_virtual_network.azhop[0].name
       virtual_network_subnet_name            = local.create_admin_subnet ? azurerm_subnet.compute[0].name : data.azurerm_subnet.compute[0].name
       virtual_network_resource_group_name    = local.create_vnet ? azurerm_virtual_network.azhop[0].resource_group_name : data.azurerm_virtual_network.azhop[0].resource_group_name
-      ssh_bastion_host                       = local.allow_public_ip ? azurerm_public_ip.jumpbox-pip[0].ip_address : ( local.jumpbox_enabled ? azurerm_network_interface.jumpbox-nic[0].private_ip_address : "0.0.0.0")
+      ssh_bastion_host                       = local.allow_public_ip ? azurerm_public_ip.jumpbox-pip[0].ip_address : ( local.jumpbox_enabled ? azurerm_network_interface.jumpbox-nic[0].private_ip_address : "")
       ssh_bastion_port = local.jumpbox_ssh_port
       ssh_bastion_username = local.admin_username
       ssh_bastion_private_key_file = local_file.private_key.filename
