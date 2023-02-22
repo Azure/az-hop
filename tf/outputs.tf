@@ -56,7 +56,7 @@ resource "local_file" "global_variables" {
       database-fqdn       = local.create_database ? azurerm_mariadb_server.mariadb[0].fqdn : (local.use_existing_database ? local.configuration_yml["database"].fqdn : "")
       database-user       = local.database_user
       jumpbox-ssh-port    = local.jumpbox_ssh_port
-      dns-ruleset-name    = local.create_outbounddns_subnet ? azurerm_private_dns_resolver_dns_forwarding_ruleset.forwarding_ruleset[0].name : ""
+      dns-ruleset-name    = local.create_dnsfw_rules ? azurerm_private_dns_resolver_dns_forwarding_ruleset.forwarding_ruleset[0].name : ""
     }
   )
   filename = "${local.playbook_root_dir}/group_vars/all.yml"
