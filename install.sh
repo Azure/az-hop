@@ -1,10 +1,17 @@
 #!/bin/bash
 TARGET=${1:-all}
+shift
+ANSIBLE_TAGS=$@
 set -e
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PLAYBOOKS_DIR=$THIS_DIR/playbooks
 INVENTORY=$PLAYBOOKS_DIR/inventory
 OOD_AUTH="basic"
+
+if [ -d ${THIS_DIR}/miniconda ]; then
+  echo "Activating conda environment"
+  source ${THIS_DIR}/miniconda/bin/activate
+fi
 
 function run_playbook ()
 {
@@ -22,7 +29,7 @@ function run_playbook ()
       options+=" --extra-vars=@$PLAYBOOKS_DIR/extra_vars.yml"
     fi
     echo "Running playbook $PLAYBOOKS_DIR/$playbook.yml ..."
-    ansible-playbook -i $INVENTORY $PLAYBOOKS_DIR/$playbook.yml $options || exit 1
+    ansible-playbook -i $INVENTORY $PLAYBOOKS_DIR/$playbook.yml $options $ANSIBLE_TAGS || exit 1
     if [ -e $PLAYBOOKS_DIR/extra_vars.yml ]; then
       rm $PLAYBOOKS_DIR/extra_vars.yml
     fi
@@ -93,8 +100,12 @@ function enable_lustre ()
   fi
 }
 
-# Apply pre-reqs
-$THIS_DIR/ansible_prereqs.sh
+# Ensure submodule exists
+if [ ! -d "${PLAYBOOKS_DIR}/roles/ood-ansible/.github" ]; then
+    printf "Installing OOD Ansible submodule\n"
+    git submodule init
+    git submodule update
+fi
 
 # Check config syntax
 yamllint config.yml
