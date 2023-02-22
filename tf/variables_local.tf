@@ -142,7 +142,7 @@ locals {
     key_vault_readers = try(local.configuration_yml["key_vault_readers"], null)
 
     # Lustre
-    lustre_enabled = try(local.configuration_yml["features"]["lustre"], try(local.configuration_yml["lustre"]["oss_count"] > 0, false))
+    lustre_enabled = try(local.configuration_yml["lustre"]["create"], try(local.configuration_yml["lustre"]["oss_count"] > 0, false))
     lustre_archive_account = try(local.configuration_yml["lustre"]["hsm"]["storage_account"], null)
     lustre_rbh_sku = try(local.configuration_yml["lustre"]["rbh_sku"], "Standard_D8d_v4")
     lustre_mds_sku = try(local.configuration_yml["lustre"]["mds_sku"], "Standard_D8d_v4")

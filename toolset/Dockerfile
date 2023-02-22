@@ -13,11 +13,15 @@ ENV SSH_PASSWD=${SSH_PASSWD} \
     # TF_PLUGIN_CACHE_DIR="/home/${USERNAME}/.terraform.cache/plugin-cache" \
     DEBIAN_FRONTEND=noninteractive
 
-COPY ./scripts/install.sh /tmp/install.sh
+COPY ./scripts/* /tmp/
 
-RUN chmod +x /tmp/install.sh && /tmp/install.sh
-
-RUN echo "Creating ${USERNAME} user..." && \
+RUN echo "APT::Get::Assume-Yes \"true\";" > /etc/apt/apt.conf.d/90assumeyes && \
+    apt-get update && \
+    apt install -y wget openssh-client sudo && \
+    chmod +x /tmp/install.sh && \
+    /tmp/install.sh && \
+#
+    echo "Creating ${USERNAME} user..." && \
     useradd --uid $USER_UID -m ${USERNAME} && \
 #
 # Create USERNAME home folder structure
@@ -31,13 +35,13 @@ RUN echo "Creating ${USERNAME} user..." && \
         /home/${USERNAME}/.terraform.cache/plugin-cache \
         /home/${USERNAME}/.terraform.cache/tfstates \
         /home/${USERNAME}/.vscode-server \
-        /home/${USERNAME}/.vscode-server-insiders && \
+        /home/${USERNAME}/.vscode-server-insiders \
+        /etc/sudoers.d && \
     chown -R ${USER_UID}:${USER_GID} /home/${USERNAME} /hpc/scripts && \
     chmod 777 -R /home/${USERNAME} && \
     chmod 700 /home/${USERNAME}/.ssh && \
     echo ${USERNAME} ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/${USERNAME} && \
     chmod 0440 /etc/sudoers.d/${USERNAME}
-
 
 WORKDIR /hpc/scripts
 COPY ./scripts/sshd.sh .
@@ -45,18 +49,15 @@ COPY ./scripts/sshd.sh .
 #
 # Switch to ${USERNAME} context
 #
-
 USER ${USERNAME}
 
 COPY ./scripts/sshd_config /home/${USERNAME}/.ssh/sshd_config
-
-# ssh server for Azure ACI
-RUN     ssh-keygen -q -N "" -t ecdsa -b 521 -f /home/${USERNAME}/.ssh/ssh_host_ecdsa_key
-
 COPY ./scripts/ssh_config /home/${USERNAME}/.ssh/config
 
-RUN     sudo chown ${USERNAME}:${USERNAME} /home/${USERNAME}/.ssh/config && \
-        sudo chmod 644 /home/${USERNAME}/.ssh/config
+# ssh server for Azure ACI
+RUN ssh-keygen -q -N "" -t ecdsa -b 521 -f /home/${USERNAME}/.ssh/ssh_host_ecdsa_key && \
+    sudo chown ${USERNAME}:${USERNAME} /home/${USERNAME}/.ssh/config && \
+    sudo chmod 644 /home/${USERNAME}/.ssh/config
 
 EXPOSE 22
 CMD  ["/hpc/scripts/sshd.sh"]

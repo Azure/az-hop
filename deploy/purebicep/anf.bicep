@@ -85,4 +85,4 @@ output anf_pool_name string = 'anfpool-${resourcePostfix}'
 output anf_volume_name string = 'anfhome'
 output nfs_home_ip string = anfHome.properties.mountTargets[0].ipAddress
 output nfs_home_path string = 'home-${resourcePostfix}'
-output nfs_home_opts string = 'rw,hard,rsize=262144,wsize=262144,vers=3,tcp'
+output nfs_home_opts string = 'rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev'

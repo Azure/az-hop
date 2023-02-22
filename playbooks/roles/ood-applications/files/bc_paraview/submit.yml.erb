@@ -15,7 +15,7 @@ if OodAppkit.clusters[cluster].job_config[:adapter] == 'slurm'
   # If the user has specified a node ratio greather than 1, set the job ppn
   if node_ratio > 1
     node_arrays.each do |slot_type|
-      if slot_type["name"] == target
+      if slot_type["name"] == bc_slot_type
         cores = (slot_type["vcpuCount"].to_i / node_ratio)
         scheduler_args += ["--ntasks-per-node=%d" % cores]
         break

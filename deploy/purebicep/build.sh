@@ -13,10 +13,13 @@ AZHOP_FROM=local
 set -e
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+IS_DRY_RUN=0
+
 if [ $# -eq 0 ]; then
   echo "Usage build.sh "
   echo "  Required arguments:"
   echo "    -c|--config <configuration file path> "
+  echo "    -d|--dry-run "
   echo "   "
 
   exit 1
@@ -27,6 +30,10 @@ while (( "$#" )); do
     -c|--config)
       AZHOP_CONFIG=${2}
       shift 2
+    ;;
+    -d|--dry-run)
+      IS_DRY_RUN=1
+      shift
     ;;
   esac
 done
@@ -176,8 +183,16 @@ fi
 
 timestamp=$(date -u +"%Y.%m%d.%H%M")
 deployment_name=azhop_${timestamp}
+deployment_op="create"
+if [ "$IS_DRY_RUN" == "1" ]; then
+  deployment_op="what-if"
+fi
 
-az deployment sub create --template-file mainTemplate.bicep --location $location -n $deployment_name --parameters @$BICEP_PARAMS
+az deployment sub $deployment_op --template-file mainTemplate.bicep --location $location -n $deployment_name --parameters @$BICEP_PARAMS
+
+if [ "$IS_DRY_RUN" == "1" ]; then
+  exit
+fi
 
 echo "* Getting deployment output"
 az deployment group show \
@@ -208,7 +223,7 @@ if [ "$AZHOP_FROM" == "local" ]; then
   mkdir -p $AZHOP_ROOT/playbooks/group_vars
   jq .azhopGlobalConfig.value $AZHOP_DEPLOYMENT_OUTPUT | yq -P > $AZHOP_ROOT/playbooks/group_vars/all.yml
 
-  jq '.azhopInventory.value.all.hosts *= (.lustre_oss_private_ips.value | to_entries | map({("lustre-oss-" + (.key + 1 | tostring)): {"ansible_host": .value}}) | add // {}) | .azhopInventory.value' $AZHOP_DEPLOYMENT_OUTPUT | yq -P > $AZHOP_ROOT/playbooks/inventory
+  jq '.azhopInventory.value.all.hosts *= (.lustre_oss_private_ips.value | to_entries | map({("lustre-oss-" + (.key | tostring)): {"ansible_host": .value}}) | add // {}) | .azhopInventory.value' $AZHOP_DEPLOYMENT_OUTPUT | yq -P > $AZHOP_ROOT/playbooks/inventory
 
   jq .azhopPackerOptions.value $AZHOP_DEPLOYMENT_OUTPUT > $AZHOP_ROOT/packer/options.json
 fi

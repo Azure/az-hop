@@ -1,0 +1,1036 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$ref": "#/definitions/az-hop",
+    "definitions": {
+        "az-hop": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "project_name": {
+                    "description": "Name of az-hop project",
+                    "type": "string"
+                },
+                "location": {
+                    "description": "azure location name as returned by the command : az account list-locations -o table",
+                    "type": "string"
+                },
+                "resource_group": {
+                    "description": "Name of the resource group to create all resources",
+                    "type": "string"
+                },
+                "optout_telemetry": {
+                    "description": "If set to true, will disable telemetry for azhop. See https://azure.github.io/az-hop/deploy/telemetry.html",
+                    "type": "boolean"
+                },
+                "use_existing_rg": {
+                    "description": "If using an existing resource group set to true. Default is false. When using an existing resource group make sure the location match the one of the existing resource group",
+                    "type": "boolean"
+                },
+                "tags": {
+                    "description": "Additional tags to be added on the Resource Group",
+                    "$ref": "#/definitions/Tags"
+                },
+                "anf": {
+                    "description": "Define an Azure Netapp Files (ANF) account, single pool and volume. If not present, assume that there is an existing NFS share for the users home directory",
+                    "$ref": "#/definitions/Anf"
+                },
+                "azurefiles": {
+                    "description": "For small deployments you can use Azure Files instead of ANF for the home directory",
+                    "$ref": "#/definitions/Azurefiles"
+                },
+                "mounts": {
+                    "description": "Mounts will be listed in the Files menu of the OnDemand portal and automatically mounted on all compute nodes and remote desktop nodes",
+                    "$ref": "#/definitions/Mounts"
+                },
+                "admin_user": {
+                    "description": "Name of the admin account",
+                    "type": "string"
+                },
+                "key_vault_readers": {
+                    "description": "Identity (object id) to grant read access to az-hop key vault (optional)",
+                    "type": "string"
+                },
+                "network": {
+                    "$ref": "#/definitions/Network"
+                },
+                "locked_down_network": {
+                    "description": "When working in a locked down network, uncomment and fill out this section",
+                    "$ref": "#/definitions/LockedDownNetwork"
+                },
+                "linux_base_image": {
+                    "description": "Can be either an image reference or an image_id from the image registry or a custom managed image",
+                    "type": "string"
+                },
+                "linux_base_plan": {
+                    "description": "linux image plan if required, format is publisher:product:name",
+                    "type": "null"
+                },
+                "windows_base_image": {
+                    "description": "Can be either an image reference or an image_id from the image registry or a custom managed image",
+                    "type": "string"
+                },
+                "lustre_base_image": {
+                    "description": "Can be either an image reference or an image_id from the image registry or a custom managed image",
+                    "type": "string"
+                },
+                "lustre_base_plan": {
+                    "description": "The lustre plan to use. Only needed when using the default lustre image from the marketplace. use '::' for an empty plan",
+                    "type": "string"
+                },
+                "jumpbox": {
+                    "description": "Jumpbox VM configuration, only needed when deploying thru a public IP and without a configured deployer VM",
+                    "$ref": "#/definitions/Jumpbox"
+                },
+                "ad": {
+                    "description": "Active directory VM configuration",
+                    "$ref": "#/definitions/az-hopAd"
+                },
+                "ondemand": {
+                    "description": "On demand VM configuration",
+                    "$ref": "#/definitions/Ondemand"
+                },
+                "grafana": {
+                    "description": "Grafana VM configuration",
+                    "$ref": "#/definitions/Cyclecloud"
+                },
+                "guacamole": {
+                    "description": "Guacamole VM configuration",
+                    "$ref": "#/definitions/Cyclecloud"
+                },
+                "scheduler": {
+                    "description": "Scheduler VM configuration",
+                    "$ref": "#/definitions/Cyclecloud"
+                },
+                "cyclecloud": {
+                    "description": "CycleCloud VM configuration",
+                    "$ref": "#/definitions/Cyclecloud"
+                },
+                "lustre": {
+                    "description": "Create a Lustre cluster in the environment (optional).",
+                    "$ref": "#/definitions/Lustre"
+                },
+                "users": {
+                    "description": "List of users to be created on this environment",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/User"
+                    }
+                },
+                "usergroups": {
+                    "description": "List of user groups to be created",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Usergroup"
+                    }
+                },
+                "cvmfs_eessi": {
+                    "description": "Enable CernVM virtual file system for European Environment for Scientific Software Installations",
+                    "$ref": "#/definitions/CVMFS"
+                },
+                "queue_manager": {
+                    "description": "",
+                    "type": "string"
+                },
+                "slurm": {
+                    "description": "scheduler to be installed and configured (openpbs, slurm)",
+                    "$ref": "#/definitions/Slurm"
+                },
+                "database": {
+                    "description": "If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values",
+                    "$ref": "#/definitions/Database"
+                },
+                "authentication": {
+                    "description": "# Authentication configuration for ondemand portal. Default is basic authentication. For oidc authentication, store the OIDCClient secret as a secret named <oidc-client-id>-password in the keyvault used by az-hop",
+                    "$ref": "#/definitions/Authentication"
+                },
+                "images": {
+                    "description": "List of images to be defined",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Image"
+                    }
+                },
+                "bastion": {
+                    "description": "Create a Bastion in the bastion subnet  (optional).",
+                    "$ref": "#/definitions/Bastion"
+                },
+                "vpn_gateway": {
+                    "description": "Create a VPN Gateway in the gateway subnet (optional).",
+                    "$ref": "#/definitions/VpnGateway"
+                },
+                "image_gallery": {
+                    "description": "Create the shared image gallery to store custom VM images.",
+                    "$ref": "#/definitions/ImageGallery"
+                },
+                "autoscale": {
+                    "description": "Autoscale default settings for all queues, can be overriden on each queue depending on the VM type if needed",
+                    "$ref": "#/definitions/Autoscale"
+                },
+                "queues": {
+                    "description": "List of queues (node arrays in CycleCloud)",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Queue"
+                    }
+                },
+                "enable_remote_winviz": {
+                    "description": "",
+                    "type": "boolean"
+                },
+                "remoteviz": {
+                    "description": "Remote visualization configuration",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Queue"
+                    }
+                },
+                "applications": {
+                    "description": "Configure applications in OnDemand web portal",
+                    "$ref": "#/definitions/Applications"
+                },
+                "dns": {
+                    "description": "Specify DNS forwarders available in the network",
+                    "$ref": "#/definitions/dns"
+                }
+            },
+            "required": [
+                "ad",
+                "admin_user",
+                "applications",
+                "authentication",
+                "autoscale",
+                "cyclecloud",
+                "database",
+                "enable_remote_winviz",
+                "grafana",
+                "guacamole",
+                "jumpbox",
+                "location",
+                "locked_down_network",
+                "mounts",
+                "network",
+                "ondemand",
+                "queue_manager",
+                "queues",
+                "remoteviz",
+                "resource_group",
+                "scheduler",
+                "slurm",
+                "usergroups",
+                "users",
+                "windows_base_image"
+            ],
+            "title": "az-hop"
+        },
+        "az-hopAd": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "vm_size": {
+                    "type": "string"
+                },
+                "hybrid_benefit": {
+                    "type": "boolean"
+                },
+                "high_availability": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "vm_size"
+            ],
+            "title": "az-hopAd"
+        },
+        "Anf": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "create": {
+                    "type": "boolean"
+                },
+                "homefs_size_tb": {
+                    "description": "Size of the ANF pool and unique volume (min: 4TB, max: 100TB)",
+                    "maximum": 100,
+                    "minimum": 4,
+                    "type": "integer"
+                },
+                "homefs_service_level": {
+                    "description": "Service level of the ANF volume, can be: Standard, Premium, Ultra",
+                    "enum": ["Standard", "Premium", "Ultra"],
+                    "type": "string"
+                },
+                "dual_protocol": {
+                    "description": "Whether to enable SMB support. false by default",
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "dual_protocol",
+                "homefs_service_level",
+                "homefs_size_tb"
+            ],
+            "title": "Anf"
+        },
+        "Azurefiles": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "create": {
+                    "type": "boolean"
+                },
+                "size_gb": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "create",
+                "size_gb"
+            ],
+            "title": "Azurefiles"
+        },
+        "Applications": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "bc_codeserver": {
+                    "$ref": "#/definitions/ood_app"
+                },
+                "bc_jupyter": {
+                    "$ref": "#/definitions/ood_app"
+                },
+                "bc_ansys_workbench": {
+                    "$ref": "#/definitions/ood_app"
+                },
+                "bc_vmd": {
+                    "$ref": "#/definitions/ood_app"
+                },
+                "bc_paraview": {
+                    "$ref": "#/definitions/ood_app"
+                }
+            },
+            "required": [
+                "bc_ansys_workbench",
+                "bc_codeserver",
+                "bc_jupyter",
+                "bc_vmd"
+            ],
+            "title": "Applications"
+        },
+        "ood_app": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "enabled"
+            ],
+            "title": "ood_app"
+        },
+        "Authentication": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "httpd_auth": {
+                    "type": "string",
+                    "enum": ["basic", "oidc"]
+                },
+                "user_map_match": { "type": "string" },
+                "user_map_cmd": { "type": "string" },
+                "ood_auth_openidc": { 
+                    "$ref": "#/definitions/openidc"
+                 }
+            },
+            "required": [
+                "httpd_auth"
+            ],
+            "title": "Authentication"
+        },
+        "openidc": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "OIDCProviderMetadataURL": { "type": "string" },
+                "OIDCClientID": { "type": "string" },
+                "OIDCRemoteUserClaim": { "type": "string" },
+                "OIDCScope": { "type": "string" },
+                "OIDCPassIDTokenAs": { "type": "string" },
+                "OIDCPassRefreshToken": { "type": "string" },
+                "OIDCPassClaimsAs": { "type": "string" }
+            },
+            "required": [
+                "OIDCProviderMetadataURL",
+                "OIDCClientID",
+                "OIDCRemoteUserClaim",
+                "OIDCScope",
+                "OIDCPassIDTokenAs",
+                "OIDCPassRefreshToken",
+                "OIDCPassClaimsAs"
+            ],
+            "title": "openidc"
+        },
+        "Bastion": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "create": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "create"
+            ],
+            "title": "Bastion"
+        },
+        "VpnGateway": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "create": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "create"
+            ],
+            "title": "VpnGateway"
+        },
+        "Autoscale": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "idle_timeout": {
+                    "description": "Idle time in seconds before shutting down VMs - default to 1800 like in CycleCloud",
+                    "type": "integer"
+                }
+            },
+            "required": [
+            ],
+            "title": "Autoscale"
+        },
+        "ImageGallery": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "create": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "create"
+            ],
+            "title": "ImageGallery"
+        },
+        "Cyclecloud": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "vm_size": { "type": "string" },
+                "version": { "type": "string" }
+            },
+            "required": [
+                "vm_size"
+            ],
+            "title": "Cyclecloud"
+        },
+        "Database": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "user": {
+                    "type": "string",
+                    "description": "Admin user of the database for which the password will be retrieved from the azhop keyvault"
+                },
+                "fqdn": {
+                    "type": "string",
+                    "description": "FQDN of the managed instance, when using an existing one"
+                },
+                "ip": {
+                    "type": "string",
+                    "description": "IP of the managed private endpoint if the FQDN is not registered in a private DNS"
+                }
+            },
+            "required": [
+                "user"
+            ],
+            "title": "Database"
+        },
+        "Image": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "publisher": {
+                    "$ref": "#/definitions/Project"
+                },
+                "offer": {
+                    "type": "string"
+                },
+                "sku": {
+                    "type": "string"
+                },
+                "hyper_v": {
+                    "$ref": "#/definitions/HyperV"
+                },
+                "os_type": {
+                    "$ref": "#/definitions/OSType"
+                },
+                "version": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "hyper_v",
+                "name",
+                "offer",
+                "os_type",
+                "publisher",
+                "sku",
+                "version"
+            ],
+            "title": "Image"
+        },
+        "Jumpbox": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "vm_size": {
+                    "type": "string"
+                },
+                "ssh_port": {
+                    "description": "Defaults to 22. Change this to, e.g., 2222, if security policies (like 'zero trust') in your tenant automatically block access to port 22 from the internet",
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "vm_size"
+            ],
+            "title": "Jumpbox"
+        },
+        "Lustre": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "create": {
+                    "description": "Create cluster",
+                    "type": "boolean"
+                },
+                "rbh_sku": {
+                    "description": "",
+                    "type": "string"
+                },
+                "mds_sku": {
+                    "description": "",
+                    "type": "string"
+                },
+                "oss_sku": {
+                    "description": "",
+                    "type": "string"
+                },
+                "oss_count": {
+                    "description": "",
+                    "type": "integer"
+                },
+                "hsm_max_requests": {
+                    "description": "",
+                    "type": "integer"
+                },
+                "mdt_device": {
+                    "description": "",
+                    "type": "string"
+                },
+                "ost_device": {
+                    "description": "",
+                    "type": "string"
+                },
+                "hsm": {
+                    "description": "Use existing storage account for the archive (optional). If not included, will use az-hop storage account.",
+                    "$ref": "#/definitions/HSM"
+                }
+            },
+            "required": [
+                "create"
+            ],
+            "title": "Lustre"
+        },
+        "HSM": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "storage_account": {
+                    "type": "string"
+                },
+                "storage_container": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "storage_account",
+                "storage_container"
+            ],
+            "title": "HSM"
+        },
+        "LockedDownNetwork": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "enforce": { "type": "boolean" },
+                "public_ip": { "type": "boolean" },
+                "grant_access_from": { "type": "array", "items": { "type": "string" } }
+            },
+            "required": [
+                "enforce",
+                "public_ip"
+            ],
+            "title": "LockedDownNetwork"
+        },
+        "Mounts": {
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+                "home": {
+                    "$ref": "#/definitions/Home"
+                }
+            },
+            "required": [
+                "home"
+            ],
+            "title": "Mounts"
+        },
+        "Home": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "description": "'anf' or 'azurefiles', default: 'anf'.",
+                    "enum": ["anf", "azurefiles"],
+                    "type": "string"
+                },
+                "mountpoint": {
+                    "type": "string"
+                },
+                "server": {
+                    "type": "string"
+                },
+                "export": {
+                    "type": "string"
+                },
+                "options": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "export",
+                "mountpoint",
+                "options",
+                "server"
+            ],
+            "title": "Home"
+        },
+        "Network": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "create_nsg": { "type": "boolean" },
+                "vnet": { "$ref": "#/definitions/Vnet" },
+                "peering": {
+                    "type": "array",
+                    "items": {
+                    "$ref": "#/definitions/Peering"
+                    }
+                },
+                "asg": { "$ref": "#/definitions/asgMap" }
+            },
+            "required": [
+                "vnet"
+            ],
+            "title": "Network"
+        },
+        "asgMap": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "resource_group": { "type": "string", "description": "name of the resource group containing the ASG. Default to the resource group containing azhop resources" },
+                "names": { "$ref": "#/definitions/asgMappingNames", "description": "list of ASG names mapping to the one defined in az-hop" }
+            },
+            "required": [
+                "resource_group",
+                "names"
+            ],
+            "title": "ASG Mapping"
+        },
+        "asgMappingNames": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "asg-ssh": { "type": "string" },
+                "asg-rdp": { "type": "string" },
+                "asg-jumpbox": { "type": "string" },
+                "asg-ad": { "type": "string" },
+                "asg-ad-client": { "type": "string" },
+                "asg-lustre": { "type": "string" },
+                "asg-lustre-client": { "type": "string" },
+                "asg-pbs": { "type": "string" },
+                "asg-pbs-client": { "type": "string" },
+                "asg-cyclecloud": { "type": "string" },
+                "asg-cyclecloud-client": { "type": "string" },
+                "asg-nfs-client": { "type": "string" },
+                "asg-telegraf": { "type": "string" },
+                "asg-grafana": { "type": "string" },
+                "asg-robinhood": { "type": "string" },
+                "asg-ondemand": { "type": "string" },
+                "asg-deployer": { "type": "string" },
+                "asg-guacamole": { "type": "string" },
+                "asg-mariadb-client": { "type": "string" }
+            },
+            "title": "ASG Mapping Names"
+        },
+        "dns": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "forwarders": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dnsForwarders"
+                    }
+                }
+            },
+            "required": [ "forwarders" ],
+            "title": "DNS"
+        },
+        "dnsForwarders" : {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "name" : {
+                    "description": "Domain name to be resolved by the forwarder",
+                    "type": "string"
+                },
+                "ips" : {
+                    "description": "Comma delimited list of the IP addresses of the forwarder",
+                    "type": "string"
+                }
+            },
+            "required": [ "name", "ips" ],
+            "title": "DNS Forwarders"
+        },
+        "Peering" : {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "vnet_name": {
+                    "description": "VNET Name to Peer to",
+                    "type": "string"
+                },
+                "vnet_resource_group": {
+                    "description": "Resource Group of the VNET to peer to",
+                    "type": "string"
+                },
+                "vnet_allow_gateway": {
+                    "description": "Allow gateway transit (Optional, default: true)",
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "vnet_name",
+                "vnet_resource_group"
+            ],
+            "title": "Vnet Peering"
+        },
+        "Vnet": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "name": { "type": "string" },
+                "id": { "type": "null" },
+                "address_space": { "type": "string" },
+                "subnets": { "$ref": "#/definitions/Subnets" },
+                "tags": { "$ref": "#/definitions/Tags" }
+            },
+            "required": [
+                "address_space",
+                "id",
+                "name",
+                "subnets"
+            ],
+            "title": "Vnet"
+        },
+        "Subnets": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "frontend": {
+                    "$ref": "#/definitions/subnetClass"
+                },
+                "admin": {
+                    "$ref": "#/definitions/subnetClass"
+                },
+                "netapp": {
+                    "$ref": "#/definitions/subnetClass"
+                },
+                "ad": {
+                    "$ref": "#/definitions/subnetClass"
+                },
+                "compute": {
+                    "$ref": "#/definitions/subnetClass"
+                },
+                "bastion": {
+                    "$ref": "#/definitions/subnetClass"
+                },
+                "gateway": {
+                    "$ref": "#/definitions/subnetClass"
+                },
+                "outbounddns": {
+                    "$ref": "#/definitions/subnetClass"
+                }
+            },
+            "required": [
+                "ad",
+                "admin",
+                "compute",
+                "frontend",
+                "netapp"
+            ],
+            "title": "Subnets"
+        },
+        "subnetClass": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "address_prefixes": {
+                    "type": "string"
+                },
+                "create": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "address_prefixes",
+                "create"
+            ],
+            "title": "subnetClass"
+        },
+        "Ondemand": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "vm_size": { "type": "string" },
+                "generate_certificate": { "type": "boolean" },
+                "fqdn": { "type": "string" }
+            },
+            "required": [
+                "generate_certificate",
+                "vm_size"
+            ],
+            "title": "Ondemand"
+        },
+        "Queue": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "anyOf": [
+                        {
+                            "description": "Name of queue (max. 8 characters, lowercase). This is to leave space for node suffix, as hostnames are limited to 15 characters by domain join and NETBIOS constraints.",
+                            "maxLength": 9,
+                            "pattern": "[0-9a-z\\-]+",
+                            "type": "string"
+                        },
+                        {
+                            "description": "Name of queue (special names).",
+                            "enum": [
+                                "largeviz3d",
+                                "viz"
+                            ],
+                            "type": "string"
+                        }
+                    ]
+                },
+                "vm_size": {
+                    "description": "Azure VM instance type, e.g. Standard_F2s_v2",
+                    "type": "string"
+                },
+                "max_core_count": {
+                    "description": "Maximum number of cores that can be allocated for the entire queue.",
+                    "type": "integer"
+                },
+                "image": {
+                    "description": "Can be either an image reference or an image_id from the image registry or a custom managed image",
+                    "type": "string"
+                },
+                "plan": {
+                    "description": "Image plan specification (when needed for the image). Terms must be accepted prior to deployment",
+                    "type": "string"
+                },
+                "EnableAcceleratedNetworking": {
+                    "description": "Whether to enable AccelNet. Defaults to false",
+                    "type": "boolean"
+                },
+                "spot": {
+                    "description": "Whether to use spot instances. Defaults to false",
+                    "type": "boolean"
+                },
+                "ColocateNodes": {
+                    "description": "Whether to create placement groups (SLURM only). Defaults to true",
+                    "type": "boolean"
+                },
+                "idle_timeout": {
+                    "description": "Idle time (seconds) before shutting down VMs. Choose lower than autoscale.idle_timeout",
+                    "type": "integer"
+                },
+                "MaxScaleSetSize": {
+                    "description": "Maximum number of VMs in a scale set (default: 100). Lowering may make it easier to provision VMs from Azure, increasing beyond 100 requires raising Azure limit via support ticket.",
+                    "type": "integer"
+                },
+                "max_hours": {
+                    "description": "Maximum session duration. 0 means 'no limit'.",
+                    "type": "integer"
+                },
+                "min_hours": {
+                    "description": "Minimum session duration",
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "image",
+                "max_core_count",
+                "name",
+                "vm_size"
+            ],
+            "title": "Queue"
+        },
+        "CVMFS": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "enabled"
+            ],
+            "title": "CVMFS"
+        },
+        "Slurm": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "accounting_enabled": {
+                    "type": "boolean"
+                },
+                "enroot_enabled": {
+                    "type": "boolean"
+                },
+                "cluster_name": {
+                    "description": "Name of slurm cluster for accounting, defaults to 'slurm'. WARNING: changing this value on a running cluster will cause slurmctld to fail to start. This is a safety check to prevent accounting errors. To override, remove /var/spool/slurmd/clustername .",
+                    "type": "string"
+                },
+                "slurm_version": {
+                    "type": "string",
+                    "enum": ["20.11.9", "22.05.3"],
+                    "description": "SLURM version to install. Currently supported: only 20.11.9 and 22.05.3."
+                }
+            },
+            "required": [
+                "accounting_enabled",
+                "enroot_enabled"
+            ],
+            "title": "Slurm"
+        },
+        "Tags": {
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+            },
+            "required": [
+            ],
+            "title": "Tags"
+        },
+        "Usergroup": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "gid": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "gid",
+                "name"
+            ],
+            "title": "Usergroup"
+        },
+        "User": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "maxLength": 20
+                },
+                "shell": {
+                    "description": "Defaults to /bin/bash",
+                    "type": "string"
+                },
+                "home": {
+                    "description": "Defaults to /<homedir_mountpoint>/<name>",
+                    "type": "string"
+                },
+                "uid": {
+                    "type": "integer"
+                },
+                "groups": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "required": [
+                "name",
+                "uid"
+            ],
+            "title": "User"
+        },
+        "HyperV": {
+            "type": "string",
+            "enum": [
+                "V2",
+                "V1"
+            ],
+            "title": "HyperV"
+        },
+        "OSType": {
+            "type": "string",
+            "enum": [
+                "Linux",
+                "Windows"
+            ],
+            "title": "OSType"
+        },
+        "Project": {
+            "type": "string",
+            "enum": [
+                "azhop",
+                "azhpc"
+            ],
+            "title": "Project"
+        }
+    }
+}
+
