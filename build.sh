@@ -74,21 +74,6 @@ if [ -e $THIS_DIR/tf/terraform.tfstate ]; then
   set -e
 fi
 
-function validate_config_yml {
-  # validate config.yml file against schema
-  tmp_json=/tmp/config.json
-  yq $AZHOP_CONFIG -o json > $tmp_json
-  set +e
-  jsonschema --instance $tmp_json config.schema.json
-  retcode=$?
-  set -e
-  rm $tmp_json
-
-  if [[ $retcode -ne 0 ]]; then 
-    echo "config.yml fails validation"
-    exit 1
-  fi
-}
 
 function get_storage_id {
   # get the storage account ID to use
@@ -142,19 +127,16 @@ function check_azcli_version {
   fi
 }
 
+# Validate config against schema
+if [ "$VALIDATE_CONFIG" = true ]; then
+  $THIS_DIR/validate_config.sh $AZHOP_CONFIG
+fi
+
 check_azcli_version
 
 get_arm_access_key
 
 terraform -chdir=$TF_FOLDER init -upgrade
-
-# Check config syntax
-yamllint $AZHOP_CONFIG
-
-# Validate config against schema
-if [ "$VALIDATE_CONFIG" = true ]; then
-  validate_config_yml
-fi
 
 # Accept Cycle marketplace image terms
 # cc_plan=$(yq eval '.cyclecloud.plan.name' $AZHOP_CONFIG)
