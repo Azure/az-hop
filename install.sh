@@ -107,8 +107,9 @@ if [ ! -d "${PLAYBOOKS_DIR}/roles/ood-ansible/.github" ]; then
     git submodule update
 fi
 
-# Check config syntax
-yamllint config.yml
+# Validate config against schema
+$THIS_DIR/validate_config.sh config.yml
+
 get_scheduler
 get_ood_auth
 enable_winviz

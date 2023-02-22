@@ -32,7 +32,7 @@ mounts:
     options: '{{anf_home_opts}}'
 
 admin_user: hpcadmin
-key_vault_readers: 0bf2513b-59fe-4018-bfd6-5d4844a9a3b9
+key_vault_readers: [0bf2513b-59fe-4018-bfd6-5d4844a9a3b9]
 
 network:
   # Create Network and Application Security Rules, true by default, false when using an existing VNET if not specified
@@ -146,9 +146,9 @@ database:
   # Admin user of the database for which the password will be retrieved from the azhop keyvault
   user: sqladmin
   # FQDN of the managed instance
-  fqdn: 
+  #fqdn:
   # IP of the managed private endpoint if the FQDN is not registered in a private DNS
-  ip: 
+  #ip: 
 
 # Create a Bastion in the bastion subnet when defined
 bastion:
@@ -181,7 +181,7 @@ authentication:
 image_gallery:
   create: true # Create the shared image gallery to store custom images
 
-images:
+#images:
   # - name: azhop-almalinux85-v2-rdma-gpgpu
   #   publisher: azhop
   #   offer: almalinux
@@ -319,3 +319,5 @@ applications:
     enabled: false
   bc_vmd:
     enabled: false
+  bc_paraview:
+    enabled: true

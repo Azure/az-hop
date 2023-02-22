@@ -190,6 +190,10 @@
                 "applications": {
                     "description": "Configure applications in OnDemand web portal",
                     "$ref": "#/definitions/Applications"
+                },
+                "dns": {
+                    "description": "Specify DNS forwarders available in the network",
+                    "$ref": "#/definitions/dns"
                 }
             },
             "required": [
@@ -203,14 +207,9 @@
                 "enable_remote_winviz",
                 "grafana",
                 "guacamole",
-                "images",
                 "jumpbox",
-                "linux_base_image",
-                "linux_base_plan",
                 "location",
                 "locked_down_network",
-                "lustre_base_image",
-                "lustre_base_plan",
                 "mounts",
                 "network",
                 "ondemand",
@@ -241,8 +240,6 @@
                 }
             },
             "required": [
-                "high_availability",
-                "hybrid_benefit",
                 "vm_size"
             ],
             "title": "az-hopAd"
@@ -299,19 +296,19 @@
             "additionalProperties": false,
             "properties": {
                 "bc_codeserver": {
-                    "$ref": "#/definitions/Bc"
+                    "$ref": "#/definitions/ood_app"
                 },
                 "bc_jupyter": {
-                    "$ref": "#/definitions/Bc"
+                    "$ref": "#/definitions/ood_app"
                 },
                 "bc_ansys_workbench": {
-                    "$ref": "#/definitions/Bc"
+                    "$ref": "#/definitions/ood_app"
                 },
                 "bc_vmd": {
-                    "$ref": "#/definitions/Bc"
+                    "$ref": "#/definitions/ood_app"
                 },
                 "bc_paraview": {
-                    "$ref": "#/definitions/Bc"
+                    "$ref": "#/definitions/ood_app"
                 }
             },
             "required": [
@@ -322,7 +319,7 @@
             ],
             "title": "Applications"
         },
-        "Bc": {
+        "ood_app": {
             "type": "object",
             "additionalProperties": false,
             "properties": {
@@ -333,20 +330,49 @@
             "required": [
                 "enabled"
             ],
-            "title": "Bc"
+            "title": "ood_app"
         },
         "Authentication": {
             "type": "object",
             "additionalProperties": false,
             "properties": {
                 "httpd_auth": {
-                    "type": "string"
-                }
+                    "type": "string",
+                    "enum": ["basic", "oidc"]
+                },
+                "user_map_match": { "type": "string" },
+                "user_map_cmd": { "type": "string" },
+                "ood_auth_openidc": { 
+                    "$ref": "#/definitions/openidc"
+                 }
             },
             "required": [
                 "httpd_auth"
             ],
             "title": "Authentication"
+        },
+        "openidc": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "OIDCProviderMetadataURL": { "type": "string" },
+                "OIDCClientID": { "type": "string" },
+                "OIDCRemoteUserClaim": { "type": "string" },
+                "OIDCScope": { "type": "string" },
+                "OIDCPassIDTokenAs": { "type": "string" },
+                "OIDCPassRefreshToken": { "type": "string" },
+                "OIDCPassClaimsAs": { "type": "string" }
+            },
+            "required": [
+                "OIDCProviderMetadataURL",
+                "OIDCClientID",
+                "OIDCRemoteUserClaim",
+                "OIDCScope",
+                "OIDCPassIDTokenAs",
+                "OIDCPassRefreshToken",
+                "OIDCPassClaimsAs"
+            ],
+            "title": "openidc"
         },
         "Bastion": {
             "type": "object",
@@ -404,9 +430,8 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "vm_size": {
-                    "type": "string"
-                }
+                "vm_size": { "type": "string" },
+                "version": { "type": "string" }
             },
             "required": [
                 "vm_size"
@@ -418,18 +443,19 @@
             "additionalProperties": false,
             "properties": {
                 "user": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Admin user of the database for which the password will be retrieved from the azhop keyvault"
                 },
                 "fqdn": {
-                    "type": "null"
+                    "type": "string",
+                    "description": "FQDN of the managed instance, when using an existing one"
                 },
                 "ip": {
-                    "type": "null"
+                    "type": "string",
+                    "description": "IP of the managed private endpoint if the FQDN is not registered in a private DNS"
                 }
             },
             "required": [
-                "fqdn",
-                "ip",
                 "user"
             ],
             "title": "Database"
@@ -555,12 +581,9 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "enforce": {
-                    "type": "boolean"
-                },
-                "public_ip": {
-                    "type": "boolean"
-                }
+                "enforce": { "type": "boolean" },
+                "public_ip": { "type": "boolean" },
+                "grant_access_from": { "type": "array", "items": { "type": "string" } }
             },
             "required": [
                 "enforce",
@@ -570,7 +593,7 @@
         },
         "Mounts": {
             "type": "object",
-            "additionalProperties": false,
+            "additionalProperties": true,
             "properties": {
                 "home": {
                     "$ref": "#/definitions/Home"
@@ -615,34 +638,122 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "create_nsg": {
-                    "type": "boolean"
+                "create_nsg": { "type": "boolean" },
+                "vnet": { "$ref": "#/definitions/Vnet" },
+                "peering": {
+                    "type": "array",
+                    "items": {
+                    "$ref": "#/definitions/Peering"
+                    }
                 },
-                "vnet": {
-                    "$ref": "#/definitions/Vnet"
-                }
+                "asg": { "$ref": "#/definitions/asgMap" }
             },
             "required": [
                 "vnet"
             ],
             "title": "Network"
         },
+        "asgMap": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "resource_group": { "type": "string", "description": "name of the resource group containing the ASG. Default to the resource group containing azhop resources" },
+                "names": { "$ref": "#/definitions/asgMappingNames", "description": "list of ASG names mapping to the one defined in az-hop" }
+            },
+            "required": [
+                "resource_group",
+                "names"
+            ],
+            "title": "ASG Mapping"
+        },
+        "asgMappingNames": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "asg-ssh": { "type": "string" },
+                "asg-rdp": { "type": "string" },
+                "asg-jumpbox": { "type": "string" },
+                "asg-ad": { "type": "string" },
+                "asg-ad-client": { "type": "string" },
+                "asg-lustre": { "type": "string" },
+                "asg-lustre-client": { "type": "string" },
+                "asg-pbs": { "type": "string" },
+                "asg-pbs-client": { "type": "string" },
+                "asg-cyclecloud": { "type": "string" },
+                "asg-cyclecloud-client": { "type": "string" },
+                "asg-nfs-client": { "type": "string" },
+                "asg-telegraf": { "type": "string" },
+                "asg-grafana": { "type": "string" },
+                "asg-robinhood": { "type": "string" },
+                "asg-ondemand": { "type": "string" },
+                "asg-deployer": { "type": "string" },
+                "asg-guacamole": { "type": "string" },
+                "asg-mariadb-client": { "type": "string" }
+            },
+            "title": "ASG Mapping Names"
+        },
+        "dns": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "forwarders": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dnsForwarders"
+                    }
+                }
+            },
+            "required": [ "forwarders" ],
+            "title": "DNS"
+        },
+        "dnsForwarders" : {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "name" : {
+                    "description": "Domain name to be resolved by the forwarder",
+                    "type": "string"
+                },
+                "ips" : {
+                    "description": "Comma delimited list of the IP addresses of the forwarder",
+                    "type": "string"
+                }
+            },
+            "required": [ "name", "ips" ],
+            "title": "DNS Forwarders"
+        },
+        "Peering" : {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "vnet_name": {
+                    "description": "VNET Name to Peer to",
+                    "type": "string"
+                },
+                "vnet_resource_group": {
+                    "description": "Resource Group of the VNET to peer to",
+                    "type": "string"
+                },
+                "vnet_allow_gateway": {
+                    "description": "Allow gateway transit (Optional, default: true)",
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "vnet_name",
+                "vnet_resource_group"
+            ],
+            "title": "Vnet Peering"
+        },
         "Vnet": {
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "null"
-                },
-                "address_space": {
-                    "type": "string"
-                },
-                "subnets": {
-                    "$ref": "#/definitions/Subnets"
-                }
+                "name": { "type": "string" },
+                "id": { "type": "null" },
+                "address_space": { "type": "string" },
+                "subnets": { "$ref": "#/definitions/Subnets" },
+                "tags": { "$ref": "#/definitions/Tags" }
             },
             "required": [
                 "address_space",
@@ -657,19 +768,28 @@
             "additionalProperties": false,
             "properties": {
                 "frontend": {
-                    "$ref": "#/definitions/AdminClass"
+                    "$ref": "#/definitions/subnetClass"
                 },
                 "admin": {
-                    "$ref": "#/definitions/AdminClass"
+                    "$ref": "#/definitions/subnetClass"
                 },
                 "netapp": {
-                    "$ref": "#/definitions/AdminClass"
+                    "$ref": "#/definitions/subnetClass"
                 },
                 "ad": {
-                    "$ref": "#/definitions/AdminClass"
+                    "$ref": "#/definitions/subnetClass"
                 },
                 "compute": {
-                    "$ref": "#/definitions/AdminClass"
+                    "$ref": "#/definitions/subnetClass"
+                },
+                "bastion": {
+                    "$ref": "#/definitions/subnetClass"
+                },
+                "gateway": {
+                    "$ref": "#/definitions/subnetClass"
+                },
+                "outbounddns": {
+                    "$ref": "#/definitions/subnetClass"
                 }
             },
             "required": [
@@ -681,7 +801,7 @@
             ],
             "title": "Subnets"
         },
-        "AdminClass": {
+        "subnetClass": {
             "type": "object",
             "additionalProperties": false,
             "properties": {
@@ -697,21 +817,17 @@
             },
             "required": [
                 "address_prefixes",
-                "create",
-                "name"
+                "create"
             ],
-            "title": "AdminClass"
+            "title": "subnetClass"
         },
         "Ondemand": {
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "vm_size": {
-                    "type": "string"
-                },
-                "generate_certificate": {
-                    "type": "boolean"
-                }
+                "vm_size": { "type": "string" },
+                "generate_certificate": { "type": "boolean" },
+                "fqdn": { "type": "string" }
             },
             "required": [
                 "generate_certificate",
@@ -822,30 +938,23 @@
                     "type": "string"
                 },
                 "slurm_version": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": ["20.11.9", "22.05.3"],
+                    "description": "SLURM version to install. Currently supported: only 20.11.9 and 22.05.3."
                 }
             },
             "required": [
                 "accounting_enabled",
-                "enroot_enabled",
-                "slurm_version"
+                "enroot_enabled"
             ],
             "title": "Slurm"
         },
         "Tags": {
             "type": "object",
-            "additionalProperties": false,
+            "additionalProperties": true,
             "properties": {
-                "env": {
-                    "type": "string"
-                },
-                "project": {
-                    "$ref": "#/definitions/Project"
-                }
             },
             "required": [
-                "env",
-                "project"
             ],
             "title": "Tags"
         },
