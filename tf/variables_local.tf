@@ -190,6 +190,9 @@ locals {
     no_outbounddns_subnet = try(length(local.outbounddns_subnet) > 0 ? false : true, true )
     create_outbounddns_subnet  = try(local.outbounddns_subnet["create"], local.create_vnet ? (local.no_outbounddns_subnet ? false : true) : false )
 
+    dns_forwarders = try(local.configuration_yml["dns"]["forwarders"], [])
+    create_dnsfw_rules = length(local.dns_forwarders) > 0 ? true : false
+
     subnets = merge(local._subnets, 
                     local.no_bastion_subnet ? {} : {bastion = "AzureBastionSubnet"},
                     local.no_gateway_subnet ? {} : {gateway = "GatewaySubnet"},
