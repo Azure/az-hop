@@ -289,7 +289,7 @@
         },
         "Applications": {
             "type": "object",
-            "additionalProperties": false,
+            "additionalProperties": true,
             "properties": {
                 "bc_codeserver": {
                     "$ref": "#/definitions/ood_app"
