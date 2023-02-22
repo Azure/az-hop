@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+set -e -x
+
+dataset="<%= context.dataset %>"
+dataset_filename=$(basename "${dataset}")
+
+<%- if OodAppkit.clusters[context.cluster].job_config[:adapter] == 'pbspro' -%>
+
+# for PBS, we need to launch enroot explicitly.
+echo "Starting enroot + vizer ..."
+enroot start $CONTAINER_NAME -- -p ${port} --dataset "/opt/datasets/${dataset_filename}"
+echo "removing container ..."
+enroot remove -f $CONTAINER_NAME
+
+<%- else -%>
+
+# for slurm, this executes inside the container.
+echo "Starting vizer ..."
+/opt/scripts/entrypoint.sh -p ${port} --dataset "/opt/datasets/${dataset_filename}"
+
+<%- end -%>

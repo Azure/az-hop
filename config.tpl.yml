@@ -467,3 +467,5 @@ applications:
     enabled: false
   bc_paraview:
     enabled: false
+  bc_vizer:
+    enabled: false

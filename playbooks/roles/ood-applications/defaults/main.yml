@@ -11,4 +11,5 @@ ood_azhop_apps:
     - { name: "bc_ansys_workbench", enabled: '{{applications.bc_ansys_workbench.enabled | default(false)}}' }
     - { name: "bc_vmd", enabled: '{{applications.bc_vmd.enabled | default(false)}}' }
     - { name: "bc_paraview", enabled: '{{applications.bc_paraview.enabled | default(false)}}' }
+    - { name: "bc_vizer", enabled: '{{applications.bc_vizer.enabled | default(false)}}' }
     - { name: "dashboard", enabled: true }
