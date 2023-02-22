@@ -151,7 +151,7 @@ To install WSL2 in your Windows machine:
 
 1.	Open PowerShell as administrator.
 
- ![image](https://user-images.githubusercontent.com/119871043/219146537-14e9a00f-9c56-4f51-b566-e715e520cd2a.png)
+ ![image](../images/start_windows_ps.png)
 
 2.	Execute the following command to install WSL:
 
@@ -163,7 +163,7 @@ wsl --install
 
 4.	Once your computer turns back on, run WSL (search for it in your computuer's Start menu if it doesn't open automatically). The prompt is going to ask you to set up a username and password for your Ubuntu Linux Virtual machine.
 
-![image](https://user-images.githubusercontent.com/119871043/219147828-d7f33dea-0579-479a-a2a8-d963f16b580c.png)
+![image](../images/ubuntu_installation.png)
  
 5.	Now, open your Linux shell (i.e. Command Prompt). Validate that you are running version 2 of WSL.
 
@@ -171,7 +171,7 @@ wsl --install
 wsl --status
 ```
 
-![image](https://user-images.githubusercontent.com/119871043/219171066-58e9374e-17c9-49aa-ab12-58f04100d2cf.png)
+![image](../images/wsl_status.png)
  
 6.	Obtain root access with:
 
