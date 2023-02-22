@@ -81,9 +81,7 @@ resource "azurerm_network_interface_application_security_group_association" "gua
 }
 
 resource "azurerm_virtual_machine_extension" "AzureMonitorLinuxAgent_guacamole" {
-  # depends_on = [
-  #   azurerm_linux_virtual_machine.guacamole
-  # ]
+  count                      = local.enable_remote_winviz ? 1 : 0
   name                       = "AzureMonitorLinuxAgent"
   virtual_machine_id         = azurerm_linux_virtual_machine.guacamole[0].id
   publisher                  = "Microsoft.Azure.Monitor"
