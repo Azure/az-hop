@@ -144,10 +144,44 @@ az vm image terms accept --offer almalinux-hpc --publisher almalinux --plan 8_5-
 The toolchain can be setup either locally or from a deployer VM. See below for instructions regarding the installation.
 
 ## From a local machine
-The toolchain is built to be run only from Linux and preferably Ubuntu 20.04+. So if you are running a Windows desktop you should use WSL2 with an Ubuntu 20.04 environment. All the following commands will have to be run from your Linux shell terminal.
+
+The toolchain for deployment is built to be run only from Linux, and preferably Ubuntu 20.04+. So, if you are running a Windows desktop you should use WSL2 with an Ubuntu 20.04 environment. Run the following commands to install WSL2 (you will only need to do this once on your local device).
+
+To install WSL2 in your Windows machine:
+
+1.	Open PowerShell as administrator.
+
+ ![image](../images/start_windows_ps.png)
+
+2.	Execute the following command to install WSL:
+
+```bash
+wsl --install
+```
+
+3.	After installation is complete, restart your computer.
+
+4.	Once your computer turns back on, run WSL (search for it in your computuer's Start menu if it doesn't open automatically). The prompt is going to ask you to set up a username and password for your Ubuntu Linux Virtual machine.
+
+![image](../images/ubuntu_installation.png)
+ 
+5.	Now, open your Linux shell (i.e. Command Prompt). Validate that you are running version 2 of WSL.
+
+```bash
+wsl --status
+```
+
+![image](../images/wsl_status.png)
+ 
+6.	Obtain root access with:
+
+```bash
+sudo su
+```
+ Your WSL environment is now ready.
 
 ### Clone the repo
-It's important to clone the repo with its submodule. You can do this with one of these two options.
+Next, we will clone the Github repo into your working directory to acquire the necessary scripts for deployment. It is important to clone the repo with its submodule. You can do this with one of the two options:
 
 > Note : pick up the latest stable release from [https://github.com/Azure/az-hop/releases](https://github.com/Azure/az-hop/releases) and replace `<version>`
 
@@ -155,7 +189,7 @@ It's important to clone the repo with its submodule. You can do this with one of
 ```bash
 git clone --recursive https://github.com/Azure/az-hop.git -b <version>
 ```
-
+ 
 - Option 2
 ```bash
 git clone https://github.com/Azure/az-hop.git -b <version>
@@ -164,9 +198,9 @@ git submodule init
 git submodule update
 ```
 
-### Set up the toolchain
+### Set up the toolchain on Ubuntu 20.04 (e.g. WSL2)
 For Terraform to work properly on  WSL2, on the C drive, make sure to have the "metadata mount" option enabled.
-Afterwards, you can directly run the `install.sh`  script:
+Afterwards, you can directly run the `install.sh`  script: 
 
 ```bash
 sudo ./toolset/scripts/install.sh
