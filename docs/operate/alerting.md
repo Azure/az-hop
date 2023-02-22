@@ -28,7 +28,7 @@ If monitoring is enabled, alerts can be placed into effect through the configura
 ```yml
 alerting:
   enabled: true
-  admin_mail: admin.mail@contoso.com
+  admin_email: admin.mail@contoso.com
 ```
 Note, you will need to set the enabled option to true and you will also need to provide an email address for the alerts. If an email address is not provided, the alerts will not be enabled. 
 
