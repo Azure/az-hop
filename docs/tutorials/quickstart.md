@@ -163,7 +163,7 @@ In this task, you will prepare the `build.yml` file used by the deploy helper sc
    ```
 
 1. Fix the install.sh script
-In the `deploy` folder, change line 14 of the `install.sh` script from
+In the `deploy/resources` folder, change line 14 of the `install.sh` script from
 
 ```
 git clone --recursive https://github.com/Azure/az-hop.git
