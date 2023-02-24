@@ -56,7 +56,7 @@ network:
   create_nsg: true
   vnet:
     name: hpcvnet # Optional - default to hpcvnet
-    id: # If a vnet id is set then no network will be created and the provided vnet will be used
+    #id: # If a vnet id is set then no network will be created and the provided vnet will be used
     address_space: "10.0.0.0/23" 
     # Special VNET Tags
     tags:
@@ -149,6 +149,11 @@ lustre_base_image: "azhpc:azurehpc-lustre:azurehpc-lustre-2_12:latest"
 # The lustre plan to use. Only needed when using the default lustre image from the marketplace. use "::" for an empty plan
 lustre_base_plan: "azhpc:azurehpc-lustre:azurehpc-lustre-2_12" # publisher:product:name
 
+deployer:
+  vm_size: Standard_B2ms
+  # SSH port under which the jumpbox SSH server listens on the public IP. Default to 22
+  # Change this to, e.g., 2222, if security policies (like "zero trust") in your tenant automatically block access to port 22 from the internet
+  ssh_port: 2222
 # Jumpbox VM configuration, only needed when deploying thru a public IP and without a configured deployer VM
 jumpbox:
   vm_size: Standard_B2ms
@@ -471,4 +476,6 @@ applications:
   bc_vmd:
     enabled: false
   bc_paraview:
+    enabled: false
+  bc_vizer:
     enabled: false

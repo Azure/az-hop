@@ -83,7 +83,7 @@
                 },
                 "deployer": {
                     "description": "Deployer VM configuration",
-                    "$ref": "#/definitions/deployer"
+                    "$ref": "#/definitions/Deployer"
                 },
                 "ad": {
                     "description": "Active directory VM configuration",
