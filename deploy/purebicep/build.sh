@@ -2,7 +2,7 @@
 # Build the azhop environment with bicep.
 # build.sh -c|--config <configuration file path>
 #
-set -x
+#set -x
 AZHOP_ROOT=../..
 AZCLI_VERSION_MAJOR=2
 AZCLI_VERSION_MINOR=37
@@ -37,6 +37,11 @@ while (( "$#" )); do
     ;;
   esac
 done
+
+if [ -d ${THIS_DIR}/${AZHOP_ROOT}/miniconda ]; then
+  echo "Activating conda environment"
+  source ${THIS_DIR}/${AZHOP_ROOT}/miniconda/bin/activate
+fi
 
 function check_azcli_version {
   version=$(az --version | grep azure-cli | xargs | cut -d' ' -f 2)
@@ -93,7 +98,7 @@ function set_bicep_azhopconfig()
 check_azcli_version
 
 # Check config syntax
-yamllint $AZHOP_CONFIG
+${THIS_DIR}/${AZHOP_ROOT}/validate_config.sh $AZHOP_CONFIG
 unset logged_user_objectId
 
 # If a Jumpbox VM is defined in the config file then assume it's a local deployment, otherwise it's done from the deployer VM

@@ -91,7 +91,7 @@ var config = {
   queue_manager: contains(azhopConfig, 'queue_manager') ? azhopConfig.queue_manager : 'openpbs'
 
   slurm: {
-    admin_user: contains(azhopConfig.database, 'user') ? azhopConfig.database.user : 'sqladmin'
+    admin_user: contains(azhopConfig, 'database') && contains(azhopConfig.database, 'user') ? azhopConfig.database.user : 'sqladmin'
     accounting_enabled: contains(azhopConfig.slurm, 'accounting_enabled') ? azhopConfig.slurm.accounting_enabled : false
     enroot_enabled: contains(azhopConfig.slurm, 'enroot_enabled') ? azhopConfig.slurm.enroot_enabled : false
   }
@@ -104,7 +104,7 @@ var config = {
   homedir_mountpoint: azhopConfig.mounts.home.mountpoint
 
   anf: {
-    create: contains(azhopConfig, 'anf') && contains(azhopConfig.anf, 'create') ? azhopConfig.anf.create : true
+    create: contains(azhopConfig, 'anf') && contains(azhopConfig.anf, 'create') ? azhopConfig.anf.create : (contains(azhopConfig, 'anf') ? true : false)
     dual_protocol: contains(azhopConfig, 'anf') && contains(azhopConfig.anf, 'dual_protocol') ? azhopConfig.anf.dual_protocol : false
     service_level: contains(azhopConfig, 'anf') && contains(azhopConfig.anf, 'homefs_service_level') ? azhopConfig.anf.homefs_service_level : 'Standard'
     size_gb: contains(azhopConfig, 'anf') && contains(azhopConfig.anf, 'homefs_size_tb') ? azhopConfig.anf.homefs_size_tb*1024 : 4096
@@ -911,16 +911,22 @@ exec ssh -i {0}_id_rsa  "$@"
 
 var azhopSSHConnectScript = format('''
 #!/bin/bash
-
-if [[ $1 == "cyclecloud" ]]; then
-  echo go create tunnel to cyclecloud at https://localhost:9443/cyclecloud
-  ssh -i {0}_id_rsa -fN -L 9443:ccportal:9443 -p {1} {0}@{2}
-elif [[ $1 == "ad" ]]; then
-  echo go create tunnel to ad with rdp to localhost:3390
-  ssh -i {0}_id_rsa -fN -L 3390:ad:3389 -p {1} {0}@{2}
-else
-  exec ssh -i {0}_id_rsa -o ProxyCommand="ssh -i {0}_id_rsa -p {1} -W %h:%p {0}@{2}" -o "User={0}" "$@"
-fi
+case $1 in
+  cyclecloud)
+    echo go create tunnel to cyclecloud at https://localhost:9443/cyclecloud
+    ssh -i {0}_id_rsa -fN -L 9443:ccportal:9443 -p {1} {0}@{2}
+    ;;
+  ad)
+    echo go create tunnel to ad with rdp to localhost:3390
+    ssh -i {0}_id_rsa -fN -L 3390:ad:3389 -p {1} {0}@{2}
+    ;;
+  deployer|jumpbox)
+    ssh -i {0}_id_rsa -p {1} {0}@{2}
+    ;;
+  *)
+    exec ssh -i {0}_id_rsa -o ProxyCommand="ssh -i {0}_id_rsa -p {1} -W %h:%p {0}@{2}" -o "User={0}" "$@"
+    ;;
+esac
 ''', config.admin_user, config.vms.jumpbox.sshPort, azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIp)
 
 output azhopConnectScript string = deployDeployer ? azhopConnectScript : azhopSSHConnectScript
