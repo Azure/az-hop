@@ -321,3 +321,5 @@ applications:
     enabled: false
   bc_paraview:
     enabled: true
+  bc_vizer:
+    enabled: true
