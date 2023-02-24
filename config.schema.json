@@ -81,6 +81,10 @@
                     "description": "Jumpbox VM configuration, only needed when deploying thru a public IP and without a configured deployer VM",
                     "$ref": "#/definitions/Jumpbox"
                 },
+                "deployer": {
+                    "description": "Deployer VM configuration",
+                    "$ref": "#/definitions/Deployer"
+                },
                 "ad": {
                     "description": "Active directory VM configuration",
                     "$ref": "#/definitions/az-hopAd"
@@ -203,7 +207,6 @@
                 "enable_remote_winviz",
                 "grafana",
                 "guacamole",
-                "jumpbox",
                 "location",
                 "locked_down_network",
                 "mounts",
@@ -305,13 +308,12 @@
                 },
                 "bc_paraview": {
                     "$ref": "#/definitions/ood_app"
+                },
+                "bc_vizer": {
+                    "$ref": "#/definitions/ood_app"
                 }
             },
             "required": [
-                "bc_ansys_workbench",
-                "bc_codeserver",
-                "bc_jupyter",
-                "bc_vmd"
             ],
             "title": "Applications"
         },
@@ -509,6 +511,23 @@
                 "vm_size"
             ],
             "title": "Jumpbox"
+        },
+        "Deployer": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "vm_size": {
+                    "type": "string"
+                },
+                "ssh_port": {
+                    "description": "Defaults to 22. Change this to, e.g., 2222, if security policies (like 'zero trust') in your tenant automatically block access to port 22 from the internet",
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "vm_size"
+            ],
+            "title": "Deployer"
         },
         "Lustre": {
             "type": "object",
