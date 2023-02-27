@@ -184,7 +184,7 @@ jobs:
             set +e
             if [ "$USE_BICEP" == "true" ]; then
               pushd deploy/purebicep
-              ./build.sh -c ../../config.yml
+              ./build.sh -c ../../config.yml -v
               build_error=$?
               popd
             else

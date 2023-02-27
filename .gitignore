@@ -55,3 +55,4 @@ deploy/azureDeploy.*
 deploy/*params.json
 *parameters.json
 *outputs.json
+*mainTemplate.json
