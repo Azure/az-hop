@@ -755,8 +755,8 @@ module azhopPrivateZone './privatezone.bicep' = {
 }
 
 // list of DC VMs. The first one will be considered the default PDC (for DNS registration)
-var adVmNames = highAvailabilityForAD > 0 ? ['ad', 'ad2'] : ['ad']
-var adVmIps = highAvailabilityForAD > 0 ? [azhopVm[indexOf(map(vmItems, item => item.key), 'ad')].outputs.privateIp, azhopVm[indexOf(map(vmItems, item => item.key), 'ad2')].outputs.privateIp] : [azhopVm[indexOf(map(vmItems, item => item.key), 'ad')].outputs.privateIp]
+var adVmNames = highAvailabilityForAD ? ['ad', 'ad2'] : ['ad']
+var adVmIps = highAvailabilityForAD ? [azhopVm[indexOf(map(vmItems, item => item.key), 'ad')].outputs.privateIp, azhopVm[indexOf(map(vmItems, item => item.key), 'ad2')].outputs.privateIp] : [azhopVm[indexOf(map(vmItems, item => item.key), 'ad')].outputs.privateIp]
 module azhopADRecords './privatezone_records.bicep' = {
   name: 'azhopADRecords'
   params: {
