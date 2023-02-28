@@ -117,11 +117,14 @@ locals {
     create_rg = (!local.use_existing_rg) && (local.create_vnet || try(split("/", local.vnet_id)[4], local.resource_group) != local.resource_group)
 
     # ANF
-    create_anf = try(local.configuration_yml["anf"]["homefs_size_tb"] > 0, false) || try(local.configuration_yml["homefs_size_tb"] > 0, false)
-
-    homefs_size_tb = try(local.configuration_yml["anf"]["homefs_size_tb"], try(local.configuration_yml["homefs_size_tb"], 4))
-    homefs_service_level = try(local.configuration_yml["anf"]["homefs_service_level"], try(local.configuration_yml["homefs_service_level"], "Standard"))
+    create_anf = try(local.configuration_yml["anf"]["create"] || local.configuration_yml["anf"]["homefs_size_tb"] > 0, false) || try(local.configuration_yml["homefs_size_tb"] > 0, false)
+    anf_size=try(local.configuration_yml["anf"]["homefs_size_tb"], try(local.configuration_yml["homefs_size_tb"], 4))
+    anf_service_level = try(local.configuration_yml["anf"]["homefs_service_level"], try(local.configuration_yml["homefs_service_level"], "Standard"))
     anf_dual_protocol = try(local.configuration_yml["anf"]["dual_protocol"], try(local.configuration_yml["dual_protocol"], false))
+
+    #Azure Files
+    create_azure_files = try(local.configuration_yml["azurefiles"]["create"], false)
+    azure_files_size= try(local.configuration_yml["azurefiles"]["size_gb"], 1024)
 
     homedir_mountpoint = try(local.configuration_yml["mounts"]["home"]["mountpoint"], try(local.configuration_yml["homedir_mountpoint"], "/anfhome"))
 
