@@ -755,8 +755,12 @@ module azhopPrivateZone './privatezone.bicep' = {
 }
 
 // list of DC VMs. The first one will be considered the default PDC (for DNS registration)
-var adVmNames = highAvailabilityForAD ? ['ad', 'ad2'] : ['ad']
-var adVmIps = highAvailabilityForAD ? [azhopVm[indexOf(map(vmItems, item => item.key), 'ad')].outputs.privateIp, azhopVm[indexOf(map(vmItems, item => item.key), 'ad2')].outputs.privateIp] : [azhopVm[indexOf(map(vmItems, item => item.key), 'ad')].outputs.privateIp]
+// Trick to get the index of the DC VM in the vmItems array, to workaround a bug in bicep 0.14.85 as it throws an error when using indexOf(map(vmItems, item => item.key), 'ad2')
+var adVmNames = ! highAvailabilityForAD ? ['ad'] : ['ad', 'ad2']
+var adIp = azhopVm[indexOf(map(vmItems, item => item.key), 'ad')].outputs.privateIp
+var ad2Index = highAvailabilityForAD ? indexOf(map(vmItems, item => item.key), 'ad2') : 0
+var ad2Ip = azhopVm[ad2Index].outputs.privateIp
+var adVmIps = ! highAvailabilityForAD ? [adIp] : [adIp, ad2Ip]
 module azhopADRecords './privatezone_records.bicep' = {
   name: 'azhopADRecords'
   params: {

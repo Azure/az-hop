@@ -201,13 +201,12 @@ if [ "$IS_DRY_RUN" == "1" ]; then
 fi
 
 if [ "$VERBOSE" == "1" ]; then
-  AZ_DEBUG="--debug"
   az bicep build --file mainTemplate.bicep --outfile mainTemplate.json
   cat mainTemplate.json
-  az deployment sub validate $AZ_DEBUG --template-file mainTemplate.bicep --location $location --parameters @$BICEP_PARAMS
+  az deployment sub validate --template-file mainTemplate.bicep --location $location --parameters @$BICEP_PARAMS
 fi
 
-az deployment sub $deployment_op $AZ_DEBUG --template-file mainTemplate.bicep --location $location -n $deployment_name --parameters @$BICEP_PARAMS
+az deployment sub $deployment_op --template-file mainTemplate.bicep --location $location -n $deployment_name --parameters @$BICEP_PARAMS
 
 if [ "$IS_DRY_RUN" == "1" ]; then
   exit
