@@ -83,13 +83,10 @@ fi
 # Install Enroot
 #
 
-ENROOT_VERSION_FULL=${1:-3.4.0-2}
-ENROOT_VERSION=${ENROOT_VERSION_FULL%-*}
-
 arch=$(uname -m)
 dnf install -y epel-release
-rpm -q enroot || dnf install -y https://github.com/NVIDIA/enroot/releases/download/v${ENROOT_VERSION}/enroot-${ENROOT_VERSION_FULL}.el7.${arch}.rpm
-rpm -q enroot+caps || dnf install -y https://github.com/NVIDIA/enroot/releases/download/v${ENROOT_VERSION}/enroot+caps-${ENROOT_VERSION_FULL}.el7.${arch}.rpm
+dnf install -y https://github.com/NVIDIA/enroot/releases/download/v3.4.1/enroot-3.4.1-1.el8.${arch}.rpm
+dnf install -y https://github.com/NVIDIA/enroot/releases/download/v3.4.1/enroot+caps-3.4.1-1.el8.${arch}.rpm
 
 # Install NVIDIA container support
 #DIST=$(. /etc/os-release; echo $ID$VERSION_ID)
