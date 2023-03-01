@@ -42,7 +42,7 @@
                 "/tmp/openpbs.sh || exit 1",
                 "/tmp/slurm.sh || exit 1",
                 "/tmp/telegraf.sh || exit 1",
-                "/tmp/lustreclient.sh b2_14  || exit 1",
+                "/tmp/lustreclient.sh b2_15  || exit 1",
                 "/tmp/zz-compute-custom.sh || exit 1",
                 "echo ' This is the end '",
                 "rm -rf /tmp/*.sh",
