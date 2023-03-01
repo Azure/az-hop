@@ -12,7 +12,7 @@ apt-get install -y gcc make libtool libhwloc-dev libx11-dev libxt-dev libedit-de
 wget -q https://github.com/openpbs/openpbs/releases/download/v19.1.1/pbspro-19.1.1.tar.gz -O pbspro-19.1.1.tar.gz
 tar -xzf pbspro-19.1.1.tar.gz
 
-if [ "$(dpkg -s libhwloc-dev| grep Version| sed 's/^[^0-9]*\([0-9]\).*$/\1/')" == "2" ]; then
+if [ "$(dpkg -s libhwloc-dev| grep Version| sed 's/^[^0-9]*\([0-9]\).*$/\1/')" != "1" ]; then
     git clone https://github.com/open-mpi/hwloc.git -b v1.11
     cd hwloc
     ./autogen.sh
