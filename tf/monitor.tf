@@ -114,8 +114,8 @@ resource "azurerm_monitor_metric_alert" "vm_availability_alert" {
   description         = "Alert when VM is not available"
   severity            = 3
   enabled             = true
-  frequency           = "PT15M"
-  window_size         = "PT15M"
+  frequency           = "PT1M"
+  window_size         = "PT1M"
   target_resource_type = "Microsoft.Compute/virtualMachines"
   target_resource_location = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   criteria {
@@ -123,7 +123,7 @@ resource "azurerm_monitor_metric_alert" "vm_availability_alert" {
     metric_name      = "VmAvailabilityMetric"
     aggregation      = "Average"
     operator         = "LessThan"
-    threshold        = 1
+    threshold        = 0.95
   }
   action {
     action_group_id = azurerm_monitor_action_group.azhop_action_group[0].id
