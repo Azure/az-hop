@@ -1,0 +1,39 @@
+<%-
+  node_arrays = YAML.load_file("/etc/ood/config/apps/bc_desktop/config/node_arrays.yml")
+-%>
+---
+cluster: "ondemand"
+form:
+  - container_image
+  - bc_num_hours
+  - slot_type
+  - container_mounts
+attributes:
+  bc_num_hours:
+    widget: "number_field"
+    label: "Maximum duration of your remote session in hours"
+    value: 1
+    help: |
+      This is the maximum duration of your session.
+    min: 1
+    max: 48
+    step: 1
+  slot_type:
+    widget: select
+    options:
+      <%- node_arrays.each do |slot_type| %>
+      - '<%= slot_type["name"]%>'
+      <%- end %>
+  container_image:
+    id: "container_image"
+    label: "Container Image"
+    widget: "text_field"
+    value: "rocker/rstudio:4.2.2"
+    help: |
+  container_mounts:
+    id: "container_mounts"
+    label: "Additional Container Mounts"
+    widget: "text_field"
+    value: ""
+    help: |
+      Comma-separated list of additional mount[s] inside the container. Format: SRC:DST[,SRC:DST...]
