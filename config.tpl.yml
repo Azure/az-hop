@@ -32,7 +32,7 @@ mounts:
     export: '{{anf_home_path}}' # Specify an existing NFS export directory, when using the ANF built in use '{{anf_home_path}}'
     options: "rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev" # Specify the mount options. Default to rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev
 #  mount1:
-#    mountpoint: /mount1 
+#    mountpoint: /mount1
 #    server: a.b.c.d # Specify an existing NFS server name or IP
 #    export: myexport1 # Specify an existing NFS export name
 #    options: my_options # Specify the mount options.
@@ -48,7 +48,7 @@ network:
   vnet:
     name: hpcvnet # Optional - default to hpcvnet
     id: # If a vnet id is set then no network will be created and the provided vnet will be used
-    address_space: "10.0.0.0/23" 
+    address_space: "10.0.0.0/23"
     # Special VNET Tags
     # tags:
     #   key1: value1
@@ -56,7 +56,7 @@ network:
     subnets: # all subnets are optionals
     # name values can be used to rename the default to specific names, address_prefixes to change the IP ranges to be used
     # All values below are the default values
-      frontend: 
+      frontend:
         name: frontend
         address_prefixes: "10.0.0.0/29"
         create: true # create the subnet if true. default to true when not specified, default to false if using an existing VNET when not specified
@@ -111,7 +111,7 @@ network:
 #     asg-deployer: asg-deployer
 #     asg-guacamole: asg-guacamole
 #     asg-mariadb-client: asg-mariadb-client
-    
+
 #  peering: # This list is optional, and can be used to create VNet Peerings in the same subscription.
 #    - vnet_name: #"VNET Name to Peer to"
 #      vnet_resource_group: #"Resource Group of the VNET to peer to"
@@ -235,9 +235,9 @@ database:
   # Admin user of the database for which the password will be retrieved from the azhop keyvault
   user: sqladmin
   # FQDN of the managed instance
-  fqdn: 
+  fqdn:
   # IP of the managed private endpoint if the FQDN is not registered in a private DNS
-  ip: 
+  ip:
 
 # Create a Bastion in the bastion subnet when defined
 bastion:
@@ -380,7 +380,7 @@ queues:
     ColocateNodes: false
     # Specific idle time in seconds before shutting down VMs, make sure it's lower than autoscale.idle_timeout
     idle_timeout: 300
-    # Set the max number of vm's in a VMSS; requires additional limit raise through support ticket for >100; 
+    # Set the max number of vm's in a VMSS; requires additional limit raise through support ticket for >100;
     # 100 is default value; lower numbers will improve scaling for single node jobs or jobs with small number of nodes
     MaxScaleSetSize: 100
   - name: hc44rs
@@ -459,3 +459,13 @@ applications:
     enabled: false
   bc_paraview:
     enabled: false
+  cryosparc:
+    enabled: true
+    license_id: <LICENSE-ID>
+    admin_user: adminuser
+    admin_pwd: <ADMIN-PASSWORD>
+    master_size: Standard_D8s_v5
+    master_data_disk_size: 512
+    master_data_disk_type: Premium_LRS
+    master_hostname: cryosparc-master
+    target_queue: nc24v3
