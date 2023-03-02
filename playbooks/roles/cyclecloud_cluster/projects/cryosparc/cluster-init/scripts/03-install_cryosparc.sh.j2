@@ -1,0 +1,66 @@
+#!/bin/bash
+set -e
+
+if [ $(hostname) == {{ applications.cryosparc.master_hostname }} ]; then
+
+    # Install CryoSPARC master as admin user on master node
+    sudo -i -u {{ applications.cryosparc.admin_user }} bash << EOF
+    cd /cryosparc_data
+    tar xzf /sched/apps/cryosparc/cryosparc_master.tar.gz
+    cd cryosparc_master
+    ./install.sh --license {{ applications.cryosparc.license_id }} \
+                 --hostname $(hostname -f) \
+                 --dbpath /cryosparc_data/cryosparc_database \
+                 --port 39000 \
+                 --yes
+
+    # The service log target directory must be created manually
+    # otherwise the systemd service will fail to start (likely a bug)
+    mkdir -p /cryosparc_data/cryosparc_master/run
+EOF
+
+    # Install CryoSPARC systemd service
+    eval $(/cryosparc_data/cryosparc_master/bin/cryosparcm env)
+    cd /cryosparc_data/cryosparc_master/systemd
+    env "CRYOSPARC_ROOT_DIR=$CRYOSPARC_ROOT_DIR" ./install_services.sh
+
+    systemctl enable cryosparc-supervisor.service
+    systemctl start cryosparc-supervisor.service
+
+    # Create admin user in CryoSPARC
+    sudo -i -u {{ applications.cryosparc.admin_user }} bash << EOF
+    eval $(/cryosparc_data/cryosparc_master/bin/cryosparcm env)
+    cryosparcm createuser --email {{ applications.cryosparc.admin_user }}@azhop.com \
+                          --username {{ applications.cryosparc.admin_user }} \
+                          --firstname Admin \
+                          --lastname User \
+                          --password {{ applications.cryosparc.admin_pwd }}
+EOF
+
+else
+
+    # Create /apps directory if it doesn't exist
+    if [ ! -d /apps ]; then
+        mkdir -p /apps
+        chmod 777 /apps
+    fi
+
+    cd /apps
+    tar xzf /sched/apps/cryosparc/cryosparc_worker.tar.gz
+    chown -R {{ applications.cryosparc.admin_user }}: /apps/cryosparc*
+
+    # Get CUDA library path
+    LIBCUDART_PATH=$(sudo find /usr/local -name libcudart.so)
+    CUDA_PATH=$(echo $LIBCUDART_PATH | cut -d'/' -f-4)
+    export CUDA_PATH
+
+    # Install CryoSPARC worker as admin user on worker node
+    sudo -i -u {{ applications.cryosparc.admin_user }} bash << EOF
+    cd /apps/cryosparc_worker
+    ./install.sh --license {{ applications.cryosparc.license_id }} \
+                 --cudapath ${CUDA_PATH} \
+                 --yes
+EOF
+
+fi
+

@@ -1,0 +1,14 @@
+#jinja2: trim_blocks:False
+#!/bin/bash
+#SBATCH --partition={{ applications.cryosparc.target_queue }}
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node={%raw%}{{ num_cpu }}{%endraw%}
+#SBATCH --cpus-per-task=1
+#SBATCH --threads-per-core=1
+#SBATCH --gres=gpu:{%raw%}{{ num_gpu }}{%endraw%}
+#SBATCH --mem={%raw%}{{ (ram_gb*1000)|int }}{%endraw%}MB
+#SBATCH --job-name cryosparc_{%raw%}{{ project_uid }}_{{ job_uid }}{%endraw%}
+#SBATCH --output={%raw%}{{ job_log_path_abs }}{%endraw%}
+#SBATCH --error={%raw%}{{ job_log_path_abs }}{%endraw%}
+
+{%raw%}{{ run_cmd }}{%endraw%}

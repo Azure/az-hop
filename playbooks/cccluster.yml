@@ -94,9 +94,9 @@
     include_vars:
       file: '{{lookup_img_file}}'
 
-  - include_role: 
+  - include_role:
       name: cyclecloud_cluster
-      apply: 
+      apply:
         become: true
     vars:
       cc_region: '{{location}}'
@@ -109,7 +109,7 @@
       cc_domain: '{{domain_name}}'
       cc_queue_manager: '{{ queue_manager | default("openpbs") }}'
       influxdb_database_name: "telegraf"
-      telegraf_influxdb_urls: 
+      telegraf_influxdb_urls:
         - "http://grafana:8086"
       cc_slurm_version: '{{slurm.slurm_version | default("20.11.9")}}-1'
       slurm_uid: 11100
@@ -120,6 +120,7 @@
       enroot_scratch_dir: '/mnt/resource'
       cvmfs_eessi_enabled: '{{cvmfs_eessi.enabled | default(false)}}'
       cc_enable_remote_winviz: '{{enable_remote_winviz | default(false)}}'
+      cryosparc_enabled: '{{applications.cryosparc.enabled | default(false)}}'
 
   # Generate the node array core lookup file for ondemand - will be only run if the marker file for ondemand exists
   - import_tasks: nodearray_lookup.yml

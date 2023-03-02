@@ -1,0 +1,15 @@
+#!/bin/bash
+set -e
+
+mkdir -p /sched/apps/cryosparc
+cd /sched/apps/cryosparc
+
+if [ -s /sched/apps/cryosparc/cryosparc_master.tar.gz ] && [ -s /sched/apps/cryosparc/cryosparc_worker.tar.gz ]; then
+    echo "CryoSPARC archives already downloaded"
+else
+    echo "Downloading CryoSPARC master"
+    curl -L https://get.cryosparc.com/download/master-latest/{{ applications.cryosparc.license_id }} -o cryosparc_master.tar.gz
+    curl -L https://get.cryosparc.com/download/worker-latest/{{ applications.cryosparc.license_id }} -o cryosparc_worker.tar.gz
+fi
+
+chown -R {{ applications.cryosparc.admin_user }}: /sched/apps/cryosparc

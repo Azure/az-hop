@@ -1,0 +1,17 @@
+#!/bin/bash
+set -e
+
+if [ $(hostname) == {{ applications.cryosparc.master_hostname }} ]; then
+
+    ADMIN_HOME_DIR=$(eval echo "~{{ applications.cryosparc.admin_user }}")
+    export TARGET_DIR=${ADMIN_HOME_DIR}/cryosparc_cluster_{{ applications.cryosparc.target_queue }}
+    mkdir -p ${TARGET_DIR}
+    cp $CYCLECLOUD_SPEC_PATH/files/* ${TARGET_DIR}
+	chown -R adminuser: ${TARGET_DIR}
+
+    # Import Slurm cluster
+    sudo -i -u {{ applications.cryosparc.admin_user }} bash << EOF
+    cd ${TARGET_DIR}
+    /cryosparc_data/cryosparc_master/bin/cryosparcm cluster connect
+EOF
+fi

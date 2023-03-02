@@ -1,0 +1,11 @@
+{
+    "name": "{{ applications.cryosparc.target_queue }}",
+    "worker_bin_path": "/apps/cryosparc_worker/bin/cryosparcw",
+    "cache_path": "/mnt/resource",
+    "send_cmd_tpl": "{%raw%}{{ command }}{%endraw%}",
+    "qsub_cmd_tpl": "sbatch {%raw%}{{ script_path_abs }}{%endraw%}",
+    "qstat_cmd_tpl": "squeue -j {%raw%}{{ cluster_job_id }}{%endraw%}",
+    "qdel_cmd_tpl": "scancel {%raw%}{{ cluster_job_id }}{%endraw%}",
+    "qinfo_cmd_tpl": "sinfo",
+    "transfer_cmd_tpl": "scp {%raw%}{{ src_path }}{%endraw%} loginnode:{%raw%}{{ dest_path }}{%endraw%}"
+}
