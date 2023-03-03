@@ -152,6 +152,17 @@ jumpbox:
   #ssh_port: 2222
 # Active directory VM configuration
 ad:
+  use_existing_ad: false
+  existing_ad_details:
+    domain_name: custom_domain
+    domain_join_user: 
+      username: join_user
+      password_key_vault_name: name_for_the_key_vault_with_the_domain_join_password
+      password_key_vault_resource_group_name: resource_group_name_for_the_key_vault_with_the_domain_join_password
+      password_key_vault_secret_name: key_vault_secret_name_for_the_domain_join_password
+    domain_join_ou: "CN=Computers"
+    domain_controller_names: ["dc1", "dc2"]
+    private_dns_servers: ["192.168.1.53", "192.168.2.53"]
   vm_size: Standard_B2ms
   hybrid_benefit: false # Enable hybrid benefit for AD, default to false
   high_availability: false # Build AD in High Availability mode (2 Domain Controlers) - default to false
