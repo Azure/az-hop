@@ -50,12 +50,13 @@
   args:
     creates: /etc/sssd/sssd.conf
 
-# - name: ReJoin AD domain
-#   shell: |
-#     realm leave
-#     systemctl stop sssd
-#     rm -rf /var/lib/sss/db/*
-#     echo "{{ domain_password }}" | realm join -v -U {{ domain_admin }} {{ domain_name }}
+- name: ReJoin AD domain
+  shell: |
+    realm leave
+    systemctl stop sssd
+    rm -rf /var/lib/sss/db/*
+    echo "{{ domain_password }}" | realm join -v -U {{ domain_admin }} {{ domain_name }}
+  tags: [ 'never', 'ad-rejoin' ]
 
 
 - name: configure sssd - use_fully_qualified_names
