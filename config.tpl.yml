@@ -67,7 +67,7 @@ network:
   create_nsg: true
   vnet:
     name: hpcvnet # Optional - default to hpcvnet
-    id: # If a vnet id is set then no network will be created and the provided vnet will be used
+    #id: # If a vnet id is set then no network will be created and the provided vnet will be used
     address_space: "10.0.0.0/23" 
     # Special VNET Tags
     # tags:
@@ -251,13 +251,13 @@ slurm:
   cluster_name: slurm_azhop
 
 # If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values
-database:
+#database:
   # Admin user of the database for which the password will be retrieved from the azhop keyvault
-  user: sqladmin
+  #user: sqladmin
   # FQDN of the managed instance
-  fqdn:
+  #fqdn:
   # IP of the managed private endpoint if the FQDN is not registered in a private DNS
-  ip:
+  #ip:
 
 # Create a Bastion in the bastion subnet when defined
 bastion:
@@ -478,4 +478,6 @@ applications:
   bc_vmd:
     enabled: false
   bc_paraview:
+    enabled: false
+  bc_vizer:
     enabled: false

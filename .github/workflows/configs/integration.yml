@@ -50,7 +50,7 @@ network:
   create_nsg: true
   vnet:
     name: hpcvnet # Optional - default to hpcvnet
-    id: # If a vnet id is set then no network will be created and the provided vnet will be used
+    #id: # If a vnet id is set then no network will be created and the provided vnet will be used
     address_space: "10.128.0.0/23" # Optional - default to "10.0.0.0/16"
     # When using an existing VNET, only the subnet names will be used and not the adress_prefixes
     subnets: # all subnets are optionals
@@ -331,4 +331,6 @@ applications:
   bc_vmd:
     enabled: false
   bc_paraview:
+    enabled: true
+  bc_vizer:
     enabled: true

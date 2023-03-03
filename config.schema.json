@@ -81,6 +81,10 @@
                     "description": "Jumpbox VM configuration, only needed when deploying thru a public IP and without a configured deployer VM",
                     "$ref": "#/definitions/Jumpbox"
                 },
+                "deployer": {
+                    "description": "Deployer VM configuration",
+                    "$ref": "#/definitions/Deployer"
+                },
                 "ad": {
                     "description": "Active directory VM configuration",
                     "$ref": "#/definitions/az-hopAd"
@@ -208,11 +212,9 @@
                 "authentication",
                 "autoscale",
                 "cyclecloud",
-                "database",
                 "enable_remote_winviz",
                 "grafana",
                 "guacamole",
-                "jumpbox",
                 "location",
                 "locked_down_network",
                 "mounts",
@@ -326,7 +328,7 @@
         },
         "Applications": {
             "type": "object",
-            "additionalProperties": false,
+            "additionalProperties": true,
             "properties": {
                 "bc_codeserver": {
                     "$ref": "#/definitions/ood_app"
@@ -342,13 +344,12 @@
                 },
                 "bc_paraview": {
                     "$ref": "#/definitions/ood_app"
+                },
+                "bc_vizer": {
+                    "$ref": "#/definitions/ood_app"
                 }
             },
             "required": [
-                "bc_ansys_workbench",
-                "bc_codeserver",
-                "bc_jupyter",
-                "bc_vmd"
             ],
             "title": "Applications"
         },
@@ -547,6 +548,23 @@
             ],
             "title": "Jumpbox"
         },
+        "Deployer": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "vm_size": {
+                    "type": "string"
+                },
+                "ssh_port": {
+                    "description": "Defaults to 22. Change this to, e.g., 2222, if security policies (like 'zero trust') in your tenant automatically block access to port 22 from the internet",
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "vm_size"
+            ],
+            "title": "Deployer"
+        },
         "Lustre": {
             "type": "object",
             "additionalProperties": false,
@@ -662,7 +680,6 @@
             "required": [
                 "export",
                 "mountpoint",
-                "options",
                 "server"
             ],
             "title": "Home"
@@ -783,14 +800,13 @@
             "additionalProperties": false,
             "properties": {
                 "name": { "type": "string" },
-                "id": { "type": "null" },
+                "id": { "type": "string" },
                 "address_space": { "type": "string" },
                 "subnets": { "$ref": "#/definitions/Subnets" },
                 "tags": { "$ref": "#/definitions/Tags" }
             },
             "required": [
                 "address_space",
-                "id",
                 "name",
                 "subnets"
             ],

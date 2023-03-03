@@ -1,0 +1,12 @@
+---
+name: vizer
+category: Interactive Apps
+subcategory: Servers
+role: batch_connect
+description: |
+  This app will launch a [vizer] server on a cluster running [Enroot]. This app is intended to serve
+  as a template for other web applications based on [trame] or similar web-visualization frameworks.
+
+  [vizer]: https://github.com/utkarshayachit/vizer
+  [trame]: https://kitware.github.io/trame/index.html
+  [Enroot]: https://github.com/NVIDIA/enroot

@@ -20,6 +20,7 @@ git clone -b __INSERT_AZHOP_BRANCH__ --recursive https://github.com/Azure/az-hop
 cd az-hop
 export azhop_root=$(pwd)
 echo "* Installing azhop toolset dependencies"
+export HOME=/root # hack to fix conda install in cloud-init
 ./toolset/scripts/install.sh
 
 mkdir -p $azhop_root/deploy

@@ -69,7 +69,7 @@ resource "azurerm_key_vault_access_policy" "guacamole" {
   count        = local.enable_remote_winviz ? 1 : 0
   key_vault_id = azurerm_key_vault.azhop.id
   tenant_id    = local.tenant_id
-  object_id    = azurerm_linux_virtual_machine.guacamole[0].identity[0].principal_id
+  object_id    = length(azurerm_linux_virtual_machine.guacamole[0].identity[0].principal_id) > 0 ? azurerm_linux_virtual_machine.guacamole[0].identity[0].principal_id : uuid()
 
   secret_permissions = [ "Get", "List" ]
 }
