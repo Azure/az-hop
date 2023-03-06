@@ -27,6 +27,10 @@ on:
         description: 'Job Scheduler to be installed : openpbs/slurm'
         required: false
         default: 'openpbs' # use it with ${{ github.event.inputs.scheduler }}
+      images:
+        description: 'Images to be used (marketplace/shared) or built (private): marketplace/shared/private'
+        required: false
+        default: 'marketplace' # use it with ${{ github.event.inputs.images }}
       lustre:
         description: 'Deploy a Lustre cluster (true/false) - Default to true'
         required: false
@@ -54,6 +58,7 @@ jobs:
       clean: ${{ github.event.inputs.clean }}
       anf_dual: ${{ github.event.inputs.anf_dual }}
       scheduler: ${{ github.event.inputs.scheduler }}
+      images: ${{ github.event.inputs.images }}
       lustre: ${{ github.event.inputs.lustre }}
       deploy_only: ${{ github.event.inputs.deploy_only }}
       use_bicep: ${{ github.event.inputs.use_bicep }}
@@ -63,3 +68,4 @@ jobs:
       ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
       ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+      SHARED_SIG: ${{ secrets.SHARED_SIG }}
