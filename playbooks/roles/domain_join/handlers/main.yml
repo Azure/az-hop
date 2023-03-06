@@ -5,6 +5,11 @@
     name: sssd 
     state: restarted
 
+- name: restart daemon-reload
+  service:
+    name: daemon-reload
+    state: restarted
+
 - name: restart dbus
   service:
     name: dbus

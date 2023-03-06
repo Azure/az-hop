@@ -57,6 +57,23 @@
 #     rm -rf /var/lib/sss/db/*
 #     echo "{{ domain_password }}" | realm join -v -U {{ domain_admin }} {{ domain_name }}
 
+- name: configure sssd restart onfailure
+  lineinfile:
+    path: /usr/lib/systemd/system/sssd.service
+    insertafter: '[Service]'
+    line: 'Restart=on-failure'
+    firstmatch: yes
+    state: present
+  notify: restart daemon-reload
+
+- name: configure sssd to restart after 30 seconds
+  lineinfile:
+    path: /usr/lib/systemd/system/sssd.service
+    insertafter: 'Restart='
+    line: 'RestartSec=30s'
+    firstmatch: yes
+    state: present
+  notify: restart daemon-reload
 
 - name: configure sssd - use_fully_qualified_names
   lineinfile:
