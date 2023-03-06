@@ -32,6 +32,11 @@ on:
         required: true
         default: 'openpbs' # use it with ${{ inputs.scheduler }}
         type: string
+      images:
+        description: 'Images to be used (marketplace/shared) or built (private): marketplace/shared/private'
+        required: true
+        default: 'marketplace' # use it with ${{ inputs.images }}
+        type: string
       lustre:
         description: 'Deploy a Lustre cluster (true/false) - Default to true'
         required: true
@@ -62,6 +67,8 @@ on:
         required: true
       ARM_CLIENT_SECRET:
         required: true
+      SHARED_SIG:
+        required: true
 
 env:
   TF_CLI_ARGS: '-no-color'
@@ -69,10 +76,12 @@ env:
   TF_CLI_ARGS_apply: '-auto-approve'
   AZHOP_CONFIGURATION: '.github/workflows/configs/integration.yml'
   AZHOP_LUSTRE_CONFIGURATION: '.github/workflows/configs/lustre.yml'
+  AZHOP_IMAGES_CONFIGURATION: '.github/workflows/configs/images.yml'
   ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
   ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
   ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
   ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+  SHARED_SIG: ${{ secrets.SHARED_SIG }}
   AZHOP_STATE_CONTAINER: environments
   AZHOP_STATE_ACCOUNT: azhopstates
   ANSIBLE_VERBOSITY: 2 # From 0 to 4 based on the level of logs needed in Ansible
@@ -142,6 +151,32 @@ jobs:
             if [ "$DEPLOY_LUSTRE" == "true" ]; then
               cat $AZHOP_LUSTRE_CONFIGURATION >> config.yml
             fi
+
+            # Configure images
+            IMAGES=${{ inputs.images }}
+            case $IMAGES in
+              marketplace)
+                echo "Using marketplace images"
+                ;;
+              shared)
+                echo "Using shared images"
+                sed -i "s|azhpc:azhop-compute:centos-7_9:latest|$SHARED_SIG/azhop-compute-centos-7_9/latest|g" config.yml
+                sed -i "s|azhpc:azhop-desktop:centos-7_9:latest|$SHARED_SIG/azhop-desktop-centos-7_9/latest|g" config.yml
+                sed -i "s|azhpc:azhop-compute:almalinux-8_7:latest|$SHARED_SIG/azhop-compute-almalinux-8_7/latest|g" config.yml
+                sed -i "s|azhpc:azhop-compute:ubuntu-18_04:latest|$SHARED_SIG/azhop-compute-ubuntu-1804/latest|g" config.yml
+                sed -i "s|azhpc:azhop-compute:ubuntu-20_04:latest|$SHARED_SIG/azhop-compute-ubuntu-2004/latest|g" config.yml
+                ;;
+              private)
+                echo "Using private images"
+                cat $AZHOP_IMAGES_CONFIGURATION >> config.yml
+                SIG="/subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images"
+                sed -i "s|azhpc:azhop-compute:centos-7_9:latest|$SIG/azhop-compute-centos-7_9/latest|g" config.yml
+                sed -i "s|azhpc:azhop-desktop:centos-7_9:latest|$SIG/azhop-desktop-centos-7_9/latest|g" config.yml
+                sed -i "s|azhpc:azhop-compute:almalinux-8_7:latest|$SIG/azhop-compute-almalinux-8_7/latest|g" config.yml
+                sed -i "s|azhpc:azhop-compute:ubuntu-18_04:latest|$SIG/azhop-compute-ubuntu-1804/latest|g" config.yml
+                sed -i "s|azhpc:azhop-compute:ubuntu-20_04:latest|$SIG/azhop-compute-ubuntu-2004/latest|g" config.yml
+                ;;
+            esac
 
             # If peering, then find out which IP range can be used
             peered_vnet=$(yq eval ".network.peering[0].vnet_name" config.yml)
