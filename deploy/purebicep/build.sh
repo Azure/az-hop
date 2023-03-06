@@ -2,7 +2,6 @@
 # Build the azhop environment with bicep.
 # build.sh -c|--config <configuration file path>
 #
-set -x
 AZHOP_ROOT=../..
 AZCLI_VERSION_MAJOR=2
 AZCLI_VERSION_MINOR=37
@@ -13,11 +12,17 @@ AZHOP_FROM=local
 set -e
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+IS_DRY_RUN=0
+VERBOSE=0
+
 if [ $# -eq 0 ]; then
   echo "Usage build.sh "
   echo "  Required arguments:"
   echo "    -c|--config <configuration file path> "
+  echo "    -d|--dry-run "
   echo "   "
+  echo "  Optional arguments:"
+  echo "    -v|--verbose : verbose output"
 
   exit 1
 fi
@@ -28,8 +33,22 @@ while (( "$#" )); do
       AZHOP_CONFIG=${2}
       shift 2
     ;;
+    -d|--dry-run)
+      IS_DRY_RUN=1
+      shift
+    ;;
+    -v|--verbose)
+      VERBOSE=1
+      set -x
+      shift
+    ;;
   esac
 done
+
+if [ -d ${THIS_DIR}/${AZHOP_ROOT}/miniconda ]; then
+  echo "Activating conda environment"
+  source ${THIS_DIR}/${AZHOP_ROOT}/miniconda/bin/activate
+fi
 
 function check_azcli_version {
   version=$(az --version | grep azure-cli | xargs | cut -d' ' -f 2)
@@ -86,7 +105,7 @@ function set_bicep_azhopconfig()
 check_azcli_version
 
 # Check config syntax
-yamllint $AZHOP_CONFIG
+${THIS_DIR}/${AZHOP_ROOT}/validate_config.sh $AZHOP_CONFIG
 unset logged_user_objectId
 
 # If a Jumpbox VM is defined in the config file then assume it's a local deployment, otherwise it's done from the deployer VM
@@ -176,8 +195,22 @@ fi
 
 timestamp=$(date -u +"%Y.%m%d.%H%M")
 deployment_name=azhop_${timestamp}
+deployment_op="create"
+if [ "$IS_DRY_RUN" == "1" ]; then
+  deployment_op="what-if"
+fi
 
-az deployment sub create --template-file mainTemplate.bicep --location $location -n $deployment_name --parameters @$BICEP_PARAMS
+if [ "$VERBOSE" == "1" ]; then
+  az bicep build --file mainTemplate.bicep --outfile mainTemplate.json
+  cat mainTemplate.json
+  az deployment sub validate --template-file mainTemplate.bicep --location $location --parameters @$BICEP_PARAMS
+fi
+
+az deployment sub $deployment_op --template-file mainTemplate.bicep --location $location -n $deployment_name --parameters @$BICEP_PARAMS
+
+if [ "$IS_DRY_RUN" == "1" ]; then
+  exit
+fi
 
 echo "* Getting deployment output"
 az deployment group show \
@@ -208,7 +241,7 @@ if [ "$AZHOP_FROM" == "local" ]; then
   mkdir -p $AZHOP_ROOT/playbooks/group_vars
   jq .azhopGlobalConfig.value $AZHOP_DEPLOYMENT_OUTPUT | yq -P > $AZHOP_ROOT/playbooks/group_vars/all.yml
 
-  jq '.azhopInventory.value.all.hosts *= (.lustre_oss_private_ips.value | to_entries | map({("lustre-oss-" + (.key + 1 | tostring)): {"ansible_host": .value}}) | add // {}) | .azhopInventory.value' $AZHOP_DEPLOYMENT_OUTPUT | yq -P > $AZHOP_ROOT/playbooks/inventory
+  jq '.azhopInventory.value.all.hosts *= (.lustre_oss_private_ips.value | to_entries | map({("lustre-oss-" + (.key | tostring)): {"ansible_host": .value}}) | add // {}) | .azhopInventory.value' $AZHOP_DEPLOYMENT_OUTPUT | yq -P > $AZHOP_ROOT/playbooks/inventory
 
   jq .azhopPackerOptions.value $AZHOP_DEPLOYMENT_OUTPUT > $AZHOP_ROOT/packer/options.json
 fi

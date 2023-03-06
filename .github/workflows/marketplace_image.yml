@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: azhop.azurecr.io/hpcrover:2210.1816
+      image: azhop.azurecr.io/hpcrover:2302.2117
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -47,12 +47,14 @@ jobs:
 
       - name: Login azure
         run: |
+          source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: list all images to be built
         id: set-image-matrix
         run: |
+          source /miniconda/bin/activate
           RESOURCE_GROUP=${{ env.RESOURCE_GROUP }}
           rg_exists=$(az group exists -n $RESOURCE_GROUP)
           if [ "$rg_exists" = "true" ]; then
@@ -77,7 +79,7 @@ jobs:
       matrix:
         images: ${{ fromJson(needs.set_image_list.outputs.matrix) }}
     container:
-      image: azhop.azurecr.io/hpcrover:2210.1816
+      image: azhop.azurecr.io/hpcrover:2302.2117
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -88,11 +90,13 @@ jobs:
 
       - name: Login azure
         run: |
+          source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: Build Images
         run: |
+          source /miniconda/bin/activate
           RESOURCE_GROUP=${{ env.RESOURCE_GROUP }}
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           cd packer
@@ -107,7 +111,7 @@ jobs:
       matrix:
         images: ${{ fromJson(needs.set_image_list.outputs.matrix) }}
     container:
-      image: azhop.azurecr.io/hpcrover:2210.1816
+      image: azhop.azurecr.io/hpcrover:2302.2117
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -118,11 +122,13 @@ jobs:
 
       - name: Login azure
         run: |
+          source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: Push Offer Update
         run: |
+          source /miniconda/bin/activate
           set -e
           RESOURCE_GROUP=${{ env.RESOURCE_GROUP }}
           ANSIBLE_VARIABLES=./playbooks/group_vars/all.yml

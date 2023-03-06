@@ -1,10 +1,17 @@
 #!/bin/bash
 TARGET=${1:-all}
+shift
+ANSIBLE_TAGS=$@
 set -e
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PLAYBOOKS_DIR=$THIS_DIR/playbooks
 INVENTORY=$PLAYBOOKS_DIR/inventory
 OOD_AUTH="basic"
+
+if [ -d ${THIS_DIR}/miniconda ]; then
+  echo "Activating conda environment"
+  source ${THIS_DIR}/miniconda/bin/activate
+fi
 
 function run_playbook ()
 {
@@ -22,7 +29,7 @@ function run_playbook ()
       options+=" --extra-vars=@$PLAYBOOKS_DIR/extra_vars.yml"
     fi
     echo "Running playbook $PLAYBOOKS_DIR/$playbook.yml ..."
-    ansible-playbook -i $INVENTORY $PLAYBOOKS_DIR/$playbook.yml $options || exit 1
+    ansible-playbook -i $INVENTORY $PLAYBOOKS_DIR/$playbook.yml $options $ANSIBLE_TAGS || exit 1
     if [ -e $PLAYBOOKS_DIR/extra_vars.yml ]; then
       rm $PLAYBOOKS_DIR/extra_vars.yml
     fi
@@ -75,11 +82,11 @@ function enable_winviz ()
 
 function enable_lustre ()
 {
-  FEATURE_LUSTRE_IN_CONFIG=$(yq eval '.features.lustre' config.yml)
+  FEATURE_LUSTRE_IN_CONFIG=$(yq eval '.lustre.create' config.yml)
   if [ "$FEATURE_LUSTRE_IN_CONFIG" != "null" ]; then
-    ENABLE_LUSTRE=$(yq '.features.lustre' ./config.yml | tr '[:upper:]' '[:lower:]')
+    ENABLE_LUSTRE=$(yq '.lustre.create' ./config.yml | tr '[:upper:]' '[:lower:]')
   else
-    LUSTRE_VM_IN_CONFIG=$(yq eval '.lustre' config.yml)
+    LUSTRE_VM_IN_CONFIG=$(yq eval '.lustre.oss_count' config.yml)
     if [ "$LUSTRE_VM_IN_CONFIG" == "null" ]; then
       ENABLE_LUSTRE=false
     else
@@ -93,11 +100,16 @@ function enable_lustre ()
   fi
 }
 
-# Apply pre-reqs
-$THIS_DIR/ansible_prereqs.sh
+# Ensure submodule exists
+if [ ! -d "${PLAYBOOKS_DIR}/roles/ood-ansible/.github" ]; then
+    printf "Installing OOD Ansible submodule\n"
+    git submodule init
+    git submodule update
+fi
 
-# Check config syntax
-yamllint config.yml
+# Validate config against schema
+$THIS_DIR/validate_config.sh config.yml
+
 get_scheduler
 get_ood_auth
 enable_winviz

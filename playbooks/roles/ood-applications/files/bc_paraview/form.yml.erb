@@ -1,6 +1,3 @@
-<%-
-  node_arrays = YAML.load_file("/etc/ood/config/apps/bc_desktop/config/node_arrays.yml")
--%>
 ---
 cluster:
     - "ondemand"
@@ -24,13 +21,23 @@ attributes:
         widget: "select"
         label: "Node type"
         help: |
-            Select the type of node you want to use.
+            Select the resource target for the remote desktop session <br>
+            - **With GPU** <br>
+                These are standard small GPU nodes for visualization for a single user session.<br>
+            - **Large With GPU** <br>
+                These are standard large GPU nodes for visualization, usually for multiple users sessions sharing the same node.<br>
+            - **Without GPU** <br>
+                Same as for **With GPU** but without a GPU accelerator.
         options:
-            <%- node_arrays.each do |slot_type| %>
-                <%- if slot_type["name"].include?("viz") -%>
-                    - '<%= slot_type["name"]%>'
-                <%- end -%>
-            <%- end %>
+            - ["With GPU - Small GPU node for single session", "viz3d", data-hide-bucket: true, data-set-bucket: 1,
+                data-max-bc-num-hours: "8",
+                data-min-bc-num-hours: "1"]
+            - ["Large With GPU - Intented for shared sessions", "largeviz3d",
+                data-max-bc-num-hours: "8",
+                data-min-bc-num-hours: "1"]
+            - ["Without GPU - for single session", "viz", data-hide-bucket: true, data-set-bucket: 1,
+                data-max-bc-num-hours: "8",
+                data-min-bc-num-hours: "1"]
     bucket:
         widget: "select"
         label: "Node bucket"

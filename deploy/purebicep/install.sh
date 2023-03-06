@@ -20,6 +20,7 @@ git clone -b __INSERT_AZHOP_BRANCH__ --recursive https://github.com/Azure/az-hop
 cd az-hop
 export azhop_root=$(pwd)
 echo "* Installing azhop toolset dependencies"
+export HOME=/root # hack to fix conda install in cloud-init
 ./toolset/scripts/install.sh
 
 mkdir -p $azhop_root/deploy
@@ -69,16 +70,17 @@ jq '. | .azhopGlobalConfig.value.global_config_file=$param' --arg param $azhop_r
 cp tmp.json azhopOutputs.json
 jq .azhopGlobalConfig.value azhopOutputs.json | yq -P > $azhop_root/playbooks/group_vars/all.yml
 
-jq '.azhopInventory.value.all.hosts *= (.lustre_oss_private_ips.value | to_entries | map({("lustre-oss-" + (.key + 1 | tostring)): {"ansible_host": .value}}) | add // {}) | .azhopInventory.value' azhopOutputs.json | yq -P > $azhop_root/playbooks/inventory
+jq '.azhopInventory.value.all.hosts *= (.lustre_oss_private_ips.value | to_entries | map({("lustre-oss-" + (.key | tostring)): {"ansible_host": .value}}) | add // {}) | .azhopInventory.value' azhopOutputs.json | yq -P > $azhop_root/playbooks/inventory
 
 jq .azhopPackerOptions.value azhopOutputs.json > $azhop_root/packer/options.json
 
-if [ "$(jq -r .azhopConfig.value.features.sig azhopOutputs.json)" == "true" ]; then
-    echo "* Building images"
-    cd $azhop_root/packer
-    ./build_image.sh -i azhop-compute-centos-7.9.json
-    ./build_image.sh -i azhop-desktop-centos-7.9.json
-fi
+# We probably don't want to build custom images as part of the cloud-init step
+# if [ "$(jq -r .azhopConfig.value.features.sig azhopOutputs.json)" == "true" ]; then
+#     echo "* Building images"
+#     cd $azhop_root/packer
+#     ./build_image.sh -i azhop-compute-centos-7.9.json
+#     ./build_image.sh -i azhop-desktop-centos-7.9.json
+# fi
 
 echo "* Generating passwords"
 cd $azhop_root

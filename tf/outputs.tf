@@ -45,7 +45,7 @@ resource "local_file" "global_variables" {
       homedir_mountpoint  = local.homedir_mountpoint
       anf-home-ip         = local.create_anf ? element(azurerm_netapp_volume.home[0].mount_ip_addresses, 0) : local.configuration_yml["mounts"]["home"]["server"]
       anf-home-path       = local.create_anf ? azurerm_netapp_volume.home[0].volume_path : local.configuration_yml["mounts"]["home"]["export"]
-      homedir_options     = try(local.configuration_yml["mounts"]["home"]["options"], "rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev")
+      homedir_options     = local.create_anf ? "rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev" : try(local.configuration_yml["mounts"]["home"]["options"], "rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev") 
       ondemand-fqdn       = local.allow_public_ip ? azurerm_public_ip.ondemand-pip[0].fqdn : try( local.configuration_yml["ondemand"]["fqdn"], azurerm_network_interface.ondemand-nic.private_ip_address)
       subscription_id     = data.azurerm_subscription.primary.subscription_id
       tenant_id           = data.azurerm_subscription.primary.tenant_id
@@ -56,7 +56,7 @@ resource "local_file" "global_variables" {
       database-fqdn       = local.create_database ? azurerm_mariadb_server.mariadb[0].fqdn : (local.use_existing_database ? local.configuration_yml["database"].fqdn : "")
       database-user       = local.database_user
       jumpbox-ssh-port    = local.jumpbox_ssh_port
-      dns-ruleset-name    = local.create_outbounddns_subnet ? azurerm_private_dns_resolver_dns_forwarding_ruleset.forwarding_ruleset[0].name : ""
+      dns-ruleset-name    = local.create_dnsfw_rules ? azurerm_private_dns_resolver_dns_forwarding_ruleset.forwarding_ruleset[0].name : ""
     }
   )
   filename = "${local.playbook_root_dir}/group_vars/all.yml"
@@ -93,9 +93,9 @@ resource "local_file" "packer_pip" {
       sig_name        = azurerm_shared_image_gallery.sig.name
       private_virtual_network_with_public_ip = false # Never use public IPs for packer VMs
       virtual_network_name                   = local.create_vnet ? azurerm_virtual_network.azhop[0].name : data.azurerm_virtual_network.azhop[0].name
-      virtual_network_subnet_name            = local.create_admin_subnet ? azurerm_subnet.compute[0].name : data.azurerm_subnet.compute[0].name
+      virtual_network_subnet_name            = local.create_compute_subnet ? azurerm_subnet.compute[0].name : data.azurerm_subnet.compute[0].name
       virtual_network_resource_group_name    = local.create_vnet ? azurerm_virtual_network.azhop[0].resource_group_name : data.azurerm_virtual_network.azhop[0].resource_group_name
-      ssh_bastion_host                       = local.allow_public_ip ? azurerm_public_ip.jumpbox-pip[0].ip_address : ( local.jumpbox_enabled ? azurerm_network_interface.jumpbox-nic[0].private_ip_address : "0.0.0.0")
+      ssh_bastion_host                       = local.allow_public_ip ? azurerm_public_ip.jumpbox-pip[0].ip_address : ( local.jumpbox_enabled ? azurerm_network_interface.jumpbox-nic[0].private_ip_address : "")
       ssh_bastion_port = local.jumpbox_ssh_port
       ssh_bastion_username = local.admin_username
       ssh_bastion_private_key_file = local_file.private_key.filename
