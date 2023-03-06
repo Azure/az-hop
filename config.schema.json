@@ -300,6 +300,9 @@
                 "bc_jupyter": {
                     "$ref": "#/definitions/ood_app"
                 },
+		"bc_rstudio": {
+                    "$ref": "#/definitions/ood_app"
+                },
                 "bc_ansys_workbench": {
                     "$ref": "#/definitions/ood_app"
                 },
