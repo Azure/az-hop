@@ -764,6 +764,8 @@ applications:
     enabled: true
   bc_jupyter:
     enabled: true
+  bc_rstudio:
+    enabled: false
   bc_ansys_workbench:
     enabled: false
 
