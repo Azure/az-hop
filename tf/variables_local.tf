@@ -57,6 +57,9 @@ locals {
     TEMPLATE
 
     create_log_analytics_workspace = try(local.configuration_yml["log_analytics"]["create"], false)
+    
+    ama_install = try(local.configuration_yml["monitoring"]["install_agent"], true)
+
     alert_email = try(local.configuration_yml["alerting"]["admin_email"], null)
 
     #For alerting to be enabled - the analytics workspace needs to be created since log alerts are leveraged. 

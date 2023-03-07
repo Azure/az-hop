@@ -162,6 +162,7 @@ resource "azurerm_network_interface_application_security_group_association" "ccp
 }
 
 resource "azurerm_virtual_machine_extension" "AzureMonitorLinuxAgent_ccportal" {
+  count                      = local.ama_install ? 1 : 0
   name                       = "AzureMonitorLinuxAgent"
   virtual_machine_id         = azurerm_linux_virtual_machine.ccportal.id
   publisher                  = "Microsoft.Azure.Monitor"
