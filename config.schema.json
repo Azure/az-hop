@@ -195,6 +195,14 @@
                 "dns": {
                     "description": "Specify DNS forwarders available in the network",
                     "$ref": "#/definitions/dns"
+                },
+                "log_analytics": {
+                    "description": "Create a log analytics workspace to enable monitoring and alerting",
+                    "$ref": "#/definitions/logAnalytics"
+                },
+                "alerting": {
+                    "description": "If set to true, it will create alert rules associated with az-hop. Enablement of alerting will require the specification of an admin email to send alerts to.",
+                    "$ref": "#/definitions/alerting"
                 }
             },
             "required": [
@@ -223,6 +231,28 @@
                 "windows_base_image"
             ],
             "title": "az-hop"
+        },
+        "logAnalytics": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "create": {"type": "boolean" }
+            },
+            "required": [ "create" ],
+            "title": "logAnalytics"
+        },
+        "alerting": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "enabled": {"type": "boolean" },
+                "admin_email": { "type": "string" },
+                "local_volume_threshold": { "type": "integer", "maximum": 100, "minimum": 1 }
+            },
+            "required": [
+                "enabled", "admin_email"
+            ],
+            "title": "alerting"
         },
         "az-hopAd": {
             "type": "object",
@@ -264,6 +294,12 @@
                 "dual_protocol": {
                     "description": "Whether to enable SMB support. false by default",
                     "type": "boolean"
+                },
+                "alert_threshold": {
+                    "description": "If alerting is enabled, this value will be used to determine when to trigger alerts ",
+                    "maximum": 100,
+                    "minimum": 1,
+                    "type": "integer"
                 }
             },
             "required": [

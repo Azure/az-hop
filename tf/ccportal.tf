@@ -160,3 +160,107 @@ resource "azurerm_network_interface_application_security_group_association" "ccp
   network_interface_id          = azurerm_network_interface.ccportal-nic.id
   application_security_group_id = local.create_nsg ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
 }
+
+resource "azurerm_virtual_machine_extension" "AzureMonitorLinuxAgent_ccportal" {
+  name                       = "AzureMonitorLinuxAgent"
+  virtual_machine_id         = azurerm_linux_virtual_machine.ccportal.id
+  publisher                  = "Microsoft.Azure.Monitor"
+  type                       = "AzureMonitorLinuxAgent"
+  type_handler_version       = "1.0"
+  auto_upgrade_minor_version = true
+}
+
+resource "azurerm_monitor_data_collection_rule_association" "dcra_ccportal_metrics" {
+    count               = local.create_log_analytics_workspace ? 1 : 0
+    name                = "ccportal-data-collection-ra"
+    target_resource_id = azurerm_linux_virtual_machine.ccportal.id
+    data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_data_collection_rule[0].id
+    description = "CCPortal Data Collection Rule Association for VM Metrics"
+}
+
+resource "azurerm_monitor_data_collection_rule_association" "dcra_ccportal_insights" {
+    count               = local.create_log_analytics_workspace ? 1 : 0
+    name                = "ccportal-insights-collection-ra"
+    target_resource_id = azurerm_linux_virtual_machine.ccportal.id
+    data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_insights_collection_rule[0].id
+    description = "CCPortal Data Collection Rule Association for VM Insights"
+}
+
+resource "azurerm_monitor_scheduled_query_rules_alert_v2" "ccportal_volume_alert" {
+    count = local.create_alerts ? 1 : 0
+    name = "ccportal-volume-alert"
+    location = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+    resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
+
+
+    evaluation_frequency = "PT5M"
+    window_duration = "PT5M"
+    scopes = [azurerm_linux_virtual_machine.ccportal.id]
+    severity = 3
+
+    criteria {
+        query = <<-QUERY
+          let mountpoints = dynamic(${local.mountpoints_str});
+          InsightsMetrics
+          | where TimeGenerated >= ago(5min) and Name == "FreeSpacePercentage" and Val <= ${local.local_vol_threshold} and not(Tags has_any (mountpoints) )
+          | project TimeGenerated, Computer, Name, Val, Tags, _ResourceId
+          | summarize arg_max(TimeGenerated, *) by Tags
+          | project Tags, Name, Val, Computer, _ResourceId
+          QUERY
+        time_aggregation_method = "Count"
+        operator = "GreaterThan"
+        threshold = 0
+        failing_periods {
+            minimum_failing_periods_to_trigger_alert = 1
+            number_of_evaluation_periods = 1
+        }
+    }
+
+    auto_mitigation_enabled = true
+    description = "Alert when the volumes of the ccportal VM is above ${100 - local.local_vol_threshold}%"
+    display_name = "ccportal volumes full"
+    enabled = true
+    query_time_range_override = "P2D"
+
+    action {
+        action_groups = [azurerm_monitor_action_group.azhop_action_group[0].id]
+    }
+}
+
+
+resource "azurerm_monitor_scheduled_query_rules_alert_v2" "ccportal_service_alert" {
+    count = local.create_alerts ? 1 : 0
+    name = "ccportal-service-alert"
+    location = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+    resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
+
+
+    evaluation_frequency = "PT5M"
+    window_duration = "PT5M"
+    scopes = [azurerm_linux_virtual_machine.ccportal.id]
+    severity = 3
+
+    criteria {
+        query = <<-QUERY
+          Syslog
+          | where TimeGenerated >= ago(5min) and Facility == "daemon" and (SyslogMessage == "Stopped CycleCloud." or SyslogMessage == "webserver is already stopped.")
+          QUERY
+        time_aggregation_method = "Count"
+        operator = "GreaterThan"
+        threshold = 0
+        failing_periods {
+            minimum_failing_periods_to_trigger_alert = 1
+            number_of_evaluation_periods = 1
+        }
+    }
+
+    auto_mitigation_enabled = false
+    description = "Alert when the cycle_server service is stopped on the ccportal VM"
+    display_name = "CycleCloud stopped on ccportal"
+    enabled = true
+    query_time_range_override = "P2D"
+
+    action {
+        action_groups = [azurerm_monitor_action_group.azhop_action_group[0].id]
+    }
+}
