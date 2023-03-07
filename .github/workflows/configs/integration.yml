@@ -1,7 +1,14 @@
 ---
+# yaml-language-server: $schema=config.schema.json
+# name of the cluster
+project_name: az-hop
+
 location: __LOCATION__
 resource_group: __RESOURCE_GROUP__
 use_existing_rg: false
+# If set to true, will disable telemetry for azhop. See https://azure.github.io/az-hop/deploy/telemetry.html.
+#optout_telemetry: true
+
 tags:
   env: dev
   project: azhop
@@ -27,6 +34,7 @@ anf:
   homefs_service_level: Standard
   # dual protocol
   dual_protocol: __ANF_DUAL__ # true to enable SMB support. false by default
+  alert_threshold: 80 # alert when ANF volume reaches this threshold
 
 # For small deployments you can use Azure Files instead of ANF for the home directory
 azurefiles:
