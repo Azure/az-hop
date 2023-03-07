@@ -189,46 +189,6 @@ authentication:
   #   OIDCPassRefreshToken: # for AAD use 'On'
   #   OIDCPassClaimsAs: # for AAD use 'environment'
 
-image_gallery:
-  create: true # Create the shared image gallery to store custom images
-
-#images:
-  # - name: azhop-almalinux85-v2-rdma-gpgpu
-  #   publisher: azhop
-  #   offer: almalinux
-  #   sku: 8_5-hpc-gen2
-  #   hyper_v: V2
-  #   os_type: Linux
-  #   version: 8.5
-  # - name: azhop-centos79-v2-rdma-gpgpu
-  #   publisher: azhop
-  #   offer: CentOS
-  #   sku: 7.9-gen2
-  #   hyper_v: V2
-  #   os_type: Linux
-  #   version: 7.9
-  # - name: azhop-centos79-desktop3d
-  #   publisher: azhop
-  #   offer: CentOS
-  #   sku: 7.9-gen2-desktop3d
-  #   hyper_v: V2
-  #   os_type: Linux
-  #   version: 7.9
-  # - name: azhop-compute-ubuntu-1804
-  #   publisher: azhpc
-  #   offer: azhop-compute
-  #   sku: ubuntu-1804
-  #   hyper_v: V2
-  #   os_type: Linux
-  #   version: 18.04
-  # - name: azhop-win10
-  #   publisher: azhop
-  #   offer: Windows-10
-  #   sku: 21h1-pron
-  #   hyper_v: V1
-  #   os_type: Windows
-  #   version: 10.19043
-
 # Autoscale default settings for all queues, can be overriden on each queue depending on the VM type if needed
 autoscale:
   idle_timeout: 180 # Idle time in seconds before shutting down VMs - default to 1800 like in CycleCloud
@@ -236,46 +196,58 @@ autoscale:
 queues:
   - name: execute
     vm_size: Standard_F2s_v2
-    max_core_count: 1024
+    max_core_count: 512
     image: azhpc:azhop-compute:centos-7_9:latest
     spot: false
   - name: hc44rs
     vm_size: Standard_HC44rs
-    max_core_count: 1056
+    max_core_count: 440
     image: azhpc:azhop-compute:centos-7_9:latest
     spot: true
     EnableAcceleratedNetworking: true
   - name: hb60rs
     vm_size: Standard_HB60rs
-    max_core_count: 1440
+    max_core_count: 600
     image: azhpc:azhop-compute:centos-7_9:latest
     spot: true
     EnableAcceleratedNetworking: true
   - name: hb120v2
     vm_size: Standard_HB120rs_v2
-    max_core_count: 2880
+    max_core_count: 1200
     image: azhpc:azhop-compute:centos-7_9:latest
     spot: true
     EnableAcceleratedNetworking: true
   - name: hb120v3
     vm_size: Standard_HB120rs_v3
-    max_core_count: 2880
+    max_core_count: 1200
     image: azhpc:azhop-compute:centos-7_9:latest
     spot: true
     EnableAcceleratedNetworking: true
-  # - name: hb120v3al
-  #   vm_size: Standard_HB120rs_v3
-  #   max_core_count: 2880
-  #   image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-almalinux85-v2-rdma-gpgpu/latest
-  #   plan: almalinux:almalinux-hpc:8_5-hpc-gen2
-  #   spot: true
-  #   EnableAcceleratedNetworking: true
+  - name: hbv3al
+    vm_size: Standard_HB120rs_v3
+    max_core_count: 1200
+    image: azhpc:azhop-compute:almalinux-8_7:latest
+#    plan: almalinux:almalinux-hpc:8_5-hpc-gen2
+    spot: true
+    EnableAcceleratedNetworking: true
   - name: hbv3u18
     vm_size: Standard_HB120rs_v3
-    max_core_count: 2880
+    max_core_count: 1200
     image: azhpc:azhop-compute:ubuntu-18_04:latest
     spot: true
     EnableAcceleratedNetworking: true
+  - name: hbv3u20
+    vm_size: Standard_HB120rs_v3
+    max_core_count: 1200
+    image: azhpc:azhop-compute:ubuntu-20_04:latest
+    spot: true
+    EnableAcceleratedNetworking: true
+  - name: nc24v3
+    vm_size: Standard_NC24rs_v3
+    max_core_count: 96
+    image: azhpc:azhop-compute:centos-7_9:latest
+
+# Remote Viz Queues
   - name: viz3d
     vm_size: Standard_NV12s_v3
     max_core_count: 48
@@ -294,10 +266,6 @@ queues:
     EnableAcceleratedNetworking: true
     max_hours: 12 # Maximum session duration
     min_hours: 1 # Minimum session duration - 0 is infinite
-  - name: nc24v3
-    vm_size: Standard_NC24rs_v3
-    max_core_count: 96
-    image: azhpc:azhop-compute:centos-7_9:latest
   - name: largeviz3d
     vm_size: Standard_NV48s_v3
     max_core_count: 96
@@ -325,6 +293,8 @@ applications:
   bc_codeserver:
     enabled: true
   bc_jupyter:
+    enabled: true
+  bc_rstudio:
     enabled: true
   bc_ansys_workbench:
     enabled: false

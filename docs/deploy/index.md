@@ -606,7 +606,7 @@ slurm:
   # Enable SLURM accounting, this will create a SLURM accounting database in a managed MariaDB server instance
   accounting_enabled: false
   # Enable container support for SLURM using Enroot/Pyxis
-  enroot_enabled: false
+  enroot_enabled: true
   # SLURM version to install. Currently supported: only 20.11.9 and 22.05.3.
   # Other versions can be installed by building from source (See build_rpms setting in the slurmserver role)
   slurm_version: 20.11.9
@@ -838,6 +838,8 @@ applications:
     enabled: true
   bc_jupyter:
     enabled: true
+  bc_rstudio:
+    enabled: false
   bc_ansys_workbench:
     enabled: false
   bc_vmd:
