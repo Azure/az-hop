@@ -19,7 +19,7 @@
         line: 'AllowTcpForwarding yes'
   - name: restart sshd
     service:
-      name: sshd 
+      name: sshd
       state: restarted
 
 - name: Join AD domain and mount anfhome
@@ -61,6 +61,13 @@
   - name: Update ANF chmod mode
     file:
       path: '{{homedir_mountpoint}}'
+      state: directory
+      mode: '0755'
+    run_once : true
+
+  - name: Create {{homedir_mountpoint}}/apps directory
+    file:
+      path: '{{homedir_mountpoint}}/apps'
       state: directory
       mode: '0755'
     run_once : true
