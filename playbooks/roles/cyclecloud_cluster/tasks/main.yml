@@ -119,6 +119,13 @@
 
 - name: CryoSPARC CycleCloud project
   block:
+    - name: Read CryoSPARC admin password from KV
+      command: az keyvault secret show --vault-name {{key_vault}} -n {{database_user}}-password --query "value" -o tsv
+      delegate_to: localhost
+      connection: local
+      register: cryosparc_admin_pwd
+      become: false
+
     - name: Create cryosparc project
       command: '/usr/local/bin/cyclecloud project init cryosparc'
       args:

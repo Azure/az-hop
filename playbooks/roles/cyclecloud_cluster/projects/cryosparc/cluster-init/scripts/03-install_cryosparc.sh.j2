@@ -39,7 +39,7 @@ cryosparcm createuser --email {{ applications.cryosparc.admin_user }}@azhop.com 
                       --username {{ applications.cryosparc.admin_user }} \
                       --firstname Admin \
                       --lastname User \
-                      --password {{ applications.cryosparc.admin_pwd }}
+                      --password {{ cryosparc_admin_pwd }}
 EOF
 
 #############################################################
