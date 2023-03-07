@@ -1,0 +1,11 @@
+{
+    "name": "PARTITION",
+    "worker_bin_path": "/anfhome/apps/cryosparc_worker/bin/cryosparcw",
+    "cache_path": "/mnt/resource",
+    "send_cmd_tpl": "{{ command }}",
+    "qsub_cmd_tpl": "sbatch {{ script_path_abs }}",
+    "qstat_cmd_tpl": "squeue -j {{ cluster_job_id }}",
+    "qdel_cmd_tpl": "scancel {{ cluster_job_id }}",
+    "qinfo_cmd_tpl": "sinfo",
+    "transfer_cmd_tpl": "scp {{ src_path }} loginnode:{{ dest_path }}"
+}

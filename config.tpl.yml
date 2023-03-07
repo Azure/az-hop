@@ -460,12 +460,15 @@ applications:
   bc_paraview:
     enabled: false
   cryosparc:
-    enabled: true
+    enabled: false
     license_id: <LICENSE-ID>
     admin_user: adminuser
-    admin_pwd: <ADMIN-PASSWORD>
     master_size: Standard_D8s_v5
-    master_data_disk_size: 512
+    master_data_disk_size: 256
     master_data_disk_type: Premium_LRS
     master_hostname: cryosparc-master
-    target_queue: nc24v3
+    master_image: azhpc:azhop-compute:centos-7_9:latest
+    target_queues:
+      - nc24v3
+      - hb120v3
+      - hc44rs
