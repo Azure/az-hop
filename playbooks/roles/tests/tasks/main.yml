@@ -24,15 +24,35 @@
   set_fact:
     job_name: "{{ lookup('password', '/dev/null chars=ascii_lowercase,digits length=8') }}"
 
-- name: submit single node jobs
+# - name: Colocate queues
+#   debug:
+#     msg:
+#       - "{{test_queues}}"
+#       - "{{test_queues | selectattr('ColocateNodes') }}"
+
+# - name: Always failed
+#   become_user: '{{test_user}}'
+#   shell: exit 1
+
+- name: submit pingpong jobs
   become_user: '{{test_user}}'
   shell: |
     source ~/{{ test_queue_manager }}_helpers.sh
     source ~/.bash_profile
     if [ {{item.max_core_count}} -gt 0 ]; then
-      submit_job {{job_name}} 1 1 {{item.name}} ~/job.sh {{item.vm_size}}
+      submit_job {{job_name}} 2 1 {{item.name}} ~/pingpong.sh
     fi
-  with_items: "{{test_queues}}"
+  with_items: "{{test_queues | selectattr('ColocateNodes') }}"
+
+# - name: submit single node jobs
+#   become_user: '{{test_user}}'
+#   shell: |
+#     source ~/{{ test_queue_manager }}_helpers.sh
+#     source ~/.bash_profile
+#     if [ {{item.max_core_count}} -gt 0 ]; then
+#       submit_job {{job_name}} 1 1 {{item.name}} ~/job.sh {{item.vm_size}}
+#     fi
+#   with_items: "{{test_queues}}"
 
 - name: wait jobs
   become_user: '{{test_user}}'
@@ -45,8 +65,4 @@
     list_nodes || exit 1
     echo "Get job status"
     check_jobstatus {{job_name}}
-
-# - name: Always failed
-#   become_user: '{{test_user}}'
-#   shell: exit 1
 
