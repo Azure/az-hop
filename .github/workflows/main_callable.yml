@@ -67,8 +67,6 @@ on:
         required: true
       ARM_CLIENT_SECRET:
         required: true
-      SHARED_SIG:
-        required: true
 
 env:
   TF_CLI_ARGS: '-no-color'
@@ -81,7 +79,7 @@ env:
   ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
   ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
   ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-  SHARED_SIG: ${{ secrets.SHARED_SIG }}
+  SHARED_SIG: /subscriptions/${{ secrets.ARM_SUBSCRIPTION_ID }}/resourceGroups/azhop_build_images/providers/Microsoft.Compute/galleries/azhop_4ehhye3z
   AZHOP_STATE_CONTAINER: environments
   AZHOP_STATE_ACCOUNT: azhopstates
   ANSIBLE_VERBOSITY: 2 # From 0 to 4 based on the level of logs needed in Ansible
