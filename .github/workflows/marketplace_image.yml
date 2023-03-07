@@ -74,8 +74,10 @@ jobs:
   build_image:
     name: build_image
     runs-on: self-hosted
+    continue-on-error: true
     needs: [set_image_list]
-    strategy: 
+    strategy:
+      fail-fast: false
       matrix:
         images: ${{ fromJson(needs.set_image_list.outputs.matrix) }}
     container:

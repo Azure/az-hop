@@ -90,10 +90,10 @@ dnf install -y https://github.com/NVIDIA/enroot/releases/download/v3.4.1/enroot+
 
 # Install NVIDIA container support
 #DIST=$(. /etc/os-release; echo $ID$VERSION_ID)
-curl -s -L https://nvidia.github.io/libnvidia-container/centos8/libnvidia-container.repo > /etc/yum.repos.d/libnvidia-container.repo
-
-dnf -y makecache
-dnf -y install libnvidia-container-tools
+#curl -s -L https://nvidia.github.io/libnvidia-container/centos8/libnvidia-container.repo > /etc/yum.repos.d/libnvidia-container.repo
+#
+#dnf -y makecache
+#dnf -y install libnvidia-container-tools
 
 # Add kernel boot parameters
 grep user.max_user_namespaces /etc/sysctl.conf || echo 'user.max_user_namespaces = 1417997' >> /etc/sysctl.conf
