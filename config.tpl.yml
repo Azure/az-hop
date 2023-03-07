@@ -270,7 +270,7 @@ images:
   - name: azhop-compute-almalinux-8_7
     publisher: azhop
     offer: almalinux
-    sku: 8_6-hpc-gen2
+    sku: 8_7-hpc-gen2
     hyper_v: V2
     os_type: Linux
     version: 8.7
