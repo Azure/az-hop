@@ -137,9 +137,6 @@ echo "cloud-init done" >> /tmp/cloud-init.txt
       {% if enroot_enabled is defined and enroot_enabled %}
         [[[cluster-init enroot:default:1.0.0]]]
       {% endif %}
-      {% if cryosparc_enabled and queue.name == applications.cryosparc.target_queue %}
-        [[[cluster-init cryosparc:default:1.0.0]]]
-      {% endif %}
 {% endfor %}
 
 {% if cryosparc_enabled %}
