@@ -1,15 +1,19 @@
 #!/bin/bash
 set -e
 
-mkdir -p /sched/apps/cryosparc
-cd /sched/apps/cryosparc
+INSTALL_DIR=/anfhome/apps/cryosparc
+SOURCES_DIR=${INSTALL_DIR}/sources
 
-if [ -s /sched/apps/cryosparc/cryosparc_master.tar.gz ] && [ -s /sched/apps/cryosparc/cryosparc_worker.tar.gz ]; then
-    echo "CryoSPARC archives already downloaded"
-else
-    echo "Downloading CryoSPARC master"
-    curl -L https://get.cryosparc.com/download/master-latest/{{ applications.cryosparc.license_id }} -o cryosparc_master.tar.gz
-    curl -L https://get.cryosparc.com/download/worker-latest/{{ applications.cryosparc.license_id }} -o cryosparc_worker.tar.gz
-fi
+mkdir -p ${SOURCES_DIR}
+cd ${SOURCES_DIR}
 
-chown -R {{ applications.cryosparc.admin_user }}: /sched/apps/cryosparc
+for COMPONENT in master worker; do
+    if [ -s ${SOURCES_DIR}/cryosparc_${COMPONENT}.tar.gz ]; then
+        echo "cryosparc_${COMPONENT}.tar.gz already downloaded"
+    else
+        echo "Downloading cryosparc_${COMPONENT}.tar.gz"
+        curl -L https://get.cryosparc.com/download/${COMPONENT}-latest/{{ applications.cryosparc.license_id }} -o cryosparc_${COMPONENT}.tar.gz
+    fi
+done
+
+chown -R {{ applications.cryosparc.admin_user }}: ${INSTALL_DIR}
