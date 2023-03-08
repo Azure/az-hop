@@ -1,5 +1,5 @@
 resource "azurerm_private_dns_resolver" "dns_resolver" {
-  count               = local.create_outbounddns_subnet ? 1 : 0
+  count               = local.create_outbounddns_subnet || local.create_dnsfw_rules ? 1 : 0
   name                = "dns-resolver-${random_string.resource_postfix.result}"
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
@@ -7,7 +7,7 @@ resource "azurerm_private_dns_resolver" "dns_resolver" {
 }
 
 resource "azurerm_private_dns_resolver_outbound_endpoint" "resolver_outbound_endpoint" {
-  count                   = local.create_outbounddns_subnet ? 1 : 0
+  count                   = local.create_outbounddns_subnet || local.create_dnsfw_rules ? 1 : 0
   name                    = "dns-outbound-endpoint-${random_string.resource_postfix.result}"
   private_dns_resolver_id = azurerm_private_dns_resolver.dns_resolver[0].id
   location                = azurerm_private_dns_resolver.dns_resolver[0].location
