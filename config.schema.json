@@ -857,7 +857,6 @@
                 }
             },
             "required": [
-                "ad",
                 "admin",
                 "compute",
                 "frontend",
