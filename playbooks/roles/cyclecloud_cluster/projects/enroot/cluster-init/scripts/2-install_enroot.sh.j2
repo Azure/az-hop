@@ -20,6 +20,7 @@ if [ "$(enroot version)" != "3.4.1" ] ; then
             curl -fSsL -O https://github.com/NVIDIA/enroot/releases/download/v3.4.1/enroot_3.4.1-1_${arch}.deb
             curl -fSsL -O https://github.com/NVIDIA/enroot/releases/download/v3.4.1/enroot+caps_3.4.1-1_${arch}.deb
             apt install -y ./*.deb
+            ;;
     esac
 else
     echo Enroot is already at version 3.4.1
