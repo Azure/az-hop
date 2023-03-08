@@ -10,7 +10,7 @@ if [ "$VM_SIZE" != "$EXPECTED_VM_SIZE" ] && [ "$EXPECTED_VM_SIZE" != "any" ]; th
 fi
 
 echo "Running on $VM_SIZE"
-case $AZHPC_VMSIZE in
+case $VM_SIZE in
   standard_nv*)
     nvidia-smi | grep NVIDIA
     if [ $? -eq 1 ]; then 
