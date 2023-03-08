@@ -3,6 +3,29 @@
 # Exit if Enroot is not in the image
 [ -d /etc/enroot ] || exit 0
 
+os_release=$(cat /etc/os-release | grep "^ID\=" | cut -d'=' -f 2 | xargs)
+
+# Update enroot to 3.4.1 if it is not already installed
+case $os_release in
+    centos|rhel|almalinux|rocky)
+        installed_ver=$(rpm -q enroot | cut -f2 -d-)
+        if [ "$installed_ver" != "3.4.1" ]; then
+            yum remove -y enroot enroot+caps
+            arch=$(uname -m)
+            yum install -y https://github.com/NVIDIA/enroot/releases/download/v3.4.1/enroot-3.4.1-1.el8.${arch}.rpm
+            yum install -y https://github.com/NVIDIA/enroot/releases/download/v3.4.1/enroot+caps-3.4.1-1.el8.${arch}.rpm
+        fi
+        ;;
+    ubuntu|debian)
+        installed_ver=$(dpkg-query --show enroot+caps | cut -f2)
+        if [ "$installed_ver" != "3.4.1-1" ]; then
+            arch=$(dpkg --print-architecture)
+            curl -fSsL -O https://github.com/NVIDIA/enroot/releases/download/v3.4.1/enroot_3.4.1-1_${arch}.deb
+            curl -fSsL -O https://github.com/NVIDIA/enroot/releases/download/v3.4.1/enroot+caps_3.4.1-1_${arch}.deb # optional
+            apt install -y ./*.deb
+        fi
+esac
+
 mkdir -pv /run/enroot /mnt/resource/{enroot-cache,enroot-data,enroot-temp,enroot-runtime}
 chmod -v 777 /run/enroot /mnt/resource/{enroot-cache,enroot-data,enroot-temp,enroot-runtime}
 
