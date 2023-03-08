@@ -56,6 +56,22 @@ locals {
     }
     TEMPLATE
 
+    create_log_analytics_workspace = try(local.configuration_yml["log_analytics"]["create"], false)
+    alert_email = try(local.configuration_yml["alerting"]["admin_email"], null)
+
+    #For alerting to be enabled - the analytics workspace needs to be created since log alerts are leveraged. 
+    #We also need to ensure that we have an email to send alerts to.  
+    create_alerts = local.create_log_analytics_workspace && local.alert_email != null && local.alert_email != "admin.mail@contoso.com" && try(local.configuration_yml["alerting"]["enabled"], false) ? true : false
+    anf_vol_threshold = try(local.configuration_yml["anf"]["alert_threshold"], 80)  # default to 80% if not specified 
+
+    # will be used with a KQL query that checks the free space percentage of local volumes
+    # if the user wants to create an alert when local volumes are 80% full, then the free space percentage should be 20%
+    local_vol_threshold = 100 - try(local.configuration_yml["alerting"]["local_volume_threshold"], 20) 
+
+    mounts = try(local.configuration_yml["mounts"], {})
+    mountpoints =  [ for mount in local.mounts : mount.mountpoint ]
+    mountpoints_str = "[ ${join(",", [for mp in local.mountpoints : format("%q", mp)])} ]" //necessary to build generic KQL query on local volumes
+
     ad_ha = try(local.configuration_yml["ad"].high_availability, false)
     domain_controlers = local.ad_ha ? {ad="ad", ad2="ad2"} : {ad="ad"}
 

@@ -69,13 +69,10 @@ fi
 # Install Enroot
 #
 
-ENROOT_VERSION_FULL=${1:-3.4.0-2}
-ENROOT_VERSION=${ENROOT_VERSION_FULL%-*}
-
 # Debian-based distributions
 arch=$(dpkg --print-architecture)
-curl -fSsL -O https://github.com/NVIDIA/enroot/releases/download/v3.4.0/enroot_3.4.0-1_${arch}.deb
-curl -fSsL -O https://github.com/NVIDIA/enroot/releases/download/v3.4.0/enroot+caps_3.4.0-1_${arch}.deb # optional
+curl -fSsL -O https://github.com/NVIDIA/enroot/releases/download/v3.4.1/enroot_3.4.1-1_${arch}.deb
+curl -fSsL -O https://github.com/NVIDIA/enroot/releases/download/v3.4.1/enroot+caps_3.4.1-1_${arch}.deb # optional
 apt install -y ./*.deb
 
 # # Install NVIDIA container support

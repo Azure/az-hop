@@ -28,6 +28,7 @@ function wait_alljobs()
         echo "Timeout while waiting for jobs"
         list_nodes
         qstat -aw
+        qselect -N $jobgroup | xargs qdel -W force
         exit 1
     fi
 
