@@ -1,7 +1,7 @@
 #!/bin/bash
-# Define a very long maximum walltime
-MAX_WALLTIME="24:00:00"
-MAX_WAIT_TIME=3600
+# Define a correct maximum walltime
+MAX_WALLTIME="00:10:00" # 10 minutes to run a job
+MAX_WAIT_TIME=1800 # 30 minutes to wait for all jobs to finish
 
 function check_scheduler()
 {
@@ -18,7 +18,7 @@ function wait_alljobs()
     local active_jobs=$(squeue -n $jobgroup --noheader | wc -l)
     wait_time=0
     while [ $active_jobs -ne 0 ] && [ $wait_time -lt $MAX_WAIT_TIME ]; do
-        echo "There are $active_jobs active jobs"
+        echo "There are $active_jobs active jobs since $wait_time seconds"
         sleep 60
         wait_time=$((wait_time+60))
         active_jobs=$(squeue -n $jobgroup --noheader | wc -l)
