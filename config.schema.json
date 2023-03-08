@@ -200,6 +200,10 @@
                     "description": "Create a log analytics workspace to enable monitoring and alerting",
                     "$ref": "#/definitions/logAnalytics"
                 },
+                "monitoring": {
+                    "description": "If set to true, it will install the Azure Monitor Agent on the infrastructure VMs deployed by az-hop. If set to false, it is assumed that the agent is installed by policy.",
+                    "$ref": "#/definitions/monitoring"
+                },                
                 "alerting": {
                     "description": "If set to true, it will create alert rules associated with az-hop. Enablement of alerting will require the specification of an admin email to send alerts to.",
                     "$ref": "#/definitions/alerting"
@@ -240,6 +244,17 @@
             },
             "required": [ "create" ],
             "title": "logAnalytics"
+        },
+        "monitoring": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "install_agent": {"type": "boolean" }
+            },
+            "required": [
+                "install_agent"
+            ],
+            "title": "monitoring"
         },
         "alerting": {
             "type": "object",

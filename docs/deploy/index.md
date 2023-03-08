@@ -379,6 +379,10 @@ use_existing_rg: false
 log_analytics:
   create: true
 
+# Option to install the monitoring agent on static infra VMs. Can be disabled if the agent is installed by policy.  
+monitoring: 
+  install_agent: true
+
 #If set to true, it will create alert rules associated with az-hop. Enablement of alerting will require the specification of an admin email to send alerts to.
 alerting:
   enabled: false

@@ -80,7 +80,7 @@ resource "azurerm_network_interface_application_security_group_association" "jum
 }
 
 resource "azurerm_virtual_machine_extension" "AzureMonitorLinuxAgent" {
-  count                      = local.jumpbox_enabled ? 1 : 0
+  count                      = local.jumpbox_enabled && local.ama_install ? 1 : 0
   name                       = "AzureMonitorLinuxAgent"
   virtual_machine_id         = azurerm_linux_virtual_machine.jumpbox[0].id
   publisher                  = "Microsoft.Azure.Monitor"
