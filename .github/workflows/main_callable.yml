@@ -34,7 +34,7 @@ on:
         type: string
       images:
         description: 'Images to be used (marketplace/shared) or built (private): marketplace/shared/private'
-        required: true
+        required: false
         default: 'marketplace' # use it with ${{ inputs.images }}
         type: string
       lustre:
