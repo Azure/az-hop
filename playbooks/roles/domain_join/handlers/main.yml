@@ -6,9 +6,8 @@
     state: restarted
 
 - name: restart daemon-reload
-  service:
-    name: daemon-reload
-    state: restarted
+  shell: |
+    systemctl daemon-reload
 
 - name: restart dbus
   service:

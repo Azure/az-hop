@@ -60,7 +60,7 @@
 - name: configure sssd restart onfailure
   lineinfile:
     path: /usr/lib/systemd/system/sssd.service
-    insertafter: '[Service]'
+    insertafter: 'Type=notify'
     line: 'Restart=on-failure'
     firstmatch: yes
     state: present
