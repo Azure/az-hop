@@ -21,7 +21,7 @@
     src: '{{role_path}}/projects/common/cluster-init'
     dest: '{{common_project_root}}/specs/default/'
 
-- name: Copy mountnfs file.
+- name: Copy mountnfs file
   template:
     src: '{{role_path}}/projects/common/cluster-init/scripts/1-mountnfs.sh.j2'
     dest: '{{common_project_root}}/specs/default/cluster-init/scripts/1-mountnfs.sh'
@@ -149,9 +149,9 @@
         mode: 0777
       when: cc_queue_manager == "slurm"
 
-    - name: Create CryoSPARC Slurm cluster definition files
-      template:
-        src: '{{role_path}}/projects/cryosparc/cluster-init/files/slurm_{{ item }}.j2'
+    - name: Copy CryoSPARC Slurm cluster definition files
+      copy:
+        src: '{{role_path}}/projects/cryosparc/cluster-init/files/slurm_{{ item }}'
         dest: '{{cryosparc_project_root}}/specs/default/cluster-init/files/{{ item }}'
       with_items:
         - cluster_info.json

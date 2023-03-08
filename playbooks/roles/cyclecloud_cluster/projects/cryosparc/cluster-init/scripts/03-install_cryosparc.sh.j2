@@ -39,7 +39,7 @@ cryosparcm createuser --email {{ applications.cryosparc.admin_user }}@azhop.com 
                       --username {{ applications.cryosparc.admin_user }} \
                       --firstname Admin \
                       --lastname User \
-                      --password {{ cryosparc_admin_pwd }}
+                      --password {{ cryosparc_admin_pwd.stdout }}
 EOF
 
 #############################################################
@@ -48,7 +48,7 @@ EOF
 
 cd ${INSTALL_DIR}
 tar xzf ${SOURCES_DIR}/cryosparc_worker.tar.gz
-chown -R {{ applications.cryosparc.admin_user }}: ./cryosparc_worker*
+chown -R {{ applications.cryosparc.admin_user }}: ./cryosparc*_worker
 
 # Get CUDA library path
 LIBCUDART_PATH=$(sudo find /usr/local -name libcudart.so)
@@ -57,7 +57,7 @@ export CUDA_PATH
 
 # CryoSPARC must be installed as admin user
 sudo -i -u {{ applications.cryosparc.admin_user }} bash << EOF
-cd /apps/cryosparc_worker
+cd ${INSTALL_DIR}/cryosparc_worker
 ./install.sh --license {{ applications.cryosparc.license_id }} \
              --cudapath ${CUDA_PATH} \
              --yes
