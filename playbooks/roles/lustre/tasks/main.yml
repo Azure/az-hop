@@ -37,3 +37,11 @@
   become: true
   tags: [ 'robinhood' ]
   when: install_robinhood
+
+- name: update packages for security
+  become: true
+  yum:
+    name: '*'
+    state: latest
+    security: yes
+  when: install_oss or install_robinhood or install_mds
