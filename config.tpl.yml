@@ -463,11 +463,11 @@ applications:
     enabled: false
     license_id: <LICENSE-ID>
     admin_user: adminuser
-    master_size: Standard_D8s_v5
+    master_vm_size: Standard_D8s_v5
+    master_vm_image: azhpc:azhop-compute:centos-7_9:latest
+    master_hostname: cryosparc-master
     master_data_disk_size: 256
     master_data_disk_type: Premium_LRS
-    master_hostname: cryosparc-master
-    master_image: azhpc:azhop-compute:centos-7_9:latest
     target_queues:
       - nc24v3
       - hb120v3

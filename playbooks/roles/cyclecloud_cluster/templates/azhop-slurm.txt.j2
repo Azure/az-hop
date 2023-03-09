@@ -144,9 +144,9 @@ echo "cloud-init done" >> /tmp/cloud-init.txt
 
 {% if cryosparc_enabled %}
     [[node {{ applications.cryosparc.master_hostname }}]]
-      MachineType = {{applications.cryosparc.master_size}}
+      MachineType = {{applications.cryosparc.master_vm_size}}
       EnableAcceleratedNetworking = true
-      ImageName = azhpc:azhop-compute:centos-7_9:latest
+      ImageName = {{applications.cryosparc.master_vm_image}}
 
       [[[volume boot]]]
         size = 64
