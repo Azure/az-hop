@@ -139,6 +139,10 @@
                     "description": "scheduler to be installed and configured (openpbs, slurm)",
                     "$ref": "#/definitions/Slurm"
                 },
+                "enroot": {
+                    "description": "Enroot settings",
+                    "$ref": "#/definitions/Enroot"
+                },
                 "database": {
                     "description": "If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values",
                     "$ref": "#/definitions/Database"
