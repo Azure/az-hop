@@ -997,6 +997,17 @@
             ],
             "title": "Slurm"
         },
+        "Enroot": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "enroot_version": {
+                    "description": "Enroot version",
+                    "type": "string"
+                }
+            },
+            "title": "Enroot"
+        },
         "Tags": {
             "type": "object",
             "additionalProperties": true,
