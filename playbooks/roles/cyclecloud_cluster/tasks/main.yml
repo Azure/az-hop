@@ -159,7 +159,7 @@
         - cluster_script.sh
       when: cc_queue_manager == "slurm"
 
-    - name: Copy CryoSPARC cd /usrapp shortcut files
+    - name: Copy CryoSPARC app shortcut files
       copy:
         src: '{{role_path}}/projects/cryosparc/cluster-init/files/{{ item }}'
         dest: '{{cryosparc_project_root}}/specs/default/cluster-init/files/{{ item }}'
