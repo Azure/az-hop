@@ -10,13 +10,13 @@ if [ "$(enroot version)" != "$enroot_version" ] ; then
         centos|rhel|almalinux|rocky)
             yum remove -y enroot enroot+caps
             arch=$(uname -m)
-            yum install -y https://github.com/NVIDIA/enroot/releases/download/v$enroot_version/enroot-$enroot_version-1.el8.${arch}.rpm
-            yum install -y https://github.com/NVIDIA/enroot/releases/download/v$enroot_version/enroot+caps-$enroot_version-1.el8.${arch}.rpm
+            yum install -y https://github.com/NVIDIA/enroot/releases/download/v${enroot_version}/enroot-${enroot_version}-1.el8.${arch}.rpm
+            yum install -y https://github.com/NVIDIA/enroot/releases/download/v${enroot_version}/enroot+caps-${enroot_version}-1.el8.${arch}.rpm
             ;;
         ubuntu|debian)
             arch=$(dpkg --print-architecture)
-            curl -fSsL -O https://github.com/NVIDIA/enroot/releases/download/v$enroot_version/enroot_$enroot_version-1_${arch}.deb
-            curl -fSsL -O https://github.com/NVIDIA/enroot/releases/download/v$enroot_version/enroot+caps_$enroot_version-1_${arch}.deb
+            curl -fSsL -O https://github.com/NVIDIA/enroot/releases/download/v${enroot_version}/enroot_${enroot_version}-1_${arch}.deb
+            curl -fSsL -O https://github.com/NVIDIA/enroot/releases/download/v${enroot_version}/enroot+caps_${enroot_version}-1_${arch}.deb
             apt install -y ./*.deb
             ;;
     esac
