@@ -461,4 +461,3 @@
 - include: pyxis.yml
   become: true
   tags: [ 'pyxis' ]
-  when: enroot_enabled

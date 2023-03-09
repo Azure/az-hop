@@ -93,7 +93,6 @@ var config = {
   slurm: {
     admin_user: contains(azhopConfig, 'database') && contains(azhopConfig.database, 'user') ? azhopConfig.database.user : 'sqladmin'
     accounting_enabled: contains(azhopConfig.slurm, 'accounting_enabled') ? azhopConfig.slurm.accounting_enabled : false
-    enroot_enabled: contains(azhopConfig.slurm, 'enroot_enabled') ? azhopConfig.slurm.enroot_enabled : false
   }
 
   enable_remote_winviz : enableWinViz

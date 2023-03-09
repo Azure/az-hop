@@ -253,8 +253,6 @@ queue_manager: openpbs
 slurm:
   # Enable SLURM accounting, this will create a SLURM accounting database in a managed MariaDB server instance
   accounting_enabled: false
-  # Enable container support for SLURM using Enroot/Pyxis
-  enroot_enabled: true
   # SLURM version to install. Currently supported: only 20.11.9 and 22.05.3.
   # Other versions can be installed by building from source (See build_rpms setting in the slurmserver role)
   slurm_version: 20.11.9
@@ -262,6 +260,9 @@ slurm:
   # WARNING: changing this value on a running cluster will cause slurmctld to fail to start. This is a
   # safety check to prevent accounting errors. To override, remove /var/spool/slurmd/clustername
   cluster_name: slurm_azhop
+
+enroot:
+  enroot_version: 3.4.1
 
 # If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values
 database:

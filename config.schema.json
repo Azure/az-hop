@@ -139,6 +139,10 @@
                     "description": "scheduler to be installed and configured (openpbs, slurm)",
                     "$ref": "#/definitions/Slurm"
                 },
+                "enroot": {
+                    "description": "Enroot settings",
+                    "$ref": "#/definitions/Enroot"
+                },
                 "database": {
                     "description": "If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values",
                     "$ref": "#/definitions/Database"
@@ -997,9 +1001,6 @@
                 "accounting_enabled": {
                     "type": "boolean"
                 },
-                "enroot_enabled": {
-                    "type": "boolean"
-                },
                 "cluster_name": {
                     "description": "Name of slurm cluster for accounting, defaults to 'slurm'. WARNING: changing this value on a running cluster will cause slurmctld to fail to start. This is a safety check to prevent accounting errors. To override, remove /var/spool/slurmd/clustername .",
                     "type": "string"
@@ -1011,10 +1012,20 @@
                 }
             },
             "required": [
-                "accounting_enabled",
-                "enroot_enabled"
+                "accounting_enabled"
             ],
             "title": "Slurm"
+        },
+        "Enroot": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "enroot_version": {
+                    "description": "Enroot version",
+                    "type": "string"
+                }
+            },
+            "title": "Enroot"
         },
         "Tags": {
             "type": "object",
