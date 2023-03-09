@@ -11,6 +11,10 @@ chmod 700 -R /mnt/cluster-init
 [ -d /mnt/resource ] || mkdir /mnt/resource
 chmod 777 /mnt/resource
 
+# Fix slurm compatibility issue with Ubuntu 18.04
+# slurmd binary expects 'su' in /usr/bin
+[ -f /usr/bin/su ] || ln -s /bin/su /usr/bin/su
+
 # Grant sudo for users in the az-hop-localadmins group
 echo "%az-hop-localadmins ALL=(ALL) NOPASSWD: ALL" | tee -a /etc/sudoers.d/az-hop-localadmins
 
