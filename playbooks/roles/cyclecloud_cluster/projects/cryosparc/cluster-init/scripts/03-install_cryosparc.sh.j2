@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+# Run only on CryoSPARC master node
+[ $(hostname) != {{ applications.cryosparc.master_hostname }} ] && exit 0
+
 export INSTALL_DIR=/anfhome/apps/cryosparc
 SOURCES_DIR=${INSTALL_DIR}/sources
 

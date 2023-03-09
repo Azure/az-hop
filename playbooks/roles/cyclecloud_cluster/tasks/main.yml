@@ -132,7 +132,7 @@
         chdir: '{{project_root}}'
         creates: '{{cryosparc_project_root}}/project.ini'
 
-    - name: Create setup_data_disk.sh, download_cryosparc.sh, install_cryosparc.sh
+    - name: Create common cryosparc project scripts
       template:
         src: '{{role_path}}/projects/cryosparc/cluster-init/scripts/{{ item }}.j2'
         dest: '{{cryosparc_project_root}}/specs/default/cluster-init/scripts/{{ item }}'
@@ -141,8 +141,9 @@
         - 01-setup_data_disk.sh
         - 02-download_cryosparc.sh
         - 03-install_cryosparc.sh
+        - 05-install_app_menu_shortcut.sh
 
-    - name: Create import_slurm_cluster.sh
+    - name: Create import Slurm cluster project script
       template:
         src: '{{role_path}}/projects/cryosparc/cluster-init/scripts/04-import_slurm_cluster.sh.j2'
         dest: '{{cryosparc_project_root}}/specs/default/cluster-init/scripts/04-import_slurm_cluster.sh'
@@ -157,6 +158,14 @@
         - cluster_info.json
         - cluster_script.sh
       when: cc_queue_manager == "slurm"
+
+    - name: Copy CryoSPARC cd /usrapp shortcut files
+      copy:
+        src: '{{role_path}}/projects/cryosparc/cluster-init/files/{{ item }}'
+        dest: '{{cryosparc_project_root}}/specs/default/cluster-init/files/{{ item }}'
+      with_items:
+        - cryosparc.desktop
+        - cryosparc_16.png
 
     - name: Upload cryosparc CycleCloud project
       command: '/usr/local/bin/cyclecloud project upload'

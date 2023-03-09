@@ -1,4 +1,8 @@
 #!/bin/bash
+set -e
+
+# Run only on CryoSPARC master node
+[ $(hostname) != {{ applications.cryosparc.master_hostname }} ] && exit 0
 
 parted /dev/sdb mktable gpt
 parted /dev/sdb mkpart primary ext4 0% 100%
