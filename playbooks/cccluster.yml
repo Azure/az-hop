@@ -115,7 +115,7 @@
       slurm_gid: 11100
       munge_uid: 11101
       munge_gid: 11101
-      enroot_version: '{{enroot.enroot_version | default(3.4.1)}}'
+      enroot_version: '{{enroot.enroot_version | default("3.4.1")}}'
       enroot_scratch_dir: '/mnt/resource'
       cvmfs_eessi_enabled: '{{cvmfs_eessi.enabled | default(false)}}'
       cc_enable_remote_winviz: '{{enable_remote_winviz | default(false)}}'
