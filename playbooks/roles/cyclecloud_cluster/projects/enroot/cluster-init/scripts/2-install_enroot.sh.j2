@@ -1,29 +1,27 @@
 #!/bin/bash
 
-# Exit if Enroot is not in the image
-[ -d /etc/enroot ] || exit 0
-
 os_release=$(cat /etc/os-release | grep "^ID\=" | cut -d'=' -f 2 | xargs)
+enroot_version={{ enroot_version }}
 
-# Update enroot to 3.4.1 if it is not already installed
-if [ "$(enroot version)" != "3.4.1" ] ; then
-    echo Updating enroot to 3.4.1
+# Install or update enroot if necessary
+if [ "$(enroot version)" != "$enroot_version" ] ; then
+    echo Updating enroot to $enroot_version
     case $os_release in
         centos|rhel|almalinux|rocky)
             yum remove -y enroot enroot+caps
             arch=$(uname -m)
-            yum install -y https://github.com/NVIDIA/enroot/releases/download/v3.4.1/enroot-3.4.1-1.el8.${arch}.rpm
-            yum install -y https://github.com/NVIDIA/enroot/releases/download/v3.4.1/enroot+caps-3.4.1-1.el8.${arch}.rpm
+            yum install -y https://github.com/NVIDIA/enroot/releases/download/v$enroot_version/enroot-$enroot_version-1.el8.${arch}.rpm
+            yum install -y https://github.com/NVIDIA/enroot/releases/download/v$enroot_version/enroot+caps-$enroot_version-1.el8.${arch}.rpm
             ;;
         ubuntu|debian)
             arch=$(dpkg --print-architecture)
-            curl -fSsL -O https://github.com/NVIDIA/enroot/releases/download/v3.4.1/enroot_3.4.1-1_${arch}.deb
-            curl -fSsL -O https://github.com/NVIDIA/enroot/releases/download/v3.4.1/enroot+caps_3.4.1-1_${arch}.deb
+            curl -fSsL -O https://github.com/NVIDIA/enroot/releases/download/v$enroot_version/enroot_$enroot_version-1_${arch}.deb
+            curl -fSsL -O https://github.com/NVIDIA/enroot/releases/download/v$enroot_version/enroot+caps_$enroot_version-1_${arch}.deb
             apt install -y ./*.deb
             ;;
     esac
 else
-    echo Enroot is already at version 3.4.1
+    echo Enroot is already at version $enroot_version
 fi
 
 mkdir -pv /run/enroot /mnt/resource/{enroot-cache,enroot-data,enroot-temp,enroot-runtime}

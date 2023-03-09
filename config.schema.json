@@ -982,9 +982,6 @@
                 "accounting_enabled": {
                     "type": "boolean"
                 },
-                "enroot_enabled": {
-                    "type": "boolean"
-                },
                 "cluster_name": {
                     "description": "Name of slurm cluster for accounting, defaults to 'slurm'. WARNING: changing this value on a running cluster will cause slurmctld to fail to start. This is a safety check to prevent accounting errors. To override, remove /var/spool/slurmd/clustername .",
                     "type": "string"
@@ -996,8 +993,7 @@
                 }
             },
             "required": [
-                "accounting_enabled",
-                "enroot_enabled"
+                "accounting_enabled"
             ],
             "title": "Slurm"
         },

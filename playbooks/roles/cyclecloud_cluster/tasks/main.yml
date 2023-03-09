@@ -162,7 +162,6 @@
       command: '/usr/local/bin/cyclecloud project upload'
       args:
         chdir: '{{enroot_project_root}}'
-  when: enroot_enabled == true
 
 - name: Remote Visualization Cycle Cloud project
   block:
