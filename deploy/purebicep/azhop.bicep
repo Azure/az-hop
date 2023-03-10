@@ -23,7 +23,6 @@ param adminSshPrivateKey string = ''
 @secure()
 param adminPassword string = ''
 
-// todo: change to database admin password
 @description('Password for the Slurm accounting admin user')
 @secure()
 param databaseAdminPassword string = ''
@@ -41,7 +40,7 @@ var enablePublicIP = contains(azhopConfig.locked_down_network, 'public_ip') ? az
 var jumpboxSshPort = deployJumpbox ? (contains(azhopConfig.jumpbox, 'ssh_port') ? azhopConfig.jumpbox.ssh_port : 22) : 22
 var deployerSshPort = deployDeployer ? (contains(azhopConfig.deployer, 'ssh_port') ? azhopConfig.deployer.ssh_port : 22) : 22
 
-var deployLustre = contains(azhopConfig, 'lustre') ? true : false
+var deployLustre = contains(azhopConfig, 'lustre') && contains(azhopConfig.lustre, 'create') ? azhopConfig.lustre.create : false
 var deployJumpbox = contains(azhopConfig, 'jumpbox') ? true : false
 var deployDeployer = contains(azhopConfig, 'deployer') ? true : false
 var enableWinViz = contains(azhopConfig, 'enable_remote_winviz') ? azhopConfig.enable_remote_winviz : false
@@ -55,14 +54,33 @@ var lustreBasePlan = contains(azhopConfig, 'lustre_base_plan') ? azhopConfig.lus
 
 var createDatabase = (config.queue_manager == 'slurm' && config.slurm.accounting_enabled ) || config.enable_remote_winviz
 
+var lustreOssCount = deployLustre ? azhopConfig.lustre.oss_count : 0
+
+var ossVmConfig = [for oss in range(0, lustreOssCount) : { 
+  key: 'lustre-oss-${oss}'
+  value: {
+    identity: {
+      keyvault: {
+        secret_permissions: [ 'Get', 'List' ]
+      }
+    }
+    subnet: 'admin'
+    sku: azhopConfig.lustre.oss_sku
+    osdisksku: 'StandardSSD_LRS'
+    image: 'lustre'
+    asgs: [ 'asg-ssh', 'asg-lustre', 'asg-lustre-client', 'asg-telegraf' ]
+  }
+} ]
+
+
 // Convert the azhop configuration file to a pivot format used for the deployment
 var config = {
   admin_user: azhopConfig.admin_user
   keyvault_readers: contains(azhopConfig, 'key_vault_readers') ? ( empty(azhopConfig.key_vault_readers) ? [] : [ azhopConfig.key_vault_readers ] ) : []
 
   public_ip: enablePublicIP
-  deploy_gateway: contains(azhopConfig.network.vnet.subnets,'gateway')
-  deploy_bastion: contains(azhopConfig.network.vnet.subnets,'bastion')
+  deploy_gateway: contains(azhopConfig, 'vpn_gateway') && contains(azhopConfig.vpn_gateway, 'create') ? azhopConfig.vpn_gateway.create : false
+  deploy_bastion: contains(azhopConfig, 'bastion') && contains(azhopConfig.bastion, 'create') ? azhopConfig.bastion.create : false
   deploy_lustre: deployLustre
 
   lock_down_network: {
@@ -73,21 +91,27 @@ var config = {
   queue_manager: contains(azhopConfig, 'queue_manager') ? azhopConfig.queue_manager : 'openpbs'
 
   slurm: {
-    admin_user: contains(azhopConfig.database, 'user') ? azhopConfig.database.user : 'sqladmin'
+    admin_user: contains(azhopConfig, 'database') && contains(azhopConfig.database, 'user') ? azhopConfig.database.user : 'sqladmin'
     accounting_enabled: contains(azhopConfig.slurm, 'accounting_enabled') ? azhopConfig.slurm.accounting_enabled : false
-    enroot_enabled: contains(azhopConfig.slurm, 'enroot_enabled') ? azhopConfig.slurm.enroot_enabled : false
   }
 
   enable_remote_winviz : enableWinViz
-  deploy_sig: contains(azhopConfig, 'image_gallerie') && contains(azhopConfig.image_gallerie, 'create') ? azhopConfig.image_gallerie.create : false
+  deploy_sig: contains(azhopConfig, 'image_gallery') && contains(azhopConfig.image_gallery, 'create') ? azhopConfig.image_gallery.create : false
 
-  homedir: 'nfsfiles'
+  // Default home directory is ANF
+  homedir_type: contains(azhopConfig.mounts.home, 'type') ? azhopConfig.mounts.home.type : 'anf'
   homedir_mountpoint: azhopConfig.mounts.home.mountpoint
 
   anf: {
-    dual_protocol: contains(azhopConfig.anf, 'dual_protocol') ? azhopConfig.anf.dual_protocol : false
-    service_level: contains(azhopConfig.anf, 'homefs_service_level') ? azhopConfig.anf.homefs_service_level : 'Standard'
-    size_gb: contains(azhopConfig.anf, 'homefs_size_tb') ? azhopConfig.anf.homefs_size_tb*1024 : 4096
+    create: contains(azhopConfig, 'anf') && contains(azhopConfig.anf, 'create') ? azhopConfig.anf.create : (contains(azhopConfig, 'anf') ? true : false)
+    dual_protocol: contains(azhopConfig, 'anf') && contains(azhopConfig.anf, 'dual_protocol') ? azhopConfig.anf.dual_protocol : false
+    service_level: contains(azhopConfig, 'anf') && contains(azhopConfig.anf, 'homefs_service_level') ? azhopConfig.anf.homefs_service_level : 'Standard'
+    size_gb: contains(azhopConfig, 'anf') && contains(azhopConfig.anf, 'homefs_size_tb') ? azhopConfig.anf.homefs_size_tb*1024 : 4096
+  }
+
+  azurefiles: {
+    create: contains(azhopConfig, 'azurefiles') && contains(azhopConfig.azurefiles, 'create') ? azhopConfig.azurefiles.create : false
+    size_gb: contains(azhopConfig, 'azurefiles') && contains(azhopConfig.azurefiles, 'size_gb') ? azhopConfig.azurefiles.size_gb : 1024
   }
 
   vnet: {
@@ -198,6 +222,7 @@ var config = {
       }
     }
   }
+
 
   vms: union(
     {
@@ -318,19 +343,6 @@ var config = {
       lustre: {
         subnet: 'admin'
         sku: azhopConfig.lustre.mds_sku
-        osdisksku: 'StandardSSD_LRS'
-        image: 'lustre'
-        asgs: [ 'asg-ssh', 'asg-lustre', 'asg-lustre-client', 'asg-telegraf' ]
-      }
-      'lustre-oss': {
-        count: azhopConfig.lustre.oss_count
-        identity: {
-          keyvault: {
-            secret_permissions: [ 'Get', 'List' ]
-          }
-        }
-        subnet: 'admin'
-        sku: azhopConfig.lustre.oss_sku
         osdisksku: 'StandardSSD_LRS'
         image: 'lustre'
         asgs: [ 'asg-ssh', 'asg-lustre', 'asg-lustre-client', 'asg-telegraf' ]
@@ -550,8 +562,9 @@ var config = {
       AllowInternalWebUsersIn     : ['540', 'Inbound', 'Allow', 'Tcp', 'Web', 'subnet', 'gateway', 'asg', 'asg-ondemand']
     }
   }
-
 }
+
+var vmItems = concat(items(config.vms), ossVmConfig)
 
 module azhopSecrets './secrets.bicep' = if (autogenerateSecrets) {
   name: 'azhopSecrets'
@@ -597,8 +610,6 @@ module azhopBastion './bastion.bicep' = if (config.deploy_bastion) {
   }
 }
 
-var vmItems = items(config.vms)
-
 module azhopVm './vm.bicep' = [ for vm in vmItems: {
   name: 'azhopVm${vm.key}'
   params: {
@@ -610,6 +621,16 @@ module azhopVm './vm.bicep' = [ for vm in vmItems: {
     adminUser: config.admin_user
     secrets: secrets
     asgIds: asgNameToIdLookup
+  }
+}]
+
+// Assign roles to VMs for which roles have been specified
+module azhopRoleAssignements './roleAssignments.bicep' = [ for vm in vmItems: if (contains(vm.value, 'identity') && contains(vm.value.identity, 'roles')) {
+  name: 'azhopRoleFor${vm.key}'
+  params: {
+    name: vm.key
+    roles: vm.value.identity.roles
+    principalId: azhopVm[indexOf(map(vmItems, item => item.key), vm.key)].outputs.principalId
   }
 }]
 
@@ -699,7 +720,7 @@ module azhopVpnGateway './vpngateway.bicep' = if (config.deploy_gateway) {
   }
 }
 
-module azhopAnf './anf.bicep' = if (config.homedir == 'anf') {
+module azhopAnf './anf.bicep' = if (config.anf.create) {
   name: 'azhopAnf'
   params: {
     location: location
@@ -708,19 +729,19 @@ module azhopAnf './anf.bicep' = if (config.homedir == 'anf') {
     subnetId: subnetIds.netapp
     adUser: config.admin_user
     adPassword: secrets.adminPassword
-    adDns: azhopVm[indexOf(map(vmItems, item => item.key), 'ad')].outputs.privateIps[0]
+    adDns: azhopVm[indexOf(map(vmItems, item => item.key), 'ad')].outputs.privateIp
     serviceLevel: config.anf.service_level
     sizeGB: config.anf.size_gb
   }
 }
 
-module azhopNfsFiles './nfsfiles.bicep' = if (config.homedir == 'nfsfiles') {
+module azhopNfsFiles './nfsfiles.bicep' = if (config.azurefiles.create ) {
   name: 'azhopNfsFiles'
   params: {
     location: location
     resourcePostfix: resourcePostfix
     allowedSubnetIds: [ subnetIds.admin, subnetIds.compute, subnetIds.frontend ]
-    sizeGB: 1024
+    sizeGB: config.azurefiles.size_gb
   }
 }
 
@@ -733,8 +754,12 @@ module azhopPrivateZone './privatezone.bicep' = {
 }
 
 // list of DC VMs. The first one will be considered the default PDC (for DNS registration)
-var adVmNames = (indexOf(map(vmItems, item => item.key), 'ad2') > 0 ? ['ad', 'ad2'] : ['ad'])
-var adVmIps = (indexOf(map(vmItems, item => item.key), 'ad2') > 0 ? [azhopVm[indexOf(map(vmItems, item => item.key), 'ad')].outputs.privateIps[0], azhopVm[indexOf(map(vmItems, item => item.key), 'ad2')].outputs.privateIps[0]] : [azhopVm[indexOf(map(vmItems, item => item.key), 'ad')].outputs.privateIps[0]])
+// Trick to get the index of the DC VM in the vmItems array, to workaround a bug in bicep 0.14.85 as it throws an error when using indexOf(map(vmItems, item => item.key), 'ad2')
+var adVmNames = ! highAvailabilityForAD ? ['ad'] : ['ad', 'ad2']
+var adIp = azhopVm[indexOf(map(vmItems, item => item.key), 'ad')].outputs.privateIp
+var ad2Index = highAvailabilityForAD ? indexOf(map(vmItems, item => item.key), 'ad2') : 0
+var ad2Ip = azhopVm[ad2Index].outputs.privateIp
+var adVmIps = ! highAvailabilityForAD ? [adIp] : [adIp, ad2Ip]
 module azhopADRecords './privatezone_records.bicep' = {
   name: 'azhopADRecords'
   params: {
@@ -770,7 +795,7 @@ output azhopGlobalConfig object = union(
     domain_name                   : 'hpc.azure'
     ldap_server                   : 'ad'
     homedir_mountpoint            : config.homedir_mountpoint
-    ondemand_fqdn                 : config.public_ip ? azhopVm[indexOf(map(vmItems, item => item.key), 'ondemand')].outputs.fqdn : azhopVm[indexOf(map(vmItems, item => item.key), 'ondemand')].outputs.privateIps[0]
+    ondemand_fqdn                 : config.public_ip ? azhopVm[indexOf(map(vmItems, item => item.key), 'ondemand')].outputs.fqdn : azhopVm[indexOf(map(vmItems, item => item.key), 'ondemand')].outputs.privateIp
     ansible_ssh_private_key_file  : '${config.admin_user}_id_rsa'
     subscription_id               : subscription().subscriptionId
     tenant_id                     : subscription().tenantId
@@ -785,12 +810,12 @@ output azhopGlobalConfig object = union(
     blob_storage_suffix           : 'blob.${environment().suffixes.storage}' // blob.core.windows.net
     jumpbox_ssh_port              : deployJumpbox ? config.vms.jumpbox.sshPort : 22
   },
-  config.homedir == 'anf' ? {
+  config.homedir_type == 'anf' ? {
     anf_home_ip                   : azhopAnf.outputs.nfs_home_ip
     anf_home_path                 : azhopAnf.outputs.nfs_home_path
     anf_home_opts                 : azhopAnf.outputs.nfs_home_opts
   } : {},
-  config.homedir == 'nfsfiles' ? {
+  config.homedir_type == 'azurefiles' ? {
     anf_home_ip                   : azhopNfsFiles.outputs.nfs_home_ip
     anf_home_path                 : azhopNfsFiles.outputs.nfs_home_path
     anf_home_opts                 : azhopNfsFiles.outputs.nfs_home_opts
@@ -802,71 +827,71 @@ output azhopInventory object = {
     hosts: union (
       {
         localhost: {
-          psrp_ssh_proxy: deployJumpbox ? azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIps[0] : ''
+          psrp_ssh_proxy: deployJumpbox ? azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIp : ''
         }
         scheduler: {
-          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'scheduler')].outputs.privateIps[0]
+          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'scheduler')].outputs.privateIp
         }
         ondemand: {
-          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'ondemand')].outputs.privateIps[0]
+          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'ondemand')].outputs.privateIp
         }
         ccportal: {
-          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'ccportal')].outputs.privateIps[0]
+          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'ccportal')].outputs.privateIp
         }
         grafana: {
-          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'grafana')].outputs.privateIps[0]
+          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'grafana')].outputs.privateIp
         }
         ad: {
-          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'ad')].outputs.privateIps[0]
+          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'ad')].outputs.privateIp
           ansible_connection: 'psrp'
           ansible_psrp_protocol: 'http'
           ansible_user: config.admin_user
           ansible_password: secrets.adminPassword
-          psrp_ssh_proxy: deployJumpbox ? azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIps[0] : ''
+          psrp_ssh_proxy: deployJumpbox ? azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIp : ''
           ansible_psrp_proxy: deployJumpbox ? 'socks5h://localhost:5985' : ''
         }
       },
       indexOf(map(vmItems, item => item.key), 'ad2') > 0 ? {
         ad2: {
-          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'ad2')].outputs.privateIps[0]
+          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'ad2')].outputs.privateIp
           ansible_connection: 'psrp'
           ansible_psrp_protocol: 'http'
           ansible_user: config.admin_user
           ansible_password: secrets.adminPassword
-          psrp_ssh_proxy: deployJumpbox ? azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIps[0] : ''
+          psrp_ssh_proxy: deployJumpbox ? azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIp : ''
           ansible_psrp_proxy: deployJumpbox ? 'socks5h://localhost:5985' : ''
         }
       } : {} ,
       deployJumpbox ? {
         jumpbox : {
-          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIps[0]
+          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIp
           ansible_ssh_port: config.vms.jumpbox.sshPort
           ansible_ssh_common_args: ''
         }
       } : {},
       config.deploy_lustre ? {
         lustre: {
-          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'lustre')].outputs.privateIps[0]
+          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'lustre')].outputs.privateIp
         }
         robinhood: {
-          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'robinhood')].outputs.privateIps[0]
+          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'robinhood')].outputs.privateIp
         }
       } : {},
       config.enable_remote_winviz ? {
         guacamole: {
-          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'guacamole')].outputs.privateIps[0]
+          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'guacamole')].outputs.privateIp
         }
       } : {}
     )
     vars: {
       ansible_ssh_user: config.admin_user
-      ansible_ssh_common_args: deployJumpbox ? '-o ProxyCommand="ssh -i ${config.admin_user}_id_rsa -p ${config.vms.jumpbox.sshPort} -W %h:%p ${config.admin_user}@${azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIps[0]}"' : ''
+      ansible_ssh_common_args: deployJumpbox ? '-o ProxyCommand="ssh -i ${config.admin_user}_id_rsa -p ${config.vms.jumpbox.sshPort} -W %h:%p ${config.admin_user}@${azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIp}"' : ''
     }
   }
 }
 
 // need to add this to the inventory file as bicep will not allow me to generate it
-output lustre_oss_private_ips array = config.deploy_lustre ? azhopVm[indexOf(map(vmItems, item => item.key), 'lustre-oss')].outputs.privateIps : []
+output lustre_oss_private_ips array = [for i in range(0, lustreOssCount): azhopVm[indexOf(map(vmItems, item => item.key), format('lustre-oss-{0}', i))].outputs.privateIp]
 
 output azhopPackerOptions object = (config.deploy_sig) ? {
   var_subscription_id: subscription().subscriptionId
@@ -889,17 +914,23 @@ exec ssh -i {0}_id_rsa  "$@"
 
 var azhopSSHConnectScript = format('''
 #!/bin/bash
-
-if [[ $1 == "cyclecloud" ]]; then
-  echo go create tunnel to cyclecloud at https://localhost:9443/cyclecloud
-  ssh -i {0}_id_rsa -fN -L 9443:ccportal:9443 -p {1} {0}@{2}
-elif [[ $1 == "ad" ]]; then
-  echo go create tunnel to ad with rdp to localhost:3390
-  ssh -i {0}_id_rsa -fN -L 3390:ad:3389 -p {1} {0}@{2}
-else
-  exec ssh -i {0}_id_rsa -o ProxyCommand="ssh -i {0}_id_rsa -p {1} -W %h:%p {0}@{2}" "$@"
-fi
-''', config.admin_user, config.vms.jumpbox.sshPort, azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIps[0])
+case $1 in
+  cyclecloud)
+    echo go create tunnel to cyclecloud at https://localhost:9443/cyclecloud
+    ssh -i {0}_id_rsa -fN -L 9443:ccportal:9443 -p {1} {0}@{2}
+    ;;
+  ad)
+    echo go create tunnel to ad with rdp to localhost:3390
+    ssh -i {0}_id_rsa -fN -L 3390:ad:3389 -p {1} {0}@{2}
+    ;;
+  deployer|jumpbox)
+    ssh -i {0}_id_rsa -p {1} {0}@{2}
+    ;;
+  *)
+    exec ssh -i {0}_id_rsa -o ProxyCommand="ssh -i {0}_id_rsa -p {1} -W %h:%p {0}@{2}" -o "User={0}" "$@"
+    ;;
+esac
+''', config.admin_user, config.vms.jumpbox.sshPort, azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIp)
 
 output azhopConnectScript string = deployDeployer ? azhopConnectScript : azhopSSHConnectScript
 

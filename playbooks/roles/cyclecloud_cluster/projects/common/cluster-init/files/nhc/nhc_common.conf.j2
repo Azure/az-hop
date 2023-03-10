@@ -30,7 +30,7 @@
  * || check_file_test -d /tmp/scratch
  * || check_cmd_output -r 0 touch /tmp/scratch/nhctest
 
-{% if ( features.lustre | default(false) ) %}
+{% if ( lustre.create | default(false) ) %}
  * || check_fs_mount_rw -t "lustre" -f "/lustre"
  * || check_fs_used /lustre 90%
  * || check_fs_iused /lustre 98%
@@ -56,7 +56,7 @@
 # Not present on Alma and Ubuntu
 # * || check_ps_service -S -u root crond
 # * || check_ps_service -r -d qmgr postfix
- * || check_ps_service -S -u root sshd
+# * || check_ps_service -S -u root sshd
  * || check_ps_service -S -u root sssd_be
  * || check_ps_service -S -u root sssd_nss
  * || check_ps_service -S -u root sssd_pam

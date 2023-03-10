@@ -46,9 +46,9 @@
   until: result.rc == 0
 
 - name: check if cluster exists in the accounting database
-  shell: sacctmgr -np show cluster slurm|wc -l
+  shell: "sacctmgr -np show cluster {{cluster_name}}|wc -l"
   register: cluster_exists
 
 - name: add cluster to slurm accounting DB
-  shell: sacctmgr -i add cluster slurm
-  when: cluster_exists.stdout == 0
+  shell: "sacctmgr -i add cluster {{cluster_name}}"
+  when: cluster_exists.stdout == "0"

@@ -39,14 +39,14 @@
 
     - name: Download guacamole server
       unarchive:
-        src: https://downloads.apache.org/guacamole/{{guac_version}}/source/guacamole-server-{{guac_version}}.tar.gz
+        src: https://archive.apache.org/dist/guacamole/{{guac_version}}/source/guacamole-server-{{guac_version}}.tar.gz
         dest: /opt/guacamole
         remote_src: yes
 
     # https://guacamole.apache.org/releases/{{guac_version}}/
     - name: Download guacamole extensions
       unarchive:
-        src: https://downloads.apache.org/guacamole/{{guac_version}}/binary/{{item}}
+        src: https://archive.apache.org/dist/guacamole/{{guac_version}}/binary/{{item}}
         dest: /opt/guacamole
         remote_src: yes
       with_items:
@@ -163,7 +163,7 @@
 
     - name: Download guacamole client
       get_url:
-        url: https://downloads.apache.org/guacamole/{{guac_version}}/binary/guacamole-{{guac_version}}.war
+        url: https://archive.apache.org/dist/guacamole/{{guac_version}}/binary/guacamole-{{guac_version}}.war
         dest: /etc/guacamole/guacamole.war
         timeout: 180
 

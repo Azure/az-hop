@@ -1,4 +1,8 @@
 ---
+# yaml-language-server: $schema=config.schema.json
+
+# name of the cluster
+project_name: az-hop
 # azure location name as returned by the command : az account list-locations -o table
 location: westeurope
 # Name of the resource group to create all resources
@@ -8,6 +12,20 @@ resource_group: azhop
 use_existing_rg: false
 # If set to true, will disable telemetry for azhop. See https://azure.github.io/az-hop/deploy/telemetry.html.
 #optout_telemetry: true
+
+# Create a log analytics workspace to enable monitoring and alerting
+log_analytics:
+  create: true
+
+# Option to install the monitoring agent on static infra VMs. Can be disabled if the agent is installed by policy.  
+monitoring: 
+  install_agent: true 
+  
+#If set to true, it will create alert rules associated with az-hop. Enablement of alerting will require the specification of an admin email to send alerts to.
+alerting:
+  enabled: true
+  admin_email: admin.mail@contoso.com
+  local_volume_threshold: 80
 # Additional tags to be added on the Resource Group
 tags:
   env: dev
@@ -15,22 +33,30 @@ tags:
 # Define an Azure Netapp Files (ANF) account, single pool and volume
 # If not present, assume that there is an existing NFS share for the users home directory
 anf:
+  create: true
   # Size of the ANF pool and unique volume (min: 4TB, max: 100TB)
   homefs_size_tb: 4
   # Service level of the ANF volume, can be: Standard, Premium, Ultra
   homefs_service_level: Standard
   # dual protocol
   dual_protocol: false # true to enable SMB support. false by default
+  # If alerting is enabled, this value will be used to determine when to trigger alerts 
+  alert_threshold: 80 # alert when ANF volume reaches this threshold
 
+# For small deployments you can use Azure Files instead of ANF for the home directory
+azurefiles:
+  create: false
+  size_gb: 1024
 
 # These mounts will be listed in the Files menu of the OnDemand portal and automatically mounted on all compute nodes and remote desktop nodes
 mounts:
   # mount settings for the user home directory
   home: # This home name can't be changed
+    type: anf # anf or azurefiles, default to anf. One of the two should be defined in order to mount the home directory
     mountpoint: /anfhome # /sharedhome for example
     server: '{{anf_home_ip}}' # Specify an existing NFS server name or IP, when using the ANF built in use '{{anf_home_ip}}'
     export: '{{anf_home_path}}' # Specify an existing NFS export directory, when using the ANF built in use '{{anf_home_path}}'
-    options: "rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev" # Specify the mount options. Default to rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev
+    options: '{{anf_home_opts}}' # Specify the mount options. Default to rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev
 #  mount1:
 #    mountpoint: /mount1 
 #    server: a.b.c.d # Specify an existing NFS server name or IP
@@ -39,15 +65,15 @@ mounts:
 
 # name of the admin account
 admin_user: hpcadmin
-# Object ID to grant key vault read access
-key_vault_readers: #<object_id>
+# List of identities (object ids) to grant read access to az-hop key vault (optional)
+# key_vault_readers:
 # Network
 network:
   # Create Network and Application Security Rules, true by default, false when using an existing VNET if not specified
   create_nsg: true
   vnet:
     name: hpcvnet # Optional - default to hpcvnet
-    id: # If a vnet id is set then no network will be created and the provided vnet will be used
+    #id: # If a vnet id is set then no network will be created and the provided vnet will be used
     address_space: "10.0.0.0/23" 
     # Special VNET Tags
     # tags:
@@ -56,7 +82,7 @@ network:
     subnets: # all subnets are optionals
     # name values can be used to rename the default to specific names, address_prefixes to change the IP ranges to be used
     # All values below are the default values
-      frontend: 
+      frontend:
         name: frontend
         address_prefixes: "10.0.0.0/29"
         create: true # create the subnet if true. default to true when not specified, default to false if using an existing VNET when not specified
@@ -167,8 +193,8 @@ cyclecloud:
   # version: 8.3.0-3062 # to specify a specific version, see https://packages.microsoft.com/yumrepos/cyclecloud/
 
 # Lustre cluster is optional and can be used to create a Lustre cluster in the environment.
-# Use "features.lustre" to enable/disable Lustre in the deployment
 lustre:
+  create: true # true or false to create a lustre cluster
   rbh_sku: "Standard_D8d_v4"
   mds_sku: "Standard_D8d_v4"
   oss_sku: "Standard_D32d_v4"
@@ -176,11 +202,11 @@ lustre:
   hsm_max_requests: 8
   mdt_device: "/dev/sdb"
   ost_device: "/dev/sdb"
-  hsm:
-    # optional to use existing storage for the archive
-    # if not included it will use the azhop storage account that is created
-    storage_account: #existing_storage_account_name
-    storage_container: #only_used_with_existing_storage_account
+  # optional to use existing storage for the archive
+  # if not included it will use the azhop storage account that is created
+  # hsm:
+  #   storage_account: #existing_storage_account_name
+  #   storage_container: #only_used_with_existing_storage_account
 # List of users to be created on this environment
 users:
   # name: username - must be less than 20 characters
@@ -210,8 +236,8 @@ usergroups:
   #   gid: 6001
 
 # Enable cvmfs-eessi - disabled by default
-# cvmfs_eessi:
-#   enabled: true
+cvmfs_eessi:
+  enabled: false
 
 # scheduler to be installed and configured (openpbs, slurm)
 queue_manager: openpbs
@@ -220,20 +246,25 @@ queue_manager: openpbs
 slurm:
   # Enable SLURM accounting, this will create a SLURM accounting database in a managed MariaDB server instance
   accounting_enabled: false
-  # Enable container support for SLURM using Enroot/Pyxis
-  enroot_enabled: false
   # SLURM version to install. Currently supported: only 20.11.9 and 22.05.3.
   # Other versions can be installed by building from source (See build_rpms setting in the slurmserver role)
   slurm_version: 20.11.9
+  # Name of the SLURM cluster for accounting (optional, default to 'slurm')
+  # WARNING: changing this value on a running cluster will cause slurmctld to fail to start. This is a
+  # safety check to prevent accounting errors. To override, remove /var/spool/slurmd/clustername
+  cluster_name: slurm_azhop
+
+enroot:
+  enroot_version: 3.4.1
 
 # If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values
-database:
+#database:
   # Admin user of the database for which the password will be retrieved from the azhop keyvault
-  user: sqladmin
+  #user: sqladmin
   # FQDN of the managed instance
-  fqdn: 
+  #fqdn:
   # IP of the managed private endpoint if the FQDN is not registered in a private DNS
-  ip: 
+  #ip:
 
 # Create a Bastion in the bastion subnet when defined
 bastion:
@@ -263,8 +294,8 @@ authentication:
   #   OIDCPassRefreshToken: # for AAD use 'On'
   #   OIDCPassClaimsAs: # for AAD use 'environment'
 
-image_gallerie:
-  create: true # Create the shared image gallerie to store custom images
+image_gallery:
+  create: true # Create the shared image gallery to store custom images
 
 # List of images to be defined
 images:
@@ -276,13 +307,13 @@ images:
   #   os_type: Linux # Linux or Windows
   #   version: 7.9 # Version of the image to create the image definition in SIG. Pattern is major.minor where minor is mandatory
 # Pre-defined images
-  - name: azhop-almalinux85-v2-rdma-gpgpu
+  - name: azhop-compute-almalinux-8_7
     publisher: azhop
     offer: almalinux
-    sku: 8_5-hpc-gen2
+    sku: 8_7-hpc-gen2
     hyper_v: V2
     os_type: Linux
-    version: 8.5
+    version: 8.7
   - name: azhop-centos79-v2-rdma-gpgpu
     publisher: azhop
     offer: CentOS
@@ -451,7 +482,13 @@ applications:
     enabled: true
   bc_amlsdk:
     enabled: false
+  bc_rstudio:
+    enabled: false
   bc_ansys_workbench:
     enabled: false
   bc_vmd:
+    enabled: false
+  bc_paraview:
+    enabled: false
+  bc_vizer:
     enabled: false

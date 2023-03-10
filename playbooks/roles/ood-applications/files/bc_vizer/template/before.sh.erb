@@ -1,0 +1,13 @@
+# Export the module function if it exists
+[[ $(type -t module) == "function" ]] && export -f module
+
+THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Find available port to run server on
+port=$(find_port ${host})
+
+<%- if OodAppkit.clusters[context.cluster].job_config[:adapter] == 'pbspro' -%>
+# TODO : Use the job ID for the container name
+export CONTAINER_NAME=trame.$PBS_JOBID
+$THIS_DIR/get_container.sh <%=context.container_image%> $CONTAINER_NAME
+<%- end -%>

@@ -63,3 +63,28 @@ resource "azurerm_netapp_volume" "home" {
     ]
   }
 }
+
+resource "azurerm_monitor_metric_alert" "anf_alert" {
+  count = local.create_anf && local.create_alerts ? 1 : 0
+  name                = "anf-alert-${random_string.resource_postfix.result}"
+  resource_group_name = azurerm_netapp_account.azhop[0].resource_group_name
+  scopes              = [azurerm_netapp_volume.home[0].id]
+  description         = "Alert when ANF volume usage exceeds ${local.anf_vol_threshold}%"
+  severity            = 3
+  enabled             = true
+  frequency           = "PT1M"
+  window_size         = "PT5M"
+  target_resource_type = "Microsoft.NetApp/netAppAccounts/capacityPools/volumes"
+
+  criteria {
+    metric_namespace = "Microsoft.NetApp/netAppAccounts/capacityPools/volumes"
+    metric_name      = "VolumeConsumedSizePercentage"
+    aggregation      = "Average"
+    operator         = "GreaterThan"
+    threshold        = local.anf_vol_threshold
+  }
+  action {
+    action_group_id = azurerm_monitor_action_group.azhop_action_group[0].id
+  }
+}
+

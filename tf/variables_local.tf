@@ -56,6 +56,25 @@ locals {
     }
     TEMPLATE
 
+    create_log_analytics_workspace = try(local.configuration_yml["log_analytics"]["create"], false)
+    
+    ama_install = try(local.configuration_yml["monitoring"]["install_agent"], true)
+
+    alert_email = try(local.configuration_yml["alerting"]["admin_email"], null)
+
+    #For alerting to be enabled - the analytics workspace needs to be created since log alerts are leveraged. 
+    #We also need to ensure that we have an email to send alerts to.  
+    create_alerts = local.create_log_analytics_workspace && local.alert_email != null && local.alert_email != "admin.mail@contoso.com" && try(local.configuration_yml["alerting"]["enabled"], false) ? true : false
+    anf_vol_threshold = try(local.configuration_yml["anf"]["alert_threshold"], 80)  # default to 80% if not specified 
+
+    # will be used with a KQL query that checks the free space percentage of local volumes
+    # if the user wants to create an alert when local volumes are 80% full, then the free space percentage should be 20%
+    local_vol_threshold = 100 - try(local.configuration_yml["alerting"]["local_volume_threshold"], 20) 
+
+    mounts = try(local.configuration_yml["mounts"], {})
+    mountpoints =  [ for mount in local.mounts : mount.mountpoint ]
+    mountpoints_str = "[ ${join(",", [for mp in local.mountpoints : format("%q", mp)])} ]" //necessary to build generic KQL query on local volumes
+
     ad_ha = try(local.configuration_yml["ad"].high_availability, false)
     domain_controlers = local.ad_ha ? {ad="ad", ad2="ad2"} : {ad="ad"}
 
@@ -129,7 +148,7 @@ locals {
     key_vault_readers = try(local.configuration_yml["key_vault_readers"], null)
 
     # Lustre
-    lustre_enabled = try(local.configuration_yml["features"]["lustre"], try(local.configuration_yml["lustre"]["oss_count"] > 0, false))
+    lustre_enabled = try(local.configuration_yml["lustre"]["create"], try(local.configuration_yml["lustre"]["oss_count"] > 0, false))
     lustre_archive_account = try(local.configuration_yml["lustre"]["hsm"]["storage_account"], null)
     lustre_rbh_sku = try(local.configuration_yml["lustre"]["rbh_sku"], "Standard_D8d_v4")
     lustre_mds_sku = try(local.configuration_yml["lustre"]["mds_sku"], "Standard_D8d_v4")
@@ -189,6 +208,9 @@ locals {
     outbounddns_subnet = try(local.configuration_yml["network"]["vnet"]["subnets"]["outbounddns"], null)
     no_outbounddns_subnet = try(length(local.outbounddns_subnet) > 0 ? false : true, true )
     create_outbounddns_subnet  = try(local.outbounddns_subnet["create"], local.create_vnet ? (local.no_outbounddns_subnet ? false : true) : false )
+
+    dns_forwarders = try(local.configuration_yml["dns"]["forwarders"], [])
+    create_dnsfw_rules = length(local.dns_forwarders) > 0 ? true : false
 
     subnets = merge(local._subnets, 
                     local.no_bastion_subnet ? {} : {bastion = "AzureBastionSubnet"},

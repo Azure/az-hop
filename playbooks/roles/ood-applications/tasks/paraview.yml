@@ -1,0 +1,21 @@
+- name: Create ParaView directories
+  file:
+    path: '{{homedir_mountpoint}}/apps/paraview/5.11.0/{{ item }}'
+    state: directory
+    mode: 0755
+  loop:
+    - glx
+    - egl
+    - osmesa
+
+- name: Download ParaView binaries
+  unarchive:
+    src: 'https://www.paraview.org/files/v5.11/{{ item.archive }}'
+    dest: '{{homedir_mountpoint}}/apps/paraview/5.11.0/{{ item.name }}'
+    creates: '{{homedir_mountpoint}}/apps/paraview/5.11.0/{{ item.name }}/bin/pvserver'
+    remote_src: yes
+    extra_opts: [--strip-components=1]
+  loop:
+    - { name: 'glx', archive: 'ParaView-5.11.0-MPI-Linux-Python3.9-x86_64.tar.gz' }
+    - { name: 'egl', archive: 'ParaView-5.11.0-egl-MPI-Linux-Python3.9-x86_64.tar.gz' }
+    - { name: 'osmesa', archive: 'ParaView-5.11.0-osmesa-MPI-Linux-Python3.9-x86_64.tar.gz' }

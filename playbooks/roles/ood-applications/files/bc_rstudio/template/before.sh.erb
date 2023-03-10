@@ -1,0 +1,6 @@
+# Export the module function if it exists
+THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+[[ $(type -t module) == "function" ]] && export -f module
+
+# Find available port to run server on
+port=$(find_port ${host})

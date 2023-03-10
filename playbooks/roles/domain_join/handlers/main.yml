@@ -5,6 +5,10 @@
     name: sssd 
     state: restarted
 
+- name: restart daemon-reload
+  shell: |
+    systemctl daemon-reload
+
 - name: restart dbus
   service:
     name: dbus

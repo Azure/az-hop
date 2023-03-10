@@ -1,0 +1,71 @@
+---
+cluster:
+    - "ondemand"
+form:
+    - bc_num_hours
+    - bc_slot_type
+    - bucket
+    - container_image
+    - dataset
+attributes:
+    bc_num_hours:
+        widget: "number_field"
+        label: "Maximum duration in hours of your session"
+        value: 1
+        min: 1
+        max: 8
+        help: |
+            This is the maximum duration in hours of your session once started.
+        step: 1
+    bc_slot_type:
+        widget: "select"
+        label: "Node type"
+        help: |
+            Select the resource target for the remote desktop session <br>
+            - **With GPU** <br>
+                These are standard small GPU nodes for visualization for a single user session.<br>
+            - **Large With GPU** <br>
+                These are standard large GPU nodes for visualization, usually for multiple users sessions sharing the same node.<br>
+            - **Without GPU** <br>
+                Same as for **With GPU** but without a GPU accelerator.
+        options:
+            - ["With GPU - Small GPU node for single session", "viz3d", data-hide-bucket: true, data-set-bucket: 1,
+                data-max-bc-num-hours: "8",
+                data-min-bc-num-hours: "1"]
+            - ["Large With GPU - Intented for shared sessions", "largeviz3d",
+                data-max-bc-num-hours: "8",
+                data-min-bc-num-hours: "1"]
+            - ["Without GPU - for single session", "viz", data-hide-bucket: true, data-set-bucket: 1,
+                data-max-bc-num-hours: "8",
+                data-min-bc-num-hours: "1"]
+    bucket:
+        widget: "select"
+        label: "Node bucket"
+        value: 1
+        help: |
+            Select how much of the node you want to use. This affects to total
+            number of MPI ranks ParaView will use for distributed processing / rendering.
+        options:
+            - [" 1/8 of the node", "8"]
+            - [" 1/4 of the node", "4"]
+            - [" 1/2 of the node", "2"]
+            - [" the full node", "1"]
+    container_image:
+        id: "container_image"
+        label: "Container Image"
+        widget: "text_field"
+        value: "utkarshayachit/vizer:${gl}"
+        required: true
+        help: |
+            Container image to use for the application server. Use `${gl}` as a placeholder
+            for the OpenGL implementation. It will be replced with `egl` or `osmesa` based on
+            the selected node type.
+    dataset:
+        id: "dataset"
+        label: "Dataset filename"
+        data-filepicker: true
+        data-target-file-type: files
+        value: "/anfhome/apps/vizer/datasets/headsq.vti"
+        required: true
+        help: |
+            Dataset filename to be used by the application.

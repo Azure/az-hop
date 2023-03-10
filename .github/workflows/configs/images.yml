@@ -1,0 +1,61 @@
+image_gallery:
+  create: true # Create the shared image gallery to store custom images
+
+# List of images to be defined
+images:
+  # - name: image_definition_name # Should match the packer configuration file name, one per packer file
+  #   publisher: azhop
+  #   offer: CentOS
+  #   sku: 7_9-gen2
+  #   hyper_v: V2 # V1 or V2 (V1 is the default)
+  #   os_type: Linux # Linux or Windows
+  #   version: 7.9 # Version of the image to create the image definition in SIG. Pattern is major.minor where minor is mandatory
+# Pre-defined images
+
+  - name: azhop-compute-centos-7_9
+    publisher: azhpc
+    offer: azhop-compute
+    sku: centos-7_9
+    hyper_v: V2
+    os_type: Linux
+    version: 7.9
+
+  - name: azhop-desktop-centos-7_9
+    publisher: azhpc
+    offer: azhop-desktop
+    sku: centos-7_9
+    hyper_v: V2
+    os_type: Linux
+    version: 7.9
+
+  - name: azhop-desktop-centos-7_9-gen1
+    publisher: azhpc
+    offer: azhop-desktop
+    sku: centos-7_9-gen1
+    hyper_v: V1
+    os_type: Linux
+    version: 7.9
+
+  - name: azhop-compute-ubuntu-1804
+    publisher: azhpc
+    offer: azhop-compute
+    sku: ubuntu-1804
+    hyper_v: V2
+    os_type: Linux
+    version: 18.04
+
+  - name: azhop-compute-almalinux-8_7
+    publisher: azhop
+    offer: almalinux
+    sku: 8-gen2
+    hyper_v: V2
+    os_type: Linux
+    version: 8.7
+
+  - name: azhop-compute-ubuntu-2004
+    publisher: azhpc
+    offer: azhop-compute
+    sku: ubuntu-2004
+    hyper_v: V2
+    os_type: Linux
+    version: 20.04

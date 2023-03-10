@@ -14,6 +14,7 @@ THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 #TFVARS_FILE=""
 TF_FOLDER=$THIS_DIR/tf
 TF_TARGET=
+VALIDATE_CONFIG=true
 if [ $# -eq 0 ]; then
   echo "Usage build.sh "
   echo "  Required arguments:"
@@ -21,6 +22,7 @@ if [ $# -eq 0 ]; then
   echo "   "
   echo "  Optional arguments:"
   echo "    -f|-folder <relative path> - relative folder name containing the terraform files, default is ./tf"
+  echo "    --no-validate              - skip validation of config.yml"
 
   exit 1
 fi
@@ -36,12 +38,21 @@ while (( "$#" )); do
       TF_FOLDER=${THIS_DIR}/${2}
       shift 2
     ;;
+    --no-validate)
+      VALIDATE_CONFIG=false
+      shift 1
+    ;;
     *)
       PARAMS+="${1} "
       shift
       ;;
   esac
 done
+
+if [ -d ${THIS_DIR}/miniconda ]; then
+  echo "Activating conda environment"
+  source ${THIS_DIR}/miniconda/bin/activate
+fi
 
 TF_BACKEND_FILE=$TF_FOLDER/backend.tf
 export TF_CLI_ARGS_apply="-auto-approve"
@@ -62,6 +73,7 @@ if [ -e $THIS_DIR/tf/terraform.tfstate ]; then
   fi
   set -e
 fi
+
 
 function get_storage_id {
   # get the storage account ID to use
@@ -115,14 +127,16 @@ function check_azcli_version {
   fi
 }
 
+# Validate config against schema
+if [ "$VALIDATE_CONFIG" = true ]; then
+  $THIS_DIR/validate_config.sh $AZHOP_CONFIG
+fi
+
 check_azcli_version
 
 get_arm_access_key
 
 terraform -chdir=$TF_FOLDER init -upgrade
-
-# Check config syntax
-yamllint $AZHOP_CONFIG
 
 # Accept Cycle marketplace image terms
 # cc_plan=$(yq eval '.cyclecloud.plan.name' $AZHOP_CONFIG)
@@ -211,7 +225,7 @@ echo "terraform -chdir=$TF_FOLDER $TF_COMMAND $PARAMS"
 # env details from here: https://github.com/hashicorp/terraform-provider-azurerm/blob/main/vendor/github.com/Azure/go-autorest/autorest/azure/environments.go
 # TODO: check az environmentName for AzureChina and AzureGerman
 cloud_env="Public"
-account_env=$(az account show | jq '.environmentName' -r)
+account_env=$(az account show --output json| jq '.environmentName' -r)
 case "$account_env" in
   AzureChinaCloud)
     export TF_VAR_AzureEnvironment=AZURECHINACLOUD

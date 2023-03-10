@@ -19,3 +19,13 @@
     mode: 0755
   when: item.enabled
   loop: '{{ood_azhop_apps}}'
+
+- name: Install ParaView files
+  include_tasks: paraview.yml
+  tags: [ 'paraview' ]
+  when: applications.bc_paraview.enabled | default(false)
+
+- name: Install sample datasets files (vizer)
+  include_tasks: vizer.yml
+  tags: [ 'vizer' ]
+  when: applications.bc_vizer.enabled | default(false)
