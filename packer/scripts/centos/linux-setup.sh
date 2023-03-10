@@ -1,4 +1,6 @@
 #!/bin/bash
+# Update packages
+yum update -y --exclude kernel*, kmod*
 
 yum install -y sssd realmd oddjob oddjob-mkhomedir adcli samba-common samba-common-tools krb5-workstation openldap-clients policycoreutils-python
 yum install -y nfs-utils openssl-devel epel-release ca-certificates
