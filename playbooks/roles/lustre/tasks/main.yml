@@ -6,7 +6,7 @@
 
 - import_tasks: configure_client.yml
   become: true
-  when: install_client or install_robinhood
+  when: install_client
 
 - import_tasks: mds.yml
   become: true

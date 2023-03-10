@@ -91,21 +91,27 @@ var config = {
   queue_manager: contains(azhopConfig, 'queue_manager') ? azhopConfig.queue_manager : 'openpbs'
 
   slurm: {
-    admin_user: contains(azhopConfig.database, 'user') ? azhopConfig.database.user : 'sqladmin'
+    admin_user: contains(azhopConfig, 'database') && contains(azhopConfig.database, 'user') ? azhopConfig.database.user : 'sqladmin'
     accounting_enabled: contains(azhopConfig.slurm, 'accounting_enabled') ? azhopConfig.slurm.accounting_enabled : false
-    enroot_enabled: contains(azhopConfig.slurm, 'enroot_enabled') ? azhopConfig.slurm.enroot_enabled : false
   }
 
   enable_remote_winviz : enableWinViz
-  deploy_sig: contains(azhopConfig, 'image_gallerie') && contains(azhopConfig.image_gallerie, 'create') ? azhopConfig.image_gallerie.create : false
+  deploy_sig: contains(azhopConfig, 'image_gallery') && contains(azhopConfig.image_gallery, 'create') ? azhopConfig.image_gallery.create : false
 
-  homedir: 'nfsfiles'
+  // Default home directory is ANF
+  homedir_type: contains(azhopConfig.mounts.home, 'type') ? azhopConfig.mounts.home.type : 'anf'
   homedir_mountpoint: azhopConfig.mounts.home.mountpoint
 
   anf: {
-    dual_protocol: contains(azhopConfig.anf, 'dual_protocol') ? azhopConfig.anf.dual_protocol : false
-    service_level: contains(azhopConfig.anf, 'homefs_service_level') ? azhopConfig.anf.homefs_service_level : 'Standard'
-    size_gb: contains(azhopConfig.anf, 'homefs_size_tb') ? azhopConfig.anf.homefs_size_tb*1024 : 4096
+    create: contains(azhopConfig, 'anf') && contains(azhopConfig.anf, 'create') ? azhopConfig.anf.create : (contains(azhopConfig, 'anf') ? true : false)
+    dual_protocol: contains(azhopConfig, 'anf') && contains(azhopConfig.anf, 'dual_protocol') ? azhopConfig.anf.dual_protocol : false
+    service_level: contains(azhopConfig, 'anf') && contains(azhopConfig.anf, 'homefs_service_level') ? azhopConfig.anf.homefs_service_level : 'Standard'
+    size_gb: contains(azhopConfig, 'anf') && contains(azhopConfig.anf, 'homefs_size_tb') ? azhopConfig.anf.homefs_size_tb*1024 : 4096
+  }
+
+  azurefiles: {
+    create: contains(azhopConfig, 'azurefiles') && contains(azhopConfig.azurefiles, 'create') ? azhopConfig.azurefiles.create : false
+    size_gb: contains(azhopConfig, 'azurefiles') && contains(azhopConfig.azurefiles, 'size_gb') ? azhopConfig.azurefiles.size_gb : 1024
   }
 
   vnet: {
@@ -722,7 +728,7 @@ module azhopVpnGateway './vpngateway.bicep' = if (config.deploy_gateway) {
   }
 }
 
-module azhopAnf './anf.bicep' = if (config.homedir == 'anf') {
+module azhopAnf './anf.bicep' = if (config.anf.create) {
   name: 'azhopAnf'
   params: {
     location: location
@@ -737,13 +743,13 @@ module azhopAnf './anf.bicep' = if (config.homedir == 'anf') {
   }
 }
 
-module azhopNfsFiles './nfsfiles.bicep' = if (config.homedir == 'nfsfiles') {
+module azhopNfsFiles './nfsfiles.bicep' = if (config.azurefiles.create ) {
   name: 'azhopNfsFiles'
   params: {
     location: location
     resourcePostfix: resourcePostfix
     allowedSubnetIds: [ subnetIds.admin, subnetIds.compute, subnetIds.frontend ]
-    sizeGB: 1024
+    sizeGB: config.azurefiles.size_gb
   }
 }
 
@@ -756,8 +762,12 @@ module azhopPrivateZone './privatezone.bicep' = {
 }
 
 // list of DC VMs. The first one will be considered the default PDC (for DNS registration)
-var adVmNames = (indexOf(map(vmItems, item => item.key), 'ad2') > 0 ? ['ad', 'ad2'] : ['ad'])
-var adVmIps = (indexOf(map(vmItems, item => item.key), 'ad2') > 0 ? [azhopVm[indexOf(map(vmItems, item => item.key), 'ad')].outputs.privateIp, azhopVm[indexOf(map(vmItems, item => item.key), 'ad2')].outputs.privateIp] : [azhopVm[indexOf(map(vmItems, item => item.key), 'ad')].outputs.privateIp])
+// Trick to get the index of the DC VM in the vmItems array, to workaround a bug in bicep 0.14.85 as it throws an error when using indexOf(map(vmItems, item => item.key), 'ad2')
+var adVmNames = ! highAvailabilityForAD ? ['ad'] : ['ad', 'ad2']
+var adIp = azhopVm[indexOf(map(vmItems, item => item.key), 'ad')].outputs.privateIp
+var ad2Index = highAvailabilityForAD ? indexOf(map(vmItems, item => item.key), 'ad2') : 0
+var ad2Ip = azhopVm[ad2Index].outputs.privateIp
+var adVmIps = ! highAvailabilityForAD ? [adIp] : [adIp, ad2Ip]
 module azhopADRecords './privatezone_records.bicep' = {
   name: 'azhopADRecords'
   params: {
@@ -808,12 +818,12 @@ output azhopGlobalConfig object = union(
     blob_storage_suffix           : 'blob.${environment().suffixes.storage}' // blob.core.windows.net
     jumpbox_ssh_port              : deployJumpbox ? config.vms.jumpbox.sshPort : 22
   },
-  config.homedir == 'anf' ? {
+  config.homedir_type == 'anf' ? {
     anf_home_ip                   : azhopAnf.outputs.nfs_home_ip
     anf_home_path                 : azhopAnf.outputs.nfs_home_path
     anf_home_opts                 : azhopAnf.outputs.nfs_home_opts
   } : {},
-  config.homedir == 'nfsfiles' ? {
+  config.homedir_type == 'azurefiles' ? {
     anf_home_ip                   : azhopNfsFiles.outputs.nfs_home_ip
     anf_home_path                 : azhopNfsFiles.outputs.nfs_home_path
     anf_home_opts                 : azhopNfsFiles.outputs.nfs_home_opts
@@ -912,16 +922,22 @@ exec ssh -i {0}_id_rsa  "$@"
 
 var azhopSSHConnectScript = format('''
 #!/bin/bash
-
-if [[ $1 == "cyclecloud" ]]; then
-  echo go create tunnel to cyclecloud at https://localhost:9443/cyclecloud
-  ssh -i {0}_id_rsa -fN -L 9443:ccportal:9443 -p {1} {0}@{2}
-elif [[ $1 == "ad" ]]; then
-  echo go create tunnel to ad with rdp to localhost:3390
-  ssh -i {0}_id_rsa -fN -L 3390:ad:3389 -p {1} {0}@{2}
-else
-  exec ssh -i {0}_id_rsa -o ProxyCommand="ssh -i {0}_id_rsa -p {1} -W %h:%p {0}@{2}" "$@"
-fi
+case $1 in
+  cyclecloud)
+    echo go create tunnel to cyclecloud at https://localhost:9443/cyclecloud
+    ssh -i {0}_id_rsa -fN -L 9443:ccportal:9443 -p {1} {0}@{2}
+    ;;
+  ad)
+    echo go create tunnel to ad with rdp to localhost:3390
+    ssh -i {0}_id_rsa -fN -L 3390:ad:3389 -p {1} {0}@{2}
+    ;;
+  deployer|jumpbox)
+    ssh -i {0}_id_rsa -p {1} {0}@{2}
+    ;;
+  *)
+    exec ssh -i {0}_id_rsa -o ProxyCommand="ssh -i {0}_id_rsa -p {1} -W %h:%p {0}@{2}" -o "User={0}" "$@"
+    ;;
+esac
 ''', config.admin_user, config.vms.jumpbox.sshPort, azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIp)
 
 output azhopConnectScript string = deployDeployer ? azhopConnectScript : azhopSSHConnectScript

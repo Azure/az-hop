@@ -151,7 +151,7 @@ resource "azurerm_key_vault_access_policy" "lustre-oss" {
   count               = local.lustre_enabled ? local.lustre_oss_count : 0
   key_vault_id        = azurerm_key_vault.azhop.id
   tenant_id           = local.tenant_id
-  object_id           = azurerm_linux_virtual_machine.lustre-oss[count.index].identity[0].principal_id
+  object_id           = length(azurerm_linux_virtual_machine.lustre-oss[count.index].identity[0].principal_id) > 0 ? azurerm_linux_virtual_machine.lustre-oss[count.index].identity[0].principal_id : uuid()
 
   secret_permissions  = [ "Get", "List" ]
 }
@@ -257,8 +257,7 @@ resource "azurerm_key_vault_access_policy" "robinhood" {
   count               = local.lustre_enabled ? 1 : 0
   key_vault_id        = azurerm_key_vault.azhop.id
   tenant_id           = local.tenant_id
-  object_id           = azurerm_linux_virtual_machine.robinhood[0].identity[0].principal_id
-
+  object_id           = length(azurerm_linux_virtual_machine.robinhood[0].identity[0].principal_id) > 0 ? azurerm_linux_virtual_machine.robinhood[0].identity[0].principal_id : uuid()
   secret_permissions  = [ "Get", "List" ]
 }
 

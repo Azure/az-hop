@@ -134,12 +134,14 @@ echo "cloud-init done" >> /tmp/cloud-init.txt
         cyclecloud.cluster.autoscale.idle_time_after_jobs = {{queue.idle_timeout}}
         cyclecloud.cluster.autoscale.idle_time_before_jobs = {{queue.idle_timeout}}
       {% endif %}
-      {% if enroot_enabled is defined and enroot_enabled %}
         [[[cluster-init enroot:default:1.0.0]]]
+<<<<<<< HEAD
       {% endif %}
       {% if queue.name.startswith('viz') %}
         [[[cluster-init cryosparc:default:1.0.0]]]
       {% endif %}
+=======
+>>>>>>> main
 {% endfor %}
 
 {% if cryosparc_enabled %}

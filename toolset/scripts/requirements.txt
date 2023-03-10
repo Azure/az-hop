@@ -1,0 +1,6 @@
+pypsrp
+PySocks
+netaddr
+yamllint
+ansible
+jsonschema

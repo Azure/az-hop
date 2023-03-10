@@ -6,6 +6,9 @@ labels: kind/bug
 assignees: ''
 
 ---
+## Version
+Please provide the azhop version used, this one is located in the bottom right of the homepage, or the version you checkout from. 
+
 
 ## In what area(s)?
 

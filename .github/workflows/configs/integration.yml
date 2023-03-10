@@ -1,28 +1,58 @@
 ---
+# yaml-language-server: $schema=config.schema.json
+# name of the cluster
+project_name: az-hop
+
 location: __LOCATION__
 resource_group: __RESOURCE_GROUP__
 use_existing_rg: false
+# If set to true, will disable telemetry for azhop. See https://azure.github.io/az-hop/deploy/telemetry.html.
+#optout_telemetry: true
+
 tags:
   env: dev
   project: azhop
   scheduler: __SCHEDULER__
+
+# Create a log analytics workspace to enable monitoring and alerting
+log_analytics:
+  create: true
+
+# Option to install the monitoring agent on static infra VMs. Can be disabled if the agent is installed by policy.  
+monitoring: 
+  install_agent: false
+
+#If set to true, it will create alert rules associated with az-hop. Enablement of alerting will require the specification of an admin email to send alerts to.
+alerting:
+  enabled: true
+  admin_email: admin.mail@contoso.com
+  local_volume_threshold: 80
+
 # Define an ANF account, single pool and volume
 # If not present assume that there is an existing NFS share for the users home directory
 anf:
+  create: true
   # Size of the ANF pool and unique volume
   homefs_size_tb: 4
   # Service level of the ANF volume, can be: Standard, Premium, Ultra
   homefs_service_level: Standard
   # dual protocol
   dual_protocol: __ANF_DUAL__ # true to enable SMB support. false by default
+  alert_threshold: 80 # alert when ANF volume reaches this threshold
+
+# For small deployments you can use Azure Files instead of ANF for the home directory
+azurefiles:
+  create: true
+  size_gb: 1024
 
 mounts:
   # mount settings for the user home directory
   home:
+    type: __HOME_TYPE__ # anf or azurefiles, default to anf. One of the two should be defined in order to mount the home directory
     mountpoint: /anfhome # /sharedhome for example
     server: '{{anf_home_ip}}' # Specify an existing NFS server name or IP, when using the ANF built in use '{{anf_home_ip}}'
     export: '{{anf_home_path}}' # Specify an existing NFS export directory, when using the ANF built in use '{{anf_home_path}}'
-    options: "rw,hard,rsize=262144,wsize=262144,vers=3,tcp" # Specify the mount options. Default to rw,hard,rsize=262144,wsize=262144,vers=3,tcp
+    options: '{{anf_home_opts}}'
 
 admin_user: hpcadmin
 key_vault_readers: 0bf2513b-59fe-4018-bfd6-5d4844a9a3b9
@@ -32,7 +62,7 @@ network:
   create_nsg: true
   vnet:
     name: hpcvnet # Optional - default to hpcvnet
-    id: # If a vnet id is set then no network will be created and the provided vnet will be used
+    #id: # If a vnet id is set then no network will be created and the provided vnet will be used
     address_space: "10.128.0.0/23" # Optional - default to "10.0.0.0/16"
     # When using an existing VNET, only the subnet names will be used and not the adress_prefixes
     subnets: # all subnets are optionals
@@ -127,21 +157,21 @@ queue_manager: __SCHEDULER__
 slurm:
   # Enable SLURM accounting, this will create a SLURM accounting database in a managed MySQL server instance
   accounting_enabled: true
-  # Enable container support for SLURM using Enroot/Pyxis (global switch)
-  # Each queue with container support must have its own enroot_enabled switch set to true
-  enroot_enabled: true
   # SLURM version to install. Currently supported: only 20.11.9 and 22.05.3.
   # Other versions can be installed by building from source (See build_rpms setting in the slurmserver role)
   slurm_version: 20.11.9
+
+enroot:
+  enroot_version: 3.4.1
 
 # If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values
 database:
   # Admin user of the database for which the password will be retrieved from the azhop keyvault
   user: sqladmin
   # FQDN of the managed instance
-  fqdn: 
+  #fqdn:
   # IP of the managed private endpoint if the FQDN is not registered in a private DNS
-  ip: 
+  #ip: 
 
 # Create a Bastion in the bastion subnet when defined
 bastion:
@@ -171,46 +201,6 @@ authentication:
   #   OIDCPassRefreshToken: # for AAD use 'On'
   #   OIDCPassClaimsAs: # for AAD use 'environment'
 
-image_gallerie:
-  create: true # Create the shared image gallerie to store custom images
-
-images:
-  # - name: azhop-almalinux85-v2-rdma-gpgpu
-  #   publisher: azhop
-  #   offer: almalinux
-  #   sku: 8_5-hpc-gen2
-  #   hyper_v: V2
-  #   os_type: Linux
-  #   version: 8.5
-  # - name: azhop-centos79-v2-rdma-gpgpu
-  #   publisher: azhop
-  #   offer: CentOS
-  #   sku: 7.9-gen2
-  #   hyper_v: V2
-  #   os_type: Linux
-  #   version: 7.9
-  # - name: azhop-centos79-desktop3d
-  #   publisher: azhop
-  #   offer: CentOS
-  #   sku: 7.9-gen2-desktop3d
-  #   hyper_v: V2
-  #   os_type: Linux
-  #   version: 7.9
-  # - name: azhop-compute-ubuntu-1804
-  #   publisher: azhpc
-  #   offer: azhop-compute
-  #   sku: ubuntu-1804
-  #   hyper_v: V2
-  #   os_type: Linux
-  #   version: 18.04
-  # - name: azhop-win10
-  #   publisher: azhop
-  #   offer: Windows-10
-  #   sku: 21h1-pron
-  #   hyper_v: V1
-  #   os_type: Windows
-  #   version: 10.19043
-
 # Autoscale default settings for all queues, can be overriden on each queue depending on the VM type if needed
 autoscale:
   idle_timeout: 180 # Idle time in seconds before shutting down VMs - default to 1800 like in CycleCloud
@@ -218,46 +208,67 @@ autoscale:
 queues:
   - name: execute
     vm_size: Standard_F2s_v2
-    max_core_count: 1024
+    max_core_count: 512
     image: azhpc:azhop-compute:centos-7_9:latest
     spot: false
+    ColocateNodes: false
   - name: hc44rs
     vm_size: Standard_HC44rs
-    max_core_count: 1056
+    max_core_count: 440
     image: azhpc:azhop-compute:centos-7_9:latest
+    ColocateNodes: true
     spot: true
     EnableAcceleratedNetworking: true
   - name: hb60rs
     vm_size: Standard_HB60rs
-    max_core_count: 1440
+    max_core_count: 600
     image: azhpc:azhop-compute:centos-7_9:latest
+    ColocateNodes: true
     spot: true
     EnableAcceleratedNetworking: true
   - name: hb120v2
     vm_size: Standard_HB120rs_v2
-    max_core_count: 2880
+    max_core_count: 1200
     image: azhpc:azhop-compute:centos-7_9:latest
+    ColocateNodes: true
     spot: true
     EnableAcceleratedNetworking: true
   - name: hb120v3
     vm_size: Standard_HB120rs_v3
-    max_core_count: 2880
+    max_core_count: 1200
     image: azhpc:azhop-compute:centos-7_9:latest
+    ColocateNodes: true
     spot: true
     EnableAcceleratedNetworking: true
-  # - name: hb120v3al
-  #   vm_size: Standard_HB120rs_v3
-  #   max_core_count: 2880
-  #   image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-almalinux85-v2-rdma-gpgpu/latest
-  #   plan: almalinux:almalinux-hpc:8_5-hpc-gen2
-  #   spot: true
-  #   EnableAcceleratedNetworking: true
+  - name: hbv3al
+    vm_size: Standard_HB120rs_v3
+    max_core_count: 1200
+    image: azhpc:azhop-compute:almalinux-8_7:latest
+    __ALMA8_PLAN__
+    ColocateNodes: true
+    spot: true
+    EnableAcceleratedNetworking: true
   - name: hbv3u18
     vm_size: Standard_HB120rs_v3
-    max_core_count: 2880
+    max_core_count: 1200
     image: azhpc:azhop-compute:ubuntu-18_04:latest
+    ColocateNodes: true
     spot: true
     EnableAcceleratedNetworking: true
+  - name: hbv3u20
+    vm_size: Standard_HB120rs_v3
+    max_core_count: 1200
+    image: azhpc:azhop-compute:ubuntu-20_04:latest
+    ColocateNodes: true
+    spot: true
+    EnableAcceleratedNetworking: true
+  - name: nc24v3
+    vm_size: Standard_NC24rs_v3
+    max_core_count: 96
+    image: azhpc:azhop-compute:centos-7_9:latest
+    ColocateNodes: true
+
+# Remote Viz Queues
   - name: viz3d
     vm_size: Standard_NV12s_v3
     max_core_count: 48
@@ -276,10 +287,6 @@ queues:
     EnableAcceleratedNetworking: true
     max_hours: 12 # Maximum session duration
     min_hours: 1 # Minimum session duration - 0 is infinite
-  - name: nc24v3
-    vm_size: Standard_NC24rs_v3
-    max_core_count: 96
-    image: azhpc:azhop-compute:centos-7_9:latest
   - name: largeviz3d
     vm_size: Standard_NV48s_v3
     max_core_count: 96
@@ -308,7 +315,13 @@ applications:
     enabled: true
   bc_jupyter:
     enabled: true
+  bc_rstudio:
+    enabled: true
   bc_ansys_workbench:
     enabled: false
   bc_vmd:
     enabled: false
+  bc_paraview:
+    enabled: true
+  bc_vizer:
+    enabled: true

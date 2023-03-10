@@ -32,6 +32,11 @@ on:
         required: true
         default: 'openpbs' # use it with ${{ inputs.scheduler }}
         type: string
+      images:
+        description: 'Images to be used (marketplace/shared) or built (private): marketplace/shared/private'
+        required: false
+        default: 'marketplace' # use it with ${{ inputs.images }}
+        type: string
       lustre:
         description: 'Deploy a Lustre cluster (true/false) - Default to true'
         required: true
@@ -46,6 +51,11 @@ on:
         description: 'Use bicep for the deployment - Default to false'
         required: false
         default: 'false' # use it with ${{ inputs.use_bicep }}
+        type: string
+      home_type:
+        description: 'Home directory type anf/azurefiles- Default to anf'
+        required: false
+        default: 'anf' # use it with ${{ inputs.home_type }}
         type: string
 
     secrets:
@@ -64,10 +74,12 @@ env:
   TF_CLI_ARGS_apply: '-auto-approve'
   AZHOP_CONFIGURATION: '.github/workflows/configs/integration.yml'
   AZHOP_LUSTRE_CONFIGURATION: '.github/workflows/configs/lustre.yml'
+  AZHOP_IMAGES_CONFIGURATION: '.github/workflows/configs/images.yml'
   ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
   ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
   ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
   ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+  SHARED_SIG: /subscriptions/${{ secrets.ARM_SUBSCRIPTION_ID }}/resourceGroups/azhop_build_images/providers/Microsoft.Compute/galleries/azhop_4ehhye3z
   AZHOP_STATE_CONTAINER: environments
   AZHOP_STATE_ACCOUNT: azhopstates
   ANSIBLE_VERBOSITY: 2 # From 0 to 4 based on the level of logs needed in Ansible
@@ -83,7 +95,7 @@ jobs:
     timeout-minutes: 60
 
     container:
-      image: azhop.azurecr.io/hpcrover:2210.1816
+      image: azhop.azurecr.io/hpcrover:2302.2117
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -99,6 +111,7 @@ jobs:
 
       - name: Login azure
         run: |
+          source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
           echo "local user: $(whoami)"
@@ -107,6 +120,7 @@ jobs:
         id: deploy
         run: |
           set -e
+          source /miniconda/bin/activate
           # If resource group is not specified, generate a random one
           RESOURCE_GROUP=${{ inputs.resource_group }}
           echo "Resource group name is $RESOURCE_GROUP"
@@ -128,11 +142,45 @@ jobs:
             sed -i "s/__SCHEDULER__/$SCHEDULER/g" config.yml
             LOCATION=${{ inputs.location }}
             sed -i "s/__LOCATION__/$LOCATION/g" config.yml
+            HOME_TYPE=${{ inputs.home_type }}
+            sed -i "s/__HOME_TYPE__/$HOME_TYPE/g" config.yml
             # Add lustre configuration if lustre is true
             DEPLOY_LUSTRE=${{ inputs.lustre }}
             if [ "$DEPLOY_LUSTRE" == "true" ]; then
               cat $AZHOP_LUSTRE_CONFIGURATION >> config.yml
             fi
+
+            # Configure images
+            IMAGES=${{ inputs.images }}
+            case $IMAGES in
+              marketplace)
+                echo "Using marketplace images"
+
+                sed -i 's|__ALMA8_PLAN__||g' config.yml
+                ;;
+              shared)
+                echo "Using shared images"
+                sed -i "s|azhpc:azhop-compute:centos-7_9:latest|$SHARED_SIG/azhop-compute-centos-7_9/latest|g" config.yml
+                sed -i "s|azhpc:azhop-desktop:centos-7_9:latest|$SHARED_SIG/azhop-desktop-centos-7_9/latest|g" config.yml
+                sed -i "s|azhpc:azhop-compute:almalinux-8_7:latest|$SHARED_SIG/azhop-compute-almalinux-8_7/latest|g" config.yml
+                sed -i "s|azhpc:azhop-compute:ubuntu-18_04:latest|$SHARED_SIG/azhop-compute-ubuntu-1804/latest|g" config.yml
+                sed -i "s|azhpc:azhop-compute:ubuntu-20_04:latest|$SHARED_SIG/azhop-compute-ubuntu-2004/latest|g" config.yml
+
+                sed -i "s|__ALMA8_PLAN__|plan: almalinux:almalinux:8-gen2|g" config.yml
+                ;;
+              private)
+                echo "Using private images"
+                cat $AZHOP_IMAGES_CONFIGURATION >> config.yml
+                SIG="/subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images"
+                sed -i "s|azhpc:azhop-compute:centos-7_9:latest|$SIG/azhop-compute-centos-7_9/latest|g" config.yml
+                sed -i "s|azhpc:azhop-desktop:centos-7_9:latest|$SIG/azhop-desktop-centos-7_9/latest|g" config.yml
+                sed -i "s|azhpc:azhop-compute:almalinux-8_7:latest|$SIG/azhop-compute-almalinux-8_7/latest|g" config.yml
+                sed -i "s|azhpc:azhop-compute:ubuntu-18_04:latest|$SIG/azhop-compute-ubuntu-1804/latest|g" config.yml
+                sed -i "s|azhpc:azhop-compute:ubuntu-20_04:latest|$SIG/azhop-compute-ubuntu-2004/latest|g" config.yml
+
+                sed -i "s|__ALMA8_PLAN__|plan: almalinux:almalinux:8-gen2|g" config.yml
+                ;;
+            esac
 
             # If peering, then find out which IP range can be used
             peered_vnet=$(yq eval ".network.peering[0].vnet_name" config.yml)
@@ -175,7 +223,7 @@ jobs:
             set +e
             if [ "$USE_BICEP" == "true" ]; then
               pushd deploy/purebicep
-              ./build.sh -c ../../config.yml
+              ./build.sh -c ../../config.yml -v
               build_error=$?
               popd
             else
@@ -214,7 +262,7 @@ jobs:
     if: inputs.deploy_only == 'false'
 
     container:
-      image: azhop.azurecr.io/hpcrover:2210.1816
+      image: azhop.azurecr.io/hpcrover:2302.2117
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -227,11 +275,13 @@ jobs:
          
       - name: Login azure
         run: |
+          source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: Install applications
         run: |
+          source /miniconda/bin/activate
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           ./install.sh ad
@@ -245,7 +295,7 @@ jobs:
     if: inputs.deploy_only == 'false'
 
     container:
-      image: azhop.azurecr.io/hpcrover:2210.1816
+      image: azhop.azurecr.io/hpcrover:2302.2117
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -258,11 +308,13 @@ jobs:
          
       - name: Login azure
         run: |
+          source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: Install applications
         run: |
+          source /miniconda/bin/activate
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           install_lustre=$(yq eval ".lustre" config.yml)
@@ -277,7 +329,7 @@ jobs:
     if: inputs.deploy_only == 'false'
 
     container:
-      image: azhop.azurecr.io/hpcrover:2210.1816
+      image: azhop.azurecr.io/hpcrover:2302.2117
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -290,11 +342,13 @@ jobs:
          
       - name: Login azure
         run: |
+          source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: Install applications
         run: |
+          source /miniconda/bin/activate
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           ./install.sh ood
@@ -306,7 +360,7 @@ jobs:
     if: inputs.deploy_only == 'false'
 
     container:
-      image: azhop.azurecr.io/hpcrover:2210.1816
+      image: azhop.azurecr.io/hpcrover:2302.2117
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -319,11 +373,13 @@ jobs:
          
       - name: Login azure
         run: |
+          source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: Install applications
         run: |
+          source /miniconda/bin/activate
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           ./install.sh grafana
@@ -335,7 +391,7 @@ jobs:
     if: inputs.deploy_only == 'false'
 
     container:
-      image: azhop.azurecr.io/hpcrover:2210.1816
+      image: azhop.azurecr.io/hpcrover:2302.2117
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -348,11 +404,13 @@ jobs:
          
       - name: Login azure
         run: |
+          source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: Install applications
         run: |
+          source /miniconda/bin/activate
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           ./install.sh ccportal
@@ -364,7 +422,7 @@ jobs:
     if: inputs.deploy_only == 'false'
 
     container:
-      image: azhop.azurecr.io/hpcrover:2210.1816
+      image: azhop.azurecr.io/hpcrover:2302.2117
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -377,11 +435,13 @@ jobs:
          
       - name: Login azure
         run: |
+          source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: Install applications
         run: |
+          source /miniconda/bin/activate
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           ./install.sh add_users
@@ -393,7 +453,7 @@ jobs:
     if: inputs.deploy_only == 'false'
 
     container:
-      image: azhop.azurecr.io/hpcrover:2210.1816
+      image: azhop.azurecr.io/hpcrover:2302.2117
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -406,11 +466,13 @@ jobs:
          
       - name: Login azure
         run: |
+          source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: Install applications
         run: |
+          source /miniconda/bin/activate
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           ./install.sh cccluster
@@ -423,7 +485,7 @@ jobs:
     if: inputs.deploy_only == 'false'
 
     container:
-      image: azhop.azurecr.io/hpcrover:2210.1816
+      image: azhop.azurecr.io/hpcrover:2302.2117
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -436,11 +498,13 @@ jobs:
          
       - name: Login azure
         run: |
+          source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: Install applications
         run: |
+          source /miniconda/bin/activate
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           ./install.sh guacamole
@@ -453,7 +517,7 @@ jobs:
     if: inputs.deploy_only == 'false'
 
     container:
-      image: azhop.azurecr.io/hpcrover:2210.1816
+      image: azhop.azurecr.io/hpcrover:2302.2117
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -466,11 +530,13 @@ jobs:
          
       - name: Login azure
         run: |
+          source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: Install applications
         run: |
+          source /miniconda/bin/activate
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           ./install.sh telegraf
@@ -483,7 +549,7 @@ jobs:
     if: inputs.deploy_only == 'false'
 
     container:
-      image: azhop.azurecr.io/hpcrover:2210.1816
+      image: azhop.azurecr.io/hpcrover:2302.2117
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -496,12 +562,14 @@ jobs:
          
       - name: Login azure
         run: |
+          source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: list all images to be built
         id: set-image-matrix
         run: |
+          source /miniconda/bin/activate
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           # Build the list of images from the config file
@@ -525,7 +593,7 @@ jobs:
       matrix:
         packer_file: ${{ fromJson(needs.set_image_list.outputs.matrix) }}
     container:
-      image: azhop.azurecr.io/hpcrover:2210.1816
+      image: azhop.azurecr.io/hpcrover:2302.2117
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -538,11 +606,13 @@ jobs:
          
       - name: Login azure
         run: |
+          source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: Build Images
         run: |
+          source /miniconda/bin/activate
           if [ "${{matrix.packer_file}}" == "none" ]; then
             exit 0
           fi
@@ -557,7 +627,7 @@ jobs:
     needs: [deploy, cycle, ood, cycle_cluster]
     if: inputs.deploy_only == 'false'
     container:
-      image: azhop.azurecr.io/hpcrover:2210.1816
+      image: azhop.azurecr.io/hpcrover:2302.2117
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -570,11 +640,13 @@ jobs:
          
       - name: Login azure
         run: |
+          source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: Run test playbook
         run: |
+          source /miniconda/bin/activate
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           ansible-playbook -v -i playbooks/inventory ./playbooks/tests.yml 
@@ -586,7 +658,7 @@ jobs:
     needs: [deploy, run_tests, telegraf]
 
     container:
-      image: azhop.azurecr.io/hpcrover:2210.1816
+      image: azhop.azurecr.io/hpcrover:2302.2117
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -597,12 +669,13 @@ jobs:
 
       - name: Login azure
         run: |
+          source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: Cleanup
         run: |
-
+          source /miniconda/bin/activate
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
           rg_exists=$(az group exists -n $RESOURCE_GROUP)
           if [ "$rg_exists" = "true" ]; then

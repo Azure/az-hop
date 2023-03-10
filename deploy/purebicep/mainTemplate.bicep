@@ -35,6 +35,7 @@ param azhopConfig object
 resource azhopResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: azhopConfig.resource_group
   location: location
+  tags: contains(azhopConfig, 'tags') ? azhopConfig.tags : {}
 }
 
 module azhopDeployment './azhop.bicep' = {
