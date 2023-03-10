@@ -11,21 +11,7 @@ MINICONDA_INSTALL_DIR="miniconda"
 MINICONDA_INSTALL_SCRIPT="miniconda-installer.sh"
 
 # Always use of virtual environment
-INSTALL_IN_CONDA=true
-while [[ $# -gt 0 ]]; do
-    opt="$1"
-    shift
-    case "$opt" in
-         "--conda")
- 	    INSTALL_IN_CONDA=true
- 	    shift
- 	    ;;
-         "--")
- 	    break
- 	    ;;
-    esac
-done
-
+INSTALL_IN_CONDA=${INSTALL_IN_CONDA:-true}
 if [ $INSTALL_IN_CONDA = true ]; then
     os_type=$(uname | awk '{print tolower($0)}')
     os_arch=$(arch)
