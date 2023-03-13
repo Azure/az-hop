@@ -3,7 +3,6 @@
 # Licensed under the MIT License.
 #
 name : main_callable
-run-name: ${{ inputs.scheduler }} in ${{ inputs.resource_group }} by @${{ github.actor }}
 
 on:
   workflow_call:
