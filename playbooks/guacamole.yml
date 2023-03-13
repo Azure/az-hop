@@ -219,12 +219,10 @@
         state: present
         lock_timeout : 180
 
-    - name: download certificate
-      get_url:
-        url: 'https://www.digicert.com/CACerts/BaltimoreCyberTrustRoot.crt.pem' #https://cacerts.digicert.com/DigiCertGlobalRootG2.crt.pem
-        dest: /etc/guacamole/BaltimoreCyberTrustRoot.crt.pem
-        mode: 0644
-        timeout: 180
+    - name: download BaltimoreCyberTrustRoot certificate
+      shell: |
+        wget -t 5 -T 180 'https://www.digicert.com/CACerts/BaltimoreCyberTrustRoot.crt.pem' -O /etc/guacamole/BaltimoreCyberTrustRoot.crt.pem
+        chmod 644 /etc/guacamole/BaltimoreCyberTrustRoot.crt.pem
 
     - name: Install MariaDB Java Connector
       get_url: 
