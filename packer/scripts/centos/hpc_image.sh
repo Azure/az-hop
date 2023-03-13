@@ -1,5 +1,8 @@
 #!/bin/bash
 set -e
+# Update packages
+yum update -y --exclude kernel*, kmod*
+
 yum install -y git
 
 chmod 777 /mnt/resource
