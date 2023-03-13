@@ -8,6 +8,7 @@ ood_azhop_apps:
     - { name: "bc_guacamole", enabled: '{{enable_remote_winviz | default(false)}}' }
     - { name: "bc_codeserver", enabled: '{{applications.bc_codeserver.enabled | default(true)}}' }
     - { name: "bc_jupyter", enabled: '{{ applications.bc_jupyter.enabled | default(true)}}' }
+    - { name: "bc_amlsdk", enabled: '{{ applications.bc_amlsdk.enabled | default(false)}}' }
     - { name: "bc_ansys_workbench", enabled: '{{applications.bc_ansys_workbench.enabled | default(false)}}' }
     - { name: "bc_vmd", enabled: '{{applications.bc_vmd.enabled | default(false)}}' }
     - { name: "bc_paraview", enabled: '{{applications.bc_paraview.enabled | default(false)}}' }

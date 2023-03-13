@@ -1,0 +1,25 @@
+<%-
+  base_url  = "/node/#{host}/#{port}"
+  login_url = "#{base_url}/login"
+  next_url  = "#{base_url}/#{jupyter_api}"
+
+  full_url="#{login_url}?next=#{CGI.escape(next_url)}"
+  form_id = "juypyter_form#{login_url.gsub('/', '_')}"
+%>
+
+<!-- Zoom on iPad doesn't like opening in a new tab. It won't foward the form parameters. -->
+<script type="text/javascript">
+  function changeTarget() {
+    const agent = navigator.userAgent;
+    if (/Mozilla\/5\.0 \(Macintosh; Intel Mac OS X \d+_\d+_\d+\) AppleWebKit\/\d+\.\d+\.\d+ \(KHTML, like Gecko\)/.test(agent)) {
+      document.getElementById("<%= form_id %>").target = "_self";
+    }
+  }
+</script>
+
+<form id="<%= form_id %>" action="<%= full_url %>" method="post" target="_blank" onsubmit="changeTarget()" >
+  <input type="hidden" name="password" value="<%= password %>">
+  <button class="btn btn-primary" type="submit">
+    <i class="fa fa-cogs"></i> Connect to Jupyter
+  </button>
+</form>

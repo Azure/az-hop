@@ -50,12 +50,11 @@
     state: directory
     owner: root
 
-- name: download certificate
-  get_url:
-    url: 'https://www.digicert.com/CACerts/BaltimoreCyberTrustRoot.crt.pem'
-    dest: /etc/guacamole/BaltimoreCyberTrustRoot.crt.pem
-    mode: 0644
-    timeout: 180
+- name: download BaltimoreCyberTrustRoot certificate
+  shell: |
+    wget -t 5 -T 180 'https://www.digicert.com/CACerts/BaltimoreCyberTrustRoot.crt.pem' -O /etc/guacamole/BaltimoreCyberTrustRoot.crt.pem
+    chmod 644 /etc/guacamole/BaltimoreCyberTrustRoot.crt.pem
+
 
 - name: configure guacamole
   copy:
@@ -118,6 +117,11 @@
     owner: root
     group: 5000
 
+- name: stop guacspooler
+  service:
+    name: guacspoold.service
+    state: stopped
+
 - name: enable CycleCloud ScaleLib Guacamole
   shell: | 
     /tmp/cyclecloud-guac/install.sh  --venv /opt/cycle/guac/venv --install-venv
@@ -129,7 +133,7 @@
   args:
     chdir: /tmp/cyclecloud-guac
 
-- name: restart guacspooler
+- name: start guacspooler
   service:
     name: guacspoold.service
-    state: restarted
+    state: started
