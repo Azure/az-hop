@@ -89,7 +89,7 @@ resource "azurerm_virtual_machine_extension" "AzureMonitorLinuxAgent_ondemand" {
 }
 
 resource "azurerm_monitor_data_collection_rule_association" "dcra_ondemand_metrics" {
-    count               = local.create_log_analytics_workspace ? 1 : 0
+    count               = local.monitor ? 1 : 0
     name                = "ondemand-data-collection-ra"
     target_resource_id = azurerm_linux_virtual_machine.ondemand.id
     data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_data_collection_rule[0].id
@@ -97,7 +97,7 @@ resource "azurerm_monitor_data_collection_rule_association" "dcra_ondemand_metri
 }
 
 resource "azurerm_monitor_data_collection_rule_association" "dcra_ondemand_insights" {
-    count               = local.create_log_analytics_workspace ? 1 : 0
+    count               = local.monitor ? 1 : 0
     name                = "ondemand-insights-collection-ra"
     target_resource_id = azurerm_linux_virtual_machine.ondemand.id
     data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_insights_collection_rule[0].id
