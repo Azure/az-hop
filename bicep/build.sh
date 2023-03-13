@@ -2,7 +2,7 @@
 # Build the azhop environment with bicep.
 # build.sh -c|--config <configuration file path>
 #
-AZHOP_ROOT=../..
+AZHOP_ROOT=..
 AZCLI_VERSION_MAJOR=2
 AZCLI_VERSION_MINOR=37
 AZCLI_VERSION_PATCH=0
