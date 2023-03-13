@@ -43,5 +43,5 @@
   yum:
     name: '*'
     state: latest
-    exclude: kernel*,kmod*
+    exclude: kernel*,kmod*,amlfs*
   when: install_oss or install_robinhood or install_mds
