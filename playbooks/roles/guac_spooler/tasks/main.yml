@@ -118,6 +118,11 @@
     owner: root
     group: 5000
 
+- name: stop guacspooler
+  service:
+    name: guacspoold.service
+    state: stopped
+
 - name: enable CycleCloud ScaleLib Guacamole
   shell: | 
     /tmp/cyclecloud-guac/install.sh  --venv /opt/cycle/guac/venv --install-venv
@@ -129,7 +134,7 @@
   args:
     chdir: /tmp/cyclecloud-guac
 
-- name: restart guacspooler
+- name: start guacspooler
   service:
     name: guacspoold.service
-    state: restarted
+    state: started
