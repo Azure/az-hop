@@ -1,9 +1,3 @@
-data "azurerm_log_analytics_workspace" "azhop_workspace" {
-  count    = local.use_existing_ws ? 1 : 0 
-  name     = local.use_existing_ws ? local.log_analytics_workspace_name : azurerm_log_analytics_workspace.azhop_workspace[0].name
-  resource_group_name = local.use_existing_ws ? local.log_analytics_workspace_rg : (local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name)
-}
-
 resource "azurerm_log_analytics_workspace" "azhop_workspace" {
     count               = local.create_log_analytics_workspace ? 1 : 0
     name                = "azhop-${random_string.resource_postfix.result}-ws"
@@ -32,7 +26,7 @@ resource "azurerm_monitor_data_collection_rule" "vm_data_collection_rule" {
   kind = "Linux"
   destinations {
     log_analytics {
-      workspace_resource_id = local.use_existing_ws ? data.azurerm_log_analytics_workspace.azhop_workspace[0].id : azurerm_log_analytics_workspace.azhop_workspace[0].id
+      workspace_resource_id = local.use_existing_ws ? local.log_analytics_workspace_id : azurerm_log_analytics_workspace.azhop_workspace[0].id
       name = "vm-logs"
     }
     azure_monitor_metrics {
@@ -92,7 +86,7 @@ resource "azurerm_monitor_data_collection_rule" "vm_insights_collection_rule" {
   kind = "Linux"
   destinations {
     log_analytics {
-      workspace_resource_id = local.use_existing_ws ? data.azurerm_log_analytics_workspace.azhop_workspace[0].id : azurerm_log_analytics_workspace.azhop_workspace[0].id
+      workspace_resource_id = local.use_existing_ws ? local.log_analytics_workspace_id : azurerm_log_analytics_workspace.azhop_workspace[0].id
       name = "vm-insights-logs"
     }
   }

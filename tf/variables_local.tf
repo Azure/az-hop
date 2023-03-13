@@ -57,9 +57,8 @@ locals {
     TEMPLATE
 
     create_log_analytics_workspace = try(local.configuration_yml["log_analytics"]["create"], false)
-    log_analytics_workspace_rg = try(local.configuration_yml["log_analytics"]["resource_group"], null)
-    log_analytics_workspace_name = try(local.configuration_yml["log_analytics"]["name"], null)
-    use_existing_ws = ( !local.create_log_analytics_workspace && local.log_analytics_workspace_rg != null && local.log_analytics_workspace_name != null)  ? true : false
+    log_analytics_workspace_id = try(local.configuration_yml["log_analytics"]["workspace_id"], null)
+    use_existing_ws = ( !local.create_log_analytics_workspace && local.log_analytics_workspace_id != null )  ? true : false
      
     monitor = ( local.create_log_analytics_workspace || local.use_existing_ws ) ? true : false
     ama_install = try(local.configuration_yml["monitoring"]["install_agent"], true) && local.monitor ? true : false

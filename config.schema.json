@@ -245,8 +245,7 @@
             "additionalProperties": false,
             "properties": {
                 "create": {"type": "boolean" },
-                "resource_group": {"type": "string"},
-                "name": {"type": "string"}
+                "workspace_id": {"type": "string"}
             },
             "required": [ "create" ],
             "title": "logAnalytics"
