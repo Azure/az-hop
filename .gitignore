@@ -56,3 +56,7 @@ deploy/*params.json
 *parameters.json
 *outputs.json
 *mainTemplate.json
+
+# build dir that may have .git moduless
+toolset/scripts/ansible-build
+
