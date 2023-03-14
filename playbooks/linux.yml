@@ -71,9 +71,3 @@
       mode: '0755'
     run_once : true
 
-  - name: update packages for security
-    become: true
-    yum:
-      name: '*'
-      state: latest
-      exclude: kernel*,kmod*,amlfs*
