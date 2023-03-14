@@ -17,9 +17,8 @@
 
 - name: download BaltimoreCyberTrustRoot certificate
   shell: |
-    wget -t 5 -T 180 'https://www.digicert.com/CACerts/BaltimoreCyberTrustRoot.crt.pem' -O /etc/guacamole/BaltimoreCyberTrustRoot.crt.pem
-    chmod 644 /etc/guacamole/BaltimoreCyberTrustRoot.crt.pem
-
+    wget -t 5 -T 180 'https://www.digicert.com/CACerts/BaltimoreCyberTrustRoot.crt.pem' -O /etc/slurm/BaltimoreCyberTrustRoot.crt.pem
+    chmod 644 /etc/slurm/BaltimoreCyberTrustRoot.crt.pem
 
 - name: ensure slurmdbd is restarted.
   service:
