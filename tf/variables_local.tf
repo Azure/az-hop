@@ -56,8 +56,14 @@ locals {
     }
     TEMPLATE
 
+    # Log Analytics
     create_log_analytics_workspace = try(local.configuration_yml["log_analytics"]["create"], false)
-    log_analytics_workspace_id = try(local.configuration_yml["log_analytics"]["workspace_id"], null)
+    log_analytics_name = try(local.configuration_yml["log_analytics"]["name"], null)
+    log_analytics_resource_group = try(local.configuration_yml["log_analytics"]["resource_group"], null)
+    log_analytics_subscription_id = try(local.configuration_yml["log_analytics"]["subscription_id"], data.azurerm_subscription.primary.subscription_id)
+    log_analytics_workspace_id = try("/subscriptions/${local.log_analytics_subscription_id}/resourceGroups/${local.log_analytics_resource_group}/providers/Microsoft.OperationalInsights/workspaces/${local.log_analytics_name}", null)
+
+    //log_analytics_workspace_id = try(local.configuration_yml["log_analytics"]["workspace_id"], null)
     use_existing_ws = ( !local.create_log_analytics_workspace && local.log_analytics_workspace_id != null )  ? true : false
      
     monitor = ( local.create_log_analytics_workspace || local.use_existing_ws ) ? true : false
