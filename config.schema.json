@@ -409,7 +409,7 @@
         },
         "openidc": {
             "type": "object",
-            "additionalProperties": false,
+            "additionalProperties": true,
             "properties": {
                 "OIDCProviderMetadataURL": { "type": "string" },
                 "OIDCClientID": { "type": "string" },
@@ -828,8 +828,6 @@
                 "tags": { "$ref": "#/definitions/Tags" }
             },
             "required": [
-                "address_space",
-                "name",
                 "subnets"
             ],
             "title": "Vnet"
@@ -887,7 +885,6 @@
                 }
             },
             "required": [
-                "address_prefixes",
                 "create"
             ],
             "title": "subnetClass"
