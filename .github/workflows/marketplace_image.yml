@@ -107,9 +107,11 @@ jobs:
   put_offer:
     name: put_offer
     runs-on: ubuntu-latest
+    continue-on-error: true
     if: inputs.publish == 'true'
     needs: [set_image_list, build_image]
     strategy:
+      fail-fast: false
       matrix:
         images: ${{ fromJson(needs.set_image_list.outputs.matrix) }}
     container:
