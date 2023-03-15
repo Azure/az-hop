@@ -142,6 +142,7 @@ jobs:
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
 
           key_vault_name=$(yq eval ".key_vault" $ANSIBLE_VARIABLES)
+          echo "key_vault_name=$key_vault_name"
 
           eval_str=".images[] | select(.name == "\"$image_name"\") | .offer"
           offer=$(yq eval "$eval_str" $CONFIG_FILE)
@@ -149,6 +150,10 @@ jobs:
           publisher=$(yq eval "$eval_str" $CONFIG_FILE)
           eval_str=".images[] | select(.name == "\"$image_name"\") | .sku"
           sku=$(yq eval "$eval_str" $CONFIG_FILE)
+
+          echo "offer=$offer"
+          echo "publisher=$publisher"
+          echo "sku=$sku"
 
           cd ./marketplace
 
@@ -160,6 +165,7 @@ jobs:
           echo "get_offer_by_id"
           get_offer_by_id $publisher $offer > $image_name.json
           ls -alt
+          cat $image_name.json
 
           echo "build_offer_file"
           rm -f $image_name-final.json
