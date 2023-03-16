@@ -26,7 +26,7 @@
     yum:
       name: '*'
       state: latest
-      exclude: kernel*,kmod*,amlfs*
+#      exclude: kernel*,kmod*,amlfs*
 
 - name: Join AD domain and mount anfhome
   hosts: scheduler, ondemand, grafana
