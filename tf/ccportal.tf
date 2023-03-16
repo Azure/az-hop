@@ -11,11 +11,13 @@ resource "azurerm_network_interface" "ccportal-nic" {
 }
 
 resource "azurerm_linux_virtual_machine" "ccportal" {
-  name                = "ccportal"
-  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
-  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
-  size                = try(local.configuration_yml["cyclecloud"].vm_size, "Standard_B2ms")
-  admin_username      = local.admin_username
+  name                  = "ccportal"
+  location              = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+  resource_group_name   = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
+  size                  = try(local.configuration_yml["cyclecloud"].vm_size, "Standard_B2ms")
+  admin_username        = local.admin_username
+  patch_assessment_mode = local.guest_os_patching ? "AutomaticByPlatform" : "ImageDefault"
+  patch_mode            = local.guest_os_patching ? "AutomaticByPlatform" : "ImageDefault"
   network_interface_ids = [
     azurerm_network_interface.ccportal-nic.id,
   ]
@@ -264,4 +266,11 @@ resource "azurerm_monitor_scheduled_query_rules_alert_v2" "ccportal_service_aler
     action {
         action_groups = [azurerm_monitor_action_group.azhop_action_group[0].id]
     }
+}
+
+resource "azurerm_maintenance_assignment_virtual_machine" "ccportal" {
+  count                        = local.guest_os_patching ? 1 : 0
+  location                     = azurerm_linux_virtual_machine.ccportal.location
+  maintenance_configuration_id = azurerm_maintenance_configuration.ccportal[0].id
+  virtual_machine_id           = azurerm_linux_virtual_machine.ccportal.id
 }

@@ -211,6 +211,10 @@
                 "alerting": {
                     "description": "If set to true, it will create alert rules associated with az-hop. Enablement of alerting will require the specification of an admin email to send alerts to.",
                     "$ref": "#/definitions/alerting"
+                },
+                "guest_os_patching": {
+                    "description": "If set to true, it will create a schedule to patch the guest OS of the infrastructure VMs deployed by az-hop. If set to false, it is assumed that the guest OS is patched by policy.",
+                    "$ref": "#/definitions/GuestOSPatching"
                 }
             },
             "required": [
@@ -273,6 +277,17 @@
             },
             "required": [
                 "enabled", "admin_email"
+            ],
+            "title": "alerting"
+        },
+        "GuestOSPatching": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "enabled": {"type": "boolean" }
+            },
+            "required": [
+                "enabled"
             ],
             "title": "alerting"
         },

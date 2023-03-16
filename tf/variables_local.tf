@@ -138,6 +138,7 @@ locals {
     }
     lustre_image_plan = try( length(local._lustre_base_image_plan.publisher) > 0 ? local._lustre_base_image_plan : local._empty_image_plan, local._empty_image_plan)
 
+    guest_os_patching = try(local.configuration_yml["guest_os_patching"]["enabled"], true)
     # Create the RG if not using an existing RG and (creating a VNET or when reusing a VNET in another resource group)
     use_existing_rg = try(local.configuration_yml["use_existing_rg"], false)
     create_rg = (!local.use_existing_rg) && (local.create_vnet || try(split("/", local.vnet_id)[4], local.resource_group) != local.resource_group)

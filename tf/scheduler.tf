@@ -11,11 +11,13 @@ resource "azurerm_network_interface" "scheduler-nic" {
 }
 
 resource "azurerm_linux_virtual_machine" "scheduler" {
-  name                = "scheduler"
-  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
-  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
-  size                = try(local.configuration_yml["scheduler"].vm_size, "Standard_D2s_v3")
-  admin_username      = local.admin_username
+  name                  = "scheduler"
+  location              = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+  resource_group_name   = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
+  size                  = try(local.configuration_yml["scheduler"].vm_size, "Standard_D2s_v3")
+  admin_username        = local.admin_username
+  patch_assessment_mode = local.guest_os_patching ? "AutomaticByPlatform" : "ImageDefault"
+  patch_mode            = local.guest_os_patching ? "AutomaticByPlatform" : "ImageDefault"
   network_interface_ids = [
     azurerm_network_interface.scheduler-nic.id,
   ]
@@ -131,4 +133,11 @@ resource "azurerm_monitor_scheduled_query_rules_alert_v2" "sched_volume_alert" {
     action {
         action_groups = [azurerm_monitor_action_group.azhop_action_group[0].id]
     }
+}
+
+resource "azurerm_maintenance_assignment_virtual_machine" "scheduler" {
+  count                        = local.guest_os_patching ? 1 : 0
+  location                     = azurerm_linux_virtual_machine.scheduler.location
+  maintenance_configuration_id = azurerm_maintenance_configuration.azhop[0].id
+  virtual_machine_id           = azurerm_linux_virtual_machine.scheduler.id
 }

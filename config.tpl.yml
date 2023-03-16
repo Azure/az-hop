@@ -168,6 +168,9 @@ lustre_base_image: "azhpc:azurehpc-lustre:azurehpc-lustre-2_12:latest"
 # The lustre plan to use. Only needed when using the default lustre image from the marketplace. use "::" for an empty plan
 lustre_base_plan: "azhpc:azurehpc-lustre:azurehpc-lustre-2_12" # publisher:product:name
 
+guest_os_patching: 
+  enabled: true # Enable guest OS patching for all VMs. Default to true. Can't be used with custom images
+
 # Jumpbox VM configuration, only needed when deploying thru a public IP and without a configured deployer VM
 jumpbox:
   vm_size: Standard_B2ms
