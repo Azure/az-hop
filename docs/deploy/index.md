@@ -77,7 +77,7 @@ Once the [prerequisites](#azure-pre-requisites) are in place, deploying a greenf
 
  1. Clone the repo: `git clone --recursive https://github.com/Azure/az-hop.git -b <version>` 
  1. Copy the the `config.tpl.yml` template into `config.yml` and update it with your settings
- 1. Build the infrastructure on azure: via `./build.sh -a apply`
+ 1. Build the infrastructure on azure: `./build.sh -a apply`
  1. Create user passwords: `./create_passwords.sh` 
  1. Install the software components on the provisioned infrastructure: `./install.sh` 
 
