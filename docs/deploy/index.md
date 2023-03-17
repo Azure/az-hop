@@ -73,7 +73,7 @@
 # Overview
 
 
-If the [prerequisites](#azure-pre-requisites) are already in place, deploying a greenfield `azhop` environment involves essentially these steps:
+Once the [prerequisites](#azure-pre-requisites) are in place, deploying a greenfield `azhop` environment involves essentially these steps:
 
  1. Clone the repo: `git clone --recursive https://github.com/Azure/az-hop.git -b <version>` 
  1. Copy the the `config.yml.tpl` template into `config.yml` and update it with your settings
