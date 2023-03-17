@@ -132,6 +132,22 @@ if [ "$VALIDATE_CONFIG" = true ]; then
   $THIS_DIR/validate_config.sh $AZHOP_CONFIG
 fi
 
+#Rename AD terraform files if using existing AD
+echo "Checking to see if an existing AD has been supplied"
+existing_ad=$(yq eval '.ad.use_existing_ad' $AZHOP_CONFIG)
+if [ "$existing_ad" == "" ]; then
+  existing_ad="false"
+fi
+if [ "$existing_ad" == "true" ] && [ -f "./tf/ad.tf" ]; then
+  echo "Renaming ad.tf since existing AD has been supplied"
+  mv ./tf/ad.tf ./tf/ad.tf_
+fi
+if [ "$existing_ad" == "false" ] && [ -f "./tf/ad.tf_" ]; then
+  echo "Renaming ad.tf_ back if existing AD has been removed"
+  mv ./tf/ad.tf_ ./tf/ad.tf
+fi
+
+
 check_azcli_version
 
 get_arm_access_key
