@@ -78,7 +78,7 @@ If the [prerequisites](#azure-pre-requisites) are already in place, deploying a 
  1. Clone the repo: `git clone --recursive https://github.com/Azure/az-hop.git -b <version>` 
  1. Copy the the `config.yml.tpl` template into `config.yml` and update it with your settings
  1. Build the infrastructure on azure: via `./build.sh -a apply`
- 1. Create users passwords: `./create_passwords.sh` 
+ 1. Create user passwords: `./create_passwords.sh` 
  1. Install the software components on the provisioned infrastructure: `./install.sh` 
 
 Once deployed, you can connect to the OnDemand web portal via:
@@ -87,7 +87,7 @@ Once deployed, you can connect to the OnDemand web portal via:
  - username: `adminuser` 
  - password: get from `./bin/get_scret adminuser`
 
- The followng sections provide detailed instructions for each of these steps.
+ The following sections provide detailed instructions for each of these steps.
 
 
 # Azure Pre-requisites
