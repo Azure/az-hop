@@ -14,11 +14,12 @@ resource "azurerm_private_dns_zone_virtual_network_link" "azhop_dns_link" {
 
 ## Domain Controlers entries
 resource "azurerm_private_dns_a_record" "ad" {
+  count               =  local.use_existing_ad ? 0 : 1
   name                = "ad"
   resource_group_name = azurerm_private_dns_zone.azhop_private_dns.resource_group_name
   zone_name           = azurerm_private_dns_zone.azhop_private_dns.name
   ttl                 = 3600
-  records             = [azurerm_network_interface.ad-nic.private_ip_address]
+  records             = [azurerm_network_interface.ad-nic[0].private_ip_address]
 }
 
 resource "azurerm_private_dns_a_record" "ad2" {
@@ -32,6 +33,7 @@ resource "azurerm_private_dns_a_record" "ad2" {
 
 ## Domain entries
 resource "azurerm_private_dns_srv_record" "ldap_tcp" {
+  count               =  local.use_existing_ad ? 0 : 1
   name                = "_ldap._tcp"
   resource_group_name = azurerm_private_dns_zone.azhop_private_dns.resource_group_name
   zone_name           = azurerm_private_dns_zone.azhop_private_dns.name
@@ -48,6 +50,7 @@ resource "azurerm_private_dns_srv_record" "ldap_tcp" {
   }
 }
 resource "azurerm_private_dns_srv_record" "kpasswd_tcp" {
+  count               =  local.use_existing_ad ? 0 : 1
   name                = "_kpasswd._tcp"
   resource_group_name = azurerm_private_dns_zone.azhop_private_dns.resource_group_name
   zone_name           = azurerm_private_dns_zone.azhop_private_dns.name
@@ -63,6 +66,7 @@ resource "azurerm_private_dns_srv_record" "kpasswd_tcp" {
   }
 }
 resource "azurerm_private_dns_srv_record" "kerberos_tcp" {
+  count               =  local.use_existing_ad ? 0 : 1
   name                = "_kerberos._tcp"
   resource_group_name = azurerm_private_dns_zone.azhop_private_dns.resource_group_name
   zone_name           = azurerm_private_dns_zone.azhop_private_dns.name
@@ -78,6 +82,7 @@ resource "azurerm_private_dns_srv_record" "kerberos_tcp" {
   }
 }
 resource "azurerm_private_dns_srv_record" "gc_tcp" {
+  count               =  local.use_existing_ad ? 0 : 1
   name                = "_gc._tcp"
   resource_group_name = azurerm_private_dns_zone.azhop_private_dns.resource_group_name
   zone_name           = azurerm_private_dns_zone.azhop_private_dns.name
@@ -93,6 +98,7 @@ resource "azurerm_private_dns_srv_record" "gc_tcp" {
   }
 }
 resource "azurerm_private_dns_srv_record" "kerberos_udp" {
+  count               =  local.use_existing_ad ? 0 : 1
   name                = "_kerberos._udp"
   resource_group_name = azurerm_private_dns_zone.azhop_private_dns.resource_group_name
   zone_name           = azurerm_private_dns_zone.azhop_private_dns.name
@@ -108,6 +114,7 @@ resource "azurerm_private_dns_srv_record" "kerberos_udp" {
   }
 }
 resource "azurerm_private_dns_srv_record" "kpasswd_udp" {
+  count               =  local.use_existing_ad ? 0 : 1
   name                = "_kpasswd._udp"
   resource_group_name = azurerm_private_dns_zone.azhop_private_dns.resource_group_name
   zone_name           = azurerm_private_dns_zone.azhop_private_dns.name
@@ -125,6 +132,7 @@ resource "azurerm_private_dns_srv_record" "kpasswd_udp" {
 
 # MSDCS specific entries
 resource "azurerm_private_dns_srv_record" "ldap_tcpdc_msdcs" {
+  count               =  local.use_existing_ad ? 0 : 1
   name                = "_ldap._tcp.dc._msdcs"
   resource_group_name = azurerm_private_dns_zone.azhop_private_dns.resource_group_name
   zone_name           = azurerm_private_dns_zone.azhop_private_dns.name
@@ -140,6 +148,7 @@ resource "azurerm_private_dns_srv_record" "ldap_tcpdc_msdcs" {
   }
 }
 resource "azurerm_private_dns_srv_record" "kerberos_tcpdc_msdcs" {
+  count               =  local.use_existing_ad ? 0 : 1
   name                = "_kerberos._tcp.dc._msdcs"
   resource_group_name = azurerm_private_dns_zone.azhop_private_dns.resource_group_name
   zone_name           = azurerm_private_dns_zone.azhop_private_dns.name
@@ -155,6 +164,7 @@ resource "azurerm_private_dns_srv_record" "kerberos_tcpdc_msdcs" {
   }
 }
 resource "azurerm_private_dns_srv_record" "ldap_tcp_gc_msdcs" {
+  count               =  local.use_existing_ad ? 0 : 1
   name                = "_ldap._tcp.gc._msdcs"
   resource_group_name = azurerm_private_dns_zone.azhop_private_dns.resource_group_name
   zone_name           = azurerm_private_dns_zone.azhop_private_dns.name
@@ -170,6 +180,7 @@ resource "azurerm_private_dns_srv_record" "ldap_tcp_gc_msdcs" {
   }
 }
 resource "azurerm_private_dns_srv_record" "ldap_tcppdc_msdcs" {
+  count               =  local.use_existing_ad ? 0 : 1
   name                = "_ldap._tcp.pdc._msdcs"
   resource_group_name = azurerm_private_dns_zone.azhop_private_dns.resource_group_name
   zone_name           = azurerm_private_dns_zone.azhop_private_dns.name
@@ -182,6 +193,7 @@ resource "azurerm_private_dns_srv_record" "ldap_tcppdc_msdcs" {
   }
 }
 resource "azurerm_private_dns_srv_record" "ldapdefault-first-site-name_sitesdc_msdcs" {
+  count               =  local.use_existing_ad ? 0 : 1
   name                = "_ldap.default-first-site-name._sites.dc._msdcs"
   resource_group_name = azurerm_private_dns_zone.azhop_private_dns.resource_group_name
   zone_name           = azurerm_private_dns_zone.azhop_private_dns.name
@@ -197,6 +209,7 @@ resource "azurerm_private_dns_srv_record" "ldapdefault-first-site-name_sitesdc_m
   }
 }
 resource "azurerm_private_dns_srv_record" "kerberosdefault-first-site-name_sitesdc_msdcs" {
+  count               =  local.use_existing_ad ? 0 : 1
   name                = "_kerberos.default-first-site-name._sites.dc._msdcs"
   resource_group_name = azurerm_private_dns_zone.azhop_private_dns.resource_group_name
   zone_name           = azurerm_private_dns_zone.azhop_private_dns.name
@@ -212,6 +225,7 @@ resource "azurerm_private_dns_srv_record" "kerberosdefault-first-site-name_sites
   }
 }
 resource "azurerm_private_dns_srv_record" "ldapdefault-first-site-name_sitesgc_msdcs" {
+  count               =  local.use_existing_ad ? 0 : 1
   name                = "_ldap.default-first-site-name._sites.gc._msdcs"
   resource_group_name = azurerm_private_dns_zone.azhop_private_dns.resource_group_name
   zone_name           = azurerm_private_dns_zone.azhop_private_dns.name
