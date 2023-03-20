@@ -1,3 +1,17 @@
+#If using an existing AD then get the keyvault and password details for the domain join user
+#these values are used to generate a local variable that is passed to the output for use by ansible
+data "azurerm_key_vault" "domain_join_password" {
+  count               = local.create_ad ? 0 : 1
+  name                = try(local.configuration_yml["ad"].existing_ad_details.domain_join_user.password_key_vault_name, "error")
+  resource_group_name = try(local.configuration_yml["ad"].existing_ad_details.domain_join_user.password_key_vault_resource_group_name, "error")
+}
+
+data "azurerm_key_vault_secret" "domain_join_password" {
+  count        = local.create_ad ? 0 : 1
+  name         = try(local.configuration_yml["ad"].existing_ad_details.domain_join_user.password_key_vault_secret_name, "error")
+  key_vault_id = data.azurerm_key_vault.domain_join_password[0].id
+}
+
 resource "azurerm_network_interface" "ad-nic" {
   count               = local.create_ad ? 1 : 0
   name                = "ad-nic"
@@ -121,3 +135,18 @@ resource "azurerm_network_interface_application_security_group_association" "ad2
   network_interface_id          = azurerm_network_interface.ad2-nic[0].id
   application_security_group_id = local.create_nsg ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
 }
+
+
+#adding explicit moved blocks to ensure clean migrations for previously deployed environments
+#https://developer.hashicorp.com/terraform/language/modules/develop/refactoring#enabling-count-or-for_each-for-a-resource
+
+moved {
+  from = azurerm_network_interface.ad-nic
+  to   = azurerm_network_interface.ad-nic[0]
+}
+
+moved {
+  from = azurerm_windows_virtual_machine.ad
+  to   = azurerm_windows_virtual_machine.ad[0]
+}
+

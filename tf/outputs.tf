@@ -14,7 +14,7 @@ resource "local_file" "AnsibleInventory" {
       jumpbox-ssh-port  = local.jumpbox_ssh_port
       ad-ip             = local.create_ad ? azurerm_network_interface.ad-nic[0].private_ip_address : "0.0.0.0"
       ad2-ip            = local.ad_ha ? azurerm_network_interface.ad2-nic[0].private_ip_address : (local.create_ad ? azurerm_network_interface.ad-nic[0].private_ip_address : "0.0.0.0")
-      ad-passwd         = local.create_ad ? azurerm_windows_virtual_machine.ad[0].admin_password : ""
+      ad-passwd         = local.domain_join_password
       lustre-oss-count  = local.lustre_oss_count
     }
   )
@@ -57,6 +57,9 @@ resource "local_file" "global_variables" {
       database-user       = local.database_user
       jumpbox-ssh-port    = local.jumpbox_ssh_port
       dns-ruleset-name    = local.create_dnsfw_rules ? azurerm_private_dns_resolver_dns_forwarding_ruleset.forwarding_ruleset[0].name : ""
+      domain-name         = local.domain_name
+      domain_join_user    = local.domain_join_user
+      ldap-server         = local.domain_name
     }
   )
   filename = "${local.playbook_root_dir}/group_vars/all.yml"

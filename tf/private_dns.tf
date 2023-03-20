@@ -240,3 +240,71 @@ resource "azurerm_private_dns_srv_record" "ldapdefault-first-site-name_sitesgc_m
     }
   }
 }
+
+#adding explicit moved blocks to ensure clean migrations for previously deployed environments
+#https://developer.hashicorp.com/terraform/language/modules/develop/refactoring#enabling-count-or-for_each-for-a-resource
+moved { 
+  from = azurerm_private_dns_a_record.ad
+  to   = azurerm_private_dns_a_record.ad[0]
+}
+
+moved {
+  from = azurerm_private_dns_srv_record.ldap_tcp
+  to = azurerm_private_dns_srv_record.ldap_tcp[0]
+}
+
+moved {
+  from = azurerm_private_dns_srv_record.kpasswd_tcp
+  to   = azurerm_private_dns_srv_record.kpasswd_tcp[0]
+}
+
+moved {
+  from = azurerm_private_dns_srv_record.kerberos_tcp
+  to   = azurerm_private_dns_srv_record.kerberos_tcp[0]
+}
+
+moved {
+  from = azurerm_private_dns_srv_record.gc_tcp
+  to   = azurerm_private_dns_srv_record.gc_tcp[0]
+}
+
+moved {
+  from = azurerm_private_dns_srv_record.kerberos_udp
+  to   = azurerm_private_dns_srv_record.kerberos_udp[0]
+}
+
+moved {
+  from = azurerm_private_dns_srv_record.kpasswd_udp
+  to   = azurerm_private_dns_srv_record.kpasswd_udp[0]
+}
+
+moved {
+  from = azurerm_private_dns_srv_record.ldap_tcpdc_msdcs
+  to   = azurerm_private_dns_srv_record.ldap_tcpdc_msdcs[0]
+}
+
+moved {
+  from = azurerm_private_dns_srv_record.ldap_tcp_gc_msdcs
+  to   = azurerm_private_dns_srv_record.ldap_tcp_gc_msdcs[0]
+}
+
+moved {
+  from = azurerm_private_dns_srv_record.ldap_tcppdc_msdcs
+  to   = azurerm_private_dns_srv_record.ldap_tcppdc_msdcs[0]
+}
+
+moved {
+  from = azurerm_private_dns_srv_record.ldapdefault-first-site-name_sitesdc_msdcs
+  to   = azurerm_private_dns_srv_record.ldapdefault-first-site-name_sitesdc_msdcs[0]
+}
+
+moved {
+  from = azurerm_private_dns_srv_record.kerberosdefault-first-site-name_sitesdc_msdcs
+  to   = azurerm_private_dns_srv_record.kerberosdefault-first-site-name_sitesdc_msdcs[0]
+}
+
+moved {
+  from = azurerm_private_dns_srv_record.ldapdefault-first-site-name_sitesgc_msdcs
+  to   = azurerm_private_dns_srv_record.ldapdefault-first-site-name_sitesgc_msdcs[0]
+}
+
