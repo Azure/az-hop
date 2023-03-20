@@ -1,5 +1,5 @@
 resource "azurerm_network_interface" "ad-nic" {
-  count               = local.use_existing_ad ? 0 : 1
+  count               = local.create_ad ? 1 : 0
   name                = "ad-nic"
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
@@ -12,7 +12,7 @@ resource "azurerm_network_interface" "ad-nic" {
 }
 
 resource "azurerm_windows_virtual_machine" "ad" {
-  count               = local.use_existing_ad ? 0 : 1
+  count               = local.create_ad ? 1 : 0
   name                = "ad"
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
@@ -54,7 +54,7 @@ resource "azurerm_windows_virtual_machine" "ad" {
 }
 
 resource "azurerm_network_interface_application_security_group_association" "ad-asg-asso" {
-  for_each = local.use_existing_ad ? [] : toset(local.asg_associations["ad"])
+  for_each = local.create_ad ? toset(local.asg_associations["ad"]) : []
   network_interface_id          = azurerm_network_interface.ad-nic[0].id
   application_security_group_id = local.create_nsg ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
 }

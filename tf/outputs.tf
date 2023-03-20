@@ -12,9 +12,9 @@ resource "local_file" "AnsibleInventory" {
       jumpbox-pip       = local.allow_public_ip ? azurerm_public_ip.jumpbox-pip[0].ip_address : ( local.jumpbox_enabled ? azurerm_network_interface.jumpbox-nic[0].private_ip_address : "0.0.0.0")
       admin-user        = local.admin_username
       jumpbox-ssh-port  = local.jumpbox_ssh_port
-      ad-ip             = local.use_existing_ad ? "0.0.0.0" : azurerm_network_interface.ad-nic[0].private_ip_address
-      ad2-ip            = local.ad_ha ? azurerm_network_interface.ad2-nic[0].private_ip_address : (local.use_existing_ad ? "0.0.0.0" : azurerm_network_interface.ad-nic[0].private_ip_address)
-      ad-passwd         = local.use_existing_ad ? "" : azurerm_windows_virtual_machine.ad[0].admin_password
+      ad-ip             = local.create_ad ? azurerm_network_interface.ad-nic[0].private_ip_address : "0.0.0.0"
+      ad2-ip            = local.ad_ha ? azurerm_network_interface.ad2-nic[0].private_ip_address : (local.create_ad ? azurerm_network_interface.ad-nic[0].private_ip_address : "0.0.0.0")
+      ad-passwd         = local.create_ad ? azurerm_windows_virtual_machine.ad[0].admin_password : ""
       lustre-oss-count  = local.lustre_oss_count
     }
   )

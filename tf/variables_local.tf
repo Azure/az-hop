@@ -83,7 +83,7 @@ locals {
     mountpoints_str = "[ ${join(",", [for mp in local.mountpoints : format("%q", mp)])} ]" //necessary to build generic KQL query on local volumes
 
     # Active Directory
-    use_existing_ad = try(local.configuration_yml["ad"].use_existing_ad, false)
+    create_ad = !try(local.configuration_yml["ad"].use_existing_ad, false)
     ad_ha = try(local.configuration_yml["ad"].high_availability, false)
     domain_controlers = local.ad_ha ? {ad="ad", ad2="ad2"} : {ad="ad"}
 
