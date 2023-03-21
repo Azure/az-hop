@@ -62,6 +62,11 @@ resource "azurerm_netapp_volume" "home" {
       tags
     ]
   }
+
+  depends_on = [
+    azurerm_subnet.netapp,
+    data.azurerm_subnet
+  ]
 }
 
 resource "azurerm_monitor_metric_alert" "anf_alert" {
