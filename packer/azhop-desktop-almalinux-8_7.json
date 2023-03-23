@@ -42,7 +42,7 @@
             "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E sh '{{ .Path }}'",
             "inline": [
                 "chmod +x /tmp/*.sh",
-                "/tmp/interactive-desktop.sh || exit 1",
+                "/tmp/interactive-desktop-3d.sh || exit 1",
                 "echo ' This is the end '",
                 "yum history sync",
                 "rm -rf /tmp/*.sh",
