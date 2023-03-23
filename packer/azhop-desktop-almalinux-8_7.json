@@ -8,9 +8,9 @@
             "image_sku": "almalinux-8_7",
             "image_version": "latest",
             "plan_info": {
-                "plan_name": "azhpc",
-                "plan_publisher": "azhop-compute",
-                "plan_product": "almalinux-8_7"
+                "plan_name": "almalinux-8_7",
+                "plan_publisher": "azhpc",
+                "plan_product": "azhop-compute"
             },
             "managed_image_resource_group_name": "{{user `var_resource_group`}}",
             "managed_image_name": "{{user `var_image`}}",
