@@ -5,7 +5,7 @@
             "use_azure_cli_auth": "{{user `var_use_azure_cli_auth`}}",
             "image_publisher": "azhpc",
             "image_offer": "azhop-compute",
-            "image_sku": "8-almalinux-8_7",
+            "image_sku": "almalinux-8_7",
             "image_version": "latest",
             "plan_info": {
                 "plan_name": "azhpc",
