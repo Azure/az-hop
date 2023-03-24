@@ -15,13 +15,14 @@ systemctl stop nv_peer_mem.service
 systemctl stop nvidia-fabricmanager
 systemctl stop dcgm.service
 rmmod gdrdrv
+rmmod nvidia_drm
 rmmod drm_kms_helper
 lsof /dev/nvidia0
 nv_hostengine_pid=$(lsof /dev/nvidia0 | tail -n 1 | cut -d' ' -f2)
 echo "Kill process $nv_hostengine_pid"
 sudo kill -9 $nv_hostengine_pid
 lsof /dev/nvidia0
-rmmod drm_kms_helper nvidia_uvm nvidia_drm nvidia_modeset nvidia drm
+rmmod nvidia_modeset nvidia drm
 
 init 3
 # Use the direct link which contains the clear version number
