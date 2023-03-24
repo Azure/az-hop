@@ -17,14 +17,17 @@ systemctl stop dcgm.service
 rmmod gdrdrv
 rmmod nvidia_drm
 rmmod drm_kms_helper
+#lsof /dev/nvidia0
+#nv_hostengine_pid=$(lsof /dev/nvidia0 | tail -n 1 | cut -d' ' -f2)
+#echo "Kill process $nv_hostengine_pid"
+#sudo kill -9 $nv_hostengine_pid
 lsof /dev/nvidia0
-nv_hostengine_pid=$(lsof /dev/nvidia0 | tail -n 1 | cut -d' ' -f2)
-echo "Kill process $nv_hostengine_pid"
-sudo kill -9 $nv_hostengine_pid
-lsof /dev/nvidia0
-rmmod nvidia_modeset nvidia drm
+rmmod nvidia_modeset
+rmmod nvidia_uvm
+rmmod nvidia
+rmmod drm
+lsmod
 
-init 3
 # Use the direct link which contains the clear version number
 # Check which latest version to use from https://github.com/Azure/azhpc-extensions/blob/master/NvidiaGPU/resources.json
 wget -O NVIDIA-Linux-x86_64-grid.run https://download.microsoft.com/download/6/2/5/625e22a0-34ea-4d03-8738-a639acebc15e/NVIDIA-Linux-x86_64-510.73.08-grid-azure.run
