@@ -65,7 +65,7 @@ resource "azurerm_netapp_volume" "home" {
 
   depends_on = [
     azurerm_subnet.netapp,
-    data.azurerm_subnet
+    data.azurerm_subnet.netapp
   ]
 }
 
