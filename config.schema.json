@@ -323,6 +323,10 @@
                             "type": "array",
                             "description": "A list of hostnames for the domain controllers that will be used as a target for az-hop domain activities."
                         },
+                        "domain_controller_ip_addresses": {
+                            "type": "array",
+                            "description": "A list of IP addresses for the existing domain controllers for use in ASG and NSG rules allowing domain access."
+                        },
                         "private_dns_servers": {
                             "type": "array",
                             "description": "A list of IP addresses for the existing DNS servers where the AD domain records exist."

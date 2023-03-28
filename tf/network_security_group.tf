@@ -79,7 +79,7 @@ resource "azurerm_subnet_network_security_group_association" "frontend" {
 }
 
 resource "azurerm_subnet_network_security_group_association" "ad" {
-  count                     = local.create_nsg ? 1 : 0
+  count                     = local.create_nsg ? (local.create_ad ? 1 : 0) : 0
   subnet_id                 = local.create_ad_subnet ? azurerm_subnet.ad[0].id : data.azurerm_subnet.ad[0].id
   network_security_group_id = azurerm_network_security_group.common[0].id
 }

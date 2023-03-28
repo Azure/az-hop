@@ -67,6 +67,20 @@ resource "azurerm_key_vault_secret" "admin_password" {
   }
 }
 
+#adding a domain join user secret. If the customer doesn't bring their own AD then this will be the same as the admin password.
+resource "azurerm_key_vault_secret" "domain_join_password" {
+  depends_on   = [time_sleep.delay_create, azurerm_key_vault_access_policy.admin] # As policies are created in the same deployment add some delays to propagate
+  name         = format("%s-password", local.domain_join_user)
+  value        = local.create_ad ? random_password.password.result : local.domain_join_password 
+  key_vault_id = azurerm_key_vault.azhop.id
+
+  lifecycle {
+    ignore_changes = [
+      value
+    ]
+  }
+}
+
 resource "azurerm_key_vault_secret" "admin_ssh_private" {
   depends_on   = [time_sleep.delay_create, azurerm_key_vault_access_policy.admin]
   name         = format("%s-private", local.admin_username)
