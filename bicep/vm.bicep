@@ -45,7 +45,9 @@ resource nic 'Microsoft.Network/networkInterfaces@2020-06-01' = {
             }
             privateIPAllocationMethod: 'Dynamic'
           }, contains(vm, 'pip') && vm.pip ? {
-            id: publicIp.id
+            publicIpAddress: {
+              id: publicIp.id
+            }
           } : {}
         )
       }
