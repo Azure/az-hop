@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --job-name drivaer
-#SBATCH --partition=hbv3mp
+#SBATCH --partition=hbv3
 #SBATCH --nodes=2
 #SBATCH --ntasks-per-node=64
 
