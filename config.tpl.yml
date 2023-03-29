@@ -371,6 +371,13 @@ images:
     hyper_v: V2
     os_type: Linux
     version: 18.04
+  - name: azhop-desktop-ubuntu-2004
+    publisher: azhop
+    offer: azhop-desktop
+    sku: ubuntu-2004
+    hyper_v: V2
+    os_type: Linux
+    version: 7.9
   - name: azhop-win10
     publisher: azhop
     offer: Windows-10
