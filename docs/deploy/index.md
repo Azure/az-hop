@@ -71,26 +71,24 @@
 <!-- gh-md-toc --insert --no-backup --hide-footer docs/deploy/index.md -->
 
 # Overview
-Deploying a green field `azhop` environment can be done by following these few steps :
- - Clone the repo
- - Update the config.yml file with your settings
- - Deploy
- - Create users passwords
- - Install
 
-Once deployed identify the URL to connect to with
-```bash
-grep ondemand_fqdn playbooks/group_vars/all.yml
-```
 
-Get the `adminuser` password to connect with :
-```bash
-./bin/get_secret adminuser
-```
+Once the [prerequisites](#azure-pre-requisites) are in place, deploying a greenfield `azhop` environment involves essentially these steps:
 
-Browse to the URL retrieved above and connect with user `adminuser` and its password.
+ 1. Clone the repo: `git clone --recursive https://github.com/Azure/az-hop.git -b <version>` 
+ 1. Copy the the `config.tpl.yml` template into `config.yml` and update it with your settings
+ 1. Build the infrastructure on azure: `./build.sh -a apply`
+ 1. Create user passwords: `./create_passwords.sh` 
+ 1. Install the software components on the provisioned infrastructure: `./install.sh` 
 
-Below are the detailed instructions to help you building your full `azhop` environment.
+Once deployed, you can connect to the OnDemand web portal via:
+
+ - URL: get from `grep ondemand_fqdn playbooks/group_vars/all.yml` 
+ - username: `adminuser` 
+ - password: get from `./bin/get_scret adminuser`
+
+ The following sections provide detailed instructions for each of these steps.
+
 
 # Azure Pre-requisites
 
@@ -375,9 +373,13 @@ use_existing_rg: false
 # If set to true, will disable telemetry for azhop. See https://azure.github.io/az-hop/deploy/telemetry.html.
 #optout_telemetry: true
 
-# Create a log analytics workspace to enable monitoring and alerting
+# To use an existing workspace set create to false and specify the resource group, name and subscription the target workspace lives in
 log_analytics:
   create: true
+  # An existing log analytics workspace can be used instead. The resource group, name and subscription id of the workspace will need to be specified.
+  #resource_group:
+  #name:
+  #subscription_id: # Optional, if not specified the current subscription will be used
 
 # Option to install the monitoring agent on static infra VMs. Can be disabled if the agent is installed by policy.  
 monitoring: 
@@ -856,6 +858,7 @@ applications:
 # Deploy your environment
 
 ## Azure infrastructure
+
 Before deploying, make sure your are logged in to Azure, which will be done differently if you are logged in as a user or with a Service Principal Name.
 
 ### Login with a user account
@@ -879,6 +882,7 @@ az login -i
 ```
 
 ### Login with a Service Principal Name
+
 When using a Service Principal Name (SPN), you have to login to Azure with this SPN but also set the environment variables used by Terraform to build resources as explained [here](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/service_principal_client_secret).
 
 > Note : The SPN need to have **contributor** and **User Access Administrator** roles on the subscription
@@ -1330,6 +1334,7 @@ dual_protocol: true # true to enable SMB support. false by default
 ```
 
 ## Deploy in a locked down network environment
+
 A locked down network environment avoid access from public IPs to the resources used by az-hop like storage accounts and key vault for example. To enable such configuration, uncomment and fill out the `locked_down_network` settings. Use the `grant_access_from` to grant access to specific internet public IPs as documented from [here](https://docs.microsoft.com/en-us/azure/storage/common/storage-network-security?tabs=azure-portal#grant-access-from-an-internet-ip-range)
 
 ```yml

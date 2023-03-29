@@ -172,7 +172,7 @@ resource "azurerm_virtual_machine_extension" "AzureMonitorLinuxAgent_ccportal" {
 }
 
 resource "azurerm_monitor_data_collection_rule_association" "dcra_ccportal_metrics" {
-    count               = local.create_log_analytics_workspace ? 1 : 0
+    count               = local.monitor ? 1 : 0
     name                = "ccportal-data-collection-ra"
     target_resource_id = azurerm_linux_virtual_machine.ccportal.id
     data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_data_collection_rule[0].id
@@ -180,7 +180,7 @@ resource "azurerm_monitor_data_collection_rule_association" "dcra_ccportal_metri
 }
 
 resource "azurerm_monitor_data_collection_rule_association" "dcra_ccportal_insights" {
-    count               = local.create_log_analytics_workspace ? 1 : 0
+    count               = local.monitor ? 1 : 0
     name                = "ccportal-insights-collection-ra"
     target_resource_id = azurerm_linux_virtual_machine.ccportal.id
     data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_insights_collection_rule[0].id

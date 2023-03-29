@@ -1,0 +1,5 @@
+---
+name: EEESI OpenFOAM Tutorial
+host: ondemand
+notes: A template to run one of the OpenFOAM tutorials
+script: submit.sh

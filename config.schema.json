@@ -244,7 +244,10 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "create": {"type": "boolean" }
+                "create": {"type": "boolean" },
+                "resource_group": {"type": "string"},
+                "name": {"type": "string"},
+                "subscription_id": {"type": "string"}
             },
             "required": [ "create" ],
             "title": "logAnalytics"
@@ -409,7 +412,7 @@
         },
         "openidc": {
             "type": "object",
-            "additionalProperties": false,
+            "additionalProperties": true,
             "properties": {
                 "OIDCProviderMetadataURL": { "type": "string" },
                 "OIDCClientID": { "type": "string" },
@@ -828,8 +831,6 @@
                 "tags": { "$ref": "#/definitions/Tags" }
             },
             "required": [
-                "address_space",
-                "name",
                 "subnets"
             ],
             "title": "Vnet"
@@ -887,7 +888,6 @@
                 }
             },
             "required": [
-                "address_prefixes",
                 "create"
             ],
             "title": "subnetClass"

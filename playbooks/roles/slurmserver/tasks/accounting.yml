@@ -15,14 +15,10 @@
   vars:
     database_password: "{{database_password_out.stdout}}"
 
-- name: download certificate
-  get_url:
-    url: 'https://www.digicert.com/CACerts/BaltimoreCyberTrustRoot.crt.pem'
-    dest: /etc/slurm/BaltimoreCyberTrustRoot.crt.pem
-    owner: slurm 
-    group: slurm
-    mode: 0644
-    timeout: 180
+- name: download BaltimoreCyberTrustRoot certificate
+  shell: |
+    wget -t 5 -T 180 'https://www.digicert.com/CACerts/BaltimoreCyberTrustRoot.crt.pem' -O /etc/slurm/BaltimoreCyberTrustRoot.crt.pem
+    chmod 644 /etc/slurm/BaltimoreCyberTrustRoot.crt.pem
 
 - name: ensure slurmdbd is restarted.
   service:

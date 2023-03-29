@@ -90,7 +90,7 @@ resource "azurerm_virtual_machine_extension" "AzureMonitorLinuxAgent" {
 }
 
 resource "azurerm_monitor_data_collection_rule_association" "dcra_vm_metrics" {
-    count               = local.jumpbox_enabled && local.create_log_analytics_workspace ? 1 : 0
+    count               = local.jumpbox_enabled && local.monitor ? 1 : 0
     name                = "vm-data-collection-ra"
     target_resource_id = azurerm_linux_virtual_machine.jumpbox[0].id
     data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_data_collection_rule[0].id
@@ -98,7 +98,7 @@ resource "azurerm_monitor_data_collection_rule_association" "dcra_vm_metrics" {
 }
 
 resource "azurerm_monitor_data_collection_rule_association" "dcra_vm_insights" {
-    count               = local.jumpbox_enabled && local.create_log_analytics_workspace ? 1 : 0
+    count               = local.jumpbox_enabled && local.monitor ? 1 : 0
     name                = "vm-insights-collection-ra"
     target_resource_id = azurerm_linux_virtual_machine.jumpbox[0].id
     data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_insights_collection_rule[0].id

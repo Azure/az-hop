@@ -79,7 +79,7 @@ resource "azurerm_network_interface_application_security_group_association" "gra
 }
 
 resource "azurerm_monitor_data_collection_rule_association" "dcra_grafana_metrics" {
-    count               = local.create_log_analytics_workspace ? 1 : 0
+    count               = local.monitor ? 1 : 0
     name                = "grafana-data-collection-ra"
     target_resource_id = azurerm_linux_virtual_machine.grafana.id
     data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_data_collection_rule[0].id
@@ -87,7 +87,7 @@ resource "azurerm_monitor_data_collection_rule_association" "dcra_grafana_metric
 }
 
 resource "azurerm_monitor_data_collection_rule_association" "dcra_grafana_insights" {
-    count               = local.create_log_analytics_workspace ? 1 : 0
+    count               = local.monitor ? 1 : 0
     name                = "grafana-insights-collection-ra"
     target_resource_id = azurerm_linux_virtual_machine.grafana.id
     data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_insights_collection_rule[0].id

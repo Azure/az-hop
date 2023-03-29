@@ -45,9 +45,9 @@ images:
     version: 18.04
 
   - name: azhop-compute-almalinux-8_7
-    publisher: azhop
-    offer: almalinux
-    sku: 8-gen2
+    publisher: azhpc
+    offer: azhop-compute
+    sku: almalinux-8_7
     hyper_v: V2
     os_type: Linux
     version: 8.7

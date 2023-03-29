@@ -47,3 +47,10 @@
       accounting_enabled: '{{slurm.accounting_enabled | default(false)}}'
       enroot_scratch_dir: '/mnt/resource'
     when: ( queue_manager is defined and queue_manager == "slurm" )
+
+  - name: update packages for security
+    become: true
+    yum:
+      name: '*'
+      state: latest
+#      exclude: kernel*,kmod*,amlfs*
