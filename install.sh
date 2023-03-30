@@ -2,7 +2,7 @@
 TARGET=${1:-all}
 shift
 ANSIBLE_TAGS=$@
-set -e
+set -ex
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PLAYBOOKS_DIR=$THIS_DIR/playbooks
 INVENTORY=$PLAYBOOKS_DIR/inventory
@@ -100,6 +100,20 @@ function enable_lustre ()
   fi
 }
 
+function use_existing_ad()
+{
+  local use_existing_ad
+  use_existing_ad=$(yq eval '.ad.use_existing_ad' config.yml)
+  if [ "$use_existing_ad" == "null" ]; then
+    use_existing_ad=false
+  fi
+
+  if [ "$use_existing_ad" == "true" ]; then
+    touch $PLAYBOOKS_DIR/ad.ok
+  fi
+
+}
+
 # Ensure submodule exists
 if [ ! -d "${PLAYBOOKS_DIR}/roles/ood-ansible/.github" ]; then
     printf "Installing OOD Ansible submodule\n"
@@ -114,6 +128,7 @@ get_scheduler
 get_ood_auth
 enable_winviz
 enable_lustre
+use_existing_ad
 
 case $TARGET in
   all)
