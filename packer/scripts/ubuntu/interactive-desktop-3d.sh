@@ -60,6 +60,7 @@ wget https://kumisystems.dl.sourceforge.net/project/virtualgl/3.1/virtualgl_3.1_
 dpkg -i virtualgl_3.1_amd64.deb
 
 # Websockify?
+apt-get install -y websockify
 
 apt-get install -y libturbojpeg
 
