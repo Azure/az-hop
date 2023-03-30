@@ -14,11 +14,11 @@ resource "azurerm_virtual_network" "azhop" {
 }
 
 #set VNet DNS servers if using the customers AD and hub
-resource "azurerm_virtual_network_dns_servers" "customer_dns" {
-  count              = local.create_ad ? 0 : 1
-  virtual_network_id = azurerm_virtual_network.azhop[0].id
-  dns_servers        = local.private_dns_servers
-}
+# resource "azurerm_virtual_network_dns_servers" "customer_dns" {
+#   count              = local.create_ad ? 0 : 1
+#   virtual_network_id = azurerm_virtual_network.azhop[0].id
+#   dns_servers        = local.private_dns_servers
+#}
 
 # Resource group of the existing vnet
 data "azurerm_resource_group" "rg_vnet" {
