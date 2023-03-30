@@ -317,9 +317,9 @@ locals {
 
     #Replace the AD ASG with domain controller IP addresses when customer is bringing their own AD
     #use an indexing concept since we can't substitute a list for a string
-    ad_nsg_index = local.create_ad ? "asg/asg-ad" : "prefixes/domain_controller_ips"
-    prefixes = {
-        domain_controller_ips = local.domain_controller_ips
+    ad_nsg_index = local.create_ad ? "asg/asg-ad" : "ips/dc_ips"
+    ips = {
+        dc_ips = local.domain_controller_ips
     }
 
     # Array of NSG rules to be applied on the common NSG
