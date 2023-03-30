@@ -2,7 +2,7 @@
 TARGET=${1:-all}
 shift
 ANSIBLE_TAGS=$@
-set -ex
+set -e
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PLAYBOOKS_DIR=$THIS_DIR/playbooks
 INVENTORY=$PLAYBOOKS_DIR/inventory
