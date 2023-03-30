@@ -2,9 +2,9 @@ global_ssh_public_key         : '${ssh_public_key}'
 global_cc_storage             : ${cc_storage}
 compute_subnetid              : ${compute_subnetid}
 global_config_file            : ${config_file}
-ad_join_user                  : ${admin_username}
-domain_name                   : hpc.azure
-ldap_server                   : ad
+ad_join_user                  : ${domain_join_user}
+domain_name                   : ${domain-name}
+ldap_server                   : ${ldap-server}
 anf_home_ip                   : ${anf-home-ip}
 homedir_mountpoint            : ${homedir_mountpoint}
 anf_home_path                 : ${anf-home-path}

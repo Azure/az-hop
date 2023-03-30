@@ -59,7 +59,7 @@ resource "local_file" "global_variables" {
       dns-ruleset-name    = local.create_dnsfw_rules ? azurerm_private_dns_resolver_dns_forwarding_ruleset.forwarding_ruleset[0].name : ""
       domain-name         = local.domain_name
       domain_join_user    = local.domain_join_user
-      ldap-server         = local.domain_name
+      ldap-server         = local.ldap_server
     }
   )
   filename = "${local.playbook_root_dir}/group_vars/all.yml"

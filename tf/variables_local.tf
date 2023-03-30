@@ -91,6 +91,7 @@ locals {
     domain_join_ou        = local.create_ad ? "CN=Computers" : local.configuration_yml["ad"].existing_ad_details.domain_join_ou
     ad_ha                 = try(local.configuration_yml["ad"].high_availability, false)
     domain_controlers     = local.ad_ha ? {ad="ad", ad2="ad2"} : {ad="ad"}
+    ldap_server           = local.create_ad ? "ad" : local.configuration_yml["ad"].existing_ad_details.domain_controller_names[0]
     private_dns_servers   = local.create_ad ? (local.ad_ha ? [azurerm_network_interface.ad-nic[0].private_ip_address, azurerm_network_interface.ad2-nic[0].private_ip_address] : [azurerm_network_interface.ad-nic[0].private_ip_address]) : local.configuration_yml["ad"].existing_ad_details.private_dns_servers
     domain_controller_ips = local.create_ad ? (local.ad_ha ? [azurerm_network_interface.ad-nic[0].private_ip_address, azurerm_network_interface.ad2-nic[0].private_ip_address] : [azurerm_network_interface.ad-nic[0].private_ip_address]) : local.configuration_yml["ad"].existing_ad_details.domain_controller_ip_addresses
 
