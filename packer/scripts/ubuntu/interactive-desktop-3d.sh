@@ -11,7 +11,7 @@ systemctl stop nv_peer_mem.service
 systemctl stop nvidia-fabricmanager
 systemctl stop dcgm
 
-# Prevent DCGM from restarting while NVIGIA driver is installed
+# Prevent DCGM from restarting while NVIDIA driver is installed
 systemctl disable dcgm
 
 rmmod gdrdrv
@@ -51,7 +51,6 @@ dpkg-reconfigure lightdm
 
 # Install TurboVNC
 wget https://netix.dl.sourceforge.net/project/turbovnc/3.0.3/turbovnc_3.0.3_amd64.deb
-#https://sourceforge.net/projects/turbovnc/files/2.2.5/turbovnc_2.2.5_amd64.deb/download
 dpkg -i turbovnc_3.0.3_amd64.deb
 
 apt install libegl1-mesa
@@ -59,7 +58,6 @@ apt install libegl1-mesa
 wget https://kumisystems.dl.sourceforge.net/project/virtualgl/3.1/virtualgl_3.1_amd64.deb
 dpkg -i virtualgl_3.1_amd64.deb
 
-# Websockify?
 apt-get install -y websockify
 
 apt-get install -y libturbojpeg
