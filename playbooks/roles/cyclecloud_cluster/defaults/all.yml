@@ -3,6 +3,7 @@ cc_subnetid:
 cc_admin_user:
 cc_domain:
 cc_password:
+cc_ad_join_password:
 cc_queues:
 cc_remoteviz:
 cc_queue_manager: 'openpbs'
