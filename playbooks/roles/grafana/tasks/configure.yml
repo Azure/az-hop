@@ -33,6 +33,8 @@
     mode: 0640
   when: grafana_auth_ldap_enabled | bool
   notify: restart grafana
+  vars:
+    grafana_ldap_dc: "{{['dc='] | product(domain_name.split('.')) | map('join') | list | join(',')}}"
 
 - name: Create Grafana directories
   file:
