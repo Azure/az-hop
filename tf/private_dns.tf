@@ -24,11 +24,11 @@ resource "azurerm_private_dns_a_record" "ad" {
 
 resource "azurerm_private_dns_a_record" "ad2" {
   count               = local.ad_ha ? 1 : 0
-  name                = values(local.domain_controlers)[1]
+  name                = try(values(local.domain_controlers)[1], "ad2")
   resource_group_name = azurerm_private_dns_zone.azhop_private_dns.resource_group_name
   zone_name           = azurerm_private_dns_zone.azhop_private_dns.name
   ttl                 = 3600
-  records             = [local.domain_controller_ips[1]]
+  records             = [try(local.domain_controller_ips[1], local.domain_controller_ips[0])]
 }
 
 ## Domain entries
