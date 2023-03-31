@@ -21,7 +21,7 @@
     # Remove any forbidden characters from the username so we conform to the keyvaul secret name rules '^[0-9a-zA-Z-]+$'
     - name: Set secretname
       set_fact:
-        secretname: "{{ users[0].name | map('regex_replace', '[^0-9a-zA-Z-]', '')|list|join() }}-password"
+        secretname: "{{ admin_user | map('regex_replace', '[^0-9a-zA-Z-]', '')|list|join() }}-password"
 
     - name: Read User Password from KV
       command: az keyvault secret show --vault-name {{key_vault}} -n {{secretname}} --query "value" -o tsv
@@ -34,23 +34,23 @@
       shell: |
           set -e
           set -o pipefail
-          curl -k --connect-timeout 30 -u "{{users[0].name}}:{{user_password.stdout}}" "https://{{ondemand_fqdn}}/cyclecloud/clusters/{{cluster_name}}/status?nodes" | jq '[.nodearrays[] | {name: .name, machineType: .buckets[0].definition.machineType, vcpuCount: .buckets[0].virtualMachine.vcpuCount}]' | yq e -P > node_arrays.yml
+          mkdir -p /etc/ood/config/apps/bc_desktop/config
+          curl -k --connect-timeout 30 -u "{{admin_user}}:{{user_password.stdout}}" "https://ccportal:9443/cyclecloud/clusters/{{cluster_name}}/status?nodes" | jq '[.nodearrays[] | {name: .name, machineType: .buckets[0].definition.machineType, vcpuCount: .buckets[0].virtualMachine.vcpuCount}]' | yq e -P > /etc/ood/config/apps/bc_desktop/config/node_arrays.yml
       args:
         executable: /bin/bash
-      delegate_to: localhost
-      connection: local
-      become: false
-
-    - name: create config directory
-      file:
-        path: /etc/ood/config/apps/bc_desktop/config
-        state: directory
       delegate_to: ondemand
+      become: true
 
-    - name: Copy node_arrays files only if ondemand has been installed
-      copy:
-        src: 'node_arrays.yml'
-        dest: '/etc/ood/config/apps/bc_desktop/config/node_arrays.yml'
-      delegate_to: ondemand
+    # - name: create config directory
+    #   file:
+    #     path: /etc/ood/config/apps/bc_desktop/config
+    #     state: directory
+    #   delegate_to: ondemand
+
+    # - name: Copy node_arrays files only if ondemand has been installed
+    #   copy:
+    #     src: 'node_arrays.yml'
+    #     dest: '/etc/ood/config/apps/bc_desktop/config/node_arrays.yml'
+    #   delegate_to: ondemand
   when: marker.stat.exists == true
 

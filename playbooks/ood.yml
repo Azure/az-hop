@@ -11,6 +11,8 @@
   vars:
     ondemand_version: 2.0.29
     ood_core_version: 0.22.0
+    yq_version: v4.25.3
+    yq_binary: yq_linux_amd64
 
   tasks:
   - name: Wait 300 seconds for the nodes to be ready
@@ -479,6 +481,12 @@
     when:  ( cvmfs_eessi.enabled | default(false) )
 
   # Generate the node array core lookup file for ondemand - will be only run if the marker file for ondemand exists
+  - name: "yq: Download and install (CentOS)"
+    get_url:
+      url: "https://github.com/mikefarah/yq/releases/download/{{ yq_version }}/{{ yq_binary }}"
+      dest: /usr/bin/yq
+      mode: 0755
+
   - import_tasks: nodearray_lookup.yml
     vars:
       marker_file: cccluster.ok
