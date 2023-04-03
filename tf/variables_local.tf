@@ -93,8 +93,8 @@ locals {
     ad_ha                 = try(local.configuration_yml["ad"].high_availability, false)
     domain_controlers     = local.use_existing_ad ? zipmap(local.configuration_yml["ad"].existing_ad_details.domain_controller_names, local.configuration_yml["ad"].existing_ad_details.domain_controller_names) : (local.ad_ha ? {ad="ad", ad2="ad2"} : {ad="ad"})
     ldap_server           = local.use_existing_ad ? local.configuration_yml["ad"].existing_ad_details.domain_controller_names[0] : "ad"
-    private_dns_servers   = local.use_existing_ad ? local.configuration_yml["ad"].existing_ad_details.private_dns_servers : (local.ad_ha ? [azurerm_network_interface.ad-nic[0].private_ip_address, azurerm_network_interface.ad2-nic[0].private_ip_address] : [azurerm_network_interface.ad-nic[0].private_ip_address])
-    domain_controller_ips = local.use_existing_ad ? local.configuration_yml["ad"].existing_ad_details.domain_controller_ip_addresses : (local.ad_ha ? [azurerm_network_interface.ad-nic[0].private_ip_address, azurerm_network_interface.ad2-nic[0].private_ip_address] : [azurerm_network_interface.ad-nic[0].private_ip_address])
+    private_dns_servers   = local.use_existing_ad ? local.configuration_yml["ad"].existing_ad_details.private_dns_servers : (local.create_ad ? (local.ad_ha ? [azurerm_network_interface.ad-nic[0].private_ip_address, azurerm_network_interface.ad2-nic[0].private_ip_address] : [azurerm_network_interface.ad-nic[0].private_ip_address]) : [])
+    domain_controller_ips = local.use_existing_ad ? local.configuration_yml["ad"].existing_ad_details.domain_controller_ip_addresses : (local.create_ad ? (local.ad_ha ? [azurerm_network_interface.ad-nic[0].private_ip_address, azurerm_network_interface.ad2-nic[0].private_ip_address] : [azurerm_network_interface.ad-nic[0].private_ip_address]) : [])
 
     # Use a linux custom image reference if the linux_base_image is defined and contains ":"
     use_linux_image_reference = try(length(split(":", local.configuration_yml["linux_base_image"])[1])>0, false)

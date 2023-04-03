@@ -14,7 +14,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "azhop_dns_link" {
 
 ## Domain Controlers entries
 resource "azurerm_private_dns_a_record" "ad" {
-#  count               =  local.create_ad ? 1 : 0
+  count               = local.create_ad || local.use_existing_ad? 1 : 0
   name                = values(local.domain_controlers)[0]
   resource_group_name = azurerm_private_dns_zone.azhop_private_dns.resource_group_name
   zone_name           = azurerm_private_dns_zone.azhop_private_dns.name
