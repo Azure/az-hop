@@ -450,6 +450,10 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+                "user_auth": {
+                    "type": "string",
+                    "enum": ["local", "ad"]
+                },
                 "httpd_auth": {
                     "type": "string",
                     "enum": ["basic", "oidc"]

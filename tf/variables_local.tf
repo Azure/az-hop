@@ -84,7 +84,7 @@ locals {
 
     # Active Directory values
     # Updates the assumptions to the possibility that DNS may not point to Active Directory when using the customer provided AD.
-    create_ad             = !try(local.configuration_yml["ad"].use_existing_ad, false)
+    create_ad             = !try(local.configuration_yml["ad"].use_existing_ad, false) && (try(local.configuration_yml["authentication"].user_auth, "ad") == "ad")
     domain_name           = local.create_ad ? "hpc.azure" : local.configuration_yml["ad"].existing_ad_details.domain_name 
     domain_join_user      = local.create_ad ? local.admin_username : local.configuration_yml["ad"].existing_ad_details.domain_join_user.username
     domain_join_password  = local.create_ad ? random_password.password.result : data.azurerm_key_vault_secret.domain_join_password[0].value
