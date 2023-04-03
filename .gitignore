@@ -3,6 +3,8 @@ miniconda*
 # Terraform
 .terraform*
 *.tfstate*
+*.tfplan*
+tf/plan.json
 tf/cloud-init/jumpbox.yml
 tf/active_directory/cloud-init/jumpbox.yml
 tf/*.log

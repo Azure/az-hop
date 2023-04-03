@@ -259,6 +259,10 @@ export TF_LOG="INFO"
 export TF_LOG_PATH="$THIS_DIR/tf/terraform.log"
 rm -f $TF_LOG_PATH
 
+if [ "$TF_COMMAND" == "plan" ]; then
+  PARAMS+="-out=$THIS_DIR/tf/plan.tfplan"
+fi
+
 terraform -chdir=$TF_FOLDER $TF_COMMAND $PARAMS
 exit_code=$?
 
