@@ -20,25 +20,28 @@
   register: password
   become: false
 
-- name: Set user home if not defined
-  set_fact:
-    user_home: "{{ homedir_mountpoint }}/{{ user.name }}"
-  when: user.home is not defined
+# - name: Set user home if not defined
+#   set_fact:
+#     user_home: "{{ homedir_mountpoint }}/{{ user.name }}"
+#   when: user.home is not defined
 
-- name: Set user home if defined
-  set_fact:
-    user_home: "{{ user.home }}"
-  when: user.home is defined
+# - name: Set user home if defined
+#   set_fact:
+#     user_home: "{{ user.home }}"
+#   when: user.home is defined
 
-- name: Set user shell if not defined
-  set_fact:
-    user_shell: /bin/bash
-  when: user.shell is not defined
+# - name: Set user shell if not defined
+#   set_fact:
+#     user_shell: /bin/bash
+#   when: user.shell is not defined
 
-- name: Set user shell if defined
-  set_fact:
-    user_shell: "{{user.shell}}"
-  when: user.shell is defined
+# - name: Set user shell if defined
+#   set_fact:
+#     user_shell: "{{user.shell}}"
+#   when: user.shell is defined
+
+# User shell will always be /bin/bash
+# User home will always be {{ homedir_mountpoint }}/{{ user.name }} defined in the fallback_home_dir in sssd.conf
 
 - name: add user
   community.windows.win_domain_user:
@@ -53,8 +56,8 @@
     attributes:
       uidNumber: "{{ user.uid }}"
       uid: "{{ user.name }}"
-      loginShell: "{{ user_shell }}"
-      unixhomedirectory: "{{ user_home }}"
+      # loginShell: "{{ user_shell }}"
+      # unixhomedirectory: "{{ user_home }}"
       gidnumber: "{{ (usergroups | selectattr('name', 'match', 'Domain Users') | map(attribute='gid')) | default(5000, true) }}"
 
 # Add users into groups

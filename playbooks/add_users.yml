@@ -33,16 +33,17 @@
     ignore_errors: true
     when: (jumpbox is defined)
 
-- name: Configure Users
-  hosts: ondemand
-  become: true
-  vars_files:
-    - '{{global_config_file}}'
+# - name: Configure Users
+#   hosts: ondemand
+#   become: true
+#   vars_files:
+#     - '{{global_config_file}}'
 
-  tasks:
-  - include: init_user.yml user="{{item}}"
-    with_items: '{{users}}'
-    when: users is defined
+# No longer needed as now user env is initialize thru the PUN hook script
+  # tasks:
+  # - include: init_user.yml user="{{item}}"
+  #   with_items: '{{users}}'
+  #   when: users is defined
 
 - name: Configure users in CycleCloud
   hosts: ccportal
