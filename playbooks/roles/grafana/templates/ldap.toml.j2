@@ -26,7 +26,7 @@ bind_dn = "cn={{grafana_admin_user}},cn=Users,{{grafana_ldap_dc}}"
 bind_password = '{{grafana_admin_password}}'
 
 # User search filter, for example "(cn=%s)" or "(sAMAccountName=%s)" or "(uid=%s)"
-search_filter = "(uid=%s)"
+search_filter = "(sAMAccountName=%s)"
 
 # An array of base dns to search through
 search_base_dns = ["{{grafana_ldap_dc}}"]
