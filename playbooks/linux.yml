@@ -71,3 +71,31 @@
       mode: '0755'
     run_once : true
 
+
+- name: Generate SSH keys on logon if not exists
+  hosts: ondemand
+  become: true
+  gather_facts: no
+  vars_files:
+    - '{{global_config_file}}'
+
+  tasks:
+  - name: Wait 300 seconds for the nodes to be ready
+    wait_for_connection:
+      timeout: 300
+  - name: Gather facts for first time
+    setup:
+
+  - name: create /etc/profile.d/gen_sshkey.sh if not exists
+    shell: |
+      cat <<EOF >/etc/profile.d/gen_sshkey.sh
+      #!/bin/sh
+      if [ ! -f  ~/.ssh/id_rsa.pub ] ; then
+        ssh-keygen -q -t rsa -N '' -f ~/.ssh/id_rsa <<<y >/dev/null 2>&1
+        cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+        chmod 644 ~/.ssh/authorized_keys
+      fi
+      EOF
+      chmod 644 /etc/profile.d/gen_sshkey.sh
+    args: 
+      creates: /etc/profile.d/gen_sshkey.sh
