@@ -89,11 +89,18 @@
     line: 'ldap_id_mapping = False'
   notify: restart sssd
 
-- name: configure sssd - ad_gpo_access_control 
+- name: configure sssd - ad_gpo_access_control
   lineinfile:
     path: /etc/sssd/sssd.conf
     regexp: '^ad_gpo_access_control'
     line: 'ad_gpo_access_control = disabled'
+  notify: restart sssd
+
+- name: configure sssd - set fallback_homedir
+  lineinfile:
+    path: /etc/sssd/sssd.conf
+    regexp: '^fallback_homedir'
+    line: 'fallback_homedir = {{mounts.home.mountpoint | default("/anfhome") }}/%u'
   notify: restart sssd
 
 # Thes are the options to set in order to register DNS in the AD
