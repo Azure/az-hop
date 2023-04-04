@@ -201,7 +201,7 @@ For Terraform to work properly on  WSL2, on the C drive, make sure to have the "
 Afterwards, you can directly run the `install.sh`  script: 
 
 ```bash
-sudo ./toolset/scripts/install.sh
+./toolset/scripts/install.sh
 ```
 
 ## From a deployer VM
