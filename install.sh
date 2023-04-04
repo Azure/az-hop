@@ -110,6 +110,7 @@ function use_existing_ad()
 
   if [ "$use_existing_ad" == "true" ]; then
     touch $PLAYBOOKS_DIR/ad.ok
+    touch $PLAYBOOKS_DIR/add_users.ok
   fi
 
 }
