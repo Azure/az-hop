@@ -237,7 +237,7 @@ git submodule update
 Run the `install.sh` script:
 
 ```bash
-sudo ./toolset/scripts/install.sh
+./toolset/scripts/install.sh
 ```
 
 
