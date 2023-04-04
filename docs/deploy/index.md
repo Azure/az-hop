@@ -85,7 +85,7 @@ Once deployed, you can connect to the OnDemand web portal via:
 
  - URL: get from `grep ondemand_fqdn playbooks/group_vars/all.yml` 
  - username: `adminuser` 
- - password: get from `./bin/get_scret adminuser`
+ - password: get from `./bin/get_secret adminuser`
 
  The following sections provide detailed instructions for each of these steps.
 
