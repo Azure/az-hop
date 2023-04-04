@@ -86,7 +86,7 @@ import_state azurerm_application_security_group.asg[\"asg-guacamole\"] Microsoft
 import_state azurerm_application_security_group.asg[\"asg-mariadb-client\"] Microsoft.Network/applicationSecurityGroups asg-mariadb-client
 
 # Import virtual machines
-import_state azurerm_linux_virtual_machine.ad[0] Microsoft.Compute/virtualMachines ad
+import_state azurerm_windows_virtual_machine.ad[0] Microsoft.Compute/virtualMachines ad
 import_state azurerm_network_interface.ad-nic Microsoft.Network/networkInterfaces ad-nic
 
 import_state azurerm_linux_virtual_machine.jumpbox[0] Microsoft.Compute/virtualMachines jumpbox
