@@ -446,6 +446,16 @@
     shell: |
       echo "{{ood_version.stdout}} | AZHOP {{azhop_version.stdout}}" > /opt/ood/VERSION
 
+  # Create a script to run before the PUN is created, to set the user's environment
+  # Defined in the pun_pre_hook_root_cmd variable set in the ood-overrides-common.yml file
+  - name: Create the pun_pre_hook script
+    copy:
+      content: |
+        #!/bin/bash
+        su - $2
+      dest: /etc/ood/config/pun_pre_hook.sh
+      mode: 0755
+
   - name: restart ood
     shell: systemctl try-restart httpd24-httpd.service httpd24-htcacheclean.service
 

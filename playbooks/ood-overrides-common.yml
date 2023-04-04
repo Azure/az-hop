@@ -84,6 +84,7 @@ ood_apps:
 host_regex: '[^./]+'
 node_uri: '/node'
 rnode_uri: '/rnode'
+pun_pre_hook_root_cmd: /etc/ood/config/pun_pre_hook.sh
 
 pun_custom_env:
   OOD_DASHBOARD_TITLE: "Azure HPC On-Demand Platform"
