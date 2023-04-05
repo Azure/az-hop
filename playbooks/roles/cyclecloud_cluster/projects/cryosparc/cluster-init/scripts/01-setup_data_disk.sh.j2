@@ -1,0 +1,14 @@
+#!/bin/bash
+set -e
+
+# Run only on CryoSPARC master node
+[ $(hostname) != {{ applications.cryosparc.master_hostname }} ] && exit 0
+
+parted /dev/sdb mktable gpt
+parted /dev/sdb mkpart primary ext4 0% 100%
+mkfs.ext4 /dev/sdb1
+DEV_UUID=$(blkid -s UUID -o value /dev/sdb1)
+printf 'UUID=%s /cryosparc_data ext4 defaults 0 0\n' $DEV_UUID >> /etc/fstab
+mkdir /cryosparc_data
+mount -a
+chown {{ applications.cryosparc.admin_user }}: /cryosparc_data

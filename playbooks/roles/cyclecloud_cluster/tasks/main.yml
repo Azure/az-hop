@@ -21,44 +21,44 @@
     src: '{{role_path}}/projects/common/cluster-init'
     dest: '{{common_project_root}}/specs/default/'
 
-- name: Copy mountnfs file.
+- name: Copy mountnfs file
   template:
     src: '{{role_path}}/projects/common/cluster-init/scripts/1-mountnfs.sh.j2'
     dest: '{{common_project_root}}/specs/default/cluster-init/scripts/1-mountnfs.sh'
     mode: 0777
 
-- name: Add lustre script 
+- name: Add lustre script
   template:
     src: '{{role_path}}/projects/common/cluster-init/scripts/2-mountlustre.sh.j2'
     dest: '{{common_project_root}}/specs/default/cluster-init/scripts/2-mountlustre.sh'
     mode: 0777
   when: ( lustre.create | default(false) )
 
-- name: Add Linux joindomain script 
+- name: Add Linux joindomain script
   template:
     src: '{{role_path}}/projects/common/cluster-init/scripts/3-joindomain.sh.j2'
     dest: '{{common_project_root}}/specs/default/cluster-init/scripts/3-joindomain.sh'
     mode: 0777
 
-- name: Add Windows joindomain script 
+- name: Add Windows joindomain script
   template:
     src: '{{role_path}}/projects/common/cluster-init/scripts/3-joindomain.bat.j2'
     dest: '{{common_project_root}}/specs/default/cluster-init/scripts/3-joindomain.bat'
     mode: 0777
 
-- name: Add default script 
+- name: Add default script
   template:
     src: '{{role_path}}/projects/common/cluster-init/scripts/5-default.sh.j2'
     dest: '{{common_project_root}}/specs/default/cluster-init/scripts/5-default.sh'
     mode: 0777
 
-- name: Add telegraf configuration file  
+- name: Add telegraf configuration file
   template:
     src: '{{role_path}}/projects/common/cluster-init/files/telegraf.conf.j2'
     dest: '{{common_project_root}}/specs/default/cluster-init/files/telegraf.conf'
     mode: 0600
 
-- name: Add nhc configuration file  
+- name: Add nhc configuration file
   template:
     src: '{{role_path}}/projects/common/cluster-init/files/nhc/nhc_common.conf.j2'
     dest: '{{common_project_root}}/specs/default/cluster-init/files/nhc/nhc_common.conf'
@@ -117,6 +117,62 @@
       command: '/usr/local/bin/cyclecloud start_cluster pbs1'
   when: cc_queue_manager == "openpbs"
 
+- name: CryoSPARC CycleCloud project
+  block:
+    - name: Read CryoSPARC admin password from KV
+      command: az keyvault secret show --vault-name {{key_vault}} -n {{database_user}}-password --query "value" -o tsv
+      delegate_to: localhost
+      connection: local
+      register: cryosparc_admin_pwd
+      become: false
+
+    - name: Create cryosparc project
+      command: '/usr/local/bin/cyclecloud project init cryosparc'
+      args:
+        chdir: '{{project_root}}'
+        creates: '{{cryosparc_project_root}}/project.ini'
+
+    - name: Create common cryosparc project scripts
+      template:
+        src: '{{role_path}}/projects/cryosparc/cluster-init/scripts/{{ item }}.j2'
+        dest: '{{cryosparc_project_root}}/specs/default/cluster-init/scripts/{{ item }}'
+        mode: 0777
+      with_items:
+        - 01-setup_data_disk.sh
+        - 02-download_cryosparc.sh
+        - 03-install_cryosparc.sh
+        - 05-install_app_menu_shortcut.sh
+
+    - name: Create import Slurm cluster project script
+      template:
+        src: '{{role_path}}/projects/cryosparc/cluster-init/scripts/04-import_slurm_cluster.sh.j2'
+        dest: '{{cryosparc_project_root}}/specs/default/cluster-init/scripts/04-import_slurm_cluster.sh'
+        mode: 0777
+      when: cc_queue_manager == "slurm"
+
+    - name: Copy CryoSPARC Slurm cluster definition files
+      copy:
+        src: '{{role_path}}/projects/cryosparc/cluster-init/files/slurm_{{ item }}'
+        dest: '{{cryosparc_project_root}}/specs/default/cluster-init/files/{{ item }}'
+      with_items:
+        - cluster_info.json
+        - cluster_script.sh
+      when: cc_queue_manager == "slurm"
+
+    - name: Copy CryoSPARC app shortcut files
+      copy:
+        src: '{{role_path}}/projects/cryosparc/cluster-init/files/{{ item }}'
+        dest: '{{cryosparc_project_root}}/specs/default/cluster-init/files/{{ item }}'
+      with_items:
+        - cryosparc.desktop
+        - cryosparc_16.png
+
+    - name: Upload cryosparc CycleCloud project
+      command: '/usr/local/bin/cyclecloud project upload'
+      args:
+        chdir: '{{cryosparc_project_root}}'
+  when: cryosparc_enabled == true
+
 - name: SLURM template and optional Enroot project
   block:
     - name: Add azhop-Slurm template
@@ -138,6 +194,7 @@
       args:
         chdir: '{{project_root}}'
         creates: '{{enroot_project_root}}/project.ini'
+
     - name: Create install_pyxis.sh
       template:
         src: '{{role_path}}/projects/enroot/cluster-init/scripts/1-install_pyxis.sh.j2'

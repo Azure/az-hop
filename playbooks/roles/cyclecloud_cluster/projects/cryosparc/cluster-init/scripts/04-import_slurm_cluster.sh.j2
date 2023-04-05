@@ -1,0 +1,19 @@
+#!/bin/bash
+set -e
+
+# Run only on CryoSPARC master node
+[ $(hostname) != {{ applications.cryosparc.master_hostname }} ] && exit 0
+
+{% for partition in applications.cryosparc.target_queues %}
+    export TARGET_DIR=/cryosparc_data/cryosparc_cluster_{{ partition }}
+    mkdir -p ${TARGET_DIR}
+    cp $CYCLECLOUD_SPEC_PATH/files/* ${TARGET_DIR}
+    sed -i 's/PARTITION/{{ partition }}/g' ${TARGET_DIR}/*
+    chown -R adminuser: ${TARGET_DIR}
+
+    # Import Slurm cluster
+    sudo -i -u {{ applications.cryosparc.admin_user }} bash << EOF
+    cd ${TARGET_DIR}
+    /cryosparc_data/cryosparc_master/bin/cryosparcm cluster connect
+EOF
+{% endfor %}

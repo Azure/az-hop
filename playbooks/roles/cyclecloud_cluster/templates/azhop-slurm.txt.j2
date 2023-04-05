@@ -5,7 +5,7 @@
 
 [cluster azhop-slurm]
 FormLayout = selectionpanel
-Category = Azure HPC OnDemand Platform 
+Category = Azure HPC OnDemand Platform
 
 Autoscale = true
 
@@ -74,7 +74,7 @@ echo "cloud-init done" >> /tmp/cloud-init.txt
         cyclecloud.cluster.autoscale.idle_time_before_jobs = {{autoscale.idle_timeout}}
         {% endif %}
 
-        [[[volume boot]]] 
+        [[[volume boot]]]
         StorageAccountType = StandardSSD_LRS
 
         [[[cluster-init cyclecloud/slurm:default:{{cyclecloud_slurm_release}}]]]
@@ -99,7 +99,7 @@ echo "cloud-init done" >> /tmp/cloud-init.txt
 {% for queue in cc_queues %}
     [[nodearray {{ queue.name }}]]
     Extends = nodearraybase
-    MachineType = {{ queue.vm_size }} 
+    MachineType = {{ queue.vm_size }}
     MaxCoreCount = {{ queue.max_core_count }}
   {% if queue.EnableAcceleratedNetworking is defined %}
     EnableAcceleratedNetworking = {{ queue.EnableAcceleratedNetworking }}
@@ -135,4 +135,27 @@ echo "cloud-init done" >> /tmp/cloud-init.txt
         cyclecloud.cluster.autoscale.idle_time_before_jobs = {{queue.idle_timeout}}
       {% endif %}
         [[[cluster-init enroot:default:1.0.0]]]
+      {% endif %}
+      {% if queue.name.startswith('viz') %}
+        [[[cluster-init cryosparc:default:1.0.0]]]
+      {% endif %}
 {% endfor %}
+
+{% if cryosparc_enabled %}
+    [[node {{ applications.cryosparc.master_hostname }}]]
+      MachineType = {{applications.cryosparc.master_vm_size}}
+      EnableAcceleratedNetworking = true
+      ImageName = {{applications.cryosparc.master_vm_image}}
+
+      [[[volume boot]]]
+        size = 64
+        StorageAccountType = StandardSSD_LRS
+
+      [[[volume cryosparc]]]
+        size = {{applications.cryosparc.master_data_disk_size}}
+        StorageAccountType = {{applications.cryosparc.master_data_disk_type}}
+        Peristent = true
+
+      [[[cluster-init cyclecloud/slurm:login:{{cyclecloud_slurm_release}}]]]
+      [[[cluster-init cryosparc:default:1.0.0]]]
+{% endif %}

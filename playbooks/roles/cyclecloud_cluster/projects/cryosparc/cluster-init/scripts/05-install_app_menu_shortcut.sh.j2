@@ -1,0 +1,10 @@
+#!/bin/bash
+set -e
+
+APP_SHORTCUT_DIR=/usr/share/applications
+ICON_DIR=/usr/share/icons/hicolor/16x16/apps
+
+cp $CYCLECLOUD_SPEC_PATH/files/cryosparc.desktop ${APP_SHORTCUT_DIR}
+chmod 644 ${APP_SHORTCUT_DIR}/cryosparc.desktop
+cp $CYCLECLOUD_SPEC_PATH/files/cryosparc_16.png ${ICON_DIR}/cryosparc.png
+chmod 644 ${ICON_DIR}/cryosparc.png

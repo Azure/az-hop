@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Link
+Version=1.0
+Name=CryoSPARC
+Icon=/usr/share/icons/hicolor/16x16/apps/cryosparc.png
+URL=http://cryosparc-master:39000/
+Name[en_US.UTF-8]=CryoSPARC
+Categories=Education
