@@ -23,7 +23,7 @@
   - name: Create temp build dir
     file:
       path: "{{ playbook_dir }}/ansible-build"
-      mode: 0644
+      mode: 0755
       state: directory
     register: build_dir
 

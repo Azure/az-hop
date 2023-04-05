@@ -43,7 +43,7 @@ if [ $INSTALL_IN_CONDA = true ]; then
         bash $MINICONDA_INSTALL_SCRIPT -b -p $MINICONDA_INSTALL_DIR
         source "${MINICONDA_INSTALL_DIR}/bin/activate"
     else
-        printf "Installing Ansible in existing conda environment in %s \n\n"
+        printf "Installing Ansible in existing conda environment in %s \n\n" "${MINICONDA_INSTALL_DIR}"
         source "${MINICONDA_INSTALL_DIR}/bin/activate"
     fi
 
@@ -82,6 +82,6 @@ printf "========================================================================
 if [ $INSTALL_IN_CONDA = true ]; then
     yellow=$'\e[1;33m'
     default=$'\e[0m'
-    printf "\n${yellow}Az-HOP dependencies installed in a conda environment${default}. To activate, run:\n" $red
+    printf "\n${yellow}Az-HOP dependencies installed in a conda environment${default}. To activate, run:\n"
     printf "\nsource %s/bin/activate\n\n" "${MINICONDA_INSTALL_DIR}"
 fi
