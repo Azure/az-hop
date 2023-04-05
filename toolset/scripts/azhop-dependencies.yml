@@ -23,9 +23,7 @@
   - name: Create temp build dir
     file:
       path: "{{ playbook_dir }}/ansible-build"
-      owner: "{{ ansible_user_id }}"
-      group: "{{ ansible_user_id }}"
-      mode: '0644'
+      mode: 0755
       state: directory
     register: build_dir
 
@@ -115,6 +113,7 @@
         src: "{{ azcopy_file_path.files[0].path }}"
         dest: /usr/bin/azcopy
         mode: 0755
+      become: true
 
     - name: "Terraform: Download the signing key to a new keyring (Ubuntu)"
       apt_key:
@@ -145,6 +144,7 @@
         url: "https://github.com/mikefarah/yq/releases/download/{{ yq_version }}/{{ yq_binary }}"
         dest: /usr/bin/yq
         mode: 0755
+      become: true
 
     when: ansible_distribution == "ubuntu"
 
@@ -218,6 +218,7 @@
         src: "{{ azcopy_file_path.files[0].path }}"
         dest: /usr/bin/azcopy
         mode: 0755
+      become: true
 
     - name: "Terraform: Add Hashicorp repo (CentOS)"
       get_url:
@@ -242,6 +243,7 @@
         url: "https://github.com/mikefarah/yq/releases/download/{{ yq_version }}/{{ yq_binary }}"
         dest: /usr/bin/yq
         mode: 0755
+      become: true
 
     when: ansible_distribution == "centos"
 
