@@ -77,7 +77,7 @@ resource "azurerm_virtual_machine_extension" "AzureMonitorLinuxAgent_sched" {
 }
 
 resource "azurerm_monitor_data_collection_rule_association" "dcra_sched_metrics" {
-    count               = local.create_log_analytics_workspace ? 1 : 0
+    count               = local.monitor ? 1 : 0
     name                = "sched-data-collection-ra"
     target_resource_id = azurerm_linux_virtual_machine.scheduler.id
     data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_data_collection_rule[0].id
@@ -85,7 +85,7 @@ resource "azurerm_monitor_data_collection_rule_association" "dcra_sched_metrics"
 }
 
 resource "azurerm_monitor_data_collection_rule_association" "dcra_sched_insights" {
-    count               = local.create_log_analytics_workspace ? 1 : 0
+    count               = local.monitor ? 1 : 0
     name                = "sched-insights-collection-ra"
     target_resource_id = azurerm_linux_virtual_machine.scheduler.id
     data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_insights_collection_rule[0].id

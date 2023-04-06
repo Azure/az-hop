@@ -121,6 +121,7 @@
   service:
     name: guacspoold.service
     state: stopped
+  ignore_errors: yes
 
 - name: enable CycleCloud ScaleLib Guacamole
   shell: | 

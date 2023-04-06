@@ -20,6 +20,13 @@
     set_fact:
       ansible_distribution: "{{ ansible_distribution | lower }}"
 
+  - name: Create temp build dir
+    file:
+      path: "{{ playbook_dir }}/ansible-build"
+      mode: 0755
+      state: directory
+    register: build_dir
+
   - block:
 
     - name: "Identify architecture (Ubuntu)"
@@ -82,20 +89,20 @@
     - name: "AzCopy: Download (Ubuntu)"
       get_url:
         url: "http://aka.ms/{{ linux_azcopy_file }}"
-        dest: "/tmp/{{ linux_azcopy_file }}"
+        dest: "{{ build_dir.path }}/{{ linux_azcopy_file }}"
         mode: 0755
 
     - name: "AzCopy: Extract (Ubuntu)"
       # Unable to use the unarchive module to extract the azcopy binary equivalent to below:
-      #command: tar -xvf /tmp/{{ linux_azcopy_file }} --strip-components=1 --wildcards '*/azcopy'
+      #command: tar -xvf {{ build_dir.path }}/{{ linux_azcopy_file }} --strip-components=1 --wildcards '*/azcopy'
       unarchive:
-        src: /tmp/{{ linux_azcopy_file }}
-        dest: /tmp
+        src: "{{ build_dir.path }}/{{ linux_azcopy_file }}"
+        dest: "{{ build_dir.path }}"
         mode: 0755
 
     - name: "AzCopy: Find azcopy (Ubuntu)"
       find:
-        paths: /tmp
+        paths: "{{ build_dir.path }}"
         patterns: "azcopy"
         file_type: file
         recurse: true
@@ -104,8 +111,9 @@
     - name: "AzCopy: Install (Ubuntu)"
       copy:
         src: "{{ azcopy_file_path.files[0].path }}"
-        dest: /usr/local/bin/azcopy
+        dest: /usr/bin/azcopy
         mode: 0755
+      become: true
 
     - name: "Terraform: Download the signing key to a new keyring (Ubuntu)"
       apt_key:
@@ -134,8 +142,9 @@
     - name: "yq: Download and install (Ubuntu)"
       get_url:
         url: "https://github.com/mikefarah/yq/releases/download/{{ yq_version }}/{{ yq_binary }}"
-        dest: /usr/local/bin/yq
+        dest: /usr/bin/yq
         mode: 0755
+      become: true
 
     when: ansible_distribution == "ubuntu"
 
@@ -185,20 +194,20 @@
     - name: "AzCopy: Download (CentOS)"
       get_url:
         url: "http://aka.ms/{{ linux_azcopy_file }}"
-        dest: "/tmp/{{ linux_azcopy_file }}"
+        dest: "{{ build_dir.path }}/{{ linux_azcopy_file }}"
         mode: 0755
 
     - name: "AzCopy: Extract (CentOS)"
       # Unable to use the unarchive module to extract the azcopy binary equivalent to below:
-      #command: tar -xvf /tmp/{{ linux_azcopy_file }} --strip-components=1 --wildcards '*/azcopy'
+      #command: tar -xvf {{ build_dir.path }}/{{ linux_azcopy_file }} --strip-components=1 --wildcards '*/azcopy'
       unarchive:
-        src: "/tmp/{{ linux_azcopy_file }}"
-        dest: /tmp
+        src: "{{ build_dir.path }}/{{ linux_azcopy_file }}"
+        dest: "{{ build_dir.path }}"
         mode: 0755
 
     - name: "AzCopy: Find azcopy (CentOS)"
       find:
-        paths: /tmp
+        paths: "{{ build_dir.path }}"
         patterns: "azcopy"
         file_type: file
         recurse: true
@@ -207,8 +216,9 @@
     - name: "AzCopy: Install (CentOS)"
       copy:
         src: "{{ azcopy_file_path.files[0].path }}"
-        dest: /usr/local/bin/azcopy
+        dest: /usr/bin/azcopy
         mode: 0755
+      become: true
 
     - name: "Terraform: Add Hashicorp repo (CentOS)"
       get_url:
@@ -231,8 +241,9 @@
     - name: "yq: Download and install (CentOS)"
       get_url:
         url: "https://github.com/mikefarah/yq/releases/download/{{ yq_version }}/{{ yq_binary }}"
-        dest: /usr/local/bin/yq
+        dest: /usr/bin/yq
         mode: 0755
+      become: true
 
     when: ansible_distribution == "centos"
 
@@ -289,7 +300,7 @@
     - name: "AzCopy: Move azcopy (macOS)"
       copy:
         src: "{{ azcopy_file_path.files[0].path }}"
-        dest: /usr/local/bin/azcopy
+        dest: /usr/bin/azcopy
         mode: 0755
 
     - name: "Terraform: Add Hashicorp repo (macOS)"
