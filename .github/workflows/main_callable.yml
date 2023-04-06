@@ -222,10 +222,8 @@ jobs:
           if [ "$anf_dual" != "true" ]; then
             set +e
             if [ "$USE_BICEP" == "true" ]; then
-              pushd bicep
-              ./build.sh -c ../../config.yml -v
+              ./build.sh -a apply -l bicep
               build_error=$?
-              popd
             else
               ./build.sh -a apply -f tf
               build_error=$?
