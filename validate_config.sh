@@ -10,7 +10,7 @@ function validate_config_yml {
     tmp_json=${config}.json
     yq $config -o json > $tmp_json
     set +e
-    jsonschema --instance $tmp_json $SCHEMA
+    check-jsonschema --schemafile $SCHEMA $tmp_json
     retcode=$?
     set -e
     rm $tmp_json
