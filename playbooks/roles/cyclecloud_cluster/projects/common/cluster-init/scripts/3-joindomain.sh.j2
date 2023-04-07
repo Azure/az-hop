@@ -6,6 +6,7 @@ read_os
 ADMIN_DOMAIN={{ domain_name }}
 ADMIN_NAME={{ ad_join_user }}
 ADMIN_PASSWORD={{ cc_ad_join_password }}
+DOMAIN_JOIN_OU={{ ad.existing_ad_details.domain_join_ou | default('') }}
 
 source $script_dir/../files/$os_release/init_joindomain.sh
 
@@ -48,8 +49,12 @@ n=1
 max_retry=3
 
 while true; do
-  logger -s "Domain join on $ADMIN_DOMAIN"
-  echo $ADMIN_PASSWORD| realm join -U $ADMIN_NAME $ADMIN_DOMAIN
+  logger -s "Domain join on $ADMIN_DOMAIN - OU=$DOMAIN_JOIN_OU"
+  if [ ! -z "$ADMIN_DOMAIN" ]; then
+    echo $ADMIN_PASSWORD| realm join -v -U $ADMIN_NAME $ADMIN_DOMAIN --computer-ou=$DOMAIN_JOIN_OU
+  else
+    echo $ADMIN_PASSWORD| realm join -v -U $ADMIN_NAME $ADMIN_DOMAIN
+  fi
 
   if [ ! -f "/etc/sssd/sssd.conf" ]; then
     if [[ $n -le $max_retry ]]; then
