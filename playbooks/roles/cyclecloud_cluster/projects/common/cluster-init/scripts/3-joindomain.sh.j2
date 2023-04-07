@@ -50,11 +50,10 @@ max_retry=3
 
 while true; do
   logger -s "Domain join on $ADMIN_DOMAIN - OU=$DOMAIN_JOIN_OU"
-  if [ ! -z "$ADMIN_DOMAIN" ]; then
-    echo $ADMIN_PASSWORD| realm join -v -U $ADMIN_NAME $ADMIN_DOMAIN --computer-ou=$DOMAIN_JOIN_OU
-  else
-    echo $ADMIN_PASSWORD| realm join -v -U $ADMIN_NAME $ADMIN_DOMAIN
+  if [ ! -z "$DOMAIN_JOIN_OU" ]; then
+    REALM_OPTION="--computer-ou=$DOMAIN_JOIN_OU"
   fi
+  echo $ADMIN_PASSWORD| realm join -v -U $ADMIN_NAME $ADMIN_DOMAIN $REALM_OPTION
 
   if [ ! -f "/etc/sssd/sssd.conf" ]; then
     if [[ $n -le $max_retry ]]; then
