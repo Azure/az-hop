@@ -184,7 +184,7 @@ ad:
       password_key_vault_name: name_for_the_key_vault_with_the_domain_join_password
       password_key_vault_resource_group_name: resource_group_name_for_the_key_vault_with_the_domain_join_password
       password_key_vault_secret_name: key_vault_secret_name_for_the_domain_join_password
-    domain_join_ou: "CN=Computers"
+    domain_join_ou: "OU=azhop"
     domain_controller_names: ["dc1", "dc2"]
     domain_controller_ip_addresses: ["192.168.1.100", "192.168.1.101"]
     private_dns_servers: ["192.168.1.53", "192.168.2.53"]

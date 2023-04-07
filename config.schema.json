@@ -317,7 +317,7 @@
                         "domain_join_ou": {
                             "type": "string",
                             "description": "The domain OU where new AZ-HOP computer objects will be added to the domain.",
-                            "default": "CN=Computers"
+                            "default": "OU=azhop"
                         },
                         "domain_controller_names": {
                             "type": "array",

@@ -46,7 +46,12 @@
   #   shell: echo "{{domain_password}}" | kinit {{ domain_admin }}@{{ domain_name | upper }}
 
 - name: Join AD domain
-  shell: echo "{{ domain_password }}" | realm join -v -U {{ domain_admin }} {{ domain_name }}
+  shell: |
+    if [ ! -z "{{domain_join_ou}}" ]; then
+      echo "{{ domain_password }}" | realm join -v -U {{ domain_admin }} {{ domain_name }} --computer-ou={{domain_join_ou}}
+    else
+      echo "{{ domain_password }}" | realm join -v -U {{ domain_admin }} {{ domain_name }}
+    fi
   args:
     creates: /etc/sssd/sssd.conf
 
@@ -55,7 +60,7 @@
 #     realm leave
 #     systemctl stop sssd
 #     rm -rf /var/lib/sss/db/*
-#     echo "{{ domain_password }}" | realm join -v -U {{ domain_admin }} {{ domain_name }}
+#     echo "{{ domain_password }}" | realm join -v -U {{ domain_admin }} {{ domain_name }} --computer-ou={{ domain_join_ou }}
 
 - name: configure sssd restart onfailure
   lineinfile:
