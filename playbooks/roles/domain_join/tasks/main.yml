@@ -48,10 +48,9 @@
 - name: Join AD domain
   shell: |
     if [ ! -z "{{domain_join_ou}}" ]; then
-      echo "{{ domain_password }}" | realm join -v -U {{ domain_admin }} {{ domain_name }} --computer-ou={{domain_join_ou}}
-    else
-      echo "{{ domain_password }}" | realm join -v -U {{ domain_admin }} {{ domain_name }}
+      REALM_OPTION="--computer-ou={{domain_join_ou}}"
     fi
+    echo "{{ domain_password }}" | realm join -v -U {{ domain_admin }} {{ domain_name }} $REALM_OPTION
   args:
     creates: /etc/sssd/sssd.conf
 
