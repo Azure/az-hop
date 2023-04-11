@@ -1484,15 +1484,17 @@ Script to build the resources needed for an **azhop** environment.
 $ ./build.sh
 Usage build.sh
   Required arguments:
-    -a|--action [plan, apply, destroy]
+    -a|--action [plan, apply, destroy] - Destroy will not applied with Bicep
 
   Optional arguments:
     -f|-folder <relative path> - relative folder name containing the terraform files, default is ./tf
+    -l|--language <tf, bicep>  - deployment language to use, default is tf
+    --no-validate              - skip validation of config.yml
 ```
 
 At the end of the build, there are several files created, which produce the state of a deployment. These are :
  - az-hop config file `config.yml`
- - Terraform state file `tf/terraform.tfstate`
+ - Terraform state file `tf/terraform.tfstate`, unless Bicep is used
  - Ansible parameter files `playbooks/group_vars/all.yml`, `playbooks/inventory`
  - SSH Key Pair `${ADMIN_USER}_id_rsa` and `${ADMIN_USER}_id_rsa.pub`
  - Packer option file `packer/options.json`

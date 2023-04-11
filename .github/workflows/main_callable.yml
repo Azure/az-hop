@@ -222,10 +222,8 @@ jobs:
           if [ "$anf_dual" != "true" ]; then
             set +e
             if [ "$USE_BICEP" == "true" ]; then
-              pushd deploy/purebicep
-              ./build.sh -c ../../config.yml -v
+              ./build.sh -a apply -l bicep
               build_error=$?
-              popd
             else
               ./build.sh -a apply -f tf
               build_error=$?
@@ -684,7 +682,7 @@ jobs:
 
             echo "Remove resources from $RESOURCE_GROUP"
             set +e
-            ./deploy/purebicep/cleanup.sh
+            ./bicep/cleanup.sh
             ./build.sh -a destroy -f tf
 
             echo "Remove state from $RESOURCE_GROUP"
