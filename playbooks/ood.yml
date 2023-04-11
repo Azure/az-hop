@@ -290,11 +290,11 @@
           StrictHostKeyChecking=No
       dest: /etc/ssh/ssh_config
 
-  - name: Insert/Update Match group "domain users" configuration block in /etc/ssh/sshd_config
+  - name: Insert/Update Match group "azhop-users" configuration block in /etc/ssh/sshd_config
     blockinfile:
       path: /etc/ssh/sshd_config
       block: |
-        Match group "domain users"
+        Match group "{{ (usergroups | selectattr('gid', '==', '5000') | map(attribute='name')) | default('azhop-users', true) }}"
           AllowUsers *
 
   - name: setup azcopy

@@ -52,13 +52,13 @@
     state: present
     groups_action: replace
     groups:
-      - Domain Users
+      - "{{ (usergroups | selectattr('gid', '==', '5000') | map(attribute='name')) | default('azhop-users', true) }}"
     attributes:
       uidNumber: "{{ user.uid }}"
       uid: "{{ user.name }}"
       # loginShell: "{{ user_shell }}"
       # unixhomedirectory: "{{ user_home }}"
-      gidnumber: "{{ (usergroups | selectattr('name', 'match', 'Domain Users') | map(attribute='gid')) | default(5000, true) }}"
+      gidnumber: "{{ (usergroups | selectattr('gid', '==', '5000') | map(attribute='gid')) | default(5000, true) }}"
 
 # Add users into groups
 - name: Add users into groups

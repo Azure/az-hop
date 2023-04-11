@@ -239,7 +239,7 @@ users:
 
 usergroups:
 # These groups can’t be changed
-  - name: Domain Users # All users will be added to this one by default
+  - name: azhop-users # All users will be added to this one by default
     gid: 5000
   - name: az-hop-admins
     gid: 5001
