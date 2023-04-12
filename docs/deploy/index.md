@@ -585,8 +585,8 @@ users:
   # - { name: user2, uid: 10004, groups: [6001] }
 
 usergroups:
-# These groups can’t be changed
-  - name: azhop-users # All users will be added to this one by default
+# These groups should not be changed
+  - name: azhop-users # All users will be added to this group by default
     gid: 5000
   - name: az-hop-admins
     gid: 5001

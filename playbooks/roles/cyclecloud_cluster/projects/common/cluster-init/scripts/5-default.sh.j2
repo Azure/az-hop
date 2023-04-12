@@ -47,7 +47,7 @@ fi
 
 #This is to add azhop-users for enabling ssh among the VM's
 cat <<EOF >>/etc/ssh/sshd_config
-Match group "{{ (usergroups | selectattr('gid', '==', '5000') | map(attribute='name')) | default('azhop-users', true) }}"
+Match group "{{ (usergroups | selectattr('gid', 'eq', 5000) | map(attribute='name'))[0] | default('azhop-users', true) }}"
   AllowUsers *
 AllowUsers hpcadmin
 EOF

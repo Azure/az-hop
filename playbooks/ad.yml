@@ -86,9 +86,9 @@
 
       # - name: update gidnumber azhop-users
       #   community.windows.win_domain_group:
-      #     name: azhop-users
+      #     name: "{{ (usergroups | selectattr('gid', 'eq', 5000) | map(attribute='name'))[0]}}"
       #     attributes:
-      #       gidnumber: "{{ (usergroups | selectattr('name', 'match', 'azhop-users') | map(attribute='gid')) | default(5000, true) }}"
+      #       gidnumber: 5000
 
       - name: Disable password expiration
         win_domain_user:
@@ -101,8 +101,8 @@
         community.windows.win_domain_group:
           name: '{{item.name}}'
           state: present
-          description: '{{item.description | default("az-hop group -" item.name)}}'
-          scope: domainlocal
+          description: '{{item.description | default(item.name)}}'
+          scope: global
           attributes:
             gidnumber: '{{item.gid}}'
         loop: "{{usergroups  | selectattr('gid', 'ge', 5000) }}"

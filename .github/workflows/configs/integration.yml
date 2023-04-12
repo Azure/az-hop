@@ -136,7 +136,7 @@ users:
   - { name: john.john,   uid: 10003 }
 
 usergroups:
-  - name: Domain Users # All users will be added to this one by default
+  - name: azhop-users # All users will be added to this one by default
     gid: 5000
   - name: az-hop-admins # For users with azhop admin privilege
     gid: 5001
