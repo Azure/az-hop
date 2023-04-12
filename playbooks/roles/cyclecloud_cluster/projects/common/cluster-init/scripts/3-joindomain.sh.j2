@@ -78,6 +78,17 @@ sed -i 's|fallback_homedir.*|fallback_homedir = {{mounts.home.mountpoint | defau
 echo "ad_gpo_access_control = disabled" >> /etc/sssd/sssd.conf
 
 systemctl restart sssd
+
+# Grant sudo for users in the az-hop-localadmins group
+echo "%az-hop-localadmins ALL=(ALL) NOPASSWD: ALL" | tee -a /etc/sudoers.d/az-hop-localadmins
+
+#This is to add the azhop-users group and the admin user for enabling ssh among the VM's
+cat <<EOF >>/etc/ssh/sshd_config
+Match group "{{ (usergroups | selectattr('gid', 'eq', 5000) | map(attribute='name'))[0] | default('azhop-users', true) }}"
+  AllowUsers *
+AllowUsers {{admin_user | default('hpcadmin')}}
+EOF
+
 systemctl restart sshd
 
 # Check if we are domain joined
