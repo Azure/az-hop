@@ -7,8 +7,8 @@ on:
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
-        fail-fast: false
         agent: [agent1, agent2, agent3, agent4]
     runs-on: ${{matrix.agent}}
     continue-on-error: true
