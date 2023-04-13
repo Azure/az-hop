@@ -97,16 +97,6 @@
           password_never_expires: true
           update_password: on_create
 
-      - name: Update azhop groups gidnumber
-        community.windows.win_domain_group:
-          name: '{{item.name}}'
-          state: present
-          description: '{{item.description | default("az-hop group - item.name")}}'
-          scope: domainlocal
-          attributes:
-            gidnumber: '{{item.gid}}'
-        loop: "{{usergroups  | selectattr('gid', 'ge', 5001) }}"
-
     always:
       - name: close session on local port
         shell: ps aux | grep localhost:5985 | grep -v grep | awk '{print "kill -9 " $2}' | sh

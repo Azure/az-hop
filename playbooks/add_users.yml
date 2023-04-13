@@ -19,6 +19,16 @@
     - '{{global_config_file}}'
 
   tasks:
+  - name: Update azhop groups gidnumber
+    community.windows.win_domain_group:
+      name: '{{item.name}}'
+      state: present
+      description: '{{item.description | default("az-hop group - item.name")}}'
+      scope: domainlocal
+      attributes:
+        gidnumber: '{{item.gid}}'
+    loop: "{{usergroups  | selectattr('gid', 'ge', 5001) }}"
+
   - include: create_user.yml user="{{item}}"
     with_items: '{{users}}'
     when: users is defined
