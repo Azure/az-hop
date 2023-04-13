@@ -29,7 +29,7 @@ case "$buildenv" in
     "github")
         docker login ${login_server}
         docker push ${login_server}/${hpcrover}
-        docker tag ${hpcrover} ${latest}
+        docker tag ${login_server}/${hpcrover} ${login_server}/${latest}
     ;;
 
     "local")
