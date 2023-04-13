@@ -77,6 +77,7 @@ printf "$columns" Packer `packer --version`
 printf "$columns" "az-cli" `az --version 2> /dev/null | head -n 1 | awk '{ print $2 }'`
 printf "$columns" azcopy `azcopy --version | awk '{ print $3 }'`
 printf "$columns" yq `yq --version | awk '{ print $4 }'`
+printf "$columns" check-jsonschema `check-jsonschema --version | awk '{ print $3 }'`
 printf "===============================================================================\n"
 
 if [ $INSTALL_IN_CONDA = true ]; then
