@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     name: init_matrix
     container:
-      image: azhop.azurecr.io/hpcrover:2302.2117
+      image: azhop.azurecr.io/hpcrover:2304.1312
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -84,7 +84,7 @@ jobs:
     timeout-minutes: 60
 
     container:
-      image: azhop.azurecr.io/hpcrover:2302.2117
+      image: azhop.azurecr.io/hpcrover:2304.1312
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
