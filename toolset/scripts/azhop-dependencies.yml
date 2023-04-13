@@ -38,6 +38,7 @@
         name: "{{ item }}"
         state: present
       with_items:
+        - unzip
         - apt-utils
         - curl
         - dnsutils
