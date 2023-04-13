@@ -8,8 +8,10 @@ jobs:
   build:
     strategy:
       matrix:
+        fail-fast: false
         agent: [agent1, agent2, agent3, agent4]
     runs-on: ${{matrix.agent}}
+    continue-on-error: true
 
     steps:
     - name: Cleanup Docker
@@ -19,6 +21,5 @@ jobs:
     - uses: actions/checkout@v3
     - name: Install the toolchain
       run: |
-        du -hc --max-depth=1 /
         export HOME=/root # Hack to workaround miniconda installation
         ./toolset/scripts/install.sh
