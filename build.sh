@@ -159,7 +159,7 @@ function get_azure_context()
             export ARM_USE_MSI=true
             logged_user_upn="${TF_VAR_logged_user_objectId} from ${vmname}"
             ;;
-          *)
+        *)
             export TF_VAR_logged_user_objectId=$(az ad sp show --id ${clientId} --query id -o tsv)
             logged_user_upn=$(az ad sp show --id ${clientId} --query displayName -o tsv)
             echo " - logged in Azure with Service Principal Name ${logged_user_upn}"
