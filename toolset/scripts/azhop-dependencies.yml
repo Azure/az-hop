@@ -38,7 +38,6 @@
         name: "{{ item }}"
         state: present
       with_items:
-        - unzip
         - apt-utils
         - curl
         - dnsutils
@@ -95,11 +94,11 @@
 
     - name: "AzCopy: Extract (Ubuntu)"
       # Unable to use the unarchive module to extract the azcopy binary equivalent to below:
-      #command: tar -xvf {{ build_dir.path }}/{{ linux_azcopy_file }} --strip-components=1 --wildcards '*/azcopy'
-      unarchive:
-        src: "{{ build_dir.path }}/{{ linux_azcopy_file }}"
-        dest: "{{ build_dir.path }}"
-        mode: 0755
+      command: tar -xvf {{ build_dir.path }}/{{ linux_azcopy_file }} --strip-components=1 --wildcards '*/azcopy'
+      # unarchive:
+      #   src: "{{ build_dir.path }}/{{ linux_azcopy_file }}"
+      #   dest: "{{ build_dir.path }}"
+      #   mode: 0755
 
     - name: "AzCopy: Find azcopy (Ubuntu)"
       find:
