@@ -13,5 +13,6 @@ jobs:
     - uses: actions/checkout@v3
     - name: Install the toolchain
       run: |
+        df -h
         export HOME=/root # Hack to workaround miniconda installation
         ./toolset/scripts/install.sh
