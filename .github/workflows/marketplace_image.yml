@@ -66,7 +66,7 @@ jobs:
 
           # Build the list of images from the config file
           images=$(yq eval ".images[].name" config.yml | jq -cRn '[inputs]')
-          echo "::set-output name=matrix::$images"
+          echo "matrix=$images" >> $GITHUB_OUTPUT
     # save the list into the outputs
     outputs:
       matrix: ${{ steps.set-image-matrix.outputs.matrix }}
