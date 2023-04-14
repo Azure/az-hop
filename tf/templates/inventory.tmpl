@@ -48,6 +48,7 @@ all:
       ansible_host: ${robinhood-ip}
   vars:
     ansible_ssh_user: ${admin-user}
+    ansible_python_interpreter: /usr/bin/python3
 %{ if jumpbox-pip!="0.0.0.0" }
     ansible_ssh_common_args: '-o ProxyCommand="ssh -i ${admin-user}_id_rsa -p ${jumpbox-ssh-port} -W %h:%p ${admin-user}@${jumpbox-pip}"'
 %{ endif }
