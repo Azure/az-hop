@@ -11,10 +11,10 @@
     remote_src: yes
 
 - name: Build Pyxis
-  shell: |
-    make
-  chdir: /mnt/resource/pyxis-{{pyxis_version}}
-  creates: /usr/lib64/slurm/spank_pyxis.so
+  shell: make
+  args:
+    chdir: /mnt/resource/pyxis-{{pyxis_version}}
+    creates: /usr/lib64/slurm/spank_pyxis.so
   become: yes
 
 - name: copy the plugin to the share
