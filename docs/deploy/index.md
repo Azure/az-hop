@@ -204,6 +204,8 @@ Afterwards, you can directly run the `install.sh`  script:
 ./toolset/scripts/install.sh
 ```
 
+> Note : On Ubuntu you may have to run `apt-get update`
+
 ## From a deployer VM
 `az-hop` can be deployed directly from an Ubuntu 20.04 VM on Azure.
 
@@ -239,6 +241,8 @@ Run the `install.sh` script:
 ```bash
 ./toolset/scripts/install.sh
 ```
+
+> Note : On Ubuntu you may have to run `apt-get update`
 
 
 # Plan your networking IP range
