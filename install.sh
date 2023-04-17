@@ -103,7 +103,7 @@ function enable_lustre ()
 function use_existing_ad()
 {
   local use_existing_ad
-  use_existing_ad=$(yq eval '.ad.use_existing_ad' config.yml)
+  use_existing_ad=$(yq eval '.domain.use_existing_dc' config.yml)
   if [ "$use_existing_ad" == "null" ]; then
     use_existing_ad=false
   fi

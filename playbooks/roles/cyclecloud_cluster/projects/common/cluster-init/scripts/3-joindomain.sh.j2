@@ -6,7 +6,7 @@ read_os
 ADMIN_DOMAIN={{ domain_name }}
 ADMIN_NAME={{ ad_join_user }}
 ADMIN_PASSWORD={{ cc_ad_join_password }}
-DOMAIN_JOIN_OU={{ ad.existing_ad_details.domain_join_ou | default('') }}
+DOMAIN_JOIN_OU={{ domain.domain_join_ou | default('') }}
 
 source $script_dir/../files/$os_release/init_joindomain.sh
 

@@ -84,16 +84,16 @@ locals {
 
     # Active Directory values
     # Updates the assumptions to the possibility that DNS may not point to Active Directory when using the customer provided AD.
-    create_ad             = !try(local.configuration_yml["ad"].use_existing_ad, false)
-    domain_name           = local.create_ad ? "hpc.azure" : local.configuration_yml["ad"].existing_ad_details.domain_name 
-    domain_join_user      = local.create_ad ? local.admin_username : local.configuration_yml["ad"].existing_ad_details.domain_join_user.username
+    create_ad             = !try(local.configuration_yml["domain"].use_existing_dc, false)
+    domain_name           = local.create_ad ? "hpc.azure" : local.configuration_yml["domain"].name 
+    domain_join_user      = local.create_ad ? local.admin_username : local.configuration_yml["domain"].domain_join_user.username
     domain_join_password  = local.create_ad ? random_password.password.result : data.azurerm_key_vault_secret.domain_join_password[0].value
-    domain_join_ou        = local.create_ad ? "CN=Computers" : local.configuration_yml["ad"].existing_ad_details.domain_join_ou
+    domain_join_ou        = local.create_ad ? "CN=Computers" : local.configuration_yml["domain"].domain_join_ou
     ad_ha                 = try(local.configuration_yml["ad"].high_availability, false)
-    domain_controlers     = local.create_ad ? (local.ad_ha ? {ad="ad", ad2="ad2"} : {ad="ad"}) : zipmap(local.configuration_yml["ad"].existing_ad_details.domain_controller_names, local.configuration_yml["ad"].existing_ad_details.domain_controller_names)
-    ldap_server           = local.create_ad ? "ad" : local.configuration_yml["ad"].existing_ad_details.domain_controller_names[0]
-    private_dns_servers   = local.create_ad ? (local.ad_ha ? [azurerm_network_interface.ad-nic[0].private_ip_address, azurerm_network_interface.ad2-nic[0].private_ip_address] : [azurerm_network_interface.ad-nic[0].private_ip_address]) : local.configuration_yml["ad"].existing_ad_details.private_dns_servers
-    domain_controller_ips = local.create_ad ? (local.ad_ha ? [azurerm_network_interface.ad-nic[0].private_ip_address, azurerm_network_interface.ad2-nic[0].private_ip_address] : [azurerm_network_interface.ad-nic[0].private_ip_address]) : local.configuration_yml["ad"].existing_ad_details.domain_controller_ip_addresses
+    domain_controlers     = local.create_ad ? (local.ad_ha ? {ad="ad", ad2="ad2"} : {ad="ad"}) : zipmap(local.configuration_yml["domain"].existing_dc_details.domain_controller_names, local.configuration_yml["domain"].existing_dc_details.domain_controller_names)
+    ldap_server           = local.create_ad ? "ad" : local.configuration_yml["domain"].existing_dc_details.domain_controller_names[0]
+    private_dns_servers   = local.create_ad ? (local.ad_ha ? [azurerm_network_interface.ad-nic[0].private_ip_address, azurerm_network_interface.ad2-nic[0].private_ip_address] : [azurerm_network_interface.ad-nic[0].private_ip_address]) : local.configuration_yml["domain"].existing_dc_details.private_dns_servers
+    domain_controller_ips = local.create_ad ? (local.ad_ha ? [azurerm_network_interface.ad-nic[0].private_ip_address, azurerm_network_interface.ad2-nic[0].private_ip_address] : [azurerm_network_interface.ad-nic[0].private_ip_address]) : local.configuration_yml["domain"].existing_dc_details.domain_controller_ip_addresses
 
     # Use a linux custom image reference if the linux_base_image is defined and contains ":"
     use_linux_image_reference = try(length(split(":", local.configuration_yml["linux_base_image"])[1])>0, false)
