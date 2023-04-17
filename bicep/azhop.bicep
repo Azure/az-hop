@@ -885,6 +885,7 @@ output azhopInventory object = {
     )
     vars: {
       ansible_ssh_user: config.admin_user
+      ansible_python_interpreter: '/usr/bin/python3'
       ansible_ssh_common_args: deployJumpbox ? '-o ProxyCommand="ssh -i ${config.admin_user}_id_rsa -p ${config.vms.jumpbox.sshPort} -W %h:%p ${config.admin_user}@${azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIp}"' : ''
     }
   }
