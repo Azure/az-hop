@@ -8,7 +8,7 @@ param keyvaultOwnerId string
 param lockDownNetwork bool
 param allowableIps array
 param identityPerms array
-param secrets array
+//param secrets array
 
 var kvName = 'kv${resourcePostfix}'
 
@@ -19,6 +19,7 @@ resource kv 'Microsoft.KeyVault/vaults@2021-10-01' = {
   location: location
   properties: {
     enabledForDiskEncryption: true
+    enabledForTemplateDeployment: true
     tenantId: subscription().tenantId
     softDeleteRetentionInDays: 7
     sku: {
@@ -70,10 +71,10 @@ resource kv 'Microsoft.KeyVault/vaults@2021-10-01' = {
   }
 }
 
-resource kvSecrets 'Microsoft.KeyVault/vaults/secrets@2021-10-01' = [ for secret in secrets: {
-  name: secret.name
-  parent: kv
-  properties: {
-    value: secret.value
-  }
-}]
+// resource kvSecrets 'Microsoft.KeyVault/vaults/secrets@2021-10-01' = [ for secret in secrets: {
+//   name: secret.name
+//   parent: kv
+//   properties: {
+//     value: secret.value
+//   }
+// }]
