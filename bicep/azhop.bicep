@@ -656,34 +656,6 @@ module azhopRoleAssignements './roleAssignments.bicep' = [ for vm in vmItems: if
   }
 }]
 
-// resource domainJoinUserPassword 'Microsoft.KeyVault/vaults/secrets@2021-10-01' existing = if (! createAD) {
-//   name: '${config.domain.domain_join_user.password_key_vault_secret_name}'
-//   parent: domainJoinUserKV
-// }
-
-// var keyvaultSecrets = union(
-//   [
-//     {
-//       name: '${config.admin_user}-password'
-//       value: secrets.adminPassword
-//     }
-//     {
-//       name: '${config.admin_user}-pubkey'
-//       value: secrets.adminSshPublicKey
-//     }
-//     {
-//       name: '${config.admin_user}-privkey'
-//       value: secrets.adminSshPrivateKey
-//     }
-//   ],
-//   createDatabase ? [
-//     {
-//       name: '${config.slurm.admin_user}-password'
-//       value: secrets.databaseAdminPassword
-//     }
-//   ] : []
-// )
-
 module azhopKeyvault './keyvault.bicep' = {
   name: 'azhopKeyvault'
   params: {
@@ -699,7 +671,6 @@ module azhopKeyvault './keyvault.bicep' = {
       key_permissions: (contains(vmItems[i].value, 'identity') && contains(vmItems[i].value.identity, 'keyvault') && contains(vmItems[i].value.identity.keyvault, 'key_permissions')) ? vmItems[i].value.identity.keyvault.key_permissions : []
       secret_permissions: (contains(vmItems[i].value, 'identity') && contains(vmItems[i].value.identity, 'keyvault')) ? vmItems[i].value.identity.keyvault.secret_permissions : []
     }]
-//    secrets: keyvaultSecrets
   }
 }
 
