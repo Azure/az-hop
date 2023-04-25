@@ -39,14 +39,14 @@
     src: '{{role_path}}/projects/common/cluster-init/scripts/3-joindomain.sh.j2'
     dest: '{{common_project_root}}/specs/default/cluster-init/scripts/3-joindomain.sh'
     mode: 0777
-  when: ( authentication.user_auth == "ad" )
+  when: ( authentication.user_auth | default("ad") ) == "ad"
 
 - name: Copy add-users script. 
   template:
     src: '{{role_path}}/projects/common/cluster-init/scripts/3a-add-users.sh.j2'
     dest: '{{common_project_root}}/specs/default/cluster-init/scripts/3a-add-users.sh'
     mode: 0777
-  when: ( authentication.user_auth == "local" )
+  when: ( authentication.user_auth | default("ad") ) == "local"
 
 - name: Add Windows joindomain script 
   template:
