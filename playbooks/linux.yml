@@ -19,16 +19,16 @@
         line: 'AllowTcpForwarding yes'
   - name: restart sshd
     service:
-      name: sshd 
+      name: sshd
       state: restarted
   - name: update packages for security
     become: true
     yum:
       name: '*'
       state: latest
-#      exclude: kernel*,kmod*,amlfs*
+      exclude: kernel*,kmod*,amlfs*
 
-- name: Join AD domain and mount anfhome
+- name: Join AD domain or create local users, mount shared home, configure base settings
   hosts: scheduler, ondemand, grafana
   become: true
   gather_facts: no
@@ -42,6 +42,24 @@
   - name: Gather facts for first time
     setup:
 
+  - name: enable RHEL repos and install epel (RHEL)
+    shell: |
+      yum-config-manager --enable rhui-*-optional-rpms rhui-*-extras-rpms rhui-*-supplementary-rpms
+      rpm -q epel-release || yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    when: ansible_distribution == "RedHat"
+
+  - name: disable firewall and SElinux (RHEL)
+    shell: |
+      firewall-cmd --set-default trusted
+      setenforce permissive
+      sed -i 's/^SELINUX=.*$/SELINUX=permissive/' /etc/selinux/config
+    when: ansible_distribution == "RedHat"
+
+  - name: Install NFS utils
+    yum:
+      name: nfs-utils
+      state: present
+
   - name: Read Password from KV
     command: az keyvault secret show --vault-name {{key_vault}} -n {{ad_join_user}}-password --query "value" -o tsv
     delegate_to: localhost
@@ -49,6 +67,23 @@
     register: password
     become: false
     run_once: true
+
+  - name: mount home
+    block:
+      - name: debug
+        debug:
+          msg:
+          - '{{ anf_home_ip }}:/{{ anf_home_path }}'
+          - '{{ homedir_mountpoint }}'
+          - '{{ anf_home_opts }}'
+      - name: Mount home NFS volume
+        mount:
+          src: '{{ anf_home_ip }}:/{{ anf_home_path }}'
+          path: '{{ homedir_mountpoint }}'
+          opts: '{{ anf_home_opts }}'
+          state: mounted
+          fstype: nfs
+    when: authentication.user_auth == "local"
 
   - name: Join domain
     include_role:
@@ -64,6 +99,7 @@
       domain_mount_path: "{{anf_home_path}}"
       domain_mount_opts: "{{anf_home_opts}}"
       domain_join_ou: "{{domain.domain_join_ou | default('')}}"
+    when: authentication.user_auth == "ad"
 
   - name: Update ANF chmod mode
     file:
