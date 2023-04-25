@@ -84,11 +84,11 @@
           post_reboot_delay: 600
         when: ad_promotion.reboot_required
 
-      - name: update gidnumber Domain Users 
-        community.windows.win_domain_group:
-          name: Domain Users
-          attributes:
-            gidnumber: "{{ (usergroups | selectattr('name', 'match', 'Domain Users') | map(attribute='gid')) | default(5000, true) }}"
+      # - name: update gidnumber azhop-users
+      #   community.windows.win_domain_group:
+      #     name: "{{ (usergroups | selectattr('gid', 'eq', 5000) | map(attribute='name'))[0]}}"
+      #     attributes:
+      #       gidnumber: 5000
 
       - name: Disable password expiration
         win_domain_user:
@@ -96,16 +96,6 @@
           state: present
           password_never_expires: true
           update_password: on_create
-
-      - name: Update azhop groups gidnumber
-        community.windows.win_domain_group:
-          name: '{{item.name}}'
-          state: present
-          description: '{{item.description | default("az-hop group - item.name")}}'
-          scope: domainlocal
-          attributes:
-            gidnumber: '{{item.gid}}'
-        loop: "{{usergroups  | selectattr('gid', 'ge', 5001) }}"
 
     always:
       - name: close session on local port

@@ -23,9 +23,7 @@
   - name: Create temp build dir
     file:
       path: "{{ playbook_dir }}/ansible-build"
-      owner: "{{ ansible_user_id }}"
-      group: "{{ ansible_user_id }}"
-      mode: '0644'
+      mode: 0755
       state: directory
     register: build_dir
 
@@ -88,33 +86,45 @@
     - name: "AzureCLI: Allow extensions without prompt (Ubuntu)"
       command: az config set extension.use_dynamic_install=yes_without_prompt
 
-    - name: "AzCopy: Download (Ubuntu)"
-      get_url:
-        url: "http://aka.ms/{{ linux_azcopy_file }}"
-        dest: "{{ build_dir.path }}/{{ linux_azcopy_file }}"
-        mode: 0755
+    - name: "AzCopy: Download and extract (Ubuntu)"
+      shell: |
+        # Install azcopy
+        cd /usr/bin
+        wget -q https://aka.ms/{{ linux_azcopy_file }} -O - | tar zxf - --strip-components 1 --wildcards '*/azcopy'
+        chmod 755 /usr/bin/azcopy
+      become: true
 
-    - name: "AzCopy: Extract (Ubuntu)"
-      # Unable to use the unarchive module to extract the azcopy binary equivalent to below:
-      #command: tar -xvf {{ build_dir.path }}/{{ linux_azcopy_file }} --strip-components=1 --wildcards '*/azcopy'
-      unarchive:
-        src: "{{ build_dir.path }}/{{ linux_azcopy_file }}"
-        dest: "{{ build_dir.path }}"
-        mode: 0755
+    # - name: "AzCopy: Download (Ubuntu)"
+    #   get_url:
+    #     url: "http://aka.ms/{{ linux_azcopy_file }}"
+    #     dest: "{{ build_dir.path }}/{{ linux_azcopy_file }}"
+#        mode: 0755
 
-    - name: "AzCopy: Find azcopy (Ubuntu)"
-      find:
-        paths: "{{ build_dir.path }}"
-        patterns: "azcopy"
-        file_type: file
-        recurse: true
-      register: azcopy_file_path
+    # - name: "AzCopy: Extract (Ubuntu)"
+    #   # Unable to use the unarchive module to extract the azcopy binary equivalent to below:
+    #   shell: |
+    #     tar -xvf {{ build_dir.path }}/{{ linux_azcopy_file }} --strip-components=1 --wildcards '*/azcopy' -C /usr/bin
+    #     chmod +x /usr/bin/azcopy
+    #   become: true
+      # unarchive:
+      #   src: "{{ build_dir.path }}/{{ linux_azcopy_file }}"
+      #   dest: "{{ build_dir.path }}"
+      #   mode: 0755
 
-    - name: "AzCopy: Install (Ubuntu)"
-      copy:
-        src: "{{ azcopy_file_path.files[0].path }}"
-        dest: /usr/bin/azcopy
-        mode: 0755
+    # - name: "AzCopy: Find azcopy (Ubuntu)"
+    #   find:
+    #     paths: "{{ build_dir.path }}"
+    #     patterns: "azcopy"
+    #     file_type: file
+    #     recurse: true
+    #   register: azcopy_file_path
+
+    # - name: "AzCopy: Install (Ubuntu)"
+    #   copy:
+    #     src: "{{ azcopy_file_path.files[0].path }}"
+    #     dest: /usr/bin/azcopy
+    #     mode: 0755
+    #   become: true
 
     - name: "Terraform: Download the signing key to a new keyring (Ubuntu)"
       apt_key:
@@ -145,6 +155,7 @@
         url: "https://github.com/mikefarah/yq/releases/download/{{ yq_version }}/{{ yq_binary }}"
         dest: /usr/bin/yq
         mode: 0755
+      become: true
 
     when: ansible_distribution == "ubuntu"
 
@@ -197,27 +208,36 @@
         dest: "{{ build_dir.path }}/{{ linux_azcopy_file }}"
         mode: 0755
 
-    - name: "AzCopy: Extract (CentOS)"
-      # Unable to use the unarchive module to extract the azcopy binary equivalent to below:
-      #command: tar -xvf {{ build_dir.path }}/{{ linux_azcopy_file }} --strip-components=1 --wildcards '*/azcopy'
-      unarchive:
-        src: "{{ build_dir.path }}/{{ linux_azcopy_file }}"
-        dest: "{{ build_dir.path }}"
-        mode: 0755
+    - name: "AzCopy: Download and extract (Ubuntu)"
+      shell: |
+        # Install azcopy
+        cd /usr/bin
+        wget -q https://aka.ms/{{ linux_azcopy_file }} -O - | tar zxf - --strip-components 1 --wildcards '*/azcopy'
+        chmod 755 /usr/bin/azcopy
+      become: true
 
-    - name: "AzCopy: Find azcopy (CentOS)"
-      find:
-        paths: "{{ build_dir.path }}"
-        patterns: "azcopy"
-        file_type: file
-        recurse: true
-      register: azcopy_file_path
+    # - name: "AzCopy: Extract (CentOS)"
+    #   # Unable to use the unarchive module to extract the azcopy binary equivalent to below:
+    #   #command: tar -xvf {{ build_dir.path }}/{{ linux_azcopy_file }} --strip-components=1 --wildcards '*/azcopy'
+    #   unarchive:
+    #     src: "{{ build_dir.path }}/{{ linux_azcopy_file }}"
+    #     dest: "{{ build_dir.path }}"
+    #     mode: 0755
 
-    - name: "AzCopy: Install (CentOS)"
-      copy:
-        src: "{{ azcopy_file_path.files[0].path }}"
-        dest: /usr/bin/azcopy
-        mode: 0755
+    # - name: "AzCopy: Find azcopy (CentOS)"
+    #   find:
+    #     paths: "{{ build_dir.path }}"
+    #     patterns: "azcopy"
+    #     file_type: file
+    #     recurse: true
+    #   register: azcopy_file_path
+
+    # - name: "AzCopy: Install (CentOS)"
+    #   copy:
+    #     src: "{{ azcopy_file_path.files[0].path }}"
+    #     dest: /usr/bin/azcopy
+    #     mode: 0755
+    #   become: true
 
     - name: "Terraform: Add Hashicorp repo (CentOS)"
       get_url:
@@ -242,6 +262,7 @@
         url: "https://github.com/mikefarah/yq/releases/download/{{ yq_version }}/{{ yq_binary }}"
         dest: /usr/bin/yq
         mode: 0755
+      become: true
 
     when: ansible_distribution == "centos"
 

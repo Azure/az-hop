@@ -13,12 +13,22 @@
       ssh -i {{ lookup('env', 'PWD') }}/{{ansible_ssh_private_key_file}} -fN -D localhost:5985 -p {{jumpbox_ssh_port}} -o StrictHostKeyChecking=no {{admin_user}}@{{ psrp_ssh_proxy }}
     when: (jumpbox is defined)
 
-- name: Add domain users
+- name: Add azhop-users
   hosts: ad
   vars_files:
     - '{{global_config_file}}'
 
   tasks:
+  - name: Create azhop groups and set gidnumbers
+    community.windows.win_domain_group:
+      name: '{{item.name}}'
+      state: present
+      description: '{{item.description | default(item.name)}}'
+      scope: global
+      attributes:
+        gidnumber: '{{item.gid}}'
+    loop: "{{usergroups  | selectattr('gid', 'ge', 5000) }}"
+
   - include: create_user.yml user="{{item}}"
     with_items: '{{users}}'
     when: users is defined
@@ -33,16 +43,17 @@
     ignore_errors: true
     when: (jumpbox is defined)
 
-- name: Configure Users
-  hosts: ondemand
-  become: true
-  vars_files:
-    - '{{global_config_file}}'
+# - name: Configure Users
+#   hosts: ondemand
+#   become: true
+#   vars_files:
+#     - '{{global_config_file}}'
 
-  tasks:
-  - include: init_user.yml user="{{item}}"
-    with_items: '{{users}}'
-    when: users is defined
+# No longer needed as now user env is initialize thru the PUN hook script
+  # tasks:
+  # - include: init_user.yml user="{{item}}"
+  #   with_items: '{{users}}'
+  #   when: users is defined
 
 - name: Configure users in CycleCloud
   hosts: ccportal

@@ -71,26 +71,24 @@
 <!-- gh-md-toc --insert --no-backup --hide-footer docs/deploy/index.md -->
 
 # Overview
-Deploying a green field `azhop` environment can be done by following these few steps :
- - Clone the repo
- - Update the config.yml file with your settings
- - Deploy
- - Create users passwords
- - Install
 
-Once deployed identify the URL to connect to with
-```bash
-grep ondemand_fqdn playbooks/group_vars/all.yml
-```
 
-Get the `adminuser` password to connect with :
-```bash
-./bin/get_secret adminuser
-```
+Once the [prerequisites](#azure-pre-requisites) are in place, deploying a greenfield `azhop` environment involves essentially these steps:
 
-Browse to the URL retrieved above and connect with user `adminuser` and its password.
+ 1. Clone the repo: `git clone --recursive https://github.com/Azure/az-hop.git -b <version>` 
+ 1. Copy the the `config.tpl.yml` template into `config.yml` and update it with your settings
+ 1. Build the infrastructure on azure: `./build.sh -a apply`
+ 1. Create user passwords: `./create_passwords.sh` 
+ 1. Install the software components on the provisioned infrastructure: `./install.sh` 
 
-Below are the detailed instructions to help you building your full `azhop` environment.
+Once deployed, you can connect to the OnDemand web portal via:
+
+ - URL: get from `grep ondemand_fqdn playbooks/group_vars/all.yml` 
+ - username: `adminuser` 
+ - password: get from `./bin/get_secret adminuser`
+
+ The following sections provide detailed instructions for each of these steps.
+
 
 # Azure Pre-requisites
 
@@ -203,8 +201,10 @@ For Terraform to work properly on  WSL2, on the C drive, make sure to have the "
 Afterwards, you can directly run the `install.sh`  script: 
 
 ```bash
-sudo ./toolset/scripts/install.sh
+./toolset/scripts/install.sh
 ```
+
+> Note : On Ubuntu you may have to run `apt-get update`
 
 ## From a deployer VM
 `az-hop` can be deployed directly from an Ubuntu 20.04 VM on Azure.
@@ -239,8 +239,10 @@ git submodule update
 Run the `install.sh` script:
 
 ```bash
-sudo ./toolset/scripts/install.sh
+./toolset/scripts/install.sh
 ```
+
+> Note : On Ubuntu you may have to run `apt-get update`
 
 
 # Plan your networking IP range
@@ -529,6 +531,21 @@ lustre_base_image: "azhpc:azurehpc-lustre:azurehpc-lustre-2_12:latest"
 # The lustre plan to use. Only needed when using the default lustre image from the marketplace. use "::" for an empty plan
 lustre_base_plan: "azhpc:azurehpc-lustre:azurehpc-lustre-2_12" # publisher:product:name
 
+domain:
+  name: "hpc.azure"
+  #domain_join_ou: "OU=azhop" # OU to set the machine in. Make sure the OU exists in the domain as it won't be created for you
+  use_existing_dc: false # Set to true if you want to join a domain with existing DC
+  domain_join_user:
+    username: hpcadmin
+    password_key_vault_name: '{{key_vault}}' # name_for_the_key_vault_with_the_domain_join_password
+    password_key_vault_resource_group_name: '{{resource_group}}' # resource_group_name_for_the_key_vault_with_the_domain_join_password
+    password_key_vault_secret_name: 'hpcadmin-password' # key_vault_secret_name_for_the_domain_join_password
+  # additional settings when using an existinf DC
+  existing_dc_details: 
+    domain_controller_names: ["dc1", "dc2"]
+    domain_controller_ip_addresses: ["192.168.1.100", "192.168.1.101"]
+    private_dns_servers: ["192.168.1.53", "192.168.2.53"]
+
 # Jumpbox VM configuration, only needed when deploying thru a public IP and without a configured deployer VM
 jumpbox:
   vm_size: Standard_B2ms
@@ -587,8 +604,8 @@ users:
   # - { name: user2, uid: 10004, groups: [6001] }
 
 usergroups:
-# These groups can’t be changed
-  - name: Domain Users # All users will be added to this one by default
+# These groups should not be changed
+  - name: azhop-users # All users will be added to this group by default
     gid: 5000
   - name: az-hop-admins
     gid: 5001
@@ -860,6 +877,7 @@ applications:
 # Deploy your environment
 
 ## Azure infrastructure
+
 Before deploying, make sure your are logged in to Azure, which will be done differently if you are logged in as a user or with a Service Principal Name.
 
 ### Login with a user account
@@ -883,6 +901,7 @@ az login -i
 ```
 
 ### Login with a Service Principal Name
+
 When using a Service Principal Name (SPN), you have to login to Azure with this SPN but also set the environment variables used by Terraform to build resources as explained [here](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/service_principal_client_secret).
 
 > Note : The SPN need to have **contributor** and **User Access Administrator** roles on the subscription
@@ -1334,6 +1353,7 @@ dual_protocol: true # true to enable SMB support. false by default
 ```
 
 ## Deploy in a locked down network environment
+
 A locked down network environment avoid access from public IPs to the resources used by az-hop like storage accounts and key vault for example. To enable such configuration, uncomment and fill out the `locked_down_network` settings. Use the `grant_access_from` to grant access to specific internet public IPs as documented from [here](https://docs.microsoft.com/en-us/azure/storage/common/storage-network-security?tabs=azure-portal#grant-access-from-an-internet-ip-range)
 
 ```yml
@@ -1483,15 +1503,17 @@ Script to build the resources needed for an **azhop** environment.
 $ ./build.sh
 Usage build.sh
   Required arguments:
-    -a|--action [plan, apply, destroy]
+    -a|--action [plan, apply, destroy] - Destroy will not applied with Bicep
 
   Optional arguments:
     -f|-folder <relative path> - relative folder name containing the terraform files, default is ./tf
+    -l|--language <tf, bicep>  - deployment language to use, default is tf
+    --no-validate              - skip validation of config.yml
 ```
 
 At the end of the build, there are several files created, which produce the state of a deployment. These are :
  - az-hop config file `config.yml`
- - Terraform state file `tf/terraform.tfstate`
+ - Terraform state file `tf/terraform.tfstate`, unless Bicep is used
  - Ansible parameter files `playbooks/group_vars/all.yml`, `playbooks/inventory`
  - SSH Key Pair `${ADMIN_USER}_id_rsa` and `${ADMIN_USER}_id_rsa.pub`
  - Packer option file `packer/options.json`

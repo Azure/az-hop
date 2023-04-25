@@ -9,6 +9,7 @@ resource "azurerm_key_vault" "azhop" {
   resource_group_name         = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   enabled_for_disk_encryption = true
   enabled_for_deployment      = true
+  enabled_for_template_deployment = true
   tenant_id                   = local.tenant_id
   # soft delete is enabled by default now (2021-8-25), with 90 days retention
   # soft_delete_enabled         = true

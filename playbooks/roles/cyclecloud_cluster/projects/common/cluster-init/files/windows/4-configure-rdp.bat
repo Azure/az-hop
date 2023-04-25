@@ -7,6 +7,6 @@ reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v Prom
 
 net localgroup "Administrators" "HPC\az-hop-localadmins" /add
 
-net localgroup "Remote Desktop Users" "HPC\Domain Users" /add
+net localgroup "Remote Desktop Users" "HPC\azhop-users" /add
 net localgroup "Remote Desktop Users"
 call C:\cycle\jetpack\bin\jetpack log "End of configure rdp script" --level info
