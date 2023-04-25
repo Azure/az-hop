@@ -141,6 +141,7 @@ case $TARGET in
     run_playbook lustre
     run_playbook ccportal
     run_playbook add_users
+#    run_playbook add_local_users
     run_playbook cccluster
     run_playbook scheduler
     run_playbook ood $PLAYBOOKS_DIR/ood-overrides-common.yml $PLAYBOOKS_DIR/ood-overrides-$SCHEDULER.yml $PLAYBOOKS_DIR/ood-overrides-auth-$OOD_AUTH.yml $ENABLE_WINVIZ_PLAYBOOK
@@ -154,7 +155,7 @@ case $TARGET in
     run_playbook lustre-sas
     run_playbook lustre
   ;;
-  ad | ad2 | linux | add_users | ccportal | chrony | cccluster | scheduler | grafana | telegraf | ood-custom | remove_users | tests | guacamole | guac_spooler | dns)
+  ad | ad2 | linux | add_users | add_local_users | ccportal | chrony | cccluster | scheduler | grafana | telegraf | ood-custom | remove_users | tests | guacamole | guac_spooler | dns)
     run_playbook $TARGET
   ;;
   ood)
