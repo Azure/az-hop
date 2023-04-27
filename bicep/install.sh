@@ -114,4 +114,4 @@ cd $azhop_root
 
 echo "* Running Ansible"
 #export ANSIBLE_VERBOSITY=2
-./install.sh
+retry_command "./install.sh"
