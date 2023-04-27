@@ -1,15 +1,41 @@
 #!/bin/bash
-set -e
-set -o pipefail
+set -eo pipefail
+
+retry_command() {
+    local cmd=$1
+    local retries=${2:-5}
+    local delay=${3:-10}
+
+    set +eo pipefail
+
+    for ((i=0; i<retries; i++)); do
+        echo "Running command: $cmd"
+        $cmd
+
+        if [ $? -eq 0 ]; then
+            echo "Command succeeded!"
+            set -eo pipefail
+            return 0
+        else
+            echo "Command failed. Retrying in ${delay}s..."
+            sleep $delay
+        fi
+    done
+
+    echo "Command failed after $retries retries."
+    set -eo pipefail
+    return 1
+}
+
 echo "* apt updating"
-apt update
+retry_command "apt update"
 
 echo "* Update SSH port"
 sed -i 's/^#Port 22/Port __SSH_PORT__/' /etc/ssh/sshd_config
 systemctl restart sshd
 
 echo "* Installing git"
-apt install -y git
+retry_command "apt install -y git"
 
 echo "* Cloning az-hop repo"
 if [ -e az-hop ]; then
@@ -21,7 +47,7 @@ cd az-hop
 export azhop_root=$(pwd)
 echo "* Installing azhop toolset dependencies"
 export HOME=/root # hack to fix conda install in cloud-init
-./toolset/scripts/install.sh
+retry_command "./toolset/scripts/install.sh"
 
 mkdir -p $azhop_root/deploy
 cd $azhop_root/deploy
