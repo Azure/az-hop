@@ -525,7 +525,8 @@ locked_down_network:
 
 # Base image configuration. Can be either an image reference or an image_id from the image registry or a custom managed image
 linux_base_image: "OpenLogic:CentOS:7_9-gen2:latest" # publisher:offer:sku:version or image_id
-linux_base_plan: # linux image plan if required, format is publisher:product:name
+# linux image plan if required, format is publisher:product:name
+#linux_base_plan:
 windows_base_image: "MicrosoftWindowsServer:WindowsServer:2019-Datacenter-smalldisk:latest" # publisher:offer:sku:version or image_id
 lustre_base_image: "azhpc:azurehpc-lustre:azurehpc-lustre-2_12:latest"
 # The lustre plan to use. Only needed when using the default lustre image from the marketplace. use "::" for an empty plan
