@@ -542,7 +542,7 @@ jumpbox:
 ad:
   vm_size: Standard_B2ms
   hybrid_benefit: false # Enable hybrid benefit for AD, default to false
-  high_availability: false # Build AD in High Availability mode (2 Domain Controlers) - default to false
+  high_availability: false # Build AD in High Availability mode (2 Domain Controllers) - default to false
 # On demand VM configuration
 ondemand:
   vm_size: Standard_D4s_v5
@@ -751,7 +751,7 @@ images:
     os_type: Linux
     version: 7.9
 
-# Autoscale default settings for all queues, can be overriden on each queue depending on the VM type if needed
+# Autoscale default settings for all queues, can be overridden on each queue depending on the VM type if needed
 autoscale:
   idle_timeout: 1800 # Idle time in seconds before shutting down VMs - default to 1800 like in CycleCloud
 
@@ -761,7 +761,7 @@ queues:
   - name: execute # name of the Cycle Cloud node array
     # Azure VM Instance type
     vm_size: Standard_F2s_v2
-    # maximum number of cores that can be instanciated
+    # maximum number of cores that can be instantiated
     max_core_count: 1024
     # Use the pre-built azhop image from the marketplace
     image: azhpc:azhop-compute:centos-7_9:latest
@@ -1273,7 +1273,7 @@ network:
 - There is a need of a minimum of 5 IP addresses for the infrastructure VMs
 - Allow enough IP addresses for the Lustre cluster, default being 4 : Robinhood + Lustre + 2*OSS
 - Delegate a subnet to Azure NetApp Files like documented [here](https://docs.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-delegate-subnet)
-- Look at the `tf/network_security_group.tf` and `tf/variables_local.tf` to get the list of all ports and rules define bewteen subnets
+- Look at the `tf/network_security_group.tf` and `tf/variables_local.tf` to get the list of all ports and rules define between subnets
 
 ### Creating a standalone VNET for AZ-HOP
 There is a way to easily create a standalone VNET for **azhop** without doing a full deployment by following these steps :
@@ -1283,7 +1283,7 @@ There is a way to easily create a standalone VNET for **azhop** without doing a 
 - Build your **azhop** environment
 
 ## How to use DNS forwarders ?
-**azhop** rely on [Azure DNS Private Resolver](https://learn.microsoft.com/en-us/azure/dns/dns-private-resolver-overview) in order to forward DNS queries to external DNS servers thru an outbound endpoint which need to be created in it's own subnet. You need to configure the `outbounddns` subnet with a minimum of /28 adress space in your `config.yml` configuration file. If you use an existing subnet it has to be dedicated to the resolver and has to be delegated to `Microsoft.Network/dnsResolvers` as explained in documentation of the [Azure DNS Private Resolver](https://learn.microsoft.com/en-us/azure/dns/dns-private-resolver-overview)
+**azhop** rely on [Azure DNS Private Resolver](https://learn.microsoft.com/en-us/azure/dns/dns-private-resolver-overview) in order to forward DNS queries to external DNS servers thru an outbound endpoint which need to be created in it's own subnet. You need to configure the `outbounddns` subnet with a minimum of /28 address space in your `config.yml` configuration file. If you use an existing subnet it has to be dedicated to the resolver and has to be delegated to `Microsoft.Network/dnsResolvers` as explained in documentation of the [Azure DNS Private Resolver](https://learn.microsoft.com/en-us/azure/dns/dns-private-resolver-overview)
 
 Once the resolver has been created thru the `./build.sh` command, you can configure the forwarders to sent request to, in the `config.yml` configuration file like below.
 
@@ -1579,4 +1579,4 @@ If you do not wish to send usage data to Microsoft, you will need update your co
 
 `optout_telemetry: true`
 
-The setting can be applied by uncommenting thi line from the config file.
+The setting can be applied by uncommenting this line from the config file.
