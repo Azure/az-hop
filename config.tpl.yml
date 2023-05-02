@@ -201,7 +201,7 @@ cyclecloud:
 
 # Lustre cluster is optional and can be used to create a Lustre cluster in the environment.
 lustre:
-  create: true # true or false to create a lustre cluster
+  create: false # true or false to create a lustre cluster
   rbh_sku: "Standard_D8d_v4"
   mds_sku: "Standard_D8d_v4"
   oss_sku: "Standard_D32d_v4"
