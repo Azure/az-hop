@@ -608,10 +608,10 @@ usergroups:
 # These groups should not be changed
   - name: azhop-users # All users will be added to this group by default
     gid: 5000
-  - name: az-hop-admins
+  - name: azhop-admins
     gid: 5001
     description: "For users with azhop admin privileges"
-  - name: az-hop-localadmins
+  - name: azhop-localadmins
     gid: 5002
     description: "For users with sudo right or local admin right on nodes"
 # For custom groups use gid >= 6000
@@ -1022,8 +1022,8 @@ Adding users is done in three steps :
 
 You can specify in which groups users belongs to, but at least they are all in the `Domain Users (gid: 5000)` domain group. By default there are built-in groups you can't change names otherwise things will break :
 - `Domain Users` : All users will be added to this one by default
-- `az-hop-admins` :  For users with azhop admin privileges like starting/stopping nodes or editing Grafana dashboards
-- `az-hop-localadmins` : For users with Linux sudo rights or Windows Local Admin rights on compute or viz nodes
+- `azhop-admins` :  For users with azhop admin privileges like starting/stopping nodes or editing Grafana dashboards
+- `azhop-localadmins` : For users with Linux sudo rights or Windows Local Admin rights on compute or viz nodes
 
 ## Add users in the configuration file
 
@@ -1039,10 +1039,10 @@ users:
 usergroups:
   - name: Domain Users # All users will be added to this one by default
     gid: 5000
-  - name: az-hop-admins # For users with azhop admin privilege
+  - name: azhop-admins # For users with azhop admin privilege
     gid: 5001
     description: "For users with azhop admin privileges"
-  - name: az-hop-localadmins # For users with sudo right on nodes
+  - name: azhop-localadmins # For users with sudo right on nodes
     gid: 5002
     description: "For users with sudo right or local admin right on nodes"
   - name: project1 # For project1 users
@@ -1469,6 +1469,71 @@ database:
 ```
 
 Store the database user password in the `azhop` keyvault as a secret with the name `<database.user>-password`
+
+## Use an existing Active Directory
+By default `azhop` is deployed with it's own sandboxed Active Directory Domain Service VM and it's own domain. Starting from release `1.0.35` it is now possible to use an existing Active Directory Domain to allow a better enterprise integration. For linux user integration there are some pre-requisites to be satisfied in the target domain as well as on the network.
+
+### Network pre-requisites
+For all subnets configured in `azhop`, the correct NSGs will be set to the external Domain Controlers (DC) IP addresses. However if the existing DCs are outside of the `azhop` subnets, which will be certainly the case in most scenarios, then you have to make sure that the following ports are open to and from the DCs :
+ - TCP ports 53 88 135 389 445 464 636 3268 3269 9389 49152-65535
+ - UDP ports 53 88 123 138 389 464 636
+
+### Domain pre-requisites
+Prepare a user account which is allowed to domain join machines, store it's password as a secret in an existing Azure KeyVault. Grant read access for this keyvault secrets to the identity used to deploy the `azhop` environment.
+
+Ensure that domain users who will connect to this `azhop` environment have domain properties `uidNumber` and `gidNumber` set. Refer to this [article](https://www.server-world.info/en/note?os=Windows_Server_2019&p=active_directory&f=12) on how to do it from the UI.
+
+Create these global groups 
+ - `azhop-users` with `gidNumber` 5000
+ - `azhop-admins` with `gidNumber` 5001
+ - `azhop-localadmins` with `gidNumber` 5002
+
+Add the users who will connect to the `azhop` environment to the `azhop-users` group, and to the `azhop-localadmins` group to grant local admin privilege on compute and remote visualization nodes.
+
+
+### azhop configuration file
+Remove or comment the `ad` subnet from the `network.vnet.subnets` list.
+Remove or comment the `ad` virtual machine definition.
+
+Add or update the domain configuration as below
+```yml
+domain:
+  name: "azhop.local" # Name of the domain to join
+  domain_join_ou: "OU=azhop" # OU in the target domain in which machines will be added
+  use_existing_dc: true
+  domain_join_user:
+    username: <domain_join_user> # username with join domain privilege, used to domain join VMs
+    password_key_vault_name: <key_vault> # name for the keyvault with the domain join password
+    password_key_vault_resource_group_name: <key_vault_rg> # resource group name for the keyvault with the domain join password
+    password_key_vault_secret_name: <secret> # keyvault secret name for the domain join password
+  existing_dc_details:
+    domain_controller_names: ["dc1", "dc2"] # list of domain controllers
+    domain_controller_ip_addresses: ["ip1", "ip2"] # list of domain controllers IPs
+    private_dns_servers: ["ip1", "ip2"] # list of the private DNS servers
+```
+
+- define user groups as follow in the `azhop` configuration file
+```yml
+usergroups:
+# These group names could be changed but not the gids as names will be mapped by gids
+  - name: azhop-users # All users will be added to this group by default
+    gid: 5000
+  - name: azhop-admins
+    gid: 5001
+    description: "For users with azhop admin privileges"
+  - name: azhop-localadmins
+    gid: 5002
+    description: "For users with sudo right or local admin right on nodes"
+```
+
+- define users in the config file fo which you want to grant admin access to the CycleCloud web portal. They should be part of the `azhop-admins` group defined above.
+```yml
+users:
+  - { name: user,   uid: 10001, groups: [5001] }
+```
+
+### Deploy and configure your environemnt
+Once all the pre-requisites are satisfied, you can deploy the `azhop` environment as usual.
 
 # Helper Scripts
 

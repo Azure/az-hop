@@ -243,13 +243,13 @@ users:
   # - { name: user2, uid: 10004, groups: [6001] }
 
 usergroups:
-# These groups should not be changed
+# These group names could be changed but not the gids as names will be mapped by gids
   - name: azhop-users # All users will be added to this group by default
     gid: 5000
-  - name: az-hop-admins
+  - name: azhop-admins
     gid: 5001
     description: "For users with azhop admin privileges"
-  - name: az-hop-localadmins
+  - name: azhop-localadmins
     gid: 5002
     description: "For users with sudo right or local admin right on nodes"
 # For custom groups use gid >= 6000

@@ -4,7 +4,7 @@
 
 [[servers]]
 # Ldap server host (specify multiple hosts space separated)
-host = "{{ grafana_ldap_server }}"
+host = "{{ grafana_ldap_server }}.{{ domain_name }}"
 # Default port is 389 or 636 if use_ssl = true
 port = 389
 # Set to true if ldap server supports TLS
@@ -47,7 +47,7 @@ email =  "email"
 
 # Map ldap groups to grafana org roles
 [[servers.group_mappings]]
-group_dn = "cn=az-hop-admins,cn=Users,{{grafana_ldap_dc}}"
+group_dn = "cn={{ (usergroups | selectattr('gid', 'eq', 5001) | map(attribute='name'))[0] | default('azhop-admins', true) }},cn=Users,{{grafana_ldap_dc}}"
 org_role = "Admin"
 # To make user an instance admin  (Grafana Admin) uncomment line below
 # grafana_admin = true
@@ -55,7 +55,7 @@ org_role = "Admin"
 # org_id = 1
 
 [[servers.group_mappings]]
-group_dn = "cn=azhop-users,cn=Users,{{grafana_ldap_dc}}"
+group_dn = "cn={{ (usergroups | selectattr('gid', 'eq', 5000) | map(attribute='name'))[0] | default('azhop-users', true) }},cn=Users,{{grafana_ldap_dc}}"
 org_role = "Editor"
 
 [[servers.group_mappings]]

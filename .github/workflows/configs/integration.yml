@@ -138,10 +138,10 @@ users:
 usergroups:
   - name: azhop-users # All users will be added to this one by default
     gid: 5000
-  - name: az-hop-admins # For users with azhop admin privilege
+  - name: azhop-admins # For users with azhop admin privilege
     gid: 5001
     description: "For users with azhop admin privileges"
-  - name: az-hop-localadmins # For users with sudo right on nodes
+  - name: azhop-localadmins # For users with sudo right on nodes
     gid: 5002
     description: "For users with sudo right or local admin right on nodes"
 
