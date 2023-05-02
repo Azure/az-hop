@@ -15,6 +15,7 @@
 
 - name: Add azhop-users
   hosts: ad
+  gather_facts: no
   vars_files:
     - '{{global_config_file}}'
 
@@ -54,7 +55,7 @@
         connection: local
         ignore_errors: true
         when: (jumpbox is defined)
-    when: not domain.use_existing_dc | default(true)
+    when: "(false if ((domain is defined) and (not domain.use_existing_dc)) else true)"
 
 # - name: close socks tunnel
 #   hosts: localhost
