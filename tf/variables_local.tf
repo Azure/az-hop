@@ -292,9 +292,9 @@ locals {
         Ssh    = ["22"]
         Public_Ssh = [local.jumpbox_ssh_port]
         # DNS, Kerberos, RpcMapper, Ldap, Smb, KerberosPass, LdapSsl, LdapGc, LdapGcSsl, AD Web Services, RpcSam
-        DomainControlerTcp = ["53", "88", "135", "389", "445", "464", "686", "3268", "3269", "9389", "49152-65535"]
+        DomainControlerTcp = ["53", "88", "135", "389", "445", "464", "636", "3268", "3269", "9389", "49152-65535"]
         # DNS, Kerberos, W32Time, NetBIOS, Ldap, KerberosPass, LdapSsl
-        DomainControlerUdp = ["53", "88", "123", "138", "389", "464", "686"]
+        DomainControlerUdp = ["53", "88", "123", "138", "389", "464", "636"]
         # Web, NoVNC, WebSockify
         NoVnc = ["80", "443", "5900-5910", "61001-61010"]
         Dns = ["53"]
