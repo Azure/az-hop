@@ -131,9 +131,9 @@ cyclecloud:
   vm_size: Standard_B2ms
 
 users:
-  - { name: hpcuser,   uid: 10001 }
+  - { name: hpcuser, uid: 10001 }
   - { name: adminuser, uid: 10002, groups: [5001, 5002] }
-  - { name: john.john,   uid: 10003 }
+  - { name: john.john, uid: 10003 }
 
 usergroups:
   - name: azhop-users # All users will be added to this one by default
