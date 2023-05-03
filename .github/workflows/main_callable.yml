@@ -40,7 +40,7 @@ on:
       lustre:
         description: 'Deploy a Lustre cluster (true/false) - Default to true'
         required: true
-        default: 'true' # use it with ${{ inputs.lustre }}
+        default: 'false' # use it with ${{ inputs.lustre }}
         type: string
       deploy_only:
         description: 'Deploy only - Default to false'
@@ -211,7 +211,8 @@ jobs:
           fi
 
           # write the name of the resource group in the output of the job so it can be reused in others
-          echo "::set-output name=RESOURCE_GROUP::$RESOURCE_GROUP"
+          echo "RESOURCE_GROUP=$RESOURCE_GROUP" >> $GITHUB_OUTPUT
+
           ls -al 
           cat config.yml
           anf_dual=$(yq eval '.anf.dual_protocol' config.yml)
@@ -577,7 +578,7 @@ jobs:
             images="[\"none\"]"
           fi
           echo "Image liste : $images"
-          echo "::set-output name=matrix::$images"
+          echo "matrix=$images" >> $GITHUB_OUTPUT
     # save the list into the outputs
     outputs:
       matrix: ${{ steps.set-image-matrix.outputs.matrix }}
