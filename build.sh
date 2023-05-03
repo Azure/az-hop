@@ -223,25 +223,25 @@ function get_azure_cloud_env()
   cloud_env="Public"
   account_env=$(az account show --output json| jq '.environmentName' -r)
   case "$account_env" in
-    AzureChinaCloud)
-      export TF_VAR_AzureEnvironment=AZURECHINACLOUD
-      export TF_VAR_KeyVaultSuffix=vault.azure.cn
-      export TF_VAR_BlobStorageSuffix=blob.core.chinacloudapi.cn
-      ;;
-    AzureGermanCloud)
-      export TF_VAR_AzureEnvironment=AZUREGERMANCLOUD
-      export TF_VAR_KeyVaultSuffix=vault.microsoftazure.de
-      export TF_VAR_BlobStorageSuffix=blob.core.cloudapi.de
-      ;;
+    # AzureChinaCloud)
+    #   export TF_VAR_AzureEnvironment=AZURECHINACLOUD
+    #   export TF_VAR_KeyVaultSuffix=vault.azure.cn
+    #   export TF_VAR_BlobStorageSuffix=blob.core.chinacloudapi.cn
+    #   ;;
+    # AzureGermanCloud)
+    #   export TF_VAR_AzureEnvironment=AZUREGERMANCLOUD
+    #   export TF_VAR_KeyVaultSuffix=vault.microsoftazure.de
+    #   export TF_VAR_BlobStorageSuffix=blob.core.cloudapi.de
+    #   ;;
     AzureCloud)
       export TF_VAR_AzureEnvironment=AZUREPUBLICCLOUD
-      export TF_VAR_KeyVaultSuffix=vault.azure.net
-      export TF_VAR_BlobStorageSuffix=blob.core.windows.net
+      # export TF_VAR_KeyVaultSuffix=vault.azure.net
+      # export TF_VAR_BlobStorageSuffix=blob.core.windows.net
       ;;
     AzureUSGovernment)
       export TF_VAR_AzureEnvironment=AZUREUSGOVERNMENTCLOUD
-      export TF_VAR_KeyVaultSuffix=vault.usgovcloudapi.net
-      export TF_VAR_BlobStorageSuffix=blob.core.usgovcloudapi.net
+      # export TF_VAR_KeyVaultSuffix=vault.usgovcloudapi.net
+      # export TF_VAR_BlobStorageSuffix=blob.core.usgovcloudapi.net
       ;;
     *)
       echo "ERROR: Unknown Azure environment ${account_env}"

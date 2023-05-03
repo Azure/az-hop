@@ -1,8 +1,22 @@
 locals {
     # azure environment
+    public_cloud_endpoints = {
+        KeyVaultSuffix =  "vault.azure.net"
+        BlobStorageSuffix = "blob.core.windows.net"
+        MariaDBPrivateLink = "privatelink.mariadb.database.azure.com"
+    }
+    usgov_cloud_endpoints = {
+        KeyVaultSuffix =  "vault.usgovcloudapi.net"
+        BlobStorageSuffix = "blob.core.usgovcloudapi.net"
+        MariaDBPrivateLink = "privatelink.mariadb.database.usgovcloudapi.net"
+    }
+    azure_endpoints = {
+        AZUREPUBLICCLOUD = local.public_cloud_endpoints
+        AZUREUSGOVERNMENTCLOUD = local.usgov_cloud_endpoints
+    }
     azure_environment = var.AzureEnvironment
-    key_vault_suffix = var.KeyVaultSuffix
-    blob_storage_suffix = var.BlobStorageSuffix
+    key_vault_suffix = local.azure_endpoints[local.azure_environment].KeyVaultSuffix #var.KeyVaultSuffix
+    blob_storage_suffix = local.azure_endpoints[local.azure_environment].BlobStorageSuffix #var.BlobStorageSuffix
 
     # azurerm_client_config contains empty values for Managed Identity so use variables instead
     tenant_id = var.tenant_id
@@ -175,6 +189,7 @@ locals {
     use_existing_database = try(length(local.configuration_yml["database"].fqdn) > 0 ? true : false, false)
 #    slurm_accounting = local.enable_remote_winviz || try(local.configuration_yml["slurm"].accounting_enabled, false)
     database_user = local.create_database ? "sqladmin" : (local.use_existing_database ? try(local.configuration_yml["database"].user, "") : "")
+    mariadb_private_dns_zone = local.azure_endpoints[local.azure_environment].MariaDBPrivateLink
 
     # VNET
     create_vnet = try(length(local.vnet_id) > 0 ? false : true, true)
