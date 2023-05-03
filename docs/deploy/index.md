@@ -1474,6 +1474,38 @@ As we made progress in using bicep as a deployment tool, the table below shows t
 
 > Note : Please note that when using Bicep, resources won't be destroyed as opposed to Terraform when resources are not sync with the terraform state file.
 
+To automatically have bicep build a deployer VM and deploy from there, just rename the jumpbox section to deployer. This will create a deployer VM and deploy from there thru a cloud init script. After the bicep deployment is finished, connect to the deployer VM :
+
+   ```bash
+   ./bin/connect.sh deployer
+   ```
+
+Once connected in the `deployer` VM run the following command to display the cloud init log content
+
+   ```bash
+   tail -f /var/log/cloud-init-output.log
+
+   Friday 21 October 2022  14:06:09 +0000 (0:00:02.071)       0:00:05.380 ********
+   ===============================================================================
+   chrony ------------------------------------------------------------------ 5.19s
+   include_role ------------------------------------------------------------ 0.13s
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   total ------------------------------------------------------------------- 5.32s
+   ```
+
+Once the cloud init script is finished you should have these 2 lines at the end of the log
+   ```
+   Cloud-init v. 22.3.4-0ubuntu1~20.04.1 running 'modules:final' at Fri, 21 Oct 2022 13:22:56 +0000. Up 22.03 seconds.
+   Cloud-init v. 22.3.4-0ubuntu1~20.04.1 finished at Fri, 21 Oct 2022 14:06:09 +0000. Datasource DataSourceAzure [seed=/dev/sr0].  Up 2614.99 seconds
+   ```
+
+> Note : The Cloud Init step is taking about 40 minutes
+
+Confirm there are no errors in the playbooks execution by running this command
+   ```
+   grep "failed=1" /var/log/cloud-init-output.log
+   ```
+
 # Helper Scripts
 
 - ansible_prereqs.sh
