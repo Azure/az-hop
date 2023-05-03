@@ -217,62 +217,30 @@
                     "$ref": "#/definitions/alerting"
                 }
             },
-            "if" : {
-                "properties": {
-                    "domain.use_existing_dc" : { "const": true }
-                },
-                "required": [
-                    "admin_user",
-                    "applications",
-                    "authentication",
-                    "autoscale",
-                    "cyclecloud",
-                    "enable_remote_winviz",
-                    "grafana",
-                    "guacamole",
-                    "location",
-                    "locked_down_network",
-                    "mounts",
-                    "network",
-                    "ondemand",
-                    "queue_manager",
-                    "queues",
-                    "remoteviz",
-                    "resource_group",
-                    "scheduler",
-                    "slurm",
-                    "usergroups",
-                    "users",
-                    "windows_base_image"
-                ]
-            },
-            "then" : {
-                "required": [
-                    "ad",
-                    "admin_user",
-                    "applications",
-                    "authentication",
-                    "autoscale",
-                    "cyclecloud",
-                    "enable_remote_winviz",
-                    "grafana",
-                    "guacamole",
-                    "location",
-                    "locked_down_network",
-                    "mounts",
-                    "network",
-                    "ondemand",
-                    "queue_manager",
-                    "queues",
-                    "remoteviz",
-                    "resource_group",
-                    "scheduler",
-                    "slurm",
-                    "usergroups",
-                    "users",
-                    "windows_base_image"
-                ]
-            },
+            "required": [
+                "admin_user",
+                "applications",
+                "authentication",
+                "autoscale",
+                "cyclecloud",
+                "enable_remote_winviz",
+                "grafana",
+                "guacamole",
+                "location",
+                "locked_down_network",
+                "mounts",
+                "network",
+                "ondemand",
+                "queue_manager",
+                "queues",
+                "remoteviz",
+                "resource_group",
+                "scheduler",
+                "slurm",
+                "usergroups",
+                "users",
+                "windows_base_image"
+            ],
             "title": "az-hop"
         },
         "logAnalytics": {
