@@ -47,7 +47,7 @@ var enableWinViz = contains(azhopConfig, 'enable_remote_winviz') ? azhopConfig.e
 
 var createAD = contains(azhopConfig, 'domain') ? ! azhopConfig.domain.use_existing_dc : true
 
-var highAvailabilityForAD = contains(azhopConfig.ad, 'high_availability') ? azhopConfig.ad.high_availability : false
+var highAvailabilityForAD = contains(azhopConfig, 'ad') && contains(azhopConfig.ad, 'high_availability') ? azhopConfig.ad.high_availability : false
 
 var linuxBaseImage = contains(azhopConfig, 'linux_base_image') ? azhopConfig.linux_base_image : 'OpenLogic:CentOS:7_9-gen2:latest'
 var linuxBasePlan = contains(azhopConfig, 'linux_base_plan') ? azhopConfig.linux_base_plan : ''
