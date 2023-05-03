@@ -49,9 +49,9 @@ When provisioning a complete `az-hop` environment a deployer VM and a bastion wi
 
 ## Requirements
 
-- A Microsoft Azure subscription
-- A work or school account with the Owner role in the Azure subscription
-- A lab computer with:
+- Microsoft Azure subscription
+- Work or school account with the Owner role in the Azure subscription
+- Lab computer with:
 
   - Access to Azure
   - A web browser supported by the Azure portal (Microsoft Edge, Google Chrome, or Mozilla Firefox)
@@ -60,15 +60,15 @@ When provisioning a complete `az-hop` environment a deployer VM and a bastion wi
 
 Duration: 15 minutes
 
-To complete this lab, you must verify that your account has sufficient permissions to the Azure subscription that you intend to use to deploy all required Azure resources. The Azure subscription must have a sufficient number of available vCPUs.
+To complete this lab, you must verify that your account has sufficient permissions to the Azure subscription that you intend to use to deploy all required Azure resources. The Azure subscription must have a enough available vCPUs.
 
 ### Task 1: Validate the owner role assignment in the Azure subscription
 
 1. From the lab computer, start a web browser, navigate to [the Azure portal](http://portal.azure.com), and if needed, sign in with the credentials of the user account with the Owner role in the Azure subscription you will be using in this lab.
 1. In the Azure portal, use the **Search resources, services, and docs** text box to search for **Subscriptions**, and in the list of results, select **Subscriptions**.
-1. On the **Subscriptions** blade, select the name of the subscription you intend to use for this lab.
+1. On the **Subscriptions** list, select the name of the subscription you intend to use for this lab.
 1. On the subscription blade, select **Access control (IAM)**.
-1. On the **Check access** tab, select the **View my access** button, and in the listing of role assignments, verify that your user account has the `Owner` role assigned to it.
+1. Click on the **Check access** button and then type the email you used to login. Click on your name and validate that your user account has the `Owner` role assigned to it.
 
 ### Task 2: Validate a sufficient number of vCPU cores
 
