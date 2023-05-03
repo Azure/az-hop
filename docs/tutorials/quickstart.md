@@ -72,9 +72,9 @@ To complete this lab, you must verify that your account has sufficient permissio
 
 ### Task 2: Validate a sufficient number of vCPU cores
 
-1. In the Azure portal, on the subscription blade, in the **Settings** section of the resource menu, select **Usage + quota**.
-1. On the **Usage + quotas** blade, in the **Search** filters drop-down boxes, select the Azure region you intend to use for this lab and the **Microsoft.Compute** provider entry.
-
+1. Locate the subscription to use in the Azure Portal.
+1. On the subscription blade, under the **Settings** section of the resource menu, select **Usage + quota**.
+1. Once in **Usage + quotas**, next to the **Search** filter select the drop-down box, and choose the Azure region you intend to use for this lab and change the type of resource to **Compute**.
    > Note: We recommend that you use the **South Central US**, **East US** or the **West Europe** regions because these currently are more likely to increase the possibility of successfully raising quota limits for the Azure virtual machine (VM) SKUs required for this lab.
 
 1. Review the listing of existing quotas and determine whether you have sufficient capacity to accommodate a deployment of the following vCPUs:
