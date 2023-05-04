@@ -1,0 +1,154 @@
+---
+# yaml-language-server: $schema=config.schema.json
+
+# azure location name as returned by the command : az account list-locations -o table
+location: westeurope
+# Name of the resource group to create all resources in
+resource_group: azhop_minimum_public_ip
+
+# Define an Azure Netapp Files (ANF) account, single pool and volume
+anf:
+  create: true
+  # Size of the ANF pool and unique volume (min: 4TB, max: 100TB)
+  homefs_size_tb: 4
+  # Service level of the ANF volume, can be: Standard, Premium, Ultra
+  homefs_service_level: Standard
+
+
+# These mounts will be listed in the Files menu of the OnDemand portal and automatically mounted on all compute nodes and remote desktop nodes
+mounts:
+  # mount settings for the user home directory
+  home: # This home name can't be changed
+    type: anf # anf or azurefiles, default to anf. One of the two should be defined in order to mount the home directory
+    mountpoint: /anfhome # /sharedhome for example
+    server: '{{anf_home_ip}}' # Specify an existing NFS server name or IP, when using the ANF built in use '{{anf_home_ip}}'
+    export: '{{anf_home_path}}' # Specify an existing NFS export directory, when using the ANF built in use '{{anf_home_path}}'
+    options: '{{anf_home_opts}}' # Specify the mount options. Default to rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev
+
+# name of the admin account
+admin_user: hpcadmin
+# Network
+network:
+  vnet:
+    name: hpcvnet
+    address_space: "10.0.0.0/23" 
+    subnets:
+    # All values below are the default values
+      frontend:
+        address_prefixes: "10.0.0.0/29"
+      admin:
+        address_prefixes: "10.0.0.16/28"
+      netapp:
+        address_prefixes: "10.0.0.32/28"
+      ad:
+        address_prefixes: "10.0.0.8/29"
+      compute:
+        address_prefixes: "10.0.1.0/24"
+
+# Base image configuration. Can be either an image reference or an image_id from the image registry or a custom managed image
+linux_base_image: "OpenLogic:CentOS:7_9-gen2:latest" # publisher:offer:sku:version or image_id
+windows_base_image: "MicrosoftWindowsServer:WindowsServer:2019-Datacenter-smalldisk:latest" # publisher:offer:sku:version or image_id
+
+# Jumpbox VM configuration, only needed when deploying thru a public IP 
+jumpbox: # rename this to deployer when using bicep if you want to use the deployer VM concept
+  vm_size: Standard_B2ms
+# Active directory VM configuration
+ad:
+  vm_size: Standard_B2ms
+# On demand VM configuration
+ondemand:
+  vm_size: Standard_D4s_v5
+# Grafana VM configuration
+grafana:
+  vm_size: Standard_B2ms
+# Scheduler VM configuration
+scheduler:
+  vm_size: Standard_B2ms
+# CycleCloud VM configuration
+cyclecloud:
+  vm_size: Standard_B2ms
+
+# List of users to be created on this environment
+users:
+  # name: username - must be less than 20 characters
+  # uid: uniqueid
+  # groups: list of groups the user belongs to
+  - { name: clusteradmin, uid: 10001, groups: [5001, 5002] }
+  - { name: hpcuser, uid: 10002 }
+
+usergroups:
+# These groups can’t be changed
+  - name: Domain Users # All users will be added to this one by default
+    gid: 5000
+  - name: az-hop-admins
+    gid: 5001
+    description: "For users with azhop admin privileges"
+  - name: az-hop-localadmins
+    gid: 5002
+    description: "For users with sudo right or local admin right on nodes"
+
+# scheduler to be installed and configured (openpbs, slurm)
+queue_manager: slurm
+
+# Specific SLURM configuration
+slurm:
+  # Enable SLURM accounting, this will create a SLURM accounting database in a managed MariaDB server instance
+  accounting_enabled: false
+  # SLURM version to install. Currently supported: only 20.11.9 and 22.05.3.
+  slurm_version: 20.11.9
+  # Name of the SLURM cluster for accounting (optional, default to 'slurm')
+  # WARNING: changing this value on a running cluster will cause slurmctld to fail to start. This is a
+  # safety check to prevent accounting errors. To override, remove /var/spool/slurmd/clustername
+  cluster_name: slurm_azhop
+
+# List of queues (node arrays in Cycle) to be defined
+# don't use queue names longer than 8 characters in order to leave space for node suffix, as hostnames are limited to 15 chars due to domain join and NETBIOS constraints.
+queues:
+  - name: execute
+    vm_size: Standard_F2s_v2
+    max_core_count: 128
+    image: azhpc:azhop-compute:centos-7_9:latest
+    ColocateNodes: false
+  - name: hc44rs
+    vm_size: Standard_HC44rs
+    max_core_count: 176
+    image: azhpc:azhop-compute:centos-7_9:latest
+    EnableAcceleratedNetworking: true
+  - name: hb120v2
+    vm_size: Standard_HB120rs_v2
+    max_core_count: 480
+    image: azhpc:azhop-compute:centos-7_9:latest
+    EnableAcceleratedNetworking: true
+  - name: hb120v3
+    vm_size: Standard_HB120rs_v3
+    max_core_count: 480
+    image: azhpc:azhop-compute:centos-7_9:latest
+    EnableAcceleratedNetworking: true
+    # Queue dedicated to GPU remote viz nodes. This name is fixed and can't be changed
+  - name: viz3d
+    vm_size: Standard_NV12s_v3
+    max_core_count: 24
+    image: azhpc:azhop-desktop:centos-7_9:latest
+    ColocateNodes: false
+    EnableAcceleratedNetworking: true
+    # Queue dedicated to share GPU remote viz nodes. This name is fixed and can't be changed
+  - name: largeviz3d
+    vm_size: Standard_NV48s_v3
+    max_core_count: 48
+    image: azhpc:azhop-desktop:centos-7_9:latest
+    ColocateNodes: false
+    EnableAcceleratedNetworking: true
+    # Queue dedicated to non GPU remote viz nodes. This name is fixed and can't be changed
+  - name: viz
+    vm_size: Standard_D8s_v5
+    max_core_count: 32
+    image: azhpc:azhop-desktop:centos-7_9:latest
+    ColocateNodes: false
+    EnableAcceleratedNetworking: true
+
+# Application settings
+applications:
+  bc_codeserver:
+    enabled: true
+  bc_jupyter:
+    enabled: true
