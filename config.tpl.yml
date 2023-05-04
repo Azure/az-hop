@@ -170,6 +170,21 @@ lustre_base_image: "azhpc:azurehpc-lustre:azurehpc-lustre-2_12:latest"
 # The lustre plan to use. Only needed when using the default lustre image from the marketplace. use "::" for an empty plan
 lustre_base_plan: "azhpc:azurehpc-lustre:azurehpc-lustre-2_12" # publisher:product:name
 
+domain:
+  name: "hpc.azure"
+  #domain_join_ou: "OU=azhop" # OU to set the machine in. Make sure the OU exists in the domain as it won't be created for you
+  use_existing_dc: false # Set to true if you want to join a domain with existing DC
+  domain_join_user:
+    username: hpcadmin
+    password_key_vault_name: '{{key_vault}}' # name_for_the_key_vault_with_the_domain_join_password
+    password_key_vault_resource_group_name: '{{resource_group}}' # resource_group_name_for_the_key_vault_with_the_domain_join_password
+    password_key_vault_secret_name: 'hpcadmin-password' # key_vault_secret_name_for_the_domain_join_password
+  # additional settings when using an existinf DC
+  existing_dc_details: 
+    domain_controller_names: ["dc1", "dc2"]
+    domain_controller_ip_addresses: ["192.168.1.100", "192.168.1.101"]
+    private_dns_servers: ["192.168.1.53", "192.168.2.53"]
+
 # Jumpbox VM configuration, only needed when deploying thru a public IP and without a configured deployer VM
 jumpbox:
   vm_size: Standard_B2ms
@@ -181,6 +196,7 @@ ad:
   vm_size: Standard_B2ms
   hybrid_benefit: false # Enable hybrid benefit for AD, default to false
   high_availability: false # Build AD in High Availability mode (2 Domain Controlers) - default to false
+
 # On demand VM configuration
 ondemand:
   vm_size: Standard_D4s_v5
@@ -228,13 +244,13 @@ users:
   # - { name: user2, uid: 10004, groups: [6001] }
 
 usergroups:
-# These groups can’t be changed
-  - name: Domain Users # All users will be added to this one by default
+# These group names could be changed but not the gids as names will be mapped by gids
+  - name: azhop-users # All users will be added to this group by default
     gid: 5000
-  - name: az-hop-admins
+  - name: azhop-admins
     gid: 5001
     description: "For users with azhop admin privileges"
-  - name: az-hop-localadmins
+  - name: azhop-localadmins
     gid: 5002
     description: "For users with sudo right or local admin right on nodes"
 # For custom groups use gid >= 6000

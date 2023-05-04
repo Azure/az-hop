@@ -11,7 +11,7 @@
     shell: ssh -i {{ lookup('env', 'PWD') }}/{{ansible_ssh_private_key_file}} -fN -D localhost:5985 -p {{jumpbox_ssh_port}} -p {{jumpbox_ssh_port}} -o StrictHostKeyChecking=no {{admin_user}}@{{ psrp_ssh_proxy }}
     when: (jumpbox is defined)
 
-- name: Remove domain users
+- name: Remove azhop-users
   hosts: ad
   vars_files:
     - '{{global_config_file}}'

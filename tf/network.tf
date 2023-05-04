@@ -12,6 +12,14 @@ resource "azurerm_virtual_network" "azhop" {
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   address_space       = [try(local.configuration_yml["network"]["vnet"]["address_space"], "10.0.0.0/23")]
 }
+
+#set VNet DNS servers if using the customers AD and hub
+# resource "azurerm_virtual_network_dns_servers" "customer_dns" {
+#   count              = local.create_ad ? 0 : 1
+#   virtual_network_id = azurerm_virtual_network.azhop[0].id
+#   dns_servers        = local.private_dns_servers
+#}
+
 # Resource group of the existing vnet
 data "azurerm_resource_group" "rg_vnet" {
   count    = local.create_vnet ? 0 : 1
@@ -77,7 +85,7 @@ resource "azurerm_subnet" "netapp" {
 
 # ad subnet
 data "azurerm_subnet" "ad" {
-  count                = local.create_ad_subnet ? 0 : 1
+  count                = local.create_ad_subnet ? 0 : (local.create_ad ? 1 : 0)
   name                 = try(local.configuration_yml["network"]["vnet"]["subnets"]["ad"]["name"], "ad")
   resource_group_name  = try(split("/", local.vnet_id)[4], "foo")
   virtual_network_name = try(split("/", local.vnet_id)[8], "foo")
@@ -140,9 +148,9 @@ resource "azurerm_subnet" "compute" {
   service_endpoints    = ["Microsoft.Storage"]
 }
 
-# outbounddns subnet
+# outbounddns subnet - if using existing AD then a resolver won't be created as part of the deployment
 data "azurerm_subnet" "outbounddns" {
-  count                = local.create_outbounddns_subnet ? 0 : (local.no_outbounddns_subnet ? 0 : 1)
+  count                = local.create_outbounddns_subnet ? 0 : (local.create_ad ? (local.no_outbounddns_subnet ? 0 : 1) : 0)
   name                 = try(local.configuration_yml["network"]["vnet"]["subnets"]["outbounddns"]["name"], "outbounddns")
   resource_group_name  = try(split("/", local.vnet_id)[4], "foo")
   virtual_network_name = try(split("/", local.vnet_id)[8], "foo")
@@ -163,3 +171,4 @@ resource "azurerm_subnet" "outbounddns" {
     }
   }
 }
+

@@ -127,6 +127,10 @@
                         "$ref": "#/definitions/Usergroup"
                     }
                 },
+                "domain": {
+                    "description": "Domain definition",
+                    "$ref": "#/definitions/Domain"
+                },
                 "cvmfs_eessi": {
                     "description": "Enable CernVM virtual file system for European Environment for Scientific Software Installations",
                     "$ref": "#/definitions/CVMFS"
@@ -214,7 +218,6 @@
                 }
             },
             "required": [
-                "ad",
                 "admin_user",
                 "applications",
                 "authentication",
@@ -281,17 +284,21 @@
             "additionalProperties": false,
             "properties": {
                 "vm_size": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The size of VM to use when deploying a new active directory domain as part of AZHOP"
                 },
                 "hybrid_benefit": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "description": "Will hybrid benefit be used on the vm that is running the active directory domain vm being deployed for az-hop.",
+                    "default": false
                 },
                 "high_availability": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "description": "Should a second domain controller be deployed when include a new active directory with the az-hop deployment.",
+                    "default": false
                 }
             },
             "required": [
-                "vm_size"
             ],
             "title": "az-hopAd"
         },
@@ -348,6 +355,69 @@
             ],
             "title": "Azurefiles"
         },
+        "Domain": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "The domain name that the Az-Hop infrastructure will use.",
+                    "default": "hpc.azure"
+                },
+                "domain_join_ou": {
+                    "type": "string",
+                    "description": "The domain OU where new AZ-HOP computer objects will be added to the domain."
+                },
+                "use_existing_dc": {
+                    "type": "boolean",
+                    "description": "Flag for identifying whether an existing Active Directory should be used or if an AD controller should be deployed with AZ-HOP",
+                    "default": false
+                },
+                "domain_join_user": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "username": {
+                            "type": "string",
+                            "description": "The username of the account that will be used to perform domain join activities."
+                        },
+                        "password_key_vault_name": {
+                            "type": "string",
+                            "description": "The name of the keyvault where the domain join user's password will be stored as a secret. The identity being used for the deployment will need to have secret read on this vault."
+                        },
+                        "password_key_vault_resource_group_name": {
+                            "type": "string",
+                            "description": "The resource group name where the key vault holding the domain join user secret is deployed."
+                        },
+                        "password_key_vault_secret_name": {
+                            "type": "string",
+                            "description": "The name of the secret for the domain join user password."
+                        }
+                    }
+                },
+                "existing_dc_details": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties":{
+                        "domain_controller_names": {
+                            "type": "array",
+                            "description": "A list of hostnames for the domain controllers that will be used as a target for az-hop domain activities."
+                        },
+                        "domain_controller_ip_addresses": {
+                            "type": "array",
+                            "description": "A list of IP addresses for the existing domain controllers for use in ASG and NSG rules allowing domain access."
+                        },
+                        "private_dns_servers": {
+                            "type": "array",
+                            "description": "A list of IP addresses for the existing DNS servers where the AD domain records exist."
+                        }
+                    }
+                }
+            },
+            "required": [
+            ],
+            "title": "Domain"
+        },
         "Applications": {
             "type": "object",
             "additionalProperties": true,
@@ -358,7 +428,7 @@
                 "bc_jupyter": {
                     "$ref": "#/definitions/ood_app"
                 },
-		"bc_rstudio": {
+                "bc_rstudio": {
                     "$ref": "#/definitions/ood_app"
                 },
                 "bc_ansys_workbench": {
@@ -865,7 +935,6 @@
                 }
             },
             "required": [
-                "ad",
                 "admin",
                 "compute",
                 "frontend",

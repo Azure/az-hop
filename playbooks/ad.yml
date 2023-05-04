@@ -84,11 +84,11 @@
           post_reboot_delay: 600
         when: ad_promotion.reboot_required
 
-      - name: update gidnumber Domain Users 
-        community.windows.win_domain_group:
-          name: Domain Users
-          attributes:
-            gidnumber: "{{ (usergroups | selectattr('name', 'match', 'Domain Users') | map(attribute='gid')) | default(5000, true) }}"
+      # - name: update gidnumber azhop-users
+      #   community.windows.win_domain_group:
+      #     name: "{{ (usergroups | selectattr('gid', 'eq', 5000) | map(attribute='name'))[0]}}"
+      #     attributes:
+      #       gidnumber: 5000
 
       - name: Disable password expiration
         win_domain_user:

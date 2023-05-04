@@ -18,6 +18,7 @@ AZHOP_FROM=local
 TF_FOLDER=$THIS_DIR/tf
 TF_TARGET=
 VALIDATE_CONFIG=true
+VERBOSE=0
 
 function usage()
 {

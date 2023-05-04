@@ -1,58 +1,83 @@
 ---
-- name: prep socks tunnel
-  hosts: localhost
-  connection: local
-  gather_facts: no
-  vars_files:
-    - '{{global_config_file}}'
+# - name: prep socks tunnel
+#   hosts: localhost
+#   connection: local
+#   gather_facts: no
+#   vars_files:
+#     - '{{global_config_file}}'
 
-  tasks:
-  - name: start socks tunnel
-    shell: |
-      ps aux | grep localhost:5985 | grep -v grep | awk '{print "kill -9 " $2}' | sh
-      ssh -i {{ lookup('env', 'PWD') }}/{{ansible_ssh_private_key_file}} -fN -D localhost:5985 -p {{jumpbox_ssh_port}} -o StrictHostKeyChecking=no {{admin_user}}@{{ psrp_ssh_proxy }}
-    when: (jumpbox is defined)
+  # tasks:
+  # - name: start socks tunnel
+  #   shell: |
+  #     ps aux | grep localhost:5985 | grep -v grep | awk '{print "kill -9 " $2}' | sh
+  #     ssh -i {{ lookup('env', 'PWD') }}/{{ansible_ssh_private_key_file}} -fN -D localhost:5985 -p {{jumpbox_ssh_port}} -o StrictHostKeyChecking=no {{admin_user}}@{{ psrp_ssh_proxy }}
+  #   when: (jumpbox is defined)
 
-- name: Add domain users
+- name: Add azhop-users
   hosts: ad
-  vars_files:
-    - '{{global_config_file}}'
-
-  tasks:
-  - name: Update azhop groups gidnumber
-    community.windows.win_domain_group:
-      name: '{{item.name}}'
-      state: present
-      description: '{{item.description | default("az-hop group - item.name")}}'
-      scope: domainlocal
-      attributes:
-        gidnumber: '{{item.gid}}'
-    loop: "{{usergroups  | selectattr('gid', 'ge', 5001) }}"
-
-  - include: create_user.yml user="{{item}}"
-    with_items: '{{users}}'
-    when: users is defined
-
-- name: close socks tunnel
-  hosts: localhost
-  connection: local
   gather_facts: no
-  tasks:
-  - name: close session on local port
-    shell: ps aux | grep localhost:5985 | grep -v grep | awk '{print "kill -9 " $2}' | sh
-    ignore_errors: true
-    when: (jumpbox is defined)
-
-- name: Configure Users
-  hosts: ondemand
-  become: true
   vars_files:
     - '{{global_config_file}}'
 
   tasks:
-  - include: init_user.yml user="{{item}}"
-    with_items: '{{users}}'
-    when: users is defined
+  - name: Configure and handle errors
+    block:
+      - name: cleanup any remaining socks tunnel
+        shell: ps aux | grep localhost:5985 | grep -v grep | awk '{print "kill -9 " $2}' | sh
+        delegate_to: localhost
+        connection: local
+        ignore_errors: true
+        when: (jumpbox is defined)
+
+      - name: start socks tunnel
+        shell: ssh -i {{ lookup('env', 'PWD') }}/{{ansible_ssh_private_key_file}} -fN -D localhost:5985 -p {{jumpbox_ssh_port}} -o StrictHostKeyChecking=no {{admin_user}}@{{ psrp_ssh_proxy }}
+        delegate_to: localhost
+        connection: local
+        when: (jumpbox is defined)
+
+      - name: Create azhop groups and set gidnumbers
+        community.windows.win_domain_group:
+          name: '{{item.name}}'
+          state: present
+          description: '{{item.description | default(item.name)}}'
+          scope: global
+          attributes:
+            gidnumber: '{{item.gid}}'
+        loop: "{{usergroups  | selectattr('gid', 'ge', 5000) }}"
+
+      - include: create_user.yml user="{{item}}"
+        with_items: '{{users}}'
+        when: users is defined
+    always:
+      - name: close session on local port
+        shell: ps aux | grep localhost:5985 | grep -v grep | awk '{print "kill -9 " $2}' | sh
+        delegate_to: localhost
+        connection: local
+        ignore_errors: true
+        when: (jumpbox is defined)
+    when: "(false if ((domain is defined) and (not domain.use_existing_dc)) else true)"
+
+# - name: close socks tunnel
+#   hosts: localhost
+#   connection: local
+#   gather_facts: no
+#   tasks:
+#   - name: close session on local port
+#     shell: ps aux | grep localhost:5985 | grep -v grep | awk '{print "kill -9 " $2}' | sh
+#     ignore_errors: true
+#     when: (jumpbox is defined)
+
+# - name: Configure Users
+#   hosts: ondemand
+#   become: true
+#   vars_files:
+#     - '{{global_config_file}}'
+
+# No longer needed as now user env is initialize thru the PUN hook script
+  # tasks:
+  # - include: init_user.yml user="{{item}}"
+  #   with_items: '{{users}}'
+  #   when: users is defined
 
 - name: Configure users in CycleCloud
   hosts: ccportal
