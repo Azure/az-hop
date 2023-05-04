@@ -61,6 +61,7 @@
       * [Domain pre-requisites](#domain-pre-requisites)
       * [azhop configuration file](#azhop-configuration-file)
       * [Deploy and configure your environemnt](#deploy-and-configure-your-environemnt)
+* [Terraform and Bicep coverage table](#terraform-and-bicep-coverage-table)
 * [Helper Scripts](#helper-scripts)
    * [ansible_prereqs.sh](#ansible_prereqssh)
    * [azhop_states.sh](#azhop_statessh)
@@ -386,6 +387,7 @@ use_existing_rg: false
 log_analytics:
   create: true
   # An existing log analytics workspace can be used instead. The resource group, name and subscription id of the workspace will need to be specified.
+  # Grant the role "Log Analytics Contributor" on the target Log Analytics Workspace for the identity used to deploy az-hop
   #resource_group:
   #name:
   #subscription_id: # Optional, if not specified the current subscription will be used
@@ -926,13 +928,14 @@ export ARM_TENANT_ID=<tenant_id>
 
 ### Build the Azure infrastructure
 
-Building the infrastructure is done thru the `build.sh` utility script, which reads the `config.yml` file and calls terraform.
+Building the infrastructure is done thru the `build.sh` utility script, which reads the `config.yml` file and call terraform or bicep. Please see [Terraform and Bicep coverage table](#terraform-and-bicep-coverage-table) to understand the differences.
 
 ```bash
 $ ./build.sh
 Usage build.sh 
   Required arguments:
-    -a|--action [plan, apply, destroy] 
+    -a|--action [plan, apply, destroy]
+    -l|--language <tf, bicep>   - deployment language to use, default is tf
    
   Optional arguments:
     -f|-folder <relative path> - relative folder name containing the terraform files, default is ./tf
@@ -1539,6 +1542,53 @@ users:
 
 ### Deploy and configure your environemnt
 Once all the pre-requisites are satisfied, you can deploy the `azhop` environment as usual.
+# Terraform and Bicep coverage table
+As we made progress in using bicep as a deployment tool, the table below shows the difference in coverage between the two.
+
+| Component | Terraform | Bicep |
+| --------- | --------- | ----- |
+| Use an existing VNET | [x] | [ ] |
+| Monitoring | [x] | [ ] |
+| Alerting | [x] | [ ] |
+| NFS Files as Home | [ ] | [x] |
+| Private DNS Resolver | [x] | [ ] |
+| Optionally deploy Compute Gallery | [ ] | [x] |
+| Optionally deploy a Bastion | [ ] | [x] |
+| Create the deployer VM | [ ] | [x] |
+
+> Note : Please note that when using Bicep, resources won't be destroyed as opposed to Terraform when resources are not sync with the terraform state file.
+
+To automatically have bicep build a deployer VM and deploy from there, just rename the jumpbox section to deployer. This will create a deployer VM and deploy from there thru a cloud init script. After the bicep deployment is finished, connect to the deployer VM :
+
+   ```bash
+   ./bin/connect.sh deployer
+   ```
+
+Once connected in the `deployer` VM run the following command to display the cloud init log content
+
+   ```bash
+   tail -f /var/log/cloud-init-output.log
+
+   Friday 21 October 2022  14:06:09 +0000 (0:00:02.071)       0:00:05.380 ********
+   ===============================================================================
+   chrony ------------------------------------------------------------------ 5.19s
+   include_role ------------------------------------------------------------ 0.13s
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   total ------------------------------------------------------------------- 5.32s
+   ```
+
+Once the cloud init script is finished you should have these 2 lines at the end of the log
+   ```
+   Cloud-init v. 22.3.4-0ubuntu1~20.04.1 running 'modules:final' at Fri, 21 Oct 2022 13:22:56 +0000. Up 22.03 seconds.
+   Cloud-init v. 22.3.4-0ubuntu1~20.04.1 finished at Fri, 21 Oct 2022 14:06:09 +0000. Datasource DataSourceAzure [seed=/dev/sr0].  Up 2614.99 seconds
+   ```
+
+> Note : The Cloud Init step is taking about 40 minutes
+
+Confirm there are no errors in the playbooks execution by running this command
+   ```
+   grep "failed=1" /var/log/cloud-init-output.log
+   ```
 
 # Helper Scripts
 

@@ -19,6 +19,7 @@ use_existing_rg: false
 log_analytics:
   create: true
   # An existing log analytics workspace can be used instead. The resource group, name and subscription id of the workspace will need to be specified.
+  # Grant the role "Log Analytics Contributor" on the target Log Analytics Workspace for the identity used to deploy az-hop
   #resource_group:
   #name:
   #subscription_id: # Optional, if not specified the current subscription will be used
