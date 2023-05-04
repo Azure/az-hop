@@ -1,6 +1,0 @@
-{% for asg in asgs %}
-resource {{ asg | replace('-', '_') }} 'Microsoft.Network/applicationSecurityGroups@2021-08-01' = {
-  name: '{{ asg }}'
-  location: location
-}
-{%- endfor %}

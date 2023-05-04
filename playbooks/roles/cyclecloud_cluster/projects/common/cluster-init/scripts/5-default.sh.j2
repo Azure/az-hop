@@ -11,8 +11,9 @@ chmod 700 -R /mnt/cluster-init
 [ -d /mnt/resource ] || mkdir /mnt/resource
 chmod 777 /mnt/resource
 
-# Grant sudo for users in the az-hop-localadmins group
-echo "%az-hop-localadmins ALL=(ALL) NOPASSWD: ALL" | tee -a /etc/sudoers.d/az-hop-localadmins
+# Fix slurm compatibility issue with Ubuntu 18.04
+# slurmd binary expects 'su' in /usr/bin
+[ -e /usr/bin/su ] || ln -s /bin/su /usr/bin/su
 
 # For any NV instances, reinit the session
 VM_SIZE=$(curl -s --noproxy "*" -H Metadata:true "http://169.254.169.254/metadata/instance/compute?api-version=2019-08-15" | jq -r '.vmSize' | tr '[:upper:]' '[:lower:]' | sed 's/standard_//')
@@ -41,10 +42,3 @@ if [ -a /usr/lib/systemd/system/azsecd.service ] ; then
   echo "Disabled azsecd service"
 fi
 
-#This is to add domain users for enabling ssh among the VM's
-cat <<EOF >>/etc/ssh/sshd_config
-Match group "domain users"
-  AllowUsers *
-AllowUsers hpcadmin
-EOF
-systemctl restart sshd

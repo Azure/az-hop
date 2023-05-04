@@ -27,6 +27,12 @@
     register: password
     become: false
 
+  - name: Read AD Join Password from KV
+    command: az keyvault secret show --vault-name {{key_vault}} -n {{ad_join_user}}-password --query "value" -o tsv
+    delegate_to: localhost
+    connection: local
+    register: ad_join_password
+    become: false
 
   - name: Init image lookup file
     shell: |
@@ -102,6 +108,7 @@
       cc_subnetid: '{{compute_subnetid}}'
       cc_admin_user: '{{admin_user}}'
       cc_password: '{{password.stdout}}'
+      cc_ad_join_password: '{{ad_join_password.stdout}}'
       cc_queues: '{{queues}}'
       cc_remoteviz: '{{remoteviz}}'
       cc_image_lookup: '{{image_lookup}}'
@@ -115,7 +122,7 @@
       slurm_gid: 11100
       munge_uid: 11101
       munge_gid: 11101
-      enroot_enabled: '{{slurm.enroot_enabled | default(false)}}'
+      enroot_version: '{{enroot.enroot_version | default("3.4.1")}}'
       enroot_scratch_dir: '/mnt/resource'
       cvmfs_eessi_enabled: '{{cvmfs_eessi.enabled | default(false)}}'
       cc_enable_remote_winviz: '{{enable_remote_winviz | default(false)}}'

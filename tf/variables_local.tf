@@ -1,8 +1,22 @@
 locals {
     # azure environment
+    public_cloud_endpoints = {
+        KeyVaultSuffix =  "vault.azure.net"
+        BlobStorageSuffix = "blob.core.windows.net"
+        MariaDBPrivateLink = "privatelink.mariadb.database.azure.com"
+    }
+    usgov_cloud_endpoints = {
+        KeyVaultSuffix =  "vault.usgovcloudapi.net"
+        BlobStorageSuffix = "blob.core.usgovcloudapi.net"
+        MariaDBPrivateLink = "privatelink.mariadb.database.usgovcloudapi.net"
+    }
+    azure_endpoints = {
+        AZUREPUBLICCLOUD = local.public_cloud_endpoints
+        AZUREUSGOVERNMENTCLOUD = local.usgov_cloud_endpoints
+    }
     azure_environment = var.AzureEnvironment
-    key_vault_suffix = var.KeyVaultSuffix
-    blob_storage_suffix = var.BlobStorageSuffix
+    key_vault_suffix = local.azure_endpoints[local.azure_environment].KeyVaultSuffix #var.KeyVaultSuffix
+    blob_storage_suffix = local.azure_endpoints[local.azure_environment].BlobStorageSuffix #var.BlobStorageSuffix
 
     # azurerm_client_config contains empty values for Managed Identity so use variables instead
     tenant_id = var.tenant_id
@@ -56,8 +70,44 @@ locals {
     }
     TEMPLATE
 
-    ad_ha = try(local.configuration_yml["ad"].high_availability, false)
-    domain_controlers = local.ad_ha ? {ad="ad", ad2="ad2"} : {ad="ad"}
+    # Log Analytics
+    create_log_analytics_workspace = try(local.configuration_yml["log_analytics"]["create"], false)
+    log_analytics_name = try(local.configuration_yml["log_analytics"]["name"], null)
+    log_analytics_resource_group = try(local.configuration_yml["log_analytics"]["resource_group"], null)
+    log_analytics_subscription_id = try(local.configuration_yml["log_analytics"]["subscription_id"], data.azurerm_subscription.primary.subscription_id)
+    log_analytics_workspace_id = try("/subscriptions/${local.log_analytics_subscription_id}/resourceGroups/${local.log_analytics_resource_group}/providers/Microsoft.OperationalInsights/workspaces/${local.log_analytics_name}", null)
+    use_existing_ws = ( !local.create_log_analytics_workspace && local.log_analytics_workspace_id != null )  ? true : false
+     
+    monitor = ( local.create_log_analytics_workspace || local.use_existing_ws ) ? true : false
+    ama_install = try(local.configuration_yml["monitoring"]["install_agent"], true) && local.monitor ? true : false
+
+    alert_email = try(local.configuration_yml["alerting"]["admin_email"], "admin.mail@contoso.com")
+
+    #For alerting to be enabled - the analytics workspace needs to be created since log alerts are leveraged. 
+    #We also need to ensure that we have an email to send alerts to.  
+    create_alerts = local.monitor && local.alert_email != "admin.mail@contoso.com" && try(local.configuration_yml["alerting"]["enabled"], false) ? true : false
+    anf_vol_threshold = try(local.configuration_yml["anf"]["alert_threshold"], 80)  # default to 80% if not specified 
+
+    # will be used with a KQL query that checks the free space percentage of local volumes
+    # if the user wants to create an alert when local volumes are 80% full, then the free space percentage should be 20%
+    local_vol_threshold = 100 - try(local.configuration_yml["alerting"]["local_volume_threshold"], 20) 
+
+    mounts = try(local.configuration_yml["mounts"], {})
+    mountpoints =  [ for mount in local.mounts : mount.mountpoint ]
+    mountpoints_str = "[ ${join(",", [for mp in local.mountpoints : format("%q", mp)])} ]" //necessary to build generic KQL query on local volumes
+
+    # Active Directory values
+    # Updates the assumptions to the possibility that DNS may not point to Active Directory when using the customer provided AD.
+    create_ad             = !try(local.configuration_yml["domain"].use_existing_dc, false)
+    domain_name           = local.create_ad ? "hpc.azure" : local.configuration_yml["domain"].name 
+    domain_join_user      = local.create_ad ? local.admin_username : local.configuration_yml["domain"].domain_join_user.username
+    domain_join_password  = local.create_ad ? random_password.password.result : data.azurerm_key_vault_secret.domain_join_password[0].value
+    domain_join_ou        = local.create_ad ? "CN=Computers" : local.configuration_yml["domain"].domain_join_ou
+    ad_ha                 = try(local.configuration_yml["ad"].high_availability, false)
+    domain_controlers     = local.create_ad ? (local.ad_ha ? {ad="ad", ad2="ad2"} : {ad="ad"}) : zipmap(local.configuration_yml["domain"].existing_dc_details.domain_controller_names, local.configuration_yml["domain"].existing_dc_details.domain_controller_names)
+    ldap_server           = local.create_ad ? "ad" : local.configuration_yml["domain"].existing_dc_details.domain_controller_names[0]
+    private_dns_servers   = local.create_ad ? (local.ad_ha ? [azurerm_network_interface.ad-nic[0].private_ip_address, azurerm_network_interface.ad2-nic[0].private_ip_address] : [azurerm_network_interface.ad-nic[0].private_ip_address]) : local.configuration_yml["domain"].existing_dc_details.private_dns_servers
+    domain_controller_ips = local.create_ad ? (local.ad_ha ? [azurerm_network_interface.ad-nic[0].private_ip_address, azurerm_network_interface.ad2-nic[0].private_ip_address] : [azurerm_network_interface.ad-nic[0].private_ip_address]) : local.configuration_yml["domain"].existing_dc_details.domain_controller_ip_addresses
 
     # Use a linux custom image reference if the linux_base_image is defined and contains ":"
     use_linux_image_reference = try(length(split(":", local.configuration_yml["linux_base_image"])[1])>0, false)
@@ -152,6 +202,7 @@ locals {
     use_existing_database = try(length(local.configuration_yml["database"].fqdn) > 0 ? true : false, false)
 #    slurm_accounting = local.enable_remote_winviz || try(local.configuration_yml["slurm"].accounting_enabled, false)
     database_user = local.create_database ? "sqladmin" : (local.use_existing_database ? try(local.configuration_yml["database"].user, "") : "")
+    mariadb_private_dns_zone = local.azure_endpoints[local.azure_environment].MariaDBPrivateLink
 
     # VNET
     create_vnet = try(length(local.vnet_id) > 0 ? false : true, true)
@@ -167,7 +218,6 @@ locals {
     jumpbox_ssh_port    = try(local.configuration_yml["jumpbox"]["ssh_port"], "22")
     # subnets
     _subnets = {
-        ad = "ad",
         frontend = "frontend",
         admin = "admin",
         netapp = "netapp",
@@ -178,8 +228,11 @@ locals {
     create_frontend_subnet = try(local.configuration_yml["network"]["vnet"]["subnets"]["frontend"]["create"], local.create_vnet )
     create_admin_subnet    = try(local.configuration_yml["network"]["vnet"]["subnets"]["admin"]["create"], local.create_vnet )
     create_netapp_subnet   = try(local.configuration_yml["network"]["vnet"]["subnets"]["netapp"]["create"], local.create_vnet )
-    create_ad_subnet       = try(local.configuration_yml["network"]["vnet"]["subnets"]["ad"]["create"], local.create_vnet )
     create_compute_subnet  = try(local.configuration_yml["network"]["vnet"]["subnets"]["compute"]["create"], local.create_vnet )
+
+    ad_subnet        = try(local.configuration_yml["network"]["vnet"]["subnets"]["ad"], null)
+    no_ad_subnet     = try(length(local.ad_subnet) > 0 ? false : true, true)
+    create_ad_subnet = try(local.ad_subnet["create"], (local.create_ad ? local.create_vnet : false))
 
     bastion_subnet = try(local.configuration_yml["network"]["vnet"]["subnets"]["bastion"], null)
     no_bastion_subnet = try(length(local.bastion_subnet) > 0 ? false : true, true )
@@ -257,9 +310,9 @@ locals {
         Ssh    = ["22"]
         Public_Ssh = [local.jumpbox_ssh_port]
         # DNS, Kerberos, RpcMapper, Ldap, Smb, KerberosPass, LdapSsl, LdapGc, LdapGcSsl, AD Web Services, RpcSam
-        DomainControlerTcp = ["53", "88", "135", "389", "445", "464", "686", "3268", "3269", "9389", "49152-65535"]
+        DomainControlerTcp = ["53", "88", "135", "389", "445", "464", "636", "3268", "3269", "9389", "49152-65535"]
         # DNS, Kerberos, W32Time, NetBIOS, Ldap, KerberosPass, LdapSsl
-        DomainControlerUdp = ["53", "88", "123", "138", "389", "464", "686"]
+        DomainControlerUdp = ["53", "88", "123", "138", "389", "464", "636"]
         # Web, NoVNC, WebSockify
         NoVnc = ["80", "443", "5900-5910", "61001-61010"]
         Dns = ["53"]
@@ -279,6 +332,13 @@ locals {
         Guacamole = ["8080"]
         # WinRM
         WinRM = ["5985", "5986"]
+    }
+
+    #Replace the AD ASG with domain controller IP addresses when customer is bringing their own AD
+    #use an indexing concept since we can't substitute a list for a string
+    ad_nsg_index = local.create_ad ? "asg/asg-ad" : "ips/dc_ips"
+    ips = {
+        dc_ips = local.domain_controller_ips
     }
 
     # Array of NSG rules to be applied on the common NSG
@@ -301,16 +361,16 @@ locals {
         #                          ###    #    #  #####    ####    ####   #    #  #####
         # ================================================================================================================================================================
         # AD communication
-        AllowAdServerTcpIn          = ["220", "Inbound", "Allow", "Tcp", "DomainControlerTcp", "asg/asg-ad",        "asg/asg-ad-client"],
-        AllowAdServerUdpIn          = ["230", "Inbound", "Allow", "Udp", "DomainControlerUdp", "asg/asg-ad",        "asg/asg-ad-client"],
-        AllowAdClientTcpIn          = ["240", "Inbound", "Allow", "Tcp", "DomainControlerTcp", "asg/asg-ad-client", "asg/asg-ad"],
-        AllowAdClientUdpIn          = ["250", "Inbound", "Allow", "Udp", "DomainControlerUdp", "asg/asg-ad-client", "asg/asg-ad"],
-        AllowAdServerComputeTcpIn   = ["260", "Inbound", "Allow", "Tcp", "DomainControlerTcp", "asg/asg-ad",        "subnet/compute"],
-        AllowAdServerComputeUdpIn   = ["270", "Inbound", "Allow", "Udp", "DomainControlerUdp", "asg/asg-ad",        "subnet/compute"],
-        AllowAdClientComputeTcpIn   = ["280", "Inbound", "Allow", "Tcp", "DomainControlerTcp", "subnet/compute",    "asg/asg-ad"],
-        AllowAdClientComputeUdpIn   = ["290", "Inbound", "Allow", "Udp", "DomainControlerUdp", "subnet/compute",    "asg/asg-ad"],
-        AllowAdServerNetappTcpIn    = ["300", "Inbound", "Allow", "Tcp", "DomainControlerTcp", "subnet/netapp",      "asg/asg-ad"],
-        AllowAdServerNetappUdpIn    = ["310", "Inbound", "Allow", "Udp", "DomainControlerUdp", "subnet/netapp",      "asg/asg-ad"],
+        AllowAdServerTcpIn        = ["220", "Inbound", "Allow", "Tcp", "DomainControlerTcp", local.ad_nsg_index, "asg/asg-ad-client"],
+        AllowAdServerUdpIn        = ["230", "Inbound", "Allow", "Udp", "DomainControlerUdp", local.ad_nsg_index, "asg/asg-ad-client"],
+        AllowAdClientTcpIn        = ["240", "Inbound", "Allow", "Tcp", "DomainControlerTcp", "asg/asg-ad-client", local.ad_nsg_index],
+        AllowAdClientUdpIn        = ["250", "Inbound", "Allow", "Udp", "DomainControlerUdp", "asg/asg-ad-client", local.ad_nsg_index],
+        AllowAdServerComputeTcpIn = ["260", "Inbound", "Allow", "Tcp", "DomainControlerTcp", local.ad_nsg_index, "subnet/compute"],
+        AllowAdServerComputeUdpIn = ["270", "Inbound", "Allow", "Udp", "DomainControlerUdp", local.ad_nsg_index, "subnet/compute"],
+        AllowAdClientComputeTcpIn = ["280", "Inbound", "Allow", "Tcp", "DomainControlerTcp", "subnet/compute", local.ad_nsg_index],
+        AllowAdClientComputeUdpIn = ["290", "Inbound", "Allow", "Udp", "DomainControlerUdp", "subnet/compute", local.ad_nsg_index],
+        AllowAdServerNetappTcpIn  = ["300", "Inbound", "Allow", "Tcp", "DomainControlerTcp", "subnet/netapp", local.ad_nsg_index],
+        AllowAdServerNetappUdpIn  = ["310", "Inbound", "Allow", "Udp", "DomainControlerUdp", "subnet/netapp", local.ad_nsg_index],
 
         # SSH internal rules
         AllowSshFromJumpboxIn       = ["320", "Inbound", "Allow", "Tcp", "Ssh",                "asg/asg-jumpbox",   "asg/asg-ssh"],
@@ -376,16 +436,16 @@ locals {
         #                            #######   ####      #    #####    ####    ####   #    #  #####
         # ================================================================================================================================================================
         # AD communication
-        AllowAdClientTcpOut         = ["200", "Outbound", "Allow", "Tcp", "DomainControlerTcp", "asg/asg-ad-client", "asg/asg-ad"],
-        AllowAdClientUdpOut         = ["210", "Outbound", "Allow", "Udp", "DomainControlerUdp", "asg/asg-ad-client", "asg/asg-ad"],
-        AllowAdClientComputeTcpOut  = ["220", "Outbound", "Allow", "Tcp", "DomainControlerTcp", "subnet/compute",    "asg/asg-ad"],
-        AllowAdClientComputeUdpOut  = ["230", "Outbound", "Allow", "Udp", "DomainControlerUdp", "subnet/compute",    "asg/asg-ad"],
-        AllowAdServerTcpOut         = ["240", "Outbound", "Allow", "Tcp", "DomainControlerTcp", "asg/asg-ad",        "asg/asg-ad-client"],
-        AllowAdServerUdpOut         = ["250", "Outbound", "Allow", "Udp", "DomainControlerUdp", "asg/asg-ad",        "asg/asg-ad-client"],
-        AllowAdServerComputeTcpOut  = ["260", "Outbound", "Allow", "Tcp", "DomainControlerTcp", "asg/asg-ad",        "subnet/compute"],
-        AllowAdServerComputeUdpOut  = ["270", "Outbound", "Allow", "Udp", "DomainControlerUdp", "asg/asg-ad",        "subnet/compute"],
-        AllowAdServerNetappTcpOut   = ["280", "Outbound", "Allow", "Tcp", "DomainControlerTcp", "asg/asg-ad",        "subnet/netapp"],
-        AllowAdServerNetappUdpOut   = ["290", "Outbound", "Allow", "Udp", "DomainControlerUdp", "asg/asg-ad",        "subnet/netapp"],
+        AllowAdClientTcpOut        = ["200", "Outbound", "Allow", "Tcp", "DomainControlerTcp", "asg/asg-ad-client", local.ad_nsg_index],
+        AllowAdClientUdpOut        = ["210", "Outbound", "Allow", "Udp", "DomainControlerUdp", "asg/asg-ad-client", local.ad_nsg_index],
+        AllowAdClientComputeTcpOut = ["220", "Outbound", "Allow", "Tcp", "DomainControlerTcp", "subnet/compute", local.ad_nsg_index],
+        AllowAdClientComputeUdpOut = ["230", "Outbound", "Allow", "Udp", "DomainControlerUdp", "subnet/compute", local.ad_nsg_index],
+        AllowAdServerTcpOut        = ["240", "Outbound", "Allow", "Tcp", "DomainControlerTcp", local.ad_nsg_index, "asg/asg-ad-client"],
+        AllowAdServerUdpOut        = ["250", "Outbound", "Allow", "Udp", "DomainControlerUdp", local.ad_nsg_index, "asg/asg-ad-client"],
+        AllowAdServerComputeTcpOut = ["260", "Outbound", "Allow", "Tcp", "DomainControlerTcp", local.ad_nsg_index, "subnet/compute"],
+        AllowAdServerComputeUdpOut = ["270", "Outbound", "Allow", "Udp", "DomainControlerUdp", local.ad_nsg_index, "subnet/compute"],
+        AllowAdServerNetappTcpOut  = ["280", "Outbound", "Allow", "Tcp", "DomainControlerTcp", local.ad_nsg_index, "subnet/netapp"],
+        AllowAdServerNetappUdpOut  = ["290", "Outbound", "Allow", "Udp", "DomainControlerUdp", local.ad_nsg_index, "subnet/netapp"],
 
         # CycleCloud
         AllowCycleServerOut         = ["300", "Outbound", "Allow", "Tcp", "CycleCloud",         "asg/asg-cyclecloud",        "asg/asg-cyclecloud-client"],

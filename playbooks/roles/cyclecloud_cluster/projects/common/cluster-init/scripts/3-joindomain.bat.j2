@@ -1,7 +1,7 @@
 
 reg add "HKLM\System\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
 
-Powershell.exe -executionpolicy remotesigned try { $password = ConvertTo-SecureString "{{ cc_password | replace("%", "%%")}}" -asPlainText -Force; $credential = New-Object System.Management.Automation.PSCredential('{{ domain_name }}\{{ ad_join_user }}',$password); Add-Computer -DomainName '{{ domain_name }}' -Credential $credential } catch { exit 255 }
+Powershell.exe -executionpolicy remotesigned try { $password = ConvertTo-SecureString "{{ cc_ad_join_password | replace("%", "%%")}}" -asPlainText -Force; $credential = New-Object System.Management.Automation.PSCredential('{{ domain_name }}\{{ ad_join_user }}',$password); Add-Computer -DomainName '{{ domain_name }}' -Credential $credential } catch { exit 255 }
 
 if %ERRORLEVEL% neq 0 ( 
    exit 1

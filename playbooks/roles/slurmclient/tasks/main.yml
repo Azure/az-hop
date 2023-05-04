@@ -87,4 +87,3 @@
       with_items:
         - plugstack.conf
         - plugstack.conf.d
-  when: enroot_enabled == true

@@ -1,6 +1,8 @@
 ---
 # yaml-language-server: $schema=config.schema.json
 
+# name of the cluster
+project_name: az-hop
 # azure location name as returned by the command : az account list-locations -o table
 location: westeurope
 # Name of the resource group to create all resources
@@ -10,6 +12,27 @@ resource_group: azhop
 use_existing_rg: false
 # If set to true, will disable telemetry for azhop. See https://azure.github.io/az-hop/deploy/telemetry.html.
 #optout_telemetry: true
+
+# A log analytics workspace can be created for monitoring or alerting 
+# Alternatively, you can use an existing workspace. 
+# To use an existing workspace set create to false and specify the resource group, name and subscription the target workspace lives in
+log_analytics:
+  create: true
+  # An existing log analytics workspace can be used instead. The resource group, name and subscription id of the workspace will need to be specified.
+  # Grant the role "Log Analytics Contributor" on the target Log Analytics Workspace for the identity used to deploy az-hop
+  #resource_group:
+  #name:
+  #subscription_id: # Optional, if not specified the current subscription will be used
+
+# Option to install the monitoring agent on static infra VMs. Can be disabled if the agent is installed by policy.  
+monitoring: 
+  install_agent: true 
+  
+#If set to true, it will create alert rules associated with az-hop. Enablement of alerting will require the specification of an admin email to send alerts to.
+alerting:
+  enabled: true
+  admin_email: admin.mail@contoso.com
+  local_volume_threshold: 80
 # Additional tags to be added on the Resource Group
 tags:
   env: dev
@@ -24,6 +47,8 @@ anf:
   homefs_service_level: Standard
   # dual protocol
   dual_protocol: false # true to enable SMB support. false by default
+  # If alerting is enabled, this value will be used to determine when to trigger alerts 
+  alert_threshold: 80 # alert when ANF volume reaches this threshold
 
 # For small deployments you can use Azure Files instead of ANF for the home directory
 azurefiles:
@@ -138,11 +163,27 @@ locked_down_network:
 
 # Base image configuration. Can be either an image reference or an image_id from the image registry or a custom managed image
 linux_base_image: "OpenLogic:CentOS:7_9-gen2:latest" # publisher:offer:sku:version or image_id
-linux_base_plan: # linux image plan if required, format is publisher:product:name
+# linux image plan if required, format is publisher:product:name
+#linux_base_plan:
 windows_base_image: "MicrosoftWindowsServer:WindowsServer:2019-Datacenter-smalldisk:latest" # publisher:offer:sku:version or image_id
 lustre_base_image: "azhpc:azurehpc-lustre:azurehpc-lustre-2_12:latest"
 # The lustre plan to use. Only needed when using the default lustre image from the marketplace. use "::" for an empty plan
 lustre_base_plan: "azhpc:azurehpc-lustre:azurehpc-lustre-2_12" # publisher:product:name
+
+domain:
+  name: "hpc.azure"
+  #domain_join_ou: "OU=azhop" # OU to set the machine in. Make sure the OU exists in the domain as it won't be created for you
+  use_existing_dc: false # Set to true if you want to join a domain with existing DC
+  domain_join_user:
+    username: hpcadmin
+    password_key_vault_name: '{{key_vault}}' # name_for_the_key_vault_with_the_domain_join_password
+    password_key_vault_resource_group_name: '{{resource_group}}' # resource_group_name_for_the_key_vault_with_the_domain_join_password
+    password_key_vault_secret_name: 'hpcadmin-password' # key_vault_secret_name_for_the_domain_join_password
+  # additional settings when using an existinf DC
+  existing_dc_details: 
+    domain_controller_names: ["dc1", "dc2"]
+    domain_controller_ip_addresses: ["192.168.1.100", "192.168.1.101"]
+    private_dns_servers: ["192.168.1.53", "192.168.2.53"]
 
 # Jumpbox VM configuration, only needed when deploying thru a public IP and without a configured deployer VM
 jumpbox:
@@ -155,6 +196,7 @@ ad:
   vm_size: Standard_B2ms
   hybrid_benefit: false # Enable hybrid benefit for AD, default to false
   high_availability: false # Build AD in High Availability mode (2 Domain Controlers) - default to false
+
 # On demand VM configuration
 ondemand:
   vm_size: Standard_D4s_v5
@@ -176,7 +218,7 @@ cyclecloud:
 
 # Lustre cluster is optional and can be used to create a Lustre cluster in the environment.
 lustre:
-  create: true # true or false to create a lustre cluster
+  create: false # true or false to create a lustre cluster
   rbh_sku: "Standard_D8d_v4"
   mds_sku: "Standard_D8d_v4"
   oss_sku: "Standard_D32d_v4"
@@ -202,13 +244,13 @@ users:
   # - { name: user2, uid: 10004, groups: [6001] }
 
 usergroups:
-# These groups can’t be changed
-  - name: Domain Users # All users will be added to this one by default
+# These group names could be changed but not the gids as names will be mapped by gids
+  - name: azhop-users # All users will be added to this group by default
     gid: 5000
-  - name: az-hop-admins
+  - name: azhop-admins
     gid: 5001
     description: "For users with azhop admin privileges"
-  - name: az-hop-localadmins
+  - name: azhop-localadmins
     gid: 5002
     description: "For users with sudo right or local admin right on nodes"
 # For custom groups use gid >= 6000
@@ -228,8 +270,6 @@ queue_manager: openpbs
 slurm:
   # Enable SLURM accounting, this will create a SLURM accounting database in a managed MariaDB server instance
   accounting_enabled: false
-  # Enable container support for SLURM using Enroot/Pyxis
-  enroot_enabled: false
   # SLURM version to install. Currently supported: only 20.11.9 and 22.05.3.
   # Other versions can be installed by building from source (See build_rpms setting in the slurmserver role)
   slurm_version: 20.11.9
@@ -237,6 +277,9 @@ slurm:
   # WARNING: changing this value on a running cluster will cause slurmctld to fail to start. This is a
   # safety check to prevent accounting errors. To override, remove /var/spool/slurmd/clustername
   cluster_name: slurm_azhop
+
+enroot:
+  enroot_version: 3.4.1
 
 # If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values
 #database:
@@ -288,13 +331,13 @@ images:
   #   os_type: Linux # Linux or Windows
   #   version: 7.9 # Version of the image to create the image definition in SIG. Pattern is major.minor where minor is mandatory
 # Pre-defined images
-  - name: azhop-almalinux85-v2-rdma-gpgpu
+  - name: azhop-compute-almalinux-8_7
     publisher: azhop
     offer: almalinux
-    sku: 8_5-hpc-gen2
+    sku: 8_7-hpc-gen2
     hyper_v: V2
     os_type: Linux
-    version: 8.5
+    version: 8.7
   - name: azhop-centos79-v2-rdma-gpgpu
     publisher: azhop
     offer: CentOS
@@ -461,6 +504,10 @@ applications:
     enabled: true
   bc_jupyter:
     enabled: true
+  bc_amlsdk:
+    enabled: false
+  bc_rstudio:
+    enabled: false
   bc_ansys_workbench:
     enabled: false
   bc_vmd:

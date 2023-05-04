@@ -8,23 +8,23 @@
     msg: "{{ ansible_facts.packages['lustre-client'] | length }} versions of lustre-client are installed!"
   when: "'lustre-client' in ansible_facts.packages"
 
-- name: Configure OS for Lustre
+# Source: https://learn.microsoft.com/en-us/azure/azure-managed-lustre/install-rhel-7
+- name: Install Lustre client from AMLFS repo
   block:
+    - name: add AMLFS repo
+      shell: |
+        rpm --import https://packages.microsoft.com/keys/microsoft.asc
+        DISTRIB_CODENAME=el7
+        REPO_PATH=/etc/yum.repos.d/amlfs.repo
+        echo -e "[amlfs]" > ${REPO_PATH}
+        echo -e "name=Azure Lustre Packages" >> ${REPO_PATH}
+        echo -e "baseurl=https://packages.microsoft.com/yumrepos/amlfs-${DISTRIB_CODENAME}" >> ${REPO_PATH}
+        echo -e "enabled=1" >> ${REPO_PATH}
+        echo -e "gpgcheck=1" >> ${REPO_PATH}
+        echo -e "gpgkey=https://packages.microsoft.com/keys/microsoft.asc" >> ${REPO_PATH}
     - name: Disable SELinux
       selinux:
         state: disabled
-
-    - import_tasks: repos.yml
-
-    - name: Install Lustre packages
-      yum:
-        name: lustre-client
-        state: present
-        lock_timeout : 180
-      register: install_rpms
-
-    - name: run weak-modules
-      command: weak-modules --add-kernel --no-initramfs
-      when: install_rpms.changed
-
+    - name: install Lustre client
+      shell: yum install -y amlfs-lustre-client-2.15.1_24_gbaa21ca-$(uname -r | sed -e "s/\.$(uname -p)$//" | sed -re 's/[-_]/\./g')-1
   when: "'lustre-client' not in ansible_facts.packages"

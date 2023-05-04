@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: azhop.azurecr.io/hpcrover:2302.2117
+      image: azhop.azurecr.io/hpcrover:2304.1312
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -66,7 +66,7 @@ jobs:
 
           # Build the list of images from the config file
           images=$(yq eval ".images[].name" config.yml | jq -cRn '[inputs]')
-          echo "::set-output name=matrix::$images"
+          echo "matrix=$images" >> $GITHUB_OUTPUT
     # save the list into the outputs
     outputs:
       matrix: ${{ steps.set-image-matrix.outputs.matrix }}
@@ -74,12 +74,14 @@ jobs:
   build_image:
     name: build_image
     runs-on: self-hosted
+    continue-on-error: true
     needs: [set_image_list]
-    strategy: 
+    strategy:
+      fail-fast: false
       matrix:
         images: ${{ fromJson(needs.set_image_list.outputs.matrix) }}
     container:
-      image: azhop.azurecr.io/hpcrover:2302.2117
+      image: azhop.azurecr.io/hpcrover:2304.1312
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -105,13 +107,15 @@ jobs:
   put_offer:
     name: put_offer
     runs-on: ubuntu-latest
+    continue-on-error: true
     if: inputs.publish == 'true'
     needs: [set_image_list, build_image]
     strategy:
+      fail-fast: false
       matrix:
         images: ${{ fromJson(needs.set_image_list.outputs.matrix) }}
     container:
-      image: azhop.azurecr.io/hpcrover:2302.2117
+      image: azhop.azurecr.io/hpcrover:2304.1312
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -138,6 +142,7 @@ jobs:
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
 
           key_vault_name=$(yq eval ".key_vault" $ANSIBLE_VARIABLES)
+          echo "key_vault_name=$key_vault_name"
 
           eval_str=".images[] | select(.name == "\"$image_name"\") | .offer"
           offer=$(yq eval "$eval_str" $CONFIG_FILE)
@@ -145,6 +150,10 @@ jobs:
           publisher=$(yq eval "$eval_str" $CONFIG_FILE)
           eval_str=".images[] | select(.name == "\"$image_name"\") | .sku"
           sku=$(yq eval "$eval_str" $CONFIG_FILE)
+
+          echo "offer=$offer"
+          echo "publisher=$publisher"
+          echo "sku=$sku"
 
           cd ./marketplace
 
@@ -156,6 +165,7 @@ jobs:
           echo "get_offer_by_id"
           get_offer_by_id $publisher $offer > $image_name.json
           ls -alt
+          cat $image_name.json
 
           echo "build_offer_file"
           rm -f $image_name-final.json

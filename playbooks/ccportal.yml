@@ -37,3 +37,10 @@
       cc_domain: '{{domain_name}}'
       cc_ldap_server: '{{ldap_server}}'
       cc_version: '{{cyclecloud.version | default("8.3.0-3062")}}'
+
+  - name: update packages for security
+    become: true
+    yum:
+      name: '*'
+      state: latest
+      exclude: cyclecloud*

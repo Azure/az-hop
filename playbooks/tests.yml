@@ -22,9 +22,7 @@
     include_role:
       name: tests
     vars:
-      test_queue_manager: '{{ queue_manager | default("openpbs") }}'
       test_user: '{{users[0].name}}'
       test_mounts:
         - '{{mounts.home.mountpoint | default("/anfhome")}}'
         - '{{ ( lustre.create | default(false) ) | ternary("/lustre", "/") }}'
-      test_queues: '{{queues}}'

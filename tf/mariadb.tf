@@ -20,14 +20,16 @@ resource "azurerm_mariadb_server" "mariadb" {
 }
 
 resource "azurerm_private_dns_zone" "mariadb_private_link" {
-  name                = "privatelink.mariadb.database.azure.com" # This name depends on the cloud env https://learn.microsoft.com/en-us/azure/private-link/private-endpoint-dns
+  count               = local.create_database ? 1 : 0
+  name                = local.mariadb_private_dns_zone # "privatelink.mariadb.database.azure.com" # This name depends on the cloud env https://learn.microsoft.com/en-us/azure/private-link/private-endpoint-dns
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "mariadb_dns_link" {
+  count                 = local.create_database ? 1 : 0
   name                  = "az-hop-private"
-  resource_group_name   = azurerm_private_dns_zone.mariadb_private_link.resource_group_name
-  private_dns_zone_name = azurerm_private_dns_zone.mariadb_private_link.name
+  resource_group_name   = azurerm_private_dns_zone.mariadb_private_link[0].resource_group_name
+  private_dns_zone_name = azurerm_private_dns_zone.mariadb_private_link[0].name
   virtual_network_id    = local.create_vnet ? azurerm_virtual_network.azhop[0].id : data.azurerm_virtual_network.azhop[0].id
   registration_enabled  = false
 }
@@ -41,7 +43,7 @@ resource azurerm_private_endpoint "mariadb"  {
 
   private_dns_zone_group {
     name                 = "private-dns-zone-group"
-    private_dns_zone_ids = [azurerm_private_dns_zone.mariadb_private_link.id]
+    private_dns_zone_ids = [azurerm_private_dns_zone.mariadb_private_link[0].id]
   }
 
   private_service_connection {

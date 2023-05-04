@@ -5,7 +5,8 @@ read_os
 
 ADMIN_DOMAIN={{ domain_name }}
 ADMIN_NAME={{ ad_join_user }}
-ADMIN_PASSWORD={{ cc_password }}
+ADMIN_PASSWORD={{ cc_ad_join_password }}
+DOMAIN_JOIN_OU={{ domain.domain_join_ou | default('') }}
 
 source $script_dir/../files/$os_release/init_joindomain.sh
 
@@ -48,8 +49,11 @@ n=1
 max_retry=3
 
 while true; do
-  logger -s "Domain join on $ADMIN_DOMAIN"
-  echo $ADMIN_PASSWORD| realm join -U $ADMIN_NAME $ADMIN_DOMAIN
+  logger -s "Domain join on $ADMIN_DOMAIN - OU=$DOMAIN_JOIN_OU"
+  if [ ! -z "$DOMAIN_JOIN_OU" ]; then
+    REALM_OPTION="--computer-ou=$DOMAIN_JOIN_OU"
+  fi
+  echo $ADMIN_PASSWORD| realm join -v -U $ADMIN_NAME $ADMIN_DOMAIN $REALM_OPTION
 
   if [ ! -f "/etc/sssd/sssd.conf" ]; then
     if [[ $n -le $max_retry ]]; then
@@ -69,10 +73,22 @@ done
 
 sed -i 's@use_fully_qualified_names.*@use_fully_qualified_names = False@' /etc/sssd/sssd.conf
 sed -i 's@ldap_id_mapping.*@ldap_id_mapping = False@' /etc/sssd/sssd.conf
+sed -i 's|fallback_homedir.*|fallback_homedir = {{mounts.home.mountpoint | default("/anfhome") }}/%u|' /etc/sssd/sssd.conf
 
 echo "ad_gpo_access_control = disabled" >> /etc/sssd/sssd.conf
 
 systemctl restart sssd
+
+# Grant sudo for users in the azhop-localadmins group
+echo "%{{ (usergroups | selectattr('gid', 'eq', 5002) | map(attribute='name'))[0] | default('azhop-localadmins', true) }} ALL=(ALL) NOPASSWD: ALL" | tee -a /etc/sudoers.d/azhop-localadmins
+
+#This is to add the azhop-users group and the admin user for enabling ssh among the VM's
+cat <<EOF >>/etc/ssh/sshd_config
+Match group "{{ (usergroups | selectattr('gid', 'eq', 5000) | map(attribute='name'))[0] | default('azhop-users', true) }}"
+  AllowUsers *
+AllowUsers {{admin_user | default('hpcadmin')}}
+EOF
+
 systemctl restart sshd
 
 # Check if we are domain joined

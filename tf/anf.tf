@@ -7,12 +7,12 @@ resource "azurerm_netapp_account" "azhop" {
   dynamic "active_directory" {
     for_each = local.anf_dual_protocol ? [1] : []
     content {
-      username            = local.admin_username 
-      password            = azurerm_windows_virtual_machine.ad.admin_password 
+      username            = local.domain_join_user
+      password            = local.domain_join_password
       smb_server_name     = "anf"
-      dns_servers         = local.ad_ha ? [azurerm_network_interface.ad-nic.private_ip_address, azurerm_network_interface.ad2-nic[0].private_ip_address] : [azurerm_network_interface.ad-nic.private_ip_address]
-      domain              = "hpc.azure"
-      organizational_unit = "CN=Computers"
+      dns_servers         = local.private_dns_servers
+      domain              = local.domain_name
+      organizational_unit = local.domain_join_ou
     }
   }
   lifecycle {
@@ -62,4 +62,34 @@ resource "azurerm_netapp_volume" "home" {
       tags
     ]
   }
+
+  depends_on = [
+    azurerm_subnet.netapp,
+    data.azurerm_subnet.netapp
+  ]
 }
+
+resource "azurerm_monitor_metric_alert" "anf_alert" {
+  count = local.create_anf && local.create_alerts ? 1 : 0
+  name                = "anf-alert-${random_string.resource_postfix.result}"
+  resource_group_name = azurerm_netapp_account.azhop[0].resource_group_name
+  scopes              = [azurerm_netapp_volume.home[0].id]
+  description         = "Alert when ANF volume usage exceeds ${local.anf_vol_threshold}%"
+  severity            = 3
+  enabled             = true
+  frequency           = "PT1M"
+  window_size         = "PT5M"
+  target_resource_type = "Microsoft.NetApp/netAppAccounts/capacityPools/volumes"
+
+  criteria {
+    metric_namespace = "Microsoft.NetApp/netAppAccounts/capacityPools/volumes"
+    metric_name      = "VolumeConsumedSizePercentage"
+    aggregation      = "Average"
+    operator         = "GreaterThan"
+    threshold        = local.anf_vol_threshold
+  }
+  action {
+    action_group_id = azurerm_monitor_action_group.azhop_action_group[0].id
+  }
+}
+

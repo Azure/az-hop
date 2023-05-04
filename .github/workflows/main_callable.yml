@@ -32,10 +32,15 @@ on:
         required: true
         default: 'openpbs' # use it with ${{ inputs.scheduler }}
         type: string
+      images:
+        description: 'Images to be used (marketplace/shared) or built (private): marketplace/shared/private'
+        required: false
+        default: 'marketplace' # use it with ${{ inputs.images }}
+        type: string
       lustre:
         description: 'Deploy a Lustre cluster (true/false) - Default to true'
         required: true
-        default: 'true' # use it with ${{ inputs.lustre }}
+        default: 'false' # use it with ${{ inputs.lustre }}
         type: string
       deploy_only:
         description: 'Deploy only - Default to false'
@@ -69,10 +74,12 @@ env:
   TF_CLI_ARGS_apply: '-auto-approve'
   AZHOP_CONFIGURATION: '.github/workflows/configs/integration.yml'
   AZHOP_LUSTRE_CONFIGURATION: '.github/workflows/configs/lustre.yml'
+  AZHOP_IMAGES_CONFIGURATION: '.github/workflows/configs/images.yml'
   ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
   ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
   ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
   ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+  SHARED_SIG: /subscriptions/${{ secrets.ARM_SUBSCRIPTION_ID }}/resourceGroups/azhop_build_images/providers/Microsoft.Compute/galleries/azhop_4ehhye3z
   AZHOP_STATE_CONTAINER: environments
   AZHOP_STATE_ACCOUNT: azhopstates
   ANSIBLE_VERBOSITY: 2 # From 0 to 4 based on the level of logs needed in Ansible
@@ -88,7 +95,7 @@ jobs:
     timeout-minutes: 60
 
     container:
-      image: azhop.azurecr.io/hpcrover:2302.2117
+      image: azhop.azurecr.io/hpcrover:2304.1312
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -143,6 +150,38 @@ jobs:
               cat $AZHOP_LUSTRE_CONFIGURATION >> config.yml
             fi
 
+            # Configure images
+            IMAGES=${{ inputs.images }}
+            case $IMAGES in
+              marketplace)
+                echo "Using marketplace images"
+
+                sed -i 's|__ALMA8_PLAN__||g' config.yml
+                ;;
+              shared)
+                echo "Using shared images"
+                sed -i "s|azhpc:azhop-compute:centos-7_9:latest|$SHARED_SIG/azhop-compute-centos-7_9/latest|g" config.yml
+                sed -i "s|azhpc:azhop-desktop:centos-7_9:latest|$SHARED_SIG/azhop-desktop-centos-7_9/latest|g" config.yml
+                sed -i "s|azhpc:azhop-compute:almalinux-8_7:latest|$SHARED_SIG/azhop-compute-almalinux-8_7/latest|g" config.yml
+                sed -i "s|azhpc:azhop-compute:ubuntu-18_04:latest|$SHARED_SIG/azhop-compute-ubuntu-1804/latest|g" config.yml
+                sed -i "s|azhpc:azhop-compute:ubuntu-20_04:latest|$SHARED_SIG/azhop-compute-ubuntu-2004/latest|g" config.yml
+
+                sed -i "s|__ALMA8_PLAN__|plan: almalinux:almalinux:8-gen2|g" config.yml
+                ;;
+              private)
+                echo "Using private images"
+                cat $AZHOP_IMAGES_CONFIGURATION >> config.yml
+                SIG="/subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images"
+                sed -i "s|azhpc:azhop-compute:centos-7_9:latest|$SIG/azhop-compute-centos-7_9/latest|g" config.yml
+                sed -i "s|azhpc:azhop-desktop:centos-7_9:latest|$SIG/azhop-desktop-centos-7_9/latest|g" config.yml
+                sed -i "s|azhpc:azhop-compute:almalinux-8_7:latest|$SIG/azhop-compute-almalinux-8_7/latest|g" config.yml
+                sed -i "s|azhpc:azhop-compute:ubuntu-18_04:latest|$SIG/azhop-compute-ubuntu-1804/latest|g" config.yml
+                sed -i "s|azhpc:azhop-compute:ubuntu-20_04:latest|$SIG/azhop-compute-ubuntu-2004/latest|g" config.yml
+
+                sed -i "s|__ALMA8_PLAN__|plan: almalinux:almalinux:8-gen2|g" config.yml
+                ;;
+            esac
+
             # If peering, then find out which IP range can be used
             peered_vnet=$(yq eval ".network.peering[0].vnet_name" config.yml)
             if [ "$peered_vnet" != "null" ]; then
@@ -172,7 +211,8 @@ jobs:
           fi
 
           # write the name of the resource group in the output of the job so it can be reused in others
-          echo "::set-output name=RESOURCE_GROUP::$RESOURCE_GROUP"
+          echo "RESOURCE_GROUP=$RESOURCE_GROUP" >> $GITHUB_OUTPUT
+
           ls -al 
           cat config.yml
           anf_dual=$(yq eval '.anf.dual_protocol' config.yml)
@@ -183,10 +223,8 @@ jobs:
           if [ "$anf_dual" != "true" ]; then
             set +e
             if [ "$USE_BICEP" == "true" ]; then
-              pushd deploy/purebicep
-              ./build.sh -c ../../config.yml -v
+              ./build.sh -a apply -l bicep
               build_error=$?
-              popd
             else
               ./build.sh -a apply -f tf
               build_error=$?
@@ -223,7 +261,7 @@ jobs:
     if: inputs.deploy_only == 'false'
 
     container:
-      image: azhop.azurecr.io/hpcrover:2302.2117
+      image: azhop.azurecr.io/hpcrover:2304.1312
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -256,7 +294,7 @@ jobs:
     if: inputs.deploy_only == 'false'
 
     container:
-      image: azhop.azurecr.io/hpcrover:2302.2117
+      image: azhop.azurecr.io/hpcrover:2304.1312
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -290,7 +328,7 @@ jobs:
     if: inputs.deploy_only == 'false'
 
     container:
-      image: azhop.azurecr.io/hpcrover:2302.2117
+      image: azhop.azurecr.io/hpcrover:2304.1312
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -321,7 +359,7 @@ jobs:
     if: inputs.deploy_only == 'false'
 
     container:
-      image: azhop.azurecr.io/hpcrover:2302.2117
+      image: azhop.azurecr.io/hpcrover:2304.1312
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -352,7 +390,7 @@ jobs:
     if: inputs.deploy_only == 'false'
 
     container:
-      image: azhop.azurecr.io/hpcrover:2302.2117
+      image: azhop.azurecr.io/hpcrover:2304.1312
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -383,7 +421,7 @@ jobs:
     if: inputs.deploy_only == 'false'
 
     container:
-      image: azhop.azurecr.io/hpcrover:2302.2117
+      image: azhop.azurecr.io/hpcrover:2304.1312
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -414,7 +452,7 @@ jobs:
     if: inputs.deploy_only == 'false'
 
     container:
-      image: azhop.azurecr.io/hpcrover:2302.2117
+      image: azhop.azurecr.io/hpcrover:2304.1312
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -446,7 +484,7 @@ jobs:
     if: inputs.deploy_only == 'false'
 
     container:
-      image: azhop.azurecr.io/hpcrover:2302.2117
+      image: azhop.azurecr.io/hpcrover:2304.1312
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -478,7 +516,7 @@ jobs:
     if: inputs.deploy_only == 'false'
 
     container:
-      image: azhop.azurecr.io/hpcrover:2302.2117
+      image: azhop.azurecr.io/hpcrover:2304.1312
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -510,7 +548,7 @@ jobs:
     if: inputs.deploy_only == 'false'
 
     container:
-      image: azhop.azurecr.io/hpcrover:2302.2117
+      image: azhop.azurecr.io/hpcrover:2304.1312
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -540,7 +578,7 @@ jobs:
             images="[\"none\"]"
           fi
           echo "Image liste : $images"
-          echo "::set-output name=matrix::$images"
+          echo "matrix=$images" >> $GITHUB_OUTPUT
     # save the list into the outputs
     outputs:
       matrix: ${{ steps.set-image-matrix.outputs.matrix }}
@@ -554,7 +592,7 @@ jobs:
       matrix:
         packer_file: ${{ fromJson(needs.set_image_list.outputs.matrix) }}
     container:
-      image: azhop.azurecr.io/hpcrover:2302.2117
+      image: azhop.azurecr.io/hpcrover:2304.1312
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -588,7 +626,7 @@ jobs:
     needs: [deploy, cycle, ood, cycle_cluster]
     if: inputs.deploy_only == 'false'
     container:
-      image: azhop.azurecr.io/hpcrover:2302.2117
+      image: azhop.azurecr.io/hpcrover:2304.1312
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -619,7 +657,7 @@ jobs:
     needs: [deploy, run_tests, telegraf]
 
     container:
-      image: azhop.azurecr.io/hpcrover:2302.2117
+      image: azhop.azurecr.io/hpcrover:2304.1312
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -645,7 +683,7 @@ jobs:
 
             echo "Remove resources from $RESOURCE_GROUP"
             set +e
-            ./deploy/purebicep/cleanup.sh
+            ./bicep/cleanup.sh
             ./build.sh -a destroy -f tf
 
             echo "Remove state from $RESOURCE_GROUP"

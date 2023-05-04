@@ -40,6 +40,7 @@
         domain_mount_ip: "{{anf_home_ip}}"
         domain_mount_path: "{{anf_home_path}}"
         domain_mount_opts: "{{anf_home_opts}}"
+        domain_join_ou: "{{domain.domain_join_ou | default('')}}"
 
     - name: Install Guac Spooler role
       include_role:
@@ -64,5 +65,13 @@
     - name: Configure chrony
       include_role:
         name: chrony
+
+    - name: update packages for security
+      become: true
+      yum:
+        name: '*'
+        state: latest
+#        exclude: kernel*,kmod*,amlfs*
+
     when: ( enable_remote_winviz is defined and enable_remote_winviz )
 

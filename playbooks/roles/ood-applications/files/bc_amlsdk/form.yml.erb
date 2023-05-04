@@ -1,0 +1,100 @@
+<%-
+  node_arrays = YAML.load_file("/etc/ood/config/apps/bc_desktop/config/node_arrays.yml")
+-%>
+---
+cluster: "ondemand"
+form:
+  - container_image
+  - bc_num_hours
+  - slot_type
+  - container_mounts
+  - subscription
+  - location
+  - resource_group
+  - workspace
+  - amlenv
+  - sku
+  - instance_count
+  - code
+  - job_inputs
+attributes:
+  bc_num_hours:
+    widget: "number_field"
+    label: "Maximum duration of your remote session"
+    value: 1
+    help: |
+      This is the maximum duration of your session.
+    min: 1
+    max: 48
+    step: 1
+  slot_type:
+    widget: select
+    options:
+      <%- node_arrays.each do |slot_type| %>
+      - '<%= slot_type["name"]%>'
+      <%- end %>
+  container_image:
+    id: "container_image"
+    label: "Container Image"
+    widget: "text_field"
+    value: "jupyter/scipy-notebook"
+    help: |
+      This image requires jupyter installed and in the path.
+  container_mounts:
+    id: "container_mounts"
+    label: "Additional Container Mounts"
+    widget: "text_field"
+    value: ""
+    help: |
+      Comma-separated list of additional mount[s] inside the container. Format: SRC:DST[,SRC:DST...]
+  subscription:
+    id: "subscription"
+    label: "Subscription in AzureAML"
+    widget: "text_field"
+    value: ""
+  location:
+    id: "location"
+    label: "Location/region in Azure (e.g.eastus)"
+    widget: "text_field"
+    value: "eastus"
+  resource_group:
+    id: "resource_group"
+    label: "Resource Group in AzureML"
+    widget: "text_field"
+    value: ""
+  workspace:
+    id: "workspace"
+    label: "Workspace in AzureML"
+    widget: "text_field"
+    value: ""
+  amlenv:
+    id: "amlenv"
+    label: "AzureML env"
+    widget: "text_field"
+    value: "AzureML-tensorflow-2.7-ubuntu20.04-py38-cuda11-gpu@latest"
+    help: |
+      AzureML environment name (libraries, docker conf, etc.)
+      [AzureML DOCS](https://learn.microsoft.com/en-us/azure/machine-learning/how-to-manage-environments-v2?tabs=python)
+  sku:
+    id: "sku"
+    label: "SKU to run AzureML job"
+    widget: "text_field"
+    value: "STANDARD_NC6"
+  instance_count:
+    id: "instance_count"
+    label: "Number of instances in AzureML cluster"
+    widget: "number_field"
+    value: 2
+    min: 1
+    max: 10
+    step: 1
+  code:
+    id: "code"
+    label: "Code (python) file"
+    widget: "text_field"
+    value: ""
+  job_inputs:
+    id: "job_inputs"
+    label: "Job inputs"
+    widget: "text_field"
+    value: ""

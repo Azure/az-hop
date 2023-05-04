@@ -219,10 +219,15 @@
         state: present
         lock_timeout : 180
 
-    - name: download certificate
+    # - name: download BaltimoreCyberTrustRoot certificate
+    #   shell: |
+    #     wget -t 5 -T 180 'https://www.digicert.com/CACerts/BaltimoreCyberTrustRoot.crt.pem' -O /etc/guacamole/BaltimoreCyberTrustRoot.crt.pem
+    #     chmod 644 /etc/guacamole/BaltimoreCyberTrustRoot.crt.pem
+
+    - name: download DigiCertGlobalRootG2 certificate
       get_url:
-        url: 'https://www.digicert.com/CACerts/BaltimoreCyberTrustRoot.crt.pem' #https://cacerts.digicert.com/DigiCertGlobalRootG2.crt.pem
-        dest: /etc/guacamole/BaltimoreCyberTrustRoot.crt.pem
+        url: 'https://cacerts.digicert.com/DigiCertGlobalRootG2.crt.pem'
+        dest: /etc/slurm
         mode: 0644
         timeout: 180
 

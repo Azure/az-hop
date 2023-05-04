@@ -63,7 +63,7 @@
                 },
                 "linux_base_plan": {
                     "description": "linux image plan if required, format is publisher:product:name",
-                    "type": "null"
+                    "type": "string"
                 },
                 "windows_base_image": {
                     "description": "Can be either an image reference or an image_id from the image registry or a custom managed image",
@@ -127,6 +127,10 @@
                         "$ref": "#/definitions/Usergroup"
                     }
                 },
+                "domain": {
+                    "description": "Domain definition",
+                    "$ref": "#/definitions/Domain"
+                },
                 "cvmfs_eessi": {
                     "description": "Enable CernVM virtual file system for European Environment for Scientific Software Installations",
                     "$ref": "#/definitions/CVMFS"
@@ -138,6 +142,10 @@
                 "slurm": {
                     "description": "scheduler to be installed and configured (openpbs, slurm)",
                     "$ref": "#/definitions/Slurm"
+                },
+                "enroot": {
+                    "description": "Enroot settings",
+                    "$ref": "#/definitions/Enroot"
                 },
                 "database": {
                     "description": "If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values",
@@ -195,10 +203,21 @@
                 "dns": {
                     "description": "Specify DNS forwarders available in the network",
                     "$ref": "#/definitions/dns"
+                },
+                "log_analytics": {
+                    "description": "Create a log analytics workspace to enable monitoring and alerting",
+                    "$ref": "#/definitions/logAnalytics"
+                },
+                "monitoring": {
+                    "description": "If set to true, it will install the Azure Monitor Agent on the infrastructure VMs deployed by az-hop. If set to false, it is assumed that the agent is installed by policy.",
+                    "$ref": "#/definitions/monitoring"
+                },                
+                "alerting": {
+                    "description": "If set to true, it will create alert rules associated with az-hop. Enablement of alerting will require the specification of an admin email to send alerts to.",
+                    "$ref": "#/definitions/alerting"
                 }
             },
             "required": [
-                "ad",
                 "admin_user",
                 "applications",
                 "authentication",
@@ -224,22 +243,62 @@
             ],
             "title": "az-hop"
         },
+        "logAnalytics": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "create": {"type": "boolean" },
+                "resource_group": {"type": "string"},
+                "name": {"type": "string"},
+                "subscription_id": {"type": "string"}
+            },
+            "required": [ "create" ],
+            "title": "logAnalytics"
+        },
+        "monitoring": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "install_agent": {"type": "boolean" }
+            },
+            "required": [
+                "install_agent"
+            ],
+            "title": "monitoring"
+        },
+        "alerting": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "enabled": {"type": "boolean" },
+                "admin_email": { "type": "string" },
+                "local_volume_threshold": { "type": "integer", "maximum": 100, "minimum": 1 }
+            },
+            "required": [
+                "enabled", "admin_email"
+            ],
+            "title": "alerting"
+        },
         "az-hopAd": {
             "type": "object",
             "additionalProperties": false,
             "properties": {
                 "vm_size": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The size of VM to use when deploying a new active directory domain as part of AZHOP"
                 },
                 "hybrid_benefit": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "description": "Will hybrid benefit be used on the vm that is running the active directory domain vm being deployed for az-hop.",
+                    "default": false
                 },
                 "high_availability": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "description": "Should a second domain controller be deployed when include a new active directory with the az-hop deployment.",
+                    "default": false
                 }
             },
             "required": [
-                "vm_size"
             ],
             "title": "az-hopAd"
         },
@@ -264,6 +323,12 @@
                 "dual_protocol": {
                     "description": "Whether to enable SMB support. false by default",
                     "type": "boolean"
+                },
+                "alert_threshold": {
+                    "description": "If alerting is enabled, this value will be used to determine when to trigger alerts ",
+                    "maximum": 100,
+                    "minimum": 1,
+                    "type": "integer"
                 }
             },
             "required": [
@@ -290,6 +355,69 @@
             ],
             "title": "Azurefiles"
         },
+        "Domain": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "The domain name that the Az-Hop infrastructure will use.",
+                    "default": "hpc.azure"
+                },
+                "domain_join_ou": {
+                    "type": "string",
+                    "description": "The domain OU where new AZ-HOP computer objects will be added to the domain."
+                },
+                "use_existing_dc": {
+                    "type": "boolean",
+                    "description": "Flag for identifying whether an existing Active Directory should be used or if an AD controller should be deployed with AZ-HOP",
+                    "default": false
+                },
+                "domain_join_user": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "username": {
+                            "type": "string",
+                            "description": "The username of the account that will be used to perform domain join activities."
+                        },
+                        "password_key_vault_name": {
+                            "type": "string",
+                            "description": "The name of the keyvault where the domain join user's password will be stored as a secret. The identity being used for the deployment will need to have secret read on this vault."
+                        },
+                        "password_key_vault_resource_group_name": {
+                            "type": "string",
+                            "description": "The resource group name where the key vault holding the domain join user secret is deployed."
+                        },
+                        "password_key_vault_secret_name": {
+                            "type": "string",
+                            "description": "The name of the secret for the domain join user password."
+                        }
+                    }
+                },
+                "existing_dc_details": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties":{
+                        "domain_controller_names": {
+                            "type": "array",
+                            "description": "A list of hostnames for the domain controllers that will be used as a target for az-hop domain activities."
+                        },
+                        "domain_controller_ip_addresses": {
+                            "type": "array",
+                            "description": "A list of IP addresses for the existing domain controllers for use in ASG and NSG rules allowing domain access."
+                        },
+                        "private_dns_servers": {
+                            "type": "array",
+                            "description": "A list of IP addresses for the existing DNS servers where the AD domain records exist."
+                        }
+                    }
+                }
+            },
+            "required": [
+            ],
+            "title": "Domain"
+        },
         "Applications": {
             "type": "object",
             "additionalProperties": true,
@@ -298,6 +426,9 @@
                     "$ref": "#/definitions/ood_app"
                 },
                 "bc_jupyter": {
+                    "$ref": "#/definitions/ood_app"
+                },
+                "bc_rstudio": {
                     "$ref": "#/definitions/ood_app"
                 },
                 "bc_ansys_workbench": {
@@ -351,7 +482,7 @@
         },
         "openidc": {
             "type": "object",
-            "additionalProperties": false,
+            "additionalProperties": true,
             "properties": {
                 "OIDCProviderMetadataURL": { "type": "string" },
                 "OIDCClientID": { "type": "string" },
@@ -770,8 +901,6 @@
                 "tags": { "$ref": "#/definitions/Tags" }
             },
             "required": [
-                "address_space",
-                "name",
                 "subnets"
             ],
             "title": "Vnet"
@@ -806,7 +935,6 @@
                 }
             },
             "required": [
-                "ad",
                 "admin",
                 "compute",
                 "frontend",
@@ -829,7 +957,6 @@
                 }
             },
             "required": [
-                "address_prefixes",
                 "create"
             ],
             "title": "subnetClass"
@@ -943,9 +1070,6 @@
                 "accounting_enabled": {
                     "type": "boolean"
                 },
-                "enroot_enabled": {
-                    "type": "boolean"
-                },
                 "cluster_name": {
                     "description": "Name of slurm cluster for accounting, defaults to 'slurm'. WARNING: changing this value on a running cluster will cause slurmctld to fail to start. This is a safety check to prevent accounting errors. To override, remove /var/spool/slurmd/clustername .",
                     "type": "string"
@@ -957,10 +1081,20 @@
                 }
             },
             "required": [
-                "accounting_enabled",
-                "enroot_enabled"
+                "accounting_enabled"
             ],
             "title": "Slurm"
+        },
+        "Enroot": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "enroot_version": {
+                    "description": "Enroot version",
+                    "type": "string"
+                }
+            },
+            "title": "Enroot"
         },
         "Tags": {
             "type": "object",

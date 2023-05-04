@@ -3,9 +3,6 @@
 ## Support
 Docker containers are supported via NVIDIA [enroot](https://github.com/NVIDIA/enroot) with [pyxis](https://github.com/NVIDIA/pyxis) plugin (SLURM only). For Pyxis usage please refer to https://github.com/NVIDIA/pyxis#usage
 
-## Prerequisites
-During [deployment](../deploy/define_environment.md), make sure _enroot_enabled_ option is set to _true_  in the _slurm_ section of `config.yml`
-
 ## Examples
 ### Start an interactive job in Ubuntu container
 ```bash

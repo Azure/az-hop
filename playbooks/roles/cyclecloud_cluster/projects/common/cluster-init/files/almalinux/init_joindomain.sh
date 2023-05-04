@@ -46,7 +46,7 @@ function enforce_hostname() {
     echo $target_hostname > /etc/hostname
   fi
   eth0_hostname=$(grep DHCP_HOSTNAME /etc/sysconfig/network-scripts/ifcfg-eth0 | cut -d'=' -f2)
-  if [ "$eth0_hostname" != "$target_hostname" ]; then
+  if [ "$eth0_hostname" != "" -a "$eth0_hostname" != "$target_hostname" ]; then
     logger -s "Warning: incorrect DHCP_HOSTNAME in /etc/sysconfig/network-scripts/ifcfg-eth0 ($etc_hostname), it should be $target_hostname, updating"
     sed -i "s/^DHCP_HOSTNAME=.*\$/DHCP_HOSTNAME=$target_hostname/g" /etc/sysconfig/network-scripts/ifcfg-eth0
     systemctl restart NetworkManager

@@ -50,10 +50,15 @@
     state: directory
     owner: root
 
-- name: download certificate
+# - name: download BaltimoreCyberTrustRoot certificate
+#   shell: |
+#     wget -t 5 -T 180 'https://www.digicert.com/CACerts/BaltimoreCyberTrustRoot.crt.pem' -O /etc/guacamole/BaltimoreCyberTrustRoot.crt.pem
+#     chmod 644 /etc/guacamole/BaltimoreCyberTrustRoot.crt.pem
+
+- name: download DigiCertGlobalRootG2 certificate
   get_url:
-    url: 'https://www.digicert.com/CACerts/BaltimoreCyberTrustRoot.crt.pem'
-    dest: /etc/guacamole/BaltimoreCyberTrustRoot.crt.pem
+    url: 'https://cacerts.digicert.com/DigiCertGlobalRootG2.crt.pem'
+    dest: /etc/slurm
     mode: 0644
     timeout: 180
 
@@ -68,7 +73,7 @@
       mysql-password: {{sqladmin_password.stdout}}
       mysql-server-timezone: GMT
       mysql-auto-create-accounts: true
-      mysql-ssl_ca: /etc/guacamole/BaltimoreCyberTrustRoot.crt.pem
+      mysql-ssl_ca: /etc/guacamole/DigiCertGlobalRootG2.crt.pem
     owner: root
     mode: 0640
 
@@ -118,6 +123,12 @@
     owner: root
     group: 5000
 
+- name: stop guacspooler
+  service:
+    name: guacspoold.service
+    state: stopped
+  ignore_errors: yes
+
 - name: enable CycleCloud ScaleLib Guacamole
   shell: | 
     /tmp/cyclecloud-guac/install.sh  --venv /opt/cycle/guac/venv --install-venv
@@ -129,7 +140,7 @@
   args:
     chdir: /tmp/cyclecloud-guac
 
-- name: restart guacspooler
+- name: start guacspooler
   service:
     name: guacspoold.service
-    state: restarted
+    state: started

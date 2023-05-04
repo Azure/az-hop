@@ -10,6 +10,19 @@ resource_group: azhop
 use_existing_rg: false
 # If set to true, will disable telemetry for azhop. See https://azure.github.io/az-hop/deploy/telemetry.html.
 optout_telemetry: false
+# Create a log analytics workspace to enable monitoring and alerting
+log_analytics:
+  create: true
+# Option to install the monitoring agent on static infra VMs. Can be disabled if the agent is installed by policy.  
+monitoring: 
+  install_agent: false
+
+#If set to true, it will create alert rules associated with az-hop. Enablement of alerting will require the specification of an admin email to send alerts to.
+alerting:
+  enabled: true
+  admin_email: admin.mail@contoso.com
+  local_volume_threshold: 80
+
 # Additional tags to be added on the Resource Group
 tags:
   env: dev
@@ -25,6 +38,8 @@ anf:
   homefs_service_level: Standard
   # dual protocol
   dual_protocol: false # true to enable SMB support. false by default
+  # If alerting is enabled, this value will be used to determine when to trigger alerts 
+  alert_threshold: 80 # alert when ANF volume reaches this threshold
 
 # For small deployments you can use Azure Files instead of ANF for the home directory
 azurefiles:
@@ -143,7 +158,8 @@ locked_down_network:
 
 # Base image configuration. Can be either an image reference or an image_id from the image registry or a custom managed image
 linux_base_image: "OpenLogic:CentOS:7_9-gen2:latest" # publisher:offer:sku:version or image_id
-linux_base_plan: # linux image plan if required, format is publisher:product:name
+# linux image plan if required, format is publisher:product:name
+#linux_base_plan:
 windows_base_image: "MicrosoftWindowsServer:WindowsServer:2019-Datacenter-smalldisk:latest" # publisher:offer:sku:version or image_id
 lustre_base_image: "azhpc:azurehpc-lustre:azurehpc-lustre-2_12:latest"
 # The lustre plan to use. Only needed when using the default lustre image from the marketplace. use "::" for an empty plan
@@ -213,12 +229,12 @@ users:
 
 usergroups:
 # These groups can’t be changed
-  - name: Domain Users # All users will be added to this one by default
+  - name: azhop-users # All users will be added to this one by default
     gid: 5000
-  - name: az-hop-admins
+  - name: azhop-admins
     gid: 5001
     description: "For users with azhop admin privileges"
-  - name: az-hop-localadmins
+  - name: azhop-localadmins
     gid: 5002
     description: "For users with sudo right or local admin right on nodes"
 # For custom groups use gid >= 6000
@@ -238,8 +254,6 @@ queue_manager: openpbs
 slurm:
   # Enable SLURM accounting, this will create a SLURM accounting database in a managed MariaDB server instance
   accounting_enabled: false
-  # Enable container support for SLURM using Enroot/Pyxis
-  enroot_enabled: false
   # SLURM version to install. Currently supported: only 20.11.9 and 22.05.3.
   # Other versions can be installed by building from source (See build_rpms setting in the slurmserver role)
   slurm_version: 20.11.9
@@ -247,6 +261,9 @@ slurm:
   # WARNING: changing this value on a running cluster will cause slurmctld to fail to start. This is a
   # safety check to prevent accounting errors. To override, remove /var/spool/slurmd/clustername
   cluster_name: slurm_azhop
+
+enroot:
+  enroot_version: 3.4.1
 
 # If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values
 database:
