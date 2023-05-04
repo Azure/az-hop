@@ -595,15 +595,14 @@ module azhopSecrets './secrets.bicep' = if (autogenerateSecrets) {
   }
 }
 
-var domainPassword = adminPassword
-
 var secrets = (autogenerateSecrets) ? azhopSecrets.outputs.secrets : {
   adminSshPublicKey: adminSshPublicKey
   adminSshPrivateKey: adminSshPrivateKey
   adminPassword: adminPassword
-  domainPassword: domainPassword
   databaseAdminPassword: databaseAdminPassword
 }
+
+var domainPassword = secrets.adminPassword
 
 module azhopNetwork './network.bicep' = {
   name: 'azhopNetwork'
@@ -719,7 +718,7 @@ module kvSecretDomainJoin './kv_secrets.bicep' = if (createAD) {
   params: {
     vaultName: azhopKeyvault.outputs.keyvaultName
     name: '${config.domain.domain_join_user.username}-password'
-    value: secrets.domainPassword
+    value: domainPassword
   }
 }
 
