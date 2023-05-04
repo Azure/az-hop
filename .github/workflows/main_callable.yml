@@ -40,7 +40,7 @@ on:
       lustre:
         description: 'Deploy a Lustre cluster (true/false) - Default to true'
         required: true
-        default: 'true' # use it with ${{ inputs.lustre }}
+        default: 'false' # use it with ${{ inputs.lustre }}
         type: string
       deploy_only:
         description: 'Deploy only - Default to false'

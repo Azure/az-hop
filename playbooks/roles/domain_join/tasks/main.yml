@@ -46,7 +46,11 @@
   #   shell: echo "{{domain_password}}" | kinit {{ domain_admin }}@{{ domain_name | upper }}
 
 - name: Join AD domain
-  shell: echo "{{ domain_password }}" | realm join -v -U {{ domain_admin }} {{ domain_name }}
+  shell: |
+    if [ ! -z "{{domain_join_ou}}" ]; then
+      REALM_OPTION="--computer-ou={{domain_join_ou}}"
+    fi
+    echo "{{ domain_password }}" | realm join -v -U {{ domain_admin }} {{ domain_name }} $REALM_OPTION
   args:
     creates: /etc/sssd/sssd.conf
 
@@ -55,7 +59,7 @@
 #     realm leave
 #     systemctl stop sssd
 #     rm -rf /var/lib/sss/db/*
-#     echo "{{ domain_password }}" | realm join -v -U {{ domain_admin }} {{ domain_name }}
+#     echo "{{ domain_password }}" | realm join -v -U {{ domain_admin }} {{ domain_name }} --computer-ou={{ domain_join_ou }}
 
 - name: configure sssd restart onfailure
   lineinfile:
@@ -89,11 +93,18 @@
     line: 'ldap_id_mapping = False'
   notify: restart sssd
 
-- name: configure sssd - ad_gpo_access_control 
+- name: configure sssd - ad_gpo_access_control
   lineinfile:
     path: /etc/sssd/sssd.conf
     regexp: '^ad_gpo_access_control'
     line: 'ad_gpo_access_control = disabled'
+  notify: restart sssd
+
+- name: configure sssd - set fallback_homedir
+  lineinfile:
+    path: /etc/sssd/sssd.conf
+    regexp: '^fallback_homedir'
+    line: 'fallback_homedir = {{mounts.home.mountpoint | default("/anfhome") }}/%u'
   notify: restart sssd
 
 # Thes are the options to set in order to register DNS in the AD

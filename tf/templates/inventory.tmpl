@@ -18,6 +18,7 @@ all:
       ansible_host: ${grafana-ip}
     guacamole:
       ansible_host: ${guacamole-ip}
+%{ if ad-ip!="0.0.0.0" }
     ad:
       ansible_host: ${ad-ip}
       ansible_connection: psrp
@@ -37,6 +38,7 @@ all:
 %{ if jumpbox-pip!="0.0.0.0" }
       psrp_ssh_proxy: ${jumpbox-pip}
       ansible_psrp_proxy: socks5h://localhost:5985
+%{ endif }
 %{ endif }
     lustre:
       ansible_host: ${lustre-ip}

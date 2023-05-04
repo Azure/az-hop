@@ -131,17 +131,17 @@ cyclecloud:
   vm_size: Standard_B2ms
 
 users:
-  - { name: hpcuser,   uid: 10001 }
+  - { name: hpcuser, uid: 10001 }
   - { name: adminuser, uid: 10002, groups: [5001, 5002] }
-  - { name: john.john,   uid: 10003 }
+  - { name: john.john, uid: 10003 }
 
 usergroups:
-  - name: Domain Users # All users will be added to this one by default
+  - name: azhop-users # All users will be added to this one by default
     gid: 5000
-  - name: az-hop-admins # For users with azhop admin privilege
+  - name: azhop-admins # For users with azhop admin privilege
     gid: 5001
     description: "For users with azhop admin privileges"
-  - name: az-hop-localadmins # For users with sudo right on nodes
+  - name: azhop-localadmins # For users with sudo right on nodes
     gid: 5002
     description: "For users with sudo right or local admin right on nodes"
 

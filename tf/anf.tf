@@ -7,12 +7,12 @@ resource "azurerm_netapp_account" "azhop" {
   dynamic "active_directory" {
     for_each = local.anf_dual_protocol ? [1] : []
     content {
-      username            = local.admin_username 
-      password            = azurerm_windows_virtual_machine.ad.admin_password 
+      username            = local.domain_join_user
+      password            = local.domain_join_password
       smb_server_name     = "anf"
-      dns_servers         = local.ad_ha ? [azurerm_network_interface.ad-nic.private_ip_address, azurerm_network_interface.ad2-nic[0].private_ip_address] : [azurerm_network_interface.ad-nic.private_ip_address]
-      domain              = "hpc.azure"
-      organizational_unit = "CN=Computers"
+      dns_servers         = local.private_dns_servers
+      domain              = local.domain_name
+      organizational_unit = local.domain_join_ou
     }
   }
   lifecycle {
@@ -62,6 +62,11 @@ resource "azurerm_netapp_volume" "home" {
       tags
     ]
   }
+
+  depends_on = [
+    azurerm_subnet.netapp,
+    data.azurerm_subnet.netapp
+  ]
 }
 
 resource "azurerm_monitor_metric_alert" "anf_alert" {
