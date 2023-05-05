@@ -31,7 +31,7 @@ alerting:
 # Define an ANF account, single pool and volume
 # If not present assume that there is an existing NFS share for the users home directory
 anf:
-  create: true
+  create: __CREATE_ANF__
   # Size of the ANF pool and unique volume
   homefs_size_tb: 4
   # Service level of the ANF volume, can be: Standard, Premium, Ultra
@@ -42,7 +42,7 @@ anf:
 
 # For small deployments you can use Azure Files instead of ANF for the home directory
 azurefiles:
-  create: true
+  create: __CREATE_AZUREFILES__
   size_gb: 1024
 
 mounts:

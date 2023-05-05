@@ -144,6 +144,14 @@ jobs:
             sed -i "s/__LOCATION__/$LOCATION/g" config.yml
             HOME_TYPE=${{ inputs.home_type }}
             sed -i "s/__HOME_TYPE__/$HOME_TYPE/g" config.yml
+            if [ "$HOME_TYPE" == "anf" ]; then
+              sed -i 's/__CREATE_ANF__/true/g' config.yml
+              sed -i 's/__CREATE_AZUREFILES__/false/g' config.yml
+            else
+              sed -i 's/__CREATE_ANF__/false/g' config.yml
+              sed -i 's/__CREATE_AZUREFILES__/true/g' config.yml
+            fi
+
             # Add lustre configuration if lustre is true
             DEPLOY_LUSTRE=${{ inputs.lustre }}
             if [ "$DEPLOY_LUSTRE" == "true" ]; then
