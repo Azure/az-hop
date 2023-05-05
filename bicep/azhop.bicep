@@ -118,7 +118,7 @@ var config = {
   deploy_sig: contains(azhopConfig, 'image_gallery') && contains(azhopConfig.image_gallery, 'create') ? azhopConfig.image_gallery.create : false
 
   // Default home directory is ANF
-  homedir_type: contains(azhopConfig.mounts.home, 'type') ? azhopConfig.mounts.home.type : 'anf'
+  homedir_type: contains(azhopConfig.mounts.home, 'type') ? azhopConfig.mounts.home.type : 'existing'
   homedir_mountpoint: azhopConfig.mounts.home.mountpoint
 
   anf: {
@@ -880,6 +880,11 @@ output azhopGlobalConfig object = union(
     anf_home_ip                   : azhopNfsFiles.outputs.nfs_home_ip
     anf_home_path                 : azhopNfsFiles.outputs.nfs_home_path
     anf_home_opts                 : azhopNfsFiles.outputs.nfs_home_opts
+  } : {},
+  config.homedir_type == 'existing' ? {
+    anf_home_ip                   : azhopConfig.mounts.home.server
+    anf_home_path                 : azhopConfig.mounts.home.export
+    anf_home_opts                 : azhopConfig.mounts.home.options
   } : {}
 )
 

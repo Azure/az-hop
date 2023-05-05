@@ -3,11 +3,13 @@ locals {
     public_cloud_endpoints = {
         KeyVaultSuffix =  "vault.azure.net"
         BlobStorageSuffix = "blob.core.windows.net"
+        FileStorageSuffix = "file.core.windows.net"
         MariaDBPrivateLink = "privatelink.mariadb.database.azure.com"
     }
     usgov_cloud_endpoints = {
         KeyVaultSuffix =  "vault.usgovcloudapi.net"
         BlobStorageSuffix = "blob.core.usgovcloudapi.net"
+        FileStorageSuffix = "file.core.usgovcloudapi.net"
         MariaDBPrivateLink = "privatelink.mariadb.database.usgovcloudapi.net"
     }
     azure_endpoints = {
@@ -173,8 +175,14 @@ locals {
     anf_dual_protocol = try(local.configuration_yml["anf"]["dual_protocol"], try(local.configuration_yml["dual_protocol"], false))
 
     #Azure Files
-    create_azure_files = try(local.configuration_yml["azurefiles"]["create"], false)
+    create_nfsfiles = try(local.configuration_yml["azurefiles"]["create"], false)
     azure_files_size= try(local.configuration_yml["azurefiles"]["size_gb"], 1024)
+
+    # Home Directory
+    homedir_type = try(local.configuration_yml["mounts"]["home"]["type"], "existing")
+    config_nfs_home_ip = local.configuration_yml["mounts"]["home"]["server"]
+    config_nfs_home_path = local.configuration_yml["mounts"]["home"]["export"]
+    config_nfs_home_opts = local.configuration_yml["mounts"]["home"]["options"]
 
     homedir_mountpoint = try(local.configuration_yml["mounts"]["home"]["mountpoint"], try(local.configuration_yml["homedir_mountpoint"], "/anfhome"))
 

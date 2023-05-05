@@ -43,9 +43,10 @@ resource "local_file" "global_variables" {
       resource_group      = local.resource_group
       config_file         = local.configuration_file
       homedir_mountpoint  = local.homedir_mountpoint
-      anf-home-ip         = local.create_anf ? element(azurerm_netapp_volume.home[0].mount_ip_addresses, 0) : local.configuration_yml["mounts"]["home"]["server"]
-      anf-home-path       = local.create_anf ? azurerm_netapp_volume.home[0].volume_path : local.configuration_yml["mounts"]["home"]["export"]
-      homedir_options     = local.create_anf ? "rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev" : try(local.configuration_yml["mounts"]["home"]["options"], "rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev") 
+
+      anf-home-ip         = local.homedir_type == "anf" ? element(azurerm_netapp_volume.home[0].mount_ip_addresses, 0) : ( local.homedir_type == "azurefiles" ? "${azurerm_storage_account.nfsfiles[0].name}.${local.azure_endpoints[local.azure_environment].FileStorageSuffix}" : local.config_nfs_home_ip)
+      anf-home-path       = local.homedir_type == "anf" ? azurerm_netapp_volume.home[0].volume_path : ( local.homedir_type == "azurefiles" ? "/${azurerm_storage_account.nfsfiles[0].name}/nfshome" : local.config_nfs_home_path)
+      homedir_options     = local.homedir_type == "anf" ? "rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev" : ( local.homedir_type == "azurefiles" ? "vers=4,minorversion=1,sec=sys" : local.config_nfs_home_opts)
       ondemand-fqdn       = local.allow_public_ip ? azurerm_public_ip.ondemand-pip[0].fqdn : try( local.configuration_yml["ondemand"]["fqdn"], azurerm_network_interface.ondemand-nic.private_ip_address)
       subscription_id     = data.azurerm_subscription.primary.subscription_id
       tenant_id           = data.azurerm_subscription.primary.tenant_id

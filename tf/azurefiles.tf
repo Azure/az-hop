@@ -40,7 +40,7 @@ resource "azurerm_storage_share" "nfsFilesHome" {
     name                 = "nfshome"
     storage_account_name = azurerm_storage_account.nfsfiles[0].name
     access_tier          = "Premium"
-    enabled_protocol     = "SMB"
+    enabled_protocol     = "NFS"
     # root_squash          = NoRootSquash # Not supported in Terraform
     quota                = local.azure_files_size
 }
