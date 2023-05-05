@@ -28,7 +28,7 @@ on:
       lustre:
         description: 'Deploy a Lustre cluster (true/false) - Default to true'
         required: false
-        default: 'true' # use it with ${{ github.event.inputs.lustre }}
+        default: 'false' # use it with ${{ github.event.inputs.lustre }}
 
 jobs:
   deploy:
