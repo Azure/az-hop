@@ -1,0 +1,243 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
+  "handler": "Microsoft.Azure.CreateUIDef",
+  "version": "0.1.2-preview",
+  "parameters": {
+    "basics": [
+      {
+        "name": "azhopResourceGroup",
+        "type": "Microsoft.Common.TextBox",
+        "label": "Azhop Resource Group",
+        "defaultValue": "",
+        "toolTip": "",
+        "constraints": {
+          "required": true,
+          "regex": "",
+          "validationMessage": ""
+        },
+        "visible": true
+      },
+      {
+        "name": "adminUser",
+        "type": "Microsoft.Common.TextBox",
+        "label": "Admin User",
+        "defaultValue": "",
+        "toolTip": "Admin user for the Virtual Machines.",
+        "constraints": {
+          "required": true,
+          "regex": "",
+          "validationMessage": ""
+        },
+        "visible": true
+      },
+      {
+        "name": "autogeneratePasswordsAndKeys",
+        "type": "Microsoft.Common.CheckBox",
+        "label": "Autogenerate keypair and passwords",
+        "defaultValue": true,
+        "toolTip": "Keypair and passwords can be retrieved from keyvault after deploying.",
+        "constraints": {
+          "required": false,
+          "validationMessage": ""
+        }
+      },
+      {
+        "name": "adminSshPublicKey",
+        "type": "Microsoft.Common.TextBox",
+        "label": "Admin Ssh Public Key",
+        "toolTip": "SSH Public Key for the Virtual Machines.",
+        "constraints": {
+          "required": "[basics('autogeneratePasswordsAndKeys')]",
+          "regex": "",
+          "validationMessage": ""
+        },
+        "visible": "[not(basics('autogeneratePasswordsAndKeys'))]"
+      },
+      {
+        "name": "adminSshPrivateKey",
+        "type": "Microsoft.Common.TextBox",
+        "label": "Admin Ssh Private Key",
+        "toolTip": "SSH Private Key for the Virtual Machines.",
+        "multiLine": true,
+        "constraints": {
+          "required": "[basics('autogeneratePasswordsAndKeys')]",
+          "regex": "",
+          "validationMessage": ""
+        },
+        "visible": "[not(basics('autogeneratePasswordsAndKeys'))]"
+      },
+      {
+        "name": "adminPassword",
+        "type": "Microsoft.Common.PasswordBox",
+        "label": {
+          "password": "Admin Password",
+          "confirmPassword": "Confirm password"
+        },
+        "toolTip": "The Windows/Active Directory password.",
+        "constraints": {
+          "required": "[basics('autogeneratePasswordsAndKeys')]",
+          "regex": "",
+          "validationMessage": ""
+        },
+        "options": {
+          "hideConfirmation": true
+        },
+        "visible": "[not(basics('autogeneratePasswordsAndKeys'))]"
+      },
+      {
+        "name": "databaseAdminPassword",
+        "type": "Microsoft.Common.PasswordBox",
+        "label": {
+          "password": "Database Admin Password",
+          "confirmPassword": "Confirm password"
+        },
+        "toolTip": "Password for the database admin user",
+        "constraints": {
+          "required": "[basics('autogeneratePasswordsAndKeys')]",
+          "regex": "",
+          "validationMessage": ""
+        },
+        "options": {
+          "hideConfirmation": true
+        },
+        "visible": "[not(basics('autogeneratePasswordsAndKeys'))]"
+      },
+      {
+        "name": "announcement",
+        "type": "Microsoft.Common.TextBlock",
+        "visible": true,
+        "options": {
+          "text": "The following option allows an additional user to access the Azure KeyVault.  An ObjectId is required here.  To get the currently signed in user with the AzureCLI, use 'az ad signed-in-user show --query id -o tsv'."
+        }
+      },
+      {
+        "name": "keyvaultReader",
+        "type": "Microsoft.Common.TextBox",
+        "label": "Additional Keyvault Reader",
+        "defaultValue": "",
+        "toolTip": "This must be a ObjectId",
+        "constraints": {
+          "required": false,
+          "regex": "",
+          "validationMessage": ""
+        },
+        "visible": true
+      },
+      {
+        "name": "branchName",
+        "type": "Microsoft.Common.TextBox",
+        "label": "Branch Name",
+        "defaultValue": "main",
+        "toolTip": "Branch of the azhop repo to pull - Default to main",
+        "constraints": {
+          "required": false,
+          "regex": "",
+          "validationMessage": ""
+        },
+        "visible": true
+      }
+    ],
+    "steps": [
+      {
+        "name": "homedir",
+        "label": "Home Directory",
+        "subLabel": {
+          "preValidation": "Configure your home directory settings",
+          "postValidation": "Done"
+        },
+        "bladeTitle": "Home Directory Settings",
+        "elements": [
+          {
+            "name": "type",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Storage Type",
+            "defaultValue": "Azure Files",
+            "multiselect": false,
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "Azure Files",
+                  "value": "azurefiles"
+                },
+                {
+                  "label": "Azure NetApp Files",
+                  "value": "anf"
+                }
+              ],
+              "required": true
+            },
+            "visible": true
+          },
+          {
+            "name": "mountpoint",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Mountpoint",
+            "defaultValue": "/clusterhome",
+            "toolTip": "Home directory mountpoint on the VMs.",
+            "constraints": {
+              "required": false,
+              "regex": "",
+              "validationMessage": ""
+            },
+            "visible": true
+          },
+          {
+            "name": "anftier",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Service Level",
+            "defaultValue": "Premium",
+            "multiselect": false,
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "Standard",
+                  "value": "Standard"
+                },
+                {
+                  "label": "Premium",
+                  "value": "Premium"
+                },
+                {
+                  "label": "Ultra",
+                  "value": "Ultra"
+                }
+              ],
+              "required": true
+            },
+            "visible": "[equals(steps('homedir').type,'anf')]"
+          },
+          {
+            "name": "anfcapacity",
+            "type": "Microsoft.Common.Slider",
+            "label": "Capacity",
+            "subLabel": "TB",
+            "defaultValue": 4,
+            "min": 4,
+            "max": 100,
+            "visible": "[equals(steps('homedir').type,'anf')]"
+          },
+          {
+            "name": "azurefilescapacity",
+            "type": "Microsoft.Common.Slider",
+            "label": "Capacity",
+            "subLabel": "GB",
+            "defaultValue": 1024,
+            "min": 100,
+            "max": 102400,
+            "visible": "[equals(steps('homedir').type,'azurefiles')]"
+          }
+        ]
+      }
+    ],
+    "outputs": {
+      "loggedUserObjectId": "",
+      "branchName": "[basics('branchName')]",
+      "autogenerateSecrets": "[basics('autogeneratePasswordsAndKeys')]",
+      "adminSshPublicKey": "[if(basics('autogeneratePasswordsAndKeys'),'',basics('adminSshPublicKey'))]",
+      "adminSshPrivateKey": "[if(basics('autogeneratePasswordsAndKeys'),'',basics('adminSshPrivateKey'))]",
+      "adminPassword": "[if(basics('autogeneratePasswordsAndKeys'),'',basics('adminPassword'))]",
+      "databaseAdminPassword": "[if(basics('autogeneratePasswordsAndKeys'),'',basics('databaseAdminPassword'))]",
+      "azhopConfig": {}    
+    }
+  }
+}

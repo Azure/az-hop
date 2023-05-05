@@ -104,8 +104,10 @@ var config = {
 
   domain: {
     name : contains(azhopConfig, 'domain') ? azhopConfig.domain.name : 'hpc.azure'
-    domain_join_user: {
-      username: createAD ? azhopConfig.admin_user : azhopConfig.domain.domain_join_user.username
+    domain_join_user: createAD ? {
+      username: azhopConfig.admin_user
+    } : {
+      username: azhopConfig.domain.domain_join_user.username
       password_key_vault_name: azhopConfig.domain.domain_join_user.password_key_vault_name
       password_key_vault_resource_group_name: azhopConfig.domain.domain_join_user.password_key_vault_resource_group_name
       password_key_vault_secret_name: azhopConfig.domain.domain_join_user.password_key_vault_secret_name
@@ -595,15 +597,14 @@ module azhopSecrets './secrets.bicep' = if (autogenerateSecrets) {
   }
 }
 
-var domainPassword = adminPassword
-
 var secrets = (autogenerateSecrets) ? azhopSecrets.outputs.secrets : {
   adminSshPublicKey: adminSshPublicKey
   adminSshPrivateKey: adminSshPrivateKey
   adminPassword: adminPassword
-  domainPassword: domainPassword
   databaseAdminPassword: databaseAdminPassword
 }
+
+var domainPassword = secrets.adminPassword
 
 module azhopNetwork './network.bicep' = {
   name: 'azhopNetwork'
@@ -719,7 +720,7 @@ module kvSecretDomainJoin './kv_secrets.bicep' = if (createAD) {
   params: {
     vaultName: azhopKeyvault.outputs.keyvaultName
     name: '${config.domain.domain_join_user.username}-password'
-    value: secrets.domainPassword
+    value: domainPassword
   }
 }
 
@@ -908,7 +909,7 @@ output azhopInventory object = {
           ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'grafana')].outputs.privateIp
         }
       },
-      indexOf(map(vmItems, item => item.key), 'ad') > 0 ? {
+      indexOf(map(vmItems, item => item.key), 'ad') >= 0 ? {
         ad: {
         ansible_host: adIp
         ansible_connection: 'psrp'
@@ -919,7 +920,7 @@ output azhopInventory object = {
         ansible_psrp_proxy: deployJumpbox ? 'socks5h://localhost:5985' : ''
         }
       } : {} ,
-      indexOf(map(vmItems, item => item.key), 'ad2') > 0 ? {
+      indexOf(map(vmItems, item => item.key), 'ad2') >= 0 ? {
         ad2: {
           ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'ad2')].outputs.privateIp
           ansible_connection: 'psrp'

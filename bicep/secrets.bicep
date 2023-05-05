@@ -21,7 +21,7 @@ resource secrets 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
         "adminSshPublicKey": "$(cat key.pub)",
         "adminSshPrivateKey": "$(cat key)",
         "adminPassword": "$(openssl rand -base64 24)",
-        "slurmAccountingAdminPassword": "$(openssl rand -base64 24)"
+        "databaseAdminPassword": "$(openssl rand -base64 24)"
       }
       EOF
 
@@ -33,7 +33,6 @@ output secrets object = {
   adminSshPublicKey: reference('secrets').outputs.adminSshPublicKey
   adminSshPrivateKey: reference('secrets').outputs.adminSshPrivateKey
   adminPassword: reference('secrets').outputs.adminPassword
-  domainPassword: reference('secrets').outputs.adminPassword
-  slurmAccountingAdminPassword: reference('secrets').outputs.slurmAccountingAdminPassword
+  databaseAdminPassword: reference('secrets').outputs.databaseAdminPassword
 }
 
