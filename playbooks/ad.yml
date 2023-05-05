@@ -34,6 +34,12 @@
         connection: local
         when: (jumpbox is defined)
 
+      - name: Wait 300 seconds for the nodes to be ready
+        wait_for_connection:
+          timeout: 300
+      - name: Gather facts for first time
+        setup:
+
       - name: Run command to mitigate AD vulnerability 
         win_command: netsh int ipv4 set global sourceroutingbehavior=drop 
 
@@ -68,7 +74,10 @@
           dns_domain_name: '{{domain_name}}'
           safe_mode_password: '{{ad_join_password.stdout}}'
         register: ad_promotion
-
+        retries: 3
+        delay: 30
+        until: ad_promotion is succeeded
+        
       # - name: Promote server
       #   ansible.windows.win_domain_controller:
       #     dns_domain_name: '{{domain_name}}'
