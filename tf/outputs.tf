@@ -51,7 +51,7 @@ resource "local_file" "global_variables" {
       subscription_id     = data.azurerm_subscription.primary.subscription_id
       tenant_id           = data.azurerm_subscription.primary.tenant_id
       key_vault           = azurerm_key_vault.azhop.name
-      sig_name            = azurerm_shared_image_gallery.sig.name
+      sig_name            = local.create_sig ? azurerm_shared_image_gallery.sig[0].name : ""
       lustre_hsm_storage_account = ( local.lustre_archive_account != null ? local.lustre_archive_account : azurerm_storage_account.azhop.name )
       lustre_hsm_storage_container = ( local.lustre_archive_account != null ? local.configuration_yml["lustre"]["hsm"]["storage_container"] : (local.lustre_enabled ? azurerm_storage_container.lustre_archive[0].name : "") )
       database-fqdn       = local.create_database ? azurerm_mariadb_server.mariadb[0].fqdn : (local.use_existing_database ? local.configuration_yml["database"].fqdn : "")
@@ -94,7 +94,7 @@ resource "local_file" "packer_pip" {
       subscription_id = data.azurerm_subscription.primary.subscription_id
       resource_group  = local.resource_group
       location        = local.location
-      sig_name        = azurerm_shared_image_gallery.sig.name
+      sig_name        = local.create_sig ? azurerm_shared_image_gallery.sig[0].name : ""
       private_virtual_network_with_public_ip = false # Never use public IPs for packer VMs
       virtual_network_name                   = local.create_vnet ? azurerm_virtual_network.azhop[0].name : data.azurerm_virtual_network.azhop[0].name
       virtual_network_subnet_name            = local.create_compute_subnet ? azurerm_subnet.compute[0].name : data.azurerm_subnet.compute[0].name

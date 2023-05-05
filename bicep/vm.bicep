@@ -18,7 +18,7 @@ resource publicIp 'Microsoft.Network/publicIPAddresses@2021-05-01' = if (contain
     name: 'Basic'
   }
   properties: {
-    publicIPAllocationMethod: 'Dynamic'
+    publicIPAllocationMethod: 'Static'
     publicIPAddressVersion: 'IPv4'
     idleTimeoutInMinutes: 4
     dnsSettings: {
