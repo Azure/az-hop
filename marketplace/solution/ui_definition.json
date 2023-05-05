@@ -227,6 +227,41 @@
             "visible": "[equals(steps('homedir').type,'azurefiles')]"
           }
         ]
+      },
+      {
+        "name": "network",
+        "label": "Network",
+        "subLabel": {
+          "preValidation": "Configure your network settings",
+          "postValidation": "Done"
+        },
+        "bladeTitle": "Network Settings",
+        "elements": [
+          {
+            "name": "publicIp",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Enable public IP address for the ondemand VM.",
+            "defaultValue": true
+          },
+          {
+            "name": "peering",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Enable peering azhop to your existing VNET.",
+            "defaultValue": false
+          },
+          {
+            "name": "vnetname",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Name of the virtual network to peer to.",
+            "visible": "[steps('network').peering]"
+          },
+          {
+            "name": "vnetrg",
+            "type": "Microsoft.Common.TextBox",
+            "label": "The resource group name containing the peered VNET.",
+            "visible": "[steps('network').peering]"
+          }
+        ]
       }
     ],
     "outputs": {
