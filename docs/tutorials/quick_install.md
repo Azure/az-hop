@@ -4,7 +4,7 @@
    * [Before the hands-on lab](#before-the-hands-on-lab)
       * [Task 1: Validate the owner role assignment in the Azure subscription](#task-1-validate-the-owner-role-assignment-in-the-azure-subscription)
       * [Task 2: Validate a sufficient number of vCPU cores](#task-2-validate-a-sufficient-number-of-vcpu-cores)
-   * [Exercise 1: Deploy the Azure HPC OnDemand Platform environment](#exercise-1-deploy-the-azure-hpc-ondemand-platform-environment)
+   * [Deploy Azure HPC OnDemand Platform environment](#exercise-1-deploy-the-azure-hpc-ondemand-platform-environment)
       * [Task 1: Connect to a Cloud Shell session](#task-1-connect-to-a-cloud-shell-session)
       * [Task 2 : Clone the az-hop GitHub repository](#task-2--clone-the-az-hop-github-repository)
       * [Task 3 : Prepare the configuration file used to build the az-hop environment](#task-3--prepare-the-configuration-file-used-to-build-the-az-hop-environment)
@@ -18,9 +18,11 @@
 <!-- ./gh-md-toc --insert --no-backup --hide-footer -->
 
 # Quick Installation Guide
-This QuickStart guide will show you how to build and use an OnDemand HPC cluster on Azure through the deployment of a simple **Azure HPC On-Demand Platform** environment. In this light environment, there is no Lustre cluster, no Window Viz nodes. `Az-hop` CentOS 7.9 Azure marketplace images for compute and remote desktop nodes will be used.
+This quick installation guide will take you to the steps to build and use an OnDemand HPC cluster on Azure through the deployment of a simple **Azure HPC On-Demand Platform** environment.
+In this light environment, there is NO Lustre cluster, NO Window Viz nodes.
+**Az-hop** CentOS 7.9 Azure marketplace images for compute and remote desktop nodes will be used.
 
-When provisioning a complete `az-hop` environment a deployer VM and a bastion will be included. Once deployed, a cloud init script is run from the deployer VM to install and configure all components needed using Ansible playbooks. This second step is longer as it needs to install and configure Domain Control, CycleCloud, OpenOndemand, PBS, Grafana and many other things. The use of Ansible will allow this system to be updated and in case of failure the installation to be repaired.
+To provision the **Az-hop** environment a Windows Subsystem for Linux (**WSL**) is needed to run the scripts and configure all components needed using Ansible playbooks. This second step is longer as it needs to install and configure Domain Control, CycleCloud, OpenOndemand, PBS, Grafana and many other things. The use of Ansible will allow this system to be updated and in case of failure the installation to be repaired.
 
 ## Requirements
 
@@ -85,46 +87,82 @@ To complete this lab, you must verify that your account has sufficient permissio
 
    > Note: Typically, requests for quota increases are completed within a few hours, but its possible that the processing might take up to a few days.
 
-## Exercise 1: Deploy the Azure HPC OnDemand Platform environment
+
+## Quick installation of the Azure HPC OnDemand Platform environment
 
 Duration: 50 minutes
 
-In this exercise, you will use Azure Cloud Shell to set up an `az-hop` environment.
+In this exercise, you will learn how to deploy **Az-hop** utilizing a Linux machine.
 
-### Task 1: Connect to a Cloud Shell session
+### Task 1: Set up WSL2
 
-1. From the lab computer, start a web browser, navigate to [the Azure portal](http://portal.azure.com), and if needed, sign in with credentials of the account with the Owner role in the Azure subscription you will be using in this lab.
+To install **Az-hop** we require to have a Linux machine that could support the toolchain to use during the installation, it is preferred to use Ubuntu 20.04+. So, if you are running a Windows desktop you should use WSL2 with an Ubuntu 20.04 environment.
 
-1. In the Azure portal, start a Bash session in **Cloud Shell**. The **Cloud Shell** icon is located on the ribbon, on the right of the search box.
+Run the following commands to install WSL2 (you will only need to do this once on your local device) in your Windows computer.
 
-   > Note: If prompted, in the **Welcome to Azure Cloud Shell** window, select **Bash (Linux)**, and in the **You have no storage mounted** window, select **Create storage**.
+1.	Open PowerShell as administrator.
 
-1. In the **Bash** session, in the **Cloud Shell** pane, run the following command to select the Azure subscription in which you will provision the Azure resources in this lab. In the following command, replace the `<subscription_ID>` placeholder with the value of the **subscriptionID** property of the Azure subscription you are using in this lab.</br>
-    Run the `az account show` to display the current account and subscription in scope.
-    If you need to change the current subscription, follow the instructions below.
+ ![image](../images/start_windows_ps.png)
 
-    ##### Setting the subscription in scope
-    To obtain the subscription ID run the following command in the Bash terminal.
+2.	Execute the following command to install WSL2:
 
+```bash
+wsl --install
+```
+
+3.	After installation is complete, restart your computer.
+
+4.	Once your computer turns back on, run WSL (search for it in your computer's Start menu if it doesn't open automatically). The prompt is going to ask you to set up a username and password for your Ubuntu Linux Virtual machine.
+
+![image](../images/ubuntu_installation.png)
+ 
+5.	Now, open your Linux shell (i.e. Command Prompt). Validate that you are running version 2 of WSL.
+
+```bash
+wsl --status
+```
+
+![image](../images/wsl_status.png)
+
+After this the WSL2 is ready to use.
+
+### Task 2 : Cloning the Az-hop GitHub repository
+1. Open WSL in your Windows machine to start WSL.
+
+2. Run the following command to clone the latest version of **Az-hop** from the public GiHub repository.
+
+   ```bash
+   git clone --recursive https://github.com/Azure/az-hop.git
+   ```
+### Task 3: Installing the toolchain in the Linux system
+1. Change directory
+    ```bash
+    cd az-hop
+    ```
+2. Install the toolchain
+    ```bash
+    sudo ./toolset/scripts/install.sh
+    ```
+    After the installation is done, a list of the applications installed will appear as shown below.
+    ![image](../images/toolchain-installation-finished.jpg)
+
+### Task 4: Login in Azure
+1. Run the following command to start the sign in process in browser, log in with the Azure account you are using for the deployment. 
+    Replace `<tenant_ID>` for the tenant ID where the subscription is located.
+    ```bash
+    az login --tenant '<tenant_ID>' --use-device-code
+    ```
+2. After the login process finished, change to the subscription you will use for the deployment. First locate the Subscription ID in this tenant by running the following command
     ```bash
     az account list -otable --query '[].{subscriptionId: id, name: name, isDefault: isDefault}'
     ```
-
-    Once we have obtained the Subscription ID, we proceed to replace it in the following command to set the subscription scope.
+3. Proceed to select the subscription in scope by replacing `<subscription_ID>` with the Subscription ID obtained in the last step in the following command.
 
     ```bash
     az account set --subscription '<subscription_ID>'
     ```
 
-### Task 2 : Clone the `az-hop` GitHub repository
-
-1. Run the following commands to clone the public `az-hop` gihub repository in your Cloud Shell session.
-
-   ```bash
-   git clone https://github.com/Azure/az-hop.git
-   ```
-
-### Task 3 : Prepare the configuration file to build the `az-hop` environment
+### Task 5 : Prepare the configuration file to build the `az-hop` environment
 
 During this task, you will prepare the `config.yml` file used by the deploy helper script in order to build the `az-hop` environment.
 
