@@ -70,7 +70,7 @@
         register: ad_promotion
         retries: 3
         delay: 30
-        until: ad_promotion.failed
+        until: ad_promotion is succeeded
         
       # - name: Promote server
       #   ansible.windows.win_domain_controller:
