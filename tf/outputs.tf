@@ -12,9 +12,9 @@ resource "local_file" "AnsibleInventory" {
       jumpbox-pip       = local.allow_public_ip ? azurerm_public_ip.jumpbox-pip[0].ip_address : ( local.jumpbox_enabled ? azurerm_network_interface.jumpbox-nic[0].private_ip_address : "0.0.0.0")
       admin-user        = local.admin_username
       jumpbox-ssh-port  = local.jumpbox_ssh_port
-      ad-ip             = azurerm_network_interface.ad-nic.private_ip_address
-      ad2-ip            = local.ad_ha ? azurerm_network_interface.ad2-nic[0].private_ip_address : azurerm_network_interface.ad-nic.private_ip_address
-      ad-passwd         = azurerm_windows_virtual_machine.ad.admin_password
+      ad-ip             = local.create_ad ? azurerm_network_interface.ad-nic[0].private_ip_address : "0.0.0.0"
+      ad2-ip            = local.ad_ha ? azurerm_network_interface.ad2-nic[0].private_ip_address : (local.create_ad ? azurerm_network_interface.ad-nic[0].private_ip_address : "0.0.0.0")
+      ad-passwd         = local.domain_join_password
       lustre-oss-count  = local.lustre_oss_count
     }
   )
@@ -43,9 +43,10 @@ resource "local_file" "global_variables" {
       resource_group      = local.resource_group
       config_file         = local.configuration_file
       homedir_mountpoint  = local.homedir_mountpoint
-      anf-home-ip         = local.create_anf ? element(azurerm_netapp_volume.home[0].mount_ip_addresses, 0) : local.configuration_yml["mounts"]["home"]["server"]
-      anf-home-path       = local.create_anf ? azurerm_netapp_volume.home[0].volume_path : local.configuration_yml["mounts"]["home"]["export"]
-      homedir_options     = local.create_anf ? "rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev" : try(local.configuration_yml["mounts"]["home"]["options"], "rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev") 
+
+      anf-home-ip         = local.homedir_type == "anf" ? element(azurerm_netapp_volume.home[0].mount_ip_addresses, 0) : ( local.homedir_type == "azurefiles" ? "${azurerm_storage_account.nfsfiles[0].name}.${local.azure_endpoints[local.azure_environment].FileStorageSuffix}" : local.config_nfs_home_ip)
+      anf-home-path       = local.homedir_type == "anf" ? azurerm_netapp_volume.home[0].volume_path : ( local.homedir_type == "azurefiles" ? "/${azurerm_storage_account.nfsfiles[0].name}/nfshome" : local.config_nfs_home_path)
+      homedir_options     = local.homedir_type == "anf" ? "rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev" : ( local.homedir_type == "azurefiles" ? "vers=4,minorversion=1,sec=sys" : local.config_nfs_home_opts)
       ondemand-fqdn       = local.allow_public_ip ? azurerm_public_ip.ondemand-pip[0].fqdn : try( local.configuration_yml["ondemand"]["fqdn"], azurerm_network_interface.ondemand-nic.private_ip_address)
       subscription_id     = data.azurerm_subscription.primary.subscription_id
       tenant_id           = data.azurerm_subscription.primary.tenant_id
@@ -57,6 +58,9 @@ resource "local_file" "global_variables" {
       database-user       = local.database_user
       jumpbox-ssh-port    = local.jumpbox_ssh_port
       dns-ruleset-name    = local.create_dnsfw_rules ? azurerm_private_dns_resolver_dns_forwarding_ruleset.forwarding_ruleset[0].name : ""
+      domain-name         = local.domain_name
+      domain_join_user    = local.domain_join_user
+      ldap-server         = "${local.ldap_server}.${local.domain_name}"
     }
   )
   filename = "${local.playbook_root_dir}/group_vars/all.yml"

@@ -11,6 +11,8 @@
   vars:
     ondemand_version: 2.0.29
     ood_core_version: 0.22.0
+    yq_version: v4.25.3
+    yq_binary: yq_linux_amd64
 
   tasks:
   - name: Wait 300 seconds for the nodes to be ready
@@ -288,11 +290,11 @@
           StrictHostKeyChecking=No
       dest: /etc/ssh/ssh_config
 
-  - name: Insert/Update Match group "domain users" configuration block in /etc/ssh/sshd_config
+  - name: Insert/Update Match group "azhop-users" configuration block in /etc/ssh/sshd_config
     blockinfile:
       path: /etc/ssh/sshd_config
       block: |
-        Match group "domain users"
+        Match group "{{ (usergroups | selectattr('gid', 'eq', 5000) | map(attribute='name'))[0] | default('azhop-users', true) }}"
           AllowUsers *
 
   - name: setup azcopy
@@ -444,6 +446,14 @@
     shell: |
       echo "{{ood_version.stdout}} | AZHOP {{azhop_version.stdout}}" > /opt/ood/VERSION
 
+  # Create a script to run before the PUN is created, to set the user's environment
+  # Defined in the pun_pre_hook_root_cmd variable set in the ood-overrides-common.yml file
+  - name: Copy the pun_pre_hook script
+    copy: 
+      src: files/pun_pre_hook.sh
+      dest: /etc/ood/config/pun_pre_hook.sh
+      mode: 0755
+  
   - name: restart ood
     shell: systemctl try-restart httpd24-httpd.service httpd24-htcacheclean.service
 
@@ -479,6 +489,12 @@
     when:  ( cvmfs_eessi.enabled | default(false) )
 
   # Generate the node array core lookup file for ondemand - will be only run if the marker file for ondemand exists
+  - name: "yq: Download and install (CentOS)"
+    get_url:
+      url: "https://github.com/mikefarah/yq/releases/download/{{ yq_version }}/{{ yq_binary }}"
+      dest: /usr/bin/yq
+      mode: 0755
+
   - import_tasks: nodearray_lookup.yml
     vars:
       marker_file: cccluster.ok

@@ -27,6 +27,12 @@
     register: password
     become: false
 
+  - name: Read AD Join Password from KV
+    command: az keyvault secret show --vault-name {{key_vault}} -n {{ad_join_user}}-password --query "value" -o tsv
+    delegate_to: localhost
+    connection: local
+    register: ad_join_password
+    become: false
 
   - name: Init image lookup file
     shell: |
@@ -102,6 +108,7 @@
       cc_subnetid: '{{compute_subnetid}}'
       cc_admin_user: '{{admin_user}}'
       cc_password: '{{password.stdout}}'
+      cc_ad_join_password: '{{ad_join_password.stdout}}'
       cc_queues: '{{queues}}'
       cc_remoteviz: '{{remoteviz}}'
       cc_image_lookup: '{{image_lookup}}'

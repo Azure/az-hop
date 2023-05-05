@@ -7,12 +7,12 @@ resource "azurerm_netapp_account" "azhop" {
   dynamic "active_directory" {
     for_each = local.anf_dual_protocol ? [1] : []
     content {
-      username            = local.admin_username 
-      password            = azurerm_windows_virtual_machine.ad.admin_password 
+      username            = local.domain_join_user
+      password            = local.domain_join_password
       smb_server_name     = "anf"
-      dns_servers         = local.ad_ha ? [azurerm_network_interface.ad-nic.private_ip_address, azurerm_network_interface.ad2-nic[0].private_ip_address] : [azurerm_network_interface.ad-nic.private_ip_address]
-      domain              = "hpc.azure"
-      organizational_unit = "CN=Computers"
+      dns_servers         = local.private_dns_servers
+      domain              = local.domain_name
+      organizational_unit = local.domain_join_ou
     }
   }
   lifecycle {
@@ -28,8 +28,8 @@ resource "azurerm_netapp_pool" "anfpool" {
   account_name        = azurerm_netapp_account.azhop[0].name
   location            = azurerm_netapp_account.azhop[0].location
   resource_group_name = azurerm_netapp_account.azhop[0].resource_group_name
-  service_level       = local.homefs_service_level
-  size_in_tb          = local.homefs_size_tb
+  service_level       = local.anf_service_level
+  size_in_tb          = local.anf_size
   lifecycle {
     ignore_changes = [
       tags
@@ -44,11 +44,11 @@ resource "azurerm_netapp_volume" "home" {
   account_name        = azurerm_netapp_account.azhop[0].name
   pool_name           = azurerm_netapp_pool.anfpool[0].name
   volume_path         = "home-${random_string.resource_postfix.result}"
-  service_level       = local.homefs_service_level
+  service_level       = local.anf_service_level
   subnet_id           = local.create_netapp_subnet ? azurerm_subnet.netapp[0].id : data.azurerm_subnet.netapp[0].id
   protocols           = local.anf_dual_protocol ?  ["NFSv3", "CIFS"] : ["NFSv3"]
   security_style      = "Unix"
-  storage_quota_in_gb = local.homefs_size_tb * 1024
+  storage_quota_in_gb = local.anf_size * 1024
 
   export_policy_rule {
     rule_index        = 1 
@@ -62,6 +62,11 @@ resource "azurerm_netapp_volume" "home" {
       tags
     ]
   }
+
+  depends_on = [
+    azurerm_subnet.netapp,
+    data.azurerm_subnet.netapp
+  ]
 }
 
 resource "azurerm_monitor_metric_alert" "anf_alert" {

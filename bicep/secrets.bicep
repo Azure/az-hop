@@ -33,6 +33,7 @@ output secrets object = {
   adminSshPublicKey: reference('secrets').outputs.adminSshPublicKey
   adminSshPrivateKey: reference('secrets').outputs.adminSshPrivateKey
   adminPassword: reference('secrets').outputs.adminPassword
+  domainPassword: reference('secrets').outputs.adminPassword
   slurmAccountingAdminPassword: reference('secrets').outputs.slurmAccountingAdminPassword
 }
 

@@ -22,7 +22,14 @@
     command: az keyvault secret show --vault-name {{key_vault}} -n {{admin_user}}-password --query "value" -o tsv
     delegate_to: localhost
     connection: local
-    register: password
+    register: admin_password
+    become: false
+
+  - name: Read Domain Join Password from KV
+    command: az keyvault secret show --vault-name {{key_vault}} -n {{ad_join_user}}-password --query "value" -o tsv
+    delegate_to: localhost
+    connection: local
+    register: adjoin_password
     become: false
 
   - name: Install InfluxDB
@@ -30,7 +37,7 @@
       name: influxdb
     vars:
       influxdb_username: "{{admin_user}}"
-      influxdb_password: "{{password.stdout}}"
+      influxdb_password: "{{admin_password.stdout}}"
       influxdb_database_name: "telegraf"
 
   - name: Install Grafana
@@ -38,8 +45,8 @@
       name: grafana
     vars:
       grafana_fqdn: localhost
-      grafana_admin_user: "{{None if ((authentication.httpd_auth is defined) and (authentication.httpd_auth == 'oidc')) else admin_user}}"
-      grafana_admin_password: "{{None if ((authentication.httpd_auth is defined) and (authentication.httpd_auth == 'oidc')) else password.stdout}}"
+      grafana_admin_user: "{{None if ((authentication.httpd_auth is defined) and (authentication.httpd_auth == 'oidc')) else ad_join_user}}"
+      grafana_admin_password: "{{None if ((authentication.httpd_auth is defined) and (authentication.httpd_auth == 'oidc')) else adjoin_password.stdout}}"
       grafana_ldap_server: "{{None if ((authentication.httpd_auth is defined) and (authentication.httpd_auth == 'oidc')) else ldap_server}}"
       grafana_server_root_url: "%(protocol)s://%(domain)s:%(http_port)s/rnode/grafana/%(http_port)s/"
       grafana_anonymous_auth: "{{true if ((authentication.httpd_auth is defined) and (authentication.httpd_auth == 'oidc')) else false}}"
@@ -51,7 +58,7 @@
           access: "proxy"
           database: "telegraf"
           user: "{{admin_user}}"
-          password: "{{password.stdout}}"
+          password: "{{admin_password.stdout}}"
           url: http://localhost:8086
           jsonData:
             httpMode: GET
