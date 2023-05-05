@@ -23,14 +23,14 @@ alerting:
 
 anf:
   create: "[equals(steps('homedir').type, 'anf')]"
-  homefs_size_tb: "[steps('homedir').anfcapacity]"
-  homefs_service_level: "[steps('homedir').anftier]"
+  homefs_size_tb: "[if(equals(steps('homedir').type, 'anf'), steps('homedir').anfcapacity, 4)]"
+  homefs_service_level: "[if(equals(steps('homedir').type, 'anf'), steps('homedir').anftier, 'Premium')]"
   dual_protocol: false # true to enable SMB support. false by default
   alert_threshold: 80 # alert when ANF volume reaches this threshold
 
 azurefiles:
   create: "[equals(steps('homedir').type, 'azurefiles')]"
-  size_gb: "[steps('homedir').azurefilescapacity]"
+  size_gb: "[if(equals(steps('homedir').type, 'azurefiles'), steps('homedir').azurefilescapacity, 1024)]"
 
 mounts:
   home:
@@ -41,7 +41,7 @@ mounts:
     options: "[if(equals(steps('homedir').type, 'azurefiles'), 'vers=4,minorversion=1,sec=sys', '{{anf_home_opts}}')]"
 
 admin_user: "[basics('adminUser')]"
-key_vault_readers: 
+key_vault_readers: "[basics('keyvaultReader')]"
 
 network:
   create_nsg: true
@@ -100,7 +100,6 @@ cyclecloud:
 users:
   - { name: hpcuser,   uid: 10001 }
   - { name: adminuser, uid: 10002, groups: [5001, 5002] }
-  - { name: john.john,   uid: 10003 }
 
 usergroups:
   - name: Domain Users # All users will be added to this one by default
@@ -147,11 +146,57 @@ queues:
     image: azhpc:azhop-compute:centos-7_9:latest
     spot: false
     ColocateNodes: false
-  - name: a100
-    vm_size: Standard_ND96amsr_A100_v4
-    max_core_count: 768
-    image: microsoft-dsvm:ubuntu-hpc:1804:18.04.2023031501
+  - name: hc44rs
+    vm_size: Standard_HC44rs
+    max_core_count: 440
+    image: azhpc:azhop-compute:centos-7_9:latest
+    spot: true
+    EnableAcceleratedNetworking: true
+  - name: hb120v2
+    vm_size: Standard_HB120rs_v2
+    max_core_count: 1200
+    image: azhpc:azhop-compute:centos-7_9:latest
+    spot: true
+    EnableAcceleratedNetworking: true
+  - name: hb120v3
+    vm_size: Standard_HB120rs_v3
+    max_core_count: 1200
+    image: azhpc:azhop-compute:centos-7_9:latest
+    spot: true
+    EnableAcceleratedNetworking: true
+    # Queue dedicated to GPU remote viz nodes. This name is fixed and can't be changed
+  - name: viz3d
+    vm_size: Standard_NV12s_v3
+    max_core_count: 48
+    # Use the pre-built azhop image from the marketplace
+    image: azhpc:azhop-desktop:centos-7_9:latest
+    # Use this image ID when building your own custom images
+    #image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
+    ColocateNodes: false
     spot: false
+    EnableAcceleratedNetworking: true
+    max_hours: 12 # Maximum session duration
+    min_hours: 1 # Minimum session duration - 0 is infinite
+    # Queue dedicated to share GPU remote viz nodes. This name is fixed and can't be changed
+  - name: largeviz3d
+    vm_size: Standard_NV48s_v3
+    max_core_count: 96
+    image: azhpc:azhop-desktop:centos-7_9:latest
+    ColocateNodes: false
+    EnableAcceleratedNetworking: true
+    spot: false
+    max_hours: 12
+    min_hours: 1
+    # Queue dedicated to non GPU remote viz nodes. This name is fixed and can't be changed
+  - name: viz
+    vm_size: Standard_D8s_v5
+    max_core_count: 200
+    image: azhpc:azhop-desktop:centos-7_9:latest
+    ColocateNodes: false
+    spot: false
+    EnableAcceleratedNetworking: true
+    max_hours: 12
+    min_hours: 1
 
 enable_remote_winviz: false # Set to true to enable windows remote visualization
 

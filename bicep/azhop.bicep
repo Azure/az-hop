@@ -904,7 +904,7 @@ output azhopInventory object = {
           ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'grafana')].outputs.privateIp
         }
       },
-      indexOf(map(vmItems, item => item.key), 'ad') > 0 ? {
+      indexOf(map(vmItems, item => item.key), 'ad') >= 0 ? {
         ad: {
         ansible_host: adIp
         ansible_connection: 'psrp'
@@ -915,7 +915,7 @@ output azhopInventory object = {
         ansible_psrp_proxy: deployJumpbox ? 'socks5h://localhost:5985' : ''
         }
       } : {} ,
-      indexOf(map(vmItems, item => item.key), 'ad2') > 0 ? {
+      indexOf(map(vmItems, item => item.key), 'ad2') >= 0 ? {
         ad2: {
           ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'ad2')].outputs.privateIp
           ansible_connection: 'psrp'
