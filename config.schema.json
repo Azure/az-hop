@@ -755,8 +755,8 @@
             "additionalProperties": false,
             "properties": {
                 "type": {
-                    "description": "'anf' or 'azurefiles', default: 'anf'.",
-                    "enum": ["anf", "azurefiles"],
+                    "description": "'existing' or 'anf' or 'azurefiles', default: 'existing'.",
+                    "enum": ["anf", "azurefiles", "existing"],
                     "type": "string"
                 },
                 "mountpoint": {

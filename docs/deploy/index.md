@@ -428,7 +428,9 @@ azurefiles:
 mounts:
   # mount settings for the user home directory
   home: # This home name can't be changed
-    type: anf # anf or azurefiles, default to anf. One of the two should be defined in order to mount the home directory
+    # type of mount : existing, anf or azurefiles, default to existing. One of the three should be defined in order to mount the home directory
+    # When using existing, the mountpoint, server, export and options should be defined, for other cases leave the values as defined with the curly braces
+    type: anf
     mountpoint: /anfhome # /sharedhome for example
     server: '{{anf_home_ip}}' # Specify an existing NFS server name or IP, when using the ANF built in use '{{anf_home_ip}}'
     export: '{{anf_home_path}}' # Specify an existing NFS export directory, when using the ANF built in use '{{anf_home_path}}'
