@@ -6,20 +6,16 @@ location: westeurope
 # Name of the resource group to create all resources in
 resource_group: azhop_minimum_public_ip
 
-# Define an Azure Netapp Files (ANF) account, single pool and volume
-anf:
+# For small deployments you can use Azure Files instead of ANF for the home directory
+azurefiles:
   create: true
-  # Size of the ANF pool and unique volume (min: 4TB, max: 100TB)
-  homefs_size_tb: 4
-  # Service level of the ANF volume, can be: Standard, Premium, Ultra
-  homefs_service_level: Standard
-
+  size_gb: 1024
 
 # These mounts will be listed in the Files menu of the OnDemand portal and automatically mounted on all compute nodes and remote desktop nodes
 mounts:
   # mount settings for the user home directory
   home: # This home name can't be changed
-    type: anf # anf or azurefiles, default to anf. One of the two should be defined in order to mount the home directory
+    type: azurefiles # anf or azurefiles, default to anf. One of the two should be defined in order to mount the home directory
     mountpoint: /anfhome # /sharedhome for example
     server: '{{anf_home_ip}}' # Specify an existing NFS server name or IP, when using the ANF built in use '{{anf_home_ip}}'
     export: '{{anf_home_path}}' # Specify an existing NFS export directory, when using the ANF built in use '{{anf_home_path}}'
