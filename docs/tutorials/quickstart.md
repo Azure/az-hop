@@ -123,15 +123,22 @@ In this exercise, you will use Azure Cloud Shell to set up an `az-hop` environme
 
    > Note: If prompted, in the **Welcome to Azure Cloud Shell** window, select **Bash (Linux)**, and in the **You have no storage mounted** window, select **Create storage**.
 
-1. In the **Bash** session, in the **Cloud Shell** pane, run the following command to select the Azure subscription in which you will provision the Azure resources in this lab. In the following command, replace the `<subscription_ID>` placeholder with the value of the **subscriptionID** property of the Azure subscription you are using in this lab.
+1. In the **Bash** session, in the **Cloud Shell** pane, run the following command to select the Azure subscription in which you will provision the Azure resources in this lab. In the following command, replace the `<subscription_ID>` placeholder with the value of the **subscriptionID** property of the Azure subscription you are using in this lab.</br>
+    Run the `az account show` to display the current account and subscription in scope.
+    If you need to change the current subscription, follow the instructions below.
 
-Run the `az account show` to display the current account and subscription used. If you need to change the current subscription, follow the instructions below.
+    ##### Setting the subscription in scope
+    To obtain the subscription ID run the following command in the Bash terminal.
 
-   > Note: To list the subscription ID properties of all subscriptions associated with your account, run `az account list -otable --query '[].{subscriptionId: id, name: name, isDefault: isDefault}'`.
+    ```bash
+    az account list -otable --query '[].{subscriptionId: id, name: name, isDefault: isDefault}'
+    ```
 
-   ```bash
-   az account set --subscription '<subscription_ID>'
-   ```
+    Once we have obtained the Subscription ID, we proceed to replace it in the following command to set the subscription scope.
+
+    ```bash
+    az account set --subscription '<subscription_ID>'
+    ```
 
 ### Task 2 : Clone the `az-hop` GitHub repository
 
