@@ -103,7 +103,7 @@ Once deployed, you can connect to the OnDemand web portal via:
 - When using a Service Principal Name, the service principal needs to be
   - **"Contributor"** on the subscription
   - **"User Access Administrator"** on the subscription
-- When using a managed Identity on a deployer VM it needs to be a **System Managed Identity** with
+- When using a managed Identity on a deployer VM it needs to be a **System/User Managed Identity** with
   - **"Contributor"** on the resource group
   - **"User Access Administrator"** on the subscription
   - **"Reader"** on the subscription
@@ -216,7 +216,7 @@ Afterwards, you can directly run the `install.sh`  script:
 `az-hop` can be deployed directly from an Ubuntu 20.04 VM on Azure.
 
 ## Create a deployer VM
-Create a deployer VM in its own isolated VNET and if required with an Azure Bastion. Once built, enable System Managed Identity and grant the following roles :
+Create a deployer VM in its own isolated VNET and if required with an Azure Bastion. Once built, enable System/User Managed Identity and grant the following roles :
   - **"Contributor"** on the subscription
   - **"User Access Administrator"** on the subscription
   - **"Reader"** on the subscription

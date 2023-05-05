@@ -148,8 +148,17 @@ function get_azure_context()
             logged_user_upn="${TF_VAR_logged_user_objectId} from ${vmname}"
             ;;
         "userAssignedIdentity")
-            echo "userAssignedIdentity not supported; please use a systemAssignedIdentity or a Service Principal Name instead"
-            exit 1
+            mds=$(curl -s --noproxy "*" -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2019-08-15")
+            vmname=$(echo $mds | jq -r '.compute.name')
+            rgname=$(echo $mds | jq -r '.compute.resourceGroupName')
+            echo " - logged in Azure with User Assigned Identity from ${vmname}/${rgname}"
+            export TF_VAR_logged_user_objectId=$(az resource list -n $vmname -g $rgname --query [*].identity.userAssignedIdentities.*.principalId --out tsv)
+            client_id=$(az vm identity show -g $rgname --n $vmname --query userAssignedIdentities.*.clientId -o tsv)
+            export ARM_TENANT_ID=${TF_VAR_tenant_id}
+            export ARM_CLIENT_ID=${client_id}
+            export ARM_SUBSCRIPTION_ID=${subscription_id}
+            export ARM_USE_MSI=true
+            logged_user_upn="${TF_VAR_logged_user_objectId} from ${vmname}"
             ;;
         *)
             export TF_VAR_logged_user_objectId=$(az ad sp show --id ${clientId} --query id -o tsv)
