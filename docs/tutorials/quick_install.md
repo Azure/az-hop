@@ -201,7 +201,9 @@ During this task, you will prepare the **config.yml** file to configure the envi
     ```bash
     ./install.sh
     ```
+    ![image](../images/az-hop-installation-done.png)
     This process takes around 40 minutes.
+
 4. Gather the password created for the admin account to access the OnDemand platform.
     ```bash
     ./bin/get_secret clusteradmin
@@ -210,6 +212,8 @@ During this task, you will prepare the **config.yml** file to configure the envi
     ```bash
     grep ondemand_fqdn playbooks/group_vars/all.yml
     ```
+
+    ![image](../images/az-hop-url.png)
 
 ### Task 7: Access the Azure HPC On-Demand Platform dashboard
 
