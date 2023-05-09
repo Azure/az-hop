@@ -32,16 +32,6 @@ on:
         description: 'Deploy using Bicep - Default to false'
         required: false
         default: 'false' # use it with ${{ github.event.inputs.use_bicep }}
-      home_type:
-        description: 'Home directory type anf/azurefiles- Default to anf'
-        required: false
-        default: 'anf' # use it with ${{ github.event.inputs.home_type }}
-        type: string
-      config:
-        description: 'Configuration - (minimum/integration) - Default to integration'
-        required: false
-        default: 'integration' # use it with ${{ github.event.inputs.config }}
-        type: string
 
 jobs:
   deploy:
@@ -53,8 +43,9 @@ jobs:
       scheduler: ${{ github.event.inputs.scheduler }}
       deploy_only: ${{ github.event.inputs.deploy_only }}
       use_bicep: ${{ github.event.inputs.use_bicep }}
-      home_type: ${{ github.event.inputs.home_type }}
-      config: ${{ github.event.inputs.config }}
+      home_type: 'azurefiles'
+      config: 'minimum'
+      lustre: 'false'
     secrets:
       ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
       ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
