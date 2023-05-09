@@ -313,16 +313,30 @@ You can define an az-hop environment by using a configuration file named **confi
 1. Within the SSH session to the Azure VM, run the following command to generate a Terraform deployment plan that includes the listing of all resources to be provisioned:
 
    ```bash
-   ./build.sh -a plan
+   ./build.sh -l bicep -a plan
    ```
 
 1. Review the generated list of resources, and then run the following command to trigger the deployment of the Azure HPC OnDemand Platform infrastructure:
 
    ```bash
-   ./build.sh -a apply
+    ./build.sh -l bicep -a apply 
    ```
 
-   > Note: Wait for the deployment to complete. This should take about 15 minutes. After the deployment completes, you should observe the message stating something similar to **Apply complete! Resources: 142 added, 0 changed, 0 destroyed.**
+   > Note: Wait for the deployment to complete. This should take about 15 minutes. After the deployment completes, you should observe the message stating something similar to
+
+   ```bash
+    "provisioningState": "Succeeded",
+    "templateHash": "16078141265098450094",
+    "templateLink": null,
+    "timestamp": "2023-05-08T15:24:54.129787+00:00",
+    "validatedResources": null
+    },
+    "tags": null,
+    "type": "Microsoft.Resources/deployments"
+    }
+    * Getting deployment output
+    * Getting keys from keyvault
+    ```
 
 ### Task 3: Review deployment results
 
