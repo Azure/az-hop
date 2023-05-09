@@ -123,6 +123,6 @@ data "local_file" "ci_jumpbox" {
   depends_on = [local_file.ci_jumpbox]
 }
 
-# output "use_linux_image_reference" {
-#   value = local.use_linux_image_reference
+# output "create_ad" {
+#   value = local.create_ad
 # }
