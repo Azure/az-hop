@@ -47,27 +47,33 @@ network:
   create_nsg: true
   vnet:
     name: hpcvnet # Optional - default to hpcvnet
-    address_space: "10.228.0.0/23" # Optional - default to "10.0.0.0/16"
+    address_space: "[concat(steps('network').baseIpAddress, steps('network').cidrPrefix)]" # Optional - default to "10.0.0.0/16"
     subnets: # all subnets are optionals
       frontend: 
         name: frontend
-        address_prefixes: "10.228.0.0/29"
+        address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.0/29')]"
         create: true # create the subnet if true. default to true when not specified, default to false if using an existing VNET when not specified
       ad:
         name: ad
-        address_prefixes: "10.228.0.8/29"
+        address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.8/29')]"
         create: true
       admin:
         name: admin
-        address_prefixes: "10.228.0.16/28"
+        address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.16/28')]"
         create: true
       netapp:
         name: netapp
-        address_prefixes: "10.228.0.32/28"
+        address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.32/28')]"
+        create: true
+      gateway:
+        address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.48/28')]"
+        create: true
+      bastion:
+        address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.64/26')]"
         create: true
       compute:
         name: compute
-        address_prefixes: "10.228.1.0/24"
+        address_prefixes: "[concat(_X1_, '.', _X2_, '.', if(equals(steps('network').cidrPrefix, '/24'), concat(_X3_, '.128/25'), if(equals(steps('network').cidrPrefix, '/23'), concat(string(add(_X3i_,1)), '.0/24'), if(equals(steps('network').cidrPrefix, '/22'), concat(string(add(_X3i_,2)), '.0/23'), if(equals(steps('network').cidrPrefix, '/21'), concat(string(add(_X3i_,4)), '.0/22'), concat(string(add(_X3i_,8)), '.0/21'))))))]"
         create: true
   peering: "[if(steps('network').peering, parse(concat('[{\"vnet_name\":\"', steps('network').vnetname, '\", \"vnet_resource_group\": \"', steps('network').vnetrg, '\"}]')), false)]" # Optional - default to false
   # This list is optional, and can be used to create VNet Peerings in the same subscription.
