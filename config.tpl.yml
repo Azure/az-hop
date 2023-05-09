@@ -178,9 +178,9 @@ domain:
   use_existing_dc: false # Set to true if you want to join a domain with existing DC
   domain_join_user:
     username: hpcadmin
-    password_key_vault_name: '{{key_vault}}' # name_for_the_key_vault_with_the_domain_join_password
-    password_key_vault_resource_group_name: '{{resource_group}}' # resource_group_name_for_the_key_vault_with_the_domain_join_password
-    password_key_vault_secret_name: 'hpcadmin-password' # key_vault_secret_name_for_the_domain_join_password
+    password_key_vault_name: name_for_the_key_vault_with_the_domain_join_password
+    password_key_vault_resource_group_name: resource_group_name_for_the_key_vault_with_the_domain_join_password
+    password_key_vault_secret_name: key_vault_secret_name_for_the_domain_join_password
   # additional settings when using an existinf DC
   existing_dc_details: 
     domain_controller_names: ["dc1", "dc2"]
