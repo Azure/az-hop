@@ -77,7 +77,7 @@ resource "azurerm_network_interface_application_security_group_association" "lus
 #
 
 resource "azurerm_network_interface" "lustre-oss-nic" {
-  count                          = local.lustre_oss_count
+  count                          = local.lustre_enabled ? local.lustre_oss_count : 0
   name                           = "lustre-oss-nic-${count.index}"
   location                       = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name            = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
@@ -91,7 +91,7 @@ resource "azurerm_network_interface" "lustre-oss-nic" {
 }
 
 resource "azurerm_linux_virtual_machine" "lustre-oss" {
-  count                 = local.lustre_oss_count
+  count                 = local.lustre_enabled ? local.lustre_oss_count : 0
   name                  = "lustre-oss-${count.index}"
   location              = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name   = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
@@ -162,7 +162,7 @@ locals {
   # https://www.daveperrett.com/articles/2021/08/19/nested-for-each-with-terraform/
   # Nested loop over both lists, and flatten the result.
   lustre_oss_asgs = distinct(flatten([
-    for oss in range(0, local.lustre_oss_count) : [
+    for oss in range(0, local.lustre_enabled ? local.lustre_oss_count : 0) : [
       for asg in local.asg_associations["lustre"] : {
         oss = oss
         asg = asg
