@@ -2,7 +2,7 @@
 # Copyright (c) Microsoft Corporation
 # Licensed under the MIT License.
 #
-name : main
+name : small environment
 run-name: ${{ github.event.inputs.scheduler }} in ${{ github.event.inputs.resource_group }} by @${{ github.actor }}
 
 on:
