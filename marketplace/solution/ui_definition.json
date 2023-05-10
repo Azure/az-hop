@@ -335,7 +335,7 @@
             "toolTip": "Name of the virtual network to peer to.",
             "constraints": {
               "required": "[steps('network').peering]",
-              "regex": "^[a-zA-Z0-9-]{1,64}$",
+              "regex": "^[a-zA-Z0-9_-]{1,64}$",
               "validationMessage": "Enter a valid vnet name"
             },
             "visible": "[steps('network').peering]"
