@@ -74,8 +74,6 @@
           dns_domain_name: '{{domain_name}}'
           safe_mode_password: '{{ad_join_password.stdout}}'
         register: ad_promotion
-        retries: 3
-        delay: 30
         until: ad_promotion is succeeded
         
       # - name: Promote server
