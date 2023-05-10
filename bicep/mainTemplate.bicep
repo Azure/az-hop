@@ -32,7 +32,7 @@ param databaseAdminPassword string = ''
 @description('Input configuration file in json format')
 param azhopConfig object
 
-resource azhopResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+resource azhopResourceGroup 'Microsoft.Resources/resourceGroups@2022-09-01' = {
   name: azhopConfig.resource_group
   location: location
   tags: contains(azhopConfig, 'tags') ? azhopConfig.tags : {}

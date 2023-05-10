@@ -1,6 +1,6 @@
 targetScope = 'resourceGroup'
 
-param location string = resourceGroup().location
+param location string
 param resourcePostfix string
 param subnetId string
 param keyvaultReaderOids array

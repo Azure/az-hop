@@ -1,6 +1,6 @@
 targetScope = 'resourceGroup'
 
-param location string = resourceGroup().location
+param location string
 param resourcePostfix string
 param dualProtocol bool
 param subnetId string
