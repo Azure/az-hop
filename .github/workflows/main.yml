@@ -50,6 +50,7 @@ on:
         default: 'anf' # use it with ${{ github.event.inputs.home_type }}
         type: string
 
+
 jobs:
   deploy:
     uses: azure/az-hop/.github/workflows/main_callable.yml@main
