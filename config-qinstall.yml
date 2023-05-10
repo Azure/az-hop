@@ -4,7 +4,7 @@
 # name of the cluster
 project_name: az-hop
 # azure location name as returned by the command : az account list-locations -o table
-location: westeurope
+location: westus2
 # Name of the resource group to create all resources
 resource_group: azhop
 # If using an existing resource group set to true. Default is false
@@ -16,8 +16,8 @@ use_existing_rg: false
 # A log analytics workspace can be created for monitoring or alerting 
 # Alternatively, you can use an existing workspace. 
 # To use an existing workspace set create to false and specify the resource group, name and subscription the target workspace lives in
-log_analytics:
-  create: true
+#log_analytics:
+#  create: true
   # An existing log analytics workspace can be used instead. The resource group, name and subscription id of the workspace will need to be specified.
   # Grant the role "Log Analytics Contributor" on the target Log Analytics Workspace for the identity used to deploy az-hop
   #resource_group:
@@ -25,13 +25,13 @@ log_analytics:
   #subscription_id: # Optional, if not specified the current subscription will be used
 
 # Option to install the monitoring agent on static infra VMs. Can be disabled if the agent is installed by policy.  
-monitoring: 
-  install_agent: true 
+#monitoring: 
+#  install_agent: true 
   
 #If set to true, it will create alert rules associated with az-hop. Enablement of alerting will require the specification of an admin email to send alerts to.
-alerting:
-  enabled: true
-  admin_email: admin.mail@contoso.com
+#alerting:
+#  enabled: true
+#  admin_email: admin.mail@contoso.com
   local_volume_threshold: 80
 # Additional tags to be added on the Resource Group
 tags:
@@ -201,15 +201,15 @@ cyclecloud:
   # version: 8.3.0-3062 # to specify a specific version, see https://packages.microsoft.com/yumrepos/cyclecloud/
 
 # Lustre cluster is optional and can be used to create a Lustre cluster in the environment.
-lustre:
-  create: false # true or false to create a lustre cluster
-  rbh_sku: "Standard_D8d_v4"
-  mds_sku: "Standard_D8d_v4"
-  oss_sku: "Standard_D32d_v4"
-  oss_count: 2
-  hsm_max_requests: 8
-  mdt_device: "/dev/sdb"
-  ost_device: "/dev/sdb"
+#lustre:
+  #create: false # true or false to create a lustre cluster
+  #rbh_sku: "Standard_D8d_v4"
+  #mds_sku: "Standard_D8d_v4"
+  #oss_sku: "Standard_D32d_v4"
+  #oss_count: 2
+  #hsm_max_requests: 8
+  #mdt_device: "/dev/sdb"
+  #ost_device: "/dev/sdb"
   # optional to use existing storage for the archive
   # if not included it will use the azhop storage account that is created
   # hsm:
@@ -244,8 +244,8 @@ usergroups:
   #   gid: 6001
 
 # Enable cvmfs-eessi - disabled by default
-cvmfs_eessi:
-  enabled: false
+#cvmfs_eessi:
+  #enabled: false
 
 # scheduler to be installed and configured (openpbs, slurm)
 queue_manager: openpbs
@@ -275,12 +275,12 @@ enroot:
   #ip:
 
 # Create a Bastion in the bastion subnet when defined
-bastion:
-  create: false
+#bastion:
+  #create: false
 
 # Create a VPN Gateway in the gateway subnet when specified
-vpn_gateway:
-  create: false
+#vpn_gateway:
+  #create: false
 
 # Authentication configuration for accessing the az-hop portal
 # Default is basic authentication. For oidc authentication you have to specify the following values
