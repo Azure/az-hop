@@ -82,7 +82,7 @@
 Once the [prerequisites](#azure-pre-requisites) are in place, deploying a greenfield `azhop` environment involves essentially these steps:
 
  1. Clone the repo: `git clone --recursive https://github.com/Azure/az-hop.git -b <version>` 
- 1. Copy the the `examples/minimum_public_ip.yml` template into `config.yml` and update it with your settings
+ 1. Copy the `examples/minimum_public_ip.yml` template file to `config.yml` and update it with your settings
  1. Build the infrastructure on azure: `./build.sh -a apply`
  1. Create user passwords: `./create_passwords.sh` 
  1. Install the software components on the provisioned infrastructure: `./install.sh` 
