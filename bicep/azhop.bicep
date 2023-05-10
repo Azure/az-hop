@@ -850,7 +850,7 @@ var kvSuffix = environment().suffixes.keyvaultDns
 
 output azhopGlobalConfig object = union(
   {
-    global_ssh_public_key         : secrets.adminSshPublicKey
+    global_ssh_public_key         : '__ADMIN_SSH_PUBLIC_KEY__'
     global_cc_storage             : 'azhop${resourcePostfix}'
     compute_subnetid              : '${azhopResourceGroupName}/${config.vnet.name}/${config.vnet.subnets.compute.name}'
     global_config_file            : '/az-hop/config.yml'
@@ -911,7 +911,7 @@ output azhopInventory object = {
         ansible_connection: 'psrp'
         ansible_psrp_protocol: 'http'
         ansible_user: config.admin_user
-        ansible_password: secrets.adminPassword
+        ansible_password: '__ADMIN_PASSWORD__'
         psrp_ssh_proxy: deployJumpbox ? azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIp : ''
         ansible_psrp_proxy: deployJumpbox ? 'socks5h://localhost:5985' : ''
         }
@@ -922,7 +922,7 @@ output azhopInventory object = {
           ansible_connection: 'psrp'
           ansible_psrp_protocol: 'http'
           ansible_user: config.admin_user
-          ansible_password: secrets.adminPassword
+          ansible_password: '__ADMIN_PASSWORD__'
           psrp_ssh_proxy: deployJumpbox ? azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIp : ''
           ansible_psrp_proxy: deployJumpbox ? 'socks5h://localhost:5985' : ''
         }
