@@ -40,6 +40,7 @@ resource "azurerm_subnet" "frontend" {
   virtual_network_name = local.create_vnet ? azurerm_virtual_network.azhop[count.index].name : data.azurerm_virtual_network.azhop[count.index].name
   resource_group_name  = local.create_vnet ? azurerm_virtual_network.azhop[count.index].resource_group_name : data.azurerm_virtual_network.azhop[count.index].resource_group_name
   address_prefixes     = [try(local.configuration_yml["network"]["vnet"]["subnets"]["frontend"]["address_prefixes"], "10.0.0.0/29")]
+  service_endpoints    = local.create_nfsfiles ? ["Microsoft.Storage"] : []
 }
 
 # admin subnet
