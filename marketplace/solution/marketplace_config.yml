@@ -103,8 +103,8 @@ cyclecloud:
   vm_size: Standard_B2ms
 
 users:
-  - { name: hpcuser,   uid: 10001 }
-  - { name: adminuser, uid: 10002, groups: [5001, 5002] }
+  - { name: hpcuser, uid: 10001 }
+  - { name: clusteradmin, uid: 10002, groups: [5001, 5002] }
 
 usergroups:
   - name: Domain Users # All users will be added to this one by default
