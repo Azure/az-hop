@@ -74,8 +74,14 @@
           dns_domain_name: '{{domain_name}}'
           safe_mode_password: '{{ad_join_password.stdout}}'
         register: ad_promotion
-        until: ad_promotion is succeeded
-        
+
+      - name: Retry create AD-Domain in case of failure
+        ansible.windows.win_domain:
+          dns_domain_name: '{{domain_name}}'
+          safe_mode_password: '{{ad_join_password.stdout}}'
+        when: ad_promotion.failed
+        register: ad_promotion_retry
+
       # - name: Promote server
       #   ansible.windows.win_domain_controller:
       #     dns_domain_name: '{{domain_name}}'
@@ -89,7 +95,7 @@
       - name: Reboot after promotion
         ansible.windows.win_reboot:
           post_reboot_delay: 600
-        when: ad_promotion.reboot_required
+        when: (ad_promotion.reboot_required | default(false) ) or ( ad_promotion_retry.reboot_required | default(false) )
 
       # - name: update gidnumber azhop-users
       #   community.windows.win_domain_group:
