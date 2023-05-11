@@ -98,13 +98,13 @@ cp tmp.json azhopOutputs.json
 jq .azhopGlobalConfig.value azhopOutputs.json | yq -P > $azhop_root/playbooks/group_vars/all.yml
 # substitute passwords into the file
 #  - __ADMIN_SSH_PUBLIC_KEY__
-sed -i "s/__ADMIN_SSH_PUBLIC_KEY__/$(<${adminuser}_id_rsa.pub)/g" $azhop_root/playbooks/group_vars/all.yml
+sed -i "s/__ADMIN_SSH_PUBLIC_KEY__/$(sed 's/[&/\]/\\&/g' <$azhop_root/${adminuser}_id_rsa.pub)/g" $azhop_root/playbooks/group_vars/all.yml
 
 
 jq '.azhopInventory.value.all.hosts *= (.lustre_oss_private_ips.value | to_entries | map({("lustre-oss-" + (.key | tostring)): {"ansible_host": .value}}) | add // {}) | .azhopInventory.value' azhopOutputs.json | yq -P > $azhop_root/playbooks/inventory
 # substitute passwords into the file
 #  - __ADMIN_PASSWORD__
-sed -i "s/__ADMIN_PASSWORD__/$admin_pass/g" $azhop_root/playbooks/inventory
+sed -i "s/__ADMIN_PASSWORD__/$(sed 's/[&/\]/\\&/g' <<< $admin_pass)/g" $azhop_root/playbooks/inventory
 
 jq .azhopPackerOptions.value azhopOutputs.json > $azhop_root/packer/options.json
 
