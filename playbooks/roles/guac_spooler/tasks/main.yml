@@ -58,7 +58,7 @@
 - name: download DigiCertGlobalRootG2 certificate
   get_url:
     url: 'https://cacerts.digicert.com/DigiCertGlobalRootG2.crt.pem'
-    dest: /etc/slurm
+    dest: /etc/guacamole
     mode: 0644
     timeout: 180
 
