@@ -326,7 +326,8 @@
             "type": "Microsoft.Common.CheckBox",
             "label": "Peer to an existing VNET.",
             "defaultValue": false,
-            "toolTip": "Enable peering azhop to your existing VNET."
+            "toolTip": "Enable peering azhop to your existing VNET.",
+            "visible": "[not(steps('network').publicIp)]"
           },
           {
             "name": "vnetname",
@@ -334,11 +335,11 @@
             "label": "Peered vnet name",
             "toolTip": "Name of the virtual network to peer to.",
             "constraints": {
-              "required": "[steps('network').peering]",
+              "required": "[and(not(steps('network').publicIp),steps('network').peering)]",
               "regex": "^[a-zA-Z0-9_-]{1,64}$",
               "validationMessage": "Enter a valid vnet name"
             },
-            "visible": "[steps('network').peering]"
+            "visible": "[and(not(steps('network').publicIp),steps('network').peering)]"
           },
           {
             "name": "vnetrg",
@@ -346,11 +347,11 @@
             "label": "Peered vnet resource group name",
             "toolTip": "The resource group name containing the peered VNET.",
             "constraints": {
-              "required": "[steps('network').peering]",
+              "required": "[and(not(steps('network').publicIp),steps('network').peering)]",
               "regex": "^[a-zA-Z0-9](?:[a-zA-Z0-9._-]*[a-zA-Z0-9])?$",
               "validationMessage": "Enter a valid resource group name"
             },
-            "visible": "[steps('network').peering]"
+            "visible": "[and(not(steps('network').publicIp),steps('network').peering)]"
           }
         ]
       }
