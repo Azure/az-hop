@@ -220,20 +220,14 @@
             "required": [
                 "admin_user",
                 "applications",
-                "authentication",
-                "autoscale",
                 "cyclecloud",
-                "enable_remote_winviz",
                 "grafana",
-                "guacamole",
                 "location",
-                "locked_down_network",
                 "mounts",
                 "network",
                 "ondemand",
                 "queue_manager",
                 "queues",
-                "remoteviz",
                 "resource_group",
                 "scheduler",
                 "slurm",
@@ -247,7 +241,7 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "create": {"type": "boolean" },
+                "create": {"type": "boolean", "default": false},
                 "resource_group": {"type": "string"},
                 "name": {"type": "string"},
                 "subscription_id": {"type": "string"}
@@ -307,7 +301,7 @@
             "additionalProperties": false,
             "properties": {
                 "create": {
-                    "type": "boolean"
+                    "type": "boolean", "default": true
                 },
                 "homefs_size_tb": {
                     "description": "Size of the ANF pool and unique volume (min: 4TB, max: 100TB)",
@@ -322,17 +316,19 @@
                 },
                 "dual_protocol": {
                     "description": "Whether to enable SMB support. false by default",
-                    "type": "boolean"
+                    "type": "boolean",
+                    "default": false
                 },
                 "alert_threshold": {
                     "description": "If alerting is enabled, this value will be used to determine when to trigger alerts ",
+                    "default": 80,
                     "maximum": 100,
                     "minimum": 1,
                     "type": "integer"
                 }
             },
             "required": [
-                "dual_protocol",
+                "create",
                 "homefs_service_level",
                 "homefs_size_tb"
             ],
@@ -467,7 +463,8 @@
             "properties": {
                 "httpd_auth": {
                     "type": "string",
-                    "enum": ["basic", "oidc"]
+                    "enum": ["basic", "oidc"],
+                    "default": "basic"
                 },
                 "user_map_match": { "type": "string" },
                 "user_map_cmd": { "type": "string" },
@@ -508,7 +505,7 @@
             "additionalProperties": false,
             "properties": {
                 "create": {
-                    "type": "boolean"
+                    "type": "boolean", "default": false
                 }
             },
             "required": [
@@ -521,7 +518,7 @@
             "additionalProperties": false,
             "properties": {
                 "create": {
-                    "type": "boolean"
+                    "type": "boolean", "default": false
                 }
             },
             "required": [
@@ -535,10 +532,12 @@
             "properties": {
                 "idle_timeout": {
                     "description": "Idle time in seconds before shutting down VMs - default to 1800 like in CycleCloud",
-                    "type": "integer"
+                    "type": "integer",
+                    "default": 1800
                 }
             },
             "required": [
+                "idle_timeout"
             ],
             "title": "Autoscale"
         },
@@ -547,7 +546,8 @@
             "additionalProperties": false,
             "properties": {
                 "create": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "default": false
                 }
             },
             "required": [
@@ -666,7 +666,8 @@
             "properties": {
                 "create": {
                     "description": "Create cluster",
-                    "type": "boolean"
+                    "type": "boolean",
+                    "default": false
                 },
                 "rbh_sku": {
                     "description": "",
@@ -727,12 +728,11 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "enforce": { "type": "boolean" },
-                "public_ip": { "type": "boolean" },
+                "enforce": { "type": "boolean", "default": false },
+                "public_ip": { "type": "boolean", "default": true },
                 "grant_access_from": { "type": "array", "items": { "type": "string" } }
             },
             "required": [
-                "enforce",
                 "public_ip"
             ],
             "title": "LockedDownNetwork"
@@ -755,8 +755,8 @@
             "additionalProperties": false,
             "properties": {
                 "type": {
-                    "description": "'anf' or 'azurefiles', default: 'anf'.",
-                    "enum": ["anf", "azurefiles"],
+                    "description": "'existing' or 'anf' or 'azurefiles', default: 'existing'.",
+                    "enum": ["anf", "azurefiles", "existing"],
                     "type": "string"
                 },
                 "mountpoint": {
@@ -783,7 +783,7 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "create_nsg": { "type": "boolean" },
+                "create_nsg": { "type": "boolean", "default": true },
                 "vnet": { "$ref": "#/definitions/Vnet" },
                 "peering": {
                     "type": "array",
@@ -953,11 +953,10 @@
                     "type": "string"
                 },
                 "create": {
-                    "type": "boolean"
+                    "type": "boolean", "default": true
                 }
             },
             "required": [
-                "create"
             ],
             "title": "subnetClass"
         },
@@ -966,11 +965,10 @@
             "additionalProperties": false,
             "properties": {
                 "vm_size": { "type": "string" },
-                "generate_certificate": { "type": "boolean" },
+                "generate_certificate": { "type": "boolean", "default": true },
                 "fqdn": { "type": "string" }
             },
             "required": [
-                "generate_certificate",
                 "vm_size"
             ],
             "title": "Ondemand"

@@ -2,13 +2,13 @@
 #these values are used to generate a local variable that is passed to the output for use by ansible
 data "azurerm_key_vault" "domain_join_password" {
   count               = local.create_ad ? 0 : 1
-  name                = try(local.configuration_yml["domain"].domain_join_user.password_key_vault_name, "error")
-  resource_group_name = try(local.configuration_yml["domain"].domain_join_user.password_key_vault_resource_group_name, "error")
+  name                = local.create_ad ? "foo" : local.configuration_yml["domain"].domain_join_user.password_key_vault_name
+  resource_group_name = local.create_ad ? "foo" : local.configuration_yml["domain"].domain_join_user.password_key_vault_resource_group_name
 }
 
 data "azurerm_key_vault_secret" "domain_join_password" {
   count        = local.create_ad ? 0 : 1
-  name         = try(local.configuration_yml["domain"].domain_join_user.password_key_vault_secret_name, "error")
+  name         = local.create_ad ? "foo" : local.configuration_yml["domain"].domain_join_user.password_key_vault_secret_name
   key_vault_id = data.azurerm_key_vault.domain_join_password[0].id
 }
 

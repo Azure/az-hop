@@ -3,11 +3,13 @@ locals {
     public_cloud_endpoints = {
         KeyVaultSuffix =  "vault.azure.net"
         BlobStorageSuffix = "blob.core.windows.net"
+        FileStorageSuffix = "file.core.windows.net"
         MariaDBPrivateLink = "privatelink.mariadb.database.azure.com"
     }
     usgov_cloud_endpoints = {
         KeyVaultSuffix =  "vault.usgovcloudapi.net"
         BlobStorageSuffix = "blob.core.usgovcloudapi.net"
+        FileStorageSuffix = "file.core.usgovcloudapi.net"
         MariaDBPrivateLink = "privatelink.mariadb.database.usgovcloudapi.net"
     }
     azure_endpoints = {
@@ -167,19 +169,28 @@ locals {
     create_rg = (!local.use_existing_rg) && (local.create_vnet || try(split("/", local.vnet_id)[4], local.resource_group) != local.resource_group)
 
     # ANF
-    create_anf = try(local.configuration_yml["anf"]["homefs_size_tb"] > 0, false) || try(local.configuration_yml["homefs_size_tb"] > 0, false)
+    create_anf = try(local.configuration_yml["anf"]["create"], false)
+    anf_size=try(local.configuration_yml["anf"]["homefs_size_tb"], 4)
+    anf_service_level = try(local.configuration_yml["anf"]["homefs_service_level"], "Standard")
+    anf_dual_protocol = try(local.configuration_yml["anf"]["dual_protocol"], false)
 
-    homefs_size_tb = try(local.configuration_yml["anf"]["homefs_size_tb"], try(local.configuration_yml["homefs_size_tb"], 4))
-    homefs_service_level = try(local.configuration_yml["anf"]["homefs_service_level"], try(local.configuration_yml["homefs_service_level"], "Standard"))
-    anf_dual_protocol = try(local.configuration_yml["anf"]["dual_protocol"], try(local.configuration_yml["dual_protocol"], false))
+    #Azure Files
+    create_nfsfiles = try(local.configuration_yml["azurefiles"]["create"], false)
+    azure_files_size= try(local.configuration_yml["azurefiles"]["size_gb"], 1024)
 
-    homedir_mountpoint = try(local.configuration_yml["mounts"]["home"]["mountpoint"], try(local.configuration_yml["homedir_mountpoint"], "/anfhome"))
+    # Home Directory
+    homedir_type = try(local.configuration_yml["mounts"]["home"]["type"], "existing")
+    config_nfs_home_ip = local.configuration_yml["mounts"]["home"]["server"]
+    config_nfs_home_path = local.configuration_yml["mounts"]["home"]["export"]
+    config_nfs_home_opts = local.configuration_yml["mounts"]["home"]["options"]
+
+    homedir_mountpoint = try(local.configuration_yml["mounts"]["home"]["mountpoint"], "/anfhome")
 
     admin_username = local.configuration_yml["admin_user"]
     key_vault_readers = try(local.configuration_yml["key_vault_readers"], null)
 
     # Lustre
-    lustre_enabled = try(local.configuration_yml["lustre"]["create"], try(local.configuration_yml["lustre"]["oss_count"] > 0, false))
+    lustre_enabled = try(local.configuration_yml["lustre"]["create"], false)
     lustre_archive_account = try(local.configuration_yml["lustre"]["hsm"]["storage_account"], null)
     lustre_rbh_sku = try(local.configuration_yml["lustre"]["rbh_sku"], "Standard_D8d_v4")
     lustre_mds_sku = try(local.configuration_yml["lustre"]["mds_sku"], "Standard_D8d_v4")
@@ -201,6 +212,8 @@ locals {
     database_user = local.create_database ? "sqladmin" : (local.use_existing_database ? try(local.configuration_yml["database"].user, "") : "")
     mariadb_private_dns_zone = local.azure_endpoints[local.azure_environment].MariaDBPrivateLink
 
+    create_sig = try(local.configuration_yml["image_gallery"]["create"], false)
+    
     # VNET
     create_vnet = try(length(local.vnet_id) > 0 ? false : true, true)
     vnet_id = try(local.configuration_yml["network"]["vnet"]["id"], null)

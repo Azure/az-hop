@@ -82,7 +82,7 @@
 Once the [prerequisites](#azure-pre-requisites) are in place, deploying a greenfield `azhop` environment involves essentially these steps:
 
  1. Clone the repo: `git clone --recursive https://github.com/Azure/az-hop.git -b <version>` 
- 1. Copy the the `config.tpl.yml` template into `config.yml` and update it with your settings
+ 1. Copy the `examples/minimum_public_ip.yml` template file to `config.yml` and update it with your settings
  1. Build the infrastructure on azure: `./build.sh -a apply`
  1. Create user passwords: `./create_passwords.sh` 
  1. Install the software components on the provisioned infrastructure: `./install.sh` 
@@ -90,8 +90,8 @@ Once the [prerequisites](#azure-pre-requisites) are in place, deploying a greenf
 Once deployed, you can connect to the OnDemand web portal via:
 
  - URL: get from `grep ondemand_fqdn playbooks/group_vars/all.yml` 
- - username: `adminuser` 
- - password: get from `./bin/get_secret adminuser`
+ - username: `clusteradmin` 
+ - password: get from `./bin/get_secret clusteradmin`
 
  The following sections provide detailed instructions for each of these steps.
 
@@ -103,7 +103,7 @@ Once deployed, you can connect to the OnDemand web portal via:
 - When using a Service Principal Name, the service principal needs to be
   - **"Contributor"** on the subscription
   - **"User Access Administrator"** on the subscription
-- When using a managed Identity on a deployer VM it needs to be a **System Managed Identity** with
+- When using a managed Identity on a deployer VM it needs to be a **System/User Managed Identity** with
   - **"Contributor"** on the resource group
   - **"User Access Administrator"** on the subscription
   - **"Reader"** on the subscription
@@ -216,7 +216,7 @@ Afterwards, you can directly run the `install.sh`  script:
 `az-hop` can be deployed directly from an Ubuntu 20.04 VM on Azure.
 
 ## Create a deployer VM
-Create a deployer VM in its own isolated VNET and if required with an Azure Bastion. Once built, enable System Managed Identity and grant the following roles :
+Create a deployer VM in its own isolated VNET and if required with an Azure Bastion. Once built, enable System/User Managed Identity and grant the following roles :
   - **"Contributor"** on the subscription
   - **"User Access Administrator"** on the subscription
   - **"Reader"** on the subscription
@@ -428,7 +428,9 @@ azurefiles:
 mounts:
   # mount settings for the user home directory
   home: # This home name can't be changed
-    type: anf # anf or azurefiles, default to anf. One of the two should be defined in order to mount the home directory
+    # type of mount : existing, anf or azurefiles, default to existing. One of the three should be defined in order to mount the home directory
+    # When using existing, the mountpoint, server, export and options should be defined, for other cases leave the values as defined with the curly braces
+    type: anf
     mountpoint: /anfhome # /sharedhome for example
     server: '{{anf_home_ip}}' # Specify an existing NFS server name or IP, when using the ANF built in use '{{anf_home_ip}}'
     export: '{{anf_home_path}}' # Specify an existing NFS export directory, when using the ANF built in use '{{anf_home_path}}'
@@ -545,10 +547,10 @@ domain:
   use_existing_dc: false # Set to true if you want to join a domain with existing DC
   domain_join_user:
     username: hpcadmin
-    password_key_vault_name: '{{key_vault}}' # name_for_the_key_vault_with_the_domain_join_password
-    password_key_vault_resource_group_name: '{{resource_group}}' # resource_group_name_for_the_key_vault_with_the_domain_join_password
-    password_key_vault_secret_name: 'hpcadmin-password' # key_vault_secret_name_for_the_domain_join_password
-  # additional settings when using an existinf DC
+    password_key_vault_name: name_for_the_key_vault_with_the_domain_join_password
+    password_key_vault_resource_group_name: resource_group_name_for_the_key_vault_with_the_domain_join_password
+    password_key_vault_secret_name: key_vault_secret_name_for_the_domain_join_password
+  # additional settings when using an existing DC
   existing_dc_details: 
     domain_controller_names: ["dc1", "dc2"]
     domain_controller_ip_addresses: ["192.168.1.100", "192.168.1.101"]

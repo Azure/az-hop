@@ -36,7 +36,7 @@ param azhopConfig object
 var resourcePostfix = '${uniqueString(subscription().subscriptionId, azhopResourceGroupName)}x'
 
 // Local variables to help in the simplication as functions doesn't exists
-var enablePublicIP = contains(azhopConfig.locked_down_network, 'public_ip') ? azhopConfig.locked_down_network.public_ip : true
+var enablePublicIP = contains(azhopConfig, 'locked_down_network') ? azhopConfig.locked_down_network.public_ip : true
 var jumpboxSshPort = deployJumpbox ? (contains(azhopConfig.jumpbox, 'ssh_port') ? azhopConfig.jumpbox.ssh_port : 22) : 22
 var deployerSshPort = deployDeployer ? (contains(azhopConfig.deployer, 'ssh_port') ? azhopConfig.deployer.ssh_port : 22) : 22
 
@@ -91,8 +91,8 @@ var config = {
   deploy_lustre: deployLustre
 
   lock_down_network: {
-    enforce: contains(azhopConfig.locked_down_network, 'enforce') ? azhopConfig.locked_down_network.enforce : false
-    grant_access_from: contains(azhopConfig.locked_down_network, 'grant_access_from') ? ( empty(azhopConfig.locked_down_network.grant_access_from) ? [] : [ azhopConfig.locked_down_network.grant_access_from ] ) : []
+    enforce: contains(azhopConfig, 'locked_down_network') && contains(azhopConfig.locked_down_network, 'enforce') ? azhopConfig.locked_down_network.enforce : false
+    grant_access_from: contains(azhopConfig, 'locked_down_network') && contains(azhopConfig.locked_down_network, 'grant_access_from') ? ( empty(azhopConfig.locked_down_network.grant_access_from) ? [] : [ azhopConfig.locked_down_network.grant_access_from ] ) : []
   }
 
   queue_manager: contains(azhopConfig, 'queue_manager') ? azhopConfig.queue_manager : 'openpbs'
@@ -120,7 +120,7 @@ var config = {
   deploy_sig: contains(azhopConfig, 'image_gallery') && contains(azhopConfig.image_gallery, 'create') ? azhopConfig.image_gallery.create : false
 
   // Default home directory is ANF
-  homedir_type: contains(azhopConfig.mounts.home, 'type') ? azhopConfig.mounts.home.type : 'anf'
+  homedir_type: contains(azhopConfig.mounts.home, 'type') ? azhopConfig.mounts.home.type : 'existing'
   homedir_mountpoint: azhopConfig.mounts.home.mountpoint
 
   anf: {
@@ -142,14 +142,14 @@ var config = {
     subnets: union (
       {
       frontend: {
-        name: azhopConfig.network.vnet.subnets.frontend.name
+        name: contains(azhopConfig.network.vnet.subnets.frontend, 'name') ? azhopConfig.network.vnet.subnets.frontend.name : 'frontend'
         cidr: azhopConfig.network.vnet.subnets.frontend.address_prefixes
         service_endpoints: [
           'Microsoft.Storage'
         ]
       }
       admin: {
-        name: azhopConfig.network.vnet.subnets.admin.name
+        name: contains(azhopConfig.network.vnet.subnets.admin, 'name') ? azhopConfig.network.vnet.subnets.admin.name : 'admin'
         cidr: azhopConfig.network.vnet.subnets.admin.address_prefixes
         service_endpoints: [
           'Microsoft.KeyVault'
@@ -158,14 +158,14 @@ var config = {
       }
       netapp: {
         apply_nsg: false
-        name: azhopConfig.network.vnet.subnets.netapp.name
+        name: contains(azhopConfig.network.vnet.subnets.netapp, 'name') ? azhopConfig.network.vnet.subnets.netapp.name : 'netapp'
         cidr: azhopConfig.network.vnet.subnets.netapp.address_prefixes
         delegations: [
           'Microsoft.Netapp/volumes'
         ]
       }
       compute: {
-        name: azhopConfig.network.vnet.subnets.compute.name
+        name: contains(azhopConfig.network.vnet.subnets.compute, 'name') ? azhopConfig.network.vnet.subnets.compute.name : 'compute'
         cidr: azhopConfig.network.vnet.subnets.compute.address_prefixes
         service_endpoints: [
           'Microsoft.Storage'
@@ -174,7 +174,7 @@ var config = {
     },
     createAD ? {
       ad: {
-        name: azhopConfig.network.vnet.subnets.ad.name
+        name: contains(azhopConfig.network.vnet.subnets.ad, 'name') ? azhopConfig.network.vnet.subnets.ad.name : 'ad'
         cidr: azhopConfig.network.vnet.subnets.ad.address_prefixes
       }
     } : {},
@@ -187,7 +187,7 @@ var config = {
     } : {},
     contains(azhopConfig.network.vnet.subnets,'outbounddns') ? {
       outbounddns: {
-        name: azhopConfig.network.vnet.subnets.outbounddns.name
+        name: contains(azhopConfig.network.vnet.subnets.outbounddns, 'name') ? azhopConfig.network.vnet.subnets.outbounddns.name : 'outbounddns'
         cidr: azhopConfig.network.vnet.subnets.outbounddns.address_prefixes
         delegations: [
           'Microsoft.Network/dnsResolvers'
@@ -882,6 +882,11 @@ output azhopGlobalConfig object = union(
     anf_home_ip                   : azhopNfsFiles.outputs.nfs_home_ip
     anf_home_path                 : azhopNfsFiles.outputs.nfs_home_path
     anf_home_opts                 : azhopNfsFiles.outputs.nfs_home_opts
+  } : {},
+  config.homedir_type == 'existing' ? {
+    anf_home_ip                   : azhopConfig.mounts.home.server
+    anf_home_path                 : azhopConfig.mounts.home.export
+    anf_home_opts                 : azhopConfig.mounts.home.options
   } : {}
 )
 

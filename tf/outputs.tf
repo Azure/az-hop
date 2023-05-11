@@ -43,14 +43,15 @@ resource "local_file" "global_variables" {
       resource_group      = local.resource_group
       config_file         = local.configuration_file
       homedir_mountpoint  = local.homedir_mountpoint
-      anf-home-ip         = local.create_anf ? element(azurerm_netapp_volume.home[0].mount_ip_addresses, 0) : local.configuration_yml["mounts"]["home"]["server"]
-      anf-home-path       = local.create_anf ? azurerm_netapp_volume.home[0].volume_path : local.configuration_yml["mounts"]["home"]["export"]
-      homedir_options     = local.create_anf ? "rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev" : try(local.configuration_yml["mounts"]["home"]["options"], "rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev") 
+
+      anf-home-ip         = local.homedir_type == "anf" ? element(azurerm_netapp_volume.home[0].mount_ip_addresses, 0) : ( local.homedir_type == "azurefiles" ? "${azurerm_storage_account.nfsfiles[0].name}.${local.azure_endpoints[local.azure_environment].FileStorageSuffix}" : local.config_nfs_home_ip)
+      anf-home-path       = local.homedir_type == "anf" ? azurerm_netapp_volume.home[0].volume_path : ( local.homedir_type == "azurefiles" ? "/${azurerm_storage_account.nfsfiles[0].name}/nfshome" : local.config_nfs_home_path)
+      homedir_options     = local.homedir_type == "anf" ? "rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev" : ( local.homedir_type == "azurefiles" ? "vers=4,minorversion=1,sec=sys" : local.config_nfs_home_opts)
       ondemand-fqdn       = local.allow_public_ip ? azurerm_public_ip.ondemand-pip[0].fqdn : try( local.configuration_yml["ondemand"]["fqdn"], azurerm_network_interface.ondemand-nic.private_ip_address)
       subscription_id     = data.azurerm_subscription.primary.subscription_id
       tenant_id           = data.azurerm_subscription.primary.tenant_id
       key_vault           = azurerm_key_vault.azhop.name
-      sig_name            = azurerm_shared_image_gallery.sig.name
+      sig_name            = local.create_sig ? azurerm_shared_image_gallery.sig[0].name : ""
       lustre_hsm_storage_account = ( local.lustre_archive_account != null ? local.lustre_archive_account : azurerm_storage_account.azhop.name )
       lustre_hsm_storage_container = ( local.lustre_archive_account != null ? local.configuration_yml["lustre"]["hsm"]["storage_container"] : (local.lustre_enabled ? azurerm_storage_container.lustre_archive[0].name : "") )
       database-fqdn       = local.create_database ? azurerm_mariadb_server.mariadb[0].fqdn : (local.use_existing_database ? local.configuration_yml["database"].fqdn : "")
@@ -93,7 +94,7 @@ resource "local_file" "packer_pip" {
       subscription_id = data.azurerm_subscription.primary.subscription_id
       resource_group  = local.resource_group
       location        = local.location
-      sig_name        = azurerm_shared_image_gallery.sig.name
+      sig_name        = local.create_sig ? azurerm_shared_image_gallery.sig[0].name : ""
       private_virtual_network_with_public_ip = false # Never use public IPs for packer VMs
       virtual_network_name                   = local.create_vnet ? azurerm_virtual_network.azhop[0].name : data.azurerm_virtual_network.azhop[0].name
       virtual_network_subnet_name            = local.create_compute_subnet ? azurerm_subnet.compute[0].name : data.azurerm_subnet.compute[0].name
@@ -122,6 +123,6 @@ data "local_file" "ci_jumpbox" {
   depends_on = [local_file.ci_jumpbox]
 }
 
-# output "use_linux_image_reference" {
-#   value = local.use_linux_image_reference
+# output "create_ad" {
+#   value = local.create_ad
 # }

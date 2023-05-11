@@ -17,7 +17,7 @@ use_existing_rg: false
 # Alternatively, you can use an existing workspace. 
 # To use an existing workspace set create to false and specify the resource group, name and subscription the target workspace lives in
 log_analytics:
-  create: true
+  create: false
   # An existing log analytics workspace can be used instead. The resource group, name and subscription id of the workspace will need to be specified.
   # Grant the role "Log Analytics Contributor" on the target Log Analytics Workspace for the identity used to deploy az-hop
   #resource_group:
@@ -26,11 +26,11 @@ log_analytics:
 
 # Option to install the monitoring agent on static infra VMs. Can be disabled if the agent is installed by policy.  
 monitoring: 
-  install_agent: true 
+  install_agent: false 
   
 #If set to true, it will create alert rules associated with az-hop. Enablement of alerting will require the specification of an admin email to send alerts to.
 alerting:
-  enabled: true
+  enabled: false
   admin_email: admin.mail@contoso.com
   local_volume_threshold: 80
 # Additional tags to be added on the Resource Group
@@ -59,7 +59,9 @@ azurefiles:
 mounts:
   # mount settings for the user home directory
   home: # This home name can't be changed
-    type: anf # anf or azurefiles, default to anf. One of the two should be defined in order to mount the home directory
+    # type of mount : existing, anf or azurefiles, default to existing. One of the three should be defined in order to mount the home directory
+    # When using existing, the mountpoint, server, export and options should be defined, for other cases leave the values as defined with the curly braces
+    type: anf
     mountpoint: /anfhome # /sharedhome for example
     server: '{{anf_home_ip}}' # Specify an existing NFS server name or IP, when using the ANF built in use '{{anf_home_ip}}'
     export: '{{anf_home_path}}' # Specify an existing NFS export directory, when using the ANF built in use '{{anf_home_path}}'
@@ -176,9 +178,9 @@ domain:
   use_existing_dc: false # Set to true if you want to join a domain with existing DC
   domain_join_user:
     username: hpcadmin
-    password_key_vault_name: '{{key_vault}}' # name_for_the_key_vault_with_the_domain_join_password
-    password_key_vault_resource_group_name: '{{resource_group}}' # resource_group_name_for_the_key_vault_with_the_domain_join_password
-    password_key_vault_secret_name: 'hpcadmin-password' # key_vault_secret_name_for_the_domain_join_password
+    password_key_vault_name: name_for_the_key_vault_with_the_domain_join_password
+    password_key_vault_resource_group_name: resource_group_name_for_the_key_vault_with_the_domain_join_password
+    password_key_vault_secret_name: key_vault_secret_name_for_the_domain_join_password
   # additional settings when using an existinf DC
   existing_dc_details: 
     domain_controller_names: ["dc1", "dc2"]
@@ -319,7 +321,7 @@ authentication:
   #   OIDCPassClaimsAs: # for AAD use 'environment'
 
 image_gallery:
-  create: true # Create the shared image gallery to store custom images
+  create: false # Create the shared image gallery to store custom images
 
 # List of images to be defined
 images:
