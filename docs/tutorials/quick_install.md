@@ -187,15 +187,15 @@ During this task, you will prepare the **config.yml** file to configure the envi
 
 1. Run the Terraform plan script to validate changes to be executed.
     ```bash
-    ./build.sh -a plan
+   ./build.sh -a plan
     ```
     If no errors have been detected you can proceed to execute the following code to start the deployment.
     ```bash
-    ./build.sh -a apply 
+   ./build.sh -a apply 
     ```
 2. After the deployment of resources is done, we proceed to create the passwords needed to connect the accounts.
     ```bash
-    ./create_passwords.sh
+   ./create_passwords.sh
     ```
 3. Finally we execute the command to install the software needed to run **Az-Hop**
     ```bash
