@@ -96,10 +96,6 @@ mkdir -p $azhop_root/playbooks/group_vars
 jq '. | .azhopGlobalConfig.value.global_config_file=$param' --arg param $azhop_root/config.yml azhopOutputs.json > tmp.json
 cp tmp.json azhopOutputs.json
 jq .azhopGlobalConfig.value azhopOutputs.json | yq -P > $azhop_root/playbooks/group_vars/all.yml
-# substitute passwords into the file
-#  - __ADMIN_SSH_PUBLIC_KEY__
-sed -i "s/__ADMIN_SSH_PUBLIC_KEY__/$(sed 's/[&/\]/\\&/g' <$azhop_root/${adminuser}_id_rsa.pub)/g" $azhop_root/playbooks/group_vars/all.yml
-
 
 jq '.azhopInventory.value.all.hosts *= (.lustre_oss_private_ips.value | to_entries | map({("lustre-oss-" + (.key | tostring)): {"ansible_host": .value}}) | add // {}) | .azhopInventory.value' azhopOutputs.json | yq -P > $azhop_root/playbooks/inventory
 # substitute passwords into the file
