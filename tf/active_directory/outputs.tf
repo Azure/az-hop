@@ -16,7 +16,6 @@ resource "local_file" "global_variables" {
   content = templatefile("${local.playbooks_template_dir}/global_variables.tmpl",
     {
       admin_username      = local.admin_username
-      ssh_public_key      = tls_private_key.internal.public_key_openssh
       cc_storage          = azurerm_storage_account.azhop.name
       compute_subnetid    = local.create_compute_subnet ? "${azurerm_subnet.compute[0].resource_group_name}/${azurerm_subnet.compute[0].virtual_network_name}/${azurerm_subnet.compute[0].name}" : "${data.azurerm_subnet.compute[0].resource_group_name}/${data.azurerm_subnet.compute[0].virtual_network_name}/${data.azurerm_subnet.compute[0].name}"
       region              = local.location

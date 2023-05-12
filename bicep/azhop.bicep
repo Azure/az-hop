@@ -849,7 +849,6 @@ var kvSuffix = environment().suffixes.keyvaultDns
 
 output azhopGlobalConfig object = union(
   {
-    global_ssh_public_key         : secrets.adminSshPublicKey
     global_cc_storage             : 'azhop${resourcePostfix}'
     compute_subnetid              : '${azhopResourceGroupName}/${config.vnet.name}/${config.vnet.subnets.compute.name}'
     global_config_file            : '/az-hop/config.yml'
