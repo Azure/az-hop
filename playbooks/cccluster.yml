@@ -93,7 +93,8 @@
     delegate_to: localhost
     connection: local
     become: false
-    with_items: "{{remoteviz}}"
+    with_items: "{{remoteviz | default([])}}"
+    when: enable_remote_winviz | default(false)
 
   - name: Load lookup image version
     include_vars:
