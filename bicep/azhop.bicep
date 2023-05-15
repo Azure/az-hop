@@ -821,7 +821,8 @@ var adIndex = createAD ? indexOf(map(vmItems, item => item.key), 'ad') : 0
 var adIp = createAD ? azhopVm[adIndex].outputs.privateIp : ''
 var ad2Index = createAD && highAvailabilityForAD ? indexOf(map(vmItems, item => item.key), 'ad2') : 0
 var ad2Ip = createAD ? azhopVm[ad2Index].outputs.privateIp : ''
-var dcIps = createAD ? (! highAvailabilityForAD ? [adIp] : [adIp, ad2Ip]) : azhopConfig.domain.existing_dc_details.domain_controller_ip_addresses
+var domain_controller_ip_addresses = contains(azhopConfig, 'domain') && contains(azhopConfig.domain, 'existing_dc_details') ? azhopConfig.domain.existing_dc_details.domain_controller_ip_addresses : []
+var dcIps = createAD ? (! highAvailabilityForAD ? [adIp] : [adIp, ad2Ip]) : domain_controller_ip_addresses
 module azhopADRecords './privatezone_records.bicep' = {
   name: 'azhopADRecords'
   params: {
@@ -914,7 +915,7 @@ output azhopInventory object = {
         ansible_connection: 'psrp'
         ansible_psrp_protocol: 'http'
         ansible_user: config.admin_user
-        ansible_password: secrets.adminPassword
+        ansible_password: '__ADMIN_PASSWORD__'
         psrp_ssh_proxy: deployJumpbox ? azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIp : ''
         ansible_psrp_proxy: deployJumpbox ? 'socks5h://localhost:5985' : ''
         }
@@ -925,7 +926,7 @@ output azhopInventory object = {
           ansible_connection: 'psrp'
           ansible_psrp_protocol: 'http'
           ansible_user: config.admin_user
-          ansible_password: secrets.adminPassword
+          ansible_password: '__ADMIN_PASSWORD__'
           psrp_ssh_proxy: deployJumpbox ? azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIp : ''
           ansible_psrp_proxy: deployJumpbox ? 'socks5h://localhost:5985' : ''
         }

@@ -3,7 +3,7 @@ targetScope = 'resourceGroup'
 param name string
 param vm object
 param image object
-param location string = resourceGroup().location
+param location string
 param resourcePostfix string = '${uniqueString(subscription().subscriptionId, resourceGroup().id)}x'
 param subnetId string
 param adminUser string
@@ -11,7 +11,7 @@ param adminUser string
 param secrets object
 param asgIds object
 
-resource publicIp 'Microsoft.Network/publicIPAddresses@2021-05-01' = if (contains(vm, 'pip') && vm.pip) {
+resource publicIp 'Microsoft.Network/publicIPAddresses@2022-07-01' = if (contains(vm, 'pip') && vm.pip) {
   name: '${name}-pip'
   location: location
   sku: {
@@ -30,7 +30,7 @@ resource publicIp 'Microsoft.Network/publicIPAddresses@2021-05-01' = if (contain
 // var count = contains(vm, 'count') && vm.count > 1 ? vm.count : 1
 // var vmPrefixes = [ for i in range(0, count): count > 1 ? '-${(i + 1)}' : '' ]
 
-resource nic 'Microsoft.Network/networkInterfaces@2020-06-01' = {
+resource nic 'Microsoft.Network/networkInterfaces@2022-07-01' = {
   name: '${name}-nic'
   location: location
   properties: {
@@ -57,7 +57,7 @@ resource nic 'Microsoft.Network/networkInterfaces@2020-06-01' = {
 
 var datadisks = contains(vm, 'datadisks') ? vm.datadisks : []
 
-resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-06-01' = {
+resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-11-01' = {
   name: name
   location: location
   plan: contains(image, 'plan') && empty(image.plan) == false ? {

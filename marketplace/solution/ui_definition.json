@@ -8,12 +8,11 @@
         "name": "azhopResourceGroup",
         "type": "Microsoft.Common.TextBox",
         "label": "Azhop Resource Group",
-        "defaultValue": "",
-        "toolTip": "",
+        "toolTip": "Resource group name to use for the azhop deployment.",
         "constraints": {
           "required": true,
-          "regex": "",
-          "validationMessage": ""
+          "regex": "^[a-zA-Z0-9](?:[a-zA-Z0-9._-]*[a-zA-Z0-9])?$",
+          "validationMessage": "Invalid resource group name"
         },
         "visible": true
       },
@@ -21,12 +20,11 @@
         "name": "adminUser",
         "type": "Microsoft.Common.TextBox",
         "label": "Admin User",
-        "defaultValue": "",
         "toolTip": "Admin user for the Virtual Machines.",
         "constraints": {
           "required": true,
-          "regex": "",
-          "validationMessage": ""
+          "regex": "^[a-zA-Z][a-zA-Z0-9_]{5,19}$",
+          "validationMessage": "Enter a valid username"
         },
         "visible": true
       },
@@ -37,8 +35,7 @@
         "defaultValue": true,
         "toolTip": "Keypair and passwords can be retrieved from keyvault after deploying.",
         "constraints": {
-          "required": false,
-          "validationMessage": ""
+          "required": false
         }
       },
       {
@@ -47,9 +44,9 @@
         "label": "Admin Ssh Public Key",
         "toolTip": "SSH Public Key for the Virtual Machines.",
         "constraints": {
-          "required": "[basics('autogeneratePasswordsAndKeys')]",
-          "regex": "",
-          "validationMessage": ""
+          "required": "[not(basics('autogeneratePasswordsAndKeys'))]",
+          "regex": "^ssh-rsa [0-9A-Za-z+/]+[=]{0,2} [A-Za-z0-9@._-]+$",
+          "validationMessage": "Invalid public key"
         },
         "visible": "[not(basics('autogeneratePasswordsAndKeys'))]"
       },
@@ -60,9 +57,9 @@
         "toolTip": "SSH Private Key for the Virtual Machines.",
         "multiLine": true,
         "constraints": {
-          "required": "[basics('autogeneratePasswordsAndKeys')]",
-          "regex": "",
-          "validationMessage": ""
+          "required": "[not(basics('autogeneratePasswordsAndKeys'))]",
+          "regex": "^-----BEGIN [A-Z]+ PRIVATE KEY-----\r?\n([a-zA-Z0-9+/]+={0,2}\r?\n)+-----END [A-Z]+ PRIVATE KEY-----$",
+          "validationMessage": "Invalid private key"
         },
         "visible": "[not(basics('autogeneratePasswordsAndKeys'))]"
       },
@@ -75,12 +72,12 @@
         },
         "toolTip": "The Windows/Active Directory password.",
         "constraints": {
-          "required": "[basics('autogeneratePasswordsAndKeys')]",
-          "regex": "",
-          "validationMessage": ""
+          "required": "[not(basics('autogeneratePasswordsAndKeys'))]",
+          "regex": "^[\\x20-\\x7E]{12,}$",
+          "validationMessage": "Enter at least 12 characters"
         },
         "options": {
-          "hideConfirmation": true
+          "hideConfirmation": false
         },
         "visible": "[not(basics('autogeneratePasswordsAndKeys'))]"
       },
@@ -93,12 +90,12 @@
         },
         "toolTip": "Password for the database admin user",
         "constraints": {
-          "required": "[basics('autogeneratePasswordsAndKeys')]",
-          "regex": "",
-          "validationMessage": ""
+          "required": "[not(basics('autogeneratePasswordsAndKeys'))]",
+          "regex": "^[\\x20-\\x7E]{12,}$",
+          "validationMessage": "Enter at least 12 characters"
         },
         "options": {
-          "hideConfirmation": true
+          "hideConfirmation": false
         },
         "visible": "[not(basics('autogeneratePasswordsAndKeys'))]"
       },
@@ -114,12 +111,11 @@
         "name": "keyvaultReader",
         "type": "Microsoft.Common.TextBox",
         "label": "Additional Keyvault Reader",
-        "defaultValue": "",
         "toolTip": "This must be a ObjectId",
         "constraints": {
           "required": false,
-          "regex": "",
-          "validationMessage": ""
+          "regex": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$",
+          "validationMessage": "Enter a valid ObjectId"
         },
         "visible": true
       },
@@ -131,8 +127,8 @@
         "toolTip": "Branch of the azhop repo to pull - Default to main",
         "constraints": {
           "required": false,
-          "regex": "",
-          "validationMessage": ""
+          "regex": "^[a-zA-Z0-9](?:[a-zA-Z0-9_\\-\\.]*[a-zA-Z0-9])?$",
+          "validationMessage": "Invalid branch name"
         },
         "visible": true
       }
@@ -152,6 +148,7 @@
             "type": "Microsoft.Common.DropDown",
             "label": "Storage Type",
             "defaultValue": "Azure Files",
+            "toolTip": "Storage type for the home directory.",
             "multiselect": false,
             "constraints": {
               "allowedValues": [
@@ -176,8 +173,8 @@
             "toolTip": "Home directory mountpoint on the VMs.",
             "constraints": {
               "required": false,
-              "regex": "",
-              "validationMessage": ""
+              "regex": "^\/(?:[\\w-.]+\/)*[\\w-.]+$",
+              "validationMessage": "Must be an absolute path"
             },
             "visible": true
           },
@@ -187,6 +184,7 @@
             "label": "Service Level",
             "defaultValue": "Premium",
             "multiselect": false,
+            "toolTip": "Service level for the Azure NetApp Files volume.",
             "constraints": {
               "allowedValues": [
                 {
@@ -210,6 +208,7 @@
             "name": "anfcapacity",
             "type": "Microsoft.Common.Slider",
             "label": "Capacity",
+            "toolTip": "Capacity of the Azure NetApp Files volume.",
             "subLabel": "TB",
             "defaultValue": 4,
             "min": 4,
@@ -220,6 +219,7 @@
             "name": "azurefilescapacity",
             "type": "Microsoft.Common.Slider",
             "label": "Capacity",
+            "toolTip": "Capacity of the Azure Files share.",
             "subLabel": "GB",
             "defaultValue": 1024,
             "min": 100,
@@ -241,31 +241,123 @@
             "name": "publicIp",
             "type": "Microsoft.Common.CheckBox",
             "label": "Enable public IP address for the ondemand VM.",
+            "toolTip": "This is required for public access to the AZHOP.",
             "defaultValue": true
+          },
+          {
+            "name": "cidrPrefix",
+            "type": "Microsoft.Common.DropDown",
+            "label": "CIDR Prefix",
+            "defaultValue": "/24",
+            "multiLine": true,
+            "toolTip": "Select the CIDR prefix",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "/24",
+                  "description": "59 compute nodes",
+                  "value": "/24"
+                },
+                {
+                  "label": "/23",
+                  "description": "251 compute nodes",
+                  "value": "/23"
+                },
+                {
+                  "label": "/22",
+                  "description": "507 compute nodes",
+                  "value": "/22"
+                },
+                {
+                  "label": "/21",
+                  "description": "1019 compute nodes",
+                  "value": "/21"
+                },
+                {
+                  "label": "/20",
+                  "description": "2043 compute nodes",
+                  "value": "/20"
+                }
+              ],
+              "required": true
+            },
+            "visible": true
+          },
+          {
+            "name": "baseIpAddress",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Base IP Address",
+            "defaultValue": "10.0.0.0",
+            "toolTip": "The base IP address for the IP range",
+            "multiLine": false,
+            "constraints": {
+              "required": true,
+              "validations": [
+                {
+                  "regex": "^(\\d{1,3}.){3}\\d{1,3}$",
+                  "message": "Invalid IP address"
+                },
+                {
+                  "isValid": "[and(greaterOrEquals(_X1i_, 0),lessOrEquals(_X1i_, 255))]",
+                  "message": "Invalid number for first octet (range is 0-255)"
+                },
+                {
+                  "isValid": "[and(greaterOrEquals(_X2i_, 0),lessOrEquals(_X2i_, 255))]",
+                  "message": "Invalid number for second octet (range is 0-255)"
+                },
+                {
+                  "isValid": "[and(greaterOrEquals(_X3i_, 0),lessOrEquals(_X3i_, 255))]",
+                  "message": "Invalid number for third octet (range is 0-255)"
+                },
+                {
+                  "isValid": "[or(equals(steps('network').cidrPrefix, '/24'),and(equals(steps('network').cidrPrefix, '/23'), equals(mod(_X3i_, 2),0)),and(equals(steps('network').cidrPrefix, '/22'), equals(mod(_X3i_, 4),0)),and(equals(steps('network').cidrPrefix, '/21'), equals(mod(_X3i_, 8),0)),and(equals(steps('network').cidrPrefix, '/20'), equals(mod(_X3i_, 16),0)))]",
+                  "message": "Invalid third octet for the selected CIDR prefix"
+                },
+                {
+                  "isValid": "[equals(_X4i_, 0)]",
+                  "message": "Invalid last octet for the selected CIDR prefix"
+                }
+              ]
+            },
+            "visible": true
           },
           {
             "name": "peering",
             "type": "Microsoft.Common.CheckBox",
-            "label": "Enable peering azhop to your existing VNET.",
-            "defaultValue": false
+            "label": "Peer to an existing VNET.",
+            "defaultValue": false,
+            "toolTip": "Enable peering azhop to your existing VNET.",
+            "visible": "[not(steps('network').publicIp)]"
           },
           {
             "name": "vnetname",
             "type": "Microsoft.Common.TextBox",
-            "label": "Name of the virtual network to peer to.",
-            "visible": "[steps('network').peering]"
+            "label": "Peered vnet name",
+            "toolTip": "Name of the virtual network to peer to.",
+            "constraints": {
+              "required": "[and(not(steps('network').publicIp),steps('network').peering)]",
+              "regex": "^[a-zA-Z0-9_-]{1,64}$",
+              "validationMessage": "Enter a valid vnet name"
+            },
+            "visible": "[and(not(steps('network').publicIp),steps('network').peering)]"
           },
           {
             "name": "vnetrg",
             "type": "Microsoft.Common.TextBox",
-            "label": "The resource group name containing the peered VNET.",
-            "visible": "[steps('network').peering]"
+            "label": "Peered vnet resource group name",
+            "toolTip": "The resource group name containing the peered VNET.",
+            "constraints": {
+              "required": "[and(not(steps('network').publicIp),steps('network').peering)]",
+              "regex": "^[a-zA-Z0-9](?:[a-zA-Z0-9._-]*[a-zA-Z0-9])?$",
+              "validationMessage": "Enter a valid resource group name"
+            },
+            "visible": "[and(not(steps('network').publicIp),steps('network').peering)]"
           }
         ]
       }
     ],
     "outputs": {
-      "loggedUserObjectId": "",
+      "location": "[location()]",
       "branchName": "[basics('branchName')]",
       "autogenerateSecrets": "[basics('autogeneratePasswordsAndKeys')]",
       "adminSshPublicKey": "[if(basics('autogeneratePasswordsAndKeys'),'',basics('adminSshPublicKey'))]",
