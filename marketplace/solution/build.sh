@@ -1,6 +1,12 @@
 #!/bin/bash
+THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-build_dir=azhop_$(date +"%Y%m%d_%H%M%S")
+if [ -d ${THIS_DIR}/../../miniconda ]; then
+  echo "Activating conda environment"
+  source ${THIS_DIR}/../../miniconda/bin/activate
+fi
+
+build_dir="build"
 mkdir $build_dir
 echo "Converting YAML config to JSON"
 yq -o=json <marketplace_config.yml >$build_dir/config.json
