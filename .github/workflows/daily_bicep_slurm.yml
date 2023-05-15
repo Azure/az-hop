@@ -7,7 +7,7 @@ name : Daily Bicep Slurm
 on:
   workflow_dispatch:
   schedule:
-    - cron: "01 10 * * *" # At 01:10 UTC Daily
+    - cron: "10 1 * * *" # At 01:10 UTC Daily
 
 jobs:
   deploy_bicep:
