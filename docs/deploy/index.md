@@ -1552,9 +1552,7 @@ As we made progress in using bicep as a deployment tool, the table below shows t
 | Use an existing VNET | [x] | [ ] |
 | Monitoring | [x] | [ ] |
 | Alerting | [x] | [ ] |
-| NFS Files as Home | [ ] | [x] |
 | Private DNS Resolver | [x] | [ ] |
-| Optionally deploy Compute Gallery | [ ] | [x] |
 | Optionally deploy a Bastion | [ ] | [x] |
 | Create the deployer VM | [ ] | [x] |
 
