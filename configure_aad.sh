@@ -4,7 +4,6 @@
 set -e
 AZHOP_CONFIG=config.yml
 ANSIBLE_VARIABLES=playbooks/group_vars/all.yml
-SECRET_NAME="azhop-oidc-password"
 
 if [ ! -e $AZHOP_CONFIG ]; then
   echo "$AZHOP_CONFIG doesn't exist, exiting"
@@ -41,9 +40,9 @@ if [ "$appId" == "" ]; then
           --key-type password 
 
   appId=$(az ad app list --display-name $aadName --query [].appId -o tsv)
-  echo "Generating a password for $aadName and storing it as secret $SECRET_NAME in keyvault $key_vault"
   current_password=$(az ad app credential reset --id $appId | jq -r '.password')
   SECRET_NAME="$appId-password"
+  echo "Generating a password for $aadName and storing it as secret $SECRET_NAME in keyvault $key_vault"
   az keyvault secret set --value "$current_password" --name $SECRET_NAME --vault-name $key_vault -o table > /dev/null
 else
   SECRET_NAME="$appId-password"
