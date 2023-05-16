@@ -119,6 +119,23 @@ function use_existing_ad()
 
 }
 
+function use_local_users()
+{
+  local use_local_users
+  use_local_users=$(yq eval '.authentication.user_auth' config.yml)
+  if [ "$use_local_users" == "local" ]; then
+    use_local_users=true
+  fi
+
+  if [ "$use_local_users" == "true" ]; then
+    touch $PLAYBOOKS_DIR/ad.ok
+    touch $PLAYBOOKS_DIR/add_users.ok
+  else
+    touch $PLAYBOOKS_DIR/add_local_users.ok
+  fi
+}
+
+
 # Ensure submodule exists
 if [ ! -d "${PLAYBOOKS_DIR}/roles/ood-ansible/.github" ]; then
     printf "Installing OOD Ansible submodule\n"
@@ -134,6 +151,7 @@ get_ood_auth
 enable_winviz
 enable_lustre
 use_existing_ad
+use_local_users
 
 case $TARGET in
   all)
@@ -145,7 +163,7 @@ case $TARGET in
     run_playbook lustre
     run_playbook ccportal
     run_playbook add_users
-#    run_playbook add_local_users
+    run_playbook add_local_users
     run_playbook cccluster
     run_playbook scheduler
     run_playbook ood $PLAYBOOKS_DIR/ood-overrides-common.yml $PLAYBOOKS_DIR/ood-overrides-$SCHEDULER.yml $PLAYBOOKS_DIR/ood-overrides-auth-$OOD_AUTH.yml $ENABLE_WINVIZ_PLAYBOOK
