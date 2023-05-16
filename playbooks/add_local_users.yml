@@ -1,6 +1,7 @@
 ---
 - name: Create local users
   hosts: scheduler, ondemand, grafana
+  serial: 1
   # hosts: grafana
 
   become: true
