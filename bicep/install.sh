@@ -91,12 +91,16 @@ chmod +x $azhop_root/bin/get_secret
 jq -r .azhopConnectScript.value azhopOutputs.json > $azhop_root/bin/connect
 chmod +x $azhop_root/bin/connect
 
+# create the group_vars/all.yml
 mkdir -p $azhop_root/playbooks/group_vars
 jq '. | .azhopGlobalConfig.value.global_config_file=$param' --arg param $azhop_root/config.yml azhopOutputs.json > tmp.json
 cp tmp.json azhopOutputs.json
 jq .azhopGlobalConfig.value azhopOutputs.json | yq -P > $azhop_root/playbooks/group_vars/all.yml
 
 jq '.azhopInventory.value.all.hosts *= (.lustre_oss_private_ips.value | to_entries | map({("lustre-oss-" + (.key | tostring)): {"ansible_host": .value}}) | add // {}) | .azhopInventory.value' azhopOutputs.json | yq -P > $azhop_root/playbooks/inventory
+# substitute passwords into the file
+#  - __ADMIN_PASSWORD__
+sed -i "s/__ADMIN_PASSWORD__/$(sed 's/[&/\]/\\&/g' <<< $admin_pass)/g" $azhop_root/playbooks/inventory
 
 jq .azhopPackerOptions.value azhopOutputs.json > $azhop_root/packer/options.json
 
@@ -107,6 +111,8 @@ jq .azhopPackerOptions.value azhopOutputs.json > $azhop_root/packer/options.json
 #     ./build_image.sh -i azhop-compute-centos-7.9.json
 #     ./build_image.sh -i azhop-desktop-centos-7.9.json
 # fi
+
+ 
 
 echo "* Generating passwords"
 cd $azhop_root

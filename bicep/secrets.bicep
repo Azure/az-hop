@@ -1,6 +1,6 @@
 targetScope = 'resourceGroup'
 
-param location string = resourceGroup().location
+param location string
 
 resource secrets 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: 'secrets'

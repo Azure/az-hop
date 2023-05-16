@@ -10,6 +10,8 @@
   gather_facts: no
   vars_files:
     - '{{global_config_file}}'
+  vars:
+    public_ssh_key: "{{lookup('env', 'PWD')}}/{{admin_user}}_id_rsa.pub"
 
   tasks:
   - name: Wait 300 seconds for the nodes to be ready
@@ -31,7 +33,7 @@
         become: true
     vars:
       cc_admin_user: '{{admin_user}}'
-      cc_public_key: '{{global_ssh_public_key}}'
+      cc_public_key: "{{lookup('file', public_ssh_key )}}" 
       cc_password: '{{password.stdout}}'
       cc_storage: '{{global_cc_storage}}'
       cc_domain: '{{domain_name}}'

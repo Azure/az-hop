@@ -82,7 +82,7 @@
 Once the [prerequisites](#azure-pre-requisites) are in place, deploying a greenfield `azhop` environment involves essentially these steps:
 
  1. Clone the repo: `git clone --recursive https://github.com/Azure/az-hop.git -b <version>` 
- 1. Copy the the `config.tpl.yml` template into `config.yml` and update it with your settings
+ 1. Copy the `examples/minimum_public_ip.yml` template file to `config.yml` and update it with your settings
  1. Build the infrastructure on azure: `./build.sh -a apply`
  1. Create user passwords: `./create_passwords.sh` 
  1. Install the software components on the provisioned infrastructure: `./install.sh` 
@@ -90,8 +90,8 @@ Once the [prerequisites](#azure-pre-requisites) are in place, deploying a greenf
 Once deployed, you can connect to the OnDemand web portal via:
 
  - URL: get from `grep ondemand_fqdn playbooks/group_vars/all.yml` 
- - username: `adminuser` 
- - password: get from `./bin/get_secret adminuser`
+ - username: `clusteradmin` 
+ - password: get from `./bin/get_secret clusteradmin`
 
  The following sections provide detailed instructions for each of these steps.
 
@@ -547,10 +547,10 @@ domain:
   use_existing_dc: false # Set to true if you want to join a domain with existing DC
   domain_join_user:
     username: hpcadmin
-    password_key_vault_name: '{{key_vault}}' # name_for_the_key_vault_with_the_domain_join_password
-    password_key_vault_resource_group_name: '{{resource_group}}' # resource_group_name_for_the_key_vault_with_the_domain_join_password
-    password_key_vault_secret_name: 'hpcadmin-password' # key_vault_secret_name_for_the_domain_join_password
-  # additional settings when using an existinf DC
+    password_key_vault_name: name_for_the_key_vault_with_the_domain_join_password
+    password_key_vault_resource_group_name: resource_group_name_for_the_key_vault_with_the_domain_join_password
+    password_key_vault_secret_name: key_vault_secret_name_for_the_domain_join_password
+  # additional settings when using an existing DC
   existing_dc_details: 
     domain_controller_names: ["dc1", "dc2"]
     domain_controller_ip_addresses: ["192.168.1.100", "192.168.1.101"]
@@ -1552,9 +1552,7 @@ As we made progress in using bicep as a deployment tool, the table below shows t
 | Use an existing VNET | [x] | [ ] |
 | Monitoring | [x] | [ ] |
 | Alerting | [x] | [ ] |
-| NFS Files as Home | [ ] | [x] |
 | Private DNS Resolver | [x] | [ ] |
-| Optionally deploy Compute Gallery | [ ] | [x] |
 | Optionally deploy a Bastion | [ ] | [x] |
 | Create the deployer VM | [ ] | [x] |
 

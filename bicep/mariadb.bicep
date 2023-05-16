@@ -1,6 +1,6 @@
 targetScope = 'resourceGroup'
 
-param location string = resourceGroup().location
+param location string
 param resourcePostfix string
 param adminUser string
 @secure()
@@ -86,12 +86,12 @@ resource mariaDbPrivateDnsZone 'Microsoft.Network/privateEndpoints/privateDnsZon
   }
 }
 
-resource privateDnsZones_global 'Microsoft.Network/privateDnsZones@2018-09-01' = {
+resource privateDnsZones_global 'Microsoft.Network/privateDnsZones@2020-06-01' = {
   name: mariaDbPrivateLinkName
   location: 'global'
 }
 
-resource privateDnsZones_az_hop_private 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2018-09-01' = {
+resource privateDnsZones_az_hop_private 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
   parent: privateDnsZones_global
   name: 'az-hop-private'
   location: 'global'

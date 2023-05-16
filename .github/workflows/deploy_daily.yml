@@ -2,11 +2,11 @@
 # Copyright (c) Microsoft Corporation
 # Licensed under the MIT License.
 #
-name : deploy_daily
+name : Daily Deploy Only Bicep/Terraform
 
 on:
   schedule:
-    - cron: "10 10 * * *" # At 10:10 Daily
+    - cron: "10 10 * * *" # At 10:10 UTC Daily
 
 jobs:
   deploy_terraform:

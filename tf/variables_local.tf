@@ -169,10 +169,10 @@ locals {
     create_rg = (!local.use_existing_rg) && (local.create_vnet || try(split("/", local.vnet_id)[4], local.resource_group) != local.resource_group)
 
     # ANF
-    create_anf = try(local.configuration_yml["anf"]["create"] || local.configuration_yml["anf"]["homefs_size_tb"] > 0, false) || try(local.configuration_yml["homefs_size_tb"] > 0, false)
-    anf_size=try(local.configuration_yml["anf"]["homefs_size_tb"], try(local.configuration_yml["homefs_size_tb"], 4))
-    anf_service_level = try(local.configuration_yml["anf"]["homefs_service_level"], try(local.configuration_yml["homefs_service_level"], "Standard"))
-    anf_dual_protocol = try(local.configuration_yml["anf"]["dual_protocol"], try(local.configuration_yml["dual_protocol"], false))
+    create_anf = try(local.configuration_yml["anf"]["create"], false)
+    anf_size=try(local.configuration_yml["anf"]["homefs_size_tb"], 4)
+    anf_service_level = try(local.configuration_yml["anf"]["homefs_service_level"], "Standard")
+    anf_dual_protocol = try(local.configuration_yml["anf"]["dual_protocol"], false)
 
     #Azure Files
     create_nfsfiles = try(local.configuration_yml["azurefiles"]["create"], false)
@@ -184,13 +184,13 @@ locals {
     config_nfs_home_path = local.configuration_yml["mounts"]["home"]["export"]
     config_nfs_home_opts = local.configuration_yml["mounts"]["home"]["options"]
 
-    homedir_mountpoint = try(local.configuration_yml["mounts"]["home"]["mountpoint"], try(local.configuration_yml["homedir_mountpoint"], "/anfhome"))
+    homedir_mountpoint = try(local.configuration_yml["mounts"]["home"]["mountpoint"], "/anfhome")
 
     admin_username = local.configuration_yml["admin_user"]
     key_vault_readers = try(local.configuration_yml["key_vault_readers"], null)
 
     # Lustre
-    lustre_enabled = try(local.configuration_yml["lustre"]["create"], try(local.configuration_yml["lustre"]["oss_count"] > 0, false))
+    lustre_enabled = try(local.configuration_yml["lustre"]["create"], false)
     lustre_archive_account = try(local.configuration_yml["lustre"]["hsm"]["storage_account"], null)
     lustre_rbh_sku = try(local.configuration_yml["lustre"]["rbh_sku"], "Standard_D8d_v4")
     lustre_mds_sku = try(local.configuration_yml["lustre"]["mds_sku"], "Standard_D8d_v4")

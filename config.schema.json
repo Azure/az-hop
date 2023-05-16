@@ -321,12 +321,14 @@
                 },
                 "alert_threshold": {
                     "description": "If alerting is enabled, this value will be used to determine when to trigger alerts ",
+                    "default": 80,
                     "maximum": 100,
                     "minimum": 1,
                     "type": "integer"
                 }
             },
             "required": [
+                "create",
                 "homefs_service_level",
                 "homefs_size_tb"
             ],

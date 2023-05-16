@@ -1,274 +1,46 @@
 <!--ts-->
 * [Quickstart guide](#quickstart-guide)
    * [Requirements](#requirements)
-   * [Before the hands-on lab](#before-the-hands-on-lab)
-      * [Task 1: Validate the owner role assignment in the Azure subscription](#task-1-validate-the-owner-role-assignment-in-the-azure-subscription)
-      * [Task 2: Validate a sufficient number of vCPU cores](#task-2-validate-a-sufficient-number-of-vcpu-cores)
-   * [Exercise 1: Deploy the Azure HPC OnDemand Platform environment](#exercise-1-deploy-the-azure-hpc-ondemand-platform-environment)
-      * [Task 1: Connect to a Cloud Shell session](#task-1-connect-to-a-cloud-shell-session)
-      * [Task 2 : Clone the az-hop GitHub repository](#task-2--clone-the-az-hop-github-repository)
-      * [Task 3 : Prepare the configuration file used to build the az-hop environment](#task-3--prepare-the-configuration-file-used-to-build-the-az-hop-environment)
-      * [Task 4 : Deploy the environment](#task-4--deploy-the-environment)
-      * [Task 5 : Connect to the deployer VM thru Azure Bastion](#task-5--connect-to-the-deployer-vm-thru-azure-bastion)
-      * [Task 6 : Monitor the installation progress](#task-6--monitor-the-installation-progress)
-      * [Task 7 : Retrieve the homepage URL and user account to connect with](#task-7--retrieve-the-homepage-url-and-user-account-to-connect-with)
-      * [Task 8 : Access the Azure HPC On-Demand Platform dashboard](#task-8--access-the-azure-hpc-on-demand-platform-dashboard)
-   * [Exercise 2: Review the main az-hop features](#exercise-2-review-the-main-az-hop-features)
+   * [Exercise 1: Review the main az-hop features](#exercise-1-review-the-main-az-hop-features)
       * [Task 1: Using file explorer](#task-1-using-file-explorer)
       * [Task 2: Using shell access](#task-2-using-shell-access)
       * [Task 3: Hello World job](#task-3-hello-world-job)
       * [Task 4: Running Intel MPI PingPong jobs from the Job composer](#task-4-running-intel-mpi-pingpong-jobs-from-the-job-composer)
       * [Task 5: Running interactive apps using Code Server and Linux Desktop](#task-5-running-interactive-apps-using-code-server-and-linux-desktop)
-   * [Exercise 3: Set up Spack](#exercise-3-set-up-spack)
+   * [Exercise 2: Set up Spack](#exercise-2-set-up-spack)
       * [Task 1: Create a Code Server session](#task-1-create-a-code-server-session)
       * [Task 2: Install Spack](#task-2-install-spack)
-   * [Exercise 4: Build and run OSU Benchmarks](#exercise-4-build-and-run-osu-benchmarks)
+   * [Exercise 3: Build and run OSU Benchmarks](#exercise-3-build-and-run-osu-benchmarks)
       * [Task 1: Build OSU Benchmarks with OpenMPI](#task-1-build-osu-benchmarks-with-openmpi)
       * [Task 2: Create the run script](#task-2-create-the-run-script)
       * [Task 3: Submit OSU jobs](#task-3-submit-osu-jobs)
-   * [Exercise 5: Build, run, and analyze OpenFOAM](#exercise-5-build-run-and-analyze-openfoam)
+   * [Exercise 4: Build, run, and analyze OpenFOAM](#exercise-4-build-run-and-analyze-openfoam)
       * [Task 1: Build OpenFOAM](#task-1-build-openfoam)
       * [Task 2: Running the motorbike tutorial on a single node](#task-2-running-the-motorbike-tutorial-on-a-single-node)
       * [Task 3: Running the motorbike tutorial on multiple nodes](#task-3-running-the-motorbike-tutorial-on-multiple-nodes)
       * [Task 4: Visualize the motorbike tutorial result](#task-4-visualize-the-motorbike-tutorial-result)
-   * [Exercise 6: Run OpenFOAM DrivAer-Fastback simulation using EESSI stack](#exercise-6-run-openfoam-drivaer-fastback-simulation-using-eessi-stack)
+   * [Exercise 5: Run OpenFOAM DrivAer-Fastback simulation using EESSI stack](#exercise-5-run-openfoam-drivaer-fastback-simulation-using-eessi-stack)
       * [Task 1: Prepare the DrivAer-Fastback example](#task-1-prepare-the-drivaer-fastback-example)
       * [Task 2: Submit PBS job](#task-2-submit-pbs-job)
       * [Task 3: Create Linux Desktop session for visualization](#task-3-create-linux-desktop-session-for-visualization)
       * [Task 4: Visualize the DrivAer-Fastback simulation results](#task-4-visualize-the-drivaer-fastback-simulation-results)
-   * [Exercise 7: Deprovision Azure HPC OnDemand Platform environment](#exercise-7-deprovision-azure-hpc-ondemand-platform-environment)
+   * [Exercise 6: Deprovision Azure HPC OnDemand Platform environment](#exercise-6-deprovision-azure-hpc-ondemand-platform-environment)
       * [Task 1: Deprovision the Azure resources](#task-1-deprovision-the-azure-resources)
 <!--te-->
 <!-- https://github.com/ekalinin/github-markdown-toc -->
 <!-- ./gh-md-toc --insert --no-backup --hide-footer -->
 
 # Quickstart guide
-This quickstart guide will show you how to build and use an OnDemand HPC cluster on Azure thru the deployment of an simple **Azure HPC On-Demand Platform** environment. In this light environment, there is no Lustre cluster, no Window Viz nodes. `Az-hop` CentOS 7.9 Azure marketplace images for compute and remote desktop nodes will be used.
+This QuickStart guide will show you how to build and use an OnDemand HPC cluster on Azure through the deployment of a simple **Azure HPC On-Demand Platform** environment. In this light environment, there is no Lustre cluster, no Window Viz nodes. `Az-hop` CentOS 7.9 Azure marketplace images for compute and remote desktop nodes will be used.
 
-When provisioning a complete `az-hop` environment a deployer VM and a bastion will be included. Once deployed, a cloud init script is run from the deployer VM to install and configure all components needed using Ansible playbooks. This second step is longer as it needs to install and configure a Domain Control, CycleCloud, OpenOndemand, PBS, Grafana and many others things. The use of Ansible will allows this system to be updated and in case of failure the installation to be retried.
+When provisioning a complete `az-hop` environment a deployer VM and a bastion will be included. Once deployed, a cloud init script is run from the deployer VM to install and configure all components needed using Ansible playbooks. This second step is longer as it needs to install and configure Domain Control, CycleCloud, OpenOndemand, PBS, Grafana and many other things. The use of Ansible will allow this system to be updated and in case of failure the installation to be repaired.
 
 ## Requirements
 
-- A Microsoft Azure subscription
-- A work or school account with the Owner role in the Azure subscription
-- A lab computer with:
+- AzHop Lab.
+> Note: If you don't have the AzHop environment installed in your lab. Follow the [Quick install](https://azure.github.io/az-hop/tutorials/quick-install.html) guide.
 
-  - Access to Azure
-  - A web browser supported by the Azure portal (Microsoft Edge, Google Chrome, or Mozilla Firefox)
-
-## Before the hands-on lab
-
-Duration: 15 minutes
-
-To complete this lab, you must verify that your account has sufficient permissions to the Azure subscription that you intend to use to deploy all required Azure resources. The Azure subscription must have a sufficient number of available vCPUs.
-
-### Task 1: Validate the owner role assignment in the Azure subscription
-
-1. From the lab computer, start a web browser, navigate to [the Azure portal](http://portal.azure.com), and if needed, sign in with the credentials of the user account with the Owner role in the Azure subscription you will be using in this lab.
-1. In the Azure portal, use the **Search resources, services, and docs** text box to search for **Subscriptions**, and in the list of results, select **Subscriptions**.
-1. On the **Subscriptions** blade, select the name of the subscription you intend to use for this lab.
-1. On the subscription blade, select **Access control (IAM)**.
-1. On the **Check access** tab, select the **View my access** button, and in the listing of role assignments, verify that your user account has the `Owner` role assigned to it.
-
-### Task 2: Validate a sufficient number of vCPU cores
-
-1. In the Azure portal, on the subscription blade, in the **Settings** section of the resource menu, select **Usage + quota**.
-1. On the **Usage + quotas** blade, in the **Search** filters drop-down boxes, select the Azure region you intend to use for this lab and the **Microsoft.Compute** provider entry.
-
-   > Note: We recommend that you use the **South Central US**, **East US** or the **West Europe** regions because these currently are more likely to increase the possibility of successfully raising quota limits for the Azure virtual machine (VM) SKUs required for this lab.
-
-1. Review the listing of existing quotas and determine whether you have sufficient capacity to accommodate a deployment of the following vCPUs:
-
-   - Standard BS Family vCPUs: **12**
-   - Standard DSv5 Family vCPUs: **48**
-   - Standard HBrsv2 Family vCPUs: **360**
-   - Standard NV Family vCPUs: **24**
-
-1. If the number of vCPUs isn't sufficient, on the subscription's **Usage + quotas** blade, select **Request Increase**.
-1. On the **Basic** tab of the **New support request** blade, specify the following, and then select **Next: Solutions >**:
-
-   - Summary: **Insufficient compute quotas**
-   - Issue type: **Service and subscription limits (quotas)**
-   - Subscription: Enter the name of the Azure subscription you will be using in this lab.
-   - Quota type: **Compute-VM (cores-vCPUs) subscription limit increases**
-   - Support plan: Enter the name of the support plan associated with the target subscription.
-
-1. On the **Details** tab of the **New support request** blade, select the **Enter details** link.
-1. On the **Quota details** tab of the **New support request** blade, specify the following settings, and then select **Save and continue**:
-
-   - Deployment model: **Resource Manager**
-   - Location: Enter the name of the target Azure region you intend to use in this lab.
-   - Quotas: Enter the VM series and the new vCPU limit.
-
-1. On the **Details** tab of the **New support request** blade, specify the following settings, and then select **Next: Review + create >**:
-
-   - Advanced diagnostic information: **Yes**
-   - Severity: **C - Minimal impact**
-   - Preferred contact method: Choose your preferred option and provide your contact details.
-
-1. On the **Review + create** tab of the **New support request** blade, select **Create**.
-
-   > Note: Typically, requests for quota increases are completed within a few hours, but its possible that the processing might take up to a few days.
-
-## Exercise 1: Deploy the Azure HPC OnDemand Platform environment
-
-Duration: 50 minutes
-
-In this exercise, you will use Azure Cloud Shell to set up an `az-hop` environment.
-
-### Task 1: Connect to a Cloud Shell session
-
-1. From the lab computer, start a web browser, navigate to [the Azure portal](http://portal.azure.com), and if needed, sign in with credentials of the account with the Owner role in the Azure subscription you will be using in this lab.
-1. In the Azure portal, start a Bash session in **Cloud Shell**. The **Cloud Shell** icon is located on the ribbon, on the right of the search box.
-
-   > Note: If prompted, in the **Welcome to Azure Cloud Shell** window, select **Bash (Linux)**, and in the **You have no storage mounted** window, select **Create storage**.
-
-1. In the **Bash** session, in the **Cloud Shell** pane, run the following command to select the Azure subscription in which you will provision the Azure resources in this lab. In the following command, replace the `<subscription_ID>` placeholder with the value of the **subscriptionID** property of the Azure subscription you are using in this lab.
-
-Run the `az account show` to display the current account and subscription used. If you need to change the current subscription, follow the instructions below.
-
-   > Note: To list the subscription ID properties of all subscriptions associated with your account, run `az account list -otable --query '[].{subscriptionId: id, name: name, isDefault: isDefault}'`.
-
-   ```bash
-   az account set --subscription '<subscription_ID>'
-   ```
-
-### Task 2 : Clone the `az-hop` GitHub repository
-
-1. Run the following commands to clone the public `az-hop` gihub repository in your Cloud Shell session.
-
-   ```bash
-   git clone https://github.com/Azure/az-hop.git -b v1.0.29
-   ```
-
-### Task 3 : Prepare the configuration file used to build the `az-hop` environment
-
-In this task, you will prepare the `build.yml` file used by the deploy helper script in order to build the `az-hop` environment.
-
-1. Change directory into the deploy folder and copy the build template file
-
-   ```bash
-   cd az-hop
-   cp ./tutorials/quickstart/build.yml ./deploy/.
-   ```
-
-1. Review the `build.yml` file content, which describe the resources that will be provisioned. In addition to these an Azure Bastion will also be automatically created to be used to connect securely to this environment.
-
-> Note : If your subscription policy requires you to run without public IP then update your `build.yml` configuration file and set `vms.ondemand.pip` to `false`.
-
-1. Run the pre-requisites script to install any missing components
-   ```bash
-   cd deploy
-   ./pre-reqs.sh
-   ```
-
-1. Fix the install.sh script
-In the `deploy/resources` folder, change line 14 of the `install.sh` script from
-
-```
-git clone --recursive https://github.com/Azure/az-hop.git
-```
-to
-```
-git clone --recursive https://github.com/Azure/az-hop.git -b v1.0.29
-```
-
-
-### Task 4 : Deploy the environment
-
-1. Retrieve the azure location name in which you will deploy this environment by running this command.
-
-> Note: The `name` column contains one of the value to be used in the deployment command.
-
-   ```bash
-   az account list-locations -o table
-   ```
-
-1. Run the deploy command and pass the resource group name `azhop_quickstart`, the location to deploy to, and the version of azhop to use.
-
-   ```bash
-   ./deploy.sh azhop_quickstart <location> v1.0.29
-   ```
-
-While the deployment is in progress, you can check the resource group content from the Azure portal and the status of the deployment thru the link at the right of the `Deployments` property. The deployment should be done in about 8 minutes.
-
-Once the deployment is done, you can now access the deployer VM thru Azure Bastion
-
-### Task 5 : Connect to the `deployer` VM thru Azure Bastion
-In this task you will connect to the Deployer VM thru Azure Bastion to monitor the Ansible playbooks progress.
-
-> Note: Azure Bastion allows users to connect to Azure VMs without relying on public endpoints and helps provide protection against brute force exploits that target operating system level credentials.
-
-1. Close the **Cloud Shell** pane.
-1. In the Azure Portal, select **Resource groups**, select the resource group you have created with the name `azhop_quickstart`
-1. Click on the VM named **deployer**,
-1. Expand the **Connect** menu and select **Bastion**
-1. Enter **hpcadmin** as the user name
-1. Select **SSH Private Key from Azure Key Vault** in the **Authentication Type**
-1. Select your subscription
-1. Select the keyvault from the `azhop_quickstart` resource group
-1. Select **hpcadmin-privkey** in the **Azure Key Vault Secret**
-1. Select **Connect**. You may have to disable the popup blocker as it may block the connection window.
-
-### Task 6 : Monitor the installation progress
-Once connected in the `deployer` VM run the following command to display the cloud init log content
-
-   ```bash
-   tail -f /var/log/cloud-init-output.log
-
-   Friday 21 October 2022  14:06:09 +0000 (0:00:02.071)       0:00:05.380 ********
-   ===============================================================================
-   chrony ------------------------------------------------------------------ 5.19s
-   include_role ------------------------------------------------------------ 0.13s
-   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   total ------------------------------------------------------------------- 5.32s
-   ```
-
-Once the cloud init script is finished you should have these 2 lines at the end of the log
-   ```
-   Cloud-init v. 22.3.4-0ubuntu1~20.04.1 running 'modules:final' at Fri, 21 Oct 2022 13:22:56 +0000. Up 22.03 seconds.
-   Cloud-init v. 22.3.4-0ubuntu1~20.04.1 finished at Fri, 21 Oct 2022 14:06:09 +0000. Datasource DataSourceAzure [seed=/dev/sr0].  Up 2614.99 seconds
-   ```
-
-> Note : The Cloud Init step is taking about 40 minutes
-
-Confirm there are no errors in the playbooks execution by running this command
-   ```
-   grep "failed=1" /var/log/cloud-init-output.log
-   ```
-
-### Task 7 : Retrieve the homepage URL and user account to connect with
-The `az-hop` environment is only accessible thru an Open OnDemand portal, to retrieve it's FQDN you have to browse to the az-hop directory and get it from one of the Ansible parameter file. As cloud-init was run as root you have to work as root from now on the deployer VM.
-
-   ```bash
-   sudo su -
-   cd /az-hop
-   grep ondemand_fqdn ./playbooks/group_vars/all.yml
-   ondemand_fqdn                 : ondemandk6x4nkh3hhmsux.westeurope.cloudapp.azure.com
-   ```
-
-The default admin user created on this `az-hop` environment is called `clusteradmin`. To retrieve the password generated and stored in the keyvault, run the following helper script :
-   ```bash
-   ./bin/get_secret clusteradmin
-   ```
-
-> Note: Record these values. You'll need them throughout the remainder of this lab.
-
-### Task 8 : Access the `Azure HPC On-Demand Platform` dashboard
-
-1. From the lab computer, start a web browser, navigate to the URL of the Azure HPC On-Demand Platform portal you identified earlier in this task, and when prompted sign in with the **clusteradmin** user account and its password you identified in the previous step.
-
-   > Note: You'll be presented with the **Azure HPC On-Demand Platform** dashboard. Review its interface, starting with the top-level menu, which provides access to **Apps**, **Files**, **Jobs**, **Clusters**, **Interactive Apps**, **Monitoring**, and **My Interactive Sessions** menu items.
-
-1. In the **Monitoring** menu, select **Azure CycleCloud**.
-1. When presented with the page titled **App has not been initialized or does not exist**, select **Initialize App**.
-
-   > Note: This prompt reflects the OnDemand component architecture, which the Azure HPC OnDemand Platform solution relies on to implement its portal. The shared frontend creates Per User NGINX (PUN) processes to provide connectivity to such components as **Azure CycleCloud** and **Grafana**.
-
-1. On the **Azure CycleCloud for Azure HPC On-Demand Platform** page, note the presence of a configuration of a cluster named **pbs1**.
-1. On the **pbs1** page, select the **Arrays** tab, and note that it contains entries representing queue definitions defined in the **/az-hop/config.yml** file.
-
-## Exercise 2: Review the main az-hop features
+## Exercise 1: Review the main az-hop features
 
 Duration: 60 minutes
 
@@ -467,7 +239,7 @@ On the **Dashboard** page, select the **Jobs** menu title, and from the drop-dow
 1. Switch back to the **My Interactive Sessions** launching page and use the **Delete** button to delete the **Linux Desktop** jobs by selecting **Confirm** when prompted.
 
 1. Delete any remaining sessions.
-## Exercise 3: Set up Spack
+## Exercise 2: Set up Spack
 
 Duration: 30 minutes
 
@@ -565,7 +337,7 @@ In this exercise, you will install and configure Spack from Code Server, as docu
 
    > Note: Verify that gcc 9.2 is referenced in the output.
 
-## Exercise 4: Build and run OSU Benchmarks
+## Exercise 3: Build and run OSU Benchmarks
 In this exercise, you will build and run some of the OSU Benchmarks used to measure latency and bandwidth using OpenMPI.
 
 Duration: 30 minutes
@@ -628,7 +400,7 @@ qsub -N LAT -joe -koe -l select=2:slot_type=hb120v2 -- osu_benchmarks.sh osu_lat
 1. Review the results of the jobs in files names **LAT.o??** and **BW.o??** at the root of the home directory
 
 
-## Exercise 5: Build, run, and analyze OpenFOAM
+## Exercise 4: Build, run, and analyze OpenFOAM
 
 In this exercise, you will build, run, and analyze CFD simulation using OpenFOAM.
 
@@ -751,7 +523,7 @@ Next, you can visualize the simulation results.
 - Click the "Play" button on the toolbar at the top of the window to advance to the end of the simulation.
 - On the Active Variables Control toolbar you will find a drop down box where you can select variables. For example, select "p" for pressure.
 
-## Exercise 6: Run OpenFOAM DrivAer-Fastback simulation using EESSI stack
+## Exercise 5: Run OpenFOAM DrivAer-Fastback simulation using EESSI stack
 
 The Az-HOP deployment in this tutorial comes with the [EESSI software stack](https://eessi.github.io/docs) pre-configured on all compute nodes.
 In this exercise you will run and analyze the DrivAer-Fastback CFD simulation with 3 million cells without having to build OpenFOAM by using `OpenFOAM/9-foss-2021a` available in EESSI.
@@ -860,7 +632,7 @@ Here are the commands:
 
 1. On the Active Variables Control toolbar you will find a drop down box where you can select variables. For example, select "p" for pressure.
 
-## Exercise 7: Deprovision Azure HPC OnDemand Platform environment
+## Exercise 6: Deprovision Azure HPC OnDemand Platform environment
 
 Duration: 5 minutes
 
