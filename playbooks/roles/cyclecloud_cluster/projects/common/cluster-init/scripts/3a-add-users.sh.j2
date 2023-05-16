@@ -10,5 +10,5 @@ groupadd -g {{ group.gid }} {{ group.name }}
 {% endfor %}
 
 {% for user in users %}
-useradd -u {{ user.uid }} {{ user.name }} -G {{ usergroups | selectattr('gid', 'in', (user.groups | default([], true))) | map(attribute='name') | join(',') }} -b {{ mounts.home.mountpoint }}
+useradd -u {{ user.uid }} {{ user.name }} -G {{ usergroups | selectattr('gid', 'in', (user.groups | default([], true))) | map(attribute='name') | join(',') }} -b {{ mounts.home.mountpoint }} -s {{user.shell | default('/bin/bash')}}
 {% endfor %}
