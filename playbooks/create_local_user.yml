@@ -18,17 +18,18 @@
     groups: "{{ usergroups | selectattr('gid', 'in', (user.groups | default([], true))) | map(attribute='name')}}"
     shell: /bin/bash
     uid: '{{user.uid}}'
+    group: 'az-hop-users'
     home: "{{ homedir_mountpoint }}/{{ user.name }}"
     password: "{{ password.stdout | password_hash }}"
-    generate_ssh_key: yes
+    shell: "{{user.shell | default('/bin/bash')}}"
+    generate_ssh_key: no
     force: no
     ssh_key_type: rsa
     state: present
   register: new_user
 
-- name: add public key to authorized_key
-  authorized_key:
-    user: '{{user.name}}'
-    state: present
-    key: "{{ new_user.ssh_public_key }}"
-  
+# - name: add public key to authorized_key
+#   authorized_key:
+#     user: '{{user.name}}'
+#     state: present
+#     key: "{{ new_user.ssh_public_key }}"
