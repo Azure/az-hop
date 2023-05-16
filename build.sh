@@ -148,8 +148,17 @@ function get_azure_context()
             logged_user_upn="${TF_VAR_logged_user_objectId} from ${vmname}"
             ;;
         "userAssignedIdentity")
-            echo "userAssignedIdentity not supported; please use a systemAssignedIdentity or a Service Principal Name instead"
-            exit 1
+            mds=$(curl -s --noproxy "*" -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2019-08-15")
+            vmname=$(echo $mds | jq -r '.compute.name')
+            rgname=$(echo $mds | jq -r '.compute.resourceGroupName')
+            echo " - logged in Azure with User Assigned Identity from ${vmname}/${rgname}"
+            export TF_VAR_logged_user_objectId=$(az resource list -n $vmname -g $rgname --query [*].identity.userAssignedIdentities.*.principalId --out tsv)
+            client_id=$(az vm identity show -g $rgname --n $vmname --query userAssignedIdentities.*.clientId -o tsv)
+            export ARM_TENANT_ID=${TF_VAR_tenant_id}
+            export ARM_CLIENT_ID=${client_id}
+            export ARM_SUBSCRIPTION_ID=${subscription_id}
+            export ARM_USE_MSI=true
+            logged_user_upn="${TF_VAR_logged_user_objectId} from ${vmname}"
             ;;
         *)
             export TF_VAR_logged_user_objectId=$(az ad sp show --id ${clientId} --query id -o tsv)
@@ -224,25 +233,25 @@ function get_azure_cloud_env()
   cloud_env="Public"
   account_env=$(az account show --output json| jq '.environmentName' -r)
   case "$account_env" in
-    AzureChinaCloud)
-      export TF_VAR_AzureEnvironment=AZURECHINACLOUD
-      export TF_VAR_KeyVaultSuffix=vault.azure.cn
-      export TF_VAR_BlobStorageSuffix=blob.core.chinacloudapi.cn
-      ;;
-    AzureGermanCloud)
-      export TF_VAR_AzureEnvironment=AZUREGERMANCLOUD
-      export TF_VAR_KeyVaultSuffix=vault.microsoftazure.de
-      export TF_VAR_BlobStorageSuffix=blob.core.cloudapi.de
-      ;;
+    # AzureChinaCloud)
+    #   export TF_VAR_AzureEnvironment=AZURECHINACLOUD
+    #   export TF_VAR_KeyVaultSuffix=vault.azure.cn
+    #   export TF_VAR_BlobStorageSuffix=blob.core.chinacloudapi.cn
+    #   ;;
+    # AzureGermanCloud)
+    #   export TF_VAR_AzureEnvironment=AZUREGERMANCLOUD
+    #   export TF_VAR_KeyVaultSuffix=vault.microsoftazure.de
+    #   export TF_VAR_BlobStorageSuffix=blob.core.cloudapi.de
+    #   ;;
     AzureCloud)
       export TF_VAR_AzureEnvironment=AZUREPUBLICCLOUD
-      export TF_VAR_KeyVaultSuffix=vault.azure.net
-      export TF_VAR_BlobStorageSuffix=blob.core.windows.net
+      # export TF_VAR_KeyVaultSuffix=vault.azure.net
+      # export TF_VAR_BlobStorageSuffix=blob.core.windows.net
       ;;
     AzureUSGovernment)
       export TF_VAR_AzureEnvironment=AZUREUSGOVERNMENTCLOUD
-      export TF_VAR_KeyVaultSuffix=vault.usgovcloudapi.net
-      export TF_VAR_BlobStorageSuffix=blob.core.usgovcloudapi.net
+      # export TF_VAR_KeyVaultSuffix=vault.usgovcloudapi.net
+      # export TF_VAR_BlobStorageSuffix=blob.core.usgovcloudapi.net
       ;;
     *)
       echo "ERROR: Unknown Azure environment ${account_env}"
@@ -382,6 +391,10 @@ function bicep_run()
 
     jq '.azhopInventory.value.all.hosts *= (.lustre_oss_private_ips.value | to_entries | map({("lustre-oss-" + (.key | tostring)): {"ansible_host": .value}}) | add // {}) | .azhopInventory.value' $AZHOP_DEPLOYMENT_OUTPUT | yq -P > $AZHOP_ROOT/playbooks/inventory
 
+    # substitute passwords into the file
+    #  - __ADMIN_PASSWORD__
+    admin_pass="$(az keyvault secret show --vault-name $kv -n ${adminuser}-password --query "value" -o tsv)"
+    sed -i "s/__ADMIN_PASSWORD__/$(sed 's/[&/\]/\\&/g' <<< $admin_pass)/g" $AZHOP_ROOT/playbooks/inventory
     jq .azhopPackerOptions.value $AZHOP_DEPLOYMENT_OUTPUT > $AZHOP_ROOT/packer/options.json
   fi
 }

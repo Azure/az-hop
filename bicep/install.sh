@@ -1,15 +1,41 @@
 #!/bin/bash
-set -e
-set -o pipefail
+set -eo pipefail
+
+retry_command() {
+    local cmd=$1
+    local retries=${2:-5}
+    local delay=${3:-10}
+
+    set +eo pipefail
+
+    for ((i=0; i<retries; i++)); do
+        echo "Running command: $cmd"
+        $cmd
+
+        if [ $? -eq 0 ]; then
+            echo "Command succeeded!"
+            set -eo pipefail
+            return 0
+        else
+            echo "Command failed. Retrying in ${delay}s..."
+            sleep $delay
+        fi
+    done
+
+    echo "Command failed after $retries retries."
+    set -eo pipefail
+    return 1
+}
+
 echo "* apt updating"
-apt update
+retry_command "apt update"
 
 echo "* Update SSH port"
 sed -i 's/^#Port 22/Port __SSH_PORT__/' /etc/ssh/sshd_config
 systemctl restart sshd
 
 echo "* Installing git"
-apt install -y git
+retry_command "apt install -y git"
 
 echo "* Cloning az-hop repo"
 if [ -e az-hop ]; then
@@ -21,7 +47,7 @@ cd az-hop
 export azhop_root=$(pwd)
 echo "* Installing azhop toolset dependencies"
 export HOME=/root # hack to fix conda install in cloud-init
-./toolset/scripts/install.sh
+retry_command "./toolset/scripts/install.sh"
 
 mkdir -p $azhop_root/deploy
 cd $azhop_root/deploy
@@ -65,12 +91,16 @@ chmod +x $azhop_root/bin/get_secret
 jq -r .azhopConnectScript.value azhopOutputs.json > $azhop_root/bin/connect
 chmod +x $azhop_root/bin/connect
 
+# create the group_vars/all.yml
 mkdir -p $azhop_root/playbooks/group_vars
 jq '. | .azhopGlobalConfig.value.global_config_file=$param' --arg param $azhop_root/config.yml azhopOutputs.json > tmp.json
 cp tmp.json azhopOutputs.json
 jq .azhopGlobalConfig.value azhopOutputs.json | yq -P > $azhop_root/playbooks/group_vars/all.yml
 
 jq '.azhopInventory.value.all.hosts *= (.lustre_oss_private_ips.value | to_entries | map({("lustre-oss-" + (.key | tostring)): {"ansible_host": .value}}) | add // {}) | .azhopInventory.value' azhopOutputs.json | yq -P > $azhop_root/playbooks/inventory
+# substitute passwords into the file
+#  - __ADMIN_PASSWORD__
+sed -i "s/__ADMIN_PASSWORD__/$(sed 's/[&/\]/\\&/g' <<< $admin_pass)/g" $azhop_root/playbooks/inventory
 
 jq .azhopPackerOptions.value azhopOutputs.json > $azhop_root/packer/options.json
 
@@ -82,10 +112,12 @@ jq .azhopPackerOptions.value azhopOutputs.json > $azhop_root/packer/options.json
 #     ./build_image.sh -i azhop-desktop-centos-7.9.json
 # fi
 
+ 
+
 echo "* Generating passwords"
 cd $azhop_root
 ./create_passwords.sh
 
 echo "* Running Ansible"
 #export ANSIBLE_VERBOSITY=2
-./install.sh
+retry_command "./install.sh"

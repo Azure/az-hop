@@ -36,7 +36,7 @@ param azhopConfig object
 var resourcePostfix = '${uniqueString(subscription().subscriptionId, azhopResourceGroupName)}x'
 
 // Local variables to help in the simplication as functions doesn't exists
-var enablePublicIP = contains(azhopConfig.locked_down_network, 'public_ip') ? azhopConfig.locked_down_network.public_ip : true
+var enablePublicIP = contains(azhopConfig, 'locked_down_network') ? azhopConfig.locked_down_network.public_ip : true
 var jumpboxSshPort = deployJumpbox ? (contains(azhopConfig.jumpbox, 'ssh_port') ? azhopConfig.jumpbox.ssh_port : 22) : 22
 var deployerSshPort = deployDeployer ? (contains(azhopConfig.deployer, 'ssh_port') ? azhopConfig.deployer.ssh_port : 22) : 22
 
@@ -47,7 +47,7 @@ var enableWinViz = contains(azhopConfig, 'enable_remote_winviz') ? azhopConfig.e
 
 var createAD = contains(azhopConfig, 'domain') ? ! azhopConfig.domain.use_existing_dc : true
 
-var highAvailabilityForAD = contains(azhopConfig.ad, 'high_availability') ? azhopConfig.ad.high_availability : false
+var highAvailabilityForAD = contains(azhopConfig, 'ad') && contains(azhopConfig.ad, 'high_availability') ? azhopConfig.ad.high_availability : false
 
 var linuxBaseImage = contains(azhopConfig, 'linux_base_image') ? azhopConfig.linux_base_image : 'OpenLogic:CentOS:7_9-gen2:latest'
 var linuxBasePlan = contains(azhopConfig, 'linux_base_plan') ? azhopConfig.linux_base_plan : ''
@@ -91,8 +91,8 @@ var config = {
   deploy_lustre: deployLustre
 
   lock_down_network: {
-    enforce: contains(azhopConfig.locked_down_network, 'enforce') ? azhopConfig.locked_down_network.enforce : false
-    grant_access_from: contains(azhopConfig.locked_down_network, 'grant_access_from') ? ( empty(azhopConfig.locked_down_network.grant_access_from) ? [] : [ azhopConfig.locked_down_network.grant_access_from ] ) : []
+    enforce: contains(azhopConfig, 'locked_down_network') && contains(azhopConfig.locked_down_network, 'enforce') ? azhopConfig.locked_down_network.enforce : false
+    grant_access_from: contains(azhopConfig, 'locked_down_network') && contains(azhopConfig.locked_down_network, 'grant_access_from') ? ( empty(azhopConfig.locked_down_network.grant_access_from) ? [] : [ azhopConfig.locked_down_network.grant_access_from ] ) : []
   }
 
   queue_manager: contains(azhopConfig, 'queue_manager') ? azhopConfig.queue_manager : 'openpbs'
@@ -104,8 +104,10 @@ var config = {
 
   domain: {
     name : contains(azhopConfig, 'domain') ? azhopConfig.domain.name : 'hpc.azure'
-    domain_join_user: {
-      username: createAD ? azhopConfig.admin_user : azhopConfig.domain.domain_join_user.username
+    domain_join_user: createAD ? {
+      username: azhopConfig.admin_user
+    } : {
+      username: azhopConfig.domain.domain_join_user.username
       password_key_vault_name: azhopConfig.domain.domain_join_user.password_key_vault_name
       password_key_vault_resource_group_name: azhopConfig.domain.domain_join_user.password_key_vault_resource_group_name
       password_key_vault_secret_name: azhopConfig.domain.domain_join_user.password_key_vault_secret_name
@@ -118,7 +120,7 @@ var config = {
   deploy_sig: contains(azhopConfig, 'image_gallery') && contains(azhopConfig.image_gallery, 'create') ? azhopConfig.image_gallery.create : false
 
   // Default home directory is ANF
-  homedir_type: contains(azhopConfig.mounts.home, 'type') ? azhopConfig.mounts.home.type : 'anf'
+  homedir_type: contains(azhopConfig.mounts.home, 'type') ? azhopConfig.mounts.home.type : 'existing'
   homedir_mountpoint: azhopConfig.mounts.home.mountpoint
 
   anf: {
@@ -140,14 +142,14 @@ var config = {
     subnets: union (
       {
       frontend: {
-        name: azhopConfig.network.vnet.subnets.frontend.name
+        name: contains(azhopConfig.network.vnet.subnets.frontend, 'name') ? azhopConfig.network.vnet.subnets.frontend.name : 'frontend'
         cidr: azhopConfig.network.vnet.subnets.frontend.address_prefixes
         service_endpoints: [
           'Microsoft.Storage'
         ]
       }
       admin: {
-        name: azhopConfig.network.vnet.subnets.admin.name
+        name: contains(azhopConfig.network.vnet.subnets.admin, 'name') ? azhopConfig.network.vnet.subnets.admin.name : 'admin'
         cidr: azhopConfig.network.vnet.subnets.admin.address_prefixes
         service_endpoints: [
           'Microsoft.KeyVault'
@@ -156,14 +158,14 @@ var config = {
       }
       netapp: {
         apply_nsg: false
-        name: azhopConfig.network.vnet.subnets.netapp.name
+        name: contains(azhopConfig.network.vnet.subnets.netapp, 'name') ? azhopConfig.network.vnet.subnets.netapp.name : 'netapp'
         cidr: azhopConfig.network.vnet.subnets.netapp.address_prefixes
         delegations: [
           'Microsoft.Netapp/volumes'
         ]
       }
       compute: {
-        name: azhopConfig.network.vnet.subnets.compute.name
+        name: contains(azhopConfig.network.vnet.subnets.compute, 'name') ? azhopConfig.network.vnet.subnets.compute.name : 'compute'
         cidr: azhopConfig.network.vnet.subnets.compute.address_prefixes
         service_endpoints: [
           'Microsoft.Storage'
@@ -172,7 +174,7 @@ var config = {
     },
     createAD ? {
       ad: {
-        name: azhopConfig.network.vnet.subnets.ad.name
+        name: contains(azhopConfig.network.vnet.subnets.ad, 'name') ? azhopConfig.network.vnet.subnets.ad.name : 'ad'
         cidr: azhopConfig.network.vnet.subnets.ad.address_prefixes
       }
     } : {},
@@ -185,7 +187,7 @@ var config = {
     } : {},
     contains(azhopConfig.network.vnet.subnets,'outbounddns') ? {
       outbounddns: {
-        name: azhopConfig.network.vnet.subnets.outbounddns.name
+        name: contains(azhopConfig.network.vnet.subnets.outbounddns, 'name') ? azhopConfig.network.vnet.subnets.outbounddns.name : 'outbounddns'
         cidr: azhopConfig.network.vnet.subnets.outbounddns.address_prefixes
         delegations: [
           'Microsoft.Network/dnsResolvers'
@@ -595,15 +597,14 @@ module azhopSecrets './secrets.bicep' = if (autogenerateSecrets) {
   }
 }
 
-var domainPassword = adminPassword
-
 var secrets = (autogenerateSecrets) ? azhopSecrets.outputs.secrets : {
   adminSshPublicKey: adminSshPublicKey
   adminSshPrivateKey: adminSshPrivateKey
   adminPassword: adminPassword
-  domainPassword: domainPassword
   databaseAdminPassword: databaseAdminPassword
 }
+
+var domainPassword = secrets.adminPassword
 
 module azhopNetwork './network.bicep' = {
   name: 'azhopNetwork'
@@ -719,7 +720,7 @@ module kvSecretDomainJoin './kv_secrets.bicep' = if (createAD) {
   params: {
     vaultName: azhopKeyvault.outputs.keyvaultName
     name: '${config.domain.domain_join_user.username}-password'
-    value: secrets.domainPassword
+    value: domainPassword
   }
 }
 
@@ -820,7 +821,8 @@ var adIndex = createAD ? indexOf(map(vmItems, item => item.key), 'ad') : 0
 var adIp = createAD ? azhopVm[adIndex].outputs.privateIp : ''
 var ad2Index = createAD && highAvailabilityForAD ? indexOf(map(vmItems, item => item.key), 'ad2') : 0
 var ad2Ip = createAD ? azhopVm[ad2Index].outputs.privateIp : ''
-var dcIps = createAD ? (! highAvailabilityForAD ? [adIp] : [adIp, ad2Ip]) : azhopConfig.domain.existing_dc_details.domain_controller_ip_addresses
+var domain_controller_ip_addresses = contains(azhopConfig, 'domain') && contains(azhopConfig.domain, 'existing_dc_details') ? azhopConfig.domain.existing_dc_details.domain_controller_ip_addresses : []
+var dcIps = createAD ? (! highAvailabilityForAD ? [adIp] : [adIp, ad2Ip]) : domain_controller_ip_addresses
 module azhopADRecords './privatezone_records.bicep' = {
   name: 'azhopADRecords'
   params: {
@@ -848,7 +850,6 @@ var kvSuffix = environment().suffixes.keyvaultDns
 
 output azhopGlobalConfig object = union(
   {
-    global_ssh_public_key         : secrets.adminSshPublicKey
     global_cc_storage             : 'azhop${resourcePostfix}'
     compute_subnetid              : '${azhopResourceGroupName}/${config.vnet.name}/${config.vnet.subnets.compute.name}'
     global_config_file            : '/az-hop/config.yml'
@@ -880,6 +881,11 @@ output azhopGlobalConfig object = union(
     anf_home_ip                   : azhopNfsFiles.outputs.nfs_home_ip
     anf_home_path                 : azhopNfsFiles.outputs.nfs_home_path
     anf_home_opts                 : azhopNfsFiles.outputs.nfs_home_opts
+  } : {},
+  config.homedir_type == 'existing' ? {
+    anf_home_ip                   : azhopConfig.mounts.home.server
+    anf_home_path                 : azhopConfig.mounts.home.export
+    anf_home_opts                 : azhopConfig.mounts.home.options
   } : {}
 )
 
@@ -903,24 +909,24 @@ output azhopInventory object = {
           ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'grafana')].outputs.privateIp
         }
       },
-      indexOf(map(vmItems, item => item.key), 'ad') > 0 ? {
+      indexOf(map(vmItems, item => item.key), 'ad') >= 0 ? {
         ad: {
         ansible_host: adIp
         ansible_connection: 'psrp'
         ansible_psrp_protocol: 'http'
         ansible_user: config.admin_user
-        ansible_password: secrets.adminPassword
+        ansible_password: '__ADMIN_PASSWORD__'
         psrp_ssh_proxy: deployJumpbox ? azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIp : ''
         ansible_psrp_proxy: deployJumpbox ? 'socks5h://localhost:5985' : ''
         }
       } : {} ,
-      indexOf(map(vmItems, item => item.key), 'ad2') > 0 ? {
+      indexOf(map(vmItems, item => item.key), 'ad2') >= 0 ? {
         ad2: {
           ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'ad2')].outputs.privateIp
           ansible_connection: 'psrp'
           ansible_psrp_protocol: 'http'
           ansible_user: config.admin_user
-          ansible_password: secrets.adminPassword
+          ansible_password: '__ADMIN_PASSWORD__'
           psrp_ssh_proxy: deployJumpbox ? azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIp : ''
           ansible_psrp_proxy: deployJumpbox ? 'socks5h://localhost:5985' : ''
         }

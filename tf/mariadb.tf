@@ -21,7 +21,7 @@ resource "azurerm_mariadb_server" "mariadb" {
 
 resource "azurerm_private_dns_zone" "mariadb_private_link" {
   count               = local.create_database ? 1 : 0
-  name                = "privatelink.mariadb.database.azure.com" # This name depends on the cloud env https://learn.microsoft.com/en-us/azure/private-link/private-endpoint-dns
+  name                = local.mariadb_private_dns_zone # "privatelink.mariadb.database.azure.com" # This name depends on the cloud env https://learn.microsoft.com/en-us/azure/private-link/private-endpoint-dns
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
 }
 

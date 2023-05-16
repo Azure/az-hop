@@ -40,7 +40,7 @@ on:
       lustre:
         description: 'Deploy a Lustre cluster (true/false) - Default to true'
         required: true
-        default: 'true' # use it with ${{ inputs.lustre }}
+        default: 'false' # use it with ${{ inputs.lustre }}
         type: string
       deploy_only:
         description: 'Deploy only - Default to false'
@@ -57,6 +57,11 @@ on:
         required: false
         default: 'anf' # use it with ${{ inputs.home_type }}
         type: string
+      config:
+        description: 'Configuration - (minimum/integration) - Default to integration'
+        required: false
+        default: 'integration' # use it with ${{ inputs.config }}
+        type: string
 
     secrets:
       ARM_SUBSCRIPTION_ID:
@@ -72,7 +77,7 @@ env:
   TF_CLI_ARGS: '-no-color'
   TF_CLI_ARGS_destroy: '-auto-approve -refresh=false'
   TF_CLI_ARGS_apply: '-auto-approve'
-  AZHOP_CONFIGURATION: '.github/workflows/configs/integration.yml'
+  AZHOP_CONFIGURATION: '.github/workflows/configs/${{ inputs.config }}.yml'
   AZHOP_LUSTRE_CONFIGURATION: '.github/workflows/configs/lustre.yml'
   AZHOP_IMAGES_CONFIGURATION: '.github/workflows/configs/images.yml'
   ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
@@ -144,6 +149,14 @@ jobs:
             sed -i "s/__LOCATION__/$LOCATION/g" config.yml
             HOME_TYPE=${{ inputs.home_type }}
             sed -i "s/__HOME_TYPE__/$HOME_TYPE/g" config.yml
+            if [ "$HOME_TYPE" == "anf" ]; then
+              sed -i 's/__CREATE_ANF__/true/g' config.yml
+              sed -i 's/__CREATE_AZUREFILES__/false/g' config.yml
+            else
+              sed -i 's/__CREATE_ANF__/false/g' config.yml
+              sed -i 's/__CREATE_AZUREFILES__/true/g' config.yml
+            fi
+
             # Add lustre configuration if lustre is true
             DEPLOY_LUSTRE=${{ inputs.lustre }}
             if [ "$DEPLOY_LUSTRE" == "true" ]; then

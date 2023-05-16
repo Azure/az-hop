@@ -1,0 +1,31 @@
+#
+# Copyright (c) Microsoft Corporation
+# Licensed under the MIT License.
+#
+name : Daily Bicep Slurm
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "10 1 * * *" # At 01:10 UTC Daily
+
+jobs:
+  deploy_bicep:
+    uses: azure/az-hop/.github/workflows/main_callable.yml@main
+    with:
+      resource_group: 'AUTO_GENERATED'
+      location: 'westeurope'
+      clean: 'true'
+      anf_dual: 'false'
+      scheduler: 'slurm'
+      lustre: 'false'
+      deploy_only: 'false'
+      use_bicep: 'true'
+      home_type: 'azurefiles'
+      config: 'minimum'
+    secrets:
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+

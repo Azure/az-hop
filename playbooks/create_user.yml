@@ -3,8 +3,8 @@
 #     msg:
 #       - "user={{user}}"
 #       - "{{ usergroups | selectattr('gid', 'in', (user.groups | default([], true))) | map(attribute='name') | list}}"
-#       - "{{ usergroups | selectattr('gid', 'in', (user.groups | default([], true))) | selectattr('name', 'match', 'az-hop-admins') | map(attribute='name') }}"
-#      - "{{ (usergroups | selectattr('name', 'match', 'az-hop-admins') | map(attribute='gid')) | default(5000, true) | selectattr('gid', 'in', (user.groups | default([], true))) }}"
+#       - "{{ usergroups | selectattr('gid', 'in', (user.groups | default([], true))) | selectattr('name', 'match', 'azhop-admins') | map(attribute='name') }}"
+#      - "{{ (usergroups | selectattr('name', 'match', 'azhop-admins') | map(attribute='gid')) | default(5000, true) | selectattr('gid', 'in', (user.groups | default([], true))) }}"
 
 # Remove any forbidden characters from the username so we conform to the keyvaul secret name rules '^[0-9a-zA-Z-]+$'
 - name: Set secretname
@@ -56,7 +56,7 @@
 #     name: "{{ user.name }}"
 #     state: present
 #     groups:
-#       - az-hop-admins
+#       - azhop-admins
 #   when: user.admin | default(false)
 
 # # Add users into the azhop-localadmins group
@@ -65,5 +65,5 @@
 #     name: "{{ user.name }}"
 #     state: present
 #     groups:
-#       - az-hop-localadmins
+#       - azhop-localadmins
 #   when: user.sudo | default(false)

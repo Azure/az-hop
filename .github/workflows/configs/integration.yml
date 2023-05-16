@@ -31,7 +31,7 @@ alerting:
 # Define an ANF account, single pool and volume
 # If not present assume that there is an existing NFS share for the users home directory
 anf:
-  create: true
+  create: __CREATE_ANF__
   # Size of the ANF pool and unique volume
   homefs_size_tb: 4
   # Service level of the ANF volume, can be: Standard, Premium, Ultra
@@ -42,7 +42,7 @@ anf:
 
 # For small deployments you can use Azure Files instead of ANF for the home directory
 azurefiles:
-  create: true
+  create: __CREATE_AZUREFILES__
   size_gb: 1024
 
 mounts:
@@ -131,17 +131,17 @@ cyclecloud:
   vm_size: Standard_B2ms
 
 users:
-  - { name: hpcuser,   uid: 10001 }
+  - { name: hpcuser, uid: 10001 }
   - { name: adminuser, uid: 10002, groups: [5001, 5002] }
-  - { name: john.john,   uid: 10003 }
+  - { name: john.john, uid: 10003 }
 
 usergroups:
   - name: azhop-users # All users will be added to this one by default
     gid: 5000
-  - name: az-hop-admins # For users with azhop admin privilege
+  - name: azhop-admins # For users with azhop admin privilege
     gid: 5001
     description: "For users with azhop admin privileges"
-  - name: az-hop-localadmins # For users with sudo right on nodes
+  - name: azhop-localadmins # For users with sudo right on nodes
     gid: 5002
     description: "For users with sudo right or local admin right on nodes"
 
