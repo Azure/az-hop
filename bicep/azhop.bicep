@@ -855,7 +855,7 @@ output azhopGlobalConfig object = union(
     global_config_file            : '/az-hop/config.yml'
     ad_join_user                  : config.domain.domain_join_user.username
     domain_name                   : config.domain.name
-    ldap_server                   : config.domain.ldap_server
+    ldap_server                   : '${config.domain.ldap_server}.${config.domain.name}'
     homedir_mountpoint            : config.homedir_mountpoint
     ondemand_fqdn                 : config.public_ip ? azhopVm[indexOf(map(vmItems, item => item.key), 'ondemand')].outputs.fqdn : azhopVm[indexOf(map(vmItems, item => item.key), 'ondemand')].outputs.privateIp
     ansible_ssh_private_key_file  : '${config.admin_user}_id_rsa'
