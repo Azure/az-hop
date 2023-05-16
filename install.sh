@@ -8,10 +8,14 @@ PLAYBOOKS_DIR=$THIS_DIR/playbooks
 INVENTORY=$PLAYBOOKS_DIR/inventory
 OOD_AUTH="basic"
 
-if [ -d ${THIS_DIR}/miniconda ]; then
-  echo "Activating conda environment"
-  source ${THIS_DIR}/miniconda/bin/activate
-fi
+load_miniconda() {
+  # Note: packaging this inside a function to avoid forwarding arguments to conda
+  if [ -d ${THIS_DIR}/miniconda ]; then
+    echo "Activating conda environment"
+    source ${THIS_DIR}/miniconda/bin/activate
+  fi
+}
+load_miniconda
 
 function run_playbook ()
 {
