@@ -937,7 +937,13 @@ output azhopInventory object = {
           ansible_ssh_port: config.vms.jumpbox.sshPort
           ansible_ssh_common_args: ''
         }
-      } : {},
+      } : {
+        deployer : {
+          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIp
+          ansible_ssh_port: config.vms.deployer.sshPort
+          ansible_ssh_common_args: ''
+        }
+      },
       config.deploy_lustre ? {
         lustre: {
           ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'lustre')].outputs.privateIp
