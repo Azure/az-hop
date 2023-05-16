@@ -348,7 +348,7 @@ locals {
 
     #Replace the AD ASG with domain controller IP addresses when customer is bringing their own AD
     #use an indexing concept since we can't substitute a list for a string
-    ad_nsg_index = local.create_ad ? "asg/asg-ad" : "ips/dc_ips"
+    ad_nsg_index = local.use_existing_ad ? "ips/dc_ips" : "asg/asg-ad"
     ips = {
         dc_ips = local.domain_controller_ips
     }
