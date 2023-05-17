@@ -21,6 +21,13 @@
   - name: Gather facts for first time
     setup:
 
+  - name: Disable SELinux
+    shell: |
+      setenforce permissive
+      sed -i 's/^SELINUX=.*$/SELINUX=permissive/' /etc/selinux/config
+    when: authentication.user_auth == "local"
+
+
   - name: Make sure we have the latest root certificates
     yum:
       name: ca-certificates
