@@ -45,7 +45,7 @@ var deployJumpbox = contains(azhopConfig, 'jumpbox') ? true : false
 var deployDeployer = contains(azhopConfig, 'deployer') ? true : false
 var enableWinViz = contains(azhopConfig, 'enable_remote_winviz') ? azhopConfig.enable_remote_winviz : false
 
-var useExistingAD = contains(azhopConfig, 'domain') ? ! azhopConfig.domain.use_existing_dc : true
+var useExistingAD = contains(azhopConfig, 'domain') ? ! azhopConfig.domain.use_existing_dc : false
 var createAD = ! useExistingAD && (contains(azhopConfig.authentication, 'user_auth') ? azhopConfig.authentication.user_auth == 'ad' : true)
 
 var highAvailabilityForAD = contains(azhopConfig, 'ad') && contains(azhopConfig.ad, 'high_availability') ? azhopConfig.ad.high_availability : false
@@ -107,7 +107,7 @@ var config = {
     name : contains(azhopConfig, 'domain') ? azhopConfig.domain.name : 'hpc.azure'
     domain_join_user: createAD ? {
       username: azhopConfig.admin_user
-    } : useExistingAD ?{
+    } : useExistingAD ? {
       username: azhopConfig.domain.domain_join_user.username
       password_key_vault_name: azhopConfig.domain.domain_join_user.password_key_vault_name
       password_key_vault_resource_group_name: azhopConfig.domain.domain_join_user.password_key_vault_resource_group_name
