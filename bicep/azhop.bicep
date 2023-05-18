@@ -112,7 +112,9 @@ var config = {
       password_key_vault_name: azhopConfig.domain.domain_join_user.password_key_vault_name
       password_key_vault_resource_group_name: azhopConfig.domain.domain_join_user.password_key_vault_resource_group_name
       password_key_vault_secret_name: azhopConfig.domain.domain_join_user.password_key_vault_secret_name
-    } : {}
+    } : {
+      username: ''
+    }
     domain_controlers : createAD ? (! highAvailabilityForAD ? ['ad'] : ['ad', 'ad2']) : useExistingAD ? azhopConfig.domain.existing_dc_details.domain_controller_names : []
     ldap_server: createAD ? 'ad' : useExistingAD ? azhopConfig.domain.existing_dc_details.domain_controller_names[0] : ''
   }
