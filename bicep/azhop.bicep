@@ -822,9 +822,9 @@ var adIndex = createAD ? indexOf(map(vmItems, item => item.key), 'ad') : 0
 var adIp = createAD ? azhopVm[adIndex].outputs.privateIp : ''
 var ad2Index = createAD && highAvailabilityForAD ? indexOf(map(vmItems, item => item.key), 'ad2') : 0
 var ad2Ip = createAD ? azhopVm[ad2Index].outputs.privateIp : ''
-var domain_controller_ip_addresses = contains(azhopConfig, 'domain') && contains(azhopConfig.domain, 'existing_dc_details') ? azhopConfig.domain.existing_dc_details.domain_controller_ip_addresses : []
+var domain_controller_ip_addresses = useExistingAD && contains(azhopConfig, 'domain') && contains(azhopConfig.domain, 'existing_dc_details') ? azhopConfig.domain.existing_dc_details.domain_controller_ip_addresses : []
 var dcIps = createAD ? (! highAvailabilityForAD ? [adIp] : [adIp, ad2Ip]) : domain_controller_ip_addresses
-module azhopADRecords './privatezone_records.bicep' = {
+module azhopADRecords './privatezone_records.bicep' = if (createAD || useExistingAD) {
   name: 'azhopADRecords'
   params: {
     privateDnsZoneName: config.domain.name
