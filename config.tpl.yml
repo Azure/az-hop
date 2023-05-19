@@ -187,9 +187,13 @@ domain:
     domain_controller_ip_addresses: ["192.168.1.100", "192.168.1.101"]
     private_dns_servers: ["192.168.1.53", "192.168.2.53"]
 
-# Optional: name of the Key Vault resource to be created. If not provided, a name will be generated
+# Optional: name of the key vault resource to be created. If not provided, a name will be generated
 # key_vault:
 #   name: custom_key_vault_name
+
+# Optional: name of the storage account to be created.
+# storage_account:
+#   name: custom_storage_account_name
 
 # Jumpbox VM configuration, only needed when deploying thru a public IP and without a configured deployer VM
 jumpbox:

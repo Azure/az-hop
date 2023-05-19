@@ -117,6 +117,7 @@ var config = {
   }
 
   key_vault_name: contains(azhopConfig, 'key_vault') ? azhopConfig.key_vault.name : 'kv${resourcePostfix}'
+  storage_account_name: contains(azhopConfig, 'storage_account') ? azhopConfig.storage_account.name : 'azhop${resourcePostfix}'
 
   enable_remote_winviz : enableWinViz
   deploy_sig: contains(azhopConfig, 'image_gallery') && contains(azhopConfig.image_gallery, 'create') ? azhopConfig.image_gallery.create : false
@@ -744,7 +745,7 @@ module azhopStorage './storage.bicep' = {
   name: 'azhopStorage'
   params:{
     location: location
-    resourcePostfix: resourcePostfix
+    saName: config.storage_account_name
     lockDownNetwork: config.lock_down_network.enforce
     allowableIps: config.lock_down_network.grant_access_from
     subnetIds: [ subnetIds.admin, subnetIds.compute ]
@@ -852,7 +853,7 @@ var kvSuffix = environment().suffixes.keyvaultDns
 
 output azhopGlobalConfig object = union(
   {
-    global_cc_storage             : 'azhop${resourcePostfix}'
+    global_cc_storage             : config.storage_account_name
     compute_subnetid              : '${azhopResourceGroupName}/${config.vnet.name}/${config.vnet.subnets.compute.name}'
     global_config_file            : '/az-hop/config.yml'
     ad_join_user                  : config.domain.domain_join_user.username
@@ -863,9 +864,9 @@ output azhopGlobalConfig object = union(
     ansible_ssh_private_key_file  : '${config.admin_user}_id_rsa'
     subscription_id               : subscription().subscriptionId
     tenant_id                     : subscription().tenantId
-    key_vault                     : 'kv${resourcePostfix}'
+    key_vault                     : config.key_vault_name
     sig_name                      : (config.deploy_sig) ? 'azhop_${resourcePostfix}' : ''
-    lustre_hsm_storage_account    : 'azhop${resourcePostfix}'
+    lustre_hsm_storage_account    : config.storage_account_name
     lustre_hsm_storage_container  : 'lustre'
     database_fqdn                 : createDatabase ? azhopMariaDB.outputs.mariaDb_fqdn : ''
     database_user                 : config.slurm.admin_user

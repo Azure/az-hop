@@ -190,6 +190,7 @@ locals {
     key_vault_readers = try(local.configuration_yml["key_vault_readers"], null)
 
     key_vault_name = try(local.configuration_yml["key_vault"]["name"], format("%s%s", "kv", random_string.resource_postfix.result))
+    storage_account_name = try(local.configuration_yml["storage_account"]["name"], "azhop${random_string.resource_postfix.result}")
 
     # Lustre
     lustre_enabled = try(local.configuration_yml["lustre"]["create"], false)

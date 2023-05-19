@@ -1,13 +1,13 @@
 targetScope = 'resourceGroup'
 
 param location string
-param resourcePostfix string
+param saName string
 param lockDownNetwork bool
 param allowableIps array
 param subnetIds array
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' = {
-  name: 'azhop${resourcePostfix}'
+  name: saName
   location: location
   sku: {
     name: 'Standard_LRS'
