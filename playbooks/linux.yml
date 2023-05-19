@@ -75,7 +75,7 @@
           opts: '{{ anf_home_opts }}'
           state: mounted
           fstype: nfs
-    when: authentication.user_auth == "local"
+    when: (authentication.user_auth | default('ad')) == "local"
 
   - name: Read Password from KV
     command: az keyvault secret show --vault-name {{key_vault}} -n {{ad_join_user}}-password --query "value" -o tsv
@@ -84,7 +84,7 @@
     register: password
     become: false
     run_once: true
-    when: authentication.user_auth == "ad"
+    when: (authentication.user_auth | default('ad')) == "ad"
 
   - name: Join domain
     include_role:
@@ -100,7 +100,7 @@
       domain_mount_path: "{{anf_home_path}}"
       domain_mount_opts: "{{anf_home_opts}}"
       domain_join_ou: "{{domain.domain_join_ou | default('')}}"
-    when: authentication.user_auth == "ad"
+    when: (authentication.user_auth | default('ad')) == "ad"
 
   - name: Update ANF chmod mode
     file:

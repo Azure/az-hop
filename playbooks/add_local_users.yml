@@ -31,7 +31,7 @@
         loop_control:
           loop_var: user
         when: users is defined
-    when: authentication.user_auth == "local"
+    when: (authentication.user_auth | default('ad')) == "local"
 
 #TODO: add cyclecloud users
 - name: Configure users in CycleCloud
