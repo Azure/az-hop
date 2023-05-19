@@ -116,6 +116,8 @@ var config = {
     ldap_server: createAD ? 'ad' : azhopConfig.domain.existing_dc_details.domain_controller_names[0]
   }
 
+  key_vault_name: contains(azhopConfig, 'key_vault') ? azhopConfig.key_vault.name : 'kv${resourcePostfix}'
+
   enable_remote_winviz : enableWinViz
   deploy_sig: contains(azhopConfig, 'image_gallery') && contains(azhopConfig.image_gallery, 'create') ? azhopConfig.image_gallery.create : false
 
@@ -664,7 +666,7 @@ module azhopKeyvault './keyvault.bicep' = {
   name: 'azhopKeyvault'
   params: {
     location: location
-    resourcePostfix: resourcePostfix
+    kvName: config.key_vault_name
     subnetId: subnetIds.admin
     keyvaultReaderOids: config.keyvault_readers
     lockDownNetwork: config.lock_down_network.enforce

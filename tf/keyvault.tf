@@ -4,7 +4,7 @@ resource "time_sleep" "delay_create" {
 }
 
 resource "azurerm_key_vault" "azhop" {
-  name                        = format("%s%s", "kv", random_string.resource_postfix.result)
+  name                        = local.key_vault_name
   location                    = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name         = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   enabled_for_disk_encryption = true

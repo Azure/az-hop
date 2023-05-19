@@ -1,15 +1,13 @@
 targetScope = 'resourceGroup'
 
 param location string
-param resourcePostfix string
+param kvName string
 param subnetId string
 param keyvaultReaderOids array
 param keyvaultOwnerId string
 param lockDownNetwork bool
 param allowableIps array
 param identityPerms array
-
-var kvName = 'kv${resourcePostfix}'
 
 output keyvaultName string = kvName
 
