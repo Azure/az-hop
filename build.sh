@@ -319,7 +319,7 @@ function bicep_init()
   fi
 
   if [ "$AZHOP_FROM" == "local" ]; then
-    set_bicep_param_value ".parameters.loggedUserObjectId" "$TF_VAR_logged_user_objectId"
+    set_bicep_param_value ".parameters.loggedUserObjectId.value" "$TF_VAR_logged_user_objectId"
   fi
 
   set_bicep_param_value ".parameters.autogenerateSecrets.value" "false"
