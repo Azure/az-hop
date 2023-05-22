@@ -116,8 +116,8 @@ var config = {
     ldap_server: createAD ? 'ad' : azhopConfig.domain.existing_dc_details.domain_controller_names[0]
   }
 
-  key_vault_name: contains(azhopConfig, 'azure_key_vault') ? azhopConfig.key_vault.name : 'kv${resourcePostfix}'
-  storage_account_name: contains(azhopConfig, 'azure_storage_account') ? azhopConfig.storage_account.name : 'azhop${resourcePostfix}'
+  key_vault_name: contains(azhopConfig, 'azure_key_vault') ? azhopConfig.azure_key_vault.name : 'kv${resourcePostfix}'
+  storage_account_name: contains(azhopConfig, 'azure_storage_account') ? azhopConfig.azure_storage_account.name : 'azhop${resourcePostfix}'
 
   enable_remote_winviz : enableWinViz
   deploy_sig: contains(azhopConfig, 'image_gallery') && contains(azhopConfig.image_gallery, 'create') ? azhopConfig.image_gallery.create : false
