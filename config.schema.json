@@ -596,9 +596,6 @@
                     "description": "IP of the managed private endpoint if the FQDN is not registered in a private DNS"
                 }
             },
-            "required": [
-                "user"
-            ],
             "title": "Database"
         },
         "Image": {
