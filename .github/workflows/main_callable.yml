@@ -110,6 +110,15 @@ jobs:
         resource_group: ${{ steps.deploy.outputs.resource_group }}
         run_ad_job: ${{ steps.deploy.outputs.run_ad_job }}
         run_lustre_job: ${{ steps.deploy.outputs.run_lustre_job }}
+        run_grafana_job: ${{ steps.deploy.outputs.run_grafana_job }}
+        run_cycle_job: ${{ steps.deploy.outputs.run_cycle_job }}
+        run_image_job: ${{ steps.deploy.outputs.run_image_job }}
+        run_addusers_job: ${{ steps.deploy.outputs.run_addusers_job }}
+        run_cyclecluster_job: ${{ steps.deploy.outputs.run_cyclecluster_job }}
+        run_ood_job: ${{ steps.deploy.outputs.run_ood_job }}
+        run_guacamole_job: ${{ steps.deploy.outputs.run_guacamole_job }}
+        run_tests_job: ${{ steps.deploy.outputs.run_tests_job }}
+        run_telegraf_job: ${{ steps.deploy.outputs.run_telegraf_job }}
 
     steps:
       - uses: actions/checkout@v3
@@ -266,21 +275,56 @@ jobs:
             ./create_passwords.sh
           fi
 
-          run_ad_job=true
-          run_lustre_job=false
+          deploy_and_install=true
+          if [ "${{ inputs.deploy_only }}" == true ]; then
+            deploy_and_install=false
+          fi
+
+          run_ad_job=$deploy_and_install
+          run_lustre_job=$deploy_and_install
+          run_grafana_job=$deploy_and_install
+          run_cycle_job=$deploy_and_install
+          run_image_job=$deploy_and_install
+          run_addusers_job=$deploy_and_install
+          run_cyclecluster_job=$deploy_and_install
+          run_ood_job=$deploy_and_install
+          run_guacamole_job=$deploy_and_install
+          run_tests_job=$deploy_and_install
+          run_telegraf_job=$deploy_and_install
 
           # Create the variables to control the execution of next jobs
           if [ "$DEPLOY_WITH" == "arm" ]; then
             run_ad_job=false
+            run_lustre_job=false
+            run_grafana_job=false
+            run_cycle_job=false
+            run_image_job=false
+            run_addusers_job=false
+            run_cyclecluster_job=false
+            run_ood_job=false
+            run_guacamole_job=false
+            run_tests_job=false
+            run_telegraf_job=false
           else
             install_lustre=$(yq eval ".lustre.create" config.yml)
             if [ "$install_lustre" == "true" ]; then
-              run_lustre_job=true
+              run_lustre_job=${{ inputs.deploy_only }}
+            else
+              run_lustre_job=false
             fi
           fi
 
           echo "run_ad_job=$run_ad_job" >> $GITHUB_OUTPUT
           echo "run_lustre_job=$run_lustre_job" >> $GITHUB_OUTPUT
+          echo "run_grafana_job=$run_grafana_job" >> $GITHUB_OUTPUT
+          echo "run_cycle_job=$run_cycle_job" >> $GITHUB_OUTPUT
+          echo "run_image_job=$run_image_job" >> $GITHUB_OUTPUT
+          echo "run_addusers_job=$run_addusers_job" >> $GITHUB_OUTPUT
+          echo "run_cyclecluster_job=$run_cyclecluster_job" >> $GITHUB_OUTPUT
+          echo "run_ood_job=$run_ood_job" >> $GITHUB_OUTPUT
+          echo "run_guacamole_job=$run_guacamole_job" >> $GITHUB_OUTPUT
+          echo "run_tests_job=$run_tests_job" >> $GITHUB_OUTPUT
+          echo "run_telegraf_job=$run_telegraf_job" >> $GITHUB_OUTPUT
           exit $build_error
 
   ad:
@@ -359,7 +403,6 @@ jobs:
     name: ood
     runs-on: self-hosted
     needs: [cycle_cluster, lustre, deploy]
-    if: inputs.deploy_only == 'false' && inputs.deploy_with != 'arm'
 
     container:
       image: azhop.azurecr.io/hpcrover:2305.2210
@@ -372,14 +415,17 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: true
-         
+        if: needs.deploy.outputs.run_ood_job == 'true'
+
       - name: Login azure
+        if: needs.deploy.outputs.run_ood_job == 'true'
         run: |
           source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: Install applications
+        if: needs.deploy.outputs.run_ood_job == 'true'
         run: |
           source /miniconda/bin/activate
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
@@ -390,7 +436,6 @@ jobs:
     name: grafana
     runs-on: self-hosted
     needs: [ad, deploy]
-    if: inputs.deploy_only == 'false' && inputs.deploy_with != 'arm'
 
     container:
       image: azhop.azurecr.io/hpcrover:2305.2210
@@ -403,14 +448,17 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: true
-         
+        if: needs.deploy.outputs.run_grafana_job == 'true'
+
       - name: Login azure
+        if: needs.deploy.outputs.run_grafana_job == 'true'
         run: |
           source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: Install applications
+        if: needs.deploy.outputs.run_grafana_job == 'true'
         run: |
           source /miniconda/bin/activate
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
@@ -421,7 +469,6 @@ jobs:
     name: cycle
     runs-on: self-hosted
     needs: [ad, deploy]
-    if: inputs.deploy_only == 'false' && inputs.deploy_with != 'arm'
 
     container:
       image: azhop.azurecr.io/hpcrover:2305.2210
@@ -434,14 +481,17 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: true
-         
+        if: needs.deploy.outputs.run_cycle_job == 'true'
+
       - name: Login azure
+        if: needs.deploy.outputs.run_cycle_job == 'true'
         run: |
           source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: Install applications
+        if: needs.deploy.outputs.run_cycle_job == 'true'
         run: |
           source /miniconda/bin/activate
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
@@ -452,7 +502,6 @@ jobs:
     name: add_users
     runs-on: self-hosted
     needs: [cycle, deploy]
-    if: inputs.deploy_only == 'false' && inputs.deploy_with != 'arm'
 
     container:
       image: azhop.azurecr.io/hpcrover:2305.2210
@@ -465,14 +514,17 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: true
-         
+        if: needs.deploy.outputs.run_addusers_job == 'true'
+
       - name: Login azure
+        if: needs.deploy.outputs.run_addusers_job == 'true'
         run: |
           source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: Install applications
+        if: needs.deploy.outputs.run_addusers_job == 'true'
         run: |
           source /miniconda/bin/activate
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
@@ -483,7 +535,6 @@ jobs:
     name: cycle_cluster
     runs-on: self-hosted
     needs: [add_users, deploy, build_image]
-    if: inputs.deploy_only == 'false' && inputs.deploy_with != 'arm'
 
     container:
       image: azhop.azurecr.io/hpcrover:2305.2210
@@ -496,14 +547,17 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: true
-         
+        if: needs.deploy.outputs.run_cyclecluster_job == 'true'
+
       - name: Login azure
+        if: needs.deploy.outputs.run_cyclecluster_job == 'true'
         run: |
           source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: Install applications
+        if: needs.deploy.outputs.run_cyclecluster_job == 'true'
         run: |
           source /miniconda/bin/activate
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
@@ -515,7 +569,6 @@ jobs:
     name: guacamole
     runs-on: self-hosted
     needs: [cycle, ood, deploy]
-    if: inputs.deploy_only == 'false' && inputs.deploy_with != 'arm'
 
     container:
       image: azhop.azurecr.io/hpcrover:2305.2210
@@ -528,14 +581,17 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: true
-         
+        if: needs.deploy.outputs.run_guacamole_job == 'true'
+
       - name: Login azure
+        if: needs.deploy.outputs.run_guacamole_job == 'true'
         run: |
           source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: Install applications
+        if: needs.deploy.outputs.run_guacamole_job == 'true'
         run: |
           source /miniconda/bin/activate
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
@@ -547,7 +603,6 @@ jobs:
     name: telegraf
     runs-on: self-hosted
     needs: [grafana, cycle, deploy, guacamole]
-    if: inputs.deploy_only == 'false' && inputs.deploy_with != 'arm'
 
     container:
       image: azhop.azurecr.io/hpcrover:2305.2210
@@ -560,14 +615,17 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: true
-         
+        if: needs.deploy.outputs.run_telegraf_job == 'true'
+
       - name: Login azure
+        if: needs.deploy.outputs.run_telegraf_job == 'true'
         run: |
           source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: Install applications
+        if: needs.deploy.outputs.run_telegraf_job == 'true'
         run: |
           source /miniconda/bin/activate
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
@@ -579,7 +637,6 @@ jobs:
     name: set_image_list
     runs-on: ubuntu-latest
     needs: [deploy]
-    if: inputs.deploy_only == 'false' && inputs.deploy_with != 'arm'
 
     container:
       image: azhop.azurecr.io/hpcrover:2305.2210
@@ -592,8 +649,10 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: true
-         
+        if: needs.deploy.outputs.run_image_job == 'true'
+
       - name: Login azure
+        if: needs.deploy.outputs.run_image_job == 'true'
         run: |
           source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
@@ -601,6 +660,7 @@ jobs:
 
       - name: list all images to be built
         id: set-image-matrix
+        if: needs.deploy.outputs.run_image_job == 'true'
         run: |
           source /miniconda/bin/activate
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
@@ -621,7 +681,6 @@ jobs:
     name: build_image
     runs-on: self-hosted
     needs: [deploy, set_image_list]
-    if: inputs.deploy_only == 'false' && inputs.deploy_with != 'arm'
     strategy: 
       matrix:
         packer_file: ${{ fromJson(needs.set_image_list.outputs.matrix) }}
@@ -636,14 +695,17 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: true
-         
+        if: needs.deploy.outputs.run_image_job == 'true'
+
       - name: Login azure
+        if: needs.deploy.outputs.run_image_job == 'true'
         run: |
           source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: Build Images
+        if: needs.deploy.outputs.run_image_job == 'true'
         run: |
           source /miniconda/bin/activate
           if [ "${{matrix.packer_file}}" == "none" ]; then
@@ -658,7 +720,6 @@ jobs:
     name: run_tests
     runs-on: self-hosted
     needs: [deploy, cycle, ood, cycle_cluster]
-    if: inputs.deploy_only == 'false'
     container:
       image: azhop.azurecr.io/hpcrover:2305.2210
       credentials:
@@ -670,14 +731,17 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: true
-         
+        if: needs.deploy.outputs.run_tests_job == 'true'
+
       - name: Login azure
+        if: needs.deploy.outputs.run_tests_job == 'true'
         run: |
           source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: Run test playbook
+        if: needs.deploy.outputs.run_tests_job == 'true'
         run: |
           source /miniconda/bin/activate
           RESOURCE_GROUP=${{needs.deploy.outputs.resource_group}}
