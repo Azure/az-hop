@@ -450,7 +450,7 @@ while (( "$#" )); do
     -l|--language)
       DEPLOY_LANGUAGE=${2}
       # verify that the language is either tf or bicep
-      if [ "$DEPLOY_LANGUAGE" != "tf" ] && [ "$DEPLOY_LANGUAGE" != "bicep" ] & [ "$DEPLOY_LANGUAGE" != "arm" ]; then
+      if [ "$DEPLOY_LANGUAGE" != "tf" ] && [ "$DEPLOY_LANGUAGE" != "bicep" ] && [ "$DEPLOY_LANGUAGE" != "arm" ]; then
         echo "Invalid language $DEPLOY_LANGUAGE. Valid values are tf, bicep or arm"
         exit 1
       fi
