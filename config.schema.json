@@ -579,6 +579,10 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Name of the database resource to be created"
+                },
                 "user": {
                     "type": "string",
                     "description": "Admin user of the database for which the password will be retrieved from the azhop keyvault"

@@ -291,11 +291,14 @@ slurm:
 enroot:
   enroot_version: 3.4.1
 
-# If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values
 #database:
+  # Resource name of the MariaDB instance to be created
+  #name: custom_mariadb_name
+
+  # If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values
   # Admin user of the database for which the password will be retrieved from the azhop keyvault
   #user: sqladmin
-  # FQDN of the managed instance
+  # FQDN of the existing managed instance
   #fqdn:
   # IP of the managed private endpoint if the FQDN is not registered in a private DNS
   #ip:

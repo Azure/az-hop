@@ -118,6 +118,7 @@ var config = {
 
   key_vault_name: contains(azhopConfig, 'azure_key_vault') ? azhopConfig.azure_key_vault.name : 'kv${resourcePostfix}'
   storage_account_name: contains(azhopConfig, 'azure_storage_account') ? azhopConfig.azure_storage_account.name : 'azhop${resourcePostfix}'
+  mariadb_name: contains(azhopConfig, 'database') && contains(azhopConfig.database, 'name') ? azhopConfig.database.name : 'azhop-${resourcePostfix}'
 
   enable_remote_winviz : enableWinViz
   deploy_sig: contains(azhopConfig, 'image_gallery') && contains(azhopConfig.image_gallery, 'create') ? azhopConfig.image_gallery.create : false
@@ -764,7 +765,7 @@ module azhopMariaDB './mariadb.bicep' = if (createDatabase) {
   name: 'azhopMariaDB'
   params: {
     location: location
-    resourcePostfix: resourcePostfix
+    mariaDbName: config.mariadb_name
     adminUser: config.slurm.admin_user
     adminPassword: secrets.databaseAdminPassword
     adminSubnetId: subnetIds.admin
