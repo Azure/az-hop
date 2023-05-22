@@ -57,11 +57,11 @@
                     "description": "When working in a locked down network, uncomment and fill out this section",
                     "$ref": "#/definitions/LockedDownNetwork"
                 },
-                "key_vault": {
+                "azure_key_vault": {
                     "description": "Key vault configuration",
                     "$ref": "#/definitions/KeyVault"
                 },
-                "storage_account": {
+                "azure_storage_account": {
                     "description": "Storage account configuration",
                     "$ref": "#/definitions/StorageAccount"
                 },

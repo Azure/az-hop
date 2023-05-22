@@ -188,11 +188,11 @@ domain:
     private_dns_servers: ["192.168.1.53", "192.168.2.53"]
 
 # Optional: name of the key vault resource to be created. If not provided, a name will be generated
-# key_vault:
+# azure_key_vault:
 #   name: custom_key_vault_name
 
 # Optional: name of the storage account to be created.
-# storage_account:
+# azure_storage_account:
 #   name: custom_storage_account_name
 
 # Jumpbox VM configuration, only needed when deploying thru a public IP and without a configured deployer VM
