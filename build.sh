@@ -328,7 +328,13 @@ function bicep_init()
   set_bicep_azhopconfig
 
   if [ "$AZHOP_FROM" == "deployer" ]; then
+    # Change the jumpbox name to deployer if present
     sed -i 's/jumpbox/deployer/g' $BICEP_PARAMS
+
+    # Add the logged user as a reader of the keyvault
+    keyvault_readers=$(yq '.key_vault_readers' $AZHOP_CONFIG)
+    key_vault_readers="$key_vault_readers $TF_VAR_logged_user_objectId"
+    set_bicep_param_value ".parameters.azhopConfig.value.key_vault_readers" "$key_vault_readers"
   fi
 
   # Read secrets from the parameter file as we don't know the keyvault name until a proper deployment has been successful
@@ -499,8 +505,8 @@ case $DEPLOY_LANGUAGE in
       AZHOP_FROM="deployer"
     else
       AZHOP_FROM="local"
-      get_azure_context
     fi
+    get_azure_context
     bicep_init
     bicep_run
     ;;
@@ -508,6 +514,7 @@ case $DEPLOY_LANGUAGE in
     # ARM deployment is always using a deplpyed VM
     AZHOP_FROM="deployer"
     arm_init
+    get_azure_context
     bicep_init
     bicep_run
     ;;
