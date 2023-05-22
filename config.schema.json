@@ -57,6 +57,14 @@
                     "description": "When working in a locked down network, uncomment and fill out this section",
                     "$ref": "#/definitions/LockedDownNetwork"
                 },
+                "key_vault": {
+                    "description": "Key vault configuration",
+                    "$ref": "#/definitions/KeyVault"
+                },
+                "storage_account": {
+                    "description": "Storage account configuration",
+                    "$ref": "#/definitions/StorageAccount"
+                },
                 "linux_base_image": {
                     "description": "Can be either an image reference or an image_id from the image registry or a custom managed image",
                     "type": "string"
@@ -736,6 +744,26 @@
                 "public_ip"
             ],
             "title": "LockedDownNetwork"
+        },
+        "KeyVault": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "type": "string" 
+                }
+            },
+            "title": "KeyVault"
+        },
+        "StorageAccount": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "type": "string" 
+                }
+            },
+            "title": "StorageAccount"
         },
         "Mounts": {
             "type": "object",
