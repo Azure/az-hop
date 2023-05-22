@@ -108,6 +108,7 @@ jobs:
 
     outputs:
         resource_group: ${{ steps.deploy.outputs.resource_group }}
+        run_ad_job: ${{ steps.deploy.outputs.run_ad_job }}
 
     steps:
       - uses: actions/checkout@v3
@@ -263,13 +264,21 @@ jobs:
           if [ "$DEPLOY_WITH" != "arm" ]; then
             ./create_passwords.sh
           fi
+
+          run_ad_job=true
+          # Create the variables to control the execution of next jobs
+          if [ "$DEPLOY_WITH" == "arm" ]; then
+            run_ad_job=false
+          fi
+
+          echo "run_ad_job=$run_ad_job" >> $GITHUB_OUTPUT
           exit $build_error
 
   ad:
     name: ad
     runs-on: self-hosted
     needs: deploy
-    if: inputs.deploy_only == 'false' && inputs.deploy_with != 'arm'
+    if: needs.deploy.outputs.run_ad_job == 'true'
 
     container:
       image: azhop.azurecr.io/hpcrover:2305.2210
