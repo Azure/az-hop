@@ -303,12 +303,12 @@ jobs:
             run_cyclecluster_job=false
             run_ood_job=false
             run_guacamole_job=false
-            run_tests_job=false
+            run_tests_job=$deploy_and_install
             run_telegraf_job=false
           else
             install_lustre=$(yq eval ".lustre.create" config.yml)
             if [ "$install_lustre" == "true" ]; then
-              run_lustre_job=${{ inputs.deploy_only }}
+              run_lustre_job=$deploy_and_install
             else
               run_lustre_job=false
             fi
