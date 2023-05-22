@@ -28,10 +28,10 @@ on:
         description: 'Deploy only - Default to false'
         required: false
         default: 'false' # use it with ${{ github.event.inputs.deploy_only }}
-      use_bicep:
-        description: 'Deploy using Bicep - Default to false'
+      deploy_with:
+        description: 'Method used for the deployment - tf, bicep or arm - Default to tf'
         required: false
-        default: 'false' # use it with ${{ github.event.inputs.use_bicep }}
+        default: 'tf' # use it with ${{ github.event.inputs.deploy_with }}
 
 jobs:
   deploy:
@@ -42,7 +42,7 @@ jobs:
       clean: ${{ github.event.inputs.clean }}
       scheduler: ${{ github.event.inputs.scheduler }}
       deploy_only: ${{ github.event.inputs.deploy_only }}
-      use_bicep: ${{ github.event.inputs.use_bicep }}
+      deploy_with: ${{ github.event.inputs.deploy_with }}
       home_type: 'azurefiles'
       config: 'minimum'
       lustre: 'false'
