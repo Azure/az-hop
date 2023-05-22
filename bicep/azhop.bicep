@@ -1015,7 +1015,7 @@ user=$1
 # Because secret names are restricted to '^[0-9a-zA-Z-]+$' we need to remove all other characters
 secret_name=$(echo $user-password | tr -dc 'a-zA-Z0-9-')
 
-az keyvault secret show --vault-name kv{0} -n $secret_name --query "value" -o tsv
+az keyvault secret show --vault-name {0} -n $secret_name --query "value" -o tsv
 
-''', resourcePostfix)
+''', config.key_vault_name)
 
