@@ -273,13 +273,13 @@ function set_bicep_param_value()
 
   case $Value in
     "true"|"True")
-      eval_str=". | $Param.value=true"
+      eval_str=". | $Param=true"
     ;;
     "false"|"False")
-      eval_str=". | $Param.value=false"
+      eval_str=". | $Param=false"
     ;;
     *)
-      eval_str=". | $Param.value=\$param"
+      eval_str=". | $Param=\$param"
     ;;
 
   esac
@@ -322,8 +322,8 @@ function bicep_init()
     set_bicep_param_value ".parameters.loggedUserObjectId" "$TF_VAR_logged_user_objectId"
   fi
 
-  set_bicep_param_value ".parameters.autogenerateSecrets" "false"
-  set_bicep_param_value ".parameters.branchName" "$(git branch | grep "*" | cut -d' ' -f 2)"
+  set_bicep_param_value ".parameters.autogenerateSecrets.value" "false"
+  set_bicep_param_value ".parameters.branchName.value" "$(git branch | grep "*" | cut -d' ' -f 2)"
 
   set_bicep_azhopconfig
 
@@ -332,19 +332,17 @@ function bicep_init()
     sed -i 's/jumpbox/deployer/g' $BICEP_PARAMS
 
     # Add the logged user as a reader of the keyvault
-    keyvault_readers=$(yq '.key_vault_readers' $AZHOP_CONFIG)
-    key_vault_readers="$key_vault_readers $TF_VAR_logged_user_objectId"
-    set_bicep_param_value ".parameters.azhopConfig.value.key_vault_readers" "$key_vault_readers"
+    set_bicep_param_value ".parameters.azhopConfig.value.key_vault_readers" "$TF_VAR_logged_user_objectId"
   fi
 
   # Read secrets from the parameter file as we don't know the keyvault name until a proper deployment has been successful
   adminPassword=$(jq -r '.parameters.adminPassword.value' $BICEP_PARAMS)
   if [ "$adminPassword" == "null" ]; then
-    set_bicep_param_value ".parameters.adminPassword" "$(openssl rand -base64 24)"
+    set_bicep_param_value ".parameters.adminPassword.value" "$(openssl rand -base64 24)"
   fi
   databaseAdminPassword=$(jq -r '.parameters.databaseAdminPassword.value' $BICEP_PARAMS)
   if [ "$adminPassword" == "null" ]; then
-    set_bicep_param_value ".parameters.databaseAdminPassword" "$(openssl rand -base64 24)"
+    set_bicep_param_value ".parameters.databaseAdminPassword.value" "$(openssl rand -base64 24)"
   fi
   adminSshPublicKey=$(jq -r '.parameters.adminSshPublicKey.value' $BICEP_PARAMS)
   if [ "$adminSshPublicKey" == "null" ]; then
@@ -352,8 +350,8 @@ function bicep_init()
     if [ ! -e $AZHOP_ROOT/${adminuser}_id_rsa ]; then
       ssh-keygen -f $AZHOP_ROOT/${adminuser}_id_rsa  -N ""
     fi
-    set_bicep_param_value ".parameters.adminSshPublicKey" "$(cat $AZHOP_ROOT/${adminuser}_id_rsa.pub)"
-    set_bicep_param_value ".parameters.adminSshPrivateKey" "$(cat $AZHOP_ROOT/${adminuser}_id_rsa)"
+    set_bicep_param_value ".parameters.adminSshPublicKey.value" "$(cat $AZHOP_ROOT/${adminuser}_id_rsa.pub)"
+    set_bicep_param_value ".parameters.adminSshPrivateKey.value" "$(cat $AZHOP_ROOT/${adminuser}_id_rsa)"
   fi
 
 }
