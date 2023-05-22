@@ -259,14 +259,17 @@ jobs:
             ./azhop_state.sh upload ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
           fi
 
-          ./create_passwords.sh
+          # Create the passwords file if not deploying with arm
+          if [ "$DEPLOY_WITH" != "arm" ]; then
+            ./create_passwords.sh
+          fi
           exit $build_error
 
   ad:
     name: ad
     runs-on: self-hosted
     needs: deploy
-    if: inputs.deploy_only == 'false'
+    if: inputs.deploy_only == 'false' && inputs.deploy_with != 'arm'
 
     container:
       image: azhop.azurecr.io/hpcrover:2305.2210
@@ -299,7 +302,7 @@ jobs:
     name: lustre
     runs-on: self-hosted
     needs: [ad, deploy, grafana]
-    if: inputs.deploy_only == 'false'
+    if: inputs.deploy_only == 'false' && inputs.deploy_with != 'arm'
 
     container:
       image: azhop.azurecr.io/hpcrover:2305.2210
@@ -333,7 +336,7 @@ jobs:
     name: ood
     runs-on: self-hosted
     needs: [cycle_cluster, lustre, deploy]
-    if: inputs.deploy_only == 'false'
+    if: inputs.deploy_only == 'false' && inputs.deploy_with != 'arm'
 
     container:
       image: azhop.azurecr.io/hpcrover:2305.2210
@@ -364,7 +367,7 @@ jobs:
     name: grafana
     runs-on: self-hosted
     needs: [ad, deploy]
-    if: inputs.deploy_only == 'false'
+    if: inputs.deploy_only == 'false' && inputs.deploy_with != 'arm'
 
     container:
       image: azhop.azurecr.io/hpcrover:2305.2210
@@ -395,7 +398,7 @@ jobs:
     name: cycle
     runs-on: self-hosted
     needs: [ad, deploy]
-    if: inputs.deploy_only == 'false'
+    if: inputs.deploy_only == 'false' && inputs.deploy_with != 'arm'
 
     container:
       image: azhop.azurecr.io/hpcrover:2305.2210
@@ -426,7 +429,7 @@ jobs:
     name: add_users
     runs-on: self-hosted
     needs: [cycle, deploy]
-    if: inputs.deploy_only == 'false'
+    if: inputs.deploy_only == 'false' && inputs.deploy_with != 'arm'
 
     container:
       image: azhop.azurecr.io/hpcrover:2305.2210
@@ -457,7 +460,7 @@ jobs:
     name: cycle_cluster
     runs-on: self-hosted
     needs: [add_users, deploy, build_image]
-    if: inputs.deploy_only == 'false'
+    if: inputs.deploy_only == 'false' && inputs.deploy_with != 'arm'
 
     container:
       image: azhop.azurecr.io/hpcrover:2305.2210
@@ -489,7 +492,7 @@ jobs:
     name: guacamole
     runs-on: self-hosted
     needs: [cycle, ood, deploy]
-    if: inputs.deploy_only == 'false'
+    if: inputs.deploy_only == 'false' && inputs.deploy_with != 'arm'
 
     container:
       image: azhop.azurecr.io/hpcrover:2305.2210
@@ -521,7 +524,7 @@ jobs:
     name: telegraf
     runs-on: self-hosted
     needs: [grafana, cycle, deploy, guacamole]
-    if: inputs.deploy_only == 'false'
+    if: inputs.deploy_only == 'false' && inputs.deploy_with != 'arm'
 
     container:
       image: azhop.azurecr.io/hpcrover:2305.2210
@@ -553,7 +556,7 @@ jobs:
     name: set_image_list
     runs-on: ubuntu-latest
     needs: [deploy]
-    if: inputs.deploy_only == 'false'
+    if: inputs.deploy_only == 'false' && inputs.deploy_with != 'arm'
 
     container:
       image: azhop.azurecr.io/hpcrover:2305.2210
@@ -595,7 +598,7 @@ jobs:
     name: build_image
     runs-on: self-hosted
     needs: [deploy, set_image_list]
-    if: inputs.deploy_only == 'false'
+    if: inputs.deploy_only == 'false' && inputs.deploy_with != 'arm'
     strategy: 
       matrix:
         packer_file: ${{ fromJson(needs.set_image_list.outputs.matrix) }}
