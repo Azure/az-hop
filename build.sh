@@ -7,6 +7,7 @@ set -e
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 AZHOP_CONFIG=config.yml
 BICEP_ROOT=$THIS_DIR/bicep
+ARM_ROOT=$THIS_DIR/marketplace/solution
 AZCLI_VERSION_MAJOR=2
 AZCLI_VERSION_MINOR=37
 AZCLI_VERSION_PATCH=0
@@ -27,9 +28,9 @@ function usage()
   echo "    -a|--action [plan, apply, destroy] - Destroy will not applied with Bicep"
   echo "   "
   echo "  Optional arguments:"
-  echo "    -f|--folder <relative path> - relative folder name containing the terraform files, default is ./tf"
-  echo "    -l|--language <tf, bicep>   - deployment language to use, default is tf"
-  echo "    --no-validate              - skip validation of config.yml"
+  echo "    -f|--folder <relative path>      - relative folder name containing the terraform files, default is ./tf"
+  echo "    -l|--language <tf, bicep, arm>   - deployment language to use, default is tf. arm template will be generated from bicep"
+  echo "    --no-validate                    - skip validation of config.yml"
 }
 
 #######################################################################################################################
@@ -294,6 +295,14 @@ function set_bicep_azhopconfig()
   cp $TMP_PARAMS $BICEP_PARAMS
 }
 
+function arm_init()
+{
+  pushd $ARM_ROOT
+  ./build.sh
+  popd
+}
+
+
 function bicep_init()
 {
   # Build the parameters.json file based on the config file content
@@ -317,6 +326,10 @@ function bicep_init()
   set_bicep_param_value ".parameters.branchName" "$(git branch | grep "*" | cut -d' ' -f 2)"
 
   set_bicep_azhopconfig
+
+  if [ "$AZHOP_FROM" == "deployer" ]; then
+    sed -i 's/jumpbox/deployer/g' $BICEP_PARAMS
+  fi
 
   # Read secrets from the parameter file as we don't know the keyvault name until a proper deployment has been successful
   adminPassword=$(jq -r '.parameters.adminPassword.value' $BICEP_PARAMS)
@@ -354,7 +367,18 @@ function bicep_run()
     az deployment sub validate --template-file $BICEP_ROOT/mainTemplate.bicep --location $location --parameters @$BICEP_PARAMS
   fi
 
-  az deployment sub $deployment_op --template-file $BICEP_ROOT/mainTemplate.bicep --location $location -n $deployment_name --parameters @$BICEP_PARAMS
+  case $DEPLOY_LANGUAGE in
+    "bicep")
+      echo "* Deploying using Bicep"
+      TEMPLATE_FILE=$BICEP_ROOT/mainTemplate.bicep
+      ;;
+    "arm")
+      TEMPLATE_FILE=$ARM_ROOT/build/mainTemplate.json
+      echo "* Deploying using ARM"
+      ;;
+  esac
+
+  az deployment sub $deployment_op --template-file $TEMPLATE_FILE --location $location -n $deployment_name --parameters @$BICEP_PARAMS
 
   if [ "$TF_COMMAND" == "plan" ]; then
     exit
@@ -367,7 +391,7 @@ function bicep_run()
       --query properties.outputs \
       > $AZHOP_DEPLOYMENT_OUTPUT
 
-  if [ "$AZHOP_FROM" == "local" ]; then
+#  if [ "$AZHOP_FROM" == "local" ]; then
 
     # Update config path 
     jq '. | .azhopGlobalConfig.value.global_config_file=$param' --arg param $AZHOP_ROOT/config.yml $AZHOP_DEPLOYMENT_OUTPUT > $TMP_PARAMS
@@ -396,7 +420,7 @@ function bicep_run()
     admin_pass="$(az keyvault secret show --vault-name $kv -n ${adminuser}-password --query "value" -o tsv)"
     sed -i "s/__ADMIN_PASSWORD__/$(sed 's/[&/\]/\\&/g' <<< $admin_pass)/g" $AZHOP_ROOT/playbooks/inventory
     jq .azhopPackerOptions.value $AZHOP_DEPLOYMENT_OUTPUT > $AZHOP_ROOT/packer/options.json
-  fi
+#  fi
 }
 
 
@@ -422,8 +446,8 @@ while (( "$#" )); do
     -l|--language)
       DEPLOY_LANGUAGE=${2}
       # verify that the language is either tf or bicep
-      if [ "$DEPLOY_LANGUAGE" != "tf" ] && [ "$DEPLOY_LANGUAGE" != "bicep" ]; then
-        echo "Invalid language $DEPLOY_LANGUAGE. Valid values are tf or bicep"
+      if [ "$DEPLOY_LANGUAGE" != "tf" ] && [ "$DEPLOY_LANGUAGE" != "bicep" ] & [ "$DEPLOY_LANGUAGE" != "arm" ]; then
+        echo "Invalid language $DEPLOY_LANGUAGE. Valid values are tf, bicep or arm"
         exit 1
       fi
       shift 2
@@ -477,6 +501,13 @@ case $DEPLOY_LANGUAGE in
       AZHOP_FROM="local"
       get_azure_context
     fi
+    bicep_init
+    bicep_run
+    ;;
+  arm)
+    # ARM deployment is always using a deplpyed VM
+    AZHOP_FROM="deployer"
+    arm_init
     bicep_init
     bicep_run
     ;;

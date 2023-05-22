@@ -20,7 +20,7 @@ jobs:
       scheduler: 'slurm'
       lustre: 'false'
       deploy_only: 'false'
-      use_bicep: 'true'
+      deploy_with: 'bicep'
       home_type: 'azurefiles'
       config: 'minimum'
     secrets:

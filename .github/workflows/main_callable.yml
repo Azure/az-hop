@@ -47,10 +47,10 @@ on:
         required: false
         default: 'false' # use it with ${{ inputs.deploy_only }}
         type: string
-      use_bicep:
-        description: 'Use bicep for the deployment - Default to false'
+      deploy_with:
+        description: 'Method used for the deployment - tf, bicep or arm - Default to tf'
         required: false
-        default: 'false' # use it with ${{ inputs.use_bicep }}
+        default: 'tf' # use it with ${{ inputs.deploy_with }}
         type: string
       home_type:
         description: 'Home directory type anf/azurefiles- Default to anf'
@@ -229,19 +229,14 @@ jobs:
           ls -al 
           cat config.yml
           anf_dual=$(yq eval '.anf.dual_protocol' config.yml)
-          USE_BICEP=${{ inputs.use_bicep }}
+          DEPLOY_WITH=${{ inputs.deploy_with }}
 
           # Check if we need to build with dual protocol
           build_error=0
           if [ "$anf_dual" != "true" ]; then
             set +e
-            if [ "$USE_BICEP" == "true" ]; then
-              ./build.sh -a apply -l bicep
-              build_error=$?
-            else
-              ./build.sh -a apply -f tf
-              build_error=$?
-            fi
+            ./build.sh -a apply -l $DEPLOY_WITH
+            build_error=$?
             set -e
             ./azhop_state.sh upload ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
           else
