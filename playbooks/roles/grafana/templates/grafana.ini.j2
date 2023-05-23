@@ -178,13 +178,13 @@ serve_from_sub_path = {{ grafana_server_serve_from_sub_path }}
 #################################### Security ####################################
 [security]
 # disable creation of admin user on first start of grafana
-disable_initial_admin_creation = {{ (authentication.user_auth | default('ad')) == 'ad' }}
+disable_initial_admin_creation = true
 
 # default admin user, created on startup
-admin_user = admin
+;admin_user = admin
 
 # default admin password, can be changed before first start of grafana,  or in profile settings
-admin_password = admin
+;admin_password = admin
 
 # used for signing
 ;secret_key = SW2YcwTIb9zpOOhoPsMm

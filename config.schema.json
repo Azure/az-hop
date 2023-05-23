@@ -463,7 +463,8 @@
             "properties": {
                 "user_auth": {
                     "type": "string",
-                    "enum": ["local", "ad"]
+                    "enum": ["local", "ad"],
+                    "default": "ad"
                 },
                 "httpd_auth": {
                     "type": "string",
