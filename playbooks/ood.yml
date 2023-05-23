@@ -24,6 +24,11 @@
   - name: Disable SELinux
     selinux:
       state: disabled
+    register: selinux
+
+  - name: reboot 
+    reboot:
+    when: selinux.reboot_required
 
   - name: Make sure we have the latest root certificates
     yum:
