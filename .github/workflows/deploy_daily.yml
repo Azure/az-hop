@@ -19,7 +19,7 @@ jobs:
       scheduler: 'openpbs'
       lustre: 'true'
       deploy_only: 'true'
-      use_bicep: 'false'
+      deploy_with: 'tf'
     secrets:
       ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
       ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
@@ -36,10 +36,26 @@ jobs:
       scheduler: 'openpbs'
       lustre: 'false'
       deploy_only: 'true'
-      use_bicep: 'true'
+      deploy_with: 'bicep'
     secrets:
       ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
       ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
       ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
+  deploy_arm:
+    uses: azure/az-hop/.github/workflows/main_callable.yml@main
+    with:
+      resource_group: 'AUTO_GENERATED'
+      location: 'westeurope'
+      clean: 'true'
+      anf_dual: 'false'
+      scheduler: 'openpbs'
+      lustre: 'false'
+      deploy_only: 'true'
+      deploy_with: 'arm'
+    secrets:
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}

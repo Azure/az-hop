@@ -3,6 +3,17 @@ name : container
 on:
   # manual only
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'toolset/**'
+  pull_request:
+    types: [ closed ]
+    branches:
+      - main
+    paths:
+      - 'toolset/**'
 
 jobs:
   build:

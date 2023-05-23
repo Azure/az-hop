@@ -7,6 +7,7 @@ set -e
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 AZHOP_CONFIG=config.yml
 BICEP_ROOT=$THIS_DIR/bicep
+ARM_ROOT=$THIS_DIR/marketplace/solution
 AZCLI_VERSION_MAJOR=2
 AZCLI_VERSION_MINOR=37
 AZCLI_VERSION_PATCH=0
@@ -27,9 +28,9 @@ function usage()
   echo "    -a|--action [plan, apply, destroy] - Destroy will not applied with Bicep"
   echo "   "
   echo "  Optional arguments:"
-  echo "    -f|--folder <relative path> - relative folder name containing the terraform files, default is ./tf"
-  echo "    -l|--language <tf, bicep>   - deployment language to use, default is tf"
-  echo "    --no-validate              - skip validation of config.yml"
+  echo "    -f|--folder <relative path>      - relative folder name containing the terraform files, default is ./tf"
+  echo "    -l|--language <tf, bicep, arm>   - deployment language to use, default is tf. arm template will be generated from bicep"
+  echo "    --no-validate                    - skip validation of config.yml"
 }
 
 #######################################################################################################################
@@ -272,13 +273,13 @@ function set_bicep_param_value()
 
   case $Value in
     "true"|"True")
-      eval_str=". | $Param.value=true"
+      eval_str=". | $Param=true"
     ;;
     "false"|"False")
-      eval_str=". | $Param.value=false"
+      eval_str=". | $Param=false"
     ;;
     *)
-      eval_str=". | $Param.value=\$param"
+      eval_str=". | $Param=\$param"
     ;;
 
   esac
@@ -293,6 +294,14 @@ function set_bicep_azhopconfig()
   jq '. | .parameters.azhopConfig.value=$json' --argjson json "$(yq $AZHOP_CONFIG -o json | jq '.' -c)" $BICEP_PARAMS > $TMP_PARAMS
   cp $TMP_PARAMS $BICEP_PARAMS
 }
+
+function arm_init()
+{
+  pushd $ARM_ROOT
+  ./build.sh
+  popd
+}
+
 
 function bicep_init()
 {
@@ -310,22 +319,30 @@ function bicep_init()
   fi
 
   if [ "$AZHOP_FROM" == "local" ]; then
-    set_bicep_param_value ".parameters.loggedUserObjectId" "$TF_VAR_logged_user_objectId"
+    set_bicep_param_value ".parameters.loggedUserObjectId.value" "$TF_VAR_logged_user_objectId"
   fi
 
-  set_bicep_param_value ".parameters.autogenerateSecrets" "false"
-  set_bicep_param_value ".parameters.branchName" "$(git branch | grep "*" | cut -d' ' -f 2)"
+  set_bicep_param_value ".parameters.autogenerateSecrets.value" "false"
+  set_bicep_param_value ".parameters.branchName.value" "$(git branch | grep "*" | cut -d' ' -f 2)"
 
   set_bicep_azhopconfig
+
+  if [ "$AZHOP_FROM" == "deployer" ]; then
+    # Change the jumpbox name to deployer if present
+    sed -i 's/jumpbox/deployer/g' $BICEP_PARAMS
+
+    # Add the logged user as a reader of the keyvault
+    set_bicep_param_value ".parameters.azhopConfig.value.key_vault_readers" "$TF_VAR_logged_user_objectId"
+  fi
 
   # Read secrets from the parameter file as we don't know the keyvault name until a proper deployment has been successful
   adminPassword=$(jq -r '.parameters.adminPassword.value' $BICEP_PARAMS)
   if [ "$adminPassword" == "null" ]; then
-    set_bicep_param_value ".parameters.adminPassword" "$(openssl rand -base64 24)"
+    set_bicep_param_value ".parameters.adminPassword.value" "$(openssl rand -base64 24)"
   fi
   databaseAdminPassword=$(jq -r '.parameters.databaseAdminPassword.value' $BICEP_PARAMS)
   if [ "$adminPassword" == "null" ]; then
-    set_bicep_param_value ".parameters.databaseAdminPassword" "$(openssl rand -base64 24)"
+    set_bicep_param_value ".parameters.databaseAdminPassword.value" "$(openssl rand -base64 24)"
   fi
   adminSshPublicKey=$(jq -r '.parameters.adminSshPublicKey.value' $BICEP_PARAMS)
   if [ "$adminSshPublicKey" == "null" ]; then
@@ -333,8 +350,8 @@ function bicep_init()
     if [ ! -e $AZHOP_ROOT/${adminuser}_id_rsa ]; then
       ssh-keygen -f $AZHOP_ROOT/${adminuser}_id_rsa  -N ""
     fi
-    set_bicep_param_value ".parameters.adminSshPublicKey" "$(cat $AZHOP_ROOT/${adminuser}_id_rsa.pub)"
-    set_bicep_param_value ".parameters.adminSshPrivateKey" "$(cat $AZHOP_ROOT/${adminuser}_id_rsa)"
+    set_bicep_param_value ".parameters.adminSshPublicKey.value" "$(cat $AZHOP_ROOT/${adminuser}_id_rsa.pub)"
+    set_bicep_param_value ".parameters.adminSshPrivateKey.value" "$(cat $AZHOP_ROOT/${adminuser}_id_rsa)"
   fi
 
 }
@@ -354,7 +371,18 @@ function bicep_run()
     az deployment sub validate --template-file $BICEP_ROOT/mainTemplate.bicep --location $location --parameters @$BICEP_PARAMS
   fi
 
-  az deployment sub $deployment_op --template-file $BICEP_ROOT/mainTemplate.bicep --location $location -n $deployment_name --parameters @$BICEP_PARAMS
+  case $DEPLOY_LANGUAGE in
+    "bicep")
+      echo "* Deploying using Bicep"
+      TEMPLATE_FILE=$BICEP_ROOT/mainTemplate.bicep
+      ;;
+    "arm")
+      TEMPLATE_FILE=$ARM_ROOT/build/mainTemplate.json
+      echo "* Deploying using ARM"
+      ;;
+  esac
+
+  az deployment sub $deployment_op --template-file $TEMPLATE_FILE --location $location -n $deployment_name --parameters @$BICEP_PARAMS
 
   if [ "$TF_COMMAND" == "plan" ]; then
     exit
@@ -367,7 +395,7 @@ function bicep_run()
       --query properties.outputs \
       > $AZHOP_DEPLOYMENT_OUTPUT
 
-  if [ "$AZHOP_FROM" == "local" ]; then
+#  if [ "$AZHOP_FROM" == "local" ]; then
 
     # Update config path 
     jq '. | .azhopGlobalConfig.value.global_config_file=$param' --arg param $AZHOP_ROOT/config.yml $AZHOP_DEPLOYMENT_OUTPUT > $TMP_PARAMS
@@ -396,7 +424,7 @@ function bicep_run()
     admin_pass="$(az keyvault secret show --vault-name $kv -n ${adminuser}-password --query "value" -o tsv)"
     sed -i "s/__ADMIN_PASSWORD__/$(sed 's/[&/\]/\\&/g' <<< $admin_pass)/g" $AZHOP_ROOT/playbooks/inventory
     jq .azhopPackerOptions.value $AZHOP_DEPLOYMENT_OUTPUT > $AZHOP_ROOT/packer/options.json
-  fi
+#  fi
 }
 
 
@@ -422,8 +450,8 @@ while (( "$#" )); do
     -l|--language)
       DEPLOY_LANGUAGE=${2}
       # verify that the language is either tf or bicep
-      if [ "$DEPLOY_LANGUAGE" != "tf" ] && [ "$DEPLOY_LANGUAGE" != "bicep" ]; then
-        echo "Invalid language $DEPLOY_LANGUAGE. Valid values are tf or bicep"
+      if [ "$DEPLOY_LANGUAGE" != "tf" ] && [ "$DEPLOY_LANGUAGE" != "bicep" ] && [ "$DEPLOY_LANGUAGE" != "arm" ]; then
+        echo "Invalid language $DEPLOY_LANGUAGE. Valid values are tf, bicep or arm"
         exit 1
       fi
       shift 2
@@ -475,8 +503,16 @@ case $DEPLOY_LANGUAGE in
       AZHOP_FROM="deployer"
     else
       AZHOP_FROM="local"
-      get_azure_context
     fi
+    get_azure_context
+    bicep_init
+    bicep_run
+    ;;
+  arm)
+    # ARM deployment is always using a deplpyed VM
+    AZHOP_FROM="deployer"
+    arm_init
+    get_azure_context
     bicep_init
     bicep_run
     ;;
