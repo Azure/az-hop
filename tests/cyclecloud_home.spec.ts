@@ -8,6 +8,8 @@ test('CycleCloud', async ({browser}) => {
     const page = await context.newPage();
     await page.goto('/cyclecloud/home', { waitUntil: 'networkidle' });
 
+    await page.getByRole('tab', { name: 'slurm1' }).click();
+
     // Click text=Arrays
     await page.click('text=Arrays');
     // Click #CloudStatus-NodeArraysTable-tbody >> text=execute

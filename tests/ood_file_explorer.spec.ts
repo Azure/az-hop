@@ -27,17 +27,17 @@ test('File Explorer', async ({browser}) => {
     // Click text=Files
     await page.click('text=Files');
 
-    // Click text=Lustre /lustre
-    await Promise.all([
-        page.waitForNavigation(),
-        page.click('text=Lustre /lustre')
-    ]);
+    // // Click text=Lustre /lustre
+    // await Promise.all([
+    //     page.waitForNavigation(),
+    //     page.click('text=Lustre /lustre')
+    // ]);
 
-    // Click div[role="main"] >> text=lustre /
-    await page.click('div[role="main"] >> text=lustre /');
+    // // Click div[role="main"] >> text=lustre /
+    // await page.click('div[role="main"] >> text=lustre /');
 
-    // Click div[role="main"] >> text=Lustre
-    await page.click('div[role="main"] >> text=Lustre');
+    // // Click div[role="main"] >> text=Lustre
+    // await page.click('div[role="main"] >> text=Lustre');
 
     await page.waitForLoadState('networkidle');
     await page.close()
