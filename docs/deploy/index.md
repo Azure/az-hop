@@ -1429,9 +1429,6 @@ In a locked network environment, traffic to some external domains needs to be al
 | aka.ms |
 | pypi.org |
 | www.paraview.org |
-| github.com |
-| grafana.com |
-| sourceforge.net |
 | securitycheck.phusionpassenger.com |
 
 
