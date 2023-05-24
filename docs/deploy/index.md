@@ -50,6 +50,7 @@
    * [How to use DNS forwarders ?](#how-to-use-dns-forwarders-)
    * [How to deploy ANF with Dual protocol](#how-to-deploy-anf-with-dual-protocol)
    * [Deploy in a locked down network environment](#deploy-in-a-locked-down-network-environment)
+      * [Allow traffic to list of external domains](#allow-traffic-to-list-of-external-domains)
    * [Disable Public IP scenario](#disable-public-ip-scenario)
    * [Use your own SSL certificate](#use-your-own-ssl-certificate)
    * [Not deploy ANF](#not-deploy-anf)
@@ -1372,6 +1373,67 @@ locked_down_network:
   enforce: true
   grant_access_from: [a.b.c.d] # Array of CIDR to grant access from.
 ```
+
+### Allow traffic to list of external domains
+
+In a locked network environment, traffic to some external domains needs to be allowed through firewall for the environment to work properly. Some of the families of domains include: 
+- The OS repositories
+- Domains used when building the infrastructure and configuring the toolchain
+- Domains used when configuring the environment (SLURM, CC, GRAFANA, OOD etc.)
+- Domains used when building custom images
+- Domains used when running the environment
+
+| External domains that need to be allowed | 
+| --------- |
+| *.almalinux.org |
+| *.anaconda.com | 
+| *.anaconda.org | 
+| *.azure.com | 
+| *.azure.net |
+| *.azure-api.net | 
+| *.azureedge.net | 
+| *.canonical.com |
+| *.cern.ch |
+| *.continuum.io |
+| *.eggycrew.com |
+| *.exp-tas.com |
+| *.fedoraproject.org |
+| *.fwupd.org |
+| *.github.com |
+| *.github.io |
+| *.githubusercontent.com |
+| *.grafana.com |
+| *.grafana.org |
+| *.hashicorp.com |
+| *.influxdata.com |
+| *.jfrog.io |
+| *.math.uh.edu |
+| *.microsoft.com |
+| *.msecnd.net |
+| *.mtu.edu |
+| *.npmjs.org |
+| *.nvidia.com |
+| *.osc.edu |
+| *.pythonhosted.org |
+| *.r-project.org |
+| *.scala-sbt.org |
+| *.skype.com |
+| *.snapcraft.io |
+| *.sourceforge.net |
+| *.spack.io |
+| *.terraform.io |
+| *.ubuntu.com |
+| *.visualstudio.com |
+| *.vsassets.io |
+| *.windows.net |
+| aka.ms |
+| pypi.org |
+| www.paraview.org |
+| github.com |
+| grafana.com |
+| sourceforge.net |
+| securitycheck.phusionpassenger.com |
+
 
 ## Disable Public IP scenario
 To deploy `az-hop` in a no public IP scenario you have to set the `locked_down_network:public_ip` value to `false`. The default value being `true`.
