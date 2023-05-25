@@ -3,10 +3,11 @@
   selinux:
     state: disabled
   register: selinux
+  when: ansible_distribution == "CentOS"
 
 - name: reboot 
   reboot:
-  when: selinux.reboot_required 
+  when: ansible_distribution == "CentOS" and selinux.reboot_required 
 
 # setup CycleCloud. Ported from https://github.com/Azure/cyclecloud-marketplace-image/blob/main/scripts/setup_cyclecloud.sh
 
@@ -14,14 +15,16 @@
   debug:
     msg:
       - "cc_version={{cc_version}}"
+      - "Distribution={{ansible_distribution}}"
 
 - name: Update packages marked for security
   yum:
     state: latest
     security: yes
     lock_timeout : 180
+  when: ansible_distribution == "CentOS"
 
-- name: install AZ CLI repo
+- name: install AZ CLI repo (CentOS)
   shell: |
     set -e
     rpm --import https://packages.microsoft.com/keys/microsoft.asc
@@ -35,6 +38,11 @@
     EOF
   args:
     creates: /etc/yum.repos.d/azure-cli.repo
+  when: ansible_distribution == "CentOS"
+
+- name: install AZ CLI repo (Ubuntu)
+  shell: curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+  when: ansible_distribution == "Ubuntu"
 
 - name: install CycleCloud repo
   shell: |
@@ -47,6 +55,18 @@
     EOF
   args:
     creates: /etc/yum.repos.d/cyclecloud.repo
+  when: ansible_distribution == "CentOS"
+
+- name: install AZ CLI repo (Ubuntu)
+  shell: |
+    apt -y install wget gnupg2
+    wget -qO - https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+    echo 'deb https://packages.microsoft.com/repos/cyclecloud bionic main' > /etc/apt/sources.list.d/cyclecloud.list
+    sudo apt update
+#    sudo apt -y install cyclecloud8
+  args:
+    creates: /etc/apt/sources.list.d/cyclecloud.list
+  when: ansible_distribution == "Ubuntu"
 
 - name: mount data disk
   shell: |
@@ -64,22 +84,45 @@
     mount /opt/cycle_server
 
 - name: Install pre-reqs packages
-  yum:
-    name: azure-cli, dnsmasq
+  package:
+    name: azure-cli, dnsmasq, unzip
     state: present
     lock_timeout : 180
+
+- name: Install pre-reqs packages (Ubuntu)
+  package:
+    name: python3-venv
+    state: present
+    lock_timeout : 180
+  when: ansible_distribution == "Ubuntu"
 
 - name: Install CycleCloud
   yum:
     name: "cyclecloud8-{{cc_version}}"
     state: present
     lock_timeout : 180
+  when: ansible_distribution == "CentOS"
+
+- name: Install CycleCloud (Ubuntu)
+  package:
+    name: "cyclecloud8={{cc_version}}"
+    state: present
+    lock_timeout : 180
+  when: ansible_distribution == "Ubuntu"
 
 - name: Install Jetpack
   yum:
     name: "jetpack8-{{cc_version}}"
     state: present
     lock_timeout : 180
+  when: ansible_distribution == "CentOS"
+
+- name: Install Jetpack (Ubuntu)
+  package:
+    name: "jetpack8={{cc_version}}"
+    state: present
+    lock_timeout : 180
+  when: ansible_distribution == "Ubuntu"
 
 - name: Create a data record for azhop and start cycleserver
   shell: |
@@ -99,12 +142,13 @@
   shell: |
     set -e
     _tmpdir=$(mktemp -d)
-    pushd $_tmpdir
+    mydir=$PWD
+    cd $_tmpdir
     CS_ROOT=/opt/cycle_server
     unzip $CS_ROOT/tools/cyclecloud-cli.zip
-    pushd cyclecloud-cli-installer
+    cd cyclecloud-cli-installer
     ./install.sh --system -y
-    popd
+    cd $mydir
     # Update properties
     sed -i 's/webServerMaxHeapSize\=2048M/webServerMaxHeapSize\=4096M/' $CS_ROOT/config/cycle_server.properties
     sed -i 's/webServerPort\=8080/webServerPort\=80/' $CS_ROOT/config/cycle_server.properties

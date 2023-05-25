@@ -560,7 +560,11 @@
             "additionalProperties": false,
             "properties": {
                 "vm_size": { "type": "string" },
-                "version": { "type": "string" }
+                "version": { "type": "string" },
+                "linux_image": {
+                    "description": "Can be either an image reference or an image_id from the image registry or a custom managed image",
+                    "type": "string"
+                }
             },
             "required": [
                 "vm_size"
