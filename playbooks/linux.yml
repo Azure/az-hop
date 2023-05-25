@@ -42,19 +42,6 @@
   - name: Gather facts for first time
     setup:
 
-  # - name: enable RHEL repos and install epel (RHEL)
-  #   shell: |
-  #     yum-config-manager --enable rhui-*-optional-rpms rhui-*-extras-rpms rhui-*-supplementary-rpms
-  #     rpm -q epel-release || yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-  #   when: ansible_distribution == "RedHat"
-
-  # - name: disable firewall and SElinux (RHEL)
-  #   shell: |
-  #     firewall-cmd --set-default trusted
-  #     setenforce permissive
-  #     sed -i 's/^SELINUX=.*$/SELINUX=permissive/' /etc/selinux/config
-  #   when: ansible_distribution == "RedHat"
-
   - name: Install dependencies
     yum:
       name: epel-release, nfs-utils, python3
@@ -87,29 +74,29 @@
 
     when: (authentication.user_auth | default('ad')) == "local"
 
-  - name: Read Password from KV
-    command: az keyvault secret show --vault-name {{key_vault}} -n {{ad_join_user}}-password --query "value" -o tsv
-    delegate_to: localhost
-    connection: local
-    register: password
-    become: false
-    run_once: true
-    when: (authentication.user_auth | default('ad')) == "ad"
+  - name: Domain Join
+    block:
+    - name: Read Password from KV
+      command: az keyvault secret show --vault-name {{key_vault}} -n {{ad_join_user}}-password --query "value" -o tsv
+      delegate_to: localhost
+      connection: local
+      register: password
+      become: false
+      run_once: true
 
-  - name: Join domain
-    include_role:
-      name: domain_join
-    vars:
-      domain_admin: "{{ad_join_user}}"
-      domain_password: "{{password.stdout}}"
-      domain: "{{domain_name}}"
-      # domain_primary_dns: "{{primary_dns}}"
-      # domain_secondary_dns: "{{secondary_dns}}"
-      domain_homedir: "{{homedir_mountpoint}}"
-      domain_mount_ip: "{{anf_home_ip}}"
-      domain_mount_path: "{{anf_home_path}}"
-      domain_mount_opts: "{{anf_home_opts}}"
-      domain_join_ou: "{{domain.domain_join_ou | default('')}}"
+    - name: Join domain
+      include_role:
+        name: domain_join
+      vars:
+        domain_admin: "{{ad_join_user}}"
+        domain_password: "{{password.stdout}}"
+        domain: "{{domain_name}}"
+        domain_homedir: "{{homedir_mountpoint}}"
+        domain_mount_ip: "{{anf_home_ip}}"
+        domain_mount_path: "{{anf_home_path}}"
+        domain_mount_opts: "{{anf_home_opts}}"
+        domain_join_ou: "{{domain.domain_join_ou | default('')}}"
+
     when: (authentication.user_auth | default('ad')) == "ad"
 
   - name: Update ANF chmod mode
