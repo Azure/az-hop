@@ -161,6 +161,9 @@ jobs:
               cat $AZHOP_CONFGURATION_DIR/auth_$USER_AUTH.yml >> config.yml
             fi
 
+            # Add application configuration
+            cat $AZHOP_CONFGURATION_DIR/app_mini.yml >> config.yml
+
             # Configure images
             IMAGES=${{ inputs.images }}
             case $IMAGES in
