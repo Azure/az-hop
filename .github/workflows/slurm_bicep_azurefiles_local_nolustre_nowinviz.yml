@@ -20,9 +20,10 @@ on:
 jobs:
   deploy:
     strategy:
+      fail-fast: false
       matrix:
         scheduler: ['slurm',]
-        home_type: ['azurefiles']
+        home_type: ['azurefiles', 'anf']
         user_auth: ['local', 'ad']
     uses: azure/az-hop/.github/workflows/_base.yml@main
     with:
@@ -33,6 +34,8 @@ jobs:
       home_type: ${{ matrix.home_type }}
       winviz: 'false'
       user_auth: ${{ matrix.user_auth }}
+      deploy_with: 'bicep'
+      clean: ${{ github.event.inputs.clean }}
     secrets:
       ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
       ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
