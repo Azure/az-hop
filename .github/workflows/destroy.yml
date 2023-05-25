@@ -3,8 +3,8 @@ name : destroy
 on:
   workflow_call:
     inputs:
-      config:
-        description: 'Configuration file content to use for the deployment'
+      resource_group:
+        description: 'Resource group to destroy'
         required: true
         type: string
   
@@ -61,9 +61,7 @@ jobs:
           set -e
           source /miniconda/bin/activate
 
-          echo '${{ inputs.config }}' > config.json
-          jq '.' config.json | yq -P  > config.yml
-          RESOURCE_GROUP=$(yq '.resource_group' config.yml)
+          RESOURCE_GROUP="${{ inputs.resource_group }}"
           rg_exists=$(az group exists -n $RESOURCE_GROUP)
           if [ "$rg_exists" = "true" ]; then
             echo "Download state files for $RESOURCE_GROUP"

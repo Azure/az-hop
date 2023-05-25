@@ -44,9 +44,9 @@ on:
         default: 'ad' # use it with ${{ inputs.user_auth }}
         type: string
     outputs:
-      config:
-        description: 'Configuration file in json'
-        value: ${{ jobs.build_config.outputs.config }}
+      resource_group:
+        description: 'Resource group name'
+        value: ${{ jobs.build_config.outputs.resource_group }}
 
     secrets:
       ARM_SUBSCRIPTION_ID:
@@ -88,7 +88,7 @@ jobs:
       options: --user 0
 
     outputs:
-        config: ${{ steps.build_config.outputs.config }}
+        resource_group: ${{ steps.build_config.outputs.resource_group }}
 
     steps:
       - uses: actions/checkout@v3
@@ -225,6 +225,6 @@ jobs:
 
           ls -al
           cat config.yml
-
+          ./azhop_state.sh upload ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
           # write the configuration in the output of the job so it can be reused in others
-          echo "config=$(yq config.yml -o json | jq '.' -c)" >> $GITHUB_OUTPUT
+          #echo "config=$(yq config.yml -o json | jq '.' -c)" >> $GITHUB_OUTPUT

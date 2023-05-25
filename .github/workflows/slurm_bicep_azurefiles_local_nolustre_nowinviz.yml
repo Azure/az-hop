@@ -43,7 +43,7 @@ jobs:
     uses: azure/az-hop/.github/workflows/deploy.yml@main
     needs: create_config
     with:
-      config: ${{ needs.create_config.outputs.config }}
+      resource_group: ${{ needs.create_config.outputs.resource_group }}
       deploy_with: 'bicep'
     secrets:
       ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
@@ -56,7 +56,7 @@ jobs:
     if: always() && inputs.clean == 'true'
     needs: [create_config, deploy]
     with:
-      config: ${{ needs.create_config.outputs.config }}
+      resource_group: ${{ needs.create_config.outputs.resource_group }}
     secrets:
       ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
       ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
