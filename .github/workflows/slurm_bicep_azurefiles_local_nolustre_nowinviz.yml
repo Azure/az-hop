@@ -24,7 +24,7 @@ jobs:
         scheduler: ['slurm',]
         home_type: ['azurefiles']
         user_auth: ['local', 'ad']
-    uses: .github/workflows/_base.yml@main
+    uses: azure/az-hop/.github/workflows/_base.yml@main
     with:
       resource_group: ${{ github.event.inputs.resource_group }}
       location: ${{ github.event.inputs.location }}
