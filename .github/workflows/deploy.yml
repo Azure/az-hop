@@ -70,7 +70,7 @@ jobs:
           set -e
           source /miniconda/bin/activate
 
-          echo "${{ inputs.config }}" > config.json
+          echo '${{ inputs.config }}' > config.json
           cat config.json
           jq '.' config.json
           jq '.' config.json | yq -P  > config.yml

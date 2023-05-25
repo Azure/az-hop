@@ -1,5 +1,5 @@
 name : slurm_bicep_azurefiles_local_nolustre_nowinviz
-run-name: ${{ github.event.inputs.scheduler }} in ${{ github.event.inputs.resource_group }} by @${{ github.actor }}
+run-name: ${{ github.event.inputs.resource_group }} by @${{ github.actor }}
 
 on:
   workflow_dispatch:
