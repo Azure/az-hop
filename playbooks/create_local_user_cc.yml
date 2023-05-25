@@ -1,0 +1,17 @@
+---
+# Remove any forbidden characters from the username so we conform to the keyvaul secret name rules '^[0-9a-zA-Z-]+$'
+- name: Set secretname
+  set_fact:
+    secretname: "{{ user.name | map('regex_replace', '[^0-9a-zA-Z-]', '')|list|join() }}-password"
+
+- name: Read Password from KV
+  command: az keyvault secret show --vault-name {{key_vault}} -n {{secretname}} --query "value" -o tsv
+  delegate_to: localhost
+  connection: local
+  register: password
+  become: false
+
+- name: Create local user in CycleCloud
+  template:
+    src: local_user_record.txt.j2
+    dest: /opt/cycle_server/config/data/user_record_{{user.name}}.txt

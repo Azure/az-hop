@@ -461,6 +461,11 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+                "user_auth": {
+                    "type": "string",
+                    "enum": ["local", "ad"],
+                    "default": "ad"
+                },
                 "httpd_auth": {
                     "type": "string",
                     "enum": ["basic", "oidc"],

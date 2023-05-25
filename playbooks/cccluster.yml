@@ -33,6 +33,7 @@
     connection: local
     register: ad_join_password
     become: false
+    when: (authentication.user_auth | default('ad')) == "ad"
 
   - name: Init image lookup file
     shell: |
@@ -109,7 +110,7 @@
       cc_subnetid: '{{compute_subnetid}}'
       cc_admin_user: '{{admin_user}}'
       cc_password: '{{password.stdout}}'
-      cc_ad_join_password: '{{ad_join_password.stdout}}'
+      cc_ad_join_password: '{{ad_join_password.stdout | default("")}}'
       cc_queues: '{{queues}}'
       cc_remoteviz: '{{remoteviz}}'
       cc_image_lookup: '{{image_lookup}}'

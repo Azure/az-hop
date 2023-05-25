@@ -45,7 +45,8 @@ var deployJumpbox = contains(azhopConfig, 'jumpbox') ? true : false
 var deployDeployer = contains(azhopConfig, 'deployer') ? true : false
 var enableWinViz = contains(azhopConfig, 'enable_remote_winviz') ? azhopConfig.enable_remote_winviz : false
 
-var createAD = contains(azhopConfig, 'domain') ? ! azhopConfig.domain.use_existing_dc : true
+var useExistingAD = contains(azhopConfig, 'domain') ? azhopConfig.domain.use_existing_dc : false
+var createAD = ! useExistingAD && (contains(azhopConfig.authentication, 'user_auth') ? azhopConfig.authentication.user_auth == 'ad' : true)
 
 var highAvailabilityForAD = contains(azhopConfig, 'ad') && contains(azhopConfig.ad, 'high_availability') ? azhopConfig.ad.high_availability : false
 
@@ -76,8 +77,8 @@ var ossVmConfig = [for oss in range(0, lustreOssCount) : {
 } ]
 
 var nsgTargetForDC = {
-  type: createAD ? 'asg' : 'ips'
-  target: createAD ? 'asg-ad' : azhopConfig.domain.existing_dc_details.domain_controller_ip_addresses
+  type: useExistingAD ? 'ips' : 'asg'
+  target: useExistingAD ? azhopConfig.domain.existing_dc_details.domain_controller_ip_addresses : 'asg-ad'
 }
 
 // Convert the azhop configuration file to a pivot format used for the deployment
@@ -106,14 +107,16 @@ var config = {
     name : contains(azhopConfig, 'domain') ? azhopConfig.domain.name : 'hpc.azure'
     domain_join_user: createAD ? {
       username: azhopConfig.admin_user
-    } : {
+    } : useExistingAD ? {
       username: azhopConfig.domain.domain_join_user.username
       password_key_vault_name: azhopConfig.domain.domain_join_user.password_key_vault_name
       password_key_vault_resource_group_name: azhopConfig.domain.domain_join_user.password_key_vault_resource_group_name
       password_key_vault_secret_name: azhopConfig.domain.domain_join_user.password_key_vault_secret_name
+    } : {
+      username: ''
     }
-    domain_controlers : createAD ? (! highAvailabilityForAD ? ['ad'] : ['ad', 'ad2']) : azhopConfig.domain.existing_dc_details.domain_controller_names
-    ldap_server: createAD ? 'ad' : azhopConfig.domain.existing_dc_details.domain_controller_names[0]
+    domain_controlers : createAD ? (! highAvailabilityForAD ? ['ad'] : ['ad', 'ad2']) : useExistingAD ? azhopConfig.domain.existing_dc_details.domain_controller_names : []
+    ldap_server: createAD ? 'ad' : useExistingAD ? azhopConfig.domain.existing_dc_details.domain_controller_names[0] : ''
   }
 
   enable_remote_winviz : enableWinViz
@@ -725,11 +728,11 @@ module kvSecretDomainJoin './kv_secrets.bicep' = if (createAD) {
 }
 
 // Domain join password when using an existing AD will be retrieved from the keyvault specified in config and stored in our KV
-resource domainJoinUserKV 'Microsoft.KeyVault/vaults@2021-10-01' existing = if (! createAD) {
+resource domainJoinUserKV 'Microsoft.KeyVault/vaults@2021-10-01' existing = if (useExistingAD) {
   name: '${config.domain.domain_join_user.password_key_vault_name}'
   scope: resourceGroup(config.domain.domain_join_user.password_key_vault_resource_group_name)
 }
-module kvSecretExistingDomainJoin './kv_secrets.bicep' = if (! createAD) {
+module kvSecretExistingDomainJoin './kv_secrets.bicep' = if (useExistingAD) {
   name: 'kvSecrets-existing-domain-join'
   params: {
     vaultName: azhopKeyvault.outputs.keyvaultName
@@ -821,9 +824,9 @@ var adIndex = createAD ? indexOf(map(vmItems, item => item.key), 'ad') : 0
 var adIp = createAD ? azhopVm[adIndex].outputs.privateIp : ''
 var ad2Index = createAD && highAvailabilityForAD ? indexOf(map(vmItems, item => item.key), 'ad2') : 0
 var ad2Ip = createAD ? azhopVm[ad2Index].outputs.privateIp : ''
-var domain_controller_ip_addresses = contains(azhopConfig, 'domain') && contains(azhopConfig.domain, 'existing_dc_details') ? azhopConfig.domain.existing_dc_details.domain_controller_ip_addresses : []
+var domain_controller_ip_addresses = useExistingAD && contains(azhopConfig, 'domain') && contains(azhopConfig.domain, 'existing_dc_details') ? azhopConfig.domain.existing_dc_details.domain_controller_ip_addresses : []
 var dcIps = createAD ? (! highAvailabilityForAD ? [adIp] : [adIp, ad2Ip]) : domain_controller_ip_addresses
-module azhopADRecords './privatezone_records.bicep' = {
+module azhopADRecords './privatezone_records.bicep' = if (createAD || useExistingAD) {
   name: 'azhopADRecords'
   params: {
     privateDnsZoneName: config.domain.name

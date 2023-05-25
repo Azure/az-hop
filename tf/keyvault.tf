@@ -70,7 +70,7 @@ resource "azurerm_key_vault_secret" "admin_password" {
 
 #adding a domain join user secret. If the customer doesn't bring their own AD then this will be the same as the admin password.
 resource "azurerm_key_vault_secret" "domain_join_password" {
-  count        = local.create_ad ? 0 : 1
+  count        = local.use_existing_ad ? 1 : 0
   depends_on   = [time_sleep.delay_create, azurerm_key_vault_access_policy.admin] # As policies are created in the same deployment add some delays to propagate
   name         = format("%s-password", local.domain_join_user)
   value        = local.create_ad ? random_password.password.result : local.domain_join_password 
