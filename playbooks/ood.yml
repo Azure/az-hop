@@ -21,6 +21,12 @@
   - name: Gather facts for first time
     setup:
 
+  # - name: debug
+  #   debug:
+  #     msg: 
+  #       - "{{ (queues | selectattr('name', 'equalto', 'viz3d') | map(attribute='max_hours', default=8)) }}"
+  #       - "{{ood_apps}}"
+
   - name: Make sure we have the latest root certificates
     yum:
       name: ca-certificates
