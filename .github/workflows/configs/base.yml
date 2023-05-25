@@ -100,7 +100,7 @@ jumpbox:
   vm_size: Standard_B2ms
   ssh_port: 8822 # SSH port used on the public IP, default to 22
 ondemand:
-  vm_size: Standard_D8s_v5
+  vm_size: Standard_D4ls_v5
   generate_certificate: true
 grafana:
   vm_size: Standard_B2ms

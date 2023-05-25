@@ -119,7 +119,7 @@ jumpbox:
 ad:
   vm_size: Standard_B2ms
 ondemand:
-  vm_size: Standard_D8s_v5
+  vm_size: Standard_D4ls_v5
   generate_certificate: true
 guacamole:
   vm_size: Standard_B2ms
