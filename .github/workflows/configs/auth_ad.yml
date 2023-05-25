@@ -1,0 +1,8 @@
+windows_base_image: "MicrosoftWindowsServer:WindowsServer:2019-Datacenter-smalldisk:latest" # publisher:offer:sku:version or image_id
+
+ad:
+  vm_size: Standard_B2ms
+
+authentication:
+  user_auth: ad # local or ad
+  httpd_auth: basic # oidc or basic

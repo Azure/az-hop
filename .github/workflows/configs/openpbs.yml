@@ -1,0 +1,2 @@
+# scheduler to be installed and configured
+queue_manager: openpbs

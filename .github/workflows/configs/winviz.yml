@@ -1,0 +1,14 @@
+guacamole:
+  vm_size: Standard_B2ms
+
+# Remote Visualization definitions
+enable_remote_winviz: true # Set to true to enable windows remote visualization
+
+remoteviz:
+  - name: winviz # This name is fixed and can't be changed
+    vm_size: Standard_NV12s_v3 # Standard_NV8as_v4
+    max_core_count: 48
+    image: "MicrosoftWindowsDesktop:Windows-10:21h1-pron:latest"
+    ColocateNodes: false
+    spot: false
+    EnableAcceleratedNetworking: true
