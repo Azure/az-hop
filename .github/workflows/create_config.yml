@@ -10,7 +10,7 @@ on:
         type: string
       location:
         description: 'Azure location where to deploy to - default to westeurope'
-        required: false
+        required: true
         default: 'westeurope'
         type: string
       scheduler:
@@ -25,12 +25,12 @@ on:
         type: string
       lustre:
         description: 'Deploy a Lustre cluster (true/false) - Default to false'
-        required: true
+        required: false
         default: 'false' # use it with ${{ inputs.lustre }}
         type: string
       winviz:
         description: 'Enable Winviz (true/false) - Default to false'
-        required: true
+        required: false
         default: 'false' # use it with ${{ inputs.winviz }}
         type: string
       home_type:

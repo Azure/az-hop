@@ -7,7 +7,12 @@ on:
         description: 'Configuration file content to use for the deployment'
         required: true
         type: string
-
+      deploy_with:
+        description: 'Method used for the deployment - tf, bicep or arm - Default to bicep'
+        required: false
+        default: 'bicep' # use it with ${{ inputs.deploy_with }}
+        type: string
+  
     secrets:
       ARM_SUBSCRIPTION_ID:
         required: true

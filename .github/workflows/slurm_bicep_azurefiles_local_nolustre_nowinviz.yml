@@ -25,7 +25,6 @@ jobs:
       location: ${{ github.event.inputs.location }}
       scheduler: 'slurm'
       lustre: 'false'
-      deploy_with: 'bicep'
       home_type: 'azurefiles'
       winviz: 'false'
       user_auth: 'local'
@@ -40,6 +39,7 @@ jobs:
     needs: create_config
     with:
       config: ${{ needs.create_config.outputs.config }}
+      deploy_with: 'bicep'
     secrets:
       ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
       ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
