@@ -80,7 +80,7 @@ defaults:
 jobs:
   build_config:
     name: Build configuration file
-    runs-on: ubunu-latest
+    runs-on: self-hosted
     timeout-minutes: 60
 
     container:
