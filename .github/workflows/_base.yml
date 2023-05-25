@@ -52,7 +52,8 @@ on:
         description: 'Clean all resources'
         required: false
         default: 'true' # use it with ${{ inputs.clean }}
-  
+        type: string
+
     secrets:
       ARM_SUBSCRIPTION_ID:
         required: true
