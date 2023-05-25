@@ -19,7 +19,7 @@ on:
 
 jobs:
   create_config:
-    uses: azure/az-hop/.github/workflows/callable/create_config.yml@main
+    uses: azure/az-hop/.github/workflows/create_config.yml@main
     with:
       resource_group: ${{ github.event.inputs.resource_group }}
       location: ${{ github.event.inputs.location }}
@@ -36,7 +36,7 @@ jobs:
       ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
   deploy:
-    uses: azure/az-hop/.github/workflows/callable/deploy.yml@main
+    uses: azure/az-hop/.github/workflows/deploy.yml@main
     needs: create_config
     with:
       config: ${{ needs.create_config.outputs.config }}
