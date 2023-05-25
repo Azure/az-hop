@@ -1,0 +1,74 @@
+name : deploy
+
+on:
+  workflow_call:
+      config:
+        description: 'Configuration file content to use for the deployment'
+        required: true
+        type: string
+
+    secrets:
+      ARM_SUBSCRIPTION_ID:
+        required: true
+      ARM_TENANT_ID:
+        required: true
+      ARM_CLIENT_ID:
+        required: true
+      ARM_CLIENT_SECRET:
+        required: true
+
+env:
+  TF_CLI_ARGS: '-no-color'
+  TF_CLI_ARGS_destroy: '-auto-approve -refresh=false'
+  TF_CLI_ARGS_apply: '-auto-approve'
+  ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+  ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+  AZHOP_STATE_CONTAINER: environments
+  AZHOP_STATE_ACCOUNT: azhopstates
+  ANSIBLE_VERBOSITY: 2 # From 0 to 4 based on the level of logs needed in Ansible
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  deploy:
+    name: deploy
+    runs-on: self-hosted
+    timeout-minutes: 60
+
+    container:
+      image: azhop.azurecr.io/hpcrover:2305.2210
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
+      options: --user 0
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Login azure
+        run: |
+          source /miniconda/bin/activate
+          az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
+          az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
+          echo "local user: $(whoami)"
+
+      - name: Deployment
+        id: deploy
+        run: |
+          set -e
+          source /miniconda/bin/activate
+
+          echo ${{ github.event.inputs.config }} > config.json
+          jq '.' config.json | yq -P  > config.yml
+
+          set +e
+          ./build.sh -a apply -l $DEPLOY_WITH
+          build_error=$?
+          set -e
+          ./azhop_state.sh upload ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
