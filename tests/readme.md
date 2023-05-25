@@ -34,6 +34,8 @@ Ethernet adapter vEthernet (WSL):
 
 ## Record tests
 
-```bash
+See online documentation : https://playwright.dev/docs/codegen-intro
 
+```bash
+npx playwright codegen
 ```
