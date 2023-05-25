@@ -2,9 +2,9 @@ ood_base_apache_dir: "/var/www/ood"
 ood_app_dir: "{{ ood_base_apache_dir }}/apps"
 ood_sys_app_dir: "{{ ood_app_dir }}/sys"
 ood_azhop_apps:
-    - { name: "cyclecloud", enabled: true }
-    - { name: "grafana", enabled: true }
-    - { name: "robinhood", enabled: '{{true if ( lustre.create | default(false) ) else false}}' }
+    - { name: "cyclecloud", enabled: true, initialized: true }
+    - { name: "grafana", enabled: true, initialized: true }
+    - { name: "robinhood", enabled: '{{true if ( lustre.create | default(false) ) else false}}', initialized: true }
     - { name: "bc_guacamole", enabled: '{{enable_remote_winviz | default(false)}}' }
     - { name: "bc_codeserver", enabled: '{{applications.bc_codeserver.enabled | default(true)}}' }
     - { name: "bc_jupyter", enabled: '{{ applications.bc_jupyter.enabled | default(true)}}' }
