@@ -1,4 +1,4 @@
-name : deploy
+name : destroy
 
 on:
   workflow_call:
@@ -6,11 +6,6 @@ on:
       config:
         description: 'Configuration file content to use for the deployment'
         required: true
-        type: string
-      deploy_with:
-        description: 'Method used for the deployment - tf, bicep or arm - Default to bicep'
-        required: false
-        default: 'bicep' # use it with ${{ inputs.deploy_with }}
         type: string
   
     secrets:
@@ -24,16 +19,12 @@ on:
         required: true
 
 env:
-  TF_CLI_ARGS: '-no-color'
-  TF_CLI_ARGS_destroy: '-auto-approve -refresh=false'
-  TF_CLI_ARGS_apply: '-auto-approve'
   ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
   ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
   ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
   ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
   AZHOP_STATE_CONTAINER: environments
   AZHOP_STATE_ACCOUNT: azhopstates
-
 
 defaults:
   run:
@@ -64,23 +55,27 @@ jobs:
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
           echo "local user: $(whoami)"
 
-      - name: Deployment
-        id: deploy
+      - name: Destroy
+        id: destroy
         run: |
           set -e
           source /miniconda/bin/activate
 
           echo '${{ inputs.config }}' > config.json
-          jq '.' config.json
           jq '.' config.json | yq -P  > config.yml
           RESOURCE_GROUP=$(yq '.resource_group' config.yml)
-          echo "Download state files for $RESOURCE_GROUP"
-          ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
+          rg_exists=$(az group exists -n $RESOURCE_GROUP)
+          if [ "$rg_exists" = "true" ]; then
+            echo "Download state files for $RESOURCE_GROUP"
+            ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
 
-          set +e
-          ./build.sh -a apply -l ${{ inputs.deploy_with }}
-          build_error=$?
-          set -e
-          ./azhop_state.sh upload ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
+            echo "Remove resources from $RESOURCE_GROUP"
+            set +e
+            ./bicep/cleanup.sh
 
-          exit $build_error
+            echo "Remove state from $RESOURCE_GROUP"
+            ./azhop_state.sh delete ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
+
+            echo "removing resource group $RESOURCE_GROUP"
+            az group delete -n $RESOURCE_GROUP -y
+          fi
