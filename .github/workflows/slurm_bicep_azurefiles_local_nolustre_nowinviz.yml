@@ -21,7 +21,6 @@ jobs:
   deploy:
     continue-on-error: true
     strategy:
-      fail-fast: false
       matrix:
         scheduler: ['slurm',]
         home_type: ['azurefiles']
