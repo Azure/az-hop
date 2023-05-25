@@ -18,13 +18,12 @@ on:
         default: 'true' # use it with ${{ github.event.inputs.clean }}
 
 jobs:
-  strategy:
-    matrix:
-      scheduler: ['slurm',]
-      home_type: ['azurefiles']
-      user_auth: ['local', 'ad']
-
   create_config:
+    strategy:
+      matrix:
+        scheduler: ['slurm',]
+        home_type: ['azurefiles']
+        user_auth: ['local', 'ad']
     uses: azure/az-hop/.github/workflows/create_config.yml@main
     with:
       resource_group: ${{ github.event.inputs.resource_group }}
