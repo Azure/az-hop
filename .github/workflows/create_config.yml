@@ -46,7 +46,7 @@ on:
     outputs:
       config:
         description: 'Configuration file in json'
-        value: ${{ steps.create_config.outputs.config }}
+        value: ${{ jobs.build_config.outputs.config }}
 
     secrets:
       ARM_SUBSCRIPTION_ID:
