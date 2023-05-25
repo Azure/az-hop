@@ -31,8 +31,8 @@ defaults:
     shell: bash
 
 jobs:
-  deploy:
-    name: deploy
+  destroy:
+    name: destroy
     runs-on: self-hosted
     timeout-minutes: 60
 
@@ -77,5 +77,5 @@ jobs:
             ./azhop_state.sh delete ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
 
             echo "removing resource group $RESOURCE_GROUP"
-            az group delete -n $RESOURCE_GROUP -y
+            az group delete -n $RESOURCE_GROUP -y --no-wait
           fi
