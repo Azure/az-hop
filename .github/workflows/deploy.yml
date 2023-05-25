@@ -70,13 +70,13 @@ jobs:
           set -e
           source /miniconda/bin/activate
 
-          echo ${{ github.event.inputs.config }} > config.json
+          echo ${{ inputs.config }} > config.json
           jq '.' config.json
           jq '.' config.json | yq -P  > config.yml
           cat config.yml
 
           set +e
-          ./build.sh -a apply -l ${{ github.event.inputs.deploy_with }}
+          ./build.sh -a apply -l ${{ inputs.deploy_with }}
           build_error=$?
           set -e
           ./azhop_state.sh upload ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
