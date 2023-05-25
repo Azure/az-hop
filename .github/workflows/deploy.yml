@@ -2,6 +2,7 @@ name : deploy
 
 on:
   workflow_call:
+    inputs:
       config:
         description: 'Configuration file content to use for the deployment'
         required: true
