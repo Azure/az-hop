@@ -62,7 +62,7 @@ env:
   TF_CLI_ARGS: '-no-color'
   TF_CLI_ARGS_destroy: '-auto-approve -refresh=false'
   TF_CLI_ARGS_apply: '-auto-approve'
-  AZHOP_CONFIGURATION: '.github/workflows/configs/${{ inputs.config }}.yml'
+  AZHOP_CONFIGURATION: '.github/workflows/configs/base.yml'
   AZHOP_LUSTRE_CONFIGURATION: '.github/workflows/configs/lustre.yml'
   AZHOP_IMAGES_CONFIGURATION: '.github/workflows/configs/images.yml'
   ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
