@@ -21,14 +21,6 @@
   - name: Gather facts for first time
     setup:
 
-  - name: Disable SELinux
-    selinux:
-      state: disabled
-    register: selinux
-
-  - name: reboot 
-    reboot:
-    when: selinux.reboot_required
   # - name: debug
   #   debug:
   #     msg: 

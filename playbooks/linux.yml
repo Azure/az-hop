@@ -55,9 +55,10 @@
   #     sed -i 's/^SELINUX=.*$/SELINUX=permissive/' /etc/selinux/config
   #   when: ansible_distribution == "RedHat"
 
-  - name: Install NFS utils
+  - name: Install dependencies
     yum:
-      name: nfs-utils
+      name: epel-release, nfs-utils, python3
+      lock_timeout : 180
       state: present
 
   - name: mount home
@@ -75,6 +76,15 @@
           opts: '{{ anf_home_opts }}'
           state: mounted
           fstype: nfs
+      - name: Disable SELinux
+        selinux:
+          state: disabled
+        register: selinux
+
+      - name: reboot 
+        reboot:
+        when: selinux.reboot_required
+
     when: (authentication.user_auth | default('ad')) == "local"
 
   - name: Read Password from KV
