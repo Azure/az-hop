@@ -21,7 +21,7 @@ resource mariaDb 'Microsoft.DBforMariaDB/servers@2018-06-01' = {
     publicNetworkAccess: 'Disabled'
     sslEnforcement: sslEnforcement ? 'Enabled' : 'Disabled'
     storageProfile: {
-      backupRetentionDays: 21
+      backupRetentionDays: 35
       geoRedundantBackup: 'Disabled'
       storageAutogrow: 'Enabled'
       storageMB: 5120

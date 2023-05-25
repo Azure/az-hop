@@ -10,7 +10,7 @@ resource "azurerm_mariadb_server" "mariadb" {
   sku_name   = "GP_Gen5_2"
   version    = "10.3"
 
-  backup_retention_days             = 21
+  backup_retention_days             = 35
   geo_redundant_backup_enabled      = false
   public_network_access_enabled     = false
   # SSL enforce to be false when using Windows Remote Viz because Guacamole 1.4.0 with MariaDB doesn't support SSL. Need to upgrade to 1.5.0 
