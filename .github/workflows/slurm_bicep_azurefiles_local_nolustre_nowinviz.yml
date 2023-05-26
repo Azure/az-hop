@@ -16,6 +16,10 @@ on:
         description: 'Clean all resources'
         required: false
         default: 'true' # use it with ${{ github.event.inputs.clean }}
+      home_type_list:
+        description: 'Home directory type list to test - Default to ['azurefiles', 'anf']'
+        required: false
+        default: ['azurefiles', 'anf']
 
 jobs:
   deploy:
@@ -23,7 +27,7 @@ jobs:
       fail-fast: false
       matrix:
         scheduler: ['slurm',]
-        home_type: ['azurefiles', 'anf']
+        home_type: ${{ github.event.inputs.home_type_list }}
         user_auth: ['local', 'ad']
     uses: azure/az-hop/.github/workflows/_base.yml@main
     with:
