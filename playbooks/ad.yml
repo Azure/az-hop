@@ -33,6 +33,10 @@
         delegate_to: localhost
         connection: local
         when: (jumpbox is defined)
+        register: start_socks
+        retries: 3
+        delay: 30
+        until: start_socks is succeeded
 
       - name: Wait 300 seconds for the nodes to be ready
         wait_for_connection:
@@ -82,6 +86,10 @@
         delegate_to: localhost
         connection: local
         when: (jumpbox is defined)
+        register: start_socks
+        retries: 3
+        delay: 30
+        until: start_socks is succeeded
 
       - name: Create AD-Domain
         ansible.windows.win_domain:
