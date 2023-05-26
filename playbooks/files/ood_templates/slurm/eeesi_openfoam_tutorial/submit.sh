@@ -29,7 +29,7 @@ cp -r $FOAM_TUTORIALS/$tutorial_path $casedir
 
 pushd $casedir
 # allow flags to be added to the mpirun command through FOAM_MPIRUN_FLAGS environment variable
-sed -i '/RunFunctions/a source <(declare -f runParallel | sed "s/mpirun/mpirun \\\$FOAM_MPIRUN_FLAGS/g")' Allrun
+sed -i '/RunFunctions/a source <(declare -f runParallel | sed "s/mpirun/SLURM_EXPORT_ENV=ALL mpirun \\\$FOAM_MPIRUN_FLAGS/g")' Allrun
 # change the script to bash (as we are using bash features not necessarily available for just a sh session)
 sed -i 's#/bin/sh#/bin/bash#g' Allrun
 
