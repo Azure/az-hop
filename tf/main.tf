@@ -81,7 +81,7 @@ resource "local_file" "public_key" {
 #   - CycleCloud projects
 #   - Terraform states
 resource "azurerm_storage_account" "azhop" {
-    name                     = "azhop${random_string.resource_postfix.result}"
+    name                     = local.storage_account_name
     resource_group_name      = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
     location                 = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
     account_tier             = "Standard"

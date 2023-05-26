@@ -120,6 +120,10 @@ var config = {
     ldap_server: createAD ? 'ad' : useExistingAD ? azhopConfig.domain.existing_dc_details.domain_controller_names[0] : ''
   }
 
+  key_vault_name: contains(azhopConfig, 'azure_key_vault') ? azhopConfig.azure_key_vault.name : 'kv${resourcePostfix}'
+  storage_account_name: contains(azhopConfig, 'azure_storage_account') ? azhopConfig.azure_storage_account.name : 'azhop${resourcePostfix}'
+  mariadb_name: contains(azhopConfig, 'database') && contains(azhopConfig.database, 'name') ? azhopConfig.database.name : 'azhop-${resourcePostfix}'
+
   enable_remote_winviz : enableWinViz
   deploy_sig: contains(azhopConfig, 'image_gallery') && contains(azhopConfig.image_gallery, 'create') ? azhopConfig.image_gallery.create : false
 
@@ -668,7 +672,7 @@ module azhopKeyvault './keyvault.bicep' = {
   name: 'azhopKeyvault'
   params: {
     location: location
-    resourcePostfix: resourcePostfix
+    kvName: config.key_vault_name
     subnetId: subnetIds.admin
     keyvaultReaderOids: config.keyvault_readers
     lockDownNetwork: config.lock_down_network.enforce
@@ -746,7 +750,7 @@ module azhopStorage './storage.bicep' = {
   name: 'azhopStorage'
   params:{
     location: location
-    resourcePostfix: resourcePostfix
+    saName: config.storage_account_name
     lockDownNetwork: config.lock_down_network.enforce
     allowableIps: config.lock_down_network.grant_access_from
     subnetIds: [ subnetIds.admin, subnetIds.compute ]
@@ -765,7 +769,7 @@ module azhopMariaDB './mariadb.bicep' = if (createDatabase) {
   name: 'azhopMariaDB'
   params: {
     location: location
-    resourcePostfix: resourcePostfix
+    mariaDbName: config.mariadb_name
     adminUser: config.slurm.admin_user
     adminPassword: secrets.databaseAdminPassword
     adminSubnetId: subnetIds.admin
@@ -854,7 +858,7 @@ var kvSuffix = environment().suffixes.keyvaultDns
 
 output azhopGlobalConfig object = union(
   {
-    global_cc_storage             : 'azhop${resourcePostfix}'
+    global_cc_storage             : config.storage_account_name
     compute_subnetid              : '${azhopResourceGroupName}/${config.vnet.name}/${config.vnet.subnets.compute.name}'
     global_config_file            : '/az-hop/config.yml'
     ad_join_user                  : config.domain.domain_join_user.username
@@ -865,9 +869,9 @@ output azhopGlobalConfig object = union(
     ansible_ssh_private_key_file  : '${config.admin_user}_id_rsa'
     subscription_id               : subscription().subscriptionId
     tenant_id                     : subscription().tenantId
-    key_vault                     : 'kv${resourcePostfix}'
+    key_vault                     : config.key_vault_name
     sig_name                      : (config.deploy_sig) ? 'azhop_${resourcePostfix}' : ''
-    lustre_hsm_storage_account    : 'azhop${resourcePostfix}'
+    lustre_hsm_storage_account    : config.storage_account_name
     lustre_hsm_storage_container  : 'lustre'
     database_fqdn                 : createDatabase ? azhopMariaDB.outputs.mariaDb_fqdn : ''
     database_user                 : config.slurm.admin_user
@@ -1021,7 +1025,7 @@ user=$1
 # Because secret names are restricted to '^[0-9a-zA-Z-]+$' we need to remove all other characters
 secret_name=$(echo $user-password | tr -dc 'a-zA-Z0-9-')
 
-az keyvault secret show --vault-name kv{0} -n $secret_name --query "value" -o tsv
+az keyvault secret show --vault-name {0} -n $secret_name --query "value" -o tsv
 
-''', resourcePostfix)
+''', config.key_vault_name)
 
