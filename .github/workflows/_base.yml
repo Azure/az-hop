@@ -53,7 +53,6 @@ on:
         required: false
         default: 'false' # use it with ${{ inputs.ui_tests }}
         type: string
-
       clean:
         description: 'Clean all resources'
         required: false
@@ -115,7 +114,6 @@ jobs:
     needs: [create_config, install]
     with:
       resource_group: ${{ needs.create_config.outputs.resource_group }}
-      ui_test: 'false'
     secrets:
       ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
       ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
