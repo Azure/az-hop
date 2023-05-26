@@ -79,5 +79,5 @@ jobs:
           build_error=$?
           set -e
           ./azhop_state.sh upload ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
-
+          ./create_passwords.sh
           exit $build_error

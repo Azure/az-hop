@@ -1,4 +1,4 @@
-name : install
+name : test
 
 on:
   workflow_call:
@@ -7,7 +7,7 @@ on:
         description: 'Resource group name'
         required: true
         type: string
-  
+
     secrets:
       ARM_SUBSCRIPTION_ID:
         required: true
@@ -32,8 +32,8 @@ defaults:
     shell: bash
 
 jobs:
-  install:
-    name: install
+  test:
+    name: test
     runs-on: self-hosted
     timeout-minutes: 60
 
@@ -56,7 +56,7 @@ jobs:
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
           echo "local user: $(whoami)"
 
-      - name: Installation
+      - name: Run tests jobs
         id: install
         run: |
           set -e
@@ -66,7 +66,8 @@ jobs:
           echo "Download state files for $RESOURCE_GROUP"
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
 
-          ./install.sh
+          ./install.sh tests
           build_error=$?
 
           exit $build_error
+
