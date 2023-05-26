@@ -93,10 +93,21 @@ jobs:
       ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
       ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
+  install:
+    uses: azure/az-hop/.github/workflows/install.yml@main
+    needs: [create_config, deploy]
+    with:
+      resource_group: ${{ needs.create_config.outputs.resource_group }}
+    secrets:
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+
   destroy:
     uses: azure/az-hop/.github/workflows/destroy.yml@main
     if: always() && inputs.clean == 'true'
-    needs: [create_config, deploy]
+    needs: [create_config, install]
     with:
       resource_group: ${{ needs.create_config.outputs.resource_group }}
     secrets:
