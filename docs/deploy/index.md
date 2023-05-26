@@ -556,6 +556,14 @@ domain:
     domain_controller_ip_addresses: ["192.168.1.100", "192.168.1.101"]
     private_dns_servers: ["192.168.1.53", "192.168.2.53"]
 
+# Optional: name of the key vault resource to be created. If not provided, a name will be generated
+azure_key_vault:
+  name: custom_key_vault_name
+
+# Optional: name of the storage account to be created. If not provided, a name will be generated
+azure_storage_account:
+  name: custom_storage_account_name
+
 # Jumpbox VM configuration, only needed when deploying thru a public IP and without a configured deployer VM
 jumpbox:
   vm_size: Standard_B2ms
@@ -651,8 +659,11 @@ slurm:
 enroot:
   enroot_version: 3.4.1
 
-# If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values
+# Optional: database settings
 database:
+  # Name of the Azure database resource to be created. If not provided, a name will be generated
+  name: custom_mariadb_name
+  # If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values
   # Admin user of the database for which the password will be retrieved from the azhop keyvault
   user: sqladmin
   # FQDN of the managed instance
