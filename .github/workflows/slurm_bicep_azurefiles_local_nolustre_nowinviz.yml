@@ -16,15 +16,27 @@ on:
         description: 'Clean all resources'
         required: false
         default: 'true' # use it with ${{ github.event.inputs.clean }}
+      scheduler_list:
+        description: "Job Scheduler list to test ['slurm', 'openpbs'] - Default to ['slurm']"
+        required: false
+        default: "['slurm']"
+      home_type_list:
+        description: "Home directory type list to test ['azurefiles', 'anf'] - Default to ['azurefiles']"
+        required: false
+        default: "['azurefiles']"
+      user_auth_list:
+        description: "User Auth list to test ['local', 'ad'] - Default to ['local']"
+        required: false
+        default: "['ad']"
 
 jobs:
   deploy:
     strategy:
       fail-fast: false
       matrix:
-        scheduler: ['slurm',]
-        home_type: ['azurefiles', 'anf']
-        user_auth: ['local', 'ad']
+        scheduler: ${{ fromJson( github.event.inputs.scheduler_list ) }}
+        home_type: ${{ fromJson( github.event.inputs.home_type_list ) }}
+        user_auth: ${{ fromJson( github.event.inputs.user_auth_list ) }}
     uses: azure/az-hop/.github/workflows/_base.yml@main
     with:
       resource_group: ${{ github.event.inputs.resource_group }}

@@ -110,7 +110,7 @@ jobs:
       ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
   test:
-    uses: azure/az-hop/.github/workflows/install.yml@main
+    uses: azure/az-hop/.github/workflows/test.yml@main
     needs: [create_config, install]
     with:
       resource_group: ${{ needs.create_config.outputs.resource_group }}
