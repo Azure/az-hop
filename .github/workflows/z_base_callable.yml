@@ -1,0 +1,145 @@
+name : Base Callable Workflow
+
+on:
+  workflow_call:
+    inputs:
+      resource_group:
+        description: 'Name of the resource group to deploy in - In case of an existing resource group the environment will be updated'
+        required: true
+        default: 'AUTO_GENERATED'
+        type: string
+      location:
+        description: 'Azure location where to deploy to - default to westeurope'
+        required: true
+        default: 'westeurope'
+        type: string
+      scheduler:
+        description: 'Job Scheduler to be installed : openpbs/slurm'
+        required: true
+        default: 'openpbs' # use it with ${{ inputs.scheduler }}
+        type: string
+      images:
+        description: 'Images to be used (marketplace/shared) or built (private): marketplace/shared/private'
+        required: false
+        default: 'marketplace' # use it with ${{ inputs.images }}
+        type: string
+      lustre:
+        description: 'Deploy a Lustre cluster (true/false) - Default to false'
+        required: false
+        default: 'false' # use it with ${{ inputs.lustre }}
+        type: string
+      winviz:
+        description: 'Enable Winviz (true/false) - Default to false'
+        required: false
+        default: 'false' # use it with ${{ inputs.winviz }}
+        type: string
+      home_type:
+        description: 'Home directory type anf/azurefiles- Default to anf'
+        required: false
+        default: 'anf' # use it with ${{ inputs.home_type }}
+        type: string
+      user_auth:
+        description: 'User Authentication: local/ad - Default to ad'
+        required: false
+        default: 'ad' # use it with ${{ inputs.user_auth }}
+        type: string
+      deploy_with:
+        description: 'Method used for the deployment - tf, bicep or arm - Default to bicep'
+        required: false
+        default: 'bicep' # use it with ${{ inputs.deploy_with }}
+        type: string
+      ui_tests:
+        description: 'Run UI tests - Default to false'
+        required: false
+        default: 'false' # use it with ${{ inputs.ui_tests }}
+        type: string
+      clean:
+        description: 'Clean all resources'
+        required: false
+        default: 'true' # use it with ${{ inputs.clean }}
+        type: string
+
+    secrets:
+      ARM_SUBSCRIPTION_ID:
+        required: true
+      ARM_TENANT_ID:
+        required: true
+      ARM_CLIENT_ID:
+        required: true
+      ARM_CLIENT_SECRET:
+        required: true
+
+jobs:
+  create_config:
+    uses: azure/az-hop/.github/workflows/z_create_config_callable.yml@main
+    with:
+      resource_group: ${{ inputs.resource_group }}
+      location: ${{ inputs.location }}
+      scheduler: ${{ inputs.scheduler }}
+      lustre: ${{ inputs.lustre }}
+      home_type: ${{ inputs.home_type }}
+      winviz: ${{ inputs.winviz }}
+      user_auth: ${{ inputs.user_auth }}
+    secrets:
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+
+  deploy:
+    uses: azure/az-hop/.github/workflows/z_deploy_callable.yml@main
+    needs: create_config
+    with:
+      resource_group: ${{ needs.create_config.outputs.resource_group }}
+      deploy_with: 'bicep'
+    secrets:
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+
+  install:
+    uses: azure/az-hop/.github/workflows/z_install_callable.yml@main
+    needs: [create_config, deploy]
+    with:
+      resource_group: ${{ needs.create_config.outputs.resource_group }}
+    secrets:
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+
+  test:
+    uses: azure/az-hop/.github/workflows/z_test_callable.yml@main
+    needs: [create_config, install]
+    with:
+      resource_group: ${{ needs.create_config.outputs.resource_group }}
+    secrets:
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+
+  ui_tests:
+    uses: azure/az-hop/.github/workflows/z_uitesting_callable.yml@main
+    needs: [create_config, install]
+    if: inputs.ui_tests == 'true'
+    with:
+      resource_group: ${{ needs.create_config.outputs.resource_group }}
+    secrets:
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+
+  destroy:
+    uses: azure/az-hop/.github/workflows/z_destroy_callable.yml@main
+    if: always() && inputs.clean == 'true'
+    needs: [create_config, test, ui_tests]
+    with:
+      resource_group: ${{ needs.create_config.outputs.resource_group }}
+    secrets:
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}

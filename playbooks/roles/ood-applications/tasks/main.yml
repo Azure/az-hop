@@ -20,6 +20,17 @@
   when: item.enabled
   loop: '{{ood_azhop_apps}}'
 
+- name: Initialize application
+  file:
+    path: /var/lib/ondemand-nginx/config/apps/sys/{{ item.name }}.conf
+    state: touch
+  when: item.enabled and (item.initialized | default(false))
+  loop: '{{ood_azhop_apps}}'
+
+- name: update nginx stage
+  shell: |
+      /opt/ood/nginx_stage/sbin/update_nginx_stage &>/dev/null || :
+
 - name: Install ParaView files
   include_tasks: paraview.yml
   tags: [ 'paraview' ]

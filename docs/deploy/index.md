@@ -50,6 +50,7 @@
    * [How to use DNS forwarders ?](#how-to-use-dns-forwarders-)
    * [How to deploy ANF with Dual protocol](#how-to-deploy-anf-with-dual-protocol)
    * [Deploy in a locked down network environment](#deploy-in-a-locked-down-network-environment)
+      * [Allow traffic to list of external domains](#allow-traffic-to-list-of-external-domains)
    * [Disable Public IP scenario](#disable-public-ip-scenario)
    * [Use your own SSL certificate](#use-your-own-ssl-certificate)
    * [Not deploy ANF](#not-deploy-anf)
@@ -82,7 +83,7 @@
 Once the [prerequisites](#azure-pre-requisites) are in place, deploying a greenfield `azhop` environment involves essentially these steps:
 
  1. Clone the repo: `git clone --recursive https://github.com/Azure/az-hop.git -b <version>` 
- 1. Copy the the `config.tpl.yml` template into `config.yml` and update it with your settings
+ 1. Copy the `examples/minimum_public_ip.yml` template file to `config.yml` and update it with your settings
  1. Build the infrastructure on azure: `./build.sh -a apply`
  1. Create user passwords: `./create_passwords.sh` 
  1. Install the software components on the provisioned infrastructure: `./install.sh` 
@@ -90,8 +91,8 @@ Once the [prerequisites](#azure-pre-requisites) are in place, deploying a greenf
 Once deployed, you can connect to the OnDemand web portal via:
 
  - URL: get from `grep ondemand_fqdn playbooks/group_vars/all.yml` 
- - username: `adminuser` 
- - password: get from `./bin/get_secret adminuser`
+ - username: `clusteradmin` 
+ - password: get from `./bin/get_secret clusteradmin`
 
  The following sections provide detailed instructions for each of these steps.
 
@@ -547,14 +548,22 @@ domain:
   use_existing_dc: false # Set to true if you want to join a domain with existing DC
   domain_join_user:
     username: hpcadmin
-    password_key_vault_name: '{{key_vault}}' # name_for_the_key_vault_with_the_domain_join_password
-    password_key_vault_resource_group_name: '{{resource_group}}' # resource_group_name_for_the_key_vault_with_the_domain_join_password
-    password_key_vault_secret_name: 'hpcadmin-password' # key_vault_secret_name_for_the_domain_join_password
-  # additional settings when using an existinf DC
+    password_key_vault_name: name_for_the_key_vault_with_the_domain_join_password
+    password_key_vault_resource_group_name: resource_group_name_for_the_key_vault_with_the_domain_join_password
+    password_key_vault_secret_name: key_vault_secret_name_for_the_domain_join_password
+  # additional settings when using an existing DC
   existing_dc_details: 
     domain_controller_names: ["dc1", "dc2"]
     domain_controller_ip_addresses: ["192.168.1.100", "192.168.1.101"]
     private_dns_servers: ["192.168.1.53", "192.168.2.53"]
+
+# Optional: name of the key vault resource to be created. If not provided, a name will be generated
+azure_key_vault:
+  name: custom_key_vault_name
+
+# Optional: name of the storage account to be created. If not provided, a name will be generated
+azure_storage_account:
+  name: custom_storage_account_name
 
 # Jumpbox VM configuration, only needed when deploying thru a public IP and without a configured deployer VM
 jumpbox:
@@ -651,8 +660,11 @@ slurm:
 enroot:
   enroot_version: 3.4.1
 
-# If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values
+# Optional: database settings
 database:
+  # Name of the Azure database resource to be created. If not provided, a name will be generated
+  name: custom_mariadb_name
+  # If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values
   # Admin user of the database for which the password will be retrieved from the azhop keyvault
   user: sqladmin
   # FQDN of the managed instance
@@ -672,6 +684,7 @@ vpn_gateway:
 # Default is basic authentication. For oidc authentication you have to specify the following values
 # The OIDCClient secret need to be stored as a secret named <oidc-client-id>-password in the keyvault used by az-hop
 authentication:
+  user_auth: ad # local or ad - default to ad. Local will create local users and users groups on all infrastructure VMs and dynamically on dynamic nodes
   httpd_auth: basic # oidc or basic
   # User mapping https://osc.github.io/ood-documentation/latest/reference/files/ood-portal-yml.html#ood-portal-generator-user-map-match
   # You can specify either a map_match or a user_map_cmd
@@ -1373,6 +1386,64 @@ locked_down_network:
   grant_access_from: [a.b.c.d] # Array of CIDR to grant access from.
 ```
 
+### Allow traffic to list of external domains
+
+In a locked network environment, traffic to some external domains needs to be allowed through firewall for the environment to work properly. Some of the families of domains include: 
+- The OS repositories
+- Domains used when building the infrastructure and configuring the toolchain
+- Domains used when configuring the environment (SLURM, CC, GRAFANA, OOD etc.)
+- Domains used when building custom images
+- Domains used when running the environment
+
+| External domains that need to be allowed | 
+| --------- |
+| *.almalinux.org |
+| *.anaconda.com | 
+| *.anaconda.org | 
+| *.azure.com | 
+| *.azure.net |
+| *.azure-api.net | 
+| *.azureedge.net | 
+| *.canonical.com |
+| *.cern.ch |
+| *.continuum.io |
+| *.eggycrew.com |
+| *.exp-tas.com |
+| *.fedoraproject.org |
+| *.fwupd.org |
+| *.github.com |
+| *.github.io |
+| *.githubusercontent.com |
+| *.grafana.com |
+| *.grafana.org |
+| *.hashicorp.com |
+| *.influxdata.com |
+| *.jfrog.io |
+| *.math.uh.edu |
+| *.microsoft.com |
+| *.msecnd.net |
+| *.mtu.edu |
+| *.npmjs.org |
+| *.nvidia.com |
+| *.osc.edu |
+| *.pythonhosted.org |
+| *.r-project.org |
+| *.scala-sbt.org |
+| *.skype.com |
+| *.snapcraft.io |
+| *.sourceforge.net |
+| *.spack.io |
+| *.terraform.io |
+| *.ubuntu.com |
+| *.visualstudio.com |
+| *.vsassets.io |
+| *.windows.net |
+| aka.ms |
+| pypi.org |
+| www.paraview.org |
+| securitycheck.phusionpassenger.com |
+
+
 ## Disable Public IP scenario
 To deploy `az-hop` in a no public IP scenario you have to set the `locked_down_network:public_ip` value to `false`. The default value being `true`.
 
@@ -1552,9 +1623,7 @@ As we made progress in using bicep as a deployment tool, the table below shows t
 | Use an existing VNET | [x] | [ ] |
 | Monitoring | [x] | [ ] |
 | Alerting | [x] | [ ] |
-| NFS Files as Home | [ ] | [x] |
 | Private DNS Resolver | [x] | [ ] |
-| Optionally deploy Compute Gallery | [ ] | [x] |
 | Optionally deploy a Bastion | [ ] | [x] |
 | Create the deployer VM | [ ] | [x] |
 

@@ -11,7 +11,7 @@ tags:
   scheduler: slurm
 
 log_analytics:
-  create: true
+  create: false
 
 monitoring: 
   install_agent: false
@@ -47,29 +47,35 @@ network:
   create_nsg: true
   vnet:
     name: hpcvnet # Optional - default to hpcvnet
-    address_space: "10.228.0.0/23" # Optional - default to "10.0.0.0/16"
+    address_space: "[concat(steps('network').baseIpAddress, steps('network').cidrPrefix)]" # Optional - default to "10.0.0.0/16"
     subnets: # all subnets are optionals
       frontend: 
         name: frontend
-        address_prefixes: "10.228.0.0/29"
+        address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.0/29')]"
         create: true # create the subnet if true. default to true when not specified, default to false if using an existing VNET when not specified
       ad:
         name: ad
-        address_prefixes: "10.228.0.8/29"
+        address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.8/29')]"
         create: true
       admin:
         name: admin
-        address_prefixes: "10.228.0.16/28"
+        address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.16/28')]"
         create: true
       netapp:
         name: netapp
-        address_prefixes: "10.228.0.32/28"
+        address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.32/28')]"
+        create: true
+      gateway:
+        address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.48/28')]"
+        create: true
+      bastion:
+        address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.64/26')]"
         create: true
       compute:
         name: compute
-        address_prefixes: "10.228.1.0/24"
+        address_prefixes: "[concat(_X1_, '.', _X2_, '.', if(equals(steps('network').cidrPrefix, '/24'), concat(_X3_, '.128/25'), if(equals(steps('network').cidrPrefix, '/23'), concat(string(add(_X3i_,1)), '.0/24'), if(equals(steps('network').cidrPrefix, '/22'), concat(string(add(_X3i_,2)), '.0/23'), if(equals(steps('network').cidrPrefix, '/21'), concat(string(add(_X3i_,4)), '.0/22'), concat(string(add(_X3i_,8)), '.0/21'))))))]"
         create: true
-  peering: "[if(steps('network').peering, parse(concat('[{\"vnet_name\":\"', steps('network').vnetname, '\", \"vnet_resource_group\": \"', steps('network').vnetrg, '\"}]')), false)]" # Optional - default to false
+  peering: "[if(steps('network').peering, parse(concat('[{\"vnet_name\":\"', steps('network').vnetname, '\", \"vnet_resource_group\": \"', steps('network').vnetrg, '\"}]')), parse('[]'))]"
   # This list is optional, and can be used to create VNet Peerings in the same subscription.
   #  - vnet_name: "azhop_hub" #"VNET Name to Peer to"
   #    vnet_resource_group: "azhop_control_plane_westeurope" #"Resource Group of the VNET to peer to"
@@ -89,8 +95,6 @@ ad:
 ondemand:
   vm_size: Standard_D8s_v5
   generate_certificate: true
-guacamole:
-  vm_size: Standard_B2ms
 grafana:
   vm_size: Standard_B2ms
 scheduler:
@@ -99,8 +103,8 @@ cyclecloud:
   vm_size: Standard_B2ms
 
 users:
-  - { name: hpcuser,   uid: 10001 }
-  - { name: adminuser, uid: 10002, groups: [5001, 5002] }
+  - { name: hpcuser, uid: 10001 }
+  - { name: clusteradmin, uid: 10002, groups: [5001, 5002] }
 
 usergroups:
   - name: Domain Users # All users will be added to this one by default
@@ -145,25 +149,21 @@ queues:
     vm_size: Standard_F2s_v2
     max_core_count: 512
     image: azhpc:azhop-compute:centos-7_9:latest
-    spot: false
     ColocateNodes: false
   - name: hc44rs
     vm_size: Standard_HC44rs
     max_core_count: 440
     image: azhpc:azhop-compute:centos-7_9:latest
-    spot: true
     EnableAcceleratedNetworking: true
   - name: hb120v2
     vm_size: Standard_HB120rs_v2
     max_core_count: 1200
     image: azhpc:azhop-compute:centos-7_9:latest
-    spot: true
     EnableAcceleratedNetworking: true
   - name: hb120v3
     vm_size: Standard_HB120rs_v3
     max_core_count: 1200
     image: azhpc:azhop-compute:centos-7_9:latest
-    spot: true
     EnableAcceleratedNetworking: true
     # Queue dedicated to GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz3d
@@ -171,13 +171,8 @@ queues:
     max_core_count: 48
     # Use the pre-built azhop image from the marketplace
     image: azhpc:azhop-desktop:centos-7_9:latest
-    # Use this image ID when building your own custom images
-    #image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
     ColocateNodes: false
-    spot: false
     EnableAcceleratedNetworking: true
-    max_hours: 12 # Maximum session duration
-    min_hours: 1 # Minimum session duration - 0 is infinite
     # Queue dedicated to share GPU remote viz nodes. This name is fixed and can't be changed
   - name: largeviz3d
     vm_size: Standard_NV48s_v3
@@ -185,19 +180,13 @@ queues:
     image: azhpc:azhop-desktop:centos-7_9:latest
     ColocateNodes: false
     EnableAcceleratedNetworking: true
-    spot: false
-    max_hours: 12
-    min_hours: 1
     # Queue dedicated to non GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz
     vm_size: Standard_D8s_v5
     max_core_count: 200
     image: azhpc:azhop-desktop:centos-7_9:latest
     ColocateNodes: false
-    spot: false
     EnableAcceleratedNetworking: true
-    max_hours: 12
-    min_hours: 1
 
 enable_remote_winviz: false # Set to true to enable windows remote visualization
 

@@ -1,0 +1,230 @@
+name : Create Config Callable Workflow
+
+on:
+  workflow_call:
+    inputs:
+      resource_group:
+        description: 'Name of the resource group to deploy in - In case of an existing resource group the environment will be updated'
+        required: true
+        default: 'AUTO_GENERATED'
+        type: string
+      location:
+        description: 'Azure location where to deploy to - default to westeurope'
+        required: true
+        default: 'westeurope'
+        type: string
+      scheduler:
+        description: 'Job Scheduler to be installed : openpbs/slurm'
+        required: true
+        default: 'openpbs' # use it with ${{ inputs.scheduler }}
+        type: string
+      images:
+        description: 'Images to be used (marketplace/shared) or built (private): marketplace/shared/private'
+        required: false
+        default: 'marketplace' # use it with ${{ inputs.images }}
+        type: string
+      lustre:
+        description: 'Deploy a Lustre cluster (true/false) - Default to false'
+        required: false
+        default: 'false' # use it with ${{ inputs.lustre }}
+        type: string
+      winviz:
+        description: 'Enable Winviz (true/false) - Default to false'
+        required: false
+        default: 'false' # use it with ${{ inputs.winviz }}
+        type: string
+      home_type:
+        description: 'Home directory type anf/azurefiles- Default to anf'
+        required: false
+        default: 'anf' # use it with ${{ inputs.home_type }}
+        type: string
+      user_auth:
+        description: 'User Authentication: local/ad - Default to ad'
+        required: false
+        default: 'ad' # use it with ${{ inputs.user_auth }}
+        type: string
+    outputs:
+      resource_group:
+        description: 'Resource group name'
+        value: ${{ jobs.build_config.outputs.resource_group }}
+
+    secrets:
+      ARM_SUBSCRIPTION_ID:
+        required: true
+      ARM_TENANT_ID:
+        required: true
+      ARM_CLIENT_ID:
+        required: true
+      ARM_CLIENT_SECRET:
+        required: true
+
+env:
+  AZHOP_CONFIGURATION: '.github/workflows/configs/base.yml'
+  AZHOP_CONFGURATION_DIR: '.github/workflows/configs'
+  AZHOP_LUSTRE_CONFIGURATION: '.github/workflows/configs/lustre.yml'
+  AZHOP_IMAGES_CONFIGURATION: '.github/workflows/configs/images.yml'
+  ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+  ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+  AZHOP_STATE_CONTAINER: environments
+  AZHOP_STATE_ACCOUNT: azhopstates
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build_config:
+    name: Build configuration file
+    runs-on: self-hosted
+    timeout-minutes: 60
+
+    container:
+      image: azhop.azurecr.io/hpcrover:2305.2210
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
+      options: --user 0
+
+    outputs:
+        resource_group: ${{ steps.build_config.outputs.resource_group }}
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Login azure
+        run: |
+          source /miniconda/bin/activate
+          az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
+          az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
+          echo "local user: $(whoami)"
+
+      - name: Build config file
+        id: build_config
+        run: |
+          set -e
+          source /miniconda/bin/activate
+          # If resource group is not specified, generate a random one
+          RESOURCE_GROUP=${{ inputs.resource_group }}
+          echo "Resource group name is $RESOURCE_GROUP"
+          if [ "$RESOURCE_GROUP" = "AUTO_GENERATED" ]; then
+            UUID="$(cat /proc/sys/kernel/random/uuid | tr -d '\n-' | tr '[:upper:]' '[:lower:]' | cut -c 1-6)"
+            RESOURCE_GROUP="azhop_$UUID"
+          fi
+
+          # If the resource group exists, download the latest state, if not build a new configuration file
+          rg_exists=$(az group exists -n $RESOURCE_GROUP)
+          if [ "$rg_exists" = "true" ]; then
+            ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
+          else
+            # Update the default configuration with the resource group name and dual protocol options
+            sed "s/__RESOURCE_GROUP__/$RESOURCE_GROUP/g" $AZHOP_CONFIGURATION > config.yml
+
+            # Add scheduler configuration
+            SCHEDULER=${{ inputs.scheduler }}
+            cat $AZHOP_CONFGURATION_DIR/$SCHEDULER.yml >> config.yml
+            sed -i "s/__SCHEDULER__/$SCHEDULER/g" config.yml
+
+            # Add local configuration
+            LOCATION=${{ inputs.location }}
+            sed -i "s/__LOCATION__/$LOCATION/g" config.yml
+
+            # Add home directory configuration
+            HOME_TYPE=${{ inputs.home_type }}
+            sed -i "s/__HOME_TYPE__/$HOME_TYPE/g" config.yml
+            cat $AZHOP_CONFGURATION_DIR/$HOME_TYPE.yml >> config.yml
+
+            # Add lustre configuration if lustre is true
+            DEPLOY_LUSTRE=${{ inputs.lustre }}
+            if [ "$DEPLOY_LUSTRE" == "true" ]; then
+              cat $AZHOP_LUSTRE_CONFIGURATION >> config.yml
+            fi
+
+            # Add winviz configuration if winviz is true
+            WINVIZ=${{ inputs.winviz }}
+            if [ "$WINVIZ" == "true" ]; then
+              cat $AZHOP_CONFGURATION_DIR/winviz.yml >> config.yml
+            fi
+
+            # Add user authentication configuration
+            USER_AUTH=${{ inputs.user_auth }}
+            if [ "$USER_AUTH" == "local" ]; then
+              cat $AZHOP_CONFGURATION_DIR/auth_$USER_AUTH.yml >> config.yml
+            else
+              cat $AZHOP_CONFGURATION_DIR/auth_$USER_AUTH.yml >> config.yml
+            fi
+
+            # Add application configuration
+            cat $AZHOP_CONFGURATION_DIR/app_mini.yml >> config.yml
+
+            # Configure images
+            IMAGES=${{ inputs.images }}
+            case $IMAGES in
+              marketplace)
+                echo "Using marketplace images"
+
+                sed -i 's|__ALMA8_PLAN__||g' config.yml
+                ;;
+              shared)
+                echo "Using shared images"
+                sed -i "s|azhpc:azhop-compute:centos-7_9:latest|$SHARED_SIG/azhop-compute-centos-7_9/latest|g" config.yml
+                sed -i "s|azhpc:azhop-desktop:centos-7_9:latest|$SHARED_SIG/azhop-desktop-centos-7_9/latest|g" config.yml
+                sed -i "s|azhpc:azhop-compute:almalinux-8_7:latest|$SHARED_SIG/azhop-compute-almalinux-8_7/latest|g" config.yml
+                sed -i "s|azhpc:azhop-compute:ubuntu-18_04:latest|$SHARED_SIG/azhop-compute-ubuntu-1804/latest|g" config.yml
+                sed -i "s|azhpc:azhop-compute:ubuntu-20_04:latest|$SHARED_SIG/azhop-compute-ubuntu-2004/latest|g" config.yml
+
+                sed -i "s|__ALMA8_PLAN__|plan: almalinux:almalinux:8-gen2|g" config.yml
+                ;;
+              private)
+                echo "Using private images"
+                cat $AZHOP_IMAGES_CONFIGURATION >> config.yml
+                SIG="/subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images"
+                sed -i "s|azhpc:azhop-compute:centos-7_9:latest|$SIG/azhop-compute-centos-7_9/latest|g" config.yml
+                sed -i "s|azhpc:azhop-desktop:centos-7_9:latest|$SIG/azhop-desktop-centos-7_9/latest|g" config.yml
+                sed -i "s|azhpc:azhop-compute:almalinux-8_7:latest|$SIG/azhop-compute-almalinux-8_7/latest|g" config.yml
+                sed -i "s|azhpc:azhop-compute:ubuntu-18_04:latest|$SIG/azhop-compute-ubuntu-1804/latest|g" config.yml
+                sed -i "s|azhpc:azhop-compute:ubuntu-20_04:latest|$SIG/azhop-compute-ubuntu-2004/latest|g" config.yml
+
+                sed -i "s|__ALMA8_PLAN__|plan: almalinux:almalinux:8-gen2|g" config.yml
+                ;;
+            esac
+
+            # If peering, then find out which IP range can be used
+            peered_vnet=$(yq eval ".network.peering[0].vnet_name" config.yml)
+            if [ "$peered_vnet" != "null" ]; then
+              peered_vnet_rg=$(yq eval ".network.peering[0].vnet_resource_group" config.yml)
+              # fill up range mapping
+              declare -A range_mapping
+              for i in $(seq 0 1 255); do
+                range_mapping[$i]=0
+              done
+              # Get all peered IP ranges
+              remoteAddressSpace=$(az network vnet peering list --resource-group $peered_vnet_rg --vnet-name $peered_vnet --query '[].remoteAddressSpace.addressPrefixes' -o tsv)
+              for address in $remoteAddressSpace; do
+                echo "Peered IP range: $address"
+                # Get the second octet of the IP range
+                octet=$(echo $address | cut -d. -f2)
+                range_mapping[$octet]=1
+              done
+              echo ${range_mapping[@]}
+              second_octet=$(( ( RANDOM % 254 )  + 1 ))
+              while [ ${range_mapping[$second_octet]} == 1 ]; do
+                second_octet=$(( ( RANDOM % 254 )  + 1 ))
+              done
+              echo "Second octet: $second_octet"
+              sed_exp="s/10.128/10.$second_octet/g"
+              sed -i $sed_exp config.yml
+            fi
+          fi
+
+          # write the name of the resource group in the output of the job so it can be reused in others
+          echo "RESOURCE_GROUP=$RESOURCE_GROUP" >> $GITHUB_OUTPUT
+
+          ls -al
+          cat config.yml
+          ./azhop_state.sh upload ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
+          # write the configuration in the output of the job so it can be reused in others
+          #echo "config=$(yq config.yml -o json | jq '.' -c)" >> $GITHUB_OUTPUT

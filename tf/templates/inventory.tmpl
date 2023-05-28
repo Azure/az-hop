@@ -40,6 +40,7 @@ all:
       ansible_psrp_proxy: socks5h://localhost:5985
 %{ endif }
 %{ endif }
+%{ if lustre-ip!="0.0.0.0" }
     lustre:
       ansible_host: ${lustre-ip}
 %{ for count in range(lustre-oss-count) }
@@ -48,6 +49,7 @@ all:
 %{ endfor }
     robinhood:
       ansible_host: ${robinhood-ip}
+%{ endif }
   vars:
     ansible_ssh_user: ${admin-user}
 %{ if jumpbox-pip!="0.0.0.0" }

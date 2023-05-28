@@ -1,6 +1,6 @@
 targetScope = 'resourceGroup'
 
-param location string = resourceGroup().location
+param location string
 param subnetId string
 
 var audienceMap = {
@@ -18,7 +18,7 @@ var issuer = 'https://sts.windows.net/${tenantId}/'
 
 var vpnClientAddressPool = '172.16.0.0/24'
 
-resource vpnGatewayPip 'Microsoft.Network/publicIPAddresses@2021-05-01' = {
+resource vpnGatewayPip 'Microsoft.Network/publicIPAddresses@2022-07-01' = {
   name: 'vpngateway-pip'
   location: location
   sku: {
@@ -31,7 +31,7 @@ resource vpnGatewayPip 'Microsoft.Network/publicIPAddresses@2021-05-01' = {
   }
 }
 
-resource vpnGateway 'Microsoft.Network/virtualNetworkGateways@2020-11-01' = {
+resource vpnGateway 'Microsoft.Network/virtualNetworkGateways@2022-07-01' = {
   name: 'vpngateway'
   location: location
   properties: {

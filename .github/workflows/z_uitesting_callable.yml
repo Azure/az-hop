@@ -1,4 +1,4 @@
-name : uitesting_callable
+name : UITest Callable Workflow
 
 on:
   workflow_call:
@@ -36,12 +36,16 @@ env:
   AZHOP_STATE_CONTAINER: environments
   AZHOP_STATE_ACCOUNT: azhopstates
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   init_matrix:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     name: init_matrix
     container:
-      image: azhop.azurecr.io/hpcrover:2304.1312
+      image: azhop.azurecr.io/hpcrover:2305.2210
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -63,18 +67,19 @@ jobs:
           echo "Resource group name is $RESOURCE_GROUP"
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           cat config.yml
-      - name: list all images to be built
+      - name: Built a matrix with users
         id: set-matrix
         run: |
           source /miniconda/bin/activate
-          users=$(yq eval ".users[].name" config.yml | head -n ${{ inputs.users }} | jq -cRn '[inputs]')
+          set -x
+          users=$(yq '.users[].name' config.yml | head -n ${{ inputs.users }} | jq -cRn '[inputs]')
           echo "matrix=$users" >> $GITHUB_OUTPUT
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
 
   run_tests:
     name: run_tests
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [init_matrix]
     strategy: 
       matrix:
@@ -84,7 +89,7 @@ jobs:
     timeout-minutes: 60
 
     container:
-      image: azhop.azurecr.io/hpcrover:2304.1312
+      image: azhop.azurecr.io/hpcrover:2305.2210
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -102,6 +107,7 @@ jobs:
       - name: Install Playwright
         run: | 
           npm install -D @playwright/test
+          npm install js-yaml
           npx playwright install --with-deps
       - name: Login azure
         run: |

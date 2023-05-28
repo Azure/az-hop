@@ -33,6 +33,10 @@
         delegate_to: localhost
         connection: local
         when: (jumpbox is defined)
+        register: start_socks
+        retries: 3
+        delay: 30
+        until: start_socks is succeeded
 
       - name: Wait 300 seconds for the nodes to be ready
         wait_for_connection:
@@ -69,6 +73,24 @@
         when: ad_ds.failed
         register: ad_ds
 
+      # Try to reset the connection as it often failed after installing AD-DS
+      - name: cleanup any remaining socks tunnel
+        shell: ps aux | grep localhost:5985 | grep -v grep | awk '{print "kill -9 " $2}' | sh
+        delegate_to: localhost
+        connection: local
+        ignore_errors: true
+        when: (jumpbox is defined)
+
+      - name: start socks tunnel
+        shell: ssh -i {{ lookup('env', 'PWD') }}/{{ansible_ssh_private_key_file}} -fN -D localhost:5985 -p {{jumpbox_ssh_port}} -o StrictHostKeyChecking=no {{admin_user}}@{{ psrp_ssh_proxy }}
+        delegate_to: localhost
+        connection: local
+        when: (jumpbox is defined)
+        register: start_socks
+        retries: 3
+        delay: 30
+        until: start_socks is succeeded
+
       - name: Create AD-Domain
         ansible.windows.win_domain:
           dns_domain_name: '{{domain_name}}'
@@ -77,7 +99,14 @@
         retries: 3
         delay: 30
         until: ad_promotion is succeeded
-        
+
+      - name: Retry create AD-Domain in case of failure
+        ansible.windows.win_domain:
+          dns_domain_name: '{{domain_name}}'
+          safe_mode_password: '{{ad_join_password.stdout}}'
+        when: ad_promotion.failed
+        register: ad_promotion_retry
+
       # - name: Promote server
       #   ansible.windows.win_domain_controller:
       #     dns_domain_name: '{{domain_name}}'
@@ -91,7 +120,7 @@
       - name: Reboot after promotion
         ansible.windows.win_reboot:
           post_reboot_delay: 600
-        when: ad_promotion.reboot_required
+        when: (ad_promotion.reboot_required | default(false) ) or ( ad_promotion_retry.reboot_required | default(false) )
 
       # - name: update gidnumber azhop-users
       #   community.windows.win_domain_group:

@@ -1,9 +1,9 @@
 targetScope = 'resourceGroup'
 
-param location string = resourceGroup().location
+param location string
 param subnetId string
 
-resource bastionPip 'Microsoft.Network/publicIpAddresses@2020-08-01' = {
+resource bastionPip 'Microsoft.Network/publicIpAddresses@2022-07-01' = {
   name: 'bastion-pip'
   location: location
   sku: {

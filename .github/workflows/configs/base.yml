@@ -1,0 +1,237 @@
+---
+# yaml-language-server: $schema=config.schema.json
+# name of the cluster
+project_name: az-hop
+
+location: __LOCATION__
+resource_group: __RESOURCE_GROUP__
+use_existing_rg: false
+# If set to true, will disable telemetry for azhop. See https://azure.github.io/az-hop/deploy/telemetry.html.
+#optout_telemetry: true
+
+tags:
+  env: dev
+  project: azhop
+  scheduler: __SCHEDULER__
+
+# Create a log analytics workspace to enable monitoring and alerting
+log_analytics:
+  create: true
+
+# Option to install the monitoring agent on static infra VMs. Can be disabled if the agent is installed by policy.  
+monitoring: 
+  install_agent: false
+
+#If set to true, it will create alert rules associated with az-hop. Enablement of alerting will require the specification of an admin email to send alerts to.
+alerting:
+  enabled: true
+  admin_email: admin.mail@contoso.com
+  local_volume_threshold: 80
+
+mounts:
+  # mount settings for the user home directory
+  home:
+    type: __HOME_TYPE__ # anf or azurefiles, default to anf. One of the two should be defined in order to mount the home directory
+    mountpoint: /anfhome # /sharedhome for example
+    server: '{{anf_home_ip}}' # Specify an existing NFS server name or IP, when using the ANF built in use '{{anf_home_ip}}'
+    export: '{{anf_home_path}}' # Specify an existing NFS export directory, when using the ANF built in use '{{anf_home_path}}'
+    options: '{{anf_home_opts}}'
+
+admin_user: hpcadmin
+key_vault_readers: 0bf2513b-59fe-4018-bfd6-5d4844a9a3b9
+
+network:
+  # Create Network and Application Security Rules, true by default, false when using an existing VNET if not specified
+  create_nsg: true
+  vnet:
+    name: hpcvnet # Optional - default to hpcvnet
+    #id: # If a vnet id is set then no network will be created and the provided vnet will be used
+    address_space: "10.128.0.0/23" # Optional - default to "10.0.0.0/16"
+    # When using an existing VNET, only the subnet names will be used and not the adress_prefixes
+    subnets: # all subnets are optionals
+    # name values can be used to rename the default to specific names, address_prefixes to change the IP ranges to be used
+    # All values below are the default values
+      frontend: 
+        name: frontend
+        address_prefixes: "10.128.0.0/29"
+        create: true # create the subnet if true. default to true when not specified, default to false if using an existing VNET when not specified
+      ad:
+        name: ad
+        address_prefixes: "10.128.0.8/29"
+        create: true
+      admin:
+        name: admin
+        address_prefixes: "10.128.0.16/28"
+        create: true
+      netapp:
+        name: netapp
+        address_prefixes: "10.128.0.32/28"
+        create: true
+      # the outbounddns is optional and only when deploying an Azure Private DNS Resolver
+      outbounddns:
+        name: outbounddns
+        address_prefixes: "10.128.0.48/28"
+        create: true
+      gateway: # Gateway subnet name is always fixed to GatewaySubnet
+        address_prefixes: "10.128.0.128/27" # Recommendation is to use /27 network
+        create: true
+      bastion: # Bastion subnet name is always fixed to AzureBastionSubnet
+        address_prefixes: "10.128.0.64/26" # CIDR minimal range must be /26
+        create: true
+      compute:
+        name: compute
+        address_prefixes: "10.128.1.0/24"
+        create: true
+  peering: # This list is optional, and can be used to create VNet Peerings in the same subscription.
+    - vnet_name: "azhop_hub" #"VNET Name to Peer to"
+      vnet_resource_group: "azhop_control_plane_westeurope" #"Resource Group of the VNET to peer to"
+
+# When working in a locked down network, uncomment and fill out this section
+locked_down_network:
+  enforce: false
+#   grant_access_from: [a.b.c.d] # Array of CIDR to grant access from, see https://docs.microsoft.com/en-us/azure/storage/common/storage-network-security?tabs=azure-portal#grant-access-from-an-internet-ip-range
+  public_ip: false # Enable public IP creation for Jumpbox, OnDemand and create images. Default to true
+
+# Base image configuration. Can be either an image reference or an image_id from the image registry or a custom managed image
+linux_base_image: "OpenLogic:CentOS:7_9-gen2:latest" # publisher:offer:sku:version or image_id
+windows_base_image: "MicrosoftWindowsServer:WindowsServer:2019-Datacenter-smalldisk:latest" # publisher:offer:sku:version or image_id
+
+jumpbox:
+  vm_size: Standard_B2ms
+  ssh_port: 8822 # SSH port used on the public IP, default to 22
+ondemand:
+  vm_size: Standard_D4ls_v5
+  generate_certificate: true
+grafana:
+  vm_size: Standard_B2ms
+scheduler:
+  vm_size: Standard_B2ms
+cyclecloud:
+  vm_size: Standard_B2ms
+
+users:
+  - { name: hpcuser, uid: 10001 }
+  - { name: adminuser, uid: 10002, groups: [5001, 5002] }
+  - { name: john.john, uid: 10003 }
+
+usergroups:
+  - name: azhop-users # All users will be added to this one by default
+    gid: 5000
+  - name: azhop-admins # For users with azhop admin privilege
+    gid: 5001
+    description: "For users with azhop admin privileges"
+  - name: azhop-localadmins # For users with sudo right on nodes
+    gid: 5002
+    description: "For users with sudo right or local admin right on nodes"
+
+# Enable cvmfs-eessi - disabled by default
+cvmfs_eessi:
+  enabled: true
+
+enroot:
+  enroot_version: 3.4.1
+
+# If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values
+database:
+  # Admin user of the database for which the password will be retrieved from the azhop keyvault
+  user: sqladmin
+  # FQDN of the managed instance
+  #fqdn:
+  # IP of the managed private endpoint if the FQDN is not registered in a private DNS
+  #ip: 
+
+# Autoscale default settings for all queues, can be overriden on each queue depending on the VM type if needed
+autoscale:
+  idle_timeout: 180 # Idle time in seconds before shutting down VMs - default to 1800 like in CycleCloud
+
+queues:
+  - name: execute
+    vm_size: Standard_F2s_v2
+    max_core_count: 512
+    image: azhpc:azhop-compute:centos-7_9:latest
+    spot: false
+    ColocateNodes: false
+  - name: hc44rs
+    vm_size: Standard_HC44rs
+    max_core_count: 440
+    image: azhpc:azhop-compute:centos-7_9:latest
+    ColocateNodes: true
+    spot: false
+    EnableAcceleratedNetworking: true
+  - name: hb60rs
+    vm_size: Standard_HB60rs
+    max_core_count: 600
+    image: azhpc:azhop-compute:centos-7_9:latest
+    ColocateNodes: true
+    spot: false
+    EnableAcceleratedNetworking: true
+  - name: hb120v2
+    vm_size: Standard_HB120rs_v2
+    max_core_count: 1200
+    image: azhpc:azhop-compute:centos-7_9:latest
+    ColocateNodes: true
+    spot: false
+    EnableAcceleratedNetworking: true
+  - name: hb120v3
+    vm_size: Standard_HB120rs_v3
+    max_core_count: 1200
+    image: azhpc:azhop-compute:centos-7_9:latest
+    ColocateNodes: true
+    spot: false
+    EnableAcceleratedNetworking: true
+  - name: hbv3al
+    vm_size: Standard_HB120rs_v3
+    max_core_count: 1200
+    image: azhpc:azhop-compute:almalinux-8_7:latest
+    __ALMA8_PLAN__
+    ColocateNodes: true
+    spot: false
+    EnableAcceleratedNetworking: true
+  - name: hbv3u18
+    vm_size: Standard_HB120rs_v3
+    max_core_count: 1200
+    image: azhpc:azhop-compute:ubuntu-18_04:latest
+    ColocateNodes: true
+    spot: false
+    EnableAcceleratedNetworking: true
+  - name: hbv3u20
+    vm_size: Standard_HB120rs_v3
+    max_core_count: 1200
+    image: azhpc:azhop-compute:ubuntu-20_04:latest
+    ColocateNodes: true
+    spot: false
+    EnableAcceleratedNetworking: true
+  - name: nc24v3
+    vm_size: Standard_NC24rs_v3
+    max_core_count: 96
+    image: azhpc:azhop-compute:centos-7_9:latest
+    ColocateNodes: true
+
+# Remote Viz Queues
+  - name: viz3d
+    vm_size: Standard_NV12s_v3
+    max_core_count: 48
+    image: azhpc:azhop-desktop:centos-7_9:latest
+    ColocateNodes: false
+    spot: false
+    EnableAcceleratedNetworking: true
+  - name: viz
+    vm_size: Standard_D8s_v5
+    max_core_count: 200
+    image: azhpc:azhop-desktop:centos-7_9:latest
+    ColocateNodes: false
+    spot: false
+    EnableAcceleratedNetworking: true
+    max_hours: 12 # Maximum session duration
+    min_hours: 1 # Minimum session duration - 0 is infinite
+  - name: largeviz3d
+    vm_size: Standard_NV48s_v3
+    max_core_count: 96
+    image: azhpc:azhop-desktop:centos-7_9:latest
+    ColocateNodes: false
+    spot: false
+    EnableAcceleratedNetworking: true
+    max_hours: 12 # Maximum session duration
+    min_hours: 1 # Minimum session duration - 0 is infinite
+
+

@@ -1,0 +1,73 @@
+name : Test Callable Workflow
+
+on:
+  workflow_call:
+    inputs:
+      resource_group:
+        description: 'Resource group name'
+        required: true
+        type: string
+
+    secrets:
+      ARM_SUBSCRIPTION_ID:
+        required: true
+      ARM_TENANT_ID:
+        required: true
+      ARM_CLIENT_ID:
+        required: true
+      ARM_CLIENT_SECRET:
+        required: true
+
+env:
+  ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+  ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+  AZHOP_STATE_CONTAINER: environments
+  AZHOP_STATE_ACCOUNT: azhopstates
+  ANSIBLE_VERBOSITY: 2 # From 0 to 4 based on the level of logs needed in Ansible
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  test:
+    name: test
+    runs-on: self-hosted
+    timeout-minutes: 60
+
+    container:
+      image: azhop.azurecr.io/hpcrover:2305.2210
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
+      options: --user 0
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Login azure
+        run: |
+          source /miniconda/bin/activate
+          az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
+          az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
+          echo "local user: $(whoami)"
+
+      - name: Run tests jobs
+        id: install
+        run: |
+          set -e
+          source /miniconda/bin/activate
+
+          RESOURCE_GROUP="${{ inputs.resource_group }}"
+          echo "Download state files for $RESOURCE_GROUP"
+          ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
+
+          ./install.sh tests
+          build_error=$?
+
+          exit $build_error
+

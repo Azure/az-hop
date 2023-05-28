@@ -119,7 +119,7 @@ jumpbox:
 ad:
   vm_size: Standard_B2ms
 ondemand:
-  vm_size: Standard_D8s_v5
+  vm_size: Standard_D4ls_v5
   generate_certificate: true
 guacamole:
   vm_size: Standard_B2ms
@@ -276,8 +276,6 @@ queues:
     ColocateNodes: false
     spot: false
     EnableAcceleratedNetworking: true
-    max_hours: 12 # Maximum session duration
-    min_hours: 1 # Minimum session duration - 0 is infinite
   - name: viz
     vm_size: Standard_D8s_v5
     max_core_count: 200

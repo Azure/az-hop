@@ -1,6 +1,6 @@
 targetScope = 'resourceGroup'
 
-param location string = resourceGroup().location
+param location string
 param deployGateway bool
 param deployBastion bool
 param deployLustre bool

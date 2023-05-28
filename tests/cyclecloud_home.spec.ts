@@ -1,4 +1,5 @@
 import {test, expect} from '@playwright/test';
+import azhopConfig from './azhop.config';
 
 test('CycleCloud', async ({browser}) => {
     // create context with HTTP credentials
@@ -8,6 +9,15 @@ test('CycleCloud', async ({browser}) => {
     const page = await context.newPage();
     await page.goto('/cyclecloud/home', { waitUntil: 'networkidle' });
 
+    // Read the queue manager from the config file
+    switch (azhopConfig.queue_manager) {
+        case 'slurm':
+            await page.getByRole('tab', { name: 'slurm1' }).click();
+            break;
+        case 'openpbs':
+            await page.getByRole('tab', { name: 'pbs1' }).click();
+            break;
+    }
     // Click text=Arrays
     await page.click('text=Arrays');
     // Click #CloudStatus-NodeArraysTable-tbody >> text=execute
