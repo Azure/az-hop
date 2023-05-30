@@ -45,7 +45,7 @@ test('Linux Desktop', async ({ browser }) => {
     await page.getByLabel('Maximum duration in hours of your remote session').fill('1');
     await page.getByLabel('Maximum duration in hours of your remote session').press('Tab');
     await page.getByRole('button', { name: 'Launch' }).click();
-    await page.getByRole('link', { name: 'Delete' }).click();
+    await page.getByRole('link', { name: ' Delete' }).click();
     await page.getByRole('button', { name: 'Confirm' }).click();
 
     await page.waitForLoadState('networkidle');
@@ -67,7 +67,7 @@ test('CodeServer', async ({ browser }) => {
     await page.getByRole('combobox', { name: 'Slot Type' }).selectOption('hb120v2');
     await page.getByRole('combobox', { name: 'Slot Type' }).selectOption('execute');
     await page.getByRole('button', { name: 'Launch' }).click();
-    await page.getByRole('link', { name: 'Delete' }).click();
+    await page.getByRole('link', { name: ' Delete' }).click();
     await page.getByRole('button', { name: 'Confirm' }).click();
 
     await page.waitForLoadState('networkidle');
