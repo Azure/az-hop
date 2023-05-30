@@ -71,7 +71,7 @@ on:
 
 jobs:
   create_config:
-    uses: azure/az-hop/.github/workflows/z_create_config_callables.yml@main
+    uses: azure/az-hop/.github/workflows/z_create_config_callable.yml@main
     with:
       resource_group: ${{ inputs.resource_group }}
       location: ${{ inputs.location }}
