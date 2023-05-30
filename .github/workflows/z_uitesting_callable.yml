@@ -36,6 +36,10 @@ env:
   AZHOP_STATE_CONTAINER: environments
   AZHOP_STATE_ACCOUNT: azhopstates
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   init_matrix:
     runs-on: self-hosted
