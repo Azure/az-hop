@@ -57,6 +57,14 @@
                     "description": "When working in a locked down network, uncomment and fill out this section",
                     "$ref": "#/definitions/LockedDownNetwork"
                 },
+                "azure_key_vault": {
+                    "description": "Key vault configuration",
+                    "$ref": "#/definitions/KeyVault"
+                },
+                "azure_storage_account": {
+                    "description": "Storage account configuration",
+                    "$ref": "#/definitions/StorageAccount"
+                },
                 "linux_base_image": {
                     "description": "Can be either an image reference or an image_id from the image registry or a custom managed image",
                     "type": "string"
@@ -461,6 +469,11 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+                "user_auth": {
+                    "type": "string",
+                    "enum": ["local", "ad"],
+                    "default": "ad"
+                },
                 "httpd_auth": {
                     "type": "string",
                     "enum": ["basic", "oidc"],
@@ -571,6 +584,10 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Name of the database resource to be created"
+                },
                 "user": {
                     "type": "string",
                     "description": "Admin user of the database for which the password will be retrieved from the azhop keyvault"
@@ -584,9 +601,6 @@
                     "description": "IP of the managed private endpoint if the FQDN is not registered in a private DNS"
                 }
             },
-            "required": [
-                "user"
-            ],
             "title": "Database"
         },
         "Image": {
@@ -736,6 +750,26 @@
                 "public_ip"
             ],
             "title": "LockedDownNetwork"
+        },
+        "KeyVault": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "type": "string" 
+                }
+            },
+            "title": "KeyVault"
+        },
+        "StorageAccount": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "type": "string" 
+                }
+            },
+            "title": "StorageAccount"
         },
         "Mounts": {
             "type": "object",

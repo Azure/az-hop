@@ -1,0 +1,60 @@
+name : All Manual
+run-name: ${{ github.event.inputs.resource_group }} by @${{ github.actor }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      resource_group:
+        description: 'Name of the resource group to deploy in - In case of an existing resource group the environment will be updated'
+        required: false
+        default: 'AUTO_GENERATED'
+      location:
+        description: 'Azure location where to deploy to - default to westeurope'
+        required: false
+        default: 'westeurope'
+      clean:
+        description: 'Clean all resources'
+        required: false
+        default: 'true' # use it with ${{ github.event.inputs.clean }}
+      scheduler_list:
+        description: "Job Scheduler list to test ['slurm', 'openpbs'] - Default to ['slurm']"
+        required: false
+        default: "['slurm']"
+      home_type_list:
+        description: "Home directory type list to test ['azurefiles', 'anf'] - Default to ['azurefiles']"
+        required: false
+        default: "['azurefiles']"
+      user_auth_list:
+        description: "User Auth list to test ['local', 'ad'] - Default to ['local']"
+        required: false
+        default: "['ad']"
+      ui_tests:
+        description: 'Run UI tests - Default to false'
+        required: false
+        default: 'false' # use it with ${{ github.event.inputs.ui_tests }}
+
+jobs:
+  deploy:
+    strategy:
+      fail-fast: false
+      matrix:
+        scheduler: ${{ fromJson( github.event.inputs.scheduler_list ) }}
+        home_type: ${{ fromJson( github.event.inputs.home_type_list ) }}
+        user_auth: ${{ fromJson( github.event.inputs.user_auth_list ) }}
+    uses: azure/az-hop/.github/workflows/z_base_callable.yml@main
+    with:
+      resource_group: ${{ github.event.inputs.resource_group }}
+      location: ${{ github.event.inputs.location }}
+      scheduler: ${{ matrix.scheduler }}
+      lustre: 'false'
+      home_type: ${{ matrix.home_type }}
+      winviz: 'false'
+      user_auth: ${{ matrix.user_auth }}
+      deploy_with: 'bicep'
+      clean: ${{ github.event.inputs.clean }}
+      ui_tests: ${{ github.event.inputs.ui_tests }}
+    secrets:
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}

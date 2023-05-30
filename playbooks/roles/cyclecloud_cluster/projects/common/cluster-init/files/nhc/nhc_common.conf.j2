@@ -57,17 +57,20 @@
 # * || check_ps_service -S -u root crond
 # * || check_ps_service -r -d qmgr postfix
 # * || check_ps_service -S -u root sshd
- * || check_ps_service -S -u root sssd_be
- * || check_ps_service -S -u root sssd_nss
- * || check_ps_service -S -u root sssd_pam
  * || check_ps_service -S -0 -u telegraf telegraf
  * || check_ps_service -s -0 -u root azsecd
 
 #######################################################################
 ###
-### Check domain join
+### Check AD services and domain join
 ###
-* || check_cmd_output -r 0 -m '/active-directory/' realm list
+{% if ( authentication.user_auth is not defined or authentication.user_auth == "ad" ) %}
+ * || check_ps_service -S -u root sssd_be
+ * || check_ps_service -S -u root sssd_nss
+ * || check_ps_service -S -u root sssd_pam
+ * || check_cmd_output -r 0 -m '/active-directory/' realm list
+{% endif %}
+
 
 #######################################################################
 ###

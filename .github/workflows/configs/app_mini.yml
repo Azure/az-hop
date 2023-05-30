@@ -1,0 +1,6 @@
+# Application settings
+applications:
+  bc_codeserver:
+    enabled: true
+  bc_jupyter:
+    enabled: true

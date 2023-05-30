@@ -100,16 +100,18 @@ locals {
 
     # Active Directory values
     # Updates the assumptions to the possibility that DNS may not point to Active Directory when using the customer provided AD.
-    create_ad             = !try(local.configuration_yml["domain"].use_existing_dc, false)
-    domain_name           = local.create_ad ? "hpc.azure" : local.configuration_yml["domain"].name 
-    domain_join_user      = local.create_ad ? local.admin_username : local.configuration_yml["domain"].domain_join_user.username
-    domain_join_password  = local.create_ad ? random_password.password.result : data.azurerm_key_vault_secret.domain_join_password[0].value
-    domain_join_ou        = local.create_ad ? "CN=Computers" : local.configuration_yml["domain"].domain_join_ou
+    create_ad             = !try(local.configuration_yml["domain"].use_existing_dc, false) && (try(local.configuration_yml["authentication"].user_auth, "ad") == "ad")
+    use_existing_ad       = try(local.configuration_yml["domain"].use_existing_dc, false)
+    create_dns_records    = local.create_ad || local.use_existing_ad
+    domain_name           = local.use_existing_ad ? local.configuration_yml["domain"].name : "hpc.azure"
+    domain_join_user      = local.use_existing_ad ? local.configuration_yml["domain"].domain_join_user.username : local.admin_username
+    domain_join_password  = local.use_existing_ad ? data.azurerm_key_vault_secret.domain_join_password[0].value : random_password.password.result
+    domain_join_ou        = local.use_existing_ad ? local.configuration_yml["domain"].domain_join_ou : "CN=Computers"
     ad_ha                 = try(local.configuration_yml["ad"].high_availability, false)
-    domain_controlers     = local.create_ad ? (local.ad_ha ? {ad="ad", ad2="ad2"} : {ad="ad"}) : zipmap(local.configuration_yml["domain"].existing_dc_details.domain_controller_names, local.configuration_yml["domain"].existing_dc_details.domain_controller_names)
-    ldap_server           = local.create_ad ? "ad" : local.configuration_yml["domain"].existing_dc_details.domain_controller_names[0]
-    private_dns_servers   = local.create_ad ? (local.ad_ha ? [azurerm_network_interface.ad-nic[0].private_ip_address, azurerm_network_interface.ad2-nic[0].private_ip_address] : [azurerm_network_interface.ad-nic[0].private_ip_address]) : local.configuration_yml["domain"].existing_dc_details.private_dns_servers
-    domain_controller_ips = local.create_ad ? (local.ad_ha ? [azurerm_network_interface.ad-nic[0].private_ip_address, azurerm_network_interface.ad2-nic[0].private_ip_address] : [azurerm_network_interface.ad-nic[0].private_ip_address]) : local.configuration_yml["domain"].existing_dc_details.domain_controller_ip_addresses
+    domain_controlers     = local.use_existing_ad ? zipmap(local.configuration_yml["domain"].existing_dc_details.domain_controller_names, local.configuration_yml["domain"].existing_dc_details.domain_controller_names) : (local.ad_ha ? {ad="ad", ad2="ad2"} : {ad="ad"})
+    ldap_server           = local.use_existing_ad ? local.configuration_yml["domain"].existing_dc_details.domain_controller_names[0]     : "ad"
+    private_dns_servers   = local.use_existing_ad ? local.configuration_yml["domain"].existing_dc_details.private_dns_servers            : (local.create_ad ? (local.ad_ha ? [azurerm_network_interface.ad-nic[0].private_ip_address, azurerm_network_interface.ad2-nic[0].private_ip_address] : [azurerm_network_interface.ad-nic[0].private_ip_address]) : [])
+    domain_controller_ips = local.use_existing_ad ? local.configuration_yml["domain"].existing_dc_details.domain_controller_ip_addresses : (local.create_ad ? (local.ad_ha ? [azurerm_network_interface.ad-nic[0].private_ip_address, azurerm_network_interface.ad2-nic[0].private_ip_address] : [azurerm_network_interface.ad-nic[0].private_ip_address]) : [])
 
     # Use a linux custom image reference if the linux_base_image is defined and contains ":"
     use_linux_image_reference = try(length(split(":", local.configuration_yml["linux_base_image"])[1])>0, false)
@@ -188,6 +190,10 @@ locals {
 
     admin_username = local.configuration_yml["admin_user"]
     key_vault_readers = try(local.configuration_yml["key_vault_readers"], null)
+
+    key_vault_name = try(local.configuration_yml["azure_key_vault"]["name"], format("%s%s", "kv", random_string.resource_postfix.result))
+    storage_account_name = try(local.configuration_yml["azure_storage_account"]["name"], "azhop${random_string.resource_postfix.result}")
+    mariadb_name = try(local.configuration_yml["database"]["name"], "azhop-${random_string.resource_postfix.result}")
 
     # Lustre
     lustre_enabled = try(local.configuration_yml["lustre"]["create"], false)
@@ -346,7 +352,7 @@ locals {
 
     #Replace the AD ASG with domain controller IP addresses when customer is bringing their own AD
     #use an indexing concept since we can't substitute a list for a string
-    ad_nsg_index = local.create_ad ? "asg/asg-ad" : "ips/dc_ips"
+    ad_nsg_index = local.use_existing_ad ? "ips/dc_ips" : "asg/asg-ad"
     ips = {
         dc_ips = local.domain_controller_ips
     }

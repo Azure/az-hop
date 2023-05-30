@@ -1,4 +1,4 @@
-name : uitesting_callable
+name : UITest Callable Workflow
 
 on:
   workflow_call:
@@ -38,7 +38,7 @@ env:
 
 jobs:
   init_matrix:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     name: init_matrix
     container:
       image: azhop.azurecr.io/hpcrover:2305.2210
@@ -63,7 +63,7 @@ jobs:
           echo "Resource group name is $RESOURCE_GROUP"
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
           cat config.yml
-      - name: list all images to be built
+      - name: Built a matrix with users
         id: set-matrix
         run: |
           source /miniconda/bin/activate
@@ -74,7 +74,7 @@ jobs:
 
   run_tests:
     name: run_tests
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [init_matrix]
     strategy: 
       matrix:

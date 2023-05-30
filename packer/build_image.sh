@@ -6,7 +6,7 @@
 #  - Thru the spn.json config file
 set -e
 set -o pipefail
-
+THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 OPTIONS_FILE=options.json
 FORCE=0
 SPN_FILE=spn.json
@@ -25,6 +25,15 @@ if [ $# -lt 2 ]; then
   exit 1
 fi
 
+load_miniconda() {
+  # Note: packaging this inside a function to avoid forwarding arguments to conda
+  if [ -d ${THIS_DIR}/../miniconda ]; then
+    echo "Activating conda environment"
+    source ${THIS_DIR}/../miniconda/bin/activate
+  fi
+}
+
+load_miniconda
 # Check config syntax
 yamllint $CONFIG_FILE
 
@@ -55,6 +64,11 @@ while (( "$#" )); do
       ;;
   esac
 done
+
+if [ ! -f ${PACKER_FILE} ]; then
+  echo "Packer file ${PACKER_FILE} not found"
+  exit 1
+fi
 
 tenant_id=$(az account show -o json | jq -r .tenantId)
 user_type=$(az account show --query user.type -o tsv)

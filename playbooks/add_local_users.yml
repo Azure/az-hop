@@ -1,0 +1,49 @@
+---
+- name: Create local users
+  hosts: scheduler, ondemand, grafana
+  serial: 1
+  # hosts: grafana
+
+  become: true
+  gather_facts: no
+  vars_files:
+    - '{{global_config_file}}'
+
+  tasks:
+  - name: Wait 300 seconds for the nodes to be ready
+    wait_for_connection:
+      timeout: 300
+  - name: Gather facts for first time
+    setup:
+
+  - name: Create local users and groups
+    block:
+      - name: Create local groups
+        group:
+          name: '{{item.name}}'
+          gid: '{{item.gid}}'
+          state: present
+        with_items: '{{usergroups}}'
+        when: usergroups is defined
+      - name: Create local users
+        include_tasks: create_local_user.yml
+        with_items: '{{users}}'
+        loop_control:
+          loop_var: user
+        when: users is defined
+    when: (authentication.user_auth | default('ad')) == "local"
+
+#TODO: add cyclecloud users
+- name: Configure users in CycleCloud
+  hosts: ccportal
+  become: true
+  vars_files:
+    - '{{global_config_file}}'
+
+  tasks:
+  - name: Create local user record files
+    include_tasks: create_local_user_cc.yml
+    with_items: '{{users}}'
+    loop_control:
+      loop_var: user
+    when: users is defined

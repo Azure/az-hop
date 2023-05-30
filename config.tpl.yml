@@ -187,6 +187,14 @@ domain:
     domain_controller_ip_addresses: ["192.168.1.100", "192.168.1.101"]
     private_dns_servers: ["192.168.1.53", "192.168.2.53"]
 
+# Optional: name of the key vault resource to be created. If not provided, a name will be generated
+# azure_key_vault:
+#   name: custom_key_vault_name
+
+# Optional: name of the storage account to be created.
+# azure_storage_account:
+#   name: custom_storage_account_name
+
 # Jumpbox VM configuration, only needed when deploying thru a public IP and without a configured deployer VM
 jumpbox:
   vm_size: Standard_B2ms
@@ -283,11 +291,14 @@ slurm:
 enroot:
   enroot_version: 3.4.1
 
-# If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values
 #database:
+  # Resource name of the MariaDB instance to be created
+  #name: custom_mariadb_name
+
+  # If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values
   # Admin user of the database for which the password will be retrieved from the azhop keyvault
   #user: sqladmin
-  # FQDN of the managed instance
+  # FQDN of the existing managed instance
   #fqdn:
   # IP of the managed private endpoint if the FQDN is not registered in a private DNS
   #ip:
@@ -304,6 +315,7 @@ vpn_gateway:
 # Default is basic authentication. For oidc authentication you have to specify the following values
 # The OIDCClient secret need to be stored as a secret named <oidc-client-id>-password in the keyvault used by az-hop
 authentication:
+  user_auth: ad # local or ad - default to ad. Local will create local users and users groups on all infrastructure VMs and dynamically on dynamic nodes
   httpd_auth: basic # oidc or basic
   # User mapping https://osc.github.io/ood-documentation/latest/reference/files/ood-portal-yml.html#ood-portal-generator-user-map-match
   # You can specify either a map_match or a user_map_cmd

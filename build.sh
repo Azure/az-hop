@@ -358,7 +358,7 @@ function bicep_init()
 
 function bicep_run()
 {
-  timestamp=$(date -u +"%Y.%m%d.%H%M")
+  timestamp=$(date -u +"%Y.%m%d.%H%M%S")
   deployment_name=azhop_${timestamp}
   deployment_op="create"
   if [ "$TF_COMMAND" == "plan" ]; then
