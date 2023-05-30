@@ -1,4 +1,4 @@
-name : install
+name : Deploy Callable Workflow
 
 on:
   workflow_call:
@@ -6,6 +6,11 @@ on:
       resource_group:
         description: 'Resource group name'
         required: true
+        type: string
+      deploy_with:
+        description: 'Method used for the deployment - tf, bicep or arm - Default to bicep'
+        required: false
+        default: 'bicep' # use it with ${{ inputs.deploy_with }}
         type: string
   
     secrets:
@@ -19,21 +24,24 @@ on:
         required: true
 
 env:
+  TF_CLI_ARGS: '-no-color'
+  TF_CLI_ARGS_destroy: '-auto-approve -refresh=false'
+  TF_CLI_ARGS_apply: '-auto-approve'
   ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
   ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
   ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
   ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
   AZHOP_STATE_CONTAINER: environments
   AZHOP_STATE_ACCOUNT: azhopstates
-  ANSIBLE_VERBOSITY: 2 # From 0 to 4 based on the level of logs needed in Ansible
+
 
 defaults:
   run:
     shell: bash
 
 jobs:
-  install:
-    name: install
+  deploy:
+    name: deploy
     runs-on: self-hosted
     timeout-minutes: 60
 
@@ -56,8 +64,8 @@ jobs:
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
           echo "local user: $(whoami)"
 
-      - name: Installation
-        id: install
+      - name: Deployment
+        id: deploy
         run: |
           set -e
           source /miniconda/bin/activate
@@ -66,7 +74,10 @@ jobs:
           echo "Download state files for $RESOURCE_GROUP"
           ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
 
-          ./install.sh
+          set +e
+          ./build.sh -a apply -l ${{ inputs.deploy_with }}
           build_error=$?
-
+          set -e
+          ./azhop_state.sh upload ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }}
+          ./create_passwords.sh
           exit $build_error

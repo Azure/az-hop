@@ -1,13 +1,13 @@
-name : destroy
+name : Test Callable Workflow
 
 on:
   workflow_call:
     inputs:
       resource_group:
-        description: 'Resource group to destroy'
+        description: 'Resource group name'
         required: true
         type: string
-  
+
     secrets:
       ARM_SUBSCRIPTION_ID:
         required: true
@@ -25,14 +25,15 @@ env:
   ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
   AZHOP_STATE_CONTAINER: environments
   AZHOP_STATE_ACCOUNT: azhopstates
+  ANSIBLE_VERBOSITY: 2 # From 0 to 4 based on the level of logs needed in Ansible
 
 defaults:
   run:
     shell: bash
 
 jobs:
-  destroy:
-    name: destroy
+  test:
+    name: test
     runs-on: self-hosted
     timeout-minutes: 60
 
@@ -55,25 +56,18 @@ jobs:
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
           echo "local user: $(whoami)"
 
-      - name: Destroy
-        id: destroy
+      - name: Run tests jobs
+        id: install
         run: |
           set -e
           source /miniconda/bin/activate
 
           RESOURCE_GROUP="${{ inputs.resource_group }}"
-          rg_exists=$(az group exists -n $RESOURCE_GROUP)
-          if [ "$rg_exists" = "true" ]; then
-            echo "Download state files for $RESOURCE_GROUP"
-            ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
+          echo "Download state files for $RESOURCE_GROUP"
+          ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
 
-            echo "Remove resources from $RESOURCE_GROUP"
-            set +e
-            ./bicep/cleanup.sh
+          ./install.sh tests
+          build_error=$?
 
-            echo "Remove state from $RESOURCE_GROUP"
-            ./azhop_state.sh delete ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
+          exit $build_error
 
-            echo "removing resource group $RESOURCE_GROUP"
-            az group delete -n $RESOURCE_GROUP -y --no-wait
-          fi

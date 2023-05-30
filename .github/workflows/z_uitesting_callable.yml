@@ -1,4 +1,4 @@
-name : uitesting_callable
+name : UITest Callable Workflow
 
 on:
   workflow_call:

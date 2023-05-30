@@ -1,4 +1,4 @@
-name : create_config
+name : Create Config Callable Workflow
 
 on:
   workflow_call:

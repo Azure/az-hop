@@ -9,7 +9,7 @@ on:
 
 jobs:
   run_tests:
-    uses: azure/az-hop/.github/workflows/uitesting_callable.yml@main
+    uses: azure/az-hop/.github/workflows/z_uitesting_callable.yml@main
     with:
       resource_group: ${{ github.event.inputs.resource_group }}
     secrets:
