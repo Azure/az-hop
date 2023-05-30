@@ -45,7 +45,9 @@ var deployJumpbox = contains(azhopConfig, 'jumpbox') ? true : false
 var deployDeployer = contains(azhopConfig, 'deployer') ? true : false
 var enableWinViz = contains(azhopConfig, 'enable_remote_winviz') ? azhopConfig.enable_remote_winviz : false
 
-var createAD = contains(azhopConfig, 'domain') ? ! azhopConfig.domain.use_existing_dc : true
+var useExistingAD = contains(azhopConfig, 'domain') ? azhopConfig.domain.use_existing_dc : false
+var userAuth = contains(azhopConfig, 'authentication') && contains(azhopConfig.authentication, 'user_auth') ? azhopConfig.authentication.user_auth : 'ad'
+var createAD = ! useExistingAD && (userAuth == 'ad')
 
 var highAvailabilityForAD = contains(azhopConfig, 'ad') && contains(azhopConfig.ad, 'high_availability') ? azhopConfig.ad.high_availability : false
 
@@ -77,8 +79,8 @@ var ossVmConfig = [for oss in range(0, lustreOssCount) : {
 } ]
 
 var nsgTargetForDC = {
-  type: createAD ? 'asg' : 'ips'
-  target: createAD ? 'asg-ad' : azhopConfig.domain.existing_dc_details.domain_controller_ip_addresses
+  type: useExistingAD ? 'ips' : 'asg'
+  target: useExistingAD ? azhopConfig.domain.existing_dc_details.domain_controller_ip_addresses : 'asg-ad'
 }
 
 // Convert the azhop configuration file to a pivot format used for the deployment
@@ -107,15 +109,21 @@ var config = {
     name : contains(azhopConfig, 'domain') ? azhopConfig.domain.name : 'hpc.azure'
     domain_join_user: createAD ? {
       username: azhopConfig.admin_user
-    } : {
+    } : useExistingAD ? {
       username: azhopConfig.domain.domain_join_user.username
       password_key_vault_name: azhopConfig.domain.domain_join_user.password_key_vault_name
       password_key_vault_resource_group_name: azhopConfig.domain.domain_join_user.password_key_vault_resource_group_name
       password_key_vault_secret_name: azhopConfig.domain.domain_join_user.password_key_vault_secret_name
+    } : {
+      username: ''
     }
-    domain_controlers : createAD ? (! highAvailabilityForAD ? ['ad'] : ['ad', 'ad2']) : azhopConfig.domain.existing_dc_details.domain_controller_names
-    ldap_server: createAD ? 'ad' : azhopConfig.domain.existing_dc_details.domain_controller_names[0]
+    domain_controlers : createAD ? (! highAvailabilityForAD ? ['ad'] : ['ad', 'ad2']) : useExistingAD ? azhopConfig.domain.existing_dc_details.domain_controller_names : []
+    ldap_server: createAD ? 'ad' : useExistingAD ? azhopConfig.domain.existing_dc_details.domain_controller_names[0] : ''
   }
+
+  key_vault_name: contains(azhopConfig, 'azure_key_vault') ? azhopConfig.azure_key_vault.name : 'kv${resourcePostfix}'
+  storage_account_name: contains(azhopConfig, 'azure_storage_account') ? azhopConfig.azure_storage_account.name : 'azhop${resourcePostfix}'
+  mariadb_name: contains(azhopConfig, 'database') && contains(azhopConfig.database, 'name') ? azhopConfig.database.name : 'azhop-${resourcePostfix}'
 
   enable_remote_winviz : enableWinViz
   deploy_sig: contains(azhopConfig, 'image_gallery') && contains(azhopConfig.image_gallery, 'create') ? azhopConfig.image_gallery.create : false
@@ -675,7 +683,7 @@ module azhopKeyvault './keyvault.bicep' = {
   name: 'azhopKeyvault'
   params: {
     location: location
-    resourcePostfix: resourcePostfix
+    kvName: config.key_vault_name
     subnetId: subnetIds.admin
     keyvaultReaderOids: config.keyvault_readers
     lockDownNetwork: config.lock_down_network.enforce
@@ -736,11 +744,11 @@ module kvSecretDomainJoin './kv_secrets.bicep' = if (createAD) {
 }
 
 // Domain join password when using an existing AD will be retrieved from the keyvault specified in config and stored in our KV
-resource domainJoinUserKV 'Microsoft.KeyVault/vaults@2021-10-01' existing = if (! createAD) {
+resource domainJoinUserKV 'Microsoft.KeyVault/vaults@2021-10-01' existing = if (useExistingAD) {
   name: '${config.domain.domain_join_user.password_key_vault_name}'
   scope: resourceGroup(config.domain.domain_join_user.password_key_vault_resource_group_name)
 }
-module kvSecretExistingDomainJoin './kv_secrets.bicep' = if (! createAD) {
+module kvSecretExistingDomainJoin './kv_secrets.bicep' = if (useExistingAD) {
   name: 'kvSecrets-existing-domain-join'
   params: {
     vaultName: azhopKeyvault.outputs.keyvaultName
@@ -753,7 +761,7 @@ module azhopStorage './storage.bicep' = {
   name: 'azhopStorage'
   params:{
     location: location
-    resourcePostfix: resourcePostfix
+    saName: config.storage_account_name
     lockDownNetwork: config.lock_down_network.enforce
     allowableIps: config.lock_down_network.grant_access_from
     subnetIds: [ subnetIds.admin, subnetIds.compute ]
@@ -772,7 +780,7 @@ module azhopMariaDB './mariadb.bicep' = if (createDatabase) {
   name: 'azhopMariaDB'
   params: {
     location: location
-    resourcePostfix: resourcePostfix
+    mariaDbName: config.mariadb_name
     adminUser: config.slurm.admin_user
     adminPassword: secrets.databaseAdminPassword
     adminSubnetId: subnetIds.admin
@@ -832,9 +840,9 @@ var adIndex = createAD ? indexOf(map(vmItems, item => item.key), 'ad') : 0
 var adIp = createAD ? azhopVm[adIndex].outputs.privateIp : ''
 var ad2Index = createAD && highAvailabilityForAD ? indexOf(map(vmItems, item => item.key), 'ad2') : 0
 var ad2Ip = createAD ? azhopVm[ad2Index].outputs.privateIp : ''
-var domain_controller_ip_addresses = contains(azhopConfig, 'domain') && contains(azhopConfig.domain, 'existing_dc_details') ? azhopConfig.domain.existing_dc_details.domain_controller_ip_addresses : []
+var domain_controller_ip_addresses = useExistingAD && contains(azhopConfig, 'domain') && contains(azhopConfig.domain, 'existing_dc_details') ? azhopConfig.domain.existing_dc_details.domain_controller_ip_addresses : []
 var dcIps = createAD ? (! highAvailabilityForAD ? [adIp] : [adIp, ad2Ip]) : domain_controller_ip_addresses
-module azhopADRecords './privatezone_records.bicep' = {
+module azhopADRecords './privatezone_records.bicep' = if (createAD || useExistingAD) {
   name: 'azhopADRecords'
   params: {
     privateDnsZoneName: config.domain.name
@@ -861,7 +869,7 @@ var kvSuffix = environment().suffixes.keyvaultDns
 
 output azhopGlobalConfig object = union(
   {
-    global_cc_storage             : 'azhop${resourcePostfix}'
+    global_cc_storage             : config.storage_account_name
     compute_subnetid              : '${azhopResourceGroupName}/${config.vnet.name}/${config.vnet.subnets.compute.name}'
     global_config_file            : '/az-hop/config.yml'
     ad_join_user                  : config.domain.domain_join_user.username
@@ -872,9 +880,9 @@ output azhopGlobalConfig object = union(
     ansible_ssh_private_key_file  : '${config.admin_user}_id_rsa'
     subscription_id               : subscription().subscriptionId
     tenant_id                     : subscription().tenantId
-    key_vault                     : 'kv${resourcePostfix}'
+    key_vault                     : config.key_vault_name
     sig_name                      : (config.deploy_sig) ? 'azhop_${resourcePostfix}' : ''
-    lustre_hsm_storage_account    : 'azhop${resourcePostfix}'
+    lustre_hsm_storage_account    : config.storage_account_name
     lustre_hsm_storage_container  : 'lustre'
     database_fqdn                 : createDatabase ? azhopMariaDB.outputs.mariaDb_fqdn : ''
     database_user                 : config.slurm.admin_user
@@ -1028,7 +1036,7 @@ user=$1
 # Because secret names are restricted to '^[0-9a-zA-Z-]+$' we need to remove all other characters
 secret_name=$(echo $user-password | tr -dc 'a-zA-Z0-9-')
 
-az keyvault secret show --vault-name kv{0} -n $secret_name --query "value" -o tsv
+az keyvault secret show --vault-name {0} -n $secret_name --query "value" -o tsv
 
-''', resourcePostfix)
+''', config.key_vault_name)
 

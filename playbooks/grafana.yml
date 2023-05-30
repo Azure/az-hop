@@ -31,6 +31,7 @@
     connection: local
     register: adjoin_password
     become: false
+    when: (authentication.user_auth | default('ad')) == "ad"
 
   - name: Install InfluxDB
     include_role:
@@ -46,11 +47,12 @@
     vars:
       grafana_fqdn: localhost
       grafana_admin_user: "{{None if ((authentication.httpd_auth is defined) and (authentication.httpd_auth == 'oidc')) else ad_join_user}}"
-      grafana_admin_password: "{{None if ((authentication.httpd_auth is defined) and (authentication.httpd_auth == 'oidc')) else adjoin_password.stdout}}"
+      grafana_admin_password: "{{None if ((authentication.httpd_auth is defined) and (authentication.httpd_auth == 'oidc')) else adjoin_password.stdout if ((authentication.user_auth | default('ad')) == 'ad') else admin_password.stdout}}"
       grafana_ldap_server: "{{None if ((authentication.httpd_auth is defined) and (authentication.httpd_auth == 'oidc')) else ldap_server}}"
       grafana_server_root_url: "%(protocol)s://%(domain)s:%(http_port)s/rnode/grafana/%(http_port)s/"
-      grafana_anonymous_auth: "{{true if ((authentication.httpd_auth is defined) and (authentication.httpd_auth == 'oidc')) else false}}"
-      grafana_auth_ldap_enabled: "{{false if ((authentication.httpd_auth is defined) and (authentication.httpd_auth == 'oidc')) else true}}"
+      grafana_anonymous_auth: "{{true if ((authentication.httpd_auth is defined) and (authentication.httpd_auth == 'oidc')) or ((authentication.user_auth | default('ad')) == 'local') else false}}"
+      grafana_auth_ldap_enabled: "{{false if ((authentication.httpd_auth is defined) and (authentication.httpd_auth == 'oidc')) or ((authentication.user_auth | default('ad')) == 'local') else true}}"
+      grafana_auth_basic_enabled: "{{false if ((authentication.user_auth | default('ad')) == 'local') else true}}"
       grafana_public_facing_domain_name: localhost
       grafana_datasources: # https://grafana.com/docs/grafana/latest/administration/provisioning/#data-sources
         - name: "azhpc"

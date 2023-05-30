@@ -1,0 +1,35 @@
+---
+# Remove any forbidden characters from the username so we conform to the keyvaul secret name rules '^[0-9a-zA-Z-]+$'
+- name: Set secretname
+  set_fact:
+    secretname: "{{ user.name | map('regex_replace', '[^0-9a-zA-Z-]', '')|list|join() }}-password"
+
+- name: Read Password from KV
+  command: az keyvault secret show --vault-name {{key_vault}} -n {{secretname}} --query "value" -o tsv
+  delegate_to: localhost
+  connection: local
+  register: password
+  become: false
+
+- name: Create local user
+  user:
+    comment: 'Local user'
+    name: '{{user.name}}'
+    groups: "{{ usergroups | selectattr('gid', 'in', (user.groups | default([], true))) | map(attribute='name')}}"
+    shell: /bin/bash
+    uid: '{{user.uid}}'
+    group: 'azhop-users'
+    home: "{{ homedir_mountpoint }}/{{ user.name }}"
+    password: "{{ password.stdout | password_hash }}"
+    shell: "{{user.shell | default('/bin/bash')}}"
+    generate_ssh_key: no
+    force: no
+    ssh_key_type: rsa
+    state: present
+  register: new_user
+
+# - name: add public key to authorized_key
+#   authorized_key:
+#     user: '{{user.name}}'
+#     state: present
+#     key: "{{ new_user.ssh_public_key }}"

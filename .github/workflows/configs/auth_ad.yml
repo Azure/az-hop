@@ -1,0 +1,6 @@
+ad:
+  vm_size: Standard_B2ms
+
+authentication:
+  user_auth: ad # local or ad
+  httpd_auth: basic # oidc or basic

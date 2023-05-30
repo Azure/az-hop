@@ -1,0 +1,4 @@
+# For small deployments you can use Azure Files instead of ANF for the home directory
+azurefiles:
+  create: true
+  size_gb: 1024

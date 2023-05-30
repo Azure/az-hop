@@ -173,6 +173,7 @@
 
 - name: Configure AD domain to connect to
   script: '{{role_path}}/files/configure_ad.py --url "ldap://{{cc_ldap_server}}" --domain "@{{cc_domain}}"'
+  when: (authentication.user_auth | default('ad')) == "ad"
 
 - name: Add User Role Record 
   copy:
