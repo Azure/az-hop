@@ -1,4 +1,4 @@
-name : slurm_bicep_azurefiles_local_nolustre_nowinviz
+name : All Manual
 run-name: ${{ github.event.inputs.resource_group }} by @${{ github.actor }}
 
 on:
