@@ -28,6 +28,10 @@ on:
         description: "User Auth list to test ['local', 'ad'] - Default to ['local']"
         required: false
         default: "['ad']"
+      ui_tests:
+        description: 'Run UI tests - Default to false'
+        required: false
+        default: 'false' # use it with ${{ github.event.inputs.ui_tests }}
 
 jobs:
   deploy:
@@ -48,6 +52,7 @@ jobs:
       user_auth: ${{ matrix.user_auth }}
       deploy_with: 'bicep'
       clean: ${{ github.event.inputs.clean }}
+      ui_tests: ${{ github.event.inputs.ui_tests }}
     secrets:
       ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
       ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
