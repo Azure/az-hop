@@ -1,5 +1,5 @@
 import {test, expect} from '@playwright/test';
-import config from './playwright.config';
+import azhopConfig from './azhop.config';
 
 test('File Explorer', async ({browser}) => {
     // create context with HTTP credentials
@@ -20,7 +20,7 @@ test('File Explorer', async ({browser}) => {
     // Click text=anfhome /
     await Promise.all([
         page.waitForNavigation({ waitUntil: 'networkidle' }),
-        page.click('text=anfhome /')
+        page.click('text='+azhopConfig.mounts.home.mountpoint+ '/')
     ]);
 
 

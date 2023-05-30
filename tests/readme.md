@@ -9,6 +9,7 @@ sudo apt-get update
 sudo apt install npm
 
 npm i -D @playwright/test
+npm install js-yaml
 npx playwright install
 npx playwright install-deps
 ```
