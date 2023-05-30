@@ -71,7 +71,8 @@ jobs:
         id: set-matrix
         run: |
           source /miniconda/bin/activate
-          users=$(yq eval ".users[].name" config.yml | head -n ${{ inputs.users }} | jq -cRn '[inputs]')
+          set -x
+          users=$(yq '.users[].name' config.yml | head -n ${{ inputs.users }} | jq -cRn '[inputs]')
           echo "matrix=$users" >> $GITHUB_OUTPUT
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
