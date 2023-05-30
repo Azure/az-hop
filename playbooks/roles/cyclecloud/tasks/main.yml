@@ -1,72 +1,11 @@
 ---
-- name: Disable SELinux
-  selinux:
-    state: disabled
-  register: selinux
-  when: ansible_distribution == "CentOS"
-
-- name: reboot 
-  reboot:
-  when: ansible_distribution == "CentOS" and selinux.reboot_required 
 
 # setup CycleCloud. Ported from https://github.com/Azure/cyclecloud-marketplace-image/blob/main/scripts/setup_cyclecloud.sh
-
 - name: debug
   debug:
     msg:
       - "cc_version={{cc_version}}"
       - "Distribution={{ansible_distribution}}"
-
-- name: Update packages marked for security
-  yum:
-    state: latest
-    security: yes
-    lock_timeout : 180
-  when: ansible_distribution == "CentOS"
-
-- name: install AZ CLI repo (CentOS)
-  shell: |
-    set -e
-    rpm --import https://packages.microsoft.com/keys/microsoft.asc
-    cat > /etc/yum.repos.d/azure-cli.repo <<EOF
-    [azure-cli]
-    name=Azure CLI
-    baseurl=https://packages.microsoft.com/yumrepos/azure-cli
-    enabled=1
-    gpgcheck=1
-    gpgkey=https://packages.microsoft.com/keys/microsoft.asc
-    EOF
-  args:
-    creates: /etc/yum.repos.d/azure-cli.repo
-  when: ansible_distribution == "CentOS"
-
-- name: install AZ CLI repo (Ubuntu)
-  shell: curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-  when: ansible_distribution == "Ubuntu"
-
-- name: install CycleCloud repo
-  shell: |
-    cat > /etc/yum.repos.d/cyclecloud.repo <<EOF
-    [cyclecloud]
-    name=cyclecloud
-    baseurl=https://packages.microsoft.com/yumrepos/cyclecloud
-    gpgcheck=1
-    gpgkey=https://packages.microsoft.com/keys/microsoft.asc
-    EOF
-  args:
-    creates: /etc/yum.repos.d/cyclecloud.repo
-  when: ansible_distribution == "CentOS"
-
-- name: install AZ CLI repo (Ubuntu)
-  shell: |
-    apt -y install wget gnupg2
-    wget -qO - https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-    echo 'deb https://packages.microsoft.com/repos/cyclecloud bionic main' > /etc/apt/sources.list.d/cyclecloud.list
-    sudo apt update
-#    sudo apt -y install cyclecloud8
-  args:
-    creates: /etc/apt/sources.list.d/cyclecloud.list
-  when: ansible_distribution == "Ubuntu"
 
 - name: mount data disk
   shell: |
@@ -83,46 +22,8 @@
     echo "UUID=$disk_uuid /opt/cycle_server xfs defaults,nofail 1 2" >> /etc/fstab
     mount /opt/cycle_server
 
-- name: Install pre-reqs packages
-  package:
-    name: azure-cli, dnsmasq, unzip
-    state: present
-    lock_timeout : 180
-
-- name: Install pre-reqs packages (Ubuntu)
-  package:
-    name: python3-venv
-    state: present
-    lock_timeout : 180
-  when: ansible_distribution == "Ubuntu"
-
-- name: Install CycleCloud
-  yum:
-    name: "cyclecloud8-{{cc_version}}"
-    state: present
-    lock_timeout : 180
-  when: ansible_distribution == "CentOS"
-
-- name: Install CycleCloud (Ubuntu)
-  package:
-    name: "cyclecloud8={{cc_version}}"
-    state: present
-    lock_timeout : 180
-  when: ansible_distribution == "Ubuntu"
-
-- name: Install Jetpack
-  yum:
-    name: "jetpack8-{{cc_version}}"
-    state: present
-    lock_timeout : 180
-  when: ansible_distribution == "CentOS"
-
-- name: Install Jetpack (Ubuntu)
-  package:
-    name: "jetpack8={{cc_version}}"
-    state: present
-    lock_timeout : 180
-  when: ansible_distribution == "Ubuntu"
+- name: Perform OS dependent configuration tasks
+  include_tasks: "{{ansible_distribution}}.yml"
 
 - name: Create a data record for azhop and start cycleserver
   shell: |
