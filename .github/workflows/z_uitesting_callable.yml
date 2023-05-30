@@ -102,6 +102,7 @@ jobs:
       - name: Install Playwright
         run: | 
           npm install -D @playwright/test
+          npm install js-yaml
           npx playwright install --with-deps
       - name: Login azure
         run: |
