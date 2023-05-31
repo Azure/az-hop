@@ -602,17 +602,16 @@ module azhopSecrets './secrets.bicep' = if (autogenerateSecrets) {
   name: 'azhopSecrets'
   params: {
     location: location
+    kvName: azhopKeyvaultSecrets.outputs.keyvaultName
+    adminUser: config.admin_user
+    dbAdminUser: config.slurm.admin_user
+    identityId: identity.id
   }
 }
 
-var secrets = (autogenerateSecrets) ? azhopSecrets.outputs.secrets : {
-  adminSshPublicKey: adminSshPublicKey
-  adminSshPrivateKey: adminSshPrivateKey
-  adminPassword: adminPassword
-  databaseAdminPassword: databaseAdminPassword
+resource kv 'Microsoft.KeyVault/vaults@2021-10-01' existing = if (autogenerateSecrets) {
+  name: azhopKeyvaultSecrets.outputs.keyvaultName
 }
-
-var domainPassword = secrets.adminPassword
 
 module azhopNetwork './network.bicep' = {
   name: 'azhopNetwork'
@@ -653,7 +652,8 @@ module azhopVm './vm.bicep' = [ for vm in vmItems: {
     image: config.images[vm.value.image]
     subnetId: subnetIds[vm.value.subnet]
     adminUser: config.admin_user
-    secrets: secrets
+    adminPassword: autogenerateSecrets ? kv.getSecret(azhopSecrets.outputs.secrets.adminPassword) : adminPassword
+    adminSshPublicKey: autogenerateSecrets ? kv.getSecret(azhopSecrets.outputs.secrets.adminSshPublicKey) : adminPassword
     asgIds: asgNameToIdLookup
   }
 }]
@@ -667,6 +667,28 @@ module azhopRoleAssignements './roleAssignments.bicep' = [ for vm in vmItems: if
     principalId: azhopVm[indexOf(map(vmItems, item => item.key), vm.key)].outputs.principalId
   }
 }]
+
+resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = if (autogenerateSecrets) {
+  name: 'deployScriptIdentity'
+  location: location
+}
+
+module azhopKeyvaultSecrets './keyvault.bicep' = if (autogenerateSecrets) {
+  name: 'azhopKeyvaultSecrets'
+  params: {
+    location: location
+    kvName: config.key_vault_name
+    subnetId: subnetIds.admin
+    keyvaultReaderOids: config.keyvault_readers
+    lockDownNetwork: config.lock_down_network.enforce
+    allowableIps: config.lock_down_network.grant_access_from
+    keyvaultOwnerId: loggedUserObjectId
+    identityPerms: [{
+      principalId: identity.properties.principalId
+      secret_permissions: ['Set']
+    }]
+  }
+}
 
 module azhopKeyvault './keyvault.bicep' = {
   name: 'azhopKeyvault'
@@ -686,39 +708,39 @@ module azhopKeyvault './keyvault.bicep' = {
   }
 }
 
-module kvSecretAdminPassword './kv_secrets.bicep' = {
+module kvSecretAdminPassword './kv_secrets.bicep' = if (!autogenerateSecrets) {
   name: 'kvSecrets-admin-password'
   params: {
     vaultName: azhopKeyvault.outputs.keyvaultName
     name: '${config.admin_user}-password'
-    value: secrets.adminPassword
+    value: adminPassword
   }
 }
 
-module kvSecretAdminPubKey './kv_secrets.bicep' = {
+module kvSecretAdminPubKey './kv_secrets.bicep' = if (!autogenerateSecrets)  {
   name: 'kvSecrets-admin-pubkey'
   params: {
     vaultName: azhopKeyvault.outputs.keyvaultName
     name: '${config.admin_user}-pubkey'
-    value: secrets.adminSshPublicKey
+    value: adminSshPublicKey
   }
 }
 
-module kvSecretAdminPrivKey './kv_secrets.bicep' = {
+module kvSecretAdminPrivKey './kv_secrets.bicep' = if (!autogenerateSecrets)  {
   name: 'kvSecrets-admin-privkey'
   params: {
     vaultName: azhopKeyvault.outputs.keyvaultName
     name: '${config.admin_user}-privkey'
-    value: secrets.adminSshPrivateKey
+    value: adminSshPrivateKey
   }
 }
 
-module kvSecretDBPassword './kv_secrets.bicep' = if (createDatabase) {
+module kvSecretDBPassword './kv_secrets.bicep' = if (!autogenerateSecrets && createDatabase) {
   name: 'kvSecrets-db-password'
   params: {
     vaultName: azhopKeyvault.outputs.keyvaultName
     name: '${config.slurm.admin_user}-password'
-    value: secrets.databaseAdminPassword
+    value: databaseAdminPassword
   }
 }
 
@@ -728,7 +750,7 @@ module kvSecretDomainJoin './kv_secrets.bicep' = if (createAD) {
   params: {
     vaultName: azhopKeyvault.outputs.keyvaultName
     name: '${config.domain.domain_join_user.username}-password'
-    value: domainPassword
+    value: autogenerateSecrets ? kv.getSecret(azhopSecrets.outputs.secrets.adminPassword) : adminPassword
   }
 }
 
@@ -771,7 +793,7 @@ module azhopMariaDB './mariadb.bicep' = if (createDatabase) {
     location: location
     mariaDbName: config.mariadb_name
     adminUser: config.slurm.admin_user
-    adminPassword: secrets.databaseAdminPassword
+    adminPassword: autogenerateSecrets ? kv.getSecret(azhopSecrets.outputs.secrets.databaseAdminPassword) : databaseAdminPassword
     adminSubnetId: subnetIds.admin
     vnetId: azhopNetwork.outputs.vnetId
     sslEnforcement: config.enable_remote_winviz ? false : true // based whether guacamole is enabled (guac doesn't support ssl atm)
@@ -798,7 +820,7 @@ module azhopAnf './anf.bicep' = if (config.anf.create) {
     dualProtocol: config.anf.dual_protocol
     subnetId: subnetIds.netapp
     adUser: config.admin_user
-    adPassword: secrets.adminPassword
+    adPassword: autogenerateSecrets ? kv.getSecret(azhopSecrets.outputs.secrets.adminPassword) : adminPassword
     adDns: adIp
     serviceLevel: config.anf.service_level
     sizeGB: config.anf.size_gb
