@@ -580,7 +580,7 @@ var config = {
       AllowRobinhoodOut           : ['430', 'Outbound', 'Allow', 'Tcp', 'Web', 'asg', 'asg-ondemand', 'asg', 'asg-robinhood']
     }
     internet: {
-      AllowInternetSshIn          : ['200', 'Inbound', 'Allow', 'Tcp', 'Ssh', 'tag', 'Internet', 'asg', 'asg-jumpbox']
+      AllowInternetSshIn          : ['200', 'Inbound', 'Allow', 'Tcp', 'HubSsh', 'tag', 'Internet', 'asg', 'asg-jumpbox']
       AllowInternetHttpIn         : ['210', 'Inbound', 'Allow', 'Tcp', 'Web', 'tag', 'Internet', 'asg', 'asg-ondemand']
     }
     hub: {
