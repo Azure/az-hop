@@ -594,7 +594,8 @@ scheduler:
 cyclecloud:
   vm_size: Standard_B2ms
   # Optional: use Ubuntu for the CycleCloud VM (default: linux_base_image)
-  # linux_image: "canonical:0001-com-ubuntu-server-focal:20_04-lts-gen2:latest"
+  # image: "canonical:0001-com-ubuntu-server-focal:20_04-lts-gen2:latest"
+  # plan: publisher:product:name
   # version: 8.3.0-3062 # to specify a specific version, see https://packages.microsoft.com/yumrepos/cyclecloud/
 
 # Lustre cluster is optional and can be used to create a Lustre cluster in the environment.
