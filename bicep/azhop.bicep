@@ -404,7 +404,7 @@ var config = {
     Bastion: ['22', '3389']
     Web: ['443', '80']
     Ssh: ['22']
-    HubSsh: [string(jumpboxSshPort), string(deployerSshPort)]
+    HubSsh: deployDeployer ? [string(deployerSshPort)] : [string(jumpboxSshPort)]
     // DNS, Kerberos, RpcMapper, Ldap, Smb, KerberosPass, LdapSsl, LdapGc, LdapGcSsl, AD Web Services, RpcSam
     DomainControlerTcp: ['53', '88', '135', '389', '445', '464', '636', '3268', '3269', '9389', '49152-65535']
     // DNS, Kerberos, W32Time, NetBIOS, Ldap, KerberosPass, LdapSsl
