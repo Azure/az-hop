@@ -47,13 +47,13 @@ resource kv 'Microsoft.KeyVault/vaults@2021-10-01' = {
       map(
         filter(
           identityPerms,
-          id => !empty(id.key_permissions) || !empty(id.secret_permissions)
+          id => (contains(id, 'key_permissions') && !empty(id.key_permissions)) || (contains(id, 'secret_permissions') && !empty(id.secret_permissions))
         ),
         id => {
         objectId: id.principalId
         permissions: {
-          keys: id.key_permissions
-          secrets: id.secret_permissions
+          keys: contains(id, 'key_permissions') ? id.key_permissions : []
+          secrets: contains(id, 'secret_permissions') ? id.secret_permissions : []
         }
         tenantId: subscription().tenantId
       }),

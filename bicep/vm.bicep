@@ -8,7 +8,9 @@ param resourcePostfix string = '${uniqueString(subscription().subscriptionId, re
 param subnetId string
 param adminUser string
 @secure()
-param secrets object
+param adminPassword string
+@secure()
+param adminSshPublicKey string
 param asgIds object
 
 resource publicIp 'Microsoft.Network/publicIPAddresses@2022-07-01' = if (contains(vm, 'pip') && vm.pip) {
@@ -112,7 +114,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-11-01' = {
       }, contains(vm, 'deploy_script') ? { // deploy script
         customData: base64(vm.deploy_script)
       } : {}, contains(vm, 'windows') && vm.windows == true ? { // windows
-        adminPassword: secrets.adminPassword
+        adminPassword: adminPassword
         windowsConfiguration: {
           winRM: {
             listeners: [
@@ -129,7 +131,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-11-01' = {
             publicKeys: [
               {
                 path: '/home/${adminUser}/.ssh/authorized_keys'
-                keyData: secrets.adminSshPublicKey
+                keyData: adminSshPublicKey
               }
             ]
           }
