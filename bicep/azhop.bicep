@@ -602,10 +602,10 @@ module azhopSecrets './secrets.bicep' = if (autogenerateSecrets) {
   name: 'azhopSecrets'
   params: {
     location: location
-    kvName: azhopKeyvaultSecrets.outputs.keyvaultName
+    kvName: autogenerateSecrets ? azhopKeyvaultSecrets.outputs.keyvaultName : 'foo' // trick to avoid unreferenced resource for azhopKeyvaultSecrets
     adminUser: config.admin_user
     dbAdminUser: config.slurm.admin_user
-    identityId: identity.id
+    identityId: autogenerateSecrets ? identity.id : '' // trick to avoid unreferenced resource for identity
   }
 }
 
@@ -653,7 +653,7 @@ module azhopVm './vm.bicep' = [ for vm in vmItems: {
     subnetId: subnetIds[vm.value.subnet]
     adminUser: config.admin_user
     adminPassword: autogenerateSecrets ? kv.getSecret(azhopSecrets.outputs.secrets.adminPassword) : adminPassword
-    adminSshPublicKey: autogenerateSecrets ? kv.getSecret(azhopSecrets.outputs.secrets.adminSshPublicKey) : adminPassword
+    adminSshPublicKey: autogenerateSecrets ? kv.getSecret(azhopSecrets.outputs.secrets.adminSshPublicKey) : adminSshPublicKey
     asgIds: asgNameToIdLookup
   }
 }]
@@ -683,10 +683,10 @@ module azhopKeyvaultSecrets './keyvault.bicep' = if (autogenerateSecrets) {
     lockDownNetwork: config.lock_down_network.enforce
     allowableIps: config.lock_down_network.grant_access_from
     keyvaultOwnerId: loggedUserObjectId
-    identityPerms: [{
+    identityPerms: autogenerateSecrets ? [{
       principalId: identity.properties.principalId
       secret_permissions: ['Set']
-    }]
+    }] : [] // trick to avoid unreferenced resource for identity
   }
 }
 
