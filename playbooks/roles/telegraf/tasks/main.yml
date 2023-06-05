@@ -1,20 +1,39 @@
 ---
 
-- name: Add the Influxdb YUM repository
-  yum_repository:
-    name: "{{ influxdb_install_repo['name'] }}"
-    description: "{{ influxdb_install_repo['name'] }}"
-    baseurl: "{{ influxdb_install_repo['yum_repo'] }}"
-    gpgkey: "{{ influxdb_install_repo['yum_gpg_key'] | default(omit) }}"
-    gpgcheck: "{{ influxdb_install_repo['yum_gpg_check'] | default(False) }}"
-    state: present
+- name: Install InfluxDB on CentOS
+  block: 
+  - name: Add the Influxdb YUM repository
+    yum_repository:
+      name: "{{ influxdb_install_repo['name'] }}"
+      description: "{{ influxdb_install_repo['name'] }}"
+      baseurl: "{{ influxdb_install_repo['yum_repo'] }}"
+      gpgkey: "{{ influxdb_install_repo['yum_gpg_key'] | default(omit) }}"
+      gpgcheck: "{{ influxdb_install_repo['yum_gpg_check'] | default(False) }}"
+      state: present
 
-- name: Install telegraf
-  yum: 
-  #name: https://dl.influxdata.com/telegraf/releases/telegraf-1.18.2-1.x86_64.rpm
-    name: telegraf-1.18.2-1
-    state: present
-    lock_timeout : 180
+  - name: Install telegraf
+    yum: 
+    #name: https://dl.influxdata.com/telegraf/releases/telegraf-1.18.2-1.x86_64.rpm
+      name: telegraf-1.18.2-1
+      state: present
+      lock_timeout : 180
+  when: ansible_distribution == "CentOS"
+
+- name: Install InfluxDB on Ubuntu
+  block:
+    - name: add APT reposotory
+      shell: | 
+        # influxdata-archive_compat.key GPG Fingerprint: 9D539D90D3328DC7D6C8D3B9D8FF8E1F7DF8B07E
+        wget -q https://repos.influxdata.com/influxdata-archive_compat.key
+        echo '393e8779c89ac8d958f81f942f9ad7fb82a25e133faddaf92e15b16e6ac9ce4c influxdata-archive_compat.key' | sha256sum -c && cat influxdata-archive_compat.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/influxdata-archive_compat.gpg > /dev/null
+        echo 'deb [signed-by=/etc/apt/trusted.gpg.d/influxdata-archive_compat.gpg] https://repos.influxdata.com/debian stable main' | sudo tee /etc/apt/sources.list.d/influxdata.list
+
+    - name: Install telegraf
+      package:
+        name: telegraf
+        state: present
+        update_cache: yes
+  when: ansible_distribution == "Ubuntu"
 
 - name: Configure telegraf
   template:
