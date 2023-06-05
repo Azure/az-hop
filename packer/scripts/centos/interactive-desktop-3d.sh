@@ -53,7 +53,6 @@ sed -i '/FeatureType=0/d' /etc/nvidia/gridd.conf
 echo "Test if nvidia-smi is working"
 set -e
 nvidia-smi
-set +e
 
 echo "################### INSTALL VirtualGL / VNC"
 yum groupinstall -y "X Window system"
