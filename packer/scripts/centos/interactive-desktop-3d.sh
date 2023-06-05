@@ -53,6 +53,7 @@ sed -i '/FeatureType=0/d' /etc/nvidia/gridd.conf
 echo "Test if nvidia-smi is working"
 set -e
 nvidia-smi
+set +e
 
 echo "################### INSTALL VirtualGL / VNC"
 yum groupinstall -y "X Window system"
@@ -63,7 +64,9 @@ yum install -y https://cbs.centos.org/kojifiles/packages/python-websockify/0.8.0
 wget --no-check-certificate "https://virtualgl.com/pmwiki/uploads/Downloads/VirtualGL.repo" -O /etc/yum.repos.d/VirtualGL.repo
 
 yum install -y VirtualGL turbojpeg xorg-x11-apps
+set -e
 /usr/bin/vglserver_config -config +s +f -t
+set +e
 
 systemctl disable firstboot-graphical
 systemctl set-default graphical.target
