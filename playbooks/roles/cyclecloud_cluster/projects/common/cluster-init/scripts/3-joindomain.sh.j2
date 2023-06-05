@@ -18,82 +18,114 @@ Host *
     UserKnownHostsFile /dev/null
 EOF
 
-delay=15
-n=1
-max_retry=3
+function rename_host() {
+  delay=15
+  n=1
+  max_retry=3
 
-standalone_dns=$(jetpack config cyclecloud.hosts.standalone_dns.enabled | tr '[:upper:]' '[:lower:]')
-if [[ $standalone_dns != "true" ]]; then
-  while true; do
-    current_hostname=$(hostname)
-    target_hostname=$(jetpack config cyclecloud.node.name)
+  standalone_dns=$(jetpack config cyclecloud.hosts.standalone_dns.enabled | tr '[:upper:]' '[:lower:]')
+  if [[ $standalone_dns != "true" ]]; then
+    while true; do
+      current_hostname=$(hostname)
+      target_hostname=$(jetpack config cyclecloud.node.name)
 
-    if [[ $n -le $max_retry ]]; then
-      if [ "$current_hostname" != "$target_hostname" ]; then
-        logger -s "hostname not renamed -  Attempt $n/$max_retry:"
-        enforce_hostname $current_hostname $target_hostname
-        sleep $delay
+      if [[ $n -le $max_retry ]]; then
+        if [ "$current_hostname" != "$target_hostname" ]; then
+          logger -s "hostname not renamed -  Attempt $n/$max_retry:"
+          enforce_hostname $current_hostname $target_hostname
+          sleep $delay
+        else
+          logger -s "hostname successfully renamed"
+          break
+        fi
+        ((n++))
       else
-        logger -s "hostname successfully renamed"
-        break
+        logger -s "Failed to rename host after $n attempts."
+        exit 1
       fi
-      ((n++))
+    done
+  fi
+}
+
+function domain_join()
+{
+  n=1
+  max_retry=3
+
+  while true; do
+    logger -s "Domain join on $ADMIN_DOMAIN - OU=$DOMAIN_JOIN_OU"
+    if [ ! -z "$DOMAIN_JOIN_OU" ]; then
+      REALM_OPTION="--computer-ou=$DOMAIN_JOIN_OU"
+    fi
+    echo $ADMIN_PASSWORD| realm join -v -U $ADMIN_NAME $ADMIN_DOMAIN $REALM_OPTION
+
+    if [ ! -f "/etc/sssd/sssd.conf" ]; then
+      if [[ $n -le $max_retry ]]; then
+        logger -s "Failed to domain join the server -  Attempt $n/$max_retry:"
+        sleep $delay
+        ((n++))
+      else
+        logger -s "Failed to domain join the server after $n attempts."
+        exit 1
+      fi
     else
-      logger -s "Failed to rename host after $n attempts."
-      exit 1
+      logger -s "Successfully joined domain $ADMIN_DOMAIN"
+      realm list
+      break
     fi
   done
-fi
 
-n=1
-max_retry=3
+  sed -i 's@use_fully_qualified_names.*@use_fully_qualified_names = False@' /etc/sssd/sssd.conf
+  sed -i 's@ldap_id_mapping.*@ldap_id_mapping = False@' /etc/sssd/sssd.conf
+  sed -i 's|fallback_homedir.*|fallback_homedir = {{mounts.home.mountpoint | default("/anfhome") }}/%u|' /etc/sssd/sssd.conf
 
-while true; do
-  logger -s "Domain join on $ADMIN_DOMAIN - OU=$DOMAIN_JOIN_OU"
-  if [ ! -z "$DOMAIN_JOIN_OU" ]; then
-    REALM_OPTION="--computer-ou=$DOMAIN_JOIN_OU"
-  fi
-  echo $ADMIN_PASSWORD| realm join -v -U $ADMIN_NAME $ADMIN_DOMAIN $REALM_OPTION
+  echo "ad_gpo_access_control = disabled" >> /etc/sssd/sssd.conf
 
-  if [ ! -f "/etc/sssd/sssd.conf" ]; then
-    if [[ $n -le $max_retry ]]; then
-      logger -s "Failed to domain join the server -  Attempt $n/$max_retry:"
-      sleep $delay
-      ((n++))
-    else
-      logger -s "Failed to domain join the server after $n attempts."
-      exit 1
-    fi
-  else
-    logger -s "Successfully joined domain $ADMIN_DOMAIN"
-    realm list
-    break
-  fi
-done
+  systemctl restart sssd
 
-sed -i 's@use_fully_qualified_names.*@use_fully_qualified_names = False@' /etc/sssd/sssd.conf
-sed -i 's@ldap_id_mapping.*@ldap_id_mapping = False@' /etc/sssd/sssd.conf
-sed -i 's|fallback_homedir.*|fallback_homedir = {{mounts.home.mountpoint | default("/anfhome") }}/%u|' /etc/sssd/sssd.conf
+  # Grant sudo for users in the azhop-localadmins group
+  echo "%{{ (usergroups | selectattr('gid', 'eq', 5002) | map(attribute='name'))[0] | default('azhop-localadmins', true) }} ALL=(ALL) NOPASSWD: ALL" | tee -a /etc/sudoers.d/azhop-localadmins
 
-echo "ad_gpo_access_control = disabled" >> /etc/sssd/sssd.conf
-
-systemctl restart sssd
-
-# Grant sudo for users in the azhop-localadmins group
-echo "%{{ (usergroups | selectattr('gid', 'eq', 5002) | map(attribute='name'))[0] | default('azhop-localadmins', true) }} ALL=(ALL) NOPASSWD: ALL" | tee -a /etc/sudoers.d/azhop-localadmins
-
-#This is to add the azhop-users group and the admin user for enabling ssh among the VM's
+  #This is to add the azhop-users group and the admin user for enabling ssh among the VM's
 cat <<EOF >>/etc/ssh/sshd_config
 Match group "{{ (usergroups | selectattr('gid', 'eq', 5000) | map(attribute='name'))[0] | default('azhop-users', true) }}"
   AllowUsers *
 AllowUsers {{admin_user | default('hpcadmin')}}
 EOF
 
-systemctl restart sshd
+  systemctl restart sshd
 
-# Check if we are domain joined
-realm list | grep active-directory
-if [ $? -eq 1 ]; then
-  logger -s "Node $(hostname) is not domain joined"
-  exit 1
-fi
+  # Check if we are domain joined
+  realm list | grep active-directory
+  if [ $? -eq 1 ]; then
+    logger -s "Node $(hostname) is not domain joined"
+    exit 1
+  fi
+}
+
+function add_localusers()
+{
+  {% for group in usergroups %}
+  groupadd -f -g {{ group.gid }} "{{ group.name }}"
+  {% endfor %}
+
+  {% for user in users %}
+  useradd -u {{ user.uid }} {{ user.name }} -G "{{ (usergroups | selectattr('gid', 'eq', 5000) | map(attribute='name'))[0] | default('azhop-users', true) }}" -b {{ mounts.home.mountpoint }} -s {{user.shell | default('/bin/bash')}}
+  grouplist="{{ usergroups | selectattr('gid', 'in', (user.groups | default([], true))) | map(attribute='name') | join(',') }}"
+  if [ "$grouplist" != "" ]; then
+    usermod -a -G $grouplist {{ user.name }}
+  fi
+  grouplist=
+  {% endfor %}
+}
+
+rename_host
+
+case {{ authentication.user_auth | default("ad") }} in
+  ad)
+    domain_join
+    ;;
+  local)
+    add_localusers
+    ;;
+esac
