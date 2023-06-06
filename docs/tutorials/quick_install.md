@@ -24,6 +24,8 @@ In this light environment, there is NO Lustre cluster, NO Window Viz nodes.
 
 To provision the **Az-hop** environment a Windows Subsystem for Linux (**WSL**) is needed to run the scripts and configure all components needed using Ansible playbooks. This second step is longer as it needs to install and configure Domain Control, CycleCloud, OpenOndemand, PBS, Grafana and many other things. The use of Ansible will allow this system to be updated and in case of failure the installation to be repaired.
 
+>Note: If you are looking to deploy the full version of AzHop with Lustre and more customization options, I recommend you to use the [Quick Start](https://azure.github.io/az-hop/tutorials/quickstart.html) guide.
+
 ## Requirements
 
 - Microsoft Azure subscription
