@@ -83,18 +83,6 @@ function domain_join()
 
   systemctl restart sssd
 
-  # Grant sudo for users in the azhop-localadmins group
-  echo "%{{ (usergroups | selectattr('gid', 'eq', 5002) | map(attribute='name'))[0] | default('azhop-localadmins', true) }} ALL=(ALL) NOPASSWD: ALL" | tee -a /etc/sudoers.d/azhop-localadmins
-
-  #This is to add the azhop-users group and the admin user for enabling ssh among the VM's
-cat <<EOF >>/etc/ssh/sshd_config
-Match group "{{ (usergroups | selectattr('gid', 'eq', 5000) | map(attribute='name'))[0] | default('azhop-users', true) }}"
-  AllowUsers *
-AllowUsers {{admin_user | default('hpcadmin')}}
-EOF
-
-  systemctl restart sshd
-
   # Check if we are domain joined
   realm list | grep active-directory
   if [ $? -eq 1 ]; then
@@ -129,3 +117,15 @@ case {{ authentication.user_auth | default("ad") }} in
     add_localusers
     ;;
 esac
+
+# Grant sudo for users in the azhop-localadmins group
+echo "%{{ (usergroups | selectattr('gid', 'eq', 5002) | map(attribute='name'))[0] | default('azhop-localadmins', true) }} ALL=(ALL) NOPASSWD: ALL" | tee -a /etc/sudoers.d/azhop-localadmins
+
+#This is to add the azhop-users group and the admin user for enabling ssh among the VM's
+cat <<EOF >>/etc/ssh/sshd_config
+Match group "{{ (usergroups | selectattr('gid', 'eq', 5000) | map(attribute='name'))[0] | default('azhop-users', true) }}"
+  AllowUsers *
+AllowUsers {{admin_user | default('hpcadmin')}}
+EOF
+
+systemctl restart sshd
