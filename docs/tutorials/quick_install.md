@@ -170,13 +170,14 @@ After this the WSL2 is ready to use.
 
 During this task, you will prepare the **config.yml** file to configure the environment.
 
-1. Get into the az-hop folder downloaded previously on Task #2 and execute the following command to create a new copy of the file with the right extension.
+1. Get into the az-hop folder downloaded previously on Task #2 and execute the following command to create a new copy of the config file with the right extension.
+    >Note: During this exercise you will use a lighter version of the original config file designed for the Quick Install guide.
 
    ```bash
-   cp config.tpl.yml config.yml
+   cp config-qinstall.yml config.yml
    ```
 
-2. Review the **config.yml** file content, which describe the resources that will be provisioned. Use the following command to open the file in editor mode. You can leave the default configuration by just changing the **project_name, location and resource_group** values.
+2. Review the **config.yml** file content, which describe the resources that will be provisioned. Use the following command to open the file in editor mode. You can leave the default configuration and just change the **project_name, location and resource_group** values.
 
     ```bash
     vim config.yml

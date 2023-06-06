@@ -6,34 +6,13 @@ project_name: az-hop
 # azure location name as returned by the command : az account list-locations -o table
 location: westus2
 # Name of the resource group to create all resources
-resource_group: azhop
+resource_group: azhop-qinstall
 # If using an existing resource group set to true. Default is false
 # When using an existing resource group make sure the location match the one of the existing resource group
 use_existing_rg: false
 # If set to true, will disable telemetry for azhop. See https://azure.github.io/az-hop/deploy/telemetry.html.
 #optout_telemetry: true
 
-# A log analytics workspace can be created for monitoring or alerting 
-# Alternatively, you can use an existing workspace. 
-# To use an existing workspace set create to false and specify the resource group, name and subscription the target workspace lives in
-#log_analytics:
-#  create: true
-  # An existing log analytics workspace can be used instead. The resource group, name and subscription id of the workspace will need to be specified.
-  # Grant the role "Log Analytics Contributor" on the target Log Analytics Workspace for the identity used to deploy az-hop
-  #resource_group:
-  #name:
-  #subscription_id: # Optional, if not specified the current subscription will be used
-
-# Option to install the monitoring agent on static infra VMs. Can be disabled if the agent is installed by policy.  
-#monitoring: 
-#  install_agent: true 
-  
-#If set to true, it will create alert rules associated with az-hop. Enablement of alerting will require the specification of an admin email to send alerts to.
-#alerting:
-#  enabled: true
-#  admin_email: admin.mail@contoso.com
-  local_volume_threshold: 80
-# Additional tags to be added on the Resource Group
 tags:
   env: dev
   project: azhop
@@ -64,11 +43,6 @@ mounts:
     server: '{{anf_home_ip}}' # Specify an existing NFS server name or IP, when using the ANF built in use '{{anf_home_ip}}'
     export: '{{anf_home_path}}' # Specify an existing NFS export directory, when using the ANF built in use '{{anf_home_path}}'
     options: '{{anf_home_opts}}' # Specify the mount options. Default to rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev
-#  mount1:
-#    mountpoint: /mount1 
-#    server: a.b.c.d # Specify an existing NFS server name or IP
-#    export: myexport1 # Specify an existing NFS export name
-#    options: my_options # Specify the mount options.
 
 # name of the admin account
 admin_user: hpcadmin
@@ -82,9 +56,6 @@ network:
     name: hpcvnet # Optional - default to hpcvnet
     #id: # If a vnet id is set then no network will be created and the provided vnet will be used
     address_space: "10.0.0.0/23" 
-    # Special VNET Tags
-    # tags:
-    #   key1: value1
     # When using an existing VNET, only the subnet names will be used and not the adress_prefixes
     subnets: # all subnets are optionals
     # name values can be used to rename the default to specific names, address_prefixes to change the IP ranges to be used
@@ -101,59 +72,15 @@ network:
         name: netapp
         address_prefixes: "10.0.0.32/28"
         create: true
-      # the outbounddns is optional and only when deploying an Azure Private DNS Resolver
-      # outbounddns:
-      #   name: outbounddns
-      #   address_prefixes: "10.0.0.48/28"
-      #   create: true
       ad:
         name: ad
         address_prefixes: "10.0.0.8/29"
         create: true
-      # Bastion and Gateway subnets are optional and can be added if a Bastion or a VPN need to be created in the environment
-      # bastion: # Bastion subnet name is always fixed to AzureBastionSubnet
-      #   address_prefixes: "10.0.0.64/26" # CIDR minimal range must be /26
-      #   create: true
-      # gateway: # Gateway subnet name is always fixed to GatewaySubnet
-      #   address_prefixes: "10.0.0.128/27" # Recommendation is to use /27 or /26 network
-      #   create: true
       compute:
         name: compute
         address_prefixes: "10.0.1.0/24"
         create: true
   # Specify the Application Security Groups mapping if already existing
-# asg:
-#   resource_group: # name of the resource group containing the ASG. Default to the resource group containing azhop resources
-#   names: # list of ASG names mapping to the one defined in az-hop
-#     asg-ssh: asg-ssh
-#     asg-rdp: asg-rdp
-#     asg-jumpbox: asg-jumpbox
-#     asg-ad: asg-ad
-#     asg-ad-client: asg-ad-client
-#     asg-lustre: asg-lustre
-#     asg-lustre-client: asg-lustre-client
-#     asg-pbs: asg-pbs
-#     asg-pbs-client: asg-pbs-client
-#     asg-cyclecloud: asg-cyclecloud
-#     asg-cyclecloud-client: asg-cyclecloud-client
-#     asg-nfs-client: asg-nfs-client
-#     asg-telegraf: asg-telegraf
-#     asg-grafana: asg-grafana
-#     asg-robinhood: asg-robinhood
-#     asg-ondemand: asg-ondemand
-#     asg-deployer: asg-deployer
-#     asg-guacamole: asg-guacamole
-#     asg-mariadb-client: asg-mariadb-client
-    
-#  peering: # This list is optional, and can be used to create VNet Peerings in the same subscription.
-#    - vnet_name: #"VNET Name to Peer to"
-#      vnet_resource_group: #"Resource Group of the VNET to peer to"
-#      vnet_allow_gateway: false # optional: allow gateway transit (default: true)
-
-# Specify DNS forwarders available in the network
-# dns:
-#   forwarders:
-#     - { name: foo.com, ips: "10.2.0.4, 10.2.0.5" }
 
 # When working in a locked down network, uncomment and fill out this section
 locked_down_network:
@@ -200,32 +127,10 @@ cyclecloud:
   vm_size: Standard_B2ms
   # version: 8.3.0-3062 # to specify a specific version, see https://packages.microsoft.com/yumrepos/cyclecloud/
 
-# Lustre cluster is optional and can be used to create a Lustre cluster in the environment.
-#lustre:
-  #create: false # true or false to create a lustre cluster
-  #rbh_sku: "Standard_D8d_v4"
-  #mds_sku: "Standard_D8d_v4"
-  #oss_sku: "Standard_D32d_v4"
-  #oss_count: 2
-  #hsm_max_requests: 8
-  #mdt_device: "/dev/sdb"
-  #ost_device: "/dev/sdb"
-  # optional to use existing storage for the archive
-  # if not included it will use the azhop storage account that is created
-  # hsm:
-  #   storage_account: #existing_storage_account_name
-  #   storage_container: #only_used_with_existing_storage_account
 # List of users to be created on this environment
 users:
-  # name: username - must be less than 20 characters
-  # uid: uniqueid
-  # shell: /bin/bash # default to /bin/bash
-  # home: /anfhome/<user_name> # default to /homedir_mountpoint/user_name
-  # groups: list of groups the user belongs to
   - { name: clusteradmin, uid: 10001, groups: [5001, 5002] }
   - { name: hpcuser, uid: 10002 }
-  # - { name: user1, uid: 10003, groups: [6000] }
-  # - { name: user2, uid: 10004, groups: [6001] }
 
 usergroups:
 # These groups can’t be changed
@@ -237,15 +142,6 @@ usergroups:
   - name: az-hop-localadmins
     gid: 5002
     description: "For users with sudo right or local admin right on nodes"
-# For custom groups use gid >= 6000
-  # - name: project1 # For project1 users
-  #   gid: 6000
-  # - name: project2 # For project2 users
-  #   gid: 6001
-
-# Enable cvmfs-eessi - disabled by default
-#cvmfs_eessi:
-  #enabled: false
 
 # scheduler to be installed and configured (openpbs, slurm)
 queue_manager: openpbs
@@ -265,55 +161,17 @@ slurm:
 enroot:
   enroot_version: 3.4.1
 
-# If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values
-#database:
-  # Admin user of the database for which the password will be retrieved from the azhop keyvault
-  #user: sqladmin
-  # FQDN of the managed instance
-  #fqdn:
-  # IP of the managed private endpoint if the FQDN is not registered in a private DNS
-  #ip:
-
-# Create a Bastion in the bastion subnet when defined
-#bastion:
-  #create: false
-
-# Create a VPN Gateway in the gateway subnet when specified
-#vpn_gateway:
-  #create: false
-
 # Authentication configuration for accessing the az-hop portal
 # Default is basic authentication. For oidc authentication you have to specify the following values
 # The OIDCClient secret need to be stored as a secret named <oidc-client-id>-password in the keyvault used by az-hop
 authentication:
   httpd_auth: basic # oidc or basic
-  # User mapping https://osc.github.io/ood-documentation/latest/reference/files/ood-portal-yml.html#ood-portal-generator-user-map-match
-  # You can specify either a map_match or a user_map_cmd
-  # Domain users are mapped to az-hop users with the same name and without the domain name
-  # user_map_match: '^([^@]+)@mydomain.foo$'
-  # If using a custom mapping script, update it from the ./playbooks/files directory before running the playbook
-  # user_map_cmd: /opt/ood/ood_auth_map/bin/custom_mapping.sh
-  # ood_auth_openidc:
-  #   OIDCProviderMetadataURL: # for AAD use 'https://sts.windows.net/{{tenant_id}}/.well-known/openid-configuration'
-  #   OIDCClientID: 'XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX'
-  #   OIDCRemoteUserClaim: # for AAD use 'upn'
-  #   OIDCScope: # for AAD use 'openid profile email groups'
-  #   OIDCPassIDTokenAs: # for AAD use 'serialized'
-  #   OIDCPassRefreshToken: # for AAD use 'On'
-  #   OIDCPassClaimsAs: # for AAD use 'environment'
 
 image_gallery:
   create: true # Create the shared image gallery to store custom images
 
 # List of images to be defined
 images:
-  # - name: image_definition_name # Should match the packer configuration file name, one per packer file
-  #   publisher: azhop
-  #   offer: CentOS
-  #   sku: 7_9-gen2
-  #   hyper_v: V2 # V1 or V2 (V1 is the default)
-  #   os_type: Linux # Linux or Windows
-  #   version: 7.9 # Version of the image to create the image definition in SIG. Pattern is major.minor where minor is mandatory
 # Pre-defined images
   - name: azhop-compute-almalinux-8_7
     publisher: azhop
@@ -403,10 +261,6 @@ queues:
     max_core_count: 1024
     # Use the pre-built azhop image from the marketplace
     image: azhpc:azhop-compute:centos-7_9:latest
-    # Use this image ID when building your own custom images
-    #image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
-    # Image plan specification (when needed for the image). Terms must be accepted prior to deployment
-    # plan: publisher:product:name
     # Set to true if AccelNet need to be enabled. false is the default value
     EnableAcceleratedNetworking: false
     # spot instance support. Default is false
