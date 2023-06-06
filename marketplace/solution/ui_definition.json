@@ -135,6 +135,40 @@
     ],
     "steps": [
       {
+        "name": "authentication",
+        "label": "Authentication",
+        "subLabel": {
+          "preValidation": "Configure your authentication settings",
+          "postValidation": "Done"
+        },
+        "bladeTitle": "Authentication Settings",
+        "elements": [
+          {
+            "name": "userAuthentication",
+            "type": "Microsoft.Common.DropDown",
+            "label": "User Authentication",
+            "defaultValue": "Active Directory",
+            "toolTip": "Select the method to authenticate users",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "Active Directory",
+                  "description": "Deploy Active Directory for user authentication and domain control",
+                  "value": "ad"
+                },
+                {
+                  "label": "Local users",
+                  "description": "Add local users for user authentication",
+                  "value": "local"
+                }
+              ],
+              "required": true
+            },
+            "visible": true
+          }
+        ]
+      },
+      {
         "name": "homedir",
         "label": "Home Directory",
         "subLabel": {
@@ -352,6 +386,48 @@
               "validationMessage": "Enter a valid resource group name"
             },
             "visible": "[and(not(steps('network').publicIp),steps('network').peering)]"
+          }
+        ]
+      },
+      {
+        "name": "scheduler",
+        "label": "Scheduler",
+        "subLabel": {
+          "preValidation": "Configure your scheduler settings",
+          "postValidation": "Done"
+        },
+        "bladeTitle": "Scheduler Settings",
+        "elements": [
+          {
+            "name": "scheduler",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Scheduler",
+            "defaultValue": "SLURM",
+            "toolTip": "Select the scheduler to use",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "SLURM",
+                  "description": "Simple Linux Utility for Resource Management scheduler",
+                  "value": "slurm"
+                },
+                {
+                  "label": "OpenPBS",
+                  "description": "Open Portable Batch System scheduler",
+                  "value": "openpbs"
+                }
+              ],
+              "required": true
+            },
+            "visible": true
+          },
+          {
+            "name": "slurmAccounting",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "SLURM accounting",
+            "toolTip": "Select to enable SLURM accounting",
+            "defaultValue": true,
+            "visible": "[equals(steps('scheduler').scheduler, 'slurm')]"
           }
         ]
       }

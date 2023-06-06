@@ -8,7 +8,7 @@ use_existing_rg: false
 tags:
   env: dev
   project: azhop
-  scheduler: slurm
+  scheduler: "[steps('scheduler').scheduler]"
 
 log_analytics:
   create: false
@@ -120,10 +120,10 @@ usergroups:
 cvmfs_eessi:
   enabled: true
 
-queue_manager: slurm
+queue_manager: "[steps('scheduler').scheduler]"
 
 slurm:
-  accounting_enabled: true
+  accounting_enabled: "[if(equals(steps('scheduler').scheduler, 'slurm'), steps('scheduler').slurmAccounting, false)]"
   slurm_version: 20.11.9
 
 enroot:
@@ -139,6 +139,7 @@ vpn_gateway:
   create: false
 
 authentication:
+  user_auth: "[steps('authentication').userAuthentication]"
   httpd_auth: basic # oidc or basic
 
 autoscale:
