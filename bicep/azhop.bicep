@@ -56,6 +56,8 @@ var linuxBasePlan = contains(azhopConfig, 'linux_base_plan') ? azhopConfig.linux
 var windowsBaseImage = contains(azhopConfig, 'windows_base_image') ? azhopConfig.windows_base_image : 'MicrosoftWindowsServer:WindowsServer:2019-Datacenter-smalldisk:latest'
 var lustreBaseImage = contains(azhopConfig, 'lustre_base_image') ? azhopConfig.lustre_base_image : 'azhpc:azurehpc-lustre:azurehpc-lustre-2_12:latest'
 var lustreBasePlan = contains(azhopConfig, 'lustre_base_plan') ? azhopConfig.lustre_base_plan : 'azhpc:azurehpc-lustre:azurehpc-lustre-2_12'
+var cyclecloudBaseImage = contains(azhopConfig.cyclecloud, 'image') ? azhopConfig.cyclecloud.image : 'OpenLogic:CentOS:7_9-gen2:latest'
+var cyclecloudBasePlan = contains(azhopConfig.cyclecloud, 'plan') ? azhopConfig.cyclecloud.plan : ''
 
 var createDatabase = (config.queue_manager == 'slurm' && config.slurm.accounting_enabled ) || config.enable_remote_winviz
 
@@ -252,6 +254,17 @@ var config = {
         version: split(windowsBaseImage,':')[3]
       }
     }
+    cyclecloud_base: {
+      plan: cyclecloudBasePlan
+      ref: contains(cyclecloudBaseImage, '/') ? {
+        id: cyclecloudBaseImage
+      } : {
+        publisher: split(cyclecloudBaseImage,':')[0]
+        offer: split(cyclecloudBaseImage,':')[1]
+        sku: split(cyclecloudBaseImage,':')[2]
+        version: split(cyclecloudBaseImage,':')[3]
+      }
+    }
   }
 
 
@@ -279,7 +292,7 @@ var config = {
         subnet: 'admin'
         sku: azhopConfig.cyclecloud.vm_size
         osdisksku: 'StandardSSD_LRS'
-        image: 'linux_base'
+        image: 'cyclecloud_base'
         datadisks: [
           {
             name: 'ccportal-datadisk0'

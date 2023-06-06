@@ -119,6 +119,8 @@ locals {
     use_lustre_image_reference = try(length(split(":", local.configuration_yml["lustre_base_image"])[1])>0, false)
     # Use a linux custom image reference if the linux_base_image is defined and contains ":"
     use_windows_image_reference = try(length(split(":", local.configuration_yml["windows_base_image"])[1])>0, false)
+    # Use a linux custom image reference if the linux_base_image is defined and contains ":"
+    use_cyclecloud_image_reference = try(length(split(":", local.configuration_yml["cyclecloud"]["image"])[1])>0, false)
 
     linux_base_image_reference = {
         publisher = local.use_linux_image_reference ? split(":", local.configuration_yml["linux_base_image"])[0] : "OpenLogic"
@@ -138,6 +140,12 @@ locals {
         sku       = local.use_windows_image_reference ? split(":", local.configuration_yml["windows_base_image"])[2] : "2019-Datacenter-smalldisk"
         version   = local.use_windows_image_reference ? split(":", local.configuration_yml["windows_base_image"])[3] : "latest"
     }
+    cyclecloud_image_reference = {
+        publisher = local.use_cyclecloud_image_reference ? split(":", local.configuration_yml["cyclecloud"]["image"])[0] : "OpenLogic"
+        offer     = local.use_cyclecloud_image_reference ? split(":", local.configuration_yml["cyclecloud"]["image"])[1] : "CentOS"
+        sku       = local.use_cyclecloud_image_reference ? split(":", local.configuration_yml["cyclecloud"]["image"])[2] : "7_9-gen2"
+        version   = local.use_cyclecloud_image_reference ? split(":", local.configuration_yml["cyclecloud"]["image"])[3] : "latest"
+    }
 
     # Use a linux custom image id if the linux_base_image is defined and contains "/"
     use_linux_image_id = try(length(split("/", local.configuration_yml["linux_base_image"])[1])>0, false)
@@ -150,6 +158,10 @@ locals {
     # Use a windows custom image id if the windows_base_image is defined and contains "/"
     use_windows_image_id = try(length(split("/", local.configuration_yml["windows_base_image"])[1])>0, false)
     windows_image_id = local.use_windows_image_id ? local.configuration_yml["windows_base_image"] : null
+
+    # Use a cyclecloud custom image id if the cyclecloud_base_image is defined and contains "/"
+    use_cyclecloud_image_id = try(length(split("/", local.configuration_yml["cyclecloud"]["image"])[1])>0, false)
+    cyclecloud_image_id = local.use_cyclecloud_image_id ? local.configuration_yml["cyclecloud"]["image"] : null
 
     _empty_image_plan = {}
     _linux_base_image_plan = {
@@ -165,6 +177,14 @@ locals {
         name      = try(split(":", local.configuration_yml["lustre_base_plan"])[2], "azurehpc-lustre-2_12")
     }
     lustre_image_plan = try( length(local._lustre_base_image_plan.publisher) > 0 ? local._lustre_base_image_plan : local._empty_image_plan, local._empty_image_plan)
+
+    _cyclecloud_image_plan = {
+        publisher = try(split(":", local.configuration_yml["cyclecloud"]["plan"])[0], "")
+        product   = try(split(":", local.configuration_yml["cyclecloud"]["plan"])[1], "")
+        name      = try(split(":", local.configuration_yml["cyclecloud"]["plan"])[2], "")
+    }
+    cyclecloud_image_plan = try( length(local._cyclecloud_image_plan.publisher) > 0 ? local._cyclecloud_image_plan : local._empty_image_plan, local._empty_image_plan)
+
 
     # Create the RG if not using an existing RG and (creating a VNET or when reusing a VNET in another resource group)
     use_existing_rg = try(local.configuration_yml["use_existing_rg"], false)

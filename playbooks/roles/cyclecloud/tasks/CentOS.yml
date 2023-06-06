@@ -1,0 +1,60 @@
+---
+- name: Disable SELinux
+  selinux:
+    state: disabled
+  register: selinux
+
+- name: reboot 
+  reboot:
+  when: selinux.reboot_required 
+
+- name: Update packages marked for security
+  yum:
+    state: latest
+    security: yes
+    lock_timeout : 180
+
+- name: install AZ CLI repo (CentOS)
+  shell: |
+    set -e
+    rpm --import https://packages.microsoft.com/keys/microsoft.asc
+    cat > /etc/yum.repos.d/azure-cli.repo <<EOF
+    [azure-cli]
+    name=Azure CLI
+    baseurl=https://packages.microsoft.com/yumrepos/azure-cli
+    enabled=1
+    gpgcheck=1
+    gpgkey=https://packages.microsoft.com/keys/microsoft.asc
+    EOF
+  args:
+    creates: /etc/yum.repos.d/azure-cli.repo
+
+- name: install CycleCloud repo
+  shell: |
+    cat > /etc/yum.repos.d/cyclecloud.repo <<EOF
+    [cyclecloud]
+    name=cyclecloud
+    baseurl=https://packages.microsoft.com/yumrepos/cyclecloud
+    gpgcheck=1
+    gpgkey=https://packages.microsoft.com/keys/microsoft.asc
+    EOF
+  args:
+    creates: /etc/yum.repos.d/cyclecloud.repo
+
+- name: Install pre-reqs packages
+  yum:
+    name: azure-cli, dnsmasq, unzip
+    state: present
+    lock_timeout : 180
+
+- name: Install CycleCloud
+  yum:
+    name: "cyclecloud8-{{cc_version}}"
+    state: present
+    lock_timeout : 180
+
+- name: Install Jetpack
+  yum:
+    name: "jetpack8-{{cc_version}}"
+    state: present
+    lock_timeout : 180

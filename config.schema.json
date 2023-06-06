@@ -573,7 +573,15 @@
             "additionalProperties": false,
             "properties": {
                 "vm_size": { "type": "string" },
-                "version": { "type": "string" }
+                "version": { "type": "string" },
+                "image": {
+                    "description": "Can be either an image reference or an image_id from the image registry or a custom managed image",
+                    "type": "string"
+                },
+                "plan": {
+                    "description": "Image plan specification (when needed for the image). Terms must be accepted prior to deployment",
+                    "type": "string"
+                }
             },
             "required": [
                 "vm_size"

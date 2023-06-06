@@ -1,52 +1,11 @@
 ---
-- name: Disable SELinux
-  selinux:
-    state: disabled
-  register: selinux
-
-- name: reboot 
-  reboot:
-  when: selinux.reboot_required 
 
 # setup CycleCloud. Ported from https://github.com/Azure/cyclecloud-marketplace-image/blob/main/scripts/setup_cyclecloud.sh
-
 - name: debug
   debug:
     msg:
       - "cc_version={{cc_version}}"
-
-- name: Update packages marked for security
-  yum:
-    state: latest
-    security: yes
-    lock_timeout : 180
-
-- name: install AZ CLI repo
-  shell: |
-    set -e
-    rpm --import https://packages.microsoft.com/keys/microsoft.asc
-    cat > /etc/yum.repos.d/azure-cli.repo <<EOF
-    [azure-cli]
-    name=Azure CLI
-    baseurl=https://packages.microsoft.com/yumrepos/azure-cli
-    enabled=1
-    gpgcheck=1
-    gpgkey=https://packages.microsoft.com/keys/microsoft.asc
-    EOF
-  args:
-    creates: /etc/yum.repos.d/azure-cli.repo
-
-- name: install CycleCloud repo
-  shell: |
-    cat > /etc/yum.repos.d/cyclecloud.repo <<EOF
-    [cyclecloud]
-    name=cyclecloud
-    baseurl=https://packages.microsoft.com/yumrepos/cyclecloud
-    gpgcheck=1
-    gpgkey=https://packages.microsoft.com/keys/microsoft.asc
-    EOF
-  args:
-    creates: /etc/yum.repos.d/cyclecloud.repo
+      - "Distribution={{ansible_distribution}}"
 
 - name: mount data disk
   shell: |
@@ -63,23 +22,8 @@
     echo "UUID=$disk_uuid /opt/cycle_server xfs defaults,nofail 1 2" >> /etc/fstab
     mount /opt/cycle_server
 
-- name: Install pre-reqs packages
-  yum:
-    name: azure-cli, dnsmasq
-    state: present
-    lock_timeout : 180
-
-- name: Install CycleCloud
-  yum:
-    name: "cyclecloud8-{{cc_version}}"
-    state: present
-    lock_timeout : 180
-
-- name: Install Jetpack
-  yum:
-    name: "jetpack8-{{cc_version}}"
-    state: present
-    lock_timeout : 180
+- name: Perform OS dependent configuration tasks
+  include_tasks: "{{ansible_distribution}}.yml"
 
 - name: Create a data record for azhop and start cycleserver
   shell: |
@@ -99,12 +43,13 @@
   shell: |
     set -e
     _tmpdir=$(mktemp -d)
-    pushd $_tmpdir
+    mydir=$PWD
+    cd $_tmpdir
     CS_ROOT=/opt/cycle_server
     unzip $CS_ROOT/tools/cyclecloud-cli.zip
-    pushd cyclecloud-cli-installer
+    cd cyclecloud-cli-installer
     ./install.sh --system -y
-    popd
+    cd $mydir
     # Update properties
     sed -i 's/webServerMaxHeapSize\=2048M/webServerMaxHeapSize\=4096M/' $CS_ROOT/config/cycle_server.properties
     sed -i 's/webServerPort\=8080/webServerPort\=80/' $CS_ROOT/config/cycle_server.properties

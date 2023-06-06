@@ -46,3 +46,4 @@
       name: '*'
       state: latest
       exclude: cyclecloud*
+    when: ansible_distribution == "CentOS"
