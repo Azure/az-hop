@@ -5,6 +5,7 @@
 name : Daily Deploy Only Bicep/Terraform/ARM
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: "10 10 * * *" # At 10:10 UTC Daily
 
