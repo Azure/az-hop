@@ -1,0 +1,91 @@
+name : Deploy Only Callable Workflow
+
+on:
+  workflow_call:
+    inputs:
+      resource_group:
+        description: 'Name of the resource group to deploy in - In case of an existing resource group the environment will be updated'
+        required: true
+        default: 'AUTO_GENERATED'
+        type: string
+      location:
+        description: 'Azure location where to deploy to - default to westeurope'
+        required: true
+        default: 'westeurope'
+        type: string
+      scheduler:
+        description: 'Job Scheduler to be installed : openpbs/slurm'
+        required: true
+        default: 'openpbs' # use it with ${{ inputs.scheduler }}
+        type: string
+      home_type:
+        description: 'Home directory type anf/azurefiles- Default to anf'
+        required: false
+        default: 'anf' # use it with ${{ inputs.home_type }}
+        type: string
+      user_auth:
+        description: 'User Authentication: local/ad - Default to ad'
+        required: false
+        default: 'ad' # use it with ${{ inputs.user_auth }}
+        type: string
+      deploy_with:
+        description: 'Method used for the deployment - tf, bicep or arm - Default to bicep'
+        required: false
+        default: 'bicep' # use it with ${{ inputs.deploy_with }}
+        type: string
+      clean:
+        description: 'Clean all resources'
+        required: false
+        default: 'true' # use it with ${{ inputs.clean }}
+        type: string
+
+    secrets:
+      ARM_SUBSCRIPTION_ID:
+        required: true
+      ARM_TENANT_ID:
+        required: true
+      ARM_CLIENT_ID:
+        required: true
+      ARM_CLIENT_SECRET:
+        required: true
+
+jobs:
+  create_config:
+    uses: azure/az-hop/.github/workflows/z_create_config_callable.yml@main
+    with:
+      resource_group: ${{ inputs.resource_group }}
+      location: ${{ inputs.location }}
+      scheduler: ${{ inputs.scheduler }}
+      lustre: 'false'
+      home_type: ${{ inputs.home_type }}
+      winviz: 'false'
+      user_auth: ${{ inputs.user_auth }}
+    secrets:
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+
+  deploy:
+    uses: azure/az-hop/.github/workflows/z_deploy_callable.yml@main
+    needs: create_config
+    with:
+      resource_group: ${{ needs.create_config.outputs.resource_group }}
+      deploy_with: ${{ inputs.deploy_with }}
+    secrets:
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+
+  destroy:
+    uses: azure/az-hop/.github/workflows/z_destroy_callable.yml@main
+    if: always() && inputs.clean == 'true'
+    needs: [create_config, deploy]
+    with:
+      resource_group: ${{ needs.create_config.outputs.resource_group }}
+    secrets:
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}

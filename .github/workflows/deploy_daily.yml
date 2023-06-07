@@ -2,58 +2,30 @@
 # Copyright (c) Microsoft Corporation
 # Licensed under the MIT License.
 #
-name : Daily Deploy Only Bicep/Terraform
+name : Daily Deploy Only Bicep/Terraform/ARM
 
 on:
   schedule:
     - cron: "10 10 * * *" # At 10:10 UTC Daily
 
 jobs:
-  deploy_terraform:
-    uses: azure/az-hop/.github/workflows/main_callable.yml@main
+  deploy:
+    strategy:
+      fail-fast: false
+      matrix:
+        scheduler: ['slurm', 'openpbs']
+        home_type: ['azurefiles', 'anf']
+        user_auth: ['local', 'ad']
+        deploy_with: ['bicep', 'tf', 'arm']
+    uses: azure/az-hop/.github/workflows/z_deploy_only_callable.yml@main
     with:
       resource_group: 'AUTO_GENERATED'
       location: 'westeurope'
+      scheduler: ${{ matrix.scheduler }}
+      home_type: ${{ matrix.home_type }}
+      user_auth: ${{ matrix.user_auth }}
+      deploy_with: ${{ matrix.deploy_with }}
       clean: 'true'
-      anf_dual: 'false'
-      scheduler: 'openpbs'
-      lustre: 'true'
-      deploy_only: 'true'
-      deploy_with: 'tf'
-    secrets:
-      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-
-  deploy_bicep:
-    uses: azure/az-hop/.github/workflows/main_callable.yml@main
-    with:
-      resource_group: 'AUTO_GENERATED'
-      location: 'westeurope'
-      clean: 'true'
-      anf_dual: 'false'
-      scheduler: 'openpbs'
-      lustre: 'false'
-      deploy_only: 'true'
-      deploy_with: 'bicep'
-    secrets:
-      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-
-  deploy_arm:
-    uses: azure/az-hop/.github/workflows/main_callable.yml@main
-    with:
-      resource_group: 'AUTO_GENERATED'
-      location: 'westeurope'
-      clean: 'true'
-      anf_dual: 'false'
-      scheduler: 'openpbs'
-      lustre: 'false'
-      deploy_only: 'true'
-      deploy_with: 'arm'
     secrets:
       ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
       ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
