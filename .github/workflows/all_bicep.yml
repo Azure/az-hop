@@ -8,6 +8,7 @@ on:
 jobs:
   deploy:
     strategy:
+      max-parallel: 2
       fail-fast: false
       matrix:
         scheduler: ['slurm', 'openpbs']

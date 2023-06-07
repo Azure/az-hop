@@ -37,6 +37,7 @@ jobs:
   deploy:
     strategy:
       fail-fast: false
+      max-parallel: 2
       matrix:
         scheduler: ${{ fromJson( github.event.inputs.scheduler_list ) }}
         home_type: ${{ fromJson( github.event.inputs.home_type_list ) }}
