@@ -1,0 +1,33 @@
+name : All Bicep
+run-name: ${{ matrix.scheduler }} ${{ matrix.home_type }} ${{ matrix.user_auth }}
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "10 1 * * *" # At 01:10 UTC Daily
+
+jobs:
+  deploy:
+    strategy:
+      fail-fast: false
+      matrix:
+        scheduler: ['slurm', 'openpbs']
+        home_type: ['azurefiles', 'anf']
+        user_auth: ['local', 'ad']
+    uses: azure/az-hop/.github/workflows/z_base_callable.yml@main
+    with:
+      resource_group: 'AUTO_GENERATED'
+      location: 'westeurope'
+      scheduler: ${{ matrix.scheduler }}
+      lustre: 'false'
+      home_type: ${{ matrix.home_type }}
+      winviz: 'false'
+      user_auth: ${{ matrix.user_auth }}
+      deploy_with: 'bicep'
+      clean: 'true'
+      ui_tests: 'true'
+    secrets:
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
