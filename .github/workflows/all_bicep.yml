@@ -1,5 +1,4 @@
 name : All Bicep
-run-name: ${{ matrix.scheduler }} ${{ matrix.home_type }} ${{ matrix.user_auth }}
 
 on:
   workflow_dispatch:
