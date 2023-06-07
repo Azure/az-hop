@@ -28,7 +28,7 @@ def clean_up():
 def _catch_sys_error(cmd_list):
     try:
         output = check_output(cmd_list)
-        print(cmd_list)
+        # print(cmd_list)
         print(output)
         return output
     except CalledProcessError as e:
@@ -185,8 +185,8 @@ def cyclecloud_account_setup(vm_metadata, use_managed_identity, tenant_id, appli
     with open(azure_data_file, 'w') as fp:
         json.dump(azure_data, fp)
 
-    print("CycleCloud account data:")
-    print(json.dumps(azure_data))
+    # print("CycleCloud account data:")
+    # print(json.dumps(azure_data))
 
     copy2(account_data_file, cycle_root + "/config/data/")
     # Wait for the data to be imported
