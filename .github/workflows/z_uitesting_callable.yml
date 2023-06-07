@@ -45,7 +45,7 @@ jobs:
   #   runs-on: self-hosted
   #   name: init_matrix
   #   container:
-  #     image: azhop.azurecr.io/hpcrover:2305.2210
+  #     image: azhop.azurecr.io/hpcrover:2306.0708
   #     credentials:
   #       username: ${{ env.ARM_CLIENT_ID }}
   #       password: ${{ env.ARM_CLIENT_SECRET }}
@@ -89,7 +89,7 @@ jobs:
     timeout-minutes: 60
 
     container:
-      image: azhop.azurecr.io/hpcrover:2305.2210
+      image: azhop.azurecr.io/hpcrover:2306.0708
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
