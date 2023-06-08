@@ -1,4 +1,4 @@
-name : All Bicep
+name : All Bicep End to End
 
 on:
   workflow_dispatch:
