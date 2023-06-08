@@ -127,6 +127,8 @@ var config = {
   storage_account_name: contains(azhopConfig, 'azure_storage_account') ? azhopConfig.azure_storage_account.name : 'azhop${resourcePostfix}'
   mariadb_name: contains(azhopConfig, 'database') && contains(azhopConfig.database, 'name') ? azhopConfig.database.name : 'azhop-${resourcePostfix}'
 
+  deploy_grafana: deployGrafana
+
   enable_remote_winviz : enableWinViz
   deploy_sig: contains(azhopConfig, 'image_gallery') && contains(azhopConfig.image_gallery, 'create') ? azhopConfig.image_gallery.create : false
 
@@ -411,8 +413,9 @@ var config = {
     } : {}
   )
 
-  asg_names: union([ 'asg-ssh', 'asg-rdp', 'asg-jumpbox', 'asg-ad', 'asg-ad-client', 'asg-pbs', 'asg-pbs-client', 'asg-cyclecloud', 'asg-cyclecloud-client', 'asg-nfs-client', 'asg-telegraf', 'asg-grafana', 'asg-robinhood', 'asg-ondemand', 'asg-deployer', 'asg-guacamole', 'asg-mariadb-client' ],
-    deployLustre ? [ 'asg-lustre', 'asg-lustre-client' ] : []
+  asg_names: union([ 'asg-ssh', 'asg-rdp', 'asg-jumpbox', 'asg-ad', 'asg-ad-client', 'asg-pbs', 'asg-pbs-client', 'asg-cyclecloud', 'asg-cyclecloud-client', 'asg-nfs-client', 'asg-telegraf', 'asg-robinhood', 'asg-ondemand', 'asg-deployer', 'asg-guacamole', 'asg-mariadb-client' ],
+    deployLustre ? [ 'asg-lustre', 'asg-lustre-client' ] : [],
+    deployGrafana ? [ 'asg-grafana' ] : []
   )
 
   service_ports: {
@@ -951,9 +954,6 @@ output azhopInventory object = {
         ccportal: {
           ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'ccportal')].outputs.privateIp
         }
-        grafana: {
-          ansible_host: deployGrafana ? azhopVm[indexOf(map(vmItems, item => item.key), 'grafana')].outputs.privateIp : ''
-        }
       },
       indexOf(map(vmItems, item => item.key), 'ad') >= 0 ? {
         ad: {
@@ -1001,6 +1001,11 @@ output azhopInventory object = {
       config.enable_remote_winviz ? {
         guacamole: {
           ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'guacamole')].outputs.privateIp
+        }
+      } : {},
+      config.deploy_grafana ? {
+        grafana: {
+          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'grafana')].outputs.privateIp
         }
       } : {}
     )
