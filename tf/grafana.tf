@@ -19,7 +19,7 @@ resource "azurerm_linux_virtual_machine" "grafana" {
   size                = try(local.configuration_yml["grafana"].vm_size, "Standard_D2s_v3")
   admin_username      = local.admin_username
   network_interface_ids = [
-    azurerm_network_interface.grafana-nic.id,
+    azurerm_network_interface.grafana-nic[0].id,
   ]
 
   identity {
@@ -76,7 +76,7 @@ resource "azurerm_virtual_machine_extension" "AzureMonitorLinuxAgent_grafana" {
 
 resource "azurerm_network_interface_application_security_group_association" "grafana-asg-asso" {
   for_each = local.create_grafana ? toset(local.asg_associations["grafana"]) : []
-  network_interface_id          = azurerm_network_interface.grafana-nic.id
+  network_interface_id          = azurerm_network_interface.grafana-nic[0].id
   application_security_group_id = local.create_nsg ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
 }
 
