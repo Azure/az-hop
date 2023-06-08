@@ -1,4 +1,5 @@
 resource "azurerm_network_interface" "grafana-nic" {
+  count               = local.create_grafana ? 1 : 0
   name                = "grafana-nic"
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
@@ -11,6 +12,7 @@ resource "azurerm_network_interface" "grafana-nic" {
 }
 
 resource "azurerm_linux_virtual_machine" "grafana" {
+  count               = local.create_grafana ? 1 : 0
   name                = "grafana"
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
@@ -63,7 +65,7 @@ resource "azurerm_linux_virtual_machine" "grafana" {
 }
 
 resource "azurerm_virtual_machine_extension" "AzureMonitorLinuxAgent_grafana" {
-  count                      = local.ama_install ? 1 : 0
+  count                      = local.create_grafana && local.ama_install ? 1 : 0
   name                       = "AzureMonitorLinuxAgent"
   virtual_machine_id         = azurerm_linux_virtual_machine.grafana.id
   publisher                  = "Microsoft.Azure.Monitor"
@@ -73,13 +75,13 @@ resource "azurerm_virtual_machine_extension" "AzureMonitorLinuxAgent_grafana" {
 }
 
 resource "azurerm_network_interface_application_security_group_association" "grafana-asg-asso" {
-  for_each = toset(local.asg_associations["grafana"])
+  for_each = local.create_grafana ? toset(local.asg_associations["grafana"]) : []
   network_interface_id          = azurerm_network_interface.grafana-nic.id
   application_security_group_id = local.create_nsg ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
 }
 
 resource "azurerm_monitor_data_collection_rule_association" "dcra_grafana_metrics" {
-    count               = local.monitor ? 1 : 0
+    count               = local.create_grafana && local.monitor ? 1 : 0
     name                = "grafana-data-collection-ra"
     target_resource_id = azurerm_linux_virtual_machine.grafana.id
     data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_data_collection_rule[0].id
@@ -87,7 +89,7 @@ resource "azurerm_monitor_data_collection_rule_association" "dcra_grafana_metric
 }
 
 resource "azurerm_monitor_data_collection_rule_association" "dcra_grafana_insights" {
-    count               = local.monitor ? 1 : 0
+    count               = local.create_grafana && local.monitor ? 1 : 0
     name                = "grafana-insights-collection-ra"
     target_resource_id = azurerm_linux_virtual_machine.grafana.id
     data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_insights_collection_rule[0].id
@@ -95,7 +97,7 @@ resource "azurerm_monitor_data_collection_rule_association" "dcra_grafana_insigh
 }
 
 resource "azurerm_monitor_scheduled_query_rules_alert_v2" "grafana_volume_alert" {
-    count = local.create_alerts ? 1 : 0
+    count = local.create_grafana && local.create_alerts ? 1 : 0
     name = "grafana-volume-alert"
     location = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
     resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name

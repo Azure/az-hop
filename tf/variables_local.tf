@@ -82,6 +82,7 @@ locals {
      
     monitor = ( local.create_log_analytics_workspace || local.use_existing_ws ) ? true : false
     ama_install = try(local.configuration_yml["monitoring"]["azure_monitor_agent"], true) && local.monitor ? true : false
+    create_grafana = try(local.configuration_yml["monitoring"]["grafana"], true) && local.monitor ? true : false
 
     alert_email = try(local.configuration_yml["alerting"]["admin_email"], "admin.mail@contoso.com")
 
