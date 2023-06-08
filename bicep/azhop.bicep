@@ -1020,6 +1020,10 @@ output azhopPackerOptions object = (config.deploy_sig) ? {
   var_virtual_network_name: config.vnet.name
   var_virtual_network_subnet_name: config.vnet.subnets.compute.name
   var_virtual_network_resource_group_name: azhopResourceGroupName
+  var_ssh_bastion_host: azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIp // TODO: add support for public IP
+  var_ssh_bastion_port: config.vms.jumpbox.sshPort
+  var_ssh_bastion_username: config.admin_user
+  var_ssh_bastion_private_key_file: '../${config.admin_user}_id_rsa'
   var_queue_manager: config.queue_manager
 } : {}
 
