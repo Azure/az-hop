@@ -52,11 +52,18 @@
     dest: '{{common_project_root}}/specs/default/cluster-init/scripts/5-default.sh'
     mode: 0777
 
-- name: Add telegraf configuration file  
+- name: Remove telegraf script if telegraf is disabled
+  file:
+    path: '{{common_project_root}}/specs/default/cluster-init/scripts/4-install-telegraf.sh'
+    state: absent
+  when: ( monitoring.telegraf | default(true) ) == false
+
+- name: Add telegraf configuration file if telegraf is enabled
   template:
     src: '{{role_path}}/projects/common/cluster-init/files/telegraf.conf.j2'
     dest: '{{common_project_root}}/specs/default/cluster-init/files/telegraf.conf'
     mode: 0600
+  when: ( monitoring.telegraf | default(true) )
 
 - name: Add nhc configuration file  
   template:
