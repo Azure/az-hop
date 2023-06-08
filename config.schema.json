@@ -261,10 +261,10 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "install_agent": {"type": "boolean" }
+                "azure_monitor_agent": {"type": "boolean" }
             },
             "required": [
-                "install_agent"
+                "azure_monitor_agent"
             ],
             "title": "monitoring"
         },
