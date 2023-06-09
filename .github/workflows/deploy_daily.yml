@@ -46,7 +46,7 @@ jobs:
         user_auth: ['local', 'ad']
         deploy_with: ['tf']
         monitoring: ['grafana', 'none']
-    uses: azure/az-hop/.github/workflows/z_deploy_only_callable.yml@main
+    uses: azure/az-hop/.github/workflows/z_deploy_only_callable.yml@${{ github.ref }}
     with:
       resource_group: 'AUTO_GENERATED'
       location: 'westeurope'
