@@ -104,13 +104,7 @@ def cyclecloud_account_setup(vm_metadata, use_managed_identity, tenant_id, appli
 
     print("Setting up azure account in CycleCloud and initializing cyclecloud CLI")
 
-    # if not accept_terms:
-    #     print("Accept terms was FALSE !!!!!  Over-riding for now...")
     accept_terms = True
-
-    # if path.isfile(cycle_root + "/config/data/account_data.json.imported"):
-    #     print 'Azure account is already configured in CycleCloud. Skipping...'
-    #     return
 
     subscription_id = vm_metadata["compute"]["subscriptionId"]
     location = vm_metadata["compute"]["location"]
@@ -185,25 +179,9 @@ def cyclecloud_account_setup(vm_metadata, use_managed_identity, tenant_id, appli
     with open(azure_data_file, 'w') as fp:
         json.dump(azure_data, fp)
 
-    # print("CycleCloud account data:")
-    # print(json.dumps(azure_data))
-
     copy2(account_data_file, cycle_root + "/config/data/")
     # Wait for the data to be imported
     sleep(5)
-
-    # if not accept_terms:
-    #     # reset the installation status so the splash screen re-appears
-    #     print("Resetting installation")
-    #     sql_statement = 'update Application.Setting set Value = false where name ==\"cycleserver.installation.complete\"'
-    #     _catch_sys_error(
-    #         ["/opt/cycle_server/cycle_server", "execute", sql_statement])
-
-    # set the permissions so that the first login works.
-    # Set to True so that roles can permission are checked and integration with AD works 
-    # perms_sql_statement = 'update Application.Setting set Value = true where Name == \"authorization.check_datastore_permissions\"'
-    # _catch_sys_error(
-    #     ["/opt/cycle_server/cycle_server", "execute", perms_sql_statement])
 
     initialize_cyclecloud_cli(admin_user, cyclecloud_admin_pw)
 
@@ -227,21 +205,8 @@ def initialize_cyclecloud_cli(admin_user, cyclecloud_admin_pw):
     password_flag = ("--password=%s" % cyclecloud_admin_pw)
     print("Initializing cyclecloud CLI")
     _catch_sys_error(["/usr/local/bin/cyclecloud", "initialize", "--loglevel=debug", "--batch",
-                      "--url=https://localhost/cyclecloud", "--verify-ssl=false", "--username=%s" % admin_user, password_flag])
-
-
-# def letsEncrypt(fqdn, location):
-#     # FQDN is assumed to be in the form: hostname.location.cloudapp.azure.com
-#     # fqdn = hostname + "." + location + ".cloudapp.azure.com"
-#     sleep(60)
-#     try:
-#         cmd_list = [cs_cmd, "keystore", "automatic", "--accept-terms", fqdn]
-#         output = check_output(cmd_list)
-#         print(cmd_list)
-#         print(output)
-#     except CalledProcessError as e:
-#         print("Error getting SSL cert from Lets Encrypt")
-#         print("Proceeding with self-signed cert")
+                      "--url=https://localhost/cyclecloud", "--verify-ssl=false", 
+                      "--username=%s" % admin_user, password_flag])
 
 
 def get_vm_metadata():
@@ -266,7 +231,9 @@ def get_vm_metadata():
 def get_vm_managed_identity():
     # Managed Identity may  not be available immediately at VM startup...
     # Test/Pause/Retry to see if it gets assigned
-    metadata_url = 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://management.azure.com/'
+    metadata_url = ('http://169.254.169.254/metadata/identity/oauth2/token'
+                    '?api-version=2018-02-01'
+                    '&resource=https://management.azure.com/')
     metadata_req = Request(metadata_url, headers={"Metadata": True})
 
     for _ in range(30):
@@ -287,11 +254,6 @@ def get_vm_managed_identity():
 def main():
 
     parser = argparse.ArgumentParser(description="usage: %prog [options]")
-
-    # parser.add_argument("--azureSovereignCloud",
-    #                     dest="azureSovereignCloud",
-    #                     default="public",
-    #                     help="Azure Region [china|germany|public|usgov]")
 
     parser.add_argument("--tenantId",
                         dest="tenantId",
@@ -321,12 +283,14 @@ def main():
     parser.add_argument("--useLetsEncrypt",
                         dest="useLetsEncrypt",
                         action="store_true",
-                        help="Automatically fetch certificate from Let's Encrypt.  (Only suitable for installations with public IP.)")
+                        help="Automatically fetch certificate from Let's Encrypt. "
+                             "(Only suitable for installations with public IP.)")
 
     parser.add_argument("--useManagedIdentity",
                         dest="useManagedIdentity",
                         action="store_true",
-                        help="Use the first assigned Managed Identity rather than a Service Principle for the default account")
+                        help="Use the first assigned Managed Identity rather than a Service Principal "
+                             "for the default account")
 
     parser.add_argument("--password",
                         dest="password",
@@ -342,7 +306,8 @@ def main():
 
     parser.add_argument("--resourceGroup",
                         dest="resourceGroup",
-                        help="The resource group for CycleCloud cluster resources.  Resource Group must already exist.  (Default: same RG as CycleCloud)")
+                        help="The resource group for CycleCloud cluster resources. "
+                             "Resource Group must already exist. (Default: same RG as CycleCloud)")
 
     args = parser.parse_args()
 
@@ -391,9 +356,6 @@ def main():
     cyclecloud_account_setup(vm_metadata, args.useManagedIdentity, args.tenantId, args.applicationId,
                              args.applicationSecret, args.username, azureSovereignCloud,
                              args.acceptTerms, args.password, args.storageAccount)
-
-    # if args.useLetsEncrypt:
-    #     letsEncrypt(args.hostname, vm_metadata["compute"]["location"])
 
     #  Create user requires root privileges
     create_user_credential(args.username, args.publickey)
