@@ -33,6 +33,11 @@ on:
         required: false
         default: 'bicep' # use it with ${{ inputs.deploy_with }}
         type: string
+      monitoring:
+        description: 'Monitoring agent - ama, grafana, none - Default to grafana'
+        required: false
+        default: 'grafana' # use it with ${{ inputs.monitoring }}
+        type: string
       clean:
         description: 'Clean all resources'
         required: false
@@ -60,6 +65,7 @@ jobs:
       home_type: ${{ inputs.home_type }}
       winviz: 'false'
       user_auth: ${{ inputs.user_auth }}
+      monitoring: ${{ inputs.monitoring }}
     secrets:
       ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
       ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
