@@ -261,13 +261,10 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "azure_monitor_agent": {"type": "boolean" },
+                "azure_monitor_agent": {"type": "boolean", "default": false },
                 "telegraf": {"type": "boolean", "default": true },
                 "grafana": {"type": "boolean", "default": true }
             },
-            "required": [
-                "azure_monitor_agent"
-            ],
             "title": "monitoring"
         },
         "alerting": {

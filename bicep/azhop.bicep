@@ -43,7 +43,7 @@ var deployerSshPort = deployDeployer ? (contains(azhopConfig.deployer, 'ssh_port
 var deployLustre = contains(azhopConfig, 'lustre') && contains(azhopConfig.lustre, 'create') ? azhopConfig.lustre.create : false
 var deployJumpbox = contains(azhopConfig, 'jumpbox') ? true : false
 var deployDeployer = contains(azhopConfig, 'deployer') ? true : false
-var deployGrafana = contains(azhopConfig.monitoring, 'grafana') ? azhopConfig.monitoring.grafana : true
+var deployGrafana = contains(azhopConfig, 'monitoring') && contains(azhopConfig.monitoring, 'grafana') ? azhopConfig.monitoring.grafana : true
 var enableWinViz = contains(azhopConfig, 'enable_remote_winviz') ? azhopConfig.enable_remote_winviz : false
 
 var useExistingAD = contains(azhopConfig, 'domain') ? azhopConfig.domain.use_existing_dc : false

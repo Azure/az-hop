@@ -139,7 +139,7 @@ function use_grafana_telegraf()
 {
   local use_grafana
   local use_telegraf
-  use_grafana=$(yq eval '.monintoring.grafana' config.yml)
+  use_grafana=$(yq eval '.monitoring.grafana' config.yml)
   use_telegraf=$(yq eval '.monintoring.telegraf' config.yml)
   
   if [ "$use_grafana" == "false" ]; then
