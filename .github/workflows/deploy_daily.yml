@@ -19,6 +19,7 @@ jobs:
         home_type: ['azurefiles', 'anf']
         user_auth: ['local', 'ad']
         deploy_with: ['bicep', 'arm']
+        monitoring: ['grafana', 'none']
     uses: azure/az-hop/.github/workflows/z_deploy_only_callable.yml@main
     with:
       resource_group: 'AUTO_GENERATED'
@@ -27,6 +28,7 @@ jobs:
       home_type: ${{ matrix.home_type }}
       user_auth: ${{ matrix.user_auth }}
       deploy_with: ${{ matrix.deploy_with }}
+      monitoring: ${{ matrix.monitoring }}
       clean: 'true'
     secrets:
       ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
@@ -43,6 +45,7 @@ jobs:
         home_type: ['anf']
         user_auth: ['local', 'ad']
         deploy_with: ['tf']
+        monitoring: ['grafana', 'none']
     uses: azure/az-hop/.github/workflows/z_deploy_only_callable.yml@main
     with:
       resource_group: 'AUTO_GENERATED'
@@ -51,6 +54,7 @@ jobs:
       home_type: ${{ matrix.home_type }}
       user_auth: ${{ matrix.user_auth }}
       deploy_with: ${{ matrix.deploy_with }}
+      monitoring: ${{ matrix.monitoring }}
       clean: 'true'
     secrets:
       ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}

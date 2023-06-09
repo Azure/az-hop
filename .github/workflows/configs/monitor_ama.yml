@@ -1,0 +1,16 @@
+# Create a log analytics workspace to enable monitoring and alerting
+log_analytics:
+  create: true
+
+# Option to install the monitoring agent on static infra VMs. Can be disabled if the agent is installed by policy.  
+monitoring: 
+  azure_monitor_agent: true # Install Azure Monitor Agent on static infra VMs
+  # Optional settings to deploy Grafana and install Telegraf
+  telegraf: false # Install telegraf on static infra VMs and dynamic compute nodes. Default: true
+  grafana: false # Deploy a Grafana instance with pre-defined dashboards. Default: true
+
+#If set to true, it will create alert rules associated with az-hop. Enablement of alerting will require the specification of an admin email to send alerts to.
+alerting:
+  enabled: true
+  admin_email: admin.mail@contoso.com
+  local_volume_threshold: 80
