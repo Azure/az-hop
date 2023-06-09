@@ -276,7 +276,7 @@
                 "local_volume_threshold": { "type": "integer", "maximum": 100, "minimum": 1 }
             },
             "required": [
-                "enabled", "admin_email"
+                "enabled"
             ],
             "title": "alerting"
         },
