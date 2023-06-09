@@ -20,7 +20,7 @@ jobs:
         user_auth: ['local', 'ad']
         deploy_with: ['bicep', 'arm']
         monitoring: ['grafana', 'none']
-    uses: azure/az-hop/.github/workflows/z_deploy_only_callable.yml@main
+    uses: ./.github/workflows/z_deploy_only_callable.yml #azure/az-hop/.github/workflows/z_deploy_only_callable.yml@main
     with:
       resource_group: 'AUTO_GENERATED'
       location: 'westeurope'
@@ -46,8 +46,7 @@ jobs:
         user_auth: ['local', 'ad']
         deploy_with: ['tf']
         monitoring: ['grafana', 'none']
-    uses: ./.github/workflows/z_deploy_only_callable.yml
-    #azure/az-hop/.github/workflows/z_deploy_only_callable.yml@main
+    uses: ./.github/workflows/z_deploy_only_callable.yml #azure/az-hop/.github/workflows/z_deploy_only_callable.yml@main
     with:
       resource_group: 'AUTO_GENERATED'
       location: 'westeurope'

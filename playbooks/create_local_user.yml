@@ -18,7 +18,7 @@
     groups: "{{ usergroups | selectattr('gid', 'in', (user.groups | default([], true))) | map(attribute='name')}}"
     shell: /bin/bash
     uid: '{{user.uid}}'
-    group: 'azhop-users'
+    group: "{{ (usergroups | selectattr('gid', 'eq', 5000) | map(attribute='name'))[0] | default('azhop-users', true) }}"
     home: "{{ homedir_mountpoint }}/{{ user.name }}"
     password: "{{ password.stdout | password_hash }}"
     shell: "{{user.shell | default('/bin/bash')}}"
