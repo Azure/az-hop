@@ -262,13 +262,11 @@
             "additionalProperties": false,
             "properties": {
                 "azure_monitor_agent": {"type": "boolean" },
-                "telegraf": {"type": "boolean" },
-                "grafana": {"type": "boolean" }
+                "telegraf": {"type": "boolean", "default": true },
+                "grafana": {"type": "boolean", "default": true }
             },
             "required": [
-                "azure_monitor_agent",
-                "telegraf",
-                "grafana"
+                "azure_monitor_agent"
             ],
             "title": "monitoring"
         },
