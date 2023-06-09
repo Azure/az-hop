@@ -3,14 +3,14 @@
         {
             "type": "azure-arm",
             "use_azure_cli_auth": "{{user `var_use_azure_cli_auth`}}",
-            "image_publisher": "azhpc",
-            "image_offer": "azhop-compute",
-            "image_sku": "almalinux-8_7",
+            "image_publisher": "almalinux",
+            "image_offer": "almalinux-hpc",
+            "image_sku": "8_7-hpc-gen2",
             "image_version": "latest",
             "plan_info": {
-                "plan_name": "almalinux-8_7",
-                "plan_publisher": "azhpc",
-                "plan_product": "azhop-compute"
+                "plan_name": "8_7-hpc-gen2",
+                "plan_publisher": "almalinux",
+                "plan_product": "almalinux-hpc"
             },
             "managed_image_resource_group_name": "{{user `var_resource_group`}}",
             "managed_image_name": "{{user `var_image`}}",
@@ -42,7 +42,12 @@
             "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E sh '{{ .Path }}'",
             "inline": [
                 "chmod +x /tmp/*.sh",
+                "/tmp/linux-setup.sh || exit 1",
                 "/tmp/interactive-desktop-3d.sh || exit 1",
+                "/tmp/openpbs.sh || exit 1",
+                "/tmp/slurm.sh || exit 1",
+                "/tmp/telegraf.sh || exit 1",
+                "/tmp/zz-desktop-custom.sh || exit 1",
                 "echo ' This is the end '",
                 "yum history sync",
                 "rm -rf /tmp/*.sh",
