@@ -17,10 +17,10 @@ systemctl stop dcgm.service
 rmmod gdrdrv
 rmmod nvidia_drm
 rmmod drm_kms_helper
-#lsof /dev/nvidia0
-#nv_hostengine_pid=$(lsof /dev/nvidia0 | tail -n 1 | cut -d' ' -f2)
-#echo "Kill process $nv_hostengine_pid"
-#sudo kill -9 $nv_hostengine_pid
+lsof /dev/nvidia0
+nv_hostengine_pid=$(lsof /dev/nvidia0 | tail -n 1 | cut -d' ' -f2)
+echo "Kill process $nv_hostengine_pid"
+sudo kill -9 $nv_hostengine_pid
 lsof /dev/nvidia0
 rmmod nvidia_modeset
 rmmod nvidia_uvm
@@ -28,11 +28,12 @@ rmmod nvidia
 rmmod drm
 lsmod
 
+init 3
 # Use the direct link which contains the clear version number
 # Check which latest version to use from https://github.com/Azure/azhpc-extensions/blob/master/NvidiaGPU/resources.json
-wget -O NVIDIA-Linux-x86_64-grid.run https://download.microsoft.com/download/6/2/5/625e22a0-34ea-4d03-8738-a639acebc15e/NVIDIA-Linux-x86_64-510.73.08-grid-azure.run
+wget -O NVIDIA-Linux-x86_64-grid.run https://download.microsoft.com/download/6/b/d/6bd2850f-5883-4e2a-9a35-edbd3dd6808c/NVIDIA-Linux-x86_64-525.105.17-grid-azure.run
 chmod +x NVIDIA-Linux-x86_64-grid.run
-sudo ./NVIDIA-Linux-x86_64-grid.run -s || exit 1
+sudo ./NVIDIA-Linux-x86_64-grid.run -s || cat /var/log/nvidia-installer.log && exit 1
 # Answers are: yes, yes, yes
 sudo cp /etc/nvidia/gridd.conf.template /etc/nvidia/gridd.conf
 
@@ -55,8 +56,9 @@ yum install -y python3-websockify
 wget --no-check-certificate "https://virtualgl.com/pmwiki/uploads/Downloads/VirtualGL.repo" -O /etc/yum.repos.d/VirtualGL.repo
 
 yum install -y VirtualGL turbojpeg xorg-x11-apps
+set -e
 /usr/bin/vglserver_config -config +s +f -t
-
+set +e
 systemctl disable firstboot-graphical
 systemctl set-default graphical.target
 systemctl isolate graphical.target
