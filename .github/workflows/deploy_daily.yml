@@ -19,7 +19,7 @@ jobs:
         home_type: ['azurefiles', 'anf']
         user_auth: ['local', 'ad']
         deploy_with: ['bicep', 'arm']
-    uses: azure/az-hop/.github/workflows/z_deploy_only_callable.yml@main
+    uses: ./.github/workflows/z_deploy_only_callable.yml #azure/az-hop/.github/workflows/z_deploy_only_callable.yml@main
     with:
       resource_group: 'AUTO_GENERATED'
       location: 'westeurope'
