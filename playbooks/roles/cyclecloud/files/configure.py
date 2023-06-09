@@ -15,6 +15,7 @@ from shutil import rmtree, copy2, move
 from tempfile import mkstemp, mkdtemp
 from time import sleep
 
+path_to_cyclecloud="/usr/local/bin/cyclecloud"
 
 tmpdir = mkdtemp()
 print("Creating temp directory {} for installing CycleCloud".format(tmpdir))
@@ -185,7 +186,7 @@ def cyclecloud_account_setup(vm_metadata, use_managed_identity, tenant_id, appli
 
     initialize_cyclecloud_cli(admin_user, cyclecloud_admin_pw)
 
-    output =  _catch_sys_error(["/usr/local/bin/cyclecloud", "account", "show", "azure"])
+    output =  _catch_sys_error([path_to_cyclecloud, "account", "show", "azure"])
     if 'Credentials: azure' in str(output):
         print("Account \"azure\" already exists.   Skipping account setup...")
     else:
@@ -195,7 +196,7 @@ def cyclecloud_account_setup(vm_metadata, use_managed_identity, tenant_id, appli
 
         # create the cloud provide account
         print("Registering Azure subscription in CycleCloud")
-        _catch_sys_error(["/usr/local/bin/cyclecloud", "account",
+        _catch_sys_error([path_to_cyclecloud, "account",
                         "create", "-f", azure_data_file])
 
 
@@ -204,7 +205,7 @@ def initialize_cyclecloud_cli(admin_user, cyclecloud_admin_pw):
     
     password_flag = ("--password=%s" % cyclecloud_admin_pw)
     print("Initializing cyclecloud CLI")
-    _catch_sys_error(["/usr/local/bin/cyclecloud", "initialize", "--loglevel=debug", "--batch",
+    _catch_sys_error([path_to_cyclecloud, "initialize", "--loglevel=debug", "--batch",
                       "--url=https://localhost/cyclecloud", "--verify-ssl=false", 
                       "--username=%s" % admin_user, password_flag])
 
