@@ -51,7 +51,7 @@ on:
 
 jobs:
   create_config:
-    uses: azure/az-hop/.github/workflows/z_create_config_callable.yml@main
+    uses: ./.github/workflows/z_create_config_callable.yml #azure/az-hop/.github/workflows/z_create_config_callable.yml@main
     with:
       resource_group: ${{ inputs.resource_group }}
       location: ${{ inputs.location }}
@@ -67,7 +67,7 @@ jobs:
       ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
   deploy:
-    uses: azure/az-hop/.github/workflows/z_deploy_callable.yml@main
+    uses: ./.github/workflows/z_deploy_callable.yml # azure/az-hop/.github/workflows/z_deploy_callable.yml@main
     needs: create_config
     with:
       resource_group: ${{ needs.create_config.outputs.resource_group }}
@@ -79,7 +79,7 @@ jobs:
       ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
   destroy:
-    uses: azure/az-hop/.github/workflows/z_destroy_callable.yml@main
+    uses: ./.github/workflows/z_destroy_callable.yml # azure/az-hop/.github/workflows/z_destroy_callable.yml@main
     if: always() && inputs.clean == 'true'
     needs: [create_config, deploy]
     with:
