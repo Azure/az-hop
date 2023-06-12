@@ -60,8 +60,7 @@ nvidia-smi
 set +e
 
 echo "################### INSTALL VirtualGL / VNC"
-dnf groupinstall -y 
-# Remove screensaver to avoid screen lock
+dnf groupinstall -y xfce
 dnf remove -y xfce4-screensaver
 dnf install -y https://kumisystems.dl.sourceforge.net/project/turbovnc/3.0.3/turbovnc-3.0.3.x86_64.rpm
 dnf install -y python3-websockify
