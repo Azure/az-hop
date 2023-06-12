@@ -13,7 +13,7 @@ on:
 
 jobs:
   deploy:
-    uses: azure/az-hop/.github/workflows/build_image_callable.yml@main
+    uses: ./.github/workflows/build_image_callable.yml
     with:
       resource_group: ${{ github.event.inputs.resource_group }}
     secrets:

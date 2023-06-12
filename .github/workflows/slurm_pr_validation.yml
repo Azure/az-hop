@@ -31,7 +31,7 @@ jobs:
   deploy:
     # this job will only run if the PR has been merged
     if: github.event.pull_request.merged == true
-    uses: azure/az-hop/.github/workflows/main_callable.yml@main
+    uses: ./.github/workflows/main_callable.yml
     with:
       resource_group: 'azhop_slurm_qa'
       clean: 'false'
@@ -45,7 +45,7 @@ jobs:
 
   run_tests:
     needs: [deploy]
-    uses: azure/az-hop/.github/workflows/uitesting_callable.yml@main
+    uses: ./.github/workflows/uitesting_callable.yml
     with:
       resource_group: 'azhop_slurm_qa'
     secrets:
