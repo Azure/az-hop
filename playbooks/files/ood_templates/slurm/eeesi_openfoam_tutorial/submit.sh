@@ -19,7 +19,7 @@ tutorial_path=incompressible/simpleFoam/drivaerFastback
 allrun_args="-c $np -m M"
 
 # the location to run the copy of the tutorial
-local_path=openfoam_tutorial_runs
+local_path=$HOME/openfoam_tutorial_runs
 mkdir -p $HOME/$local_path
 
 # create the case name - add size and date
@@ -29,10 +29,10 @@ cp -r $FOAM_TUTORIALS/$tutorial_path $casedir
 
 pushd $casedir
 # allow flags to be added to the mpirun command through FOAM_MPIRUN_FLAGS environment variable
-sed -i '/RunFunctions/a source <(declare -f runParallel | sed "s/mpirun/mpirun \\\$FOAM_MPIRUN_FLAGS/g")' Allrun
+sed -i '/RunFunctions/a source <(declare -f runParallel | sed "s/mpirun/SLURM_EXPORT_ENV=ALL mpirun \\\$FOAM_MPIRUN_FLAGS/g")' Allrun
 # change the script to bash (as we are using bash features not necessarily available for just a sh session)
 sed -i 's#/bin/sh#/bin/bash#g' Allrun
 
-export FOAM_MPIRUN_FLAGS="-mca pml ucx $(env |grep 'WM_\|FOAM_' | cut -d'=' -f1 | sed 's/^/-x /g' | tr '\n' ' ') -x MPI_BUFFER_SIZE -x UCX_IB_MLX5_DEVX=n -x UCX_POSIX_USE_PROC_LINK=n -x PATH"
+export FOAM_MPIRUN_FLAGS="-mca pml ucx $(env |grep 'WM_\|FOAM_' | cut -d'=' -f1 | sed 's/^/-x /g' | tr '\n' ' ') -x MPI_BUFFER_SIZE -x UCX_IB_MLX5_DEVX=n -x UCX_POSIX_USE_PROC_LINK=n -x PATH -x LD_LIBRARY_PATH"
 
 ./Allrun $allrun_args

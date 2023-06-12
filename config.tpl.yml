@@ -1,4 +1,4 @@
----
+i---
 # yaml-language-server: $schema=config.schema.json
 
 # name of the cluster
@@ -17,7 +17,7 @@ use_existing_rg: false
 # Alternatively, you can use an existing workspace. 
 # To use an existing workspace set create to false and specify the resource group, name and subscription the target workspace lives in
 log_analytics:
-  create: true
+  create: false
   # An existing log analytics workspace can be used instead. The resource group, name and subscription id of the workspace will need to be specified.
   # Grant the role "Log Analytics Contributor" on the target Log Analytics Workspace for the identity used to deploy az-hop
   #resource_group:
@@ -26,11 +26,14 @@ log_analytics:
 
 # Option to install the monitoring agent on static infra VMs. Can be disabled if the agent is installed by policy.  
 monitoring: 
-  install_agent: true 
-  
+  azure_monitor_agent: false # Install Azure Monitor Agent on static infra VMs
+  # Optional settings to deploy Grafana and install Telegraf
+  telegraf: true # Install telegraf on static infra VMs and dynamic compute nodes. Default: true
+  grafana: true # Deploy a Grafana instance with pre-defined dashboards. Default: true
+
 #If set to true, it will create alert rules associated with az-hop. Enablement of alerting will require the specification of an admin email to send alerts to.
 alerting:
-  enabled: true
+  enabled: false
   admin_email: admin.mail@contoso.com
   local_volume_threshold: 80
 # Additional tags to be added on the Resource Group
@@ -59,7 +62,9 @@ azurefiles:
 mounts:
   # mount settings for the user home directory
   home: # This home name can't be changed
-    type: anf # anf or azurefiles, default to anf. One of the two should be defined in order to mount the home directory
+    # type of mount : existing, anf or azurefiles, default to existing. One of the three should be defined in order to mount the home directory
+    # When using existing, the mountpoint, server, export and options should be defined, for other cases leave the values as defined with the curly braces
+    type: anf
     mountpoint: /anfhome # /sharedhome for example
     server: '{{anf_home_ip}}' # Specify an existing NFS server name or IP, when using the ANF built in use '{{anf_home_ip}}'
     export: '{{anf_home_path}}' # Specify an existing NFS export directory, when using the ANF built in use '{{anf_home_path}}'
@@ -170,6 +175,29 @@ lustre_base_image: "azhpc:azurehpc-lustre:azurehpc-lustre-2_12:latest"
 # The lustre plan to use. Only needed when using the default lustre image from the marketplace. use "::" for an empty plan
 lustre_base_plan: "azhpc:azurehpc-lustre:azurehpc-lustre-2_12" # publisher:product:name
 
+domain:
+  name: "hpc.azure"
+  #domain_join_ou: "OU=azhop" # OU to set the machine in. Make sure the OU exists in the domain as it won't be created for you
+  use_existing_dc: false # Set to true if you want to join a domain with existing DC
+  domain_join_user:
+    username: hpcadmin
+    password_key_vault_name: name_for_the_key_vault_with_the_domain_join_password
+    password_key_vault_resource_group_name: resource_group_name_for_the_key_vault_with_the_domain_join_password
+    password_key_vault_secret_name: key_vault_secret_name_for_the_domain_join_password
+  # additional settings when using an existinf DC
+  existing_dc_details: 
+    domain_controller_names: ["dc1", "dc2"]
+    domain_controller_ip_addresses: ["192.168.1.100", "192.168.1.101"]
+    private_dns_servers: ["192.168.1.53", "192.168.2.53"]
+
+# Optional: name of the key vault resource to be created. If not provided, a name will be generated
+# azure_key_vault:
+#   name: custom_key_vault_name
+
+# Optional: name of the storage account to be created.
+# azure_storage_account:
+#   name: custom_storage_account_name
+
 # Jumpbox VM configuration, only needed when deploying thru a public IP and without a configured deployer VM
 jumpbox:
   vm_size: Standard_B2ms
@@ -181,6 +209,7 @@ ad:
   vm_size: Standard_B2ms
   hybrid_benefit: false # Enable hybrid benefit for AD, default to false
   high_availability: false # Build AD in High Availability mode (2 Domain Controlers) - default to false
+
 # On demand VM configuration
 ondemand:
   vm_size: Standard_D4s_v5
@@ -199,6 +228,9 @@ scheduler:
 cyclecloud:
   vm_size: Standard_B2ms
   # version: 8.3.0-3062 # to specify a specific version, see https://packages.microsoft.com/yumrepos/cyclecloud/
+  # Optional: use Ubuntu for the CycleCloud VM (default: linux_base_image)
+  # image: "canonical:0001-com-ubuntu-server-focal:20_04-lts-gen2:latest"
+  # plan: publisher:product:name
 
 # Lustre cluster is optional and can be used to create a Lustre cluster in the environment.
 lustre:
@@ -228,13 +260,13 @@ users:
   # - { name: user2, uid: 10004, groups: [6001] }
 
 usergroups:
-# These groups can’t be changed
-  - name: Domain Users # All users will be added to this one by default
+# These group names could be changed but not the gids as names will be mapped by gids
+  - name: azhop-users # All users will be added to this group by default
     gid: 5000
-  - name: az-hop-admins
+  - name: azhop-admins
     gid: 5001
     description: "For users with azhop admin privileges"
-  - name: az-hop-localadmins
+  - name: azhop-localadmins
     gid: 5002
     description: "For users with sudo right or local admin right on nodes"
 # For custom groups use gid >= 6000
@@ -265,11 +297,14 @@ slurm:
 enroot:
   enroot_version: 3.4.1
 
-# If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values
 #database:
+  # Resource name of the MariaDB instance to be created
+  #name: custom_mariadb_name
+
+  # If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values
   # Admin user of the database for which the password will be retrieved from the azhop keyvault
   #user: sqladmin
-  # FQDN of the managed instance
+  # FQDN of the existing managed instance
   #fqdn:
   # IP of the managed private endpoint if the FQDN is not registered in a private DNS
   #ip:
@@ -286,6 +321,7 @@ vpn_gateway:
 # Default is basic authentication. For oidc authentication you have to specify the following values
 # The OIDCClient secret need to be stored as a secret named <oidc-client-id>-password in the keyvault used by az-hop
 authentication:
+  user_auth: ad # local or ad - default to ad. Local will create local users and users groups on all infrastructure VMs and dynamically on dynamic nodes
   httpd_auth: basic # oidc or basic
   # User mapping https://osc.github.io/ood-documentation/latest/reference/files/ood-portal-yml.html#ood-portal-generator-user-map-match
   # You can specify either a map_match or a user_map_cmd
@@ -303,7 +339,7 @@ authentication:
   #   OIDCPassClaimsAs: # for AAD use 'environment'
 
 image_gallery:
-  create: true # Create the shared image gallery to store custom images
+  create: false # Create the shared image gallery to store custom images
 
 # List of images to be defined
 images:

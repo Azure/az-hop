@@ -1,9 +1,10 @@
-- name: debug
-  debug:
-    msg:
-      - "user={{user}}"
-      - "{{ usergroups | selectattr('gid', 'in', (user.groups | default([], true))) | selectattr('name', 'match', 'az-hop-admins') | map(attribute='name') }}"
-#      - "{{ (usergroups | selectattr('name', 'match', 'az-hop-admins') | map(attribute='gid')) | default(5000, true) | selectattr('gid', 'in', (user.groups | default([], true))) }}"
+# - name: debug
+#   debug:
+#     msg:
+#       - "user={{user}}"
+#       - "{{ usergroups | selectattr('gid', 'in', (user.groups | default([], true))) | map(attribute='name') | list}}"
+#       - "{{ usergroups | selectattr('gid', 'in', (user.groups | default([], true))) | selectattr('name', 'match', 'azhop-admins') | map(attribute='name') }}"
+#      - "{{ (usergroups | selectattr('name', 'match', 'azhop-admins') | map(attribute='gid')) | default(5000, true) | selectattr('gid', 'in', (user.groups | default([], true))) }}"
 
 # Remove any forbidden characters from the username so we conform to the keyvaul secret name rules '^[0-9a-zA-Z-]+$'
 - name: Set secretname
@@ -20,25 +21,8 @@
   register: password
   become: false
 
-- name: Set user home if not defined
-  set_fact:
-    user_home: "{{ homedir_mountpoint }}/{{ user.name }}"
-  when: user.home is not defined
-
-- name: Set user home if defined
-  set_fact:
-    user_home: "{{ user.home }}"
-  when: user.home is defined
-
-- name: Set user shell if not defined
-  set_fact:
-    user_shell: /bin/bash
-  when: user.shell is not defined
-
-- name: Set user shell if defined
-  set_fact:
-    user_shell: "{{user.shell}}"
-  when: user.shell is defined
+# User shell will always be /bin/bash
+# User home will always be {{ homedir_mountpoint }}/{{ user.name }} defined in the fallback_home_dir in sssd.conf
 
 - name: add user
   community.windows.win_domain_user:
@@ -49,36 +33,37 @@
     state: present
     groups_action: replace
     groups:
-      - Domain Users
+      - "{{ (usergroups | selectattr('gid', 'eq', 5000) | map(attribute='name'))[0] | default('azhop-users', true) }}"
     attributes:
       uidNumber: "{{ user.uid }}"
       uid: "{{ user.name }}"
-      loginShell: "{{ user_shell }}"
-      unixhomedirectory: "{{ user_home }}"
-      gidnumber: "{{ (usergroups | selectattr('name', 'match', 'Domain Users') | map(attribute='gid')) | default(5000, true) }}"
+      gidnumber: 5000
 
 # Add users into groups
 - name: Add users into groups
   community.windows.win_domain_user:
     name: "{{ user.name }}"
     state: present
-    groups: "{{ usergroups | selectattr('gid', 'in', (user.groups | default([], true))) | map(attribute='name')}}"
+    groups_action: add
+    groups: "{{usergroups | selectattr('gid', 'in', (user.groups | default([], true))) | map(attribute='name')}}"
+  when: usergroups | selectattr('gid', 'in', (user.groups | default([], true))) | length > 0
 
 #### Block to maintain compatibility with older user properties
-# Add admin users into the azhop-admins group
-- name: add Admin
-  community.windows.win_domain_user:
-    name: "{{ user.name }}"
-    state: present
-    groups:
-      - az-hop-admins
-  when: user.admin | default(false)
+# As of version 1.0.34+ no longer supported thru schema validation
+# # Add admin users into the azhop-admins group
+# - name: add Admin
+#   community.windows.win_domain_user:
+#     name: "{{ user.name }}"
+#     state: present
+#     groups:
+#       - azhop-admins
+#   when: user.admin | default(false)
 
-# Add users into the azhop-localadmins group
-- name: add local admin
-  community.windows.win_domain_user:
-    name: "{{ user.name }}"
-    state: present
-    groups:
-      - az-hop-localadmins
-  when: user.sudo | default(false)
+# # Add users into the azhop-localadmins group
+# - name: add local admin
+#   community.windows.win_domain_user:
+#     name: "{{ user.name }}"
+#     state: present
+#     groups:
+#       - azhop-localadmins
+#   when: user.sudo | default(false)

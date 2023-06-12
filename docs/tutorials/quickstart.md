@@ -38,7 +38,7 @@ When provisioning a complete `az-hop` environment a deployer VM and a bastion wi
 ## Requirements
 
 - AzHop Lab.
-> Note: If you don't have the AzHop environment installed in your lab. Follow the [Quick install](https://azure.github.io/az-hop/tutorials/quick-install.html) guide.
+> Note: If you don't have the AzHop environment installed in your lab. Follow the [Quick install](https://azure.github.io/az-hop/tutorials/quick_install.html) guide.
 
 ## Exercise 1: Review the main az-hop features
 

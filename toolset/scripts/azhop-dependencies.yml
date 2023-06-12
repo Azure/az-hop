@@ -48,6 +48,7 @@
         - sudo
         - wget
         - openssh-client
+        - zip
       become: true
 
     - name: "AzureCLI: Install Microsoft ring (Ubuntu)"
@@ -178,6 +179,7 @@
         - jq
         - libicu
         - yum-utils
+        - zip
       become: true
 
     - name: "AzureCLI: Add Microsoft key (CentOS)"

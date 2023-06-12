@@ -1,6 +1,6 @@
 targetScope = 'resourceGroup'
 
-param location string = resourceGroup().location
+param location string
 param resourcePostfix string
 param allowedSubnetIds array
 param sizeGB int
@@ -22,7 +22,6 @@ resource nfsFilesStorageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' =
     allowSharedKeyAccess: true
     largeFileSharesState: 'Enabled'
     networkAcls: {
-      resourceAccessRules: []
       bypass: 'AzureServices'
       virtualNetworkRules: map(
         allowedSubnetIds, id => {
@@ -31,7 +30,6 @@ resource nfsFilesStorageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' =
           state: 'Succeeded'
         }
       )
-      ipRules: []
       defaultAction: 'Deny'
     }
     supportsHttpsTrafficOnly: false
@@ -63,9 +61,6 @@ resource nfsFilesFileServices 'Microsoft.Storage/storageAccounts/fileServices@20
           enabled: false
         }
       }
-    }
-    cors: {
-      corsRules: []
     }
     shareDeleteRetentionPolicy: {
       enabled: true

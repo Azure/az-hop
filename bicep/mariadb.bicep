@@ -1,7 +1,7 @@
 targetScope = 'resourceGroup'
 
-param location string = resourceGroup().location
-param resourcePostfix string
+param location string
+param mariaDbName string
 param adminUser string
 @secure()
 param adminPassword string
@@ -11,7 +11,7 @@ param sslEnforcement bool
 param vnetId string
 
 resource mariaDb 'Microsoft.DBforMariaDB/servers@2018-06-01' = {
-  name: 'azhop-${resourcePostfix}'
+  name: mariaDbName
   location: location
   
   sku: {
@@ -21,7 +21,7 @@ resource mariaDb 'Microsoft.DBforMariaDB/servers@2018-06-01' = {
     publicNetworkAccess: 'Disabled'
     sslEnforcement: sslEnforcement ? 'Enabled' : 'Disabled'
     storageProfile: {
-      backupRetentionDays: 21
+      backupRetentionDays: 35
       geoRedundantBackup: 'Disabled'
       storageAutogrow: 'Enabled'
       storageMB: 5120
@@ -36,12 +36,12 @@ resource mariaDb 'Microsoft.DBforMariaDB/servers@2018-06-01' = {
 output mariaDb_fqdn string = reference(mariaDb.id, mariaDb.apiVersion, 'full').properties.fullyQualifiedDomainName
 
 resource mariaDbPrivateEndpoint 'Microsoft.Network/privateEndpoints@2022-05-01' = {
-  name: 'mariadb-pe-${resourcePostfix}'
+  name: '${mariaDbName}-pe'
   location: location
   properties: {
     privateLinkServiceConnections: [
       {
-        name: 'mariadb-private-connection-${resourcePostfix}'
+        name: '${mariaDbName}-private-connection'
         properties: {
           privateLinkServiceId: mariaDb.id
           groupIds: [
@@ -86,12 +86,12 @@ resource mariaDbPrivateDnsZone 'Microsoft.Network/privateEndpoints/privateDnsZon
   }
 }
 
-resource privateDnsZones_global 'Microsoft.Network/privateDnsZones@2018-09-01' = {
+resource privateDnsZones_global 'Microsoft.Network/privateDnsZones@2020-06-01' = {
   name: mariaDbPrivateLinkName
   location: 'global'
 }
 
-resource privateDnsZones_az_hop_private 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2018-09-01' = {
+resource privateDnsZones_az_hop_private 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
   parent: privateDnsZones_global
   name: 'az-hop-private'
   location: 'global'

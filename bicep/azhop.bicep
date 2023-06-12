@@ -36,21 +36,29 @@ param azhopConfig object
 var resourcePostfix = '${uniqueString(subscription().subscriptionId, azhopResourceGroupName)}x'
 
 // Local variables to help in the simplication as functions doesn't exists
-var enablePublicIP = contains(azhopConfig.locked_down_network, 'public_ip') ? azhopConfig.locked_down_network.public_ip : true
+var enablePublicIP = contains(azhopConfig, 'locked_down_network') ? azhopConfig.locked_down_network.public_ip : true
 var jumpboxSshPort = deployJumpbox ? (contains(azhopConfig.jumpbox, 'ssh_port') ? azhopConfig.jumpbox.ssh_port : 22) : 22
 var deployerSshPort = deployDeployer ? (contains(azhopConfig.deployer, 'ssh_port') ? azhopConfig.deployer.ssh_port : 22) : 22
 
 var deployLustre = contains(azhopConfig, 'lustre') && contains(azhopConfig.lustre, 'create') ? azhopConfig.lustre.create : false
 var deployJumpbox = contains(azhopConfig, 'jumpbox') ? true : false
 var deployDeployer = contains(azhopConfig, 'deployer') ? true : false
+var deployGrafana = contains(azhopConfig, 'monitoring') && contains(azhopConfig.monitoring, 'grafana') ? azhopConfig.monitoring.grafana : true
 var enableWinViz = contains(azhopConfig, 'enable_remote_winviz') ? azhopConfig.enable_remote_winviz : false
-var highAvailabilityForAD = contains(azhopConfig.ad, 'high_availability') ? azhopConfig.ad.high_availability : false
+
+var useExistingAD = contains(azhopConfig, 'domain') ? azhopConfig.domain.use_existing_dc : false
+var userAuth = contains(azhopConfig, 'authentication') && contains(azhopConfig.authentication, 'user_auth') ? azhopConfig.authentication.user_auth : 'ad'
+var createAD = ! useExistingAD && (userAuth == 'ad')
+
+var highAvailabilityForAD = contains(azhopConfig, 'ad') && contains(azhopConfig.ad, 'high_availability') ? azhopConfig.ad.high_availability : false
 
 var linuxBaseImage = contains(azhopConfig, 'linux_base_image') ? azhopConfig.linux_base_image : 'OpenLogic:CentOS:7_9-gen2:latest'
 var linuxBasePlan = contains(azhopConfig, 'linux_base_plan') ? azhopConfig.linux_base_plan : ''
 var windowsBaseImage = contains(azhopConfig, 'windows_base_image') ? azhopConfig.windows_base_image : 'MicrosoftWindowsServer:WindowsServer:2019-Datacenter-smalldisk:latest'
 var lustreBaseImage = contains(azhopConfig, 'lustre_base_image') ? azhopConfig.lustre_base_image : 'azhpc:azurehpc-lustre:azurehpc-lustre-2_12:latest'
 var lustreBasePlan = contains(azhopConfig, 'lustre_base_plan') ? azhopConfig.lustre_base_plan : 'azhpc:azurehpc-lustre:azurehpc-lustre-2_12'
+var cyclecloudBaseImage = contains(azhopConfig.cyclecloud, 'image') ? azhopConfig.cyclecloud.image : 'OpenLogic:CentOS:7_9-gen2:latest'
+var cyclecloudBasePlan = contains(azhopConfig.cyclecloud, 'plan') ? azhopConfig.cyclecloud.plan : ''
 
 var createDatabase = (config.queue_manager == 'slurm' && config.slurm.accounting_enabled ) || config.enable_remote_winviz
 
@@ -72,6 +80,10 @@ var ossVmConfig = [for oss in range(0, lustreOssCount) : {
   }
 } ]
 
+var nsgTargetForDC = {
+  type: useExistingAD ? 'ips' : 'asg'
+  target: useExistingAD ? azhopConfig.domain.existing_dc_details.domain_controller_ip_addresses : 'asg-ad'
+}
 
 // Convert the azhop configuration file to a pivot format used for the deployment
 var config = {
@@ -84,8 +96,8 @@ var config = {
   deploy_lustre: deployLustre
 
   lock_down_network: {
-    enforce: contains(azhopConfig.locked_down_network, 'enforce') ? azhopConfig.locked_down_network.enforce : false
-    grant_access_from: contains(azhopConfig.locked_down_network, 'grant_access_from') ? ( empty(azhopConfig.locked_down_network.grant_access_from) ? [] : [ azhopConfig.locked_down_network.grant_access_from ] ) : []
+    enforce: contains(azhopConfig, 'locked_down_network') && contains(azhopConfig.locked_down_network, 'enforce') ? azhopConfig.locked_down_network.enforce : false
+    grant_access_from: contains(azhopConfig, 'locked_down_network') && contains(azhopConfig.locked_down_network, 'grant_access_from') ? ( empty(azhopConfig.locked_down_network.grant_access_from) ? [] : [ azhopConfig.locked_down_network.grant_access_from ] ) : []
   }
 
   queue_manager: contains(azhopConfig, 'queue_manager') ? azhopConfig.queue_manager : 'openpbs'
@@ -95,11 +107,33 @@ var config = {
     accounting_enabled: contains(azhopConfig.slurm, 'accounting_enabled') ? azhopConfig.slurm.accounting_enabled : false
   }
 
+  domain: {
+    name : contains(azhopConfig, 'domain') ? azhopConfig.domain.name : 'hpc.azure'
+    domain_join_user: createAD ? {
+      username: azhopConfig.admin_user
+    } : useExistingAD ? {
+      username: azhopConfig.domain.domain_join_user.username
+      password_key_vault_name: azhopConfig.domain.domain_join_user.password_key_vault_name
+      password_key_vault_resource_group_name: azhopConfig.domain.domain_join_user.password_key_vault_resource_group_name
+      password_key_vault_secret_name: azhopConfig.domain.domain_join_user.password_key_vault_secret_name
+    } : {
+      username: ''
+    }
+    domain_controlers : createAD ? (! highAvailabilityForAD ? ['ad'] : ['ad', 'ad2']) : useExistingAD ? azhopConfig.domain.existing_dc_details.domain_controller_names : []
+    ldap_server: createAD ? 'ad' : useExistingAD ? azhopConfig.domain.existing_dc_details.domain_controller_names[0] : ''
+  }
+
+  key_vault_name: contains(azhopConfig, 'azure_key_vault') ? azhopConfig.azure_key_vault.name : 'kv${resourcePostfix}'
+  storage_account_name: contains(azhopConfig, 'azure_storage_account') ? azhopConfig.azure_storage_account.name : 'azhop${resourcePostfix}'
+  mariadb_name: contains(azhopConfig, 'database') && contains(azhopConfig.database, 'name') ? azhopConfig.database.name : 'azhop-${resourcePostfix}'
+
+  deploy_grafana: deployGrafana
+
   enable_remote_winviz : enableWinViz
   deploy_sig: contains(azhopConfig, 'image_gallery') && contains(azhopConfig.image_gallery, 'create') ? azhopConfig.image_gallery.create : false
 
   // Default home directory is ANF
-  homedir_type: contains(azhopConfig.mounts.home, 'type') ? azhopConfig.mounts.home.type : 'anf'
+  homedir_type: contains(azhopConfig.mounts.home, 'type') ? azhopConfig.mounts.home.type : 'existing'
   homedir_mountpoint: azhopConfig.mounts.home.mountpoint
 
   anf: {
@@ -121,14 +155,14 @@ var config = {
     subnets: union (
       {
       frontend: {
-        name: azhopConfig.network.vnet.subnets.frontend.name
+        name: contains(azhopConfig.network.vnet.subnets.frontend, 'name') ? azhopConfig.network.vnet.subnets.frontend.name : 'frontend'
         cidr: azhopConfig.network.vnet.subnets.frontend.address_prefixes
         service_endpoints: [
           'Microsoft.Storage'
         ]
       }
       admin: {
-        name: azhopConfig.network.vnet.subnets.admin.name
+        name: contains(azhopConfig.network.vnet.subnets.admin, 'name') ? azhopConfig.network.vnet.subnets.admin.name : 'admin'
         cidr: azhopConfig.network.vnet.subnets.admin.address_prefixes
         service_endpoints: [
           'Microsoft.KeyVault'
@@ -137,24 +171,26 @@ var config = {
       }
       netapp: {
         apply_nsg: false
-        name: azhopConfig.network.vnet.subnets.netapp.name
+        name: contains(azhopConfig.network.vnet.subnets.netapp, 'name') ? azhopConfig.network.vnet.subnets.netapp.name : 'netapp'
         cidr: azhopConfig.network.vnet.subnets.netapp.address_prefixes
         delegations: [
           'Microsoft.Netapp/volumes'
         ]
       }
-      ad: {
-        name: azhopConfig.network.vnet.subnets.ad.name
-        cidr: azhopConfig.network.vnet.subnets.ad.address_prefixes
-      }
       compute: {
-        name: azhopConfig.network.vnet.subnets.compute.name
+        name: contains(azhopConfig.network.vnet.subnets.compute, 'name') ? azhopConfig.network.vnet.subnets.compute.name : 'compute'
         cidr: azhopConfig.network.vnet.subnets.compute.address_prefixes
         service_endpoints: [
           'Microsoft.Storage'
         ]
       }
     },
+    createAD ? {
+      ad: {
+        name: contains(azhopConfig.network.vnet.subnets.ad, 'name') ? azhopConfig.network.vnet.subnets.ad.name : 'ad'
+        cidr: azhopConfig.network.vnet.subnets.ad.address_prefixes
+      }
+    } : {},
     contains(azhopConfig.network.vnet.subnets,'bastion') ? {
       bastion: {
         apply_nsg: false
@@ -164,7 +200,7 @@ var config = {
     } : {},
     contains(azhopConfig.network.vnet.subnets,'outbounddns') ? {
       outbounddns: {
-        name: azhopConfig.network.vnet.subnets.outbounddns.name
+        name: contains(azhopConfig.network.vnet.subnets.outbounddns, 'name') ? azhopConfig.network.vnet.subnets.outbounddns.name : 'outbounddns'
         cidr: azhopConfig.network.vnet.subnets.outbounddns.address_prefixes
         delegations: [
           'Microsoft.Network/dnsResolvers'
@@ -221,20 +257,22 @@ var config = {
         version: split(windowsBaseImage,':')[3]
       }
     }
+    cyclecloud_base: {
+      plan: cyclecloudBasePlan
+      ref: contains(cyclecloudBaseImage, '/') ? {
+        id: cyclecloudBaseImage
+      } : {
+        publisher: split(cyclecloudBaseImage,':')[0]
+        offer: split(cyclecloudBaseImage,':')[1]
+        sku: split(cyclecloudBaseImage,':')[2]
+        version: split(cyclecloudBaseImage,':')[3]
+      }
+    }
   }
 
 
   vms: union(
     {
-      ad: {
-        subnet: 'ad'
-        windows: true
-        ahub: contains(azhopConfig.ad, 'hybrid_benefit') ? azhopConfig.ad.hybrid_benefit : false
-        sku: azhopConfig.ad.vm_size
-        osdisksku: 'StandardSSD_LRS'
-        image: 'win_base'
-        asgs: [ 'asg-ad', 'asg-rdp', 'asg-ad-client' ]
-      }
       ondemand: {
         subnet: 'frontend'
         sku: azhopConfig.ondemand.vm_size
@@ -246,18 +284,11 @@ var config = {
           deployLustre ? [ 'asg-lustre-client' ] : []
         )
       }
-      grafana: {
-        subnet: 'admin'
-        sku: azhopConfig.grafana.vm_size
-        osdisksku: 'StandardSSD_LRS'
-        image: 'linux_base'
-        asgs: [ 'asg-ssh', 'asg-grafana', 'asg-ad-client', 'asg-telegraf', 'asg-nfs-client' ]
-      }
       ccportal: {
         subnet: 'admin'
         sku: azhopConfig.cyclecloud.vm_size
         osdisksku: 'StandardSSD_LRS'
-        image: 'linux_base'
+        image: 'cyclecloud_base'
         datadisks: [
           {
             name: 'ccportal-datadisk0'
@@ -281,6 +312,17 @@ var config = {
         asgs: [ 'asg-ssh', 'asg-pbs', 'asg-ad-client', 'asg-cyclecloud-client', 'asg-nfs-client', 'asg-telegraf', 'asg-mariadb-client' ]
       }
     },
+    createAD ? {
+      ad: {
+        subnet: 'ad'
+        windows: true
+        ahub: contains(azhopConfig.ad, 'hybrid_benefit') ? azhopConfig.ad.hybrid_benefit : false
+        sku: azhopConfig.ad.vm_size
+        osdisksku: 'StandardSSD_LRS'
+        image: 'win_base'
+        asgs: [ 'asg-ad', 'asg-rdp', 'asg-ad-client' ]
+      }
+    } : {},
     deployDeployer ? {
       deployer: {
           subnet: 'frontend'
@@ -339,6 +381,15 @@ var config = {
         deploy_script: jumpboxSshPort != 22 ? replace(loadTextContent('jumpbox.yml'), '__SSH_PORT__', string(jumpboxSshPort)) : ''
       }
     } : {},
+    deployGrafana ? {
+      grafana: {
+        subnet: 'admin'
+        sku: azhopConfig.grafana.vm_size
+        osdisksku: 'StandardSSD_LRS'
+        image: 'linux_base'
+        asgs: [ 'asg-ssh', 'asg-grafana', 'asg-ad-client', 'asg-telegraf', 'asg-nfs-client' ]
+      }
+    } : {},
     deployLustre ? {
       lustre: {
         subnet: 'admin'
@@ -362,8 +413,9 @@ var config = {
     } : {}
   )
 
-  asg_names: union([ 'asg-ssh', 'asg-rdp', 'asg-jumpbox', 'asg-ad', 'asg-ad-client', 'asg-pbs', 'asg-pbs-client', 'asg-cyclecloud', 'asg-cyclecloud-client', 'asg-nfs-client', 'asg-telegraf', 'asg-grafana', 'asg-robinhood', 'asg-ondemand', 'asg-deployer', 'asg-guacamole', 'asg-mariadb-client' ],
-    deployLustre ? [ 'asg-lustre', 'asg-lustre-client' ] : []
+  asg_names: union([ 'asg-ssh', 'asg-rdp', 'asg-jumpbox', 'asg-ad', 'asg-ad-client', 'asg-pbs', 'asg-pbs-client', 'asg-cyclecloud', 'asg-cyclecloud-client', 'asg-nfs-client', 'asg-telegraf', 'asg-robinhood', 'asg-ondemand', 'asg-deployer', 'asg-guacamole', 'asg-mariadb-client' ],
+    deployLustre ? [ 'asg-lustre', 'asg-lustre-client' ] : [],
+    deployGrafana ? [ 'asg-grafana' ] : []
   )
 
   service_ports: {
@@ -371,8 +423,7 @@ var config = {
     Bastion: ['22', '3389']
     Web: ['443', '80']
     Ssh: ['22']
-    HubSsh: [string(jumpboxSshPort), string(deployerSshPort)]
-    Socks: ['5985']
+    HubSsh: deployDeployer ? [string(deployerSshPort)] : [string(jumpboxSshPort)]
     // DNS, Kerberos, RpcMapper, Ldap, Smb, KerberosPass, LdapSsl, LdapGc, LdapGcSsl, AD Web Services, RpcSam
     DomainControlerTcp: ['53', '88', '135', '389', '445', '464', '636', '3268', '3269', '9389', '49152-65535']
     // DNS, Kerberos, W32Time, NetBIOS, Ldap, KerberosPass, LdapSsl
@@ -402,16 +453,16 @@ var config = {
       //
     
       // AD communication
-      AllowAdServerTcpIn          : ['220', 'Inbound', 'Allow', 'Tcp', 'DomainControlerTcp', 'asg', 'asg-ad', 'asg', 'asg-ad-client']
-      AllowAdServerUdpIn          : ['230', 'Inbound', 'Allow', 'Udp', 'DomainControlerUdp', 'asg', 'asg-ad', 'asg', 'asg-ad-client']
-      AllowAdClientTcpIn          : ['240', 'Inbound', 'Allow', 'Tcp', 'DomainControlerTcp', 'asg', 'asg-ad-client', 'asg', 'asg-ad']
-      AllowAdClientUdpIn          : ['250', 'Inbound', 'Allow', 'Udp', 'DomainControlerUdp', 'asg', 'asg-ad-client', 'asg', 'asg-ad']
-      AllowAdServerComputeTcpIn   : ['260', 'Inbound', 'Allow', 'Tcp', 'DomainControlerTcp', 'asg', 'asg-ad', 'subnet', 'compute']
-      AllowAdServerComputeUdpIn   : ['270', 'Inbound', 'Allow', 'Udp', 'DomainControlerUdp', 'asg', 'asg-ad', 'subnet', 'compute']
-      AllowAdClientComputeTcpIn   : ['280', 'Inbound', 'Allow', 'Tcp', 'DomainControlerTcp', 'subnet', 'compute', 'asg', 'asg-ad']
-      AllowAdClientComputeUdpIn   : ['290', 'Inbound', 'Allow', 'Udp', 'DomainControlerUdp', 'subnet', 'compute', 'asg', 'asg-ad']
-      AllowAdServerNetappTcpIn    : ['300', 'Inbound', 'Allow', 'Tcp', 'DomainControlerTcp', 'subnet', 'netapp', 'asg', 'asg-ad']
-      AllowAdServerNetappUdpIn    : ['310', 'Inbound', 'Allow', 'Udp', 'DomainControlerUdp', 'subnet', 'netapp', 'asg', 'asg-ad']
+      AllowAdServerTcpIn          : ['220', 'Inbound', 'Allow', 'Tcp', 'DomainControlerTcp', nsgTargetForDC.type, nsgTargetForDC.target, 'asg', 'asg-ad-client']
+      AllowAdServerUdpIn          : ['230', 'Inbound', 'Allow', 'Udp', 'DomainControlerUdp', nsgTargetForDC.type, nsgTargetForDC.target, 'asg', 'asg-ad-client']
+      AllowAdClientTcpIn          : ['240', 'Inbound', 'Allow', 'Tcp', 'DomainControlerTcp', 'asg', 'asg-ad-client', nsgTargetForDC.type, nsgTargetForDC.target]
+      AllowAdClientUdpIn          : ['250', 'Inbound', 'Allow', 'Udp', 'DomainControlerUdp', 'asg', 'asg-ad-client', nsgTargetForDC.type, nsgTargetForDC.target]
+      AllowAdServerComputeTcpIn   : ['260', 'Inbound', 'Allow', 'Tcp', 'DomainControlerTcp', nsgTargetForDC.type, nsgTargetForDC.target, 'subnet', 'compute']
+      AllowAdServerComputeUdpIn   : ['270', 'Inbound', 'Allow', 'Udp', 'DomainControlerUdp', nsgTargetForDC.type, nsgTargetForDC.target, 'subnet', 'compute']
+      AllowAdClientComputeTcpIn   : ['280', 'Inbound', 'Allow', 'Tcp', 'DomainControlerTcp', 'subnet', 'compute', nsgTargetForDC.type, nsgTargetForDC.target]
+      AllowAdClientComputeUdpIn   : ['290', 'Inbound', 'Allow', 'Udp', 'DomainControlerUdp', 'subnet', 'compute', nsgTargetForDC.type, nsgTargetForDC.target]
+      AllowAdServerNetappTcpIn    : ['300', 'Inbound', 'Allow', 'Tcp', 'DomainControlerTcp', 'subnet', 'netapp', nsgTargetForDC.type, nsgTargetForDC.target]
+      AllowAdServerNetappUdpIn    : ['310', 'Inbound', 'Allow', 'Udp', 'DomainControlerUdp', 'subnet', 'netapp', nsgTargetForDC.type, nsgTargetForDC.target]
     
       // SSH internal rules
       AllowSshFromJumpboxIn       : ['320', 'Inbound', 'Allow', 'Tcp', 'Ssh', 'asg', 'asg-jumpbox', 'asg', 'asg-ssh']
@@ -444,11 +495,6 @@ var config = {
       AllowComputeNoVncIn         : ['470', 'Inbound', 'Allow', 'Tcp', 'NoVnc', 'subnet', 'compute', 'asg', 'asg-ondemand']
       AllowNoVncComputeIn         : ['480', 'Inbound', 'Allow', 'Tcp', 'NoVnc', 'asg', 'asg-ondemand', 'subnet', 'compute']
     
-      // Telegraf / Grafana
-      AllowTelegrafIn             : ['490', 'Inbound', 'Allow', 'Tcp', 'Telegraf', 'asg', 'asg-telegraf', 'asg', 'asg-grafana']
-      AllowComputeTelegrafIn      : ['500', 'Inbound', 'Allow', 'Tcp', 'Telegraf', 'subnet', 'compute', 'asg', 'asg-grafana']
-      AllowGrafanaIn              : ['510', 'Inbound', 'Allow', 'Tcp', 'Grafana', 'asg', 'asg-ondemand', 'asg', 'asg-grafana']
-    
       // Admin and Deployment
       AllowWinRMIn                : ['520', 'Inbound', 'Allow', 'Tcp', 'WinRM', 'asg', 'asg-jumpbox', 'asg', 'asg-rdp']
       AllowRdpIn                  : ['550', 'Inbound', 'Allow', 'Tcp', 'Rdp', 'asg', 'asg-jumpbox', 'asg', 'asg-rdp']
@@ -469,16 +515,16 @@ var config = {
       //
     
       // AD communication
-      AllowAdClientTcpOut         : ['200', 'Outbound', 'Allow', 'Tcp', 'DomainControlerTcp', 'asg', 'asg-ad-client', 'asg', 'asg-ad']
-      AllowAdClientUdpOut         : ['210', 'Outbound', 'Allow', 'Udp', 'DomainControlerUdp', 'asg', 'asg-ad-client', 'asg', 'asg-ad']
-      AllowAdClientComputeTcpOut  : ['220', 'Outbound', 'Allow', 'Tcp', 'DomainControlerTcp', 'subnet', 'compute', 'asg', 'asg-ad']
-      AllowAdClientComputeUdpOut  : ['230', 'Outbound', 'Allow', 'Udp', 'DomainControlerUdp', 'subnet', 'compute', 'asg', 'asg-ad']
-      AllowAdServerTcpOut         : ['240', 'Outbound', 'Allow', 'Tcp', 'DomainControlerTcp', 'asg', 'asg-ad', 'asg', 'asg-ad-client']
-      AllowAdServerUdpOut         : ['250', 'Outbound', 'Allow', 'Udp', 'DomainControlerUdp', 'asg', 'asg-ad', 'asg', 'asg-ad-client']
-      AllowAdServerComputeTcpOut  : ['260', 'Outbound', 'Allow', 'Tcp', 'DomainControlerTcp', 'asg', 'asg-ad', 'subnet', 'compute']
-      AllowAdServerComputeUdpOut  : ['270', 'Outbound', 'Allow', 'Udp', 'DomainControlerUdp', 'asg', 'asg-ad', 'subnet', 'compute']
-      AllowAdServerNetappTcpOut   : ['280', 'Outbound', 'Allow', 'Tcp', 'DomainControlerTcp', 'asg', 'asg-ad', 'subnet', 'netapp']
-      AllowAdServerNetappUdpOut   : ['290', 'Outbound', 'Allow', 'Udp', 'DomainControlerUdp', 'asg', 'asg-ad', 'subnet', 'netapp']
+      AllowAdClientTcpOut         : ['200', 'Outbound', 'Allow', 'Tcp', 'DomainControlerTcp', 'asg', 'asg-ad-client', nsgTargetForDC.type, nsgTargetForDC.target]
+      AllowAdClientUdpOut         : ['210', 'Outbound', 'Allow', 'Udp', 'DomainControlerUdp', 'asg', 'asg-ad-client', nsgTargetForDC.type, nsgTargetForDC.target]
+      AllowAdClientComputeTcpOut  : ['220', 'Outbound', 'Allow', 'Tcp', 'DomainControlerTcp', 'subnet', 'compute', nsgTargetForDC.type, nsgTargetForDC.target]
+      AllowAdClientComputeUdpOut  : ['230', 'Outbound', 'Allow', 'Udp', 'DomainControlerUdp', 'subnet', 'compute', nsgTargetForDC.type, nsgTargetForDC.target]
+      AllowAdServerTcpOut         : ['240', 'Outbound', 'Allow', 'Tcp', 'DomainControlerTcp', nsgTargetForDC.type, nsgTargetForDC.target, 'asg', 'asg-ad-client']
+      AllowAdServerUdpOut         : ['250', 'Outbound', 'Allow', 'Udp', 'DomainControlerUdp', nsgTargetForDC.type, nsgTargetForDC.target, 'asg', 'asg-ad-client']
+      AllowAdServerComputeTcpOut  : ['260', 'Outbound', 'Allow', 'Tcp', 'DomainControlerTcp', nsgTargetForDC.type, nsgTargetForDC.target, 'subnet', 'compute']
+      AllowAdServerComputeUdpOut  : ['270', 'Outbound', 'Allow', 'Udp', 'DomainControlerUdp', nsgTargetForDC.type, nsgTargetForDC.target, 'subnet', 'compute']
+      AllowAdServerNetappTcpOut   : ['280', 'Outbound', 'Allow', 'Tcp', 'DomainControlerTcp', nsgTargetForDC.type, nsgTargetForDC.target, 'subnet', 'netapp']
+      AllowAdServerNetappUdpOut   : ['290', 'Outbound', 'Allow', 'Udp', 'DomainControlerUdp', nsgTargetForDC.type, nsgTargetForDC.target, 'subnet', 'netapp']
     
       // CycleCloud
       AllowCycleServerOut         : ['300', 'Outbound', 'Allow', 'Tcp', 'CycleCloud', 'asg', 'asg-cyclecloud', 'asg', 'asg-cyclecloud-client']
@@ -500,11 +546,6 @@ var config = {
       // NFS
       AllowNfsOut                 : ['440', 'Outbound', 'Allow', '*', 'Nfs', 'asg', 'asg-nfs-client', 'subnet', 'netapp']
       AllowNfsComputeOut          : ['450', 'Outbound', 'Allow', '*', 'Nfs', 'subnet', 'compute', 'subnet', 'netapp']
-    
-      // Telegraf / Grafana
-      AllowTelegrafOut            : ['460', 'Outbound', 'Allow', 'Tcp', 'Telegraf', 'asg', 'asg-telegraf', 'asg', 'asg-grafana']
-      AllowComputeTelegrafOut     : ['470', 'Outbound', 'Allow', 'Tcp', 'Telegraf', 'subnet', 'compute', 'asg', 'asg-grafana']
-      AllowGrafanaOut             : ['480', 'Outbound', 'Allow', 'Tcp', 'Grafana', 'asg', 'asg-ondemand', 'asg', 'asg-grafana']
     
       // SSH internal rules
       AllowSshFromJumpboxOut      : ['490', 'Outbound', 'Allow', 'Tcp', 'Ssh', 'asg', 'asg-jumpbox', 'asg', 'asg-ssh']
@@ -548,7 +589,7 @@ var config = {
       AllowRobinhoodOut           : ['430', 'Outbound', 'Allow', 'Tcp', 'Web', 'asg', 'asg-ondemand', 'asg', 'asg-robinhood']
     }
     internet: {
-      AllowInternetSshIn          : ['200', 'Inbound', 'Allow', 'Tcp', 'Ssh', 'tag', 'Internet', 'asg', 'asg-jumpbox']
+      AllowInternetSshIn          : ['200', 'Inbound', 'Allow', 'Tcp', 'HubSsh', 'tag', 'Internet', 'asg', 'asg-jumpbox']
       AllowInternetHttpIn         : ['210', 'Inbound', 'Allow', 'Tcp', 'Web', 'tag', 'Internet', 'asg', 'asg-ondemand']
     }
     hub: {
@@ -561,6 +602,17 @@ var config = {
     gateway: {
       AllowInternalWebUsersIn     : ['540', 'Inbound', 'Allow', 'Tcp', 'Web', 'subnet', 'gateway', 'asg', 'asg-ondemand']
     }
+    grafana: {
+      // Telegraf / Grafana
+      // Inbound
+      AllowTelegrafIn             : ['490', 'Inbound', 'Allow', 'Tcp', 'Telegraf', 'asg', 'asg-telegraf', 'asg', 'asg-grafana']
+      AllowComputeTelegrafIn      : ['500', 'Inbound', 'Allow', 'Tcp', 'Telegraf', 'subnet', 'compute', 'asg', 'asg-grafana']
+      AllowGrafanaIn              : ['510', 'Inbound', 'Allow', 'Tcp', 'Grafana', 'asg', 'asg-ondemand', 'asg', 'asg-grafana']
+      // Outbound
+      AllowTelegrafOut            : ['460', 'Outbound', 'Allow', 'Tcp', 'Telegraf', 'asg', 'asg-telegraf', 'asg', 'asg-grafana']
+      AllowComputeTelegrafOut     : ['470', 'Outbound', 'Allow', 'Tcp', 'Telegraf', 'subnet', 'compute', 'asg', 'asg-grafana']
+      AllowGrafanaOut             : ['480', 'Outbound', 'Allow', 'Tcp', 'Grafana', 'asg', 'asg-ondemand', 'asg', 'asg-grafana']
+    }
   }
 }
 
@@ -570,14 +622,15 @@ module azhopSecrets './secrets.bicep' = if (autogenerateSecrets) {
   name: 'azhopSecrets'
   params: {
     location: location
+    kvName: autogenerateSecrets ? azhopKeyvaultSecrets.outputs.keyvaultName : 'foo' // trick to avoid unreferenced resource for azhopKeyvaultSecrets
+    adminUser: config.admin_user
+    dbAdminUser: config.slurm.admin_user
+    identityId: autogenerateSecrets ? identity.id : '' // trick to avoid unreferenced resource for identity
   }
 }
 
-var secrets = (autogenerateSecrets) ? azhopSecrets.outputs.secrets : {
-  adminSshPublicKey: adminSshPublicKey
-  adminSshPrivateKey: adminSshPrivateKey
-  adminPassword: adminPassword
-  databaseAdminPassword: databaseAdminPassword
+resource kv 'Microsoft.KeyVault/vaults@2021-10-01' existing = if (autogenerateSecrets) {
+  name: azhopKeyvaultSecrets.outputs.keyvaultName
 }
 
 module azhopNetwork './network.bicep' = {
@@ -587,6 +640,7 @@ module azhopNetwork './network.bicep' = {
     deployGateway: config.deploy_gateway
     deployBastion: config.deploy_bastion
     deployLustre: config.deploy_lustre
+    deployGrafana: config.deploy_grafana
     publicIp: config.public_ip
     vnet: config.vnet
     asgNames: config.asg_names
@@ -619,7 +673,8 @@ module azhopVm './vm.bicep' = [ for vm in vmItems: {
     image: config.images[vm.value.image]
     subnetId: subnetIds[vm.value.subnet]
     adminUser: config.admin_user
-    secrets: secrets
+    adminPassword: autogenerateSecrets ? kv.getSecret(azhopSecrets.outputs.secrets.adminPassword) : adminPassword
+    adminSshPublicKey: autogenerateSecrets ? kv.getSecret(azhopSecrets.outputs.secrets.adminSshPublicKey) : adminSshPublicKey
     asgIds: asgNameToIdLookup
   }
 }]
@@ -634,34 +689,33 @@ module azhopRoleAssignements './roleAssignments.bicep' = [ for vm in vmItems: if
   }
 }]
 
-var keyvaultSecrets = union(
-  [
-    {
-      name: '${config.admin_user}-password'
-      value: secrets.adminPassword
-    }
-    {
-      name: '${config.admin_user}-pubkey'
-      value: secrets.adminSshPublicKey
-    }
-    {
-      name: '${config.admin_user}-privkey'
-      value: secrets.adminSshPrivateKey
-    }
-  ],
-  createDatabase ? [
-    {
-      name: '${config.slurm.admin_user}-password'
-      value: secrets.databaseAdminPassword
-    }
-  ] : []
-)
+resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = if (autogenerateSecrets) {
+  name: 'deployScriptIdentity'
+  location: location
+}
+
+module azhopKeyvaultSecrets './keyvault.bicep' = if (autogenerateSecrets) {
+  name: 'azhopKeyvaultSecrets'
+  params: {
+    location: location
+    kvName: config.key_vault_name
+    subnetId: subnetIds.admin
+    keyvaultReaderOids: config.keyvault_readers
+    lockDownNetwork: config.lock_down_network.enforce
+    allowableIps: config.lock_down_network.grant_access_from
+    keyvaultOwnerId: loggedUserObjectId
+    identityPerms: autogenerateSecrets ? [{
+      principalId: identity.properties.principalId
+      secret_permissions: ['Set']
+    }] : [] // trick to avoid unreferenced resource for identity
+  }
+}
 
 module azhopKeyvault './keyvault.bicep' = {
   name: 'azhopKeyvault'
   params: {
     location: location
-    resourcePostfix: resourcePostfix
+    kvName: config.key_vault_name
     subnetId: subnetIds.admin
     keyvaultReaderOids: config.keyvault_readers
     lockDownNetwork: config.lock_down_network.enforce
@@ -672,7 +726,66 @@ module azhopKeyvault './keyvault.bicep' = {
       key_permissions: (contains(vmItems[i].value, 'identity') && contains(vmItems[i].value.identity, 'keyvault') && contains(vmItems[i].value.identity.keyvault, 'key_permissions')) ? vmItems[i].value.identity.keyvault.key_permissions : []
       secret_permissions: (contains(vmItems[i].value, 'identity') && contains(vmItems[i].value.identity, 'keyvault')) ? vmItems[i].value.identity.keyvault.secret_permissions : []
     }]
-    secrets: keyvaultSecrets
+  }
+}
+
+module kvSecretAdminPassword './kv_secrets.bicep' = if (!autogenerateSecrets) {
+  name: 'kvSecrets-admin-password'
+  params: {
+    vaultName: azhopKeyvault.outputs.keyvaultName
+    name: '${config.admin_user}-password'
+    value: adminPassword
+  }
+}
+
+module kvSecretAdminPubKey './kv_secrets.bicep' = if (!autogenerateSecrets)  {
+  name: 'kvSecrets-admin-pubkey'
+  params: {
+    vaultName: azhopKeyvault.outputs.keyvaultName
+    name: '${config.admin_user}-pubkey'
+    value: adminSshPublicKey
+  }
+}
+
+module kvSecretAdminPrivKey './kv_secrets.bicep' = if (!autogenerateSecrets)  {
+  name: 'kvSecrets-admin-privkey'
+  params: {
+    vaultName: azhopKeyvault.outputs.keyvaultName
+    name: '${config.admin_user}-privkey'
+    value: adminSshPrivateKey
+  }
+}
+
+module kvSecretDBPassword './kv_secrets.bicep' = if (!autogenerateSecrets && createDatabase) {
+  name: 'kvSecrets-db-password'
+  params: {
+    vaultName: azhopKeyvault.outputs.keyvaultName
+    name: '${config.slurm.admin_user}-password'
+    value: databaseAdminPassword
+  }
+}
+
+// Domain join password when deploying AD will be stored in the keyvault
+module kvSecretDomainJoin './kv_secrets.bicep' = if (createAD) {
+  name: 'kvSecrets-domain-join'
+  params: {
+    vaultName: azhopKeyvault.outputs.keyvaultName
+    name: '${config.domain.domain_join_user.username}-password'
+    value: autogenerateSecrets ? kv.getSecret(azhopSecrets.outputs.secrets.adminPassword) : adminPassword
+  }
+}
+
+// Domain join password when using an existing AD will be retrieved from the keyvault specified in config and stored in our KV
+resource domainJoinUserKV 'Microsoft.KeyVault/vaults@2021-10-01' existing = if (useExistingAD) {
+  name: '${config.domain.domain_join_user.password_key_vault_name}'
+  scope: resourceGroup(config.domain.domain_join_user.password_key_vault_resource_group_name)
+}
+module kvSecretExistingDomainJoin './kv_secrets.bicep' = if (useExistingAD) {
+  name: 'kvSecrets-existing-domain-join'
+  params: {
+    vaultName: azhopKeyvault.outputs.keyvaultName
+    name: '${config.domain.domain_join_user.username}-password'
+    value: domainJoinUserKV.getSecret(config.domain.domain_join_user.password_key_vault_secret_name)
   }
 }
 
@@ -680,7 +793,7 @@ module azhopStorage './storage.bicep' = {
   name: 'azhopStorage'
   params:{
     location: location
-    resourcePostfix: resourcePostfix
+    saName: config.storage_account_name
     lockDownNetwork: config.lock_down_network.enforce
     allowableIps: config.lock_down_network.grant_access_from
     subnetIds: [ subnetIds.admin, subnetIds.compute ]
@@ -699,9 +812,9 @@ module azhopMariaDB './mariadb.bicep' = if (createDatabase) {
   name: 'azhopMariaDB'
   params: {
     location: location
-    resourcePostfix: resourcePostfix
+    mariaDbName: config.mariadb_name
     adminUser: config.slurm.admin_user
-    adminPassword: secrets.databaseAdminPassword
+    adminPassword: autogenerateSecrets ? kv.getSecret(azhopSecrets.outputs.secrets.databaseAdminPassword) : databaseAdminPassword
     adminSubnetId: subnetIds.admin
     vnetId: azhopNetwork.outputs.vnetId
     sslEnforcement: config.enable_remote_winviz ? false : true // based whether guacamole is enabled (guac doesn't support ssl atm)
@@ -728,8 +841,8 @@ module azhopAnf './anf.bicep' = if (config.anf.create) {
     dualProtocol: config.anf.dual_protocol
     subnetId: subnetIds.netapp
     adUser: config.admin_user
-    adPassword: secrets.adminPassword
-    adDns: azhopVm[indexOf(map(vmItems, item => item.key), 'ad')].outputs.privateIp
+    adPassword: autogenerateSecrets ? kv.getSecret(azhopSecrets.outputs.secrets.adminPassword) : adminPassword
+    adDns: adIp
     serviceLevel: config.anf.service_level
     sizeGB: config.anf.size_gb
   }
@@ -748,24 +861,25 @@ module azhopNfsFiles './nfsfiles.bicep' = if (config.azurefiles.create ) {
 module azhopPrivateZone './privatezone.bicep' = {
   name: 'azhopPrivateZone'
   params: {
-    privateDnsZoneName: 'hpc.azure'
+    privateDnsZoneName: config.domain.name
     vnetId: azhopNetwork.outputs.vnetId
   }
 }
 
 // list of DC VMs. The first one will be considered the default PDC (for DNS registration)
 // Trick to get the index of the DC VM in the vmItems array, to workaround a bug in bicep 0.14.85 as it throws an error when using indexOf(map(vmItems, item => item.key), 'ad2')
-var adVmNames = ! highAvailabilityForAD ? ['ad'] : ['ad', 'ad2']
-var adIp = azhopVm[indexOf(map(vmItems, item => item.key), 'ad')].outputs.privateIp
-var ad2Index = highAvailabilityForAD ? indexOf(map(vmItems, item => item.key), 'ad2') : 0
-var ad2Ip = azhopVm[ad2Index].outputs.privateIp
-var adVmIps = ! highAvailabilityForAD ? [adIp] : [adIp, ad2Ip]
-module azhopADRecords './privatezone_records.bicep' = {
+var adIndex = createAD ? indexOf(map(vmItems, item => item.key), 'ad') : 0
+var adIp = createAD ? azhopVm[adIndex].outputs.privateIp : ''
+var ad2Index = createAD && highAvailabilityForAD ? indexOf(map(vmItems, item => item.key), 'ad2') : 0
+var ad2Ip = createAD ? azhopVm[ad2Index].outputs.privateIp : ''
+var domain_controller_ip_addresses = useExistingAD && contains(azhopConfig, 'domain') && contains(azhopConfig.domain, 'existing_dc_details') ? azhopConfig.domain.existing_dc_details.domain_controller_ip_addresses : []
+var dcIps = createAD ? (! highAvailabilityForAD ? [adIp] : [adIp, ad2Ip]) : domain_controller_ip_addresses
+module azhopADRecords './privatezone_records.bicep' = if (createAD || useExistingAD) {
   name: 'azhopADRecords'
   params: {
-    privateDnsZoneName: 'hpc.azure'
-    adVmNames: adVmNames
-    adVmIps: adVmIps
+    privateDnsZoneName: config.domain.name
+    adVmNames: config.domain.domain_controlers
+    adVmIps: dcIps
   }
 }
 
@@ -787,21 +901,20 @@ var kvSuffix = environment().suffixes.keyvaultDns
 
 output azhopGlobalConfig object = union(
   {
-    global_ssh_public_key         : secrets.adminSshPublicKey
-    global_cc_storage             : 'azhop${resourcePostfix}'
+    global_cc_storage             : config.storage_account_name
     compute_subnetid              : '${azhopResourceGroupName}/${config.vnet.name}/${config.vnet.subnets.compute.name}'
     global_config_file            : '/az-hop/config.yml'
-    ad_join_user                  : config.admin_user
-    domain_name                   : 'hpc.azure'
-    ldap_server                   : 'ad'
+    ad_join_user                  : config.domain.domain_join_user.username
+    domain_name                   : config.domain.name
+    ldap_server                   : '${config.domain.ldap_server}.${config.domain.name}'
     homedir_mountpoint            : config.homedir_mountpoint
     ondemand_fqdn                 : config.public_ip ? azhopVm[indexOf(map(vmItems, item => item.key), 'ondemand')].outputs.fqdn : azhopVm[indexOf(map(vmItems, item => item.key), 'ondemand')].outputs.privateIp
     ansible_ssh_private_key_file  : '${config.admin_user}_id_rsa'
     subscription_id               : subscription().subscriptionId
     tenant_id                     : subscription().tenantId
-    key_vault                     : 'kv${resourcePostfix}'
+    key_vault                     : config.key_vault_name
     sig_name                      : (config.deploy_sig) ? 'azhop_${resourcePostfix}' : ''
-    lustre_hsm_storage_account    : 'azhop${resourcePostfix}'
+    lustre_hsm_storage_account    : config.storage_account_name
     lustre_hsm_storage_container  : 'lustre'
     database_fqdn                 : createDatabase ? azhopMariaDB.outputs.mariaDb_fqdn : ''
     database_user                 : config.slurm.admin_user
@@ -819,6 +932,11 @@ output azhopGlobalConfig object = union(
     anf_home_ip                   : azhopNfsFiles.outputs.nfs_home_ip
     anf_home_path                 : azhopNfsFiles.outputs.nfs_home_path
     anf_home_opts                 : azhopNfsFiles.outputs.nfs_home_opts
+  } : {},
+  config.homedir_type == 'existing' ? {
+    anf_home_ip                   : azhopConfig.mounts.home.server
+    anf_home_path                 : azhopConfig.mounts.home.export
+    anf_home_opts                 : azhopConfig.mounts.home.options
   } : {}
 )
 
@@ -838,26 +956,25 @@ output azhopInventory object = {
         ccportal: {
           ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'ccportal')].outputs.privateIp
         }
-        grafana: {
-          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'grafana')].outputs.privateIp
-        }
-        ad: {
-          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'ad')].outputs.privateIp
-          ansible_connection: 'psrp'
-          ansible_psrp_protocol: 'http'
-          ansible_user: config.admin_user
-          ansible_password: secrets.adminPassword
-          psrp_ssh_proxy: deployJumpbox ? azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIp : ''
-          ansible_psrp_proxy: deployJumpbox ? 'socks5h://localhost:5985' : ''
-        }
       },
-      indexOf(map(vmItems, item => item.key), 'ad2') > 0 ? {
+      indexOf(map(vmItems, item => item.key), 'ad') >= 0 ? {
+        ad: {
+        ansible_host: adIp
+        ansible_connection: 'psrp'
+        ansible_psrp_protocol: 'http'
+        ansible_user: config.admin_user
+        ansible_password: '__ADMIN_PASSWORD__'
+        psrp_ssh_proxy: deployJumpbox ? azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIp : ''
+        ansible_psrp_proxy: deployJumpbox ? 'socks5h://localhost:5985' : ''
+        }
+      } : {} ,
+      indexOf(map(vmItems, item => item.key), 'ad2') >= 0 ? {
         ad2: {
           ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'ad2')].outputs.privateIp
           ansible_connection: 'psrp'
           ansible_psrp_protocol: 'http'
           ansible_user: config.admin_user
-          ansible_password: secrets.adminPassword
+          ansible_password: '__ADMIN_PASSWORD__'
           psrp_ssh_proxy: deployJumpbox ? azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIp : ''
           ansible_psrp_proxy: deployJumpbox ? 'socks5h://localhost:5985' : ''
         }
@@ -868,7 +985,13 @@ output azhopInventory object = {
           ansible_ssh_port: config.vms.jumpbox.sshPort
           ansible_ssh_common_args: ''
         }
-      } : {},
+      } : {
+        deployer : {
+          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIp
+          ansible_ssh_port: config.vms.deployer.sshPort
+          ansible_ssh_common_args: ''
+        }
+      },
       config.deploy_lustre ? {
         lustre: {
           ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'lustre')].outputs.privateIp
@@ -880,6 +1003,11 @@ output azhopInventory object = {
       config.enable_remote_winviz ? {
         guacamole: {
           ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'guacamole')].outputs.privateIp
+        }
+      } : {},
+      config.deploy_grafana ? {
+        grafana: {
+          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'grafana')].outputs.privateIp
         }
       } : {}
     )
@@ -902,6 +1030,10 @@ output azhopPackerOptions object = (config.deploy_sig) ? {
   var_virtual_network_name: config.vnet.name
   var_virtual_network_subnet_name: config.vnet.subnets.compute.name
   var_virtual_network_resource_group_name: azhopResourceGroupName
+  var_ssh_bastion_host: azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIp // TODO: add support for public IP
+  var_ssh_bastion_port: '${config.vms.jumpbox.sshPort}'
+  var_ssh_bastion_username: config.admin_user
+  var_ssh_bastion_private_key_file: '../${config.admin_user}_id_rsa'
   var_queue_manager: config.queue_manager
 } : {}
 
@@ -942,7 +1074,7 @@ user=$1
 # Because secret names are restricted to '^[0-9a-zA-Z-]+$' we need to remove all other characters
 secret_name=$(echo $user-password | tr -dc 'a-zA-Z0-9-')
 
-az keyvault secret show --vault-name kv{0} -n $secret_name --query "value" -o tsv
+az keyvault secret show --vault-name {0} -n $secret_name --query "value" -o tsv
 
-''', resourcePostfix)
+''', config.key_vault_name)
 

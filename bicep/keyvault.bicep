@@ -1,16 +1,13 @@
 targetScope = 'resourceGroup'
 
-param location string = resourceGroup().location
-param resourcePostfix string
+param location string
+param kvName string
 param subnetId string
 param keyvaultReaderOids array
 param keyvaultOwnerId string
 param lockDownNetwork bool
 param allowableIps array
 param identityPerms array
-param secrets array
-
-var kvName = 'kv${resourcePostfix}'
 
 output keyvaultName string = kvName
 
@@ -19,6 +16,7 @@ resource kv 'Microsoft.KeyVault/vaults@2021-10-01' = {
   location: location
   properties: {
     enabledForDiskEncryption: true
+    enabledForTemplateDeployment: true
     tenantId: subscription().tenantId
     softDeleteRetentionInDays: 7
     sku: {
@@ -49,13 +47,13 @@ resource kv 'Microsoft.KeyVault/vaults@2021-10-01' = {
       map(
         filter(
           identityPerms,
-          id => !empty(id.key_permissions) || !empty(id.secret_permissions)
+          id => (contains(id, 'key_permissions') && !empty(id.key_permissions)) || (contains(id, 'secret_permissions') && !empty(id.secret_permissions))
         ),
         id => {
         objectId: id.principalId
         permissions: {
-          keys: id.key_permissions
-          secrets: id.secret_permissions
+          keys: contains(id, 'key_permissions') ? id.key_permissions : []
+          secrets: contains(id, 'secret_permissions') ? id.secret_permissions : []
         }
         tenantId: subscription().tenantId
       }),
@@ -69,11 +67,3 @@ resource kv 'Microsoft.KeyVault/vaults@2021-10-01' = {
     )
   }
 }
-
-resource kvSecrets 'Microsoft.KeyVault/vaults/secrets@2021-10-01' = [ for secret in secrets: {
-  name: secret.name
-  parent: kv
-  properties: {
-    value: secret.value
-  }
-}]

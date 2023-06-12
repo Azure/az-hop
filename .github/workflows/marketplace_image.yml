@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: azhop.azurecr.io/hpcrover:2304.1312
+      image: azhop.azurecr.io/hpcrover:2306.0708
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -81,7 +81,7 @@ jobs:
       matrix:
         images: ${{ fromJson(needs.set_image_list.outputs.matrix) }}
     container:
-      image: azhop.azurecr.io/hpcrover:2304.1312
+      image: azhop.azurecr.io/hpcrover:2306.0708
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -104,8 +104,8 @@ jobs:
           cd packer
           ./build_image.sh -i ${{matrix.images}}.json -k
 
-  put_offer:
-    name: put_offer
+  copy_disk:
+    name: copy_disk
     runs-on: ubuntu-latest
     continue-on-error: true
     if: inputs.publish == 'true'
@@ -115,7 +115,7 @@ jobs:
       matrix:
         images: ${{ fromJson(needs.set_image_list.outputs.matrix) }}
     container:
-      image: azhop.azurecr.io/hpcrover:2304.1312
+      image: azhop.azurecr.io/hpcrover:2306.0708
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -158,6 +158,60 @@ jobs:
           cd ./marketplace
 
           ./copyosdisk.sh ${offer}-${sku} $RESOURCE_GROUP
+
+  put_offer:
+    name: put_offer
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    if: inputs.publish == 'true'
+    needs: [set_image_list, copy_disk]
+    strategy:
+      max-parallel: 1
+      fail-fast: false
+      matrix:
+        images: ${{ fromJson(needs.set_image_list.outputs.matrix) }}
+    container:
+      image: azhop.azurecr.io/hpcrover:2306.0708
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
+      options: --user 0
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Login azure
+        run: |
+          source /miniconda/bin/activate
+          az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
+          az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
+
+      - name: Push Offer Update
+        run: |
+          source /miniconda/bin/activate
+          set -e
+          RESOURCE_GROUP=${{ env.RESOURCE_GROUP }}
+          ANSIBLE_VARIABLES=./playbooks/group_vars/all.yml
+          CONFIG_FILE=config.yml
+          image_name=${{matrix.images}}
+
+          ./azhop_state.sh download ${{ env.AZHOP_STATE_ACCOUNT }} ${{ env.AZHOP_STATE_CONTAINER }} $RESOURCE_GROUP
+
+          key_vault_name=$(yq eval ".key_vault" $ANSIBLE_VARIABLES)
+          echo "key_vault_name=$key_vault_name"
+
+          eval_str=".images[] | select(.name == "\"$image_name"\") | .offer"
+          offer=$(yq eval "$eval_str" $CONFIG_FILE)
+          eval_str=".images[] | select(.name == "\"$image_name"\") | .publisher"
+          publisher=$(yq eval "$eval_str" $CONFIG_FILE)
+          eval_str=".images[] | select(.name == "\"$image_name"\") | .sku"
+          sku=$(yq eval "$eval_str" $CONFIG_FILE)
+
+          echo "offer=$offer"
+          echo "publisher=$publisher"
+          echo "sku=$sku"
+
+          cd ./marketplace
           . auth.sh $key_vault_name
 
           echo "authenticate_legacy"

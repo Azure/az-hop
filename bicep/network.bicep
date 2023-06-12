@@ -1,9 +1,10 @@
 targetScope = 'resourceGroup'
 
-param location string = resourceGroup().location
+param location string
 param deployGateway bool
 param deployBastion bool
 param deployLustre bool
+param deployGrafana bool
 param publicIp bool
 param vnet object
 param asgNames array
@@ -16,7 +17,8 @@ var securityRules = [ for rule in items(union(
     publicIp ? nsgRules.internet : nsgRules.hub,
     deployBastion ? nsgRules.bastion : {},
     deployGateway ? nsgRules.gateway : {},
-    deployLustre ? nsgRules.lustre : {}
+    deployLustre ? nsgRules.lustre : {},
+    deployGrafana ? nsgRules.grafana : {}
   )): {
   name: rule.key
   properties: union(
@@ -34,14 +36,17 @@ var securityRules = [ for rule in items(union(
       }] 
     } : {},
     rule.value[5] == 'tag' ? { sourceAddressPrefix: rule.value[6] } : {},
-    rule.value[5] == 'subnet' ? { sourceAddressPrefix: vnet.subnets[rule.value[6]].cidr } : {}, 
+    rule.value[5] == 'subnet' ? { sourceAddressPrefix: vnet.subnets[rule.value[6]].cidr } : {},
+    rule.value[5] == 'ips' ? { sourceAddressPrefixes: rule.value[6] } : {},
+
     rule.value[7] == 'asg' ? { 
       destinationApplicationSecurityGroups: [{
         id: resourceId('Microsoft.Network/applicationSecurityGroups', rule.value[8])
       }] 
     } : {},
     rule.value[7] == 'tag' ? { destinationAddressPrefix: rule.value[8] } : {},
-    rule.value[7] == 'subnet' ? { destinationAddressPrefix: vnet.subnets[rule.value[8]].cidr } : {}
+    rule.value[7] == 'subnet' ? { destinationAddressPrefix: vnet.subnets[rule.value[8]].cidr } : {},
+    rule.value[7] == 'ips' ? { destinationAddressPrefixes: rule.value[8] } : {}
   )
 }]
 

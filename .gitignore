@@ -60,3 +60,5 @@ deploy/*params.json
 # build dir that may have .git moduless
 toolset/scripts/ansible-build
 
+marketplace/solution/build
+marketplace/solution/build.zip

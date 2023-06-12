@@ -14,10 +14,13 @@ all:
       ansible_host: ${ondemand-ip}
     ccportal:
       ansible_host: ${ccportal-ip}
+%{ if grafana-ip!="0.0.0.0" }
     grafana:
       ansible_host: ${grafana-ip}
+%{ endif }
     guacamole:
       ansible_host: ${guacamole-ip}
+%{ if ad-ip!="0.0.0.0" }
     ad:
       ansible_host: ${ad-ip}
       ansible_connection: psrp
@@ -38,6 +41,8 @@ all:
       psrp_ssh_proxy: ${jumpbox-pip}
       ansible_psrp_proxy: socks5h://localhost:5985
 %{ endif }
+%{ endif }
+%{ if lustre-ip!="0.0.0.0" }
     lustre:
       ansible_host: ${lustre-ip}
 %{ for count in range(lustre-oss-count) }
@@ -46,6 +51,7 @@ all:
 %{ endfor }
     robinhood:
       ansible_host: ${robinhood-ip}
+%{ endif }
   vars:
     ansible_ssh_user: ${admin-user}
 %{ if jumpbox-pip!="0.0.0.0" }

@@ -2,5 +2,5 @@ pypsrp
 PySocks
 netaddr
 yamllint
-ansible
+ansible==7.6.0
 check-jsonschema

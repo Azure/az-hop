@@ -1,6 +1,6 @@
 targetScope = 'resourceGroup'
 
-param location string = resourceGroup().location
+param location string
 param resourcePostfix string
 
 resource sig 'Microsoft.Compute/galleries@2022-01-03' = {

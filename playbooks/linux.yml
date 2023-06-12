@@ -19,16 +19,16 @@
         line: 'AllowTcpForwarding yes'
   - name: restart sshd
     service:
-      name: sshd 
+      name: sshd
       state: restarted
   - name: update packages for security
     become: true
     yum:
       name: '*'
       state: latest
-#      exclude: kernel*,kmod*,amlfs*
+      exclude: kernel*,kmod*,amlfs*
 
-- name: Join AD domain and mount anfhome
+- name: Join AD domain or create local users, mount shared home
   hosts: scheduler, ondemand, grafana
   become: true
   gather_facts: no
@@ -42,27 +42,62 @@
   - name: Gather facts for first time
     setup:
 
-  - name: Read Password from KV
-    command: az keyvault secret show --vault-name {{key_vault}} -n {{admin_user}}-password --query "value" -o tsv
-    delegate_to: localhost
-    connection: local
-    register: password
-    become: false
-    run_once: true
+  - name: Install dependencies
+    yum:
+      name: epel-release, nfs-utils, python3
+      lock_timeout : 180
+      state: present
 
-  - name: Join domain
-    include_role:
-      name: domain_join
-    vars:
-      domain_admin: "{{admin_user}}"
-      domain_password: "{{password.stdout}}"
-      domain: "{{domain_name}}"
-      # domain_primary_dns: "{{primary_dns}}"
-      # domain_secondary_dns: "{{secondary_dns}}"
-      domain_homedir: "{{homedir_mountpoint}}"
-      domain_mount_ip: "{{anf_home_ip}}"
-      domain_mount_path: "{{anf_home_path}}"
-      domain_mount_opts: "{{anf_home_opts}}"
+  - name: mount home
+    block:
+      - name: debug
+        debug:
+          msg:
+          - '{{ anf_home_ip }}:/{{ anf_home_path }}'
+          - '{{ homedir_mountpoint }}'
+          - '{{ anf_home_opts }}'
+      - name: Mount home NFS volume
+        mount:
+          src: '{{ anf_home_ip }}:/{{ anf_home_path }}'
+          path: '{{ homedir_mountpoint }}'
+          opts: '{{ anf_home_opts }}'
+          state: mounted
+          fstype: nfs
+      - name: Disable SELinux
+        selinux:
+          state: disabled
+        register: selinux
+
+      - name: reboot 
+        reboot:
+        when: selinux.reboot_required
+
+    when: (authentication.user_auth | default('ad')) == "local"
+
+  - name: Domain Join
+    block:
+    - name: Read Password from KV
+      command: az keyvault secret show --vault-name {{key_vault}} -n {{ad_join_user}}-password --query "value" -o tsv
+      delegate_to: localhost
+      connection: local
+      register: password
+      become: false
+      run_once: true
+
+    - name: Join domain
+      include_role:
+        name: domain_join
+      vars:
+        domain_admin: "{{ad_join_user}}"
+        domain_password: "{{password.stdout}}"
+        domain: "{{domain_name}}"
+        domain_homedir: "{{homedir_mountpoint}}"
+        domain_mount_ip: "{{anf_home_ip}}"
+        domain_mount_path: "{{anf_home_path}}"
+        domain_mount_opts: "{{anf_home_opts}}"
+        domain_join_ou: "{{domain.domain_join_ou | default('')}}"
+
+    when: (authentication.user_auth | default('ad')) == "ad"
 
   - name: Update ANF chmod mode
     file:
@@ -71,3 +106,31 @@
       mode: '0755'
     run_once : true
 
+
+- name: Generate SSH keys on logon if not exists
+  hosts: ondemand
+  become: true
+  gather_facts: no
+  vars_files:
+    - '{{global_config_file}}'
+
+  tasks:
+  - name: Wait 300 seconds for the nodes to be ready
+    wait_for_connection:
+      timeout: 300
+  - name: Gather facts for first time
+    setup:
+
+  - name: create /etc/profile.d/gen_sshkey.sh if not exists
+    shell: |
+      cat <<EOF >/etc/profile.d/gen_sshkey.sh
+      #!/bin/sh
+      if [ ! -f  ~/.ssh/id_rsa.pub ] ; then
+        ssh-keygen -q -t rsa -N '' -f ~/.ssh/id_rsa <<<y >/dev/null 2>&1
+        cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+        chmod 644 ~/.ssh/authorized_keys
+      fi
+      EOF
+      chmod 644 /etc/profile.d/gen_sshkey.sh
+    args: 
+      creates: /etc/profile.d/gen_sshkey.sh
