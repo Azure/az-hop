@@ -32,7 +32,10 @@ on:
         description: 'Run UI tests - Default to false'
         required: false
         default: 'false' # use it with ${{ github.event.inputs.ui_tests }}
-
+      monitoring:
+        description: "Monitoring agent - ['ama', 'grafana', 'none'] - Default to ['grafana']"
+        required: false
+        default: 'grafana' # use it with ${{ github.event.inputs.monitoring }}
 jobs:
   deploy:
     strategy:
@@ -54,6 +57,7 @@ jobs:
       deploy_with: 'bicep'
       clean: ${{ github.event.inputs.clean }}
       ui_tests: ${{ github.event.inputs.ui_tests }}
+      monitoring: ${{ matrix.monitoring }}
     secrets:
       ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
       ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}

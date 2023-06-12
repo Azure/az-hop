@@ -395,7 +395,10 @@ log_analytics:
 
 # Option to install the monitoring agent on static infra VMs. Can be disabled if the agent is installed by policy.  
 monitoring: 
-  install_agent: true
+  azure_monitor_agent: true
+  # Optional settings to deploy Grafana and install Telegraf
+  telegraf: true # Install telegraf on static infra VMs and dynamic compute nodes. Default: true
+  grafana: true # Deploy a Grafana instance with pre-defined dashboards. Default: true
 
 #If set to true, it will create alert rules associated with az-hop. Enablement of alerting will require the specification of an admin email to send alerts to.
 alerting:

@@ -4,6 +4,7 @@ param location string
 param deployGateway bool
 param deployBastion bool
 param deployLustre bool
+param deployGrafana bool
 param publicIp bool
 param vnet object
 param asgNames array
@@ -16,7 +17,8 @@ var securityRules = [ for rule in items(union(
     publicIp ? nsgRules.internet : nsgRules.hub,
     deployBastion ? nsgRules.bastion : {},
     deployGateway ? nsgRules.gateway : {},
-    deployLustre ? nsgRules.lustre : {}
+    deployLustre ? nsgRules.lustre : {},
+    deployGrafana ? nsgRules.grafana : {}
   )): {
   name: rule.key
   properties: union(

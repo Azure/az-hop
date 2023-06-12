@@ -81,7 +81,8 @@ locals {
     use_existing_ws = ( !local.create_log_analytics_workspace && local.log_analytics_workspace_id != null )  ? true : false
      
     monitor = ( local.create_log_analytics_workspace || local.use_existing_ws ) ? true : false
-    ama_install = try(local.configuration_yml["monitoring"]["install_agent"], true) && local.monitor ? true : false
+    ama_install = try(local.configuration_yml["monitoring"]["azure_monitor_agent"], true) && local.monitor ? true : false
+    create_grafana = try(local.configuration_yml["monitoring"]["grafana"], true)
 
     alert_email = try(local.configuration_yml["alerting"]["admin_email"], "admin.mail@contoso.com")
 
@@ -443,11 +444,6 @@ locals {
         AllowComputeNoVncIn         = ["470", "Inbound", "Allow", "Tcp", "NoVnc",              "subnet/compute",            "asg/asg-ondemand"],
         AllowNoVncComputeIn         = ["480", "Inbound", "Allow", "Tcp", "NoVnc",              "asg/asg-ondemand",          "subnet/compute"],
 
-        # Telegraf / Grafana
-        AllowTelegrafIn             = ["490", "Inbound", "Allow", "Tcp", "Telegraf",           "asg/asg-telegraf",          "asg/asg-grafana"],
-        AllowComputeTelegrafIn      = ["500", "Inbound", "Allow", "Tcp", "Telegraf",           "subnet/compute",            "asg/asg-grafana"],
-        AllowGrafanaIn              = ["510", "Inbound", "Allow", "Tcp", "Grafana",            "asg/asg-ondemand",          "asg/asg-grafana"],
-
         # Admin and Deployment
         AllowWinRMIn                = ["520", "Inbound", "Allow", "Tcp", "WinRM",              "asg/asg-jumpbox",          "asg/asg-rdp"],
         AllowRdpIn                  = ["550", "Inbound", "Allow", "Tcp", "Rdp",                "asg/asg-jumpbox",          "asg/asg-rdp"],
@@ -514,11 +510,6 @@ locals {
         # SMB
         AllowSMBComputeOut          = ["455", "Outbound", "Allow", "*",   "SMB",                "subnet/compute",            "subnet/netapp"],
 
-        # Telegraf / Grafana
-        AllowTelegrafOut            = ["460", "Outbound", "Allow", "Tcp", "Telegraf",           "asg/asg-telegraf",          "asg/asg-grafana"],
-        AllowComputeTelegrafOut     = ["470", "Outbound", "Allow", "Tcp", "Telegraf",           "subnet/compute",            "asg/asg-grafana"],
-        AllowGrafanaOut             = ["480", "Outbound", "Allow", "Tcp", "Grafana",            "asg/asg-ondemand",          "asg/asg-grafana"],
-
         # SSH internal rules
         AllowSshFromJumpboxOut      = ["490", "Outbound", "Allow", "Tcp", "Ssh",                "asg/asg-jumpbox",          "asg/asg-ssh"],
         AllowSshComputeOut          = ["500", "Outbound", "Allow", "Tcp", "Ssh",                "asg/asg-ssh",              "subnet/compute"],
@@ -567,10 +558,23 @@ locals {
         AllowInternalWebUsersIn     = ["540", "Inbound", "Allow", "Tcp", "Web",                "subnet/gateway",           "asg/asg-ondemand"],
     }
 
+    grafana_nsg_rules = {
+        # Telegraf / Grafana
+        AllowTelegrafIn             = ["490", "Inbound", "Allow", "Tcp", "Telegraf",           "asg/asg-telegraf",          "asg/asg-grafana"],
+        AllowComputeTelegrafIn      = ["500", "Inbound", "Allow", "Tcp", "Telegraf",           "subnet/compute",            "asg/asg-grafana"],
+        AllowGrafanaIn              = ["510", "Inbound", "Allow", "Tcp", "Grafana",            "asg/asg-ondemand",          "asg/asg-grafana"],
+
+        # Telegraf / Grafana
+        AllowTelegrafOut            = ["460", "Outbound", "Allow", "Tcp", "Telegraf",           "asg/asg-telegraf",          "asg/asg-grafana"],
+        AllowComputeTelegrafOut     = ["470", "Outbound", "Allow", "Tcp", "Telegraf",           "subnet/compute",            "asg/asg-grafana"],
+        AllowGrafanaOut             = ["480", "Outbound", "Allow", "Tcp", "Grafana",            "asg/asg-ondemand",          "asg/asg-grafana"],
+    }
+
     nsg_rules = merge(  local._nsg_rules, 
                         local.no_bastion_subnet ? {} : local.bastion_nsg_rules, 
                         local.no_gateway_subnet ? {} : local.gateway_nsg_rules,
-                        local.allow_public_ip ? local.internet_nsg_rules : local.hub_nsg_rules)
+                        local.allow_public_ip ? local.internet_nsg_rules : local.hub_nsg_rules,
+                        local.create_grafana ? local.grafana_nsg_rules : {})
 
 }
 
