@@ -55,7 +55,7 @@ Duration: 50 minutes
 In this exercise, you will learn how to deploy **Az-hop** utilizing a Linux machine.
 
 ### Task 1: Set up WSL2
-
+#
 To install **Az-hop** we require to have a Linux machine that could support the toolchain to use during the installation, it is preferred to use Ubuntu 20.04+. So, if you are running a Windows desktop you should use WSL2 with an Ubuntu 20.04 environment.
 
 Run the following commands to install WSL2 (you will only need to do this once on your local device) in your Windows computer.
