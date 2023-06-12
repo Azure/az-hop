@@ -97,6 +97,7 @@ dnf install -y https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-8.no
 dnf -y install firefox ffmpeg ffmpeg-devel
 
 # Install archive manager
+dnf install -y file-roller
 #dnf -y install xarchiver
 #rm -f /usr/libexec/thunar-archive-plugin/gnome-file-roller.tap
 #ln -s /usr/libexec/thunar-archive-plugin/xarchiver.tap /usr/libexec/thunar-archive-plugin/gnome-file-roller.tap
