@@ -3,7 +3,7 @@ name : All Bicep End to End
 on:
   workflow_dispatch:
   schedule:
-    - cron: "10 1 * * 1" # At 01:10 UTC on each Sunday
+    - cron: "10 2 * * 1" # At 02:10 UTC on each Sunday
 
 jobs:
   deploy:
