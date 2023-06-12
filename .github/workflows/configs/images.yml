@@ -52,6 +52,14 @@ images:
     os_type: Linux
     version: 8.7
 
+  - name: azhop-desktop-almalinux-8_7
+    publisher: azhpc
+    offer: azhop-desktop
+    sku: almalinux-8_7
+    hyper_v: V2
+    os_type: Linux
+    version: 8.7
+
   - name: azhop-compute-ubuntu-2004
     publisher: azhpc
     offer: azhop-compute
