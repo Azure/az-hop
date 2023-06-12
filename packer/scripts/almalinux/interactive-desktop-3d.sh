@@ -23,7 +23,7 @@ lsof /dev/nvidia0
 # nv_hostengine_pid=$(lsof /dev/nvidia0 | tail -n 1 | cut -d' ' -f2)
 # echo "Kill process $nv_hostengine_pid"
 # sudo kill -9 $nv_hostengine_pid
-lsof /dev/nvidia0
+#lsof /dev/nvidia0
 rmmod nvidia_modeset
 rmmod nvidia_uvm
 rmmod nvidia
@@ -41,8 +41,10 @@ sudo /sbin/dkms status | grep nvidia | cut -d',' -f1 | xargs -I{} /sbin/dkms rem
 # Check which latest version to use from https://github.com/Azure/azhpc-extensions/blob/master/NvidiaGPU/resources.json
 wget -O /mnt/NVIDIA-Linux-x86_64-grid.run https://download.microsoft.com/download/6/b/d/6bd2850f-5883-4e2a-9a35-edbd3dd6808c/NVIDIA-Linux-x86_64-525.105.17-grid-azure.run
 chmod +x /mnt/NVIDIA-Linux-x86_64-grid.run
-sudo /mnt/NVIDIA-Linux-x86_64-grid.run -s || cat /var/log/nvidia-installer.log && exit 1
-# /sbin/dkms install --no-depmod -m nvidia -v 525.105.17 -k $(uname -r) --force
+sudo /mnt/NVIDIA-Linux-x86_64-grid.run -s --no-check-for-alternate-installs
+cat /var/log/nvidia-installer.log
+set -e
+/sbin/dkms install --no-depmod -m nvidia -v 525.105.17 -k $(uname -r) --force
 # Answers are: yes, yes, yes
 sudo cp /etc/nvidia/gridd.conf.template /etc/nvidia/gridd.conf
 
