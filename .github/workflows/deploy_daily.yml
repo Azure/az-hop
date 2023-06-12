@@ -45,6 +45,7 @@ jobs:
         home_type: ['anf']
         user_auth: ['local', 'ad']
         deploy_with: ['tf']
+        monitoring: ['grafana', 'none']
     uses: ./.github/workflows/z_deploy_only_callable.yml
     with:
       resource_group: 'AUTO_GENERATED'
