@@ -3,7 +3,7 @@ name : All Bicep End to End
 on:
   workflow_dispatch:
   schedule:
-    - cron: "10 1 * * 1" # At 01:10 UTC on each Sunday
+    - cron: "10 2 * * 1" # At 02:10 UTC on each Sunday
 
 jobs:
   deploy:
@@ -14,8 +14,7 @@ jobs:
         scheduler: ['slurm', 'openpbs']
         home_type: ['azurefiles', 'anf']
         user_auth: ['local', 'ad']
-        monitoring: ['grafana', 'none']
-    uses: azure/az-hop/.github/workflows/z_base_callable.yml@main
+    uses: ./.github/workflows/z_base_callable.yml
     with:
       resource_group: 'AUTO_GENERATED'
       location: 'westeurope'
