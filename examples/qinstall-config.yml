@@ -50,8 +50,8 @@ admin_user: hpcadmin
 # key_vault_readers:
 # Network
 network:
-  # Create Network and Application Security Rules, true by default, false when using an existing VNET if not specified
   vnet:
+    name: hpcvnet # Optional - default to hpcvnet
     #id: # If a vnet id is set then no network will be created and the provided vnet will be used
     address_space: "10.0.0.0/23" 
     # When using an existing VNET, only the subnet names will be used and not the adress_prefixes
@@ -59,20 +59,15 @@ network:
     # name values can be used to rename the default to specific names, address_prefixes to change the IP ranges to be used
     # All values below are the default values
       frontend:
-        name: frontend
-        address_prefixes: "10.0.0.0/29"
-      admin:
-        name: admin
-        address_prefixes: "10.0.0.16/28"
-      netapp:
-        name: netapp
-        address_prefixes: "10.0.0.32/28"
-      ad:
-        name: ad
-        address_prefixes: "10.0.0.8/29"
-      compute:
-        name: compute
-        address_prefixes: "10.0.1.0/24"
+        address_prefixes: "10.0.0.0/29"      
+      admin:        
+        address_prefixes: "10.0.0.16/28"        
+      netapp:        
+        address_prefixes: "10.0.0.32/28"        
+      ad:        
+        address_prefixes: "10.0.0.8/29"        
+      compute:        
+        address_prefixes: "10.0.1.0/24"        
   # Specify the Application Security Groups mapping if already existing
 
 # When working in a locked down network, uncomment and fill out this section
