@@ -146,13 +146,13 @@ During this task, you will prepare the **config.yml** file to configure the envi
 
 ### Task 6: Deploy the resources and install apps
 
-1. Run the Terraform plan script to validate changes to be executed.
+1. Run the Bicep plan script to validate changes to be executed.
     ```bash
-   ./build.sh -a plan
+   ./build.sh -a plan -l bicep
     ```
-    If no errors have been detected you can proceed to execute the following code to start the deployment.
+    If no errors have been detected you can proceed to execute the following code to start the deployment utilizing Bicep.
     ```bash
-   ./build.sh -a apply 
+   ./build.sh -a apply -l bicep
     ```
 2. After the deployment of resources is done, we proceed to create the passwords needed to connect the accounts.
     ```bash
