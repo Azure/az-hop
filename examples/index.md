@@ -11,4 +11,4 @@ This folder contains examples of pre-defined configuration files for common scen
 This configuration file is defining the minimum required to build an `azhop` environment when public IP is allowed.
 
 ## qinstall-config.yml
-This configuration file is defining the minimum required to quickly deploy `azhop` environment.
+This configuration file is defining the minimum required to quickly deploy `azhop` environment. You can follow the guide [HERE](https://azure.github.io/az-hop/tutorials/quick_install.html).

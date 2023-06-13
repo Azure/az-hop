@@ -84,7 +84,6 @@ network:
 
 # When working in a locked down network, uncomment and fill out this section
 locked_down_network:
-  enforce: false
 #   grant_access_from: [a.b.c.d] # Array of CIDR to grant access from, see https://docs.microsoft.com/en-us/azure/storage/common/storage-network-security?tabs=azure-portal#grant-access-from-an-internet-ip-range
   public_ip: true # Enable public IP creation for Jumpbox, OnDemand and create images. Default to true
 
@@ -103,8 +102,6 @@ jumpbox:
 # Active directory VM configuration
 ad:
   vm_size: Standard_B2ms
-  hybrid_benefit: false # Enable hybrid benefit for AD, default to false
-  high_availability: false # Build AD in High Availability mode (2 Domain Controlers) - default to false
 # On demand VM configuration
 ondemand:
   vm_size: Standard_D4s_v5
@@ -112,9 +109,6 @@ ondemand:
   generate_certificate: true # Generate an SSL certificate for the OnDemand portal. Default to true
 # Grafana VM configuration
 grafana:
-  vm_size: Standard_B2ms
-# Guacamole VM configuration
-guacamole:
   vm_size: Standard_B2ms
 # Scheduler VM configuration
 scheduler:
@@ -163,9 +157,6 @@ enroot:
 # The OIDCClient secret need to be stored as a secret named <oidc-client-id>-password in the keyvault used by az-hop
 authentication:
   httpd_auth: basic # oidc or basic
-
-image_gallery:
-  create: true # Create the shared image gallery to store custom images
 
 # Autoscale default settings for all queues, can be overriden on each queue depending on the VM type if needed
 autoscale:
