@@ -35,7 +35,7 @@ on:
       monitoring:
         description: "Monitoring agent - ['ama', 'grafana', 'none'] - Default to ['grafana']"
         required: false
-        default: 'grafana' # use it with ${{ github.event.inputs.monitoring }}
+        default: "['grafana']" # use it with ${{ github.event.inputs.monitoring }}
 jobs:
   deploy:
     strategy:
