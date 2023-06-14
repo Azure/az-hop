@@ -1,6 +1,6 @@
 - [Quick Installation](quick_install.md)
 - [Quick Start](quickstart.md)
-- [Implementing Azure HPC OnDemand Platform](Implementing_Azure_HPC_OnDemand_Platform.md)
+- [Marketplace Deployment](marketplace_deployment.md)
 - [Install Spack](spack.md)
 - [OSU Benchmarks](osu_benchmarks.md)
 - [OPM](opm.md)

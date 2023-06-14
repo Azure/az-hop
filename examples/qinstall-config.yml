@@ -1,15 +1,9 @@
----
-# yaml-language-server: $schema=config.schema.json
-#
 # name of the cluster
 project_name: az-hop
 # azure location name as returned by the command : az account list-locations -o table
 location: westus2
 # Name of the resource group to create all resources
 resource_group: azhop-qinstall
-# If using an existing resource group set to true. Default is false
-# When using an existing resource group make sure the location match the one of the existing resource group
-use_existing_rg: false
 # If set to true, will disable telemetry for azhop. See https://azure.github.io/az-hop/deploy/telemetry.html.
 #optout_telemetry: true
 
@@ -30,9 +24,9 @@ anf:
   alert_threshold: 80 # alert when ANF volume reaches this threshold
 
 # For small deployments you can use Azure Files instead of ANF for the home directory
-azurefiles:
-  create: false
-  size_gb: 1024
+#azurefiles:
+#  create: false
+#  size_gb: 1024
 
 # These mounts will be listed in the Files menu of the OnDemand portal and automatically mounted on all compute nodes and remote desktop nodes
 mounts:
@@ -50,24 +44,51 @@ admin_user: hpcadmin
 # key_vault_readers:
 # Network
 network:
+  # Create Network and Application Security Rules, true by default, false when using an existing VNET if not specified
+  create_nsg: true
   vnet:
     name: hpcvnet # Optional - default to hpcvnet
     #id: # If a vnet id is set then no network will be created and the provided vnet will be used
     address_space: "10.0.0.0/23" 
+    # Special VNET Tags
+    # tags:
+    #   key1: value1
     # When using an existing VNET, only the subnet names will be used and not the adress_prefixes
     subnets: # all subnets are optionals
     # name values can be used to rename the default to specific names, address_prefixes to change the IP ranges to be used
     # All values below are the default values
       frontend:
-        address_prefixes: "10.0.0.0/29"      
-      admin:        
-        address_prefixes: "10.0.0.16/28"        
-      netapp:        
-        address_prefixes: "10.0.0.32/28"        
-      ad:        
-        address_prefixes: "10.0.0.8/29"        
-      compute:        
-        address_prefixes: "10.0.1.0/24"        
+        name: frontend
+        address_prefixes: "10.0.0.0/29"
+        create: true # create the subnet if true. default to true when not specified, default to false if using an existing VNET when not specified
+      admin:
+        name: admin
+        address_prefixes: "10.0.0.16/28"
+        create: true
+      netapp:
+        name: netapp
+        address_prefixes: "10.0.0.32/28"
+        create: true
+      # the outbounddns is optional and only when deploying an Azure Private DNS Resolver
+      # outbounddns:
+      #   name: outbounddns
+      #   address_prefixes: "10.0.0.48/28"
+      #   create: true
+      ad:
+        name: ad
+        address_prefixes: "10.0.0.8/29"
+        create: true
+      # Bastion and Gateway subnets are optional and can be added if a Bastion or a VPN need to be created in the environment
+      # bastion: # Bastion subnet name is always fixed to AzureBastionSubnet
+      #   address_prefixes: "10.0.0.64/26" # CIDR minimal range must be /26
+      #   create: true
+      # gateway: # Gateway subnet name is always fixed to GatewaySubnet
+      #   address_prefixes: "10.0.0.128/27" # Recommendation is to use /27 or /26 network
+      #   create: true
+      compute:
+        name: compute
+        address_prefixes: "10.0.1.0/24"
+        create: true
   # Specify the Application Security Groups mapping if already existing
 
 # When working in a locked down network, uncomment and fill out this section
