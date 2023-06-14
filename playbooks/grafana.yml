@@ -80,4 +80,4 @@
     yum:
       name: '*'
       state: latest
-#      exclude: kernel*,kmod*,amlfs*
+      exclude: grafana*
