@@ -261,6 +261,7 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+                "install_agent": {"type": "boolean", "default": true, "deprecated": true },
                 "azure_monitor_agent": {"type": "boolean", "default": false },
                 "telegraf": {"type": "boolean", "default": true },
                 "grafana": {"type": "boolean", "default": true }
