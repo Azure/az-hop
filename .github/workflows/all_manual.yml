@@ -32,7 +32,10 @@ on:
         description: 'Run UI tests - Default to false'
         required: false
         default: 'false' # use it with ${{ github.event.inputs.ui_tests }}
-
+      monitoring:
+        description: "Monitoring agent - ['ama', 'grafana', 'none'] - Default to ['grafana']"
+        required: false
+        default: "['grafana']" # use it with ${{ github.event.inputs.monitoring }}
 jobs:
   deploy:
     strategy:
@@ -42,7 +45,8 @@ jobs:
         scheduler: ${{ fromJson( github.event.inputs.scheduler_list ) }}
         home_type: ${{ fromJson( github.event.inputs.home_type_list ) }}
         user_auth: ${{ fromJson( github.event.inputs.user_auth_list ) }}
-    uses: azure/az-hop/.github/workflows/z_base_callable.yml@main
+        monitoring: ${{ fromJson( github.event.inputs.monitoring ) }}
+    uses: ./.github/workflows/z_base_callable.yml
     with:
       resource_group: ${{ github.event.inputs.resource_group }}
       location: ${{ github.event.inputs.location }}
@@ -54,6 +58,7 @@ jobs:
       deploy_with: 'bicep'
       clean: ${{ github.event.inputs.clean }}
       ui_tests: ${{ github.event.inputs.ui_tests }}
+      monitoring: ${{ matrix.monitoring }}
     secrets:
       ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
       ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}

@@ -6,7 +6,7 @@ dnf config-manager --enable epel
 dnf config-manager --enable powertools
 
 dnf install -y sssd realmd oddjob oddjob-mkhomedir adcli samba-common samba-common-tools krb5-workstation openldap-clients policycoreutils-python-utils
-dnf install -y nfs-utils openssl-devel epel-release ca-certificates
+dnf install -y nfs-utils openssl-devel epel-release ca-certificates nc
 dnf install -y patch gcc gcc-c++ perl-Data-Dumper perl-Thread-Queue Lmod hwloc numactl jq htop python3 libXt
 
 # Disable requiretty to allow run sudo within scripts

@@ -238,7 +238,6 @@
                 "queues",
                 "resource_group",
                 "scheduler",
-                "slurm",
                 "usergroups",
                 "users",
                 "windows_base_image"
@@ -261,11 +260,11 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "install_agent": {"type": "boolean" }
+                "install_agent": {"type": "boolean", "default": true, "deprecated": true },
+                "azure_monitor_agent": {"type": "boolean", "default": false },
+                "telegraf": {"type": "boolean", "default": true },
+                "grafana": {"type": "boolean", "default": true }
             },
-            "required": [
-                "install_agent"
-            ],
             "title": "monitoring"
         },
         "alerting": {
@@ -277,7 +276,7 @@
                 "local_volume_threshold": { "type": "integer", "maximum": 100, "minimum": 1 }
             },
             "required": [
-                "enabled", "admin_email"
+                "enabled"
             ],
             "title": "alerting"
         },

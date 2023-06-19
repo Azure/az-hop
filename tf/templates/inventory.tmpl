@@ -14,8 +14,10 @@ all:
       ansible_host: ${ondemand-ip}
     ccportal:
       ansible_host: ${ccportal-ip}
+%{ if grafana-ip!="0.0.0.0" }
     grafana:
       ansible_host: ${grafana-ip}
+%{ endif }
     guacamole:
       ansible_host: ${guacamole-ip}
 %{ if ad-ip!="0.0.0.0" }

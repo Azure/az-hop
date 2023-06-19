@@ -43,6 +43,11 @@ on:
         required: false
         default: 'ad' # use it with ${{ inputs.user_auth }}
         type: string
+      monitoring:
+        description: 'Monitoring agent - ama, grafana, none - Default to grafana'
+        required: false
+        default: 'grafana' # use it with ${{ inputs.monitoring }}
+        type: string
     outputs:
       resource_group:
         description: 'Resource group name'
@@ -60,7 +65,7 @@ on:
 
 env:
   AZHOP_CONFIGURATION: '.github/workflows/configs/base.yml'
-  AZHOP_CONFGURATION_DIR: '.github/workflows/configs'
+  AZHOP_CONFIGURATION_DIR: '.github/workflows/configs'
   AZHOP_LUSTRE_CONFIGURATION: '.github/workflows/configs/lustre.yml'
   AZHOP_IMAGES_CONFIGURATION: '.github/workflows/configs/images.yml'
   ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
@@ -125,7 +130,7 @@ jobs:
 
             # Add scheduler configuration
             SCHEDULER=${{ inputs.scheduler }}
-            cat $AZHOP_CONFGURATION_DIR/$SCHEDULER.yml >> config.yml
+            cat $AZHOP_CONFIGURATION_DIR/$SCHEDULER.yml >> config.yml
             sed -i "s/__SCHEDULER__/$SCHEDULER/g" config.yml
 
             # Add local configuration
@@ -135,7 +140,7 @@ jobs:
             # Add home directory configuration
             HOME_TYPE=${{ inputs.home_type }}
             sed -i "s/__HOME_TYPE__/$HOME_TYPE/g" config.yml
-            cat $AZHOP_CONFGURATION_DIR/$HOME_TYPE.yml >> config.yml
+            cat $AZHOP_CONFIGURATION_DIR/$HOME_TYPE.yml >> config.yml
 
             # Add lustre configuration if lustre is true
             DEPLOY_LUSTRE=${{ inputs.lustre }}
@@ -146,19 +151,23 @@ jobs:
             # Add winviz configuration if winviz is true
             WINVIZ=${{ inputs.winviz }}
             if [ "$WINVIZ" == "true" ]; then
-              cat $AZHOP_CONFGURATION_DIR/winviz.yml >> config.yml
+              cat $AZHOP_CONFIGURATION_DIR/winviz.yml >> config.yml
             fi
 
             # Add user authentication configuration
             USER_AUTH=${{ inputs.user_auth }}
             if [ "$USER_AUTH" == "local" ]; then
-              cat $AZHOP_CONFGURATION_DIR/auth_$USER_AUTH.yml >> config.yml
+              cat $AZHOP_CONFIGURATION_DIR/auth_$USER_AUTH.yml >> config.yml
             else
-              cat $AZHOP_CONFGURATION_DIR/auth_$USER_AUTH.yml >> config.yml
+              cat $AZHOP_CONFIGURATION_DIR/auth_$USER_AUTH.yml >> config.yml
             fi
 
             # Add application configuration
-            cat $AZHOP_CONFGURATION_DIR/app_mini.yml >> config.yml
+            cat $AZHOP_CONFIGURATION_DIR/app_mini.yml >> config.yml
+
+            # Add monitoring configuration
+            MONITORING=${{ inputs.monitoring }}
+            cat $AZHOP_CONFIGURATION_DIR/monitor_$MONITORING.yml >> config.yml
 
             # Configure images
             IMAGES=${{ inputs.images }}
@@ -173,10 +182,11 @@ jobs:
                 sed -i "s|azhpc:azhop-compute:centos-7_9:latest|$SHARED_SIG/azhop-compute-centos-7_9/latest|g" config.yml
                 sed -i "s|azhpc:azhop-desktop:centos-7_9:latest|$SHARED_SIG/azhop-desktop-centos-7_9/latest|g" config.yml
                 sed -i "s|azhpc:azhop-compute:almalinux-8_7:latest|$SHARED_SIG/azhop-compute-almalinux-8_7/latest|g" config.yml
+                sed -i "s|azhpc:azhop-desktop:almalinux-8_7:latest|$SHARED_SIG/azhop-desktop-almalinux-8_7/latest|g" config.yml
                 sed -i "s|azhpc:azhop-compute:ubuntu-18_04:latest|$SHARED_SIG/azhop-compute-ubuntu-1804/latest|g" config.yml
                 sed -i "s|azhpc:azhop-compute:ubuntu-20_04:latest|$SHARED_SIG/azhop-compute-ubuntu-2004/latest|g" config.yml
 
-                sed -i "s|__ALMA8_PLAN__|plan: almalinux:almalinux:8-gen2|g" config.yml
+                sed -i "s|__ALMA8_PLAN__|plan: almalinux:almalinux-hpc:8_7-hpc-gen2|g" config.yml
                 ;;
               private)
                 echo "Using private images"
@@ -185,10 +195,11 @@ jobs:
                 sed -i "s|azhpc:azhop-compute:centos-7_9:latest|$SIG/azhop-compute-centos-7_9/latest|g" config.yml
                 sed -i "s|azhpc:azhop-desktop:centos-7_9:latest|$SIG/azhop-desktop-centos-7_9/latest|g" config.yml
                 sed -i "s|azhpc:azhop-compute:almalinux-8_7:latest|$SIG/azhop-compute-almalinux-8_7/latest|g" config.yml
+                sed -i "s|azhpc:azhop-desktop:almalinux-8_7:latest|$SIG/azhop-desktop-almalinux-8_7/latest|g" config.yml
                 sed -i "s|azhpc:azhop-compute:ubuntu-18_04:latest|$SIG/azhop-compute-ubuntu-1804/latest|g" config.yml
                 sed -i "s|azhpc:azhop-compute:ubuntu-20_04:latest|$SIG/azhop-compute-ubuntu-2004/latest|g" config.yml
 
-                sed -i "s|__ALMA8_PLAN__|plan: almalinux:almalinux:8-gen2|g" config.yml
+                sed -i "s|__ALMA8_PLAN__|plan: almalinux:almalinux-hpc:8_7-hpc-gen2|g" config.yml
                 ;;
             esac
 

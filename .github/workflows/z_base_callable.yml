@@ -53,6 +53,11 @@ on:
         required: false
         default: 'false' # use it with ${{ inputs.ui_tests }}
         type: string
+      monitoring:
+        description: 'Monitoring agent - ama, grafana, none - Default to grafana'
+        required: false
+        default: 'grafana' # use it with ${{ inputs.monitoring }}
+        type: string
       clean:
         description: 'Clean all resources'
         required: false
@@ -71,7 +76,7 @@ on:
 
 jobs:
   create_config:
-    uses: azure/az-hop/.github/workflows/z_create_config_callable.yml@main
+    uses: ./.github/workflows/z_create_config_callable.yml
     with:
       resource_group: ${{ inputs.resource_group }}
       location: ${{ inputs.location }}
@@ -80,6 +85,7 @@ jobs:
       home_type: ${{ inputs.home_type }}
       winviz: ${{ inputs.winviz }}
       user_auth: ${{ inputs.user_auth }}
+      monitoring: ${{ inputs.monitoring }}
     secrets:
       ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
       ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
@@ -87,7 +93,7 @@ jobs:
       ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
   deploy:
-    uses: azure/az-hop/.github/workflows/z_deploy_callable.yml@main
+    uses: ./.github/workflows/z_deploy_callable.yml
     needs: create_config
     with:
       resource_group: ${{ needs.create_config.outputs.resource_group }}
@@ -99,7 +105,7 @@ jobs:
       ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
   install:
-    uses: azure/az-hop/.github/workflows/z_install_callable.yml@main
+    uses: ./.github/workflows/z_install_callable.yml
     needs: [create_config, deploy]
     with:
       resource_group: ${{ needs.create_config.outputs.resource_group }}
@@ -110,7 +116,7 @@ jobs:
       ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
   test:
-    uses: azure/az-hop/.github/workflows/z_test_callable.yml@main
+    uses: ./.github/workflows/z_test_callable.yml
     needs: [create_config, install]
     with:
       resource_group: ${{ needs.create_config.outputs.resource_group }}
@@ -121,7 +127,7 @@ jobs:
       ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
   ui_tests:
-    uses: azure/az-hop/.github/workflows/z_uitesting_callable.yml@main
+    uses: ./.github/workflows/z_uitesting_callable.yml
     needs: [create_config, install]
     if: inputs.ui_tests == 'true'
     with:
@@ -133,7 +139,7 @@ jobs:
       ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
   destroy:
-    uses: azure/az-hop/.github/workflows/z_destroy_callable.yml@main
+    uses: ./.github/workflows/z_destroy_callable.yml
     if: always() && inputs.clean == 'true'
     needs: [create_config, test, ui_tests]
     with:

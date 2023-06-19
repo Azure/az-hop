@@ -135,6 +135,23 @@ function use_local_users()
   fi
 }
 
+function use_grafana_telegraf()
+{
+  local use_grafana
+  local use_telegraf
+  use_grafana=$(yq eval '.monitoring.grafana' config.yml)
+  use_telegraf=$(yq eval '.monitoring.telegraf' config.yml)
+  
+  if [ "$use_grafana" == "false" ]; then
+    echo Skipping Grafana install
+    touch $PLAYBOOKS_DIR/grafana.ok
+  fi
+  if [ "$use_telegraf" == "false" ]; then
+    echo Skipping Telegraf install
+    touch $PLAYBOOKS_DIR/telegraf.ok
+  fi
+}
+
 
 # Ensure submodule exists
 if [ ! -d "${PLAYBOOKS_DIR}/roles/ood-ansible/.github" ]; then
@@ -152,6 +169,7 @@ enable_winviz
 enable_lustre
 use_existing_ad
 use_local_users
+use_grafana_telegraf
 
 case $TARGET in
   all)

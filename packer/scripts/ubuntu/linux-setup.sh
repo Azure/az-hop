@@ -4,7 +4,7 @@ echo " *                                                                        
 echo " *     LINUX SETUP                                                                * "
 echo " *                                                                                * "
 echo " ********************************************************************************** "
-packages="nfs-common sssd libsss-simpleifp0 sssd-dbus sssd-tools realmd oddjob oddjob-mkhomedir adcli samba-common krb5-user ldap-utils packagekit resolvconf jq chrony"
+packages="nfs-common sssd libsss-simpleifp0 sssd-dbus sssd-tools realmd oddjob oddjob-mkhomedir adcli samba-common krb5-user ldap-utils packagekit resolvconf jq chrony netcat"
 
 apt-get clean -y
 apt-get autoremove -y

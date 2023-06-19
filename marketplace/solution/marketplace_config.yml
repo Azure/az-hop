@@ -14,7 +14,7 @@ log_analytics:
   create: false
 
 monitoring: 
-  install_agent: false
+  azure_monitor_agent: false
 
 alerting:
   enabled: false
