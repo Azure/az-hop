@@ -191,34 +191,22 @@
       - SSLCertificateKeyFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.key"
       - "{{SSLCertificateChainFile | default(None)}}"
 
-  - name: cleanup ood_core gem directory
-    file:
-      state: absent
-      path: "/opt/ood/ondemand/root/usr/share/gems/2.7/ondemand/{{ ondemand_version }}/gems/ood_core-{{ood_core_version}}"
+  - name: Use custom ood_core for Winviz 
+    block:
+    - name: cleanup ood_core gem directory
+      file:
+        state: absent
+        path: "/opt/ood/ondemand/root/usr/share/gems/2.7/ondemand/{{ ondemand_version }}/gems/ood_core-{{ood_core_version}}"
 
-  - name: get the ood_core specific gem
-    git:
-      repo: "https://github.com/xpillons/ood_core.git"
-      dest: "/opt/ood/ondemand/root/usr/share/gems/2.7/ondemand/{{ ondemand_version }}/gems/ood_core-{{ood_core_version}}"
-      version: "azhop/{{ood_core_version}}"
-      force: yes
-
-  # - name: get the ondemand guacamole customization
-  #   get_url:
-  #     force: yes
-  #     dest: /var/www/ood/apps/sys/dashboard/app/models/active_jobs/jobstatusdata.rb
-  #     url: https://raw.githubusercontent.com/xpillons/ondemand/azhop/release_2.0/apps/dashboard/app/models/active_jobs/jobstatusdata.rb
-  #     timeout: 180
-
-#    not ( ondemand.generate_certificate | default(true) )
-
-  # - name: install custom rpms
-  #   shell: |
-  #     rpm -i --force "https://github.com/xpillons/ondemand/releases/download/v2.0.0_azhop/ondemand-2.0.0-1.el7.x86_64.rpm"
-  #     systemctl restart httpd24-httpd.service
-  #     touch /var/tmp/ondemand-custom.done
-  #   args:
-  #     creates: /var/tmp/ondemand-custom.done
+    - name: get the ood_core specific gem
+      git:
+        repo: "https://github.com/xpillons/ood_core.git"
+        dest: "/opt/ood/ondemand/root/usr/share/gems/2.7/ondemand/{{ ondemand_version }}/gems/ood_core-{{ood_core_version}}"
+        version: "azhop/{{ood_core_version}}"
+        force: yes
+    when: 
+      - ondemand_version == '2.0.29'
+      - enable_remote_winviz | default(false)
 
   - name: Copy logo
     copy: 
