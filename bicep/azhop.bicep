@@ -104,7 +104,7 @@ var config = {
 
   slurm: {
     admin_user: contains(azhopConfig, 'database') && contains(azhopConfig.database, 'user') ? azhopConfig.database.user : 'sqladmin'
-    accounting_enabled: contains(azhopConfig.slurm, 'accounting_enabled') ? azhopConfig.slurm.accounting_enabled : false
+    accounting_enabled: contains(azhopConfig, 'slurm') && contains(azhopConfig.slurm, 'accounting_enabled') ? azhopConfig.slurm.accounting_enabled : false
   }
 
   domain: {
