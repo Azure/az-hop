@@ -198,7 +198,7 @@ scheduler:
 # CycleCloud VM configuration
 cyclecloud:
   vm_size: Standard_B2ms
-  version: 8.3.0-3062 # to specify a specific version, see https://packages.microsoft.com/yumrepos/cyclecloud/
+  version: 8.4.0-3122 # to specify a specific version, see https://packages.microsoft.com/yumrepos/cyclecloud/
 
 # Lustre cluster is optional and can be used to create a Lustre cluster in the environment.
 lustre:
