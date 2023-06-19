@@ -238,7 +238,6 @@
                 "queues",
                 "resource_group",
                 "scheduler",
-                "slurm",
                 "usergroups",
                 "users",
                 "windows_base_image"
