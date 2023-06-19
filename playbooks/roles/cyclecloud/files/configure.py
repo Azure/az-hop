@@ -47,20 +47,21 @@ def create_user(username):
     _catch_sys_error(["chown", "-R", username + ":" + username, "/home/{}".format(username)])
 
 def create_keypair(username, public_key=None):
-    if not os.path.isdir("/home/{}/.ssh".format(username)):
-        _catch_sys_error(["mkdir", "-p", "/home/{}/.ssh".format(username)])
-    public_key_file  = "/home/{}/.ssh/id_rsa.pub".format(username)
+    user_home = "/home/{}".format(username)
+    if not os.path.isdir(user_home+"/.ssh"):
+        _catch_sys_error(["mkdir", "-p", user_home+"/.ssh"])
+    public_key_file  = user_home+"/.ssh/id_rsa.pub"
     if not os.path.exists(public_key_file):
         if public_key:
             with open(public_key_file, 'w') as pubkeyfile:
                 pubkeyfile.write(public_key)
                 pubkeyfile.write("\n")
         else:
-            _catch_sys_error(["ssh-keygen", "-f", "/home/{}/.ssh/id_rsa".format(username), "-N", ""])
+            _catch_sys_error(["ssh-keygen", "-f", user_home+"/.ssh/id_rsa", "-N", ""])
             with open(public_key_file, 'r') as pubkeyfile:
                 public_key = pubkeyfile.read()
 
-    authorized_key_file = "/home/{}/.ssh/authorized_keys".format(username)
+    authorized_key_file = user_home+"/.ssh/authorized_keys"
     authorized_keys = ""
     if os.path.exists(authorized_key_file):
         with open(authorized_key_file, 'r') as authkeyfile:
@@ -69,7 +70,7 @@ def create_keypair(username, public_key=None):
         with open(authorized_key_file, 'w') as authkeyfile:
             authkeyfile.write(public_key)
             authkeyfile.write("\n")
-    _catch_sys_error(["chown", "-R", username + ":" + username, "/home/{}".format(username)])
+    _catch_sys_error(["chown", "-R", username + ":" + username, user_home])
     return public_key
 
 def create_user_credential(username, public_key=None):
