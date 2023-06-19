@@ -3,7 +3,7 @@
 yum update -y --exclude kernel*, kmod*
 
 yum install -y sssd realmd oddjob oddjob-mkhomedir adcli samba-common samba-common-tools krb5-workstation openldap-clients policycoreutils-python
-yum install -y nfs-utils openssl-devel epel-release ca-certificates
+yum install -y nfs-utils openssl-devel epel-release ca-certificates nc
 yum install -y patch gcc gcc-c++ perl-Data-Dumper perl-Thread-Queue Lmod hwloc numactl jq htop python3 libXt
 
 # Disable requiretty to allow run sudo within scripts
