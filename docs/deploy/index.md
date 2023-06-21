@@ -658,6 +658,8 @@ slurm:
   # SLURM version to install. Currently supported: only 20.11.9 and 22.05.3.
   # Other versions can be installed by building from source (See build_rpms setting in the slurmserver role)
   slurm_version: 20.11.9
+  # CycleCloud for SLURM project version as defined in https://github.com/Azure/cyclecloud-slurm/releases. Currently supported: only 2.7.0 and 2.7.1. Default to 2.7.1
+  cyclecloud_slurm_version: 2.7.1
   # Name of the SLURM cluster for accounting (optional, default to 'slurm')
   # WARNING: changing this value on a running cluster will cause slurmctld to fail to start. This is a
   # safety check to prevent accounting errors. To override, remove /var/spool/slurmd/clustername
