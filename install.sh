@@ -79,6 +79,7 @@ function enable_winviz ()
   if [ "$enable_winviz" == "true" ]; then
     ENABLE_WINVIZ_PLAYBOOK=$PLAYBOOKS_DIR/ood-overrides-guacamole.yml
   else
+    touch $PLAYBOOKS_DIR/guacamole.ok
     touch $PLAYBOOKS_DIR/guac_spooler.ok
     ENABLE_WINVIZ_PLAYBOOK=
   fi
