@@ -11,6 +11,7 @@
     state: "{{'directory' if item.enabled else 'absent'}}"
     mode: 0755
   loop: '{{ood_azhop_apps}}'
+  when: item.name != 'dashboard'
 
 - name: Copy application files
   copy:
