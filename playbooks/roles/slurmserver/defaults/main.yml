@@ -1,7 +1,7 @@
 # slurm uid/gid match cyclecloud-slurm cookbook values
 slurm_uid: 11100
 slurm_gid: 11100
-cyclecloud_slurm_release: 2.7.0
+cyclecloud_slurm_release: '{{slurm.cyclecloud_slurm_version | default("2.7.1")}}'
 pyxis_version: 0.15.0
 build_rpms: false
 accounting_enabled: false

@@ -81,6 +81,11 @@
     src: '{{role_path}}/files/user_role_record.txt'
     dest: /opt/cycle_server/config/data/user_role_record.txt
 
+- name: Add Slurm project version records 
+  copy:
+    src: '{{role_path}}/files/cyclecloud-slurm.txt'
+    dest: /opt/cycle_server/config/data/cyclecloud-slurm.txt
+
 - name: Rebranding record
   copy:
     src: '{{role_path}}/files/brand.json'

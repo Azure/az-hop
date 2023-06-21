@@ -38,7 +38,7 @@
       cc_storage: '{{global_cc_storage}}'
       cc_domain: '{{domain_name}}'
       cc_ldap_server: '{{ldap_server}}'
-      cc_version: '{{cyclecloud.version | default("8.3.0-3062")}}'
+      cc_version: '{{cyclecloud.version | default("8.4.0-3122")}}'
 
   - name: update packages for security
     become: true
