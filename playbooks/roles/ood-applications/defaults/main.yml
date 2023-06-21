@@ -14,4 +14,4 @@ ood_azhop_apps:
     - { name: "bc_paraview", enabled: '{{applications.bc_paraview.enabled | default(false)}}' }
     - { name: "bc_rstudio", enabled: '{{applications.bc_rstudio.enabled | default(false)}}' }
     - { name: "bc_vizer", enabled: '{{applications.bc_vizer.enabled | default(false)}}' }
-    - { name: "dashboard", enabled: true }
+    - { name: "dashboard", enabled: '{{enable_remote_winviz | default(false)}}' }
