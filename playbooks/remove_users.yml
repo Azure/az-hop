@@ -41,6 +41,8 @@
     - '{{global_config_file}}'
 
   tasks:
-  - include: remove_homedir.yml user="{{item}}"
+  - include_tasks: remove_homedir.yml
     with_items: '{{users}}'
+    loop_control:
+      loop_var: user
     when: users is defined
