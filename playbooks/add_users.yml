@@ -45,7 +45,7 @@
             gidnumber: '{{item.gid}}'
         loop: "{{usergroups  | selectattr('gid', 'ge', 5000) }}"
 
-      - include: create_user.yml user="{{item}}"
+      - include_tasks: create_user.yml user="{{item}}"
         with_items: '{{users}}'
         when: users is defined
     always:

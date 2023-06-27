@@ -13,9 +13,9 @@
     sslcacert: "/etc/pki/tls/certs/ca-bundle.crt"
     timeout: 180
 
-- include: install.yml
-- include: configure.yml
-- include: provisioning.yml
+- include_tasks: install.yml
+- include_tasks: configure.yml
+- include_tasks: provisioning.yml
 
 - name: Copy dashboards files
   copy:
