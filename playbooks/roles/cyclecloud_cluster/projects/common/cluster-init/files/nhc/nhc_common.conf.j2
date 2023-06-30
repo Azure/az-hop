@@ -57,7 +57,9 @@
 # * || check_ps_service -S -u root crond
 # * || check_ps_service -r -d qmgr postfix
 # * || check_ps_service -S -u root sshd
+{% if ( monitoring.telegraf | default(true) ) %}
  * || check_ps_service -S -0 -u telegraf telegraf
+{% endif %}
  * || check_ps_service -s -0 -u root azsecd
 
 #######################################################################

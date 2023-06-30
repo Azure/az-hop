@@ -42,7 +42,7 @@
     vars:
       cc_admin: '{{admin_user}}'
       cc_password: '{{password.stdout}}'
-      cc_version: '{{cyclecloud.version | default("8.3.0-3062")}}'
+      cc_version: '{{cyclecloud.version | default("8.4.0-3122")}}'
       slurm_version: '{{slurm.slurm_version | default("20.11.9")}}-1'
       accounting_enabled: '{{slurm.accounting_enabled | default(false)}}'
       enroot_scratch_dir: '/mnt/resource'

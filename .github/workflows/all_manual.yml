@@ -35,7 +35,7 @@ on:
       monitoring:
         description: "Monitoring agent - ['ama', 'grafana', 'none'] - Default to ['grafana']"
         required: false
-        default: 'grafana' # use it with ${{ github.event.inputs.monitoring }}
+        default: "['grafana']" # use it with ${{ github.event.inputs.monitoring }}
 jobs:
   deploy:
     strategy:
@@ -45,6 +45,7 @@ jobs:
         scheduler: ${{ fromJson( github.event.inputs.scheduler_list ) }}
         home_type: ${{ fromJson( github.event.inputs.home_type_list ) }}
         user_auth: ${{ fromJson( github.event.inputs.user_auth_list ) }}
+        monitoring: ${{ fromJson( github.event.inputs.monitoring ) }}
     uses: ./.github/workflows/z_base_callable.yml
     with:
       resource_group: ${{ github.event.inputs.resource_group }}

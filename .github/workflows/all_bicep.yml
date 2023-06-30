@@ -14,6 +14,7 @@ jobs:
         scheduler: ['slurm', 'openpbs']
         home_type: ['azurefiles', 'anf']
         user_auth: ['local', 'ad']
+        monitoring: ['none', 'grafana']
     uses: ./.github/workflows/z_base_callable.yml
     with:
       resource_group: 'AUTO_GENERATED'

@@ -1,12 +1,13 @@
 #!/bin/bash
-#SBATCH --job-name drivaer
-#SBATCH --partition=hb120v3
-#SBATCH --nodes=2
-#SBATCH --ntasks-per-node=64
+#PBS -N drivaer
+#PBS -l select=2:ncpus=64:mpiprocs=64:slot_type=hb120v3,place=scatter:excl
+#PBS -k oed
+#PBS -j oe
+#PBS -l walltime=300
 
-np=$SLURM_NTASKS
-n=$SLURM_NNODES
-ppn=$SLURM_CPUS_ON_NODE
+np=$(wc -l <$PBS_NODEFILE)
+n=2 # TODO : Get this from PBS
+ppn=64 # TODO : Get this from PBS
 
 # setup openfoam environment (from eessi)
 source /cvmfs/pilot.eessi-hpc.org/versions/2021.12/init/bash
@@ -28,11 +29,12 @@ cp -r $FOAM_TUTORIALS/$tutorial_path $casedir
 
 pushd $casedir
 # allow flags to be added to the mpirun command through FOAM_MPIRUN_FLAGS environment variable
-sed -i '/RunFunctions/a source <(declare -f runParallel | sed "s/mpirun/SLURM_EXPORT_ENV=ALL mpirun \\\$FOAM_MPIRUN_FLAGS/g")' Allrun
+sed -i '/RunFunctions/a source <(declare -f runParallel | sed "s/mpirun/mpirun \\\$FOAM_MPIRUN_FLAGS/g")' Allrun
 # change the script to bash (as we are using bash features not necessarily available for just a sh session)
 sed -i 's#/bin/sh#/bin/bash#g' Allrun
 
-export FOAM_MPIRUN_FLAGS="-mca pml ucx $(env |grep 'WM_\|FOAM_' | cut -d'=' -f1 | sed 's/^/-x /g' | tr '\n' ' ') -x MPI_BUFFER_SIZE -x UCX_IB_MLX5_DEVX=n -x UCX_POSIX_USE_PROC_LINK=n -x PATH -x LD_LIBRARY_PATH"
+ranks_per_numa=30
+export FOAM_MPIRUN_FLAGS="-mca pml ucx -hostfile $PBS_NODEFILE $(env |grep 'WM_\|FOAM_' | cut -d'=' -f1 | sed 's/^/-x /g' | tr '\n' ' ') -x MPI_BUFFER_SIZE -x UCX_POSIX_USE_PROC_LINK=n -x PATH -x LD_LIBRARY_PATH --map-by ppr:${ranks_per_numa}:numa"
 
 # Decompress the geometry
 gunzip constant/geometry/*

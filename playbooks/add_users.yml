@@ -45,8 +45,10 @@
             gidnumber: '{{item.gid}}'
         loop: "{{usergroups  | selectattr('gid', 'ge', 5000) }}"
 
-      - include: create_user.yml user="{{item}}"
+      - include_tasks: create_user.yml
         with_items: '{{users}}'
+        loop_control:
+          loop_var: user
         when: users is defined
     always:
       - name: close session on local port
@@ -55,7 +57,7 @@
         connection: local
         ignore_errors: true
         when: (jumpbox is defined)
-    when: "(false if ((domain is defined) and (not domain.use_existing_dc)) else true)"
+    when: "(false if ((domain is defined) and domain.use_existing_dc) else true)"
 
 # - name: close socks tunnel
 #   hosts: localhost

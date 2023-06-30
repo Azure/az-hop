@@ -238,7 +238,6 @@
                 "queues",
                 "resource_group",
                 "scheduler",
-                "slurm",
                 "usergroups",
                 "users",
                 "windows_base_image"
@@ -261,6 +260,7 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+                "install_agent": {"type": "boolean", "default": true, "deprecated": true },
                 "azure_monitor_agent": {"type": "boolean", "default": false },
                 "telegraf": {"type": "boolean", "default": true },
                 "grafana": {"type": "boolean", "default": true }
@@ -1117,6 +1117,12 @@
                     "type": "string",
                     "enum": ["20.11.9", "22.05.3"],
                     "description": "SLURM version to install. Currently supported: only 20.11.9 and 22.05.3."
+                },
+                "cyclecloud_slurm_version": {
+                    "type": "string",
+                    "enum": ["2.7.0", "2.7.1"],
+                    "default": "2.7.1",
+                    "description": "CycleCloud for SLURM project version as defined in https://github.com/Azure/cyclecloud-slurm/releases. Currently supported: only 2.7.0 and 2.7.1."
                 }
             },
             "required": [

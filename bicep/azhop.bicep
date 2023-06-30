@@ -104,7 +104,7 @@ var config = {
 
   slurm: {
     admin_user: contains(azhopConfig, 'database') && contains(azhopConfig.database, 'user') ? azhopConfig.database.user : 'sqladmin'
-    accounting_enabled: contains(azhopConfig.slurm, 'accounting_enabled') ? azhopConfig.slurm.accounting_enabled : false
+    accounting_enabled: contains(azhopConfig, 'slurm') && contains(azhopConfig.slurm, 'accounting_enabled') ? azhopConfig.slurm.accounting_enabled : false
   }
 
   domain: {
@@ -940,12 +940,14 @@ output azhopGlobalConfig object = union(
   } : {}
 )
 
+var sshTunelIp = deployJumpbox ? ( config.public_ip ? azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.publicIp : azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIp ) : ''
+
 output azhopInventory object = {
   all: {
     hosts: union (
       {
         localhost: {
-          psrp_ssh_proxy: deployJumpbox ? azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIp : ''
+          psrp_ssh_proxy: sshTunelIp
         }
         scheduler: {
           ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'scheduler')].outputs.privateIp
@@ -964,7 +966,7 @@ output azhopInventory object = {
         ansible_psrp_protocol: 'http'
         ansible_user: config.admin_user
         ansible_password: '__ADMIN_PASSWORD__'
-        psrp_ssh_proxy: deployJumpbox ? azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIp : ''
+        psrp_ssh_proxy: sshTunelIp
         ansible_psrp_proxy: deployJumpbox ? 'socks5h://localhost:5985' : ''
         }
       } : {} ,
@@ -975,13 +977,13 @@ output azhopInventory object = {
           ansible_psrp_protocol: 'http'
           ansible_user: config.admin_user
           ansible_password: '__ADMIN_PASSWORD__'
-          psrp_ssh_proxy: deployJumpbox ? azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIp : ''
+          psrp_ssh_proxy: sshTunelIp
           ansible_psrp_proxy: deployJumpbox ? 'socks5h://localhost:5985' : ''
         }
       } : {} ,
       deployJumpbox ? {
         jumpbox : {
-          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIp
+          ansible_host: sshTunelIp
           ansible_ssh_port: config.vms.jumpbox.sshPort
           ansible_ssh_common_args: ''
         }
@@ -1013,7 +1015,7 @@ output azhopInventory object = {
     )
     vars: {
       ansible_ssh_user: config.admin_user
-      ansible_ssh_common_args: deployJumpbox ? '-o ProxyCommand="ssh -i ${config.admin_user}_id_rsa -p ${config.vms.jumpbox.sshPort} -W %h:%p ${config.admin_user}@${azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIp}"' : ''
+      ansible_ssh_common_args: deployJumpbox ? '-o ProxyCommand="ssh -i ${config.admin_user}_id_rsa -p ${config.vms.jumpbox.sshPort} -W %h:%p ${config.admin_user}@${sshTunelIp}"' : ''
     }
   }
 }
@@ -1030,7 +1032,7 @@ output azhopPackerOptions object = (config.deploy_sig) ? {
   var_virtual_network_name: config.vnet.name
   var_virtual_network_subnet_name: config.vnet.subnets.compute.name
   var_virtual_network_resource_group_name: azhopResourceGroupName
-  var_ssh_bastion_host: azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIp // TODO: add support for public IP
+  var_ssh_bastion_host: sshTunelIp
   var_ssh_bastion_port: '${config.vms.jumpbox.sshPort}'
   var_ssh_bastion_username: config.admin_user
   var_ssh_bastion_private_key_file: '../${config.admin_user}_id_rsa'
@@ -1062,7 +1064,7 @@ case $1 in
     exec ssh -i {0}_id_rsa -o ProxyCommand="ssh -i {0}_id_rsa -p {1} -W %h:%p {0}@{2}" -o "User={0}" "$@"
     ;;
 esac
-''', config.admin_user, config.vms.jumpbox.sshPort, azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIp)
+''', config.admin_user, config.vms.jumpbox.sshPort, sshTunelIp)
 
 output azhopConnectScript string = deployDeployer ? azhopConnectScript : azhopSSHConnectScript
 

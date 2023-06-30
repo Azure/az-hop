@@ -63,6 +63,11 @@
           opts: '{{ anf_home_opts }}'
           state: mounted
           fstype: nfs
+        register: mount_success
+        until: mount_success is succeeded
+        retries: 3
+        delay: 30
+
       - name: Disable SELinux
         selinux:
           state: disabled
