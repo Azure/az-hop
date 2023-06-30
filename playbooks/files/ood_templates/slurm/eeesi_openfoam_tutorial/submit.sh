@@ -1,5 +1,4 @@
 #!/bin/bash
-
 #SBATCH --job-name drivaer
 #SBATCH --partition=hb120v3
 #SBATCH --nodes=2
@@ -20,7 +19,7 @@ allrun_args="-c $np -m M"
 
 # the location to run the copy of the tutorial
 local_path=$HOME/openfoam_tutorial_runs
-mkdir -p $HOME/$local_path
+mkdir -p $local_path
 
 # create the case name - add size and date
 casedir=$local_path/$(basename $tutorial_path)_${n}x${ppn}_$(date +%Y%m%d_%H%M%S)
@@ -35,4 +34,13 @@ sed -i 's#/bin/sh#/bin/bash#g' Allrun
 
 export FOAM_MPIRUN_FLAGS="-mca pml ucx $(env |grep 'WM_\|FOAM_' | cut -d'=' -f1 | sed 's/^/-x /g' | tr '\n' ' ') -x MPI_BUFFER_SIZE -x UCX_IB_MLX5_DEVX=n -x UCX_POSIX_USE_PROC_LINK=n -x PATH -x LD_LIBRARY_PATH"
 
+# Decompress the geometry
+gunzip constant/geometry/*
+mv constant/geometry constant/triSurface
+# Reconstruct the single partition after the solver has run
+sed -i 's/# runApplication reconstructPar/runApplication reconstructPar/g' Allrun
+
 ./Allrun $allrun_args
+
+# Create a file to load the model in Paraview
+touch case.foam
