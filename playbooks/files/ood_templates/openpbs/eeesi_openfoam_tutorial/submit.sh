@@ -1,13 +1,12 @@
 #!/bin/bash
 #PBS -N drivaer
-#PBS -l select=2:ncpus=64:mpiprocs=64:slot_type=hb120v3,place=scatter:excl
+#PBS -l select=2:ncpus=120:mpiprocs=120:slot_type=hb120v3,place=scatter:excl
 #PBS -k oed
 #PBS -j oe
-#PBS -l walltime=300
 
 np=$(wc -l <$PBS_NODEFILE)
 n=2 # TODO : Get this from PBS
-ppn=64 # TODO : Get this from PBS
+ppn=120 # TODO : Get this from PBS
 
 # setup openfoam environment (from eessi)
 source /cvmfs/pilot.eessi-hpc.org/versions/2021.12/init/bash
