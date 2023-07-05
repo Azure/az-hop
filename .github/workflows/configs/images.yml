@@ -67,3 +67,11 @@ images:
     hyper_v: V2
     os_type: Linux
     version: 20.04
+
+  - name: azhop-desktop-ubuntu-2004
+    publisher: azhpc
+    offer: azhop-desktop
+    sku: ubuntu-2004
+    hyper_v: V2
+    os_type: Linux
+    version: 20.04
