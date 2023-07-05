@@ -37,7 +37,7 @@ resource blobServices 'Microsoft.Storage/storageAccounts/blobServices@2021-09-01
   parent: storageAccount
 }
 
-resource lustreArchive 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-06-01' = {
+resource lustreArchive 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-09-01' = {
   name: 'lustre'
   parent: blobServices
   properties: {
