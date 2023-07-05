@@ -61,11 +61,11 @@ resource "azurerm_network_security_group" "common" {
 
       source_address_prefix                 = try(split("/", security_rule.value[5])[0] == "tag" ? split("/", security_rule.value[5])[1] : null, null)
       source_application_security_group_ids = split("/", security_rule.value[5])[0] == "asg" ? [azurerm_application_security_group.asg[split("/", security_rule.value[5])[1]].id] : []
-      source_address_prefixes               = try(split("/", security_rule.value[5])[0] == "subnet" ? data.azurerm_subnet.subnets[split("/", security_rule.value[5])[1]].address_prefixes : null, null)
+      source_address_prefixes               = try(split("/", security_rule.value[5])[0] == "subnet" ? data.azurerm_subnet.subnets[split("/", security_rule.value[5])[1]].address_prefixes : split("/", security_rule.value[5])[0] == "ips" ? local.ips[split("/", security_rule.value[5])[1]] : null, null)
 
       destination_address_prefix                 = try(split("/", security_rule.value[6])[0] == "tag" ? split("/", security_rule.value[6])[1] : null, null)
       destination_application_security_group_ids = split("/", security_rule.value[6])[0] == "asg" ? [azurerm_application_security_group.asg[split("/", security_rule.value[6])[1]].id] : []
-      destination_address_prefixes               = try(split("/", security_rule.value[6])[0] == "subnet" ? data.azurerm_subnet.subnets[split("/", security_rule.value[6])[1]].address_prefixes : null, null)
+      destination_address_prefixes               = try(split("/", security_rule.value[6])[0] == "subnet" ? data.azurerm_subnet.subnets[split("/", security_rule.value[6])[1]].address_prefixes : split("/", security_rule.value[6])[0] == "ips" ? local.ips[split("/", security_rule.value[6])[1]] : null, null)
     }
   }
 }
@@ -79,7 +79,7 @@ resource "azurerm_subnet_network_security_group_association" "frontend" {
 }
 
 resource "azurerm_subnet_network_security_group_association" "ad" {
-  count                     = local.create_nsg ? 1 : 0
+  count                     = local.create_nsg ? (local.create_ad ? 1 : 0) : 0
   subnet_id                 = local.create_ad_subnet ? azurerm_subnet.ad[0].id : data.azurerm_subnet.ad[0].id
   network_security_group_id = azurerm_network_security_group.common[0].id
 }

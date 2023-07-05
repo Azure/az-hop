@@ -35,6 +35,9 @@ cat <<EOF >temp.json
 }
 EOF
 
+echo "Adding version $version to ${offer}-${os}"
+cat temp.json
+
 # For this plan
 # Add the new version to the existing versions
 jq '(.definition.plans[] | select(.planId==$plan)."microsoft-azure-virtualmachines.vmImages") += $version ' --arg plan ${os} --argjson version "$(jq '.' temp.json)" ${offer}-${os}.json > ${offer}-${os}-final.json

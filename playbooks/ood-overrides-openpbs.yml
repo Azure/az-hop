@@ -22,17 +22,13 @@ ood_apps:
 
         # If the user has specified a node ratio greather than 1, set the job ppn
         node_ratio = bucket.to_i
-        if node_ratio > 1
-          node_arrays = YAML.load_file("/etc/ood/config/apps/bc_desktop/config/node_arrays.yml")
-          node_arrays.each do |slot_type|
-            if slot_type["name"] == target
-              cores = (slot_type["vcpuCount"].to_i / node_ratio)
-              scheduler_args += ["-l", "select=1:slot_type=%s:ncpus=%d" % [target, cores]]
-              break
-            end
+        node_arrays = YAML.load_file("/etc/ood/config/apps/bc_desktop/config/node_arrays.yml")
+        node_arrays.each do |slot_type|
+          if slot_type["name"] == target
+            cores = (slot_type["vcpuCount"].to_i / node_ratio)
+            scheduler_args += ["-l", "select=1:slot_type=%s:ncpus=%d" % [target, cores]]
+            break
           end
-        else
-          scheduler_args += ["-l", "select=1:slot_type=%s,place=scatter:excl" % target]
         end
 
       -%>

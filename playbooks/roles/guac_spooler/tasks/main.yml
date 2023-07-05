@@ -50,11 +50,17 @@
     state: directory
     owner: root
 
-- name: download BaltimoreCyberTrustRoot certificate
-  shell: |
-    wget -t 5 -T 180 'https://www.digicert.com/CACerts/BaltimoreCyberTrustRoot.crt.pem' -O /etc/guacamole/BaltimoreCyberTrustRoot.crt.pem
-    chmod 644 /etc/guacamole/BaltimoreCyberTrustRoot.crt.pem
+# - name: download BaltimoreCyberTrustRoot certificate
+#   shell: |
+#     wget -t 5 -T 180 'https://www.digicert.com/CACerts/BaltimoreCyberTrustRoot.crt.pem' -O /etc/guacamole/BaltimoreCyberTrustRoot.crt.pem
+#     chmod 644 /etc/guacamole/BaltimoreCyberTrustRoot.crt.pem
 
+- name: download DigiCertGlobalRootG2 certificate
+  get_url:
+    url: 'https://cacerts.digicert.com/DigiCertGlobalRootG2.crt.pem'
+    dest: /etc/guacamole
+    mode: 0644
+    timeout: 180
 
 - name: configure guacamole
   copy:
@@ -67,7 +73,7 @@
       mysql-password: {{sqladmin_password.stdout}}
       mysql-server-timezone: GMT
       mysql-auto-create-accounts: true
-      mysql-ssl_ca: /etc/guacamole/BaltimoreCyberTrustRoot.crt.pem
+      mysql-ssl_ca: /etc/guacamole/DigiCertGlobalRootG2.crt.pem
     owner: root
     mode: 0640
 

@@ -8,10 +8,14 @@ PLAYBOOKS_DIR=$THIS_DIR/playbooks
 INVENTORY=$PLAYBOOKS_DIR/inventory
 OOD_AUTH="basic"
 
-if [ -d ${THIS_DIR}/miniconda ]; then
-  echo "Activating conda environment"
-  source ${THIS_DIR}/miniconda/bin/activate
-fi
+load_miniconda() {
+  # Note: packaging this inside a function to avoid forwarding arguments to conda
+  if [ -d ${THIS_DIR}/miniconda ]; then
+    echo "Activating conda environment"
+    source ${THIS_DIR}/miniconda/bin/activate
+  fi
+}
+load_miniconda
 
 function run_playbook ()
 {
@@ -75,6 +79,7 @@ function enable_winviz ()
   if [ "$enable_winviz" == "true" ]; then
     ENABLE_WINVIZ_PLAYBOOK=$PLAYBOOKS_DIR/ood-overrides-guacamole.yml
   else
+    touch $PLAYBOOKS_DIR/guacamole.ok
     touch $PLAYBOOKS_DIR/guac_spooler.ok
     ENABLE_WINVIZ_PLAYBOOK=
   fi
@@ -100,6 +105,55 @@ function enable_lustre ()
   fi
 }
 
+function use_existing_ad()
+{
+  local use_existing_ad
+  use_existing_ad=$(yq eval '.domain.use_existing_dc' config.yml)
+  if [ "$use_existing_ad" == "null" ]; then
+    use_existing_ad=false
+  fi
+
+  if [ "$use_existing_ad" == "true" ]; then
+    touch $PLAYBOOKS_DIR/ad.ok
+    touch $PLAYBOOKS_DIR/add_users.ok
+  fi
+
+}
+
+function use_local_users()
+{
+  local use_local_users
+  use_local_users=$(yq eval '.authentication.user_auth' config.yml)
+  if [ "$use_local_users" == "local" ]; then
+    use_local_users=true
+  fi
+
+  if [ "$use_local_users" == "true" ]; then
+    touch $PLAYBOOKS_DIR/ad.ok
+    touch $PLAYBOOKS_DIR/add_users.ok
+  else
+    touch $PLAYBOOKS_DIR/add_local_users.ok
+  fi
+}
+
+function use_grafana_telegraf()
+{
+  local use_grafana
+  local use_telegraf
+  use_grafana=$(yq eval '.monitoring.grafana' config.yml)
+  use_telegraf=$(yq eval '.monitoring.telegraf' config.yml)
+  
+  if [ "$use_grafana" == "false" ]; then
+    echo Skipping Grafana install
+    touch $PLAYBOOKS_DIR/grafana.ok
+  fi
+  if [ "$use_telegraf" == "false" ]; then
+    echo Skipping Telegraf install
+    touch $PLAYBOOKS_DIR/telegraf.ok
+  fi
+}
+
+
 # Ensure submodule exists
 if [ ! -d "${PLAYBOOKS_DIR}/roles/ood-ansible/.github" ]; then
     printf "Installing OOD Ansible submodule\n"
@@ -114,6 +168,9 @@ get_scheduler
 get_ood_auth
 enable_winviz
 enable_lustre
+use_existing_ad
+use_local_users
+use_grafana_telegraf
 
 case $TARGET in
   all)
@@ -125,6 +182,7 @@ case $TARGET in
     run_playbook lustre
     run_playbook ccportal
     run_playbook add_users
+    run_playbook add_local_users
     run_playbook cccluster
     run_playbook scheduler
     run_playbook ood $PLAYBOOKS_DIR/ood-overrides-common.yml $PLAYBOOKS_DIR/ood-overrides-$SCHEDULER.yml $PLAYBOOKS_DIR/ood-overrides-auth-$OOD_AUTH.yml $ENABLE_WINVIZ_PLAYBOOK
@@ -138,7 +196,7 @@ case $TARGET in
     run_playbook lustre-sas
     run_playbook lustre
   ;;
-  ad | ad2 | linux | add_users | ccportal | chrony | cccluster | scheduler | grafana | telegraf | ood-custom | remove_users | tests | guacamole | guac_spooler | dns)
+  ad | ad2 | linux | add_users | add_local_users | ccportal | chrony | cccluster | scheduler | grafana | telegraf | ood-custom | remove_users | tests | guacamole | guac_spooler | dns)
     run_playbook $TARGET
   ;;
   ood)

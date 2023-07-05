@@ -2,16 +2,20 @@
 
 - name: Add the Grafana YUM repository
   yum_repository:
-    name: "{{ grafana_install_repo['name'] }}"
-    description: "{{ grafana_install_repo['name'] }}"
-    baseurl: "{{ grafana_install_repo['yum_repo'] }}"
-    gpgkey: "{{ grafana_install_repo['yum_gpg_key'] | default(omit) }}"
-    gpgcheck: "{{ grafana_install_repo['yum_gpg_check'] | default(False) }}"
+    name: "grafana"
+    description: "grafana"
+    baseurl: "https://rpm.grafana.com"
+    gpgkey: "https://rpm.grafana.com/gpg.key"
+    gpgcheck: true
     state: present
+    exclude: "*beta*"
+    sslverify: 1
+    sslcacert: "/etc/pki/tls/certs/ca-bundle.crt"
+    timeout: 180
 
-- include: install.yml
-- include: configure.yml
-- include: provisioning.yml
+- include_tasks: install.yml
+- include_tasks: configure.yml
+- include_tasks: provisioning.yml
 
 - name: Copy dashboards files
   copy:

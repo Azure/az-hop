@@ -15,7 +15,7 @@ log_analytics:
   create: true
 # Option to install the monitoring agent on static infra VMs. Can be disabled if the agent is installed by policy.  
 monitoring: 
-  install_agent: false
+  azure_monitor_agent: false
 
 #If set to true, it will create alert rules associated with az-hop. Enablement of alerting will require the specification of an admin email to send alerts to.
 alerting:
@@ -158,7 +158,8 @@ locked_down_network:
 
 # Base image configuration. Can be either an image reference or an image_id from the image registry or a custom managed image
 linux_base_image: "OpenLogic:CentOS:7_9-gen2:latest" # publisher:offer:sku:version or image_id
-linux_base_plan: # linux image plan if required, format is publisher:product:name
+# linux image plan if required, format is publisher:product:name
+#linux_base_plan:
 windows_base_image: "MicrosoftWindowsServer:WindowsServer:2019-Datacenter-smalldisk:latest" # publisher:offer:sku:version or image_id
 lustre_base_image: "azhpc:azurehpc-lustre:azurehpc-lustre-2_12:latest"
 # The lustre plan to use. Only needed when using the default lustre image from the marketplace. use "::" for an empty plan
@@ -197,7 +198,7 @@ scheduler:
 # CycleCloud VM configuration
 cyclecloud:
   vm_size: Standard_B2ms
-  version: 8.3.0-3062 # to specify a specific version, see https://packages.microsoft.com/yumrepos/cyclecloud/
+  version: 8.4.0-3122 # to specify a specific version, see https://packages.microsoft.com/yumrepos/cyclecloud/
 
 # Lustre cluster is optional and can be used to create a Lustre cluster in the environment.
 lustre:
@@ -228,12 +229,12 @@ users:
 
 usergroups:
 # These groups can’t be changed
-  - name: Domain Users # All users will be added to this one by default
+  - name: azhop-users # All users will be added to this one by default
     gid: 5000
-  - name: az-hop-admins
+  - name: azhop-admins
     gid: 5001
     description: "For users with azhop admin privileges"
-  - name: az-hop-localadmins
+  - name: azhop-localadmins
     gid: 5002
     description: "For users with sudo right or local admin right on nodes"
 # For custom groups use gid >= 6000

@@ -11,6 +11,8 @@
   vars:
     ondemand_version: 2.0.29
     ood_core_version: 0.22.0
+    yq_version: v4.25.3
+    yq_binary: yq_linux_amd64
 
   tasks:
   - name: Wait 300 seconds for the nodes to be ready
@@ -18,6 +20,12 @@
       timeout: 300
   - name: Gather facts for first time
     setup:
+
+  # - name: debug
+  #   debug:
+  #     msg: 
+  #       - "{{ (queues | selectattr('name', 'equalto', 'viz3d') | map(attribute='max_hours', default=8)) }}"
+  #       - "{{ood_apps}}"
 
   - name: Make sure we have the latest root certificates
     yum:
@@ -183,34 +191,22 @@
       - SSLCertificateKeyFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.key"
       - "{{SSLCertificateChainFile | default(None)}}"
 
-  - name: cleanup ood_core gem directory
-    file:
-      state: absent
-      path: "/opt/ood/ondemand/root/usr/share/gems/2.7/ondemand/{{ ondemand_version }}/gems/ood_core-{{ood_core_version}}"
+  - name: Use custom ood_core for Winviz 
+    block:
+    - name: cleanup ood_core gem directory
+      file:
+        state: absent
+        path: "/opt/ood/ondemand/root/usr/share/gems/2.7/ondemand/{{ ondemand_version }}/gems/ood_core-{{ood_core_version}}"
 
-  - name: get the ood_core specific gem
-    git:
-      repo: "https://github.com/xpillons/ood_core.git"
-      dest: "/opt/ood/ondemand/root/usr/share/gems/2.7/ondemand/{{ ondemand_version }}/gems/ood_core-{{ood_core_version}}"
-      version: "azhop/{{ood_core_version}}"
-      force: yes
-
-  # - name: get the ondemand guacamole customization
-  #   get_url:
-  #     force: yes
-  #     dest: /var/www/ood/apps/sys/dashboard/app/models/active_jobs/jobstatusdata.rb
-  #     url: https://raw.githubusercontent.com/xpillons/ondemand/azhop/release_2.0/apps/dashboard/app/models/active_jobs/jobstatusdata.rb
-  #     timeout: 180
-
-#    not ( ondemand.generate_certificate | default(true) )
-
-  # - name: install custom rpms
-  #   shell: |
-  #     rpm -i --force "https://github.com/xpillons/ondemand/releases/download/v2.0.0_azhop/ondemand-2.0.0-1.el7.x86_64.rpm"
-  #     systemctl restart httpd24-httpd.service
-  #     touch /var/tmp/ondemand-custom.done
-  #   args:
-  #     creates: /var/tmp/ondemand-custom.done
+    - name: get the ood_core specific gem
+      git:
+        repo: "https://github.com/xpillons/ood_core.git"
+        dest: "/opt/ood/ondemand/root/usr/share/gems/2.7/ondemand/{{ ondemand_version }}/gems/ood_core-{{ood_core_version}}"
+        version: "azhop/{{ood_core_version}}"
+        force: yes
+    when: 
+      - ondemand_version == '2.0.29'
+      - enable_remote_winviz | default(false)
 
   - name: Copy logo
     copy: 
@@ -288,11 +284,11 @@
           StrictHostKeyChecking=No
       dest: /etc/ssh/ssh_config
 
-  - name: Insert/Update Match group "domain users" configuration block in /etc/ssh/sshd_config
+  - name: Insert/Update Match group "azhop-users" configuration block in /etc/ssh/sshd_config
     blockinfile:
       path: /etc/ssh/sshd_config
       block: |
-        Match group "domain users"
+        Match group "{{ (usergroups | selectattr('gid', 'eq', 5000) | map(attribute='name'))[0] | default('azhop-users', true) }}"
           AllowUsers *
 
   - name: setup azcopy
@@ -444,6 +440,14 @@
     shell: |
       echo "{{ood_version.stdout}} | AZHOP {{azhop_version.stdout}}" > /opt/ood/VERSION
 
+  # Create a script to run before the PUN is created, to set the user's environment
+  # Defined in the pun_pre_hook_root_cmd variable set in the ood-overrides-common.yml file
+  - name: Copy the pun_pre_hook script
+    copy: 
+      src: files/pun_pre_hook.sh
+      dest: /etc/ood/config/pun_pre_hook.sh
+      mode: 0755
+  
   - name: restart ood
     shell: systemctl try-restart httpd24-httpd.service httpd24-htcacheclean.service
 
@@ -479,6 +483,12 @@
     when:  ( cvmfs_eessi.enabled | default(false) )
 
   # Generate the node array core lookup file for ondemand - will be only run if the marker file for ondemand exists
+  - name: "yq: Download and install (CentOS)"
+    get_url:
+      url: "https://github.com/mikefarah/yq/releases/download/{{ yq_version }}/{{ yq_binary }}"
+      dest: /usr/bin/yq
+      mode: 0755
+
   - import_tasks: nodearray_lookup.yml
     vars:
       marker_file: cccluster.ok

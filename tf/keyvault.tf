@@ -4,11 +4,12 @@ resource "time_sleep" "delay_create" {
 }
 
 resource "azurerm_key_vault" "azhop" {
-  name                        = format("%s%s", "kv", random_string.resource_postfix.result)
+  name                        = local.key_vault_name
   location                    = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name         = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   enabled_for_disk_encryption = true
   enabled_for_deployment      = true
+  enabled_for_template_deployment = true
   tenant_id                   = local.tenant_id
   # soft delete is enabled by default now (2021-8-25), with 90 days retention
   # soft_delete_enabled         = true
@@ -58,6 +59,21 @@ resource "azurerm_key_vault_secret" "admin_password" {
   depends_on   = [time_sleep.delay_create, azurerm_key_vault_access_policy.admin] # As policies are created in the same deployment add some delays to propagate
   name         = format("%s-password", local.admin_username)
   value        = random_password.password.result
+  key_vault_id = azurerm_key_vault.azhop.id
+
+  lifecycle {
+    ignore_changes = [
+      value
+    ]
+  }
+}
+
+#adding a domain join user secret. If the customer doesn't bring their own AD then this will be the same as the admin password.
+resource "azurerm_key_vault_secret" "domain_join_password" {
+  count        = local.use_existing_ad ? 1 : 0
+  depends_on   = [time_sleep.delay_create, azurerm_key_vault_access_policy.admin] # As policies are created in the same deployment add some delays to propagate
+  name         = format("%s-password", local.domain_join_user)
+  value        = local.create_ad ? random_password.password.result : local.domain_join_password 
   key_vault_id = azurerm_key_vault.azhop.id
 
   lifecycle {

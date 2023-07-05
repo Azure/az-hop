@@ -5,11 +5,11 @@
 * [Configure the toolchain](#configure-the-toolchain)
    * [From a local machine](#from-a-local-machine)
       * [Clone the repo](#clone-the-repo)
-      * [Set up the toolchain](#set-up-the-toolchain)
+      * [Set up the toolchain on Ubuntu 20.04 (e.g. WSL2)](#set-up-the-toolchain-on-ubuntu-2004-eg-wsl2)
    * [From a deployer VM](#from-a-deployer-vm)
    * [Create a deployer VM](#create-a-deployer-vm)
       * [Clone the repo](#clone-the-repo-1)
-      * [Set up the toolchain](#set-up-the-toolchain-1)
+      * [Set up the toolchain](#set-up-the-toolchain)
 * [Plan your networking IP range](#plan-your-networking-ip-range)
    * [59 nodes system =&gt; 10.0.0.0/25](#59-nodes-system--1000025)
    * [123 nodes system =&gt; 10.0.0.0/24](#123-nodes-system--1000024)
@@ -21,11 +21,11 @@
    * [8187 nodes system =&gt; 10.0.0.0/19](#8187-nodes-system--1000019)
 * [Define the environment](#define-the-environment)
 * [Deploy your environment](#deploy-your-environment)
-   * [Build the infrastructure](#build-the-infrastructure)
+   * [Azure infrastructure](#azure-infrastructure)
       * [Login with a user account](#login-with-a-user-account)
       * [Login with a Managed Identity](#login-with-a-managed-identity)
       * [Login with a Service Principal Name](#login-with-a-service-principal-name)
-      * [Build the whole infrastructure](#build-the-whole-infrastructure)
+      * [Build the Azure infrastructure](#build-the-azure-infrastructure)
    * [Create users passwords for all users defined in the config.yml file](#create-users-passwords-for-all-users-defined-in-the-configyml-file)
 * [Installation](#installation)
    * [Install and configure the deployed environment](#install-and-configure-the-deployed-environment)
@@ -50,12 +50,19 @@
    * [How to use DNS forwarders ?](#how-to-use-dns-forwarders-)
    * [How to deploy ANF with Dual protocol](#how-to-deploy-anf-with-dual-protocol)
    * [Deploy in a locked down network environment](#deploy-in-a-locked-down-network-environment)
+      * [Allow traffic to list of external domains](#allow-traffic-to-list-of-external-domains)
    * [Disable Public IP scenario](#disable-public-ip-scenario)
    * [Use your own SSL certificate](#use-your-own-ssl-certificate)
    * [Not deploy ANF](#not-deploy-anf)
    * [Use an existing NFS mount point](#use-an-existing-nfs-mount-point)
    * [Use Azure Active Directory for MFA](#use-azure-active-directory-for-mfa)
    * [Use an existing Azure Database for MariaDB server](#use-an-existing-azure-database-for-mariadb-server)
+   * [Use an existing Active Directory](#use-an-existing-active-directory)
+      * [Network pre-requisites](#network-pre-requisites)
+      * [Domain pre-requisites](#domain-pre-requisites)
+      * [azhop configuration file](#azhop-configuration-file)
+      * [Deploy and configure your environemnt](#deploy-and-configure-your-environemnt)
+* [Terraform and Bicep coverage table](#terraform-and-bicep-coverage-table)
 * [Helper Scripts](#helper-scripts)
    * [ansible_prereqs.sh](#ansible_prereqssh)
    * [azhop_states.sh](#azhop_statessh)
@@ -76,7 +83,7 @@
 Once the [prerequisites](#azure-pre-requisites) are in place, deploying a greenfield `azhop` environment involves essentially these steps:
 
  1. Clone the repo: `git clone --recursive https://github.com/Azure/az-hop.git -b <version>` 
- 1. Copy the the `config.tpl.yml` template into `config.yml` and update it with your settings
+ 1. Copy the `examples/minimum_public_ip.yml` template file to `config.yml` and update it with your settings
  1. Build the infrastructure on azure: `./build.sh -a apply`
  1. Create user passwords: `./create_passwords.sh` 
  1. Install the software components on the provisioned infrastructure: `./install.sh` 
@@ -84,8 +91,8 @@ Once the [prerequisites](#azure-pre-requisites) are in place, deploying a greenf
 Once deployed, you can connect to the OnDemand web portal via:
 
  - URL: get from `grep ondemand_fqdn playbooks/group_vars/all.yml` 
- - username: `adminuser` 
- - password: get from `./bin/get_scret adminuser`
+ - username: `clusteradmin` 
+ - password: get from `./bin/get_secret clusteradmin`
 
  The following sections provide detailed instructions for each of these steps.
 
@@ -97,7 +104,7 @@ Once deployed, you can connect to the OnDemand web portal via:
 - When using a Service Principal Name, the service principal needs to be
   - **"Contributor"** on the subscription
   - **"User Access Administrator"** on the subscription
-- When using a managed Identity on a deployer VM it needs to be a **System Managed Identity** with
+- When using a managed Identity on a deployer VM it needs to be a **System/User Managed Identity** with
   - **"Contributor"** on the resource group
   - **"User Access Administrator"** on the subscription
   - **"Reader"** on the subscription
@@ -201,14 +208,16 @@ For Terraform to work properly on  WSL2, on the C drive, make sure to have the "
 Afterwards, you can directly run the `install.sh`  script: 
 
 ```bash
-sudo ./toolset/scripts/install.sh
+./toolset/scripts/install.sh
 ```
+
+> Note : On Ubuntu you may have to run `apt-get update`
 
 ## From a deployer VM
 `az-hop` can be deployed directly from an Ubuntu 20.04 VM on Azure.
 
 ## Create a deployer VM
-Create a deployer VM in its own isolated VNET and if required with an Azure Bastion. Once built, enable System Managed Identity and grant the following roles :
+Create a deployer VM in its own isolated VNET and if required with an Azure Bastion. Once built, enable System/User Managed Identity and grant the following roles :
   - **"Contributor"** on the subscription
   - **"User Access Administrator"** on the subscription
   - **"Reader"** on the subscription
@@ -237,8 +246,10 @@ git submodule update
 Run the `install.sh` script:
 
 ```bash
-sudo ./toolset/scripts/install.sh
+./toolset/scripts/install.sh
 ```
+
+> Note : On Ubuntu you may have to run `apt-get update`
 
 
 # Plan your networking IP range
@@ -377,13 +388,17 @@ use_existing_rg: false
 log_analytics:
   create: true
   # An existing log analytics workspace can be used instead. The resource group, name and subscription id of the workspace will need to be specified.
+  # Grant the role "Log Analytics Contributor" on the target Log Analytics Workspace for the identity used to deploy az-hop
   #resource_group:
   #name:
   #subscription_id: # Optional, if not specified the current subscription will be used
 
 # Option to install the monitoring agent on static infra VMs. Can be disabled if the agent is installed by policy.  
 monitoring: 
-  install_agent: true
+  azure_monitor_agent: true
+  # Optional settings to deploy Grafana and install Telegraf
+  telegraf: true # Install telegraf on static infra VMs and dynamic compute nodes. Default: true
+  grafana: true # Deploy a Grafana instance with pre-defined dashboards. Default: true
 
 #If set to true, it will create alert rules associated with az-hop. Enablement of alerting will require the specification of an admin email to send alerts to.
 alerting:
@@ -417,7 +432,9 @@ azurefiles:
 mounts:
   # mount settings for the user home directory
   home: # This home name can't be changed
-    type: anf # anf or azurefiles, default to anf. One of the two should be defined in order to mount the home directory
+    # type of mount : existing, anf or azurefiles, default to existing. One of the three should be defined in order to mount the home directory
+    # When using existing, the mountpoint, server, export and options should be defined, for other cases leave the values as defined with the curly braces
+    type: anf
     mountpoint: /anfhome # /sharedhome for example
     server: '{{anf_home_ip}}' # Specify an existing NFS server name or IP, when using the ANF built in use '{{anf_home_ip}}'
     export: '{{anf_home_path}}' # Specify an existing NFS export directory, when using the ANF built in use '{{anf_home_path}}'
@@ -521,11 +538,35 @@ locked_down_network:
 
 # Base image configuration. Can be either an image reference or an image_id from the image registry or a custom managed image
 linux_base_image: "OpenLogic:CentOS:7_9-gen2:latest" # publisher:offer:sku:version or image_id
-linux_base_plan: # linux image plan if required, format is publisher:product:name
+# linux image plan if required, format is publisher:product:name
+#linux_base_plan:
 windows_base_image: "MicrosoftWindowsServer:WindowsServer:2019-Datacenter-smalldisk:latest" # publisher:offer:sku:version or image_id
 lustre_base_image: "azhpc:azurehpc-lustre:azurehpc-lustre-2_12:latest"
 # The lustre plan to use. Only needed when using the default lustre image from the marketplace. use "::" for an empty plan
 lustre_base_plan: "azhpc:azurehpc-lustre:azurehpc-lustre-2_12" # publisher:product:name
+
+domain:
+  name: "hpc.azure"
+  #domain_join_ou: "OU=azhop" # OU to set the machine in. Make sure the OU exists in the domain as it won't be created for you
+  use_existing_dc: false # Set to true if you want to join a domain with existing DC
+  domain_join_user:
+    username: hpcadmin
+    password_key_vault_name: name_for_the_key_vault_with_the_domain_join_password
+    password_key_vault_resource_group_name: resource_group_name_for_the_key_vault_with_the_domain_join_password
+    password_key_vault_secret_name: key_vault_secret_name_for_the_domain_join_password
+  # additional settings when using an existing DC
+  existing_dc_details: 
+    domain_controller_names: ["dc1", "dc2"]
+    domain_controller_ip_addresses: ["192.168.1.100", "192.168.1.101"]
+    private_dns_servers: ["192.168.1.53", "192.168.2.53"]
+
+# Optional: name of the key vault resource to be created. If not provided, a name will be generated
+azure_key_vault:
+  name: custom_key_vault_name
+
+# Optional: name of the storage account to be created. If not provided, a name will be generated
+azure_storage_account:
+  name: custom_storage_account_name
 
 # Jumpbox VM configuration, only needed when deploying thru a public IP and without a configured deployer VM
 jumpbox:
@@ -537,7 +578,7 @@ jumpbox:
 ad:
   vm_size: Standard_B2ms
   hybrid_benefit: false # Enable hybrid benefit for AD, default to false
-  high_availability: false # Build AD in High Availability mode (2 Domain Controlers) - default to false
+  high_availability: false # Build AD in High Availability mode (2 Domain Controllers) - default to false
 # On demand VM configuration
 ondemand:
   vm_size: Standard_D4s_v5
@@ -555,11 +596,14 @@ scheduler:
 # CycleCloud VM configuration
 cyclecloud:
   vm_size: Standard_B2ms
-  # version: 8.3.0-3062 # to specify a specific version, see https://packages.microsoft.com/yumrepos/cyclecloud/
+  # Optional: use Ubuntu for the CycleCloud VM (default: linux_base_image)
+  # image: "canonical:0001-com-ubuntu-server-focal:20_04-lts-gen2:latest"
+  # plan: publisher:product:name
+  # version: 8.4.0-3122 # to specify a specific version, see https://packages.microsoft.com/yumrepos/cyclecloud/
 
 # Lustre cluster is optional and can be used to create a Lustre cluster in the environment.
 lustre:
-  create: true # true or false to create a lustre cluster
+  create: false # true or false to create a lustre cluster
   rbh_sku: "Standard_D8d_v4"
   mds_sku: "Standard_D8d_v4"
   oss_sku: "Standard_D32d_v4"
@@ -585,13 +629,13 @@ users:
   # - { name: user2, uid: 10004, groups: [6001] }
 
 usergroups:
-# These groups can’t be changed
-  - name: Domain Users # All users will be added to this one by default
+# These groups should not be changed
+  - name: azhop-users # All users will be added to this group by default
     gid: 5000
-  - name: az-hop-admins
+  - name: azhop-admins
     gid: 5001
     description: "For users with azhop admin privileges"
-  - name: az-hop-localadmins
+  - name: azhop-localadmins
     gid: 5002
     description: "For users with sudo right or local admin right on nodes"
 # For custom groups use gid >= 6000
@@ -614,6 +658,8 @@ slurm:
   # SLURM version to install. Currently supported: only 20.11.9 and 22.05.3.
   # Other versions can be installed by building from source (See build_rpms setting in the slurmserver role)
   slurm_version: 20.11.9
+  # CycleCloud for SLURM project version as defined in https://github.com/Azure/cyclecloud-slurm/releases. Currently supported: only 2.7.0 and 2.7.1. Default to 2.7.1
+  cyclecloud_slurm_version: 2.7.1
   # Name of the SLURM cluster for accounting (optional, default to 'slurm')
   # WARNING: changing this value on a running cluster will cause slurmctld to fail to start. This is a
   # safety check to prevent accounting errors. To override, remove /var/spool/slurmd/clustername
@@ -622,8 +668,11 @@ slurm:
 enroot:
   enroot_version: 3.4.1
 
-# If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values
+# Optional: database settings
 database:
+  # Name of the Azure database resource to be created. If not provided, a name will be generated
+  name: custom_mariadb_name
+  # If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values
   # Admin user of the database for which the password will be retrieved from the azhop keyvault
   user: sqladmin
   # FQDN of the managed instance
@@ -643,6 +692,7 @@ vpn_gateway:
 # Default is basic authentication. For oidc authentication you have to specify the following values
 # The OIDCClient secret need to be stored as a secret named <oidc-client-id>-password in the keyvault used by az-hop
 authentication:
+  user_auth: ad # local or ad - default to ad. Local will create local users and users groups on all infrastructure VMs and dynamically on dynamic nodes
   httpd_auth: basic # oidc or basic
   # User mapping https://osc.github.io/ood-documentation/latest/reference/files/ood-portal-yml.html#ood-portal-generator-user-map-match
   # You can specify either a map_match or a user_map_cmd
@@ -746,7 +796,7 @@ images:
     os_type: Linux
     version: 7.9
 
-# Autoscale default settings for all queues, can be overriden on each queue depending on the VM type if needed
+# Autoscale default settings for all queues, can be overridden on each queue depending on the VM type if needed
 autoscale:
   idle_timeout: 1800 # Idle time in seconds before shutting down VMs - default to 1800 like in CycleCloud
 
@@ -756,7 +806,7 @@ queues:
   - name: execute # name of the Cycle Cloud node array
     # Azure VM Instance type
     vm_size: Standard_F2s_v2
-    # maximum number of cores that can be instanciated
+    # maximum number of cores that can be instantiated
     max_core_count: 1024
     # Use the pre-built azhop image from the marketplace
     image: azhpc:azhop-compute:centos-7_9:latest
@@ -901,13 +951,14 @@ export ARM_TENANT_ID=<tenant_id>
 
 ### Build the Azure infrastructure
 
-Building the infrastructure is done thru the `build.sh` utility script, which reads the `config.yml` file and calls terraform.
+Building the infrastructure is done thru the `build.sh` utility script, which reads the `config.yml` file and call terraform or bicep. Please see [Terraform and Bicep coverage table](#terraform-and-bicep-coverage-table) to understand the differences.
 
 ```bash
 $ ./build.sh
 Usage build.sh 
   Required arguments:
-    -a|--action [plan, apply, destroy] 
+    -a|--action [plan, apply, destroy]
+    -l|--language <tf, bicep>   - deployment language to use, default is tf
    
   Optional arguments:
     -f|-folder <relative path> - relative folder name containing the terraform files, default is ./tf
@@ -1002,8 +1053,8 @@ Adding users is done in three steps :
 
 You can specify in which groups users belongs to, but at least they are all in the `Domain Users (gid: 5000)` domain group. By default there are built-in groups you can't change names otherwise things will break :
 - `Domain Users` : All users will be added to this one by default
-- `az-hop-admins` :  For users with azhop admin privileges like starting/stopping nodes or editing Grafana dashboards
-- `az-hop-localadmins` : For users with Linux sudo rights or Windows Local Admin rights on compute or viz nodes
+- `azhop-admins` :  For users with azhop admin privileges like starting/stopping nodes or editing Grafana dashboards
+- `azhop-localadmins` : For users with Linux sudo rights or Windows Local Admin rights on compute or viz nodes
 
 ## Add users in the configuration file
 
@@ -1019,10 +1070,10 @@ users:
 usergroups:
   - name: Domain Users # All users will be added to this one by default
     gid: 5000
-  - name: az-hop-admins # For users with azhop admin privilege
+  - name: azhop-admins # For users with azhop admin privilege
     gid: 5001
     description: "For users with azhop admin privileges"
-  - name: az-hop-localadmins # For users with sudo right on nodes
+  - name: azhop-localadmins # For users with sudo right on nodes
     gid: 5002
     description: "For users with sudo right or local admin right on nodes"
   - name: project1 # For project1 users
@@ -1268,7 +1319,7 @@ network:
 - There is a need of a minimum of 5 IP addresses for the infrastructure VMs
 - Allow enough IP addresses for the Lustre cluster, default being 4 : Robinhood + Lustre + 2*OSS
 - Delegate a subnet to Azure NetApp Files like documented [here](https://docs.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-delegate-subnet)
-- Look at the `tf/network_security_group.tf` and `tf/variables_local.tf` to get the list of all ports and rules define bewteen subnets
+- Look at the `tf/network_security_group.tf` and `tf/variables_local.tf` to get the list of all ports and rules define between subnets
 
 ### Creating a standalone VNET for AZ-HOP
 There is a way to easily create a standalone VNET for **azhop** without doing a full deployment by following these steps :
@@ -1278,7 +1329,7 @@ There is a way to easily create a standalone VNET for **azhop** without doing a 
 - Build your **azhop** environment
 
 ## How to use DNS forwarders ?
-**azhop** rely on [Azure DNS Private Resolver](https://learn.microsoft.com/en-us/azure/dns/dns-private-resolver-overview) in order to forward DNS queries to external DNS servers thru an outbound endpoint which need to be created in it's own subnet. You need to configure the `outbounddns` subnet with a minimum of /28 adress space in your `config.yml` configuration file. If you use an existing subnet it has to be dedicated to the resolver and has to be delegated to `Microsoft.Network/dnsResolvers` as explained in documentation of the [Azure DNS Private Resolver](https://learn.microsoft.com/en-us/azure/dns/dns-private-resolver-overview)
+**azhop** rely on [Azure DNS Private Resolver](https://learn.microsoft.com/en-us/azure/dns/dns-private-resolver-overview) in order to forward DNS queries to external DNS servers thru an outbound endpoint which need to be created in it's own subnet. You need to configure the `outbounddns` subnet with a minimum of /28 address space in your `config.yml` configuration file. If you use an existing subnet it has to be dedicated to the resolver and has to be delegated to `Microsoft.Network/dnsResolvers` as explained in documentation of the [Azure DNS Private Resolver](https://learn.microsoft.com/en-us/azure/dns/dns-private-resolver-overview)
 
 Once the resolver has been created thru the `./build.sh` command, you can configure the forwarders to sent request to, in the `config.yml` configuration file like below.
 
@@ -1342,6 +1393,64 @@ locked_down_network:
   enforce: true
   grant_access_from: [a.b.c.d] # Array of CIDR to grant access from.
 ```
+
+### Allow traffic to list of external domains
+
+In a locked network environment, traffic to some external domains needs to be allowed through firewall for the environment to work properly. Some of the families of domains include: 
+- The OS repositories
+- Domains used when building the infrastructure and configuring the toolchain
+- Domains used when configuring the environment (SLURM, CC, GRAFANA, OOD etc.)
+- Domains used when building custom images
+- Domains used when running the environment
+
+| External domains that need to be allowed | 
+| --------- |
+| *.almalinux.org |
+| *.anaconda.com | 
+| *.anaconda.org | 
+| *.azure.com | 
+| *.azure.net |
+| *.azure-api.net | 
+| *.azureedge.net | 
+| *.canonical.com |
+| *.cern.ch |
+| *.continuum.io |
+| *.eggycrew.com |
+| *.exp-tas.com |
+| *.fedoraproject.org |
+| *.fwupd.org |
+| *.github.com |
+| *.github.io |
+| *.githubusercontent.com |
+| *.grafana.com |
+| *.grafana.org |
+| *.hashicorp.com |
+| *.influxdata.com |
+| *.jfrog.io |
+| *.math.uh.edu |
+| *.microsoft.com |
+| *.msecnd.net |
+| *.mtu.edu |
+| *.npmjs.org |
+| *.nvidia.com |
+| *.osc.edu |
+| *.pythonhosted.org |
+| *.r-project.org |
+| *.scala-sbt.org |
+| *.skype.com |
+| *.snapcraft.io |
+| *.sourceforge.net |
+| *.spack.io |
+| *.terraform.io |
+| *.ubuntu.com |
+| *.visualstudio.com |
+| *.vsassets.io |
+| *.windows.net |
+| aka.ms |
+| pypi.org |
+| www.paraview.org |
+| securitycheck.phusionpassenger.com |
+
 
 ## Disable Public IP scenario
 To deploy `az-hop` in a no public IP scenario you have to set the `locked_down_network:public_ip` value to `false`. The default value being `true`.
@@ -1450,6 +1559,116 @@ database:
 
 Store the database user password in the `azhop` keyvault as a secret with the name `<database.user>-password`
 
+## Use an existing Active Directory
+By default `azhop` is deployed with it's own sandboxed Active Directory Domain Service VM and it's own domain. Starting from release `1.0.35` it is now possible to use an existing Active Directory Domain to allow a better enterprise integration. For linux user integration there are some pre-requisites to be satisfied in the target domain as well as on the network.
+
+### Network pre-requisites
+For all subnets configured in `azhop`, the correct NSGs will be set to the external Domain Controlers (DC) IP addresses. However if the existing DCs are outside of the `azhop` subnets, which will be certainly the case in most scenarios, then you have to make sure that the following ports are open to and from the DCs :
+ - TCP ports 53 88 135 389 445 464 636 3268 3269 9389 49152-65535
+ - UDP ports 53 88 123 138 389 464 636
+
+### Domain pre-requisites
+Prepare a user account which is allowed to domain join machines, store it's password as a secret in an existing Azure KeyVault. Grant read access for this keyvault secrets to the identity used to deploy the `azhop` environment.
+
+Ensure that domain users who will connect to this `azhop` environment have domain properties `uidNumber` and `gidNumber` set. Refer to this [article](https://www.server-world.info/en/note?os=Windows_Server_2019&p=active_directory&f=12) on how to do it from the UI.
+
+Create these global groups 
+ - `azhop-users` with `gidNumber` 5000
+ - `azhop-admins` with `gidNumber` 5001
+ - `azhop-localadmins` with `gidNumber` 5002
+
+Add the users who will connect to the `azhop` environment to the `azhop-users` group, and to the `azhop-localadmins` group to grant local admin privilege on compute and remote visualization nodes.
+
+
+### azhop configuration file
+Remove or comment the `ad` subnet from the `network.vnet.subnets` list.
+Remove or comment the `ad` virtual machine definition.
+
+Add or update the domain configuration as below
+```yml
+domain:
+  name: "azhop.local" # Name of the domain to join
+  domain_join_ou: "OU=azhop" # OU in the target domain in which machines will be added
+  use_existing_dc: true
+  domain_join_user:
+    username: <domain_join_user> # username with join domain privilege, used to domain join VMs
+    password_key_vault_name: <key_vault> # name for the keyvault with the domain join password
+    password_key_vault_resource_group_name: <key_vault_rg> # resource group name for the keyvault with the domain join password
+    password_key_vault_secret_name: <secret> # keyvault secret name for the domain join password
+  existing_dc_details:
+    domain_controller_names: ["dc1", "dc2"] # list of domain controllers
+    domain_controller_ip_addresses: ["ip1", "ip2"] # list of domain controllers IPs
+    private_dns_servers: ["ip1", "ip2"] # list of the private DNS servers
+```
+
+- define user groups as follow in the `azhop` configuration file
+```yml
+usergroups:
+# These group names could be changed but not the gids as names will be mapped by gids
+  - name: azhop-users # All users will be added to this group by default
+    gid: 5000
+  - name: azhop-admins
+    gid: 5001
+    description: "For users with azhop admin privileges"
+  - name: azhop-localadmins
+    gid: 5002
+    description: "For users with sudo right or local admin right on nodes"
+```
+
+- define users in the config file fo which you want to grant admin access to the CycleCloud web portal. They should be part of the `azhop-admins` group defined above.
+```yml
+users:
+  - { name: user,   uid: 10001, groups: [5001] }
+```
+
+### Deploy and configure your environemnt
+Once all the pre-requisites are satisfied, you can deploy the `azhop` environment as usual.
+# Terraform and Bicep coverage table
+As we made progress in using bicep as a deployment tool, the table below shows the difference in coverage between the two.
+
+| Component | Terraform | Bicep |
+| --------- | --------- | ----- |
+| Use an existing VNET | [x] | [ ] |
+| Monitoring | [x] | [ ] |
+| Alerting | [x] | [ ] |
+| Private DNS Resolver | [x] | [ ] |
+| Optionally deploy a Bastion | [ ] | [x] |
+| Create the deployer VM | [ ] | [x] |
+
+> Note : Please note that when using Bicep, resources won't be destroyed as opposed to Terraform when resources are not sync with the terraform state file.
+
+To automatically have bicep build a deployer VM and deploy from there, just rename the jumpbox section to deployer. This will create a deployer VM and deploy from there thru a cloud init script. After the bicep deployment is finished, connect to the deployer VM :
+
+   ```bash
+   ./bin/connect.sh deployer
+   ```
+
+Once connected in the `deployer` VM run the following command to display the cloud init log content
+
+   ```bash
+   tail -f /var/log/cloud-init-output.log
+
+   Friday 21 October 2022  14:06:09 +0000 (0:00:02.071)       0:00:05.380 ********
+   ===============================================================================
+   chrony ------------------------------------------------------------------ 5.19s
+   include_role ------------------------------------------------------------ 0.13s
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   total ------------------------------------------------------------------- 5.32s
+   ```
+
+Once the cloud init script is finished you should have these 2 lines at the end of the log
+   ```
+   Cloud-init v. 22.3.4-0ubuntu1~20.04.1 running 'modules:final' at Fri, 21 Oct 2022 13:22:56 +0000. Up 22.03 seconds.
+   Cloud-init v. 22.3.4-0ubuntu1~20.04.1 finished at Fri, 21 Oct 2022 14:06:09 +0000. Datasource DataSourceAzure [seed=/dev/sr0].  Up 2614.99 seconds
+   ```
+
+> Note : The Cloud Init step is taking about 40 minutes
+
+Confirm there are no errors in the playbooks execution by running this command
+   ```
+   grep "failed=1" /var/log/cloud-init-output.log
+   ```
+
 # Helper Scripts
 
 - ansible_prereqs.sh
@@ -1484,15 +1703,17 @@ Script to build the resources needed for an **azhop** environment.
 $ ./build.sh
 Usage build.sh
   Required arguments:
-    -a|--action [plan, apply, destroy]
+    -a|--action [plan, apply, destroy] - Destroy will not applied with Bicep
 
   Optional arguments:
     -f|-folder <relative path> - relative folder name containing the terraform files, default is ./tf
+    -l|--language <tf, bicep>  - deployment language to use, default is tf
+    --no-validate              - skip validation of config.yml
 ```
 
 At the end of the build, there are several files created, which produce the state of a deployment. These are :
  - az-hop config file `config.yml`
- - Terraform state file `tf/terraform.tfstate`
+ - Terraform state file `tf/terraform.tfstate`, unless Bicep is used
  - Ansible parameter files `playbooks/group_vars/all.yml`, `playbooks/inventory`
  - SSH Key Pair `${ADMIN_USER}_id_rsa` and `${ADMIN_USER}_id_rsa.pub`
  - Packer option file `packer/options.json`
@@ -1572,4 +1793,4 @@ If you do not wish to send usage data to Microsoft, you will need update your co
 
 `optout_telemetry: true`
 
-The setting can be applied by uncommenting thi line from the config file.
+The setting can be applied by uncommenting this line from the config file.

@@ -1,0 +1,31 @@
+---
+- name: install AZ CLI repo (Ubuntu)
+  shell: curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+- name: install AZ CLI repo (Ubuntu)
+  shell: |
+    apt -y install wget gnupg2
+    wget -qO - https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+    echo 'deb https://packages.microsoft.com/repos/cyclecloud bionic main' > /etc/apt/sources.list.d/cyclecloud.list
+    sudo apt update
+#    sudo apt -y install cyclecloud8
+  args:
+    creates: /etc/apt/sources.list.d/cyclecloud.list
+
+- name: Install pre-reqs packages (Ubuntu)
+  package:
+    name: azure-cli, dnsmasq, unzip, python3-venv
+    state: present
+    lock_timeout : 180
+
+- name: Install CycleCloud (Ubuntu)
+  package:
+    name: "cyclecloud8={{cc_version}}"
+    state: present
+    lock_timeout : 180
+
+- name: Install Jetpack (Ubuntu)
+  package:
+    name: "jetpack8={{cc_version}}"
+    state: present
+    lock_timeout : 180

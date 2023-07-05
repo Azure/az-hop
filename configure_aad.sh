@@ -4,7 +4,6 @@
 set -e
 AZHOP_CONFIG=config.yml
 ANSIBLE_VARIABLES=playbooks/group_vars/all.yml
-SECRET_NAME="azhop-oidc-password"
 
 if [ ! -e $AZHOP_CONFIG ]; then
   echo "$AZHOP_CONFIG doesn't exist, exiting"
@@ -30,9 +29,9 @@ if [ "$azhop_uri" == "" ]; then
 fi
 
 # Create the AAD application, generate a client secret, and register it with the AAD tenant
-# Store the secret under <objectId>-password in the keyvault
-objectId=$(az ad app list --display-name $aadName --query [].id -o tsv)
-if [ "$objectId" == "" ]; then
+# Store the secret under <appId>-password in the keyvault
+appId=$(az ad app list --display-name $aadName --query [].appId -o tsv)
+if [ "$appId" == "" ]; then
   az ad app create --display-name $aadName \
           --web-redirect-uris "https://$azhop_uri/oidc" \
           --public-client-redirect-uris "https://$azhop_uri/oidc" \
@@ -40,23 +39,23 @@ if [ "$objectId" == "" ]; then
           --optional-claims @aad_claims.json \
           --key-type password 
 
-  objectId=$(az ad app list --display-name $aadName --query [].id -o tsv)
+  appId=$(az ad app list --display-name $aadName --query [].appId -o tsv)
+  current_password=$(az ad app credential reset --id $appId | jq -r '.password')
+  SECRET_NAME="$appId-password"
   echo "Generating a password for $aadName and storing it as secret $SECRET_NAME in keyvault $key_vault"
-  current_password=$(az ad app credential reset --id $objectId | jq -r '.password')
-  SECRET_NAME="$objectId-password"
   az keyvault secret set --value "$current_password" --name $SECRET_NAME --vault-name $key_vault -o table > /dev/null
 else
-  SECRET_NAME="$objectId-password"
+  SECRET_NAME="$appId-password"
   echo "AAD application $aadName already exists"
   current_password=$(az keyvault secret list --vault-name $key_vault --query "[?name=='$SECRET_NAME'].name" -o tsv)
   if [ "$current_password" == "" ] ; then
-    objectId=$(az ad app list --display-name $aadName --query [].id -o tsv)
+    appId=$(az ad app list --display-name $aadName --query [].appId -o tsv)
     echo "Generating a password for $aadName and storing it as secret $SECRET_NAME in keyvault $key_vault"
-    current_password=$(az ad app credential reset --id $objectId | jq -r '.password')
+    current_password=$(az ad app credential reset --id $appId | jq -r '.password')
     az keyvault secret set --value "$current_password" --name $SECRET_NAME --vault-name $key_vault -o table > /dev/null
   else
     echo "$SECRET_NAME has already a secret stored in keyvault $key_vault"
   fi
 fi
 
-echo "AAD objectId: $objectId"
+echo "AAD appId: $appId"

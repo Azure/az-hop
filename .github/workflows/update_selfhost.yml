@@ -3,14 +3,34 @@ name : update selfhost nodes
 on:
   # manual only
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'toolset/**'
+  pull_request:
+    types: [ closed ]
+    branches:
+      - main
+    paths:
+      - 'toolset/**'
 
 jobs:
   build:
-
-    runs-on: self-hosted
+    strategy:
+      fail-fast: false
+      matrix:
+        agent: [agent1, agent2, agent3, agent4]
+    runs-on: ${{matrix.agent}}
+    continue-on-error: true
 
     steps:
+    - name: Cleanup Docker
+      run: |
+        docker system prune -a -f
+        docker volume prune -f
     - uses: actions/checkout@v3
     - name: Install the toolchain
       run: |
+        export HOME=/root # Hack to workaround miniconda installation
         ./toolset/scripts/install.sh

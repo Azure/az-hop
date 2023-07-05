@@ -13,7 +13,7 @@ on:
 
 jobs:
   run_tests:
-    uses: azure/az-hop/.github/workflows/uitesting_callable.yml@main
+    uses: ./.github/workflows/uitesting_callable.yml
     with:
       resource_group: ${{ github.event.inputs.resource_group }}
       users: ${{ github.event.inputs.nb_users }}

@@ -10,7 +10,7 @@ on:
 
 jobs:
   deploy:
-    uses: azure/az-hop/.github/workflows/main_callable.yml@main
+    uses: ./.github/workflows/main_callable.yml
     with:
       resource_group: 'AUTO_GENERATED'
       location: 'westeurope'

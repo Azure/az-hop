@@ -1,0 +1,16 @@
+# Application settings
+applications:
+  bc_codeserver:
+    enabled: true
+  bc_jupyter:
+    enabled: true
+  bc_rstudio:
+    enabled: true
+  bc_ansys_workbench:
+    enabled: true
+  bc_vmd:
+    enabled: true
+  bc_paraview:
+    enabled: true
+  bc_vizer:
+    enabled: true

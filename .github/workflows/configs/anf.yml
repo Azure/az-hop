@@ -1,0 +1,11 @@
+# Define an ANF account, single pool and volume
+# If not present assume that there is an existing NFS share for the users home directory
+anf:
+  create: true
+  # Size of the ANF pool and unique volume
+  homefs_size_tb: 4
+  # Service level of the ANF volume, can be: Standard, Premium, Ultra
+  homefs_service_level: Standard
+  # dual protocol
+  dual_protocol: false # true to enable SMB support. false by default
+  alert_threshold: 80 # alert when ANF volume reaches this threshold

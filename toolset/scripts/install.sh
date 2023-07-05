@@ -43,7 +43,7 @@ if [ $INSTALL_IN_CONDA = true ]; then
         bash $MINICONDA_INSTALL_SCRIPT -b -p $MINICONDA_INSTALL_DIR
         source "${MINICONDA_INSTALL_DIR}/bin/activate"
     else
-        printf "Installing Ansible in existing conda environment in %s \n\n"
+        printf "Installing Ansible in existing conda environment in %s \n\n" "${MINICONDA_INSTALL_DIR}"
         source "${MINICONDA_INSTALL_DIR}/bin/activate"
     fi
 
@@ -67,21 +67,22 @@ ansible-playbook ${THIS_DIR}/azhop-dependencies.yml
 printf "\n\n"
 printf "Applications installed\n"
 printf "===============================================================================\n"
-columns="%-15s| %.10s\n"
+columns="%-16s| %.10s\n"
 printf "$columns" Application Version
 printf -- "-------------------------------------------------------------------------------\n"
 printf "$columns" Python `python3 --version | awk '{ print $2 }'`
 printf "$columns" Ansible `ansible --version | head -n 1 | awk '{ print $3 }' | sed 's/]//'`
 printf "$columns" Terraform `terraform --version | head -n 1 | awk '{ print $2 }' | sed 's/v//'`
 printf "$columns" Packer `packer --version`
-printf "$columns" "az-cli" `az --version 2> /dev/null | head -n 1 | awk '{ print $2 }'`
+printf "$columns" az-cli `az --version 2> /dev/null | head -n 1 | awk '{ print $2 }'`
 printf "$columns" azcopy `azcopy --version | awk '{ print $3 }'`
 printf "$columns" yq `yq --version | awk '{ print $4 }'`
+printf "$columns" check-jsonschema `check-jsonschema --version | awk '{ print $3 }'`
 printf "===============================================================================\n"
 
 if [ $INSTALL_IN_CONDA = true ]; then
     yellow=$'\e[1;33m'
     default=$'\e[0m'
-    printf "\n${yellow}Az-HOP dependencies installed in a conda environment${default}. To activate, run:\n" $red
+    printf "\n${yellow}Az-HOP dependencies installed in a conda environment${default}. To activate, run:\n"
     printf "\nsource %s/bin/activate\n\n" "${MINICONDA_INSTALL_DIR}"
 fi

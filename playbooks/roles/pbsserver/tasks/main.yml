@@ -50,6 +50,7 @@
   shell: | 
     /tmp/cyclecloud-pbspro/initialize_pbs.sh 
     /tmp/cyclecloud-pbspro/initialize_default_queues.sh
+    source /etc/profile.d/pbs.sh
     /tmp/cyclecloud-pbspro/install.sh  --venv /opt/cycle/pbspro/venv --install-venv
     /tmp/cyclecloud-pbspro/generate_autoscale_json.sh  --install-dir /opt/cycle/pbspro --username {{ cc_admin }} --password "{{ cc_password }}" --url https://ccportal:9443/cyclecloud --cluster-name pbs1
   args:
@@ -65,35 +66,37 @@
   args:
     chdir: /opt/cycle/pbspro
 
-- name: Add logging.conf
+- name: copy custom files
   copy:
-    src: '{{role_path}}/files/logging.conf'
-    dest: /opt/cycle/pbspro/logging.conf
+    src: '{{role_path}}/files/'
+    dest: /opt/cycle/pbspro/
 
-- name: Add doqmgr pbs configuration script
-  copy:
-    src: '{{role_path}}/files/doqmgr.sh'
-    dest: /var/spool/pbs/doqmgr.sh
-    mode: '0755'
-    
 - name: Add pbs sched_config
   copy:
     src: '{{role_path}}/files/sched_config'
     dest: /var/spool/pbs/sched_priv/sched_config
 
 - name: activate pbs config
-  shell: /var/spool/pbs/doqmgr.sh 
-
-- name: Add submission hook
-  copy:
-    src: '{{role_path}}/files/submit-hook.py'
-    dest: /opt/cycle/pbspro/submit-hook.py
+  shell: |
+    chmod +x /opt/cycle/pbspro/doqmgr.sh
+    /opt/cycle/pbspro/doqmgr.sh 
 
 - name: Register submission hook
   shell: |
     /opt/pbs/bin/qmgr -c "create hook submit"
     /opt/pbs/bin/qmgr -c "import hook submit application/x-python default submit-hook.py"
     /opt/pbs/bin/qmgr -c "set hook submit event = queuejob"
+  args:
+    chdir: /opt/cycle/pbspro
+
+# Configure cgroups for largeviz3d machines
+# Due to a bug in PBSPro when using hyperthreaded machines we had to use our own cgroups python script.
+# This is now fixed in PBSPro 20.0.1. The _assign_resources function in the cgroups hook is the one that was broken, that entire function was backported in 19.1.1
+- name: configure cgroups for largeviz3d machines
+  shell: |
+    /opt/pbs/bin/qmgr -c "import hook pbs_cgroups application/x-config default pbs_cgroups.CF"
+    /opt/pbs/bin/qmgr -c "import hook pbs_cgroups application/x-python default pbs_cgroups.PY"
+    /opt/pbs/bin/qmgr -c "set hook pbs_cgroups enabled = true"
   args:
     chdir: /opt/cycle/pbspro
 

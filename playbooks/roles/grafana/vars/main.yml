@@ -1,6 +1,0 @@
-grafana_repo_stable:
-  name: "grafana-stable"
-  yum_gpg_key: "https://packages.grafana.com/gpg.key"
-  yum_gpg_check: yes
-  yum_repo: "https://packages.grafana.com/oss/rpm"
-
