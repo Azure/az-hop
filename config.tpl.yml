@@ -412,12 +412,12 @@ images:
     os_type: Linux
     version: 18.04
   - name: azhop-desktop-ubuntu-2004
-    publisher: azhop
+    publisher: azhpc
     offer: azhop-desktop
     sku: ubuntu-2004
     hyper_v: V2
     os_type: Linux
-    version: 7.9
+    version: 20.04
   - name: azhop-win10
     publisher: azhop
     offer: Windows-10
