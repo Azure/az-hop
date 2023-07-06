@@ -694,6 +694,11 @@ resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' 
   location: location
 }
 
+resource computemi 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+  name: 'compute-mi'
+  location: location
+}
+
 module azhopKeyvaultSecrets './keyvault.bicep' = if (autogenerateSecrets) {
   name: 'azhopKeyvaultSecrets'
   params: {
@@ -922,6 +927,7 @@ output azhopGlobalConfig object = union(
     key_vault_suffix              : substring(kvSuffix, 1, length(kvSuffix) - 1) // vault.azure.net - remove leading dot from env
     blob_storage_suffix           : 'blob.${environment().suffixes.storage}' // blob.core.windows.net
     jumpbox_ssh_port              : deployJumpbox ? config.vms.jumpbox.sshPort : 22
+    compute_mi_id                 : resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', computemi.name)
   },
   config.homedir_type == 'anf' ? {
     anf_home_ip                   : azhopAnf.outputs.nfs_home_ip
@@ -1016,6 +1022,7 @@ output azhopInventory object = {
     vars: {
       ansible_ssh_user: config.admin_user
       ansible_ssh_common_args: deployJumpbox ? '-o ProxyCommand="ssh -i ${config.admin_user}_id_rsa -p ${config.vms.jumpbox.sshPort} -W %h:%p ${config.admin_user}@${sshTunelIp}"' : ''
+
     }
   }
 }

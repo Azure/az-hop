@@ -18,6 +18,7 @@ Autoscale = true
     KeyPairLocation = ~/.ssh/cyclecloud.pem
     EnableAcceleratedNetworking = false
     Interruptible = false
+    Azure.Identities = {{ compute_mi_id }}
 
     # Slurm autoscaling supports both Terminate and Deallocate shutdown policies
     ShutdownPolicy = Terminate
