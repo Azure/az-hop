@@ -24,4 +24,4 @@ expiry=$(date -u -d "+1 hour" '+%Y-%m-%dT%H:%MZ')
 
 rw_sas=$(az storage container generate-sas --account-name $SA_ACCOUNT --name $SA_CONTAINER --permissions rwdl --start $start --expiry $expiry --output tsv)
 
-azcopy copy "$osdisk_sas" "https://$SA_ACCOUNT.blob.core.windows.net/$SA_CONTAINER/$image_name?${rw_sas}"
+azcopy copy --overwrite "ifSourceNewer" "$osdisk_sas" "https://$SA_ACCOUNT.blob.core.windows.net/$SA_CONTAINER/$image_name?${rw_sas}"
