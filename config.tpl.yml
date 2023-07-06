@@ -404,14 +404,14 @@ images:
     hyper_v: V2
     os_type: Linux
     version: 7.9
-  - name: azhop-compute-ubuntu-1804
+  - name: azhop-compute-ubuntu-18_04
     publisher: azhpc
     offer: azhop-compute
     sku: ubuntu-1804
     hyper_v: V2
     os_type: Linux
     version: 18.04
-  - name: azhop-desktop-ubuntu-2004
+  - name: azhop-desktop-ubuntu-20_04
     publisher: azhpc
     offer: azhop-desktop
     sku: ubuntu-2004
