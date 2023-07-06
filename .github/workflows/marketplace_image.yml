@@ -130,7 +130,7 @@ jobs:
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
-      - name: Push Offer Update
+      - name: Copy Disk
         run: |
           source /miniconda/bin/activate
           set -e

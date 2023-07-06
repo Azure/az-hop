@@ -54,7 +54,11 @@ put_offer() {
     req='curl -s -X PUT -H "Content-Type: application/json" -H "Authorization: Bearer $legacy_token" -d "$(<$jsonFile)" "https://cloudpartner.azure.com/api/publishers/${publisherId}/offers/${offerId}?api-version=2017-10-31"'
 
     res=$(eval $req)
+    httpCode=$(jq -r '.[].httpStatusCode' <<< $res)
     if [ ! $debug -eq 0 ]; then
         print_last
+    fi
+    if [ "$httpCode" != "OK" ]; then
+        exit 1
     fi
 }
