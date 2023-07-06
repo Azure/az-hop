@@ -53,7 +53,7 @@ network:
     # Special VNET Tags
     # tags:
     #   key1: value1
-    # When using an existing VNET, only the subnet names will be used and not the adress_prefixes
+    # When using an existing VNET, only the subnet names will be used and not the address_prefixes
     subnets: # all subnets are optionals
     # name values can be used to rename the default to specific names, address_prefixes to change the IP ranges to be used
     # All values below are the default values
