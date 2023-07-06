@@ -107,15 +107,14 @@ users:
   - { name: clusteradmin, uid: 10002, groups: [5001, 5002] }
 
 usergroups:
-  - name: Domain Users # All users will be added to this one by default
+  - name: azhop-users # All users will be added to this one by default
     gid: 5000
-  - name: az-hop-admins # For users with azhop admin privilege
+  - name: azhop-admins # For users with azhop admin privilege
     gid: 5001
     description: "For users with azhop admin privileges"
-  - name: az-hop-localadmins # For users with sudo right on nodes
+  - name: azhop-localadmins # For users with sudo right on nodes
     gid: 5002
     description: "For users with sudo right or local admin right on nodes"
-
 
 cvmfs_eessi:
   enabled: true
@@ -212,6 +211,6 @@ applications:
   bc_vmd:
     enabled: false
   bc_paraview:
-    enabled: false
+    enabled: true
   bc_vizer:
     enabled: false
