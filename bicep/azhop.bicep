@@ -61,6 +61,7 @@ var cyclecloudBaseImage = contains(azhopConfig.cyclecloud, 'image') ? azhopConfi
 var cyclecloudBasePlan = contains(azhopConfig.cyclecloud, 'plan') ? azhopConfig.cyclecloud.plan : ''
 
 var createDatabase = (config.queue_manager == 'slurm' && config.slurm.accounting_enabled ) || config.enable_remote_winviz
+var createComputeMI = contains(azhopConfig, 'compute_vm_identity') && contains(azhopConfig.compute_vm_identity, 'create') ? azhopConfig.compute_vm_identity.create : false
 
 var lustreOssCount = deployLustre ? azhopConfig.lustre.oss_count : 0
 
@@ -94,6 +95,7 @@ var config = {
   deploy_gateway: contains(azhopConfig, 'vpn_gateway') && contains(azhopConfig.vpn_gateway, 'create') ? azhopConfig.vpn_gateway.create : false
   deploy_bastion: contains(azhopConfig, 'bastion') && contains(azhopConfig.bastion, 'create') ? azhopConfig.bastion.create : false
   deploy_lustre: deployLustre
+
 
   lock_down_network: {
     enforce: contains(azhopConfig, 'locked_down_network') && contains(azhopConfig.locked_down_network, 'enforce') ? azhopConfig.locked_down_network.enforce : false
@@ -694,7 +696,7 @@ resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' 
   location: location
 }
 
-resource computemi 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+resource computemi 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = if(createComputeMI) {
   name: 'compute-mi'
   location: location
 }
@@ -927,7 +929,7 @@ output azhopGlobalConfig object = union(
     key_vault_suffix              : substring(kvSuffix, 1, length(kvSuffix) - 1) // vault.azure.net - remove leading dot from env
     blob_storage_suffix           : 'blob.${environment().suffixes.storage}' // blob.core.windows.net
     jumpbox_ssh_port              : deployJumpbox ? config.vms.jumpbox.sshPort : 22
-    compute_mi_id                 : resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', computemi.name)
+    compute_mi_id                 : (createComputeMI) ? resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', computemi.name) : ''
   },
   config.homedir_type == 'anf' ? {
     anf_home_ip                   : azhopAnf.outputs.nfs_home_ip
