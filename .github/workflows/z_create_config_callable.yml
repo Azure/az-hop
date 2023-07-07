@@ -74,6 +74,7 @@ env:
   ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
   AZHOP_STATE_CONTAINER: environments
   AZHOP_STATE_ACCOUNT: azhopstates
+  SHARED_SIG: /subscriptions/${{ secrets.ARM_SUBSCRIPTION_ID }}/resourceGroups/azhop_build_images/providers/Microsoft.Compute/galleries/azhop_4ehhye3z
 
 defaults:
   run:
