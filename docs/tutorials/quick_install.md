@@ -134,7 +134,7 @@ During this task, you will prepare the **config.yml** file to configure the envi
     >Note: During this exercise you will use a lighter version of the original config file designed for the Quick Install guide.
 
    ```bash
-   cp examples/qinstall-config config.yml
+   cp examples/qinstall-config.yml config.yml
    ```
 
 2. Review the **config.yml** file content, which describe the resources that will be provisioned. Use the following command to open the file in editor mode. You can leave the default configuration and just change the **project_name, location and resource_group** values.
