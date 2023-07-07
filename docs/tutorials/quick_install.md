@@ -3,7 +3,6 @@
    * [Requirements](#requirements)
    * [Before the hands-on lab](#before-the-hands-on-lab)
       * [Task 1: Validate the owner role assignment in the Azure subscription](#task-1-validate-the-owner-role-assignment-in-the-azure-subscription)
-      * [Task 2: Validate a sufficient number of vCPU cores](#task-2-validate-a-sufficient-number-of-vcpu-cores)
    * [Quick installation of the Azure HPC OnDemand Platform environment](#quick-installation-of-the-azure-hpc-ondemand-platform-environment)
       * [Task 1: Set up WSL2](#task-1-set-up-wsl2)
       * [Task 2: Validate a sufficient number of vCPU cores](#task-2-validate-a-sufficient-number-of-vcpu-cores)
@@ -23,6 +22,8 @@ In this light environment, there is NO Lustre cluster, NO Window Viz nodes.
 **Az-hop** CentOS 7.9 Azure marketplace images for compute and remote desktop nodes will be used.
 
 To provision the **Az-hop** environment a Windows Subsystem for Linux (**WSL**) is needed to run the scripts and configure all components needed using Ansible playbooks. This second step is longer as it needs to install and configure Domain Control, CycleCloud, OpenOndemand, PBS, Grafana and many other things. The use of Ansible will allow this system to be updated and in case of failure the installation to be repaired.
+
+>Note: If you are looking to deploy the full version of AzHop with Lustre and more customization options, I recommend you to use the [Quick Start](https://azure.github.io/az-hop/tutorials/quickstart.html) guide.
 
 ## Requirements
 
@@ -47,47 +48,6 @@ To complete this lab, you must verify that your account has sufficient permissio
 1. On the subscription blade, select **Access control (IAM)**.
 1. Click on the **Check access** button and then type the email you used to login. Click on your name and validate that your user account has the `Owner` role assigned to it.
 
-### Task 2: Validate a sufficient number of vCPU cores
-
-1. Locate the subscription to use in the Azure Portal.
-1. On the subscription blade, under the **Settings** section of the resource menu, select **Usage + quota**.
-1. Once in **Usage + quotas**, next to the **Search** filter select the drop-down box, and choose the Azure region you intend to use for this lab and change the type of resource to **Compute**.
-   > Note: We recommend that you use the **South Central US**, **East US** or the **West Europe** regions because these currently are more likely to increase the possibility of successfully raising quota limits for the Azure virtual machine (VM) SKUs required for this lab.
-
-1. Review the listing of existing quotas and determine whether you have sufficient capacity to accommodate a deployment of the following vCPUs:
-
-   - Standard BS Family vCPUs: **12**
-   - Standard DSv5 Family vCPUs: **48**
-   - Standard HBrsv2 Family vCPUs: **360**
-   - Standard NV Family vCPUs: **24**
-
-1. If the number of vCPUs isn't sufficient, on the subscription's **Usage + quotas** blade, select **Request Increase**.
-1. On the **Basic** tab of the **New support request** blade, specify the following, and then select **Next: Solutions >**:
-
-   - Summary: **Insufficient compute quotas**
-   - Issue type: **Service and subscription limits (quotas)**
-   - Subscription: Enter the name of the Azure subscription you will be using in this lab.
-   - Quota type: **Compute-VM (cores-vCPUs) subscription limit increases**
-   - Support plan: Enter the name of the support plan associated with the target subscription.
-
-1. On the **Details** tab of the **New support request** blade, select the **Enter details** link.
-1. On the **Quota details** tab of the **New support request** blade, specify the following settings, and then select **Save and continue**:
-
-   - Deployment model: **Resource Manager**
-   - Location: Enter the name of the target Azure region you intend to use in this lab.
-   - Quotas: Enter the VM series and the new vCPU limit.
-
-1. On the **Details** tab of the **New support request** blade, specify the following settings, and then select **Next: Review + create >**:
-
-   - Advanced diagnostic information: **Yes**
-   - Severity: **C - Minimal impact**
-   - Preferred contact method: Choose your preferred option and provide your contact details.
-
-1. On the **Review + create** tab of the **New support request** blade, select **Create**.
-
-   > Note: Typically, requests for quota increases are completed within a few hours, but its possible that the processing might take up to a few days.
-
-
 ## Quick installation of the Azure HPC OnDemand Platform environment
 
 Duration: 50 minutes
@@ -95,7 +55,7 @@ Duration: 50 minutes
 In this exercise, you will learn how to deploy **Az-hop** utilizing a Linux machine.
 
 ### Task 1: Set up WSL2
-
+#
 To install **Az-hop** we require to have a Linux machine that could support the toolchain to use during the installation, it is preferred to use Ubuntu 20.04+. So, if you are running a Windows desktop you should use WSL2 with an Ubuntu 20.04 environment.
 
 Run the following commands to install WSL2 (you will only need to do this once on your local device) in your Windows computer.
@@ -170,13 +130,14 @@ After this the WSL2 is ready to use.
 
 During this task, you will prepare the **config.yml** file to configure the environment.
 
-1. Get into the az-hop folder downloaded previously on Task #2 and execute the following command to create a new copy of the file with the right extension.
+1. Get into the az-hop folder downloaded previously on Task #2 and execute the following command to create a new copy of the config file with the right extension.
+    >Note: During this exercise you will use a lighter version of the original config file designed for the Quick Install guide.
 
    ```bash
-   cp config.tpl.yml config.yml
+   cp examples/qinstall-config config.yml
    ```
 
-2. Review the **config.yml** file content, which describe the resources that will be provisioned. Use the following command to open the file in editor mode. You can leave the default configuration by just changing the **project_name, location and resource_group** values.
+2. Review the **config.yml** file content, which describe the resources that will be provisioned. Use the following command to open the file in editor mode. You can leave the default configuration and just change the **project_name, location and resource_group** values.
 
     ```bash
     vim config.yml
@@ -185,17 +146,17 @@ During this task, you will prepare the **config.yml** file to configure the envi
 
 ### Task 6: Deploy the resources and install apps
 
-1. Run the Terraform plan script to validate changes to be executed.
+1. Run the Bicep plan script to validate changes to be executed.
     ```bash
-    ./build.sh -a plan
+   ./build.sh -a plan -l bicep
     ```
-    If no errors have been detected you can proceed to execute the following code to start the deployment.
+    If no errors have been detected you can proceed to execute the following code to start the deployment utilizing Bicep.
     ```bash
-    ./build.sh -a apply 
+   ./build.sh -a apply -l bicep
     ```
 2. After the deployment of resources is done, we proceed to create the passwords needed to connect the accounts.
     ```bash
-    ./create_passwords.sh
+   ./create_passwords.sh
     ```
 3. Finally we execute the command to install the software needed to run **Az-Hop**
     ```bash
