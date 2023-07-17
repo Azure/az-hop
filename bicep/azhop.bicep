@@ -61,7 +61,10 @@ var cyclecloudBaseImage = contains(azhopConfig.cyclecloud, 'image') ? azhopConfi
 var cyclecloudBasePlan = contains(azhopConfig.cyclecloud, 'plan') ? azhopConfig.cyclecloud.plan : ''
 
 var createDatabase = (config.queue_manager == 'slurm' && config.slurm.accounting_enabled ) || config.enable_remote_winviz
+
 var createComputeMI = contains(azhopConfig, 'compute_vm_identity') && contains(azhopConfig.compute_vm_identity, 'create') ? azhopConfig.compute_vm_identity.create : false
+var existingComputeMIname = !createComputeMI && contains(azhopConfig.compute_vm_identity, 'name') ? azhopConfig.compute_vm_identity.name : ''
+var existingComputeMIrg = !createComputeMI && contains(azhopConfig.compute_vm_identity, 'resource_group') ? azhopConfig.compute_vm_identity.resource_group : ''
 
 var lustreOssCount = deployLustre ? azhopConfig.lustre.oss_count : 0
 
@@ -929,8 +932,13 @@ output azhopGlobalConfig object = union(
     key_vault_suffix              : substring(kvSuffix, 1, length(kvSuffix) - 1) // vault.azure.net - remove leading dot from env
     blob_storage_suffix           : 'blob.${environment().suffixes.storage}' // blob.core.windows.net
     jumpbox_ssh_port              : deployJumpbox ? config.vms.jumpbox.sshPort : 22
-    compute_mi_id                 : (createComputeMI) ? resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', computemi.name) : ''
   },
+  createComputeMI ? {
+    compute_mi_id                 : resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', computemi.name)
+  }: {},
+  !empty(existingComputeMIname) && !empty(existingComputeMIrg) ? {
+    compute_mi_id                 : resourceId(existingComputeMIrg,'Microsoft.ManagedIdentity/userAssignedIdentities', existingComputeMIname)
+  }: {},
   config.homedir_type == 'anf' ? {
     anf_home_ip                   : azhopAnf.outputs.nfs_home_ip
     anf_home_path                 : azhopAnf.outputs.nfs_home_path

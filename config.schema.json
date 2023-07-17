@@ -264,7 +264,9 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "create": {"type": "boolean", "default": false}
+                "create": {"type": "boolean", "default": false},
+                "name": {"type": "string"},
+                "resource_group": {"type": "string"}
             },
             "required": [ "create" ],
             "title": "computeVMidentity"

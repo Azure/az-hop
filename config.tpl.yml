@@ -25,7 +25,10 @@ log_analytics:
   #subscription_id: # Optional, if not specified the current subscription will be used
 
 compute_vm_identity:
-  create: true
+  create: false
+  # An existing user assigned identity can be used instead. The name & resource group of the target identity will need to be specified.
+  #name: 
+  #resource_group:
 
 # Option to install the monitoring agent on static infra VMs. Can be disabled if the agent is installed by policy.  
 monitoring: 
