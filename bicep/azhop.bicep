@@ -63,7 +63,7 @@ var cyclecloudBasePlan = contains(azhopConfig.cyclecloud, 'plan') ? azhopConfig.
 var createDatabase = (config.queue_manager == 'slurm' && config.slurm.accounting_enabled ) || config.enable_remote_winviz
 
 var createComputeMI = contains(azhopConfig, 'compute_vm_identity') && contains(azhopConfig.compute_vm_identity, 'create') ? azhopConfig.compute_vm_identity.create : false
-var existingComputeMIname = !createComputeMI && contains(azhopConfig.compute_vm_identity, 'name') ? azhopConfig.compute_vm_identity.name : ''
+var computeMIname =   contains(azhopConfig.compute_vm_identity, 'name') ? azhopConfig.compute_vm_identity.name : 'compute-mi'
 var existingComputeMIrg = !createComputeMI && contains(azhopConfig.compute_vm_identity, 'resource_group') ? azhopConfig.compute_vm_identity.resource_group : ''
 
 var lustreOssCount = deployLustre ? azhopConfig.lustre.oss_count : 0
@@ -700,7 +700,7 @@ resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' 
 }
 
 resource computemi 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = if(createComputeMI) {
-  name: 'compute-mi'
+  name: computeMIname
   location: location
 }
 
@@ -936,8 +936,8 @@ output azhopGlobalConfig object = union(
   createComputeMI ? {
     compute_mi_id                 : resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', computemi.name)
   }: {},
-  !empty(existingComputeMIname) && !empty(existingComputeMIrg) ? {
-    compute_mi_id                 : resourceId(existingComputeMIrg,'Microsoft.ManagedIdentity/userAssignedIdentities', existingComputeMIname)
+  !empty(existingComputeMIrg) ? {
+    compute_mi_id                 : resourceId(existingComputeMIrg,'Microsoft.ManagedIdentity/userAssignedIdentities', computeMIname)
   }: {},
   config.homedir_type == 'anf' ? {
     anf_home_ip                   : azhopAnf.outputs.nfs_home_ip

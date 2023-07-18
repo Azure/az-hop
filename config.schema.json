@@ -265,7 +265,10 @@
             "additionalProperties": false,
             "properties": {
                 "create": {"type": "boolean", "default": false},
-                "name": {"type": "string"},
+                "name": {
+                    "type": "string",
+                    "maxLength": 24, 
+                    "pattern": "^[a-zA-Z0-9-]+$"},
                 "resource_group": {"type": "string"}
             },
             "required": [ "create" ],
