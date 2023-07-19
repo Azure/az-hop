@@ -62,6 +62,10 @@ var cyclecloudBasePlan = contains(azhopConfig.cyclecloud, 'plan') ? azhopConfig.
 
 var createDatabase = (config.queue_manager == 'slurm' && config.slurm.accounting_enabled ) || config.enable_remote_winviz
 
+var createComputeMI = contains(azhopConfig, 'compute_vm_identity') && contains(azhopConfig.compute_vm_identity, 'create') ? azhopConfig.compute_vm_identity.create : false
+var computeMIname =   contains(azhopConfig.compute_vm_identity, 'name') ? azhopConfig.compute_vm_identity.name : 'compute-mi'
+var existingComputeMIrg = !createComputeMI && contains(azhopConfig.compute_vm_identity, 'resource_group') ? azhopConfig.compute_vm_identity.resource_group : ''
+
 var lustreOssCount = deployLustre ? azhopConfig.lustre.oss_count : 0
 
 var ossVmConfig = [for oss in range(0, lustreOssCount) : { 
@@ -94,6 +98,7 @@ var config = {
   deploy_gateway: contains(azhopConfig, 'vpn_gateway') && contains(azhopConfig.vpn_gateway, 'create') ? azhopConfig.vpn_gateway.create : false
   deploy_bastion: contains(azhopConfig, 'bastion') && contains(azhopConfig.bastion, 'create') ? azhopConfig.bastion.create : false
   deploy_lustre: deployLustre
+
 
   lock_down_network: {
     enforce: contains(azhopConfig, 'locked_down_network') && contains(azhopConfig.locked_down_network, 'enforce') ? azhopConfig.locked_down_network.enforce : false
@@ -694,6 +699,11 @@ resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' 
   location: location
 }
 
+resource computemi 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = if(createComputeMI) {
+  name: computeMIname
+  location: location
+}
+
 module azhopKeyvaultSecrets './keyvault.bicep' = if (autogenerateSecrets) {
   name: 'azhopKeyvaultSecrets'
   params: {
@@ -923,6 +933,12 @@ output azhopGlobalConfig object = union(
     blob_storage_suffix           : 'blob.${environment().suffixes.storage}' // blob.core.windows.net
     jumpbox_ssh_port              : deployJumpbox ? config.vms.jumpbox.sshPort : 22
   },
+  createComputeMI ? {
+    compute_mi_id                 : resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', computemi.name)
+  }: {},
+  !empty(existingComputeMIrg) ? {
+    compute_mi_id                 : resourceId(existingComputeMIrg,'Microsoft.ManagedIdentity/userAssignedIdentities', computeMIname)
+  }: {},
   config.homedir_type == 'anf' ? {
     anf_home_ip                   : azhopAnf.outputs.nfs_home_ip
     anf_home_path                 : azhopAnf.outputs.nfs_home_path
@@ -1016,6 +1032,7 @@ output azhopInventory object = {
     vars: {
       ansible_ssh_user: config.admin_user
       ansible_ssh_common_args: deployJumpbox ? '-o ProxyCommand="ssh -i ${config.admin_user}_id_rsa -p ${config.vms.jumpbox.sshPort} -W %h:%p ${config.admin_user}@${sshTunelIp}"' : ''
+
     }
   }
 }

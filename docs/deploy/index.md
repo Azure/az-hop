@@ -1634,6 +1634,7 @@ As we made progress in using bicep as a deployment tool, the table below shows t
 | Private DNS Resolver | [x] | [ ] |
 | Optionally deploy a Bastion | [ ] | [x] |
 | Create the deployer VM | [ ] | [x] |
+| Assign Identities to Compute Nodes | [ ] | [x] | 
 
 > Note : Please note that when using Bicep, resources won't be destroyed as opposed to Terraform when resources are not sync with the terraform state file.
 

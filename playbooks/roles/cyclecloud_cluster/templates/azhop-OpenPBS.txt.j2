@@ -18,6 +18,9 @@ Autoscale = true
     KeyPairLocation = ~/.ssh/cyclecloud.pem
     EnableAcceleratedNetworking = false
     Interruptible = false
+    {% if compute_mi_id is defined and compute_mi_id|length %}
+    Azure.Identities = {{ compute_mi_id }}
+    {% endif %}
 
         [[[configuration]]]
         keepalive.timeout = 3600 # The amount of time in seconds to keep a node "alive" if it has not finished installing/configuring software.

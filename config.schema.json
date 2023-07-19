@@ -216,6 +216,10 @@
                     "description": "Create a log analytics workspace to enable monitoring and alerting",
                     "$ref": "#/definitions/logAnalytics"
                 },
+                "compute_vm_identity": {
+                    "description": "Create a user-assigned managed identity that will be applied to the compute VMs",
+                    "$ref": "#/definitions/computeVMidentity"
+                },                
                 "monitoring": {
                     "description": "If set to true, it will install the Azure Monitor Agent on the infrastructure VMs deployed by az-hop. If set to false, it is assumed that the agent is installed by policy.",
                     "$ref": "#/definitions/monitoring"
@@ -255,6 +259,20 @@
             },
             "required": [ "create" ],
             "title": "logAnalytics"
+        },
+        "computeVMidentity": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "create": {"type": "boolean", "default": false},
+                "name": {
+                    "type": "string",
+                    "maxLength": 24, 
+                    "pattern": "^[a-zA-Z0-9-]+$"},
+                "resource_group": {"type": "string"}
+            },
+            "required": [ "create" ],
+            "title": "computeVMidentity"
         },
         "monitoring": {
             "type": "object",

@@ -24,6 +24,16 @@ log_analytics:
   #name:
   #subscription_id: # Optional, if not specified the current subscription will be used
 
+# Enable the assignment of a managed identity to compute VMs managed by CycleCloud. 
+# You can create an identity and optionally specify a name for the identity to be created or use an existing identity.
+compute_vm_identity:
+  create: false
+  # An existing user assigned identity can be used instead. 
+  # The name & resource group of the target identity will need to be specified if using an existing identity.
+  # If you opt for creating an identity, you can specify a name for the identity to be created, but do not need to specify the resource group.
+  #name: 
+  #resource_group: 
+
 # Option to install the monitoring agent on static infra VMs. Can be disabled if the agent is installed by policy.  
 monitoring: 
   azure_monitor_agent: false # Install Azure Monitor Agent on static infra VMs

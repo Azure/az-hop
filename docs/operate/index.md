@@ -4,4 +4,5 @@
 - [Manually add nodes](manually_add_nodes.md)
 - [Upgrade az-hop](upgrade.md)
 - [Configure Alerts](alerting.md)
+- [Assign Identities to Compute Nodes](identity.md)
 - [How To](how_to.md)
