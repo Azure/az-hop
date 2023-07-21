@@ -53,11 +53,17 @@ mkdir -p $azhop_root/deploy
 cd $azhop_root/deploy
 
 echo "* Logging in to Azure"
+mds=$(curl -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2017-08-01")
+cloudenv=$(echo $mds | jq -r '.compute.azEnvironment' | tr '[:upper:]' '[:lower:]')
+if [ "$cloudenv" == "azureusgovernmentcloud" ]; then
+    echo "Running in Azure US Government Cloud"
+    az cloud set --name AzureUSGovernment
+fi
 # Add retry logic as it could take some delay to apply the Managed Identity
 timeout 120s bash -c 'until az login -i; do sleep 10; done'
 
 deployment_name=azhop
-resource_group=$(curl -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2017-08-01" | jq -r .compute.resourceGroupName)
+resource_group=$(echo $mds | jq -r '.compute.resourceGroupName')
 
 echo "* Waiting for deployment to complete"
 while deployment_state=$(az deployment group show -g $resource_group -n $deployment_name --query properties.provisioningState -o tsv); [ "$deployment_state" != "Succeeded" ]; do
