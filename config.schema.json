@@ -769,7 +769,8 @@
             "properties": {
                 "enforce": { "type": "boolean", "default": false },
                 "public_ip": { "type": "boolean", "default": true },
-                "grant_access_from": { "type": "array", "items": { "type": "string" } }
+                "grant_access_from": { "type": "array", "items": { "type": "string" } },
+                "enable_private_endpoints": { "type": "boolean", "default": false }
             },
             "required": [
                 "public_ip"

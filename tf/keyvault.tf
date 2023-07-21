@@ -17,12 +17,48 @@ resource "azurerm_key_vault" "azhop" {
   purge_protection_enabled    = false
   # TODO => Add the option to enable VMs to keep secrets in KV
   sku_name = "standard"
+  public_network_access_enabled = local.enable_private_endpoints ? false : true
 
   network_acls {
     default_action             = local.locked_down_network ? "Deny" : "Allow"
     bypass                     = "AzureServices"
-    ip_rules                   = local.grant_access_from
-    virtual_network_subnet_ids = [local.create_admin_subnet ? azurerm_subnet.admin[0].id : data.azurerm_subnet.admin[0].id]
+    ip_rules                   = local.enable_private_endpoints ? [] : local.grant_access_from
+    virtual_network_subnet_ids = local.enable_private_endpoints ? [] : [local.create_admin_subnet ? azurerm_subnet.admin[0].id : data.azurerm_subnet.admin[0].id]
+  }
+}
+
+resource "azurerm_private_dns_zone" "keyvault_private_link" {
+  count               = local.enable_private_endpoints ? 1 : 0
+  name                = local.key_vault_suffix
+  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
+}
+
+resource "azurerm_private_dns_zone_virtual_network_link" "keyvault_dns_link" {
+  count                 = local.enable_private_endpoints ? 1 : 0
+  name                  = "az-hop-keyvault-private"
+  resource_group_name   = azurerm_private_dns_zone.keyvault_private_link[0].resource_group_name
+  private_dns_zone_name = azurerm_private_dns_zone.keyvault_private_link[0].name
+  virtual_network_id    = local.create_vnet ? azurerm_virtual_network.azhop[0].id : data.azurerm_virtual_network.azhop[0].id
+  registration_enabled  = false
+}
+
+resource azurerm_private_endpoint "keyvault"  {
+  count               = local.enable_private_endpoints ? 1 : 0
+  name                = "${local.key_vault_name}-pe"
+  location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
+  resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
+  subnet_id           = local.create_admin_subnet ? azurerm_subnet.admin[0].id : data.azurerm_subnet.admin[0].id
+
+  private_dns_zone_group {
+    name                 = "private-dns-zone-group"
+    private_dns_zone_ids = [azurerm_private_dns_zone.keyvault_private_link[0].id]
+  }
+
+  private_service_connection {
+    name                              = "${local.key_vault_name}-private-connection"
+    private_connection_resource_id    = azurerm_key_vault.azhop.id
+    is_manual_connection              = false
+    subresource_names                 = ["Vault"]
   }
 }
 

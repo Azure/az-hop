@@ -17,8 +17,8 @@ locals {
         AZUREUSGOVERNMENTCLOUD = local.usgov_cloud_endpoints
     }
     azure_environment = var.AzureEnvironment
-    key_vault_suffix = local.azure_endpoints[local.azure_environment].KeyVaultSuffix #var.KeyVaultSuffix
-    blob_storage_suffix = local.azure_endpoints[local.azure_environment].BlobStorageSuffix #var.BlobStorageSuffix
+    key_vault_suffix = local.enable_private_endpoints ? replace("privatelink.${local.azure_endpoints[local.azure_environment].KeyVaultSuffix}", ".vault.", ".vaultcore.") : local.azure_endpoints[local.azure_environment].KeyVaultSuffix #var.KeyVaultSuffix
+    blob_storage_suffix = local.enable_private_endpoints ? "privatelink.${local.azure_endpoints[local.azure_environment].BlobStorageSuffix}" : local.azure_endpoints[local.azure_environment].BlobStorageSuffix #var.BlobStorageSuffix
 
     # azurerm_client_config contains empty values for Managed Identity so use variables instead
     tenant_id = var.tenant_id
@@ -250,6 +250,7 @@ locals {
 
     # Lockdown scenario
     locked_down_network = try(local.configuration_yml["locked_down_network"]["enforce"], false)
+    enable_private_endpoints = try(local.configuration_yml["locked_down_network"]["enable_private_endpoints"], false)
     grant_access_from   = try(local.configuration_yml["locked_down_network"]["grant_access_from"], [])
     allow_public_ip     = try(local.configuration_yml["locked_down_network"]["public_ip"], true)
     jumpbox_ssh_port    = try(local.configuration_yml["jumpbox"]["ssh_port"], "22")
