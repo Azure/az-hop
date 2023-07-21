@@ -319,14 +319,14 @@
       path: /etc/ood/config/apps/dashboard/initializers
       state: directory
 
-  - name: create ood lustre menu option
-    lineinfile:
-      path: /etc/ood/config/apps/dashboard/initializers/ood.rb
-      search_string: /lustre
-      line : 'OodFilesApp.candidate_favorite_paths << FavoritePath.new("/lustre", title: "Lustre")'
-      create: yes
-      state: present
-    when: ( lustre.create | default(false) )
+  # - name: create ood lustre menu option
+  #   lineinfile:
+  #     path: /etc/ood/config/apps/dashboard/initializers/ood.rb
+  #     search_string: /lustre
+  #     line : 'OodFilesApp.candidate_favorite_paths << FavoritePath.new("/lustre", title: "Lustre")'
+  #     create: yes
+  #     state: present
+  #   when: ( lustre.create | default(false) )
 
   - name: Create "{{mounts[item].mountpoint}}" directory mountpoint
     file:
@@ -346,15 +346,21 @@
     loop: "{{mounts | list}}"
     when: item != 'home'
 
-  - name: create mount "{{mounts[item].mountpoint}}" menu option
-    lineinfile:
-      path: /etc/ood/config/apps/dashboard/initializers/ood.rb
-      search_string: '{{mounts[item].mountpoint}}'
-      line : 'OodFilesApp.candidate_favorite_paths << FavoritePath.new("{{mounts[item].mountpoint}}", title: "{{item}}" )'
-      create: yes
-      state: present
-    loop: "{{mounts | list}}"
-    when: item != 'home'
+# https://osc.github.io/ood-documentation/latest/customizations.html#add-shortcuts-to-files-menu
+  - name: Copy the file menu initializer
+    template:
+      src: 'ood.rb.j2'
+      dest: '/etc/ood/config/apps/dashboard/initializers/ood.rb'
+
+  # - name: create mount "{{mounts[item].mountpoint}}" menu option
+  #   lineinfile:
+  #     path: /etc/ood/config/apps/dashboard/initializers/ood.rb
+  #     search_string: '{{mounts[item].mountpoint}}'
+  #     line : 'OodFilesApp.candidate_favorite_paths << FavoritePath.new("{{mounts[item].mountpoint}}", title: "{{item}}" )'
+  #     create: yes
+  #     state: present
+  #   loop: "{{mounts | list}}"
+  #   when: item != 'home'
 
   # Update file upload staging area to be in /mnt/resource
   - name: Create passenger temp dir

@@ -1,0 +1,12 @@
+Rails.application.config.after_initialize do
+{% for mount in mounts %}
+    {% if mount != 'home' %}
+    OodFilesApp.candidate_favorite_paths << FavoritePath.new("{{mounts[mount].mountpoint}}", title: "{{mount}}" )
+    {% endif %}
+
+{% endfor %}
+{% if lustre.create | default(false) %}
+    OodFilesApp.candidate_favorite_paths << FavoritePath.new("/lustre", title: "Lustre")
+{% endif %}
+
+end
