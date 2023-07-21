@@ -9,7 +9,7 @@
   vars_files:
     - '{{global_config_file}}'
   vars:
-    ondemand_version: 2.0.29
+    ondemand_version: 3.0.1
     ood_core_version: 0.22.0
     yq_version: v4.25.3
     yq_binary: yq_linux_amd64
@@ -394,6 +394,11 @@
       name: "create passenger tmp directory and set permissions"
       minute: "0,10,20,30,40,50"
       job: "test -e /mnt/resource/passenger-tmp || (mkdir /mnt/resource/passenger-tmp && chmod 777 /mnt/resource/passenger-tmp)"
+
+  # Fix websocket issue https://discourse.openondemand.org/t/novnc-failed-to-connect-to-server-ondemand-3-0-1/2711/23
+  - name: fix websocket attach protocols for OOD 3.0.1
+    shell: |
+      sed -i "s|uri, protocols));|uri, ['binary','base64']));|g" /var/www/ood/apps/sys/dashboard/public/noVNC-1.3.0/core/websock.js
 
   - name: Enable Apache mpm_event_module
     shell: |
