@@ -97,4 +97,4 @@ pun_custom_env:
 # See https://osc.github.io/ood-documentation/latest/customization.html#pinning-applications-to-the-dashboard
 pinned_apps:
   - category: 'Interactive Apps'
-  - sys/shell/ssh/ondemand
+  - sys/shell
