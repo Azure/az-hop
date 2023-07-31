@@ -127,7 +127,7 @@
         "toolTip": "Branch of the azhop repo to pull - Default to main",
         "constraints": {
           "required": false,
-          "regex": "^[a-zA-Z0-9](?:[a-zA-Z0-9_\\-\\.]*[a-zA-Z0-9])?$",
+          "regex": "^[A-Za-z0-9_\\-/]+$",
           "validationMessage": "Invalid branch name"
         },
         "visible": true
