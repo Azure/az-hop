@@ -439,13 +439,13 @@
 
   - name: create OOD_VERSION if not exists
     shell: |
-      cp /opt/ood/VERSION /opt/ood/OOD_VERSION
+      cp /opt/ood/VERSION /opt/ood/{{ondemand_version}}
     args: 
-      creates: /opt/ood/OOD_VERSION
+      creates: /opt/ood/{{ondemand_version}}
 
   - name: retrieve OnDemand version
     shell: |
-      cat /opt/ood/OOD_VERSION
+      cat /opt/ood/{{ondemand_version}}
     register: ood_version
 
   - name: Override OOD version with azhop version
