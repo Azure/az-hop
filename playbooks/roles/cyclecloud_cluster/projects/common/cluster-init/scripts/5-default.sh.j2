@@ -1,6 +1,9 @@
 #!/bin/bash
 # Pre-requisites:
 # - jq installed
+script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$script_dir/../files/azhop-helpers.sh" 
+read_os
 
 # Apply default configuration to the node
 # Remote read access to the cluster init script files for all users
@@ -24,6 +27,10 @@ case $VM_SIZE in
     sed -i '/Section "Device"/a\    Option         "HardDPMS" "false"' /etc/X11/xorg.conf
     echo "Enabling GUI"
     systemctl restart gdm
+    
+    if [ -e $script_dir/../files/$os_release/fix_websockify.sh ]; then
+      $script_dir/../files/$os_release/fix_websockify.sh
+    fi
   ;;
 esac
 
