@@ -201,16 +201,16 @@ remoteviz:
 
 applications:
   bc_codeserver:
-    enabled: true
+    enabled: "[steps('applications').enableCodeserver]"
   bc_jupyter:
-    enabled: true
+    enabled: "[steps('applications').enableJupyter]"
   bc_rstudio:
-    enabled: false
+    enabled: "[steps('applications').enableRStudio]"
   bc_ansys_workbench:
-    enabled: false
+    enabled: "[steps('applications').enableAnsysWorkbench]"
   bc_vmd:
-    enabled: false
+    enabled: "[steps('applications').enableVMD]"
   bc_paraview:
-    enabled: true
+    enabled: "[steps('applications').enableParaview]"
   bc_vizer:
-    enabled: false
+    enabled: "[steps('applications').enableVizer]"

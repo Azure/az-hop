@@ -430,6 +430,73 @@
             "visible": "[equals(steps('scheduler').scheduler, 'slurm')]"
           }
         ]
+      },
+      {
+        "name": "applications",
+        "label": "Applications",
+        "subLabel": {
+          "preValidation": "Applications you want to install",
+          "postValidation": "Done"
+        },
+        "bladeTitle": "Applications",
+        "elements": [        
+          {
+            "name": "enableCodeserver",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Enable Codeserver",
+            "toolTip": "Enable the Codeserver application",
+            "defaultValue": false,
+            "visible": true
+          },
+          {
+            "name": "enableJupyter",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Enable Jupyter",
+            "toolTip": "Enable the Jupyter application",
+            "defaultValue": false,
+            "visible": true
+          },
+          {
+            "name": "enableRStudio",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Enable RStudio",
+            "toolTip": "Enable the RStudio application",
+            "defaultValue": false,
+            "visible": true
+          },
+          {
+            "name": "enableParaview",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Enable Paraview",
+            "toolTip": "Enable the Paraview application",
+            "defaultValue": false,
+            "visible": true
+          },
+          {
+            "name": "enableVizer",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Enable Vizer",
+            "toolTip": "Enable the Vizer application",
+            "defaultValue": false,
+            "visible": true
+          },
+          {
+            "name": "enableAnsysWorkbench",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Enable AnsysWorkbench",
+            "toolTip": "Ansys Workbench won't be installed and instructions need to be followed from this [link](https://azure.github.io/az-hop/apps/index#ansys-workbench).",
+            "defaultValue": false,
+            "visible": true
+          },
+          {
+            "name": "enableVMD",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Enable VMD",
+            "toolTip": "VMD won't be installed and instructions need to be followed from this [link](https://azure.github.io/az-hop/apps/index#visual-molecular-dynamics).",
+            "defaultValue": false,
+            "visible": true
+          }
+        ]
       }
     ],
     "outputs": {
