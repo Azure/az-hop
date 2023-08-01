@@ -62,9 +62,10 @@ var cyclecloudBasePlan = contains(azhopConfig.cyclecloud, 'plan') ? azhopConfig.
 
 var createDatabase = (config.queue_manager == 'slurm' && config.slurm.accounting_enabled ) || config.enable_remote_winviz
 
-var createComputeMI = contains(azhopConfig, 'compute_vm_identity') && contains(azhopConfig.compute_vm_identity, 'create') ? azhopConfig.compute_vm_identity.create : false
-var computeMIname =   contains(azhopConfig.compute_vm_identity, 'name') ? azhopConfig.compute_vm_identity.name : 'compute-mi'
-var existingComputeMIrg = !createComputeMI && contains(azhopConfig.compute_vm_identity, 'resource_group') ? azhopConfig.compute_vm_identity.resource_group : ''
+var computeMIoption = contains(azhopConfig, 'compute_vm_identity')
+var createComputeMI = computeMIoption && contains(azhopConfig.compute_vm_identity, 'create') ? azhopConfig.compute_vm_identity.create : false
+var computeMIname =   computeMIoption && contains(azhopConfig.compute_vm_identity, 'name') ? azhopConfig.compute_vm_identity.name : 'compute-mi'
+var existingComputeMIrg = !createComputeMI && computeMIoption && contains(azhopConfig.compute_vm_identity, 'resource_group') ? azhopConfig.compute_vm_identity.resource_group : ''
 
 var lustreOssCount = deployLustre ? azhopConfig.lustre.oss_count : 0
 
