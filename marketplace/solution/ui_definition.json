@@ -465,22 +465,6 @@
             "visible": true
           },
           {
-            "name": "enableAnsysWorkbench",
-            "type": "Microsoft.Common.CheckBox",
-            "label": "Enable AnsysWorkbench",
-            "toolTip": "Enable the AnsysWorkbench application",
-            "defaultValue": false,
-            "visible": true
-          },
-          {
-            "name": "enableVMD",
-            "type": "Microsoft.Common.CheckBox",
-            "label": "Enable VMD",
-            "toolTip": "Enable the VMD application",
-            "defaultValue": false,
-            "visible": true
-          },
-          {
             "name": "enableParaview",
             "type": "Microsoft.Common.CheckBox",
             "label": "Enable Paraview",
@@ -493,6 +477,22 @@
             "type": "Microsoft.Common.CheckBox",
             "label": "Enable Vizer",
             "toolTip": "Enable the Vizer application",
+            "defaultValue": false,
+            "visible": true
+          },
+          {
+            "name": "enableAnsysWorkbench",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Enable AnsysWorkbench",
+            "toolTip": "Ansys Workbench won't be installed and instructions need to be followed from this [link](https://azure.github.io/az-hop/apps/index#ansys-workbench).",
+            "defaultValue": false,
+            "visible": true
+          },
+          {
+            "name": "enableVMD",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Enable VMD",
+            "toolTip": "VMD won't be installed and instructions need to be followed from this [link](https://azure.github.io/az-hop/apps/index#visual-molecular-dynamics).",
             "defaultValue": false,
             "visible": true
           }
