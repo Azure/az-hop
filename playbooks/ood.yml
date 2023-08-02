@@ -9,7 +9,7 @@
   vars_files:
     - '{{global_config_file}}'
   vars:
-    ondemand_version: 2.0.29
+    ondemand_version: 3.0.1
     ood_core_version: 0.22.0
     yq_version: v4.25.3
     yq_binary: yq_linux_amd64
@@ -319,14 +319,14 @@
       path: /etc/ood/config/apps/dashboard/initializers
       state: directory
 
-  - name: create ood lustre menu option
-    lineinfile:
-      path: /etc/ood/config/apps/dashboard/initializers/ood.rb
-      search_string: /lustre
-      line : 'OodFilesApp.candidate_favorite_paths << FavoritePath.new("/lustre", title: "Lustre")'
-      create: yes
-      state: present
-    when: ( lustre.create | default(false) )
+  # - name: create ood lustre menu option
+  #   lineinfile:
+  #     path: /etc/ood/config/apps/dashboard/initializers/ood.rb
+  #     search_string: /lustre
+  #     line : 'OodFilesApp.candidate_favorite_paths << FavoritePath.new("/lustre", title: "Lustre")'
+  #     create: yes
+  #     state: present
+  #   when: ( lustre.create | default(false) )
 
   - name: Create "{{mounts[item].mountpoint}}" directory mountpoint
     file:
@@ -346,15 +346,21 @@
     loop: "{{mounts | list}}"
     when: item != 'home'
 
-  - name: create mount "{{mounts[item].mountpoint}}" menu option
-    lineinfile:
-      path: /etc/ood/config/apps/dashboard/initializers/ood.rb
-      search_string: '{{mounts[item].mountpoint}}'
-      line : 'OodFilesApp.candidate_favorite_paths << FavoritePath.new("{{mounts[item].mountpoint}}", title: "{{item}}" )'
-      create: yes
-      state: present
-    loop: "{{mounts | list}}"
-    when: item != 'home'
+# https://osc.github.io/ood-documentation/latest/customizations.html#add-shortcuts-to-files-menu
+  - name: Copy the file menu initializer
+    template:
+      src: 'ood.rb.j2'
+      dest: '/etc/ood/config/apps/dashboard/initializers/ood.rb'
+
+  # - name: create mount "{{mounts[item].mountpoint}}" menu option
+  #   lineinfile:
+  #     path: /etc/ood/config/apps/dashboard/initializers/ood.rb
+  #     search_string: '{{mounts[item].mountpoint}}'
+  #     line : 'OodFilesApp.candidate_favorite_paths << FavoritePath.new("{{mounts[item].mountpoint}}", title: "{{item}}" )'
+  #     create: yes
+  #     state: present
+  #   loop: "{{mounts | list}}"
+  #   when: item != 'home'
 
   # Update file upload staging area to be in /mnt/resource
   - name: Create passenger temp dir
@@ -395,6 +401,12 @@
       minute: "0,10,20,30,40,50"
       job: "test -e /mnt/resource/passenger-tmp || (mkdir /mnt/resource/passenger-tmp && chmod 777 /mnt/resource/passenger-tmp)"
 
+  # Fix websocket issue https://discourse.openondemand.org/t/novnc-failed-to-connect-to-server-ondemand-3-0-1/2711/23
+  # Not needed if GUI node is using websockify 0.10.0+
+  # - name: fix websocket attach protocols for OOD 3.0.1
+  #   shell: |
+  #     sed -i "s|uri, protocols));|uri, ['binary','base64']));|g" /var/www/ood/apps/sys/dashboard/public/noVNC-1.3.0/core/websock.js
+
   - name: Enable Apache mpm_event_module
     shell: |
       sed -i "s/^LoadModule mpm_prefork_module/#LoadModule mpm_prefork_module/" /opt/rh/httpd24/root/etc/httpd/conf.modules.d/00-mpm.conf
@@ -427,13 +439,13 @@
 
   - name: create OOD_VERSION if not exists
     shell: |
-      cp /opt/ood/VERSION /opt/ood/OOD_VERSION
+      cp /opt/ood/VERSION /opt/ood/{{ondemand_version}}
     args: 
-      creates: /opt/ood/OOD_VERSION
+      creates: /opt/ood/{{ondemand_version}}
 
   - name: retrieve OnDemand version
     shell: |
-      cat /opt/ood/OOD_VERSION
+      cat /opt/ood/{{ondemand_version}}
     register: ood_version
 
   - name: Override OOD version with azhop version
