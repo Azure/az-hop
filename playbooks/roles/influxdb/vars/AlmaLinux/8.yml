@@ -1,0 +1,6 @@
+influxdb_repo_stable:
+  name: "influxdb-stable"
+  yum_gpg_key: "https://repos.influxdata.com/influxdata-archive_compat.key"
+  yum_gpg_check: yes
+  yum_repo: "https://repos.influxdata.com/stable/$basearch/main"
+
