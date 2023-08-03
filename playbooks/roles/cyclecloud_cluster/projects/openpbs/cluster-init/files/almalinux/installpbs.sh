@@ -1,9 +1,33 @@
 #!/bin/bash
+cyclecloud_pbspro=$1
+openpbs_version=$2
 
-BUILD_FROM_SOURCE=yes
-[ -d /opt/pbs ] && exit 0
+major_installed_pbs_version=$(cat /var/spool/pbs/pbs_version | cut -d '=' -f2 | cut -d '.' -f1)
+major_wanted_pbs_version=$(echo $openpbs_version | cut -d '.' -f1)
 
-if [ "$BUILD_FROM_SOURCE" == "yes" ] ; then
+function install_or_build() {
+    case $major_wanted_pbs_version in
+        19)
+            build
+            ;;
+        20)
+            install
+            ;;
+        *)
+            echo "Unsupported PBS version: $openpbs_version"
+            exit 1
+            ;;
+    esac
+}
+
+function install() {
+    dnf install -y epel-release
+    dnf install -y https://github.com/Azure/cyclecloud-pbspro/releases/download/${cyclecloud_pbspro}/openpbs-execution-${openpbs_version}-0.x86_64.rpm jq
+}
+
+function build() {
+    [ -d /opt/pbs ] && exit 0
+
     dnf install -y gcc make rpm-build libtool hwloc-devel \
         libX11-devel libXt-devel libedit-devel libical-devel \
         ncurses-devel perl postgresql-devel postgresql-contrib python2 python2-devel tcl-devel \
@@ -16,7 +40,7 @@ if [ "$BUILD_FROM_SOURCE" == "yes" ] ; then
     ./configure --enable-static --enable-embedded-mode
     make
     cd ..
-    
+
     wget -q https://github.com/openpbs/openpbs/releases/download/v19.1.1/pbspro-19.1.1.tar.gz -O pbspro-19.1.1.tar.gz
     tar -xzf pbspro-19.1.1.tar.gz
     cd pbspro-19.1.1/
@@ -26,11 +50,19 @@ if [ "$BUILD_FROM_SOURCE" == "yes" ] ; then
 
     /opt/pbs/libexec/pbs_postinstall execution
     chmod 4755 /opt/pbs/sbin/pbs_iff /opt/pbs/sbin/pbs_rcp
+}
+
+
+# If PBS is not installed, then install it
+if [ ! -f "/etc/pbs.conf" ]; then
+    install_or_build
 else
-    wget https://github.com/openpbs/openpbs/releases/download/v20.0.1/openpbs_20.0.1.centos_8.zip
-    unzip -o openpbs_20.0.1.centos_8.zip
-    dnf install epel-release -y
-    dnf install -y openpbs_20.0.1.centos_8/openpbs-execution-20.0.1-0.x86_64.rpm jq
-    rm -rf openpbs_20.0.1.centos_8.zip
-    rm -rf openpbs_20.0.1.centos_8
+    # If installed version is not the same as the version we want to install, then remove and install it
+    if [ "$major_installed_pbs_version" != "major_wanted_pbs_version" ]; then
+        echo "Removing old PBS version $major_installed_pbs_version"
+        systemctl stop pbs
+        rm -rf /opt/pbs
+        rm -rf /var/spool/pbs
+        install_or_build
+    fi
 fi

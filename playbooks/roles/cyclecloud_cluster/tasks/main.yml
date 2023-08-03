@@ -1,142 +1,22 @@
 ---
-
-- name: Drop project files if they exists
-  file:
-    path: '{{project_root}}'
-    state: absent
-
-- name: Create common project dir
-  file:
-    path: '{{project_root}}'
-    state: directory
-
-- name: Create common CycleCloud project
-  command: '/usr/local/bin/cyclecloud project init common'
-  args:
-    chdir: '{{project_root}}'
-    creates: '{{common_project_root}}/project.ini'
-
-- name: Copy common cluster-init files
-  copy:
-    src: '{{role_path}}/projects/common/cluster-init'
-    dest: '{{common_project_root}}/specs/default/'
-
-- name: Copy mountnfs file.
-  template:
-    src: '{{role_path}}/projects/common/cluster-init/scripts/1-mountnfs.sh.j2'
-    dest: '{{common_project_root}}/specs/default/cluster-init/scripts/1-mountnfs.sh'
-    mode: 0777
-
-- name: Add lustre script 
-  template:
-    src: '{{role_path}}/projects/common/cluster-init/scripts/2-mountlustre.sh.j2'
-    dest: '{{common_project_root}}/specs/default/cluster-init/scripts/2-mountlustre.sh'
-    mode: 0777
-  when: ( lustre.create | default(false) )
-
-- name: Add Linux joindomain script 
-  template:
-    src: '{{role_path}}/projects/common/cluster-init/scripts/3-joindomain.sh.j2'
-    dest: '{{common_project_root}}/specs/default/cluster-init/scripts/3-joindomain.sh'
-    mode: 0777
-
-- name: Add Windows joindomain script 
-  template:
-    src: '{{role_path}}/projects/common/cluster-init/scripts/3-joindomain.bat.j2'
-    dest: '{{common_project_root}}/specs/default/cluster-init/scripts/3-joindomain.bat'
-    mode: 0777
-
-- name: Add default script 
-  template:
-    src: '{{role_path}}/projects/common/cluster-init/scripts/5-default.sh.j2'
-    dest: '{{common_project_root}}/specs/default/cluster-init/scripts/5-default.sh'
-    mode: 0777
-
-- name: Remove telegraf script if telegraf is disabled
-  file:
-    path: '{{common_project_root}}/specs/default/cluster-init/scripts/4-install-telegraf.sh'
-    state: absent
-  when: ( monitoring.telegraf | default(true) ) == false
-
-- name: Add telegraf configuration file if telegraf is enabled
-  template:
-    src: '{{role_path}}/projects/common/cluster-init/files/telegraf.conf.j2'
-    dest: '{{common_project_root}}/specs/default/cluster-init/files/telegraf.conf'
-    mode: 0600
-  when: ( monitoring.telegraf | default(true) )
-
-- name: Add nhc configuration file  
-  template:
-    src: '{{role_path}}/projects/common/cluster-init/files/nhc/nhc_common.conf.j2'
-    dest: '{{common_project_root}}/specs/default/cluster-init/files/nhc/nhc_common.conf'
-
-- name: Remove Jinja files
-  file:
-    path: '{{item}}'
-    state: absent
-  with_items:
-    - '{{common_project_root}}/specs/default/cluster-init/files/telegraf.conf.j2'
-    - '{{common_project_root}}/specs/default/cluster-init/files/nhc/nhc_common.conf.j2'
-    - '{{common_project_root}}/specs/default/cluster-init/scripts/1-mountnfs.sh.j2'
-    - '{{common_project_root}}/specs/default/cluster-init/scripts/2-mountlustre.sh.j2'
-    - '{{common_project_root}}/specs/default/cluster-init/scripts/3-joindomain.sh.j2'
-    - '{{common_project_root}}/specs/default/cluster-init/scripts/3-joindomain.bat.j2'
-    - '{{common_project_root}}/specs/default/cluster-init/scripts/5-default.sh.j2'
-
-- name: Remove CVMFS if not enabled
-  file:
-    path: '{{common_project_root}}/specs/default/cluster-init/scripts/7-cvmfs-eessi.sh'
-    state: absent
-  when: cvmfs_eessi_enabled == false
-
-- name: Upload common CycleCloud project
-  command: '/usr/local/bin/cyclecloud project upload'
-  args:
-    chdir: '{{common_project_root}}'
-
-- name: OpenPBS Cycle Cloud project
+- name: Include distribution variables
   block:
-    - name: Create Open PBS CycleCloud project
-      command: '/usr/local/bin/cyclecloud project init openpbs'
-      args:
-        chdir: '{{project_root}}'
-        creates: '{{openpbs_project_root}}/project.ini'
+    - name: Include distribution variables
+      ansible.builtin.include_vars: "{{ item }}"
+      with_first_found:
+        - "{{ ansible_distribution }}/{{ ansible_distribution_major_version }}.yml"
+        - "{{ ansible_distribution }}.yml"
+      tags: [ 'always' ]
+  rescue:
+    - name: Change error message
+      ansible.builtin.fail:
+        msg: "unable to find anything in vars/ for this operating system! {{ ansible_distribution }}"
 
-    - name: Copy OpenPBS cluster-init files
-      copy:
-        src: '{{role_path}}/projects/openpbs/cluster-init'
-        dest: '{{openpbs_project_root}}/specs/default/'
+- name: Create common project
+  include_tasks: common.yml
 
-    - name: Upload OpenPBS CycleCloud project
-      command: '/usr/local/bin/cyclecloud project upload'
-      args:
-        chdir: '{{openpbs_project_root}}'
-
-    - name: Add azhop-OpenPBS template
-      template:
-        src: 'azhop-OpenPBS.txt.j2'
-        dest: '{{project_root}}/azhop-OpenPBS.txt'
-
-    - name: Import OpenPBS Cluster
-      command: '/usr/local/bin/cyclecloud import_cluster pbs1 -f {{project_root}}/azhop-OpenPBS.txt -c azhop-OpenPBS --force'
-
-    - name: Start OpenPBS Cluster
-      command: '/usr/local/bin/cyclecloud start_cluster pbs1'
-  when: cc_queue_manager == "openpbs"
-
-- name: SLURM template and optional Enroot project
-  block:
-    - name: Add azhop-Slurm template
-      template:
-        src: 'azhop-slurm.txt.j2'
-        dest: '{{project_root}}/azhop-slurm.txt'
-
-    - name: Import Slurm Cluster
-      command: '/usr/local/bin/cyclecloud import_cluster slurm1 -f {{project_root}}/azhop-slurm.txt -c azhop-slurm --force'
-
-    - name: Start Slurm Cluster
-      command: '/usr/local/bin/cyclecloud start_cluster slurm1'
-  when: cc_queue_manager == "slurm"
+- name: Create {{cc_queue_manager}} project
+  include_tasks: '{{cc_queue_manager}}.yml'
 
 - name: Populate cluster-init for enroot/pyxis
   block:
