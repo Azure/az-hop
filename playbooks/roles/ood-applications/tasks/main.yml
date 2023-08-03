@@ -14,7 +14,7 @@
 
 - name: install application dependencies
   yum:
-    name: "{{ood-apps-dependencies}}"
+    name: "{{ood_apps_dependencies}}"
     state: present
     lock_timeout : 180
 
