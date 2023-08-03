@@ -260,8 +260,15 @@
           sed -i '$e cat cyclecloud_proxy' /opt/ood/ood-portal-generator/templates/ood-portal.conf.erb
           rm cyclecloud_proxy
           /opt/ood/ood-portal-generator/sbin/update_ood_portal
-          systemctl try-restart httpd24-httpd.service httpd24-htcacheclean.service
         fi
+
+  - name: Configure Lmod
+    block:
+      - name: enable powertools
+        command: dnf config-manager --enable powertools
+    when: 
+      - ansible_distribution == 'AlmaLinux'
+      - ansible_distribution_major_version == '8'
 
   - name: add modules for job submission
     yum: 
@@ -310,15 +317,6 @@
       path: /etc/ood/config/apps/dashboard/initializers
       state: directory
 
-  # - name: create ood lustre menu option
-  #   lineinfile:
-  #     path: /etc/ood/config/apps/dashboard/initializers/ood.rb
-  #     search_string: /lustre
-  #     line : 'OodFilesApp.candidate_favorite_paths << FavoritePath.new("/lustre", title: "Lustre")'
-  #     create: yes
-  #     state: present
-  #   when: ( lustre.create | default(false) )
-
   - name: Create "{{mounts[item].mountpoint}}" directory mountpoint
     file:
       path: '{{mounts[item].mountpoint}}'
@@ -342,16 +340,6 @@
     template:
       src: 'ood.rb.j2'
       dest: '/etc/ood/config/apps/dashboard/initializers/ood.rb'
-
-  # - name: create mount "{{mounts[item].mountpoint}}" menu option
-  #   lineinfile:
-  #     path: /etc/ood/config/apps/dashboard/initializers/ood.rb
-  #     search_string: '{{mounts[item].mountpoint}}'
-  #     line : 'OodFilesApp.candidate_favorite_paths << FavoritePath.new("{{mounts[item].mountpoint}}", title: "{{item}}" )'
-  #     create: yes
-  #     state: present
-  #   loop: "{{mounts | list}}"
-  #   when: item != 'home'
 
   # Update file upload staging area to be in /mnt/resource
   - name: Create passenger temp dir
@@ -403,6 +391,9 @@
       sed -i "s/^LoadModule mpm_prefork_module/#LoadModule mpm_prefork_module/" /opt/rh/httpd24/root/etc/httpd/conf.modules.d/00-mpm.conf
       sed -i "s/^LoadModule mpm_worker_module/#LoadModule mpm_worker_module/" /opt/rh/httpd24/root/etc/httpd/conf.modules.d/00-mpm.conf
       sed -i "s/^#LoadModule mpm_event_module/LoadModule mpm_event_module/" /opt/rh/httpd24/root/etc/httpd/conf.modules.d/00-mpm.conf
+    when: 
+      - ansible_distribution == 'CentOS'
+      - ansible_distribution_major_version == '7'
 
   # - name: Tune Apache mpm_event_module
   #   copy:
@@ -453,6 +444,18 @@
   
   - name: restart ood
     shell: systemctl try-restart httpd24-httpd.service httpd24-htcacheclean.service
+    when: 
+      - ansible_distribution == 'CentOS'
+      - ansible_distribution_major_version == '7'
+
+  - name: Ensure apache is running.
+    service: 
+      name: httpd
+      state: started
+      enabled: yes
+    when: 
+      - ansible_distribution == 'AlmaLinux'
+      - ansible_distribution_major_version == '8'
 
   - name: Add cvmsf-eessi support
     block:
@@ -461,6 +464,7 @@
           name: https://ecsft.cern.ch/dist/cvmfs/cvmfs-release/cvmfs-release-latest.noarch.rpm 
           state: present
           lock_timeout : 180
+          disable_gpg_check: true
 
       - name: Install cvmfs package
         yum:
@@ -473,6 +477,7 @@
           name: https://github.com/EESSI/filesystem-layer/releases/download/latest/cvmfs-config-eessi-latest.noarch.rpm
           state: present
           lock_timeout : 180
+          disable_gpg_check: true
 
       - name: Create cvmfs config 
         copy:
