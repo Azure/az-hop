@@ -6,15 +6,16 @@ major_installed_pbs_version=$(cat /var/spool/pbs/pbs_version | cut -d '=' -f2 | 
 major_wanted_pbs_version=$(echo $openpbs_version | cut -d '.' -f1)
 
 function install_or_build() {
-    case $major_wanted_pbs_version in
+    local version=$1
+    case $version in
         19)
             build
             ;;
-        20)
+        20|22)
             install
             ;;
         *)
-            echo "Unsupported PBS version: $openpbs_version"
+            echo "Unsupported PBS version: $version"
             exit 1
             ;;
     esac
@@ -55,14 +56,16 @@ function build() {
 
 # If PBS is not installed, then install it
 if [ ! -f "/etc/pbs.conf" ]; then
-    install_or_build
+    install_or_build $major_wanted_pbs_version
 else
     # If installed version is not the same as the version we want to install, then remove and install it
     if [ "$major_installed_pbs_version" != "major_wanted_pbs_version" ]; then
         echo "Removing old PBS version $major_installed_pbs_version"
+        set +e
         systemctl stop pbs
         rm -rf /opt/pbs
         rm -rf /var/spool/pbs
-        install_or_build
+        set -e
+        install_or_build $major_wanted_pbs_version
     fi
 fi
