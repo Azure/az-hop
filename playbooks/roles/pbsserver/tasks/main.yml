@@ -75,7 +75,7 @@
     jq '.idle_timeout={{autoscale.idle_timeout | default(900) }}' autoscale.json > tmp_autoscale.json || exit 1
     cp tmp_autoscale.json autoscale.json
     sed -i 's/pcpu_count/vcpu_count/g' autoscale.json
-    jq '.valid_hostnames="^.+-.+$"' autoscale.json > tmp_autoscale.json || exit 1
+    jq '.valid_hostnames=["^.+-.+$"]' autoscale.json > tmp_autoscale.json || exit 1
     cp tmp_autoscale.json autoscale.json
     jq '.' autoscale.json || exit 1
     rm tmp_autoscale.json
