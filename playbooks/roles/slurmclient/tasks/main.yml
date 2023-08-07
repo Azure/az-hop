@@ -23,14 +23,14 @@
 - name: add slurm group 
   group:
     name: slurm
-    gid: '{{ slurm_uid }}'
+    gid: '{{ slurm_gid }}'
     state: present
 
 - name: add slurm user
   user:
     name: slurm 
     group: slurm
-    uid: '{{ slurm_gid }}'
+    uid: '{{ slurm_uid }}'
     state: present
 
 - name: create a symbolic link for slurm config dir
