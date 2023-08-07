@@ -70,11 +70,13 @@
   args:
     chdir: /tmp/cyclecloud-pbspro
 
-- name: change node timeout, default to 15mn
+- name: change node timeout, default to 15mn, and accept all hostnames with a -
   shell: |
     jq '.idle_timeout={{autoscale.idle_timeout | default(900) }}' autoscale.json > tmp_autoscale.json || exit 1
     cp tmp_autoscale.json autoscale.json
     sed -i 's/pcpu_count/vcpu_count/g' autoscale.json
+    jq '.valid_hostnames="^.+-.+$"' autoscale.json > tmp_autoscale.json || exit 1
+    cp tmp_autoscale.json autoscale.json
     jq '.' autoscale.json || exit 1
     rm tmp_autoscale.json
   args:
@@ -95,7 +97,13 @@
     chmod +x /opt/cycle/pbspro/doqmgr.sh
     /opt/cycle/pbspro/doqmgr.sh 
 
-# TODO : Check if this is required with new version (20+)
+# Hook to replace environment variables which contains quotes as they are not supported by PBSPro 19 in the JSON output
+# To test it submit a job with the following command a shell session on the ondemand VM :
+#   qsub -l select=1:ncpus=1 -V -- /usr/bin/bash -c 'hostname'
+# Then validate the output of the job with the following command :
+# qstat -fx <jobid> -F json | jq
+#
+# Bug is fixed in version 20+
 - name: Register submission hook
   shell: |
     /opt/pbs/bin/qmgr -c "create hook submit"
@@ -103,6 +111,7 @@
     /opt/pbs/bin/qmgr -c "set hook submit event = queuejob"
   args:
     chdir: /opt/cycle/pbspro
+  when: openpbs_version == "19.1.1"
 
 # Configure cgroups for largeviz3d machines
 # Due to a bug in PBSPro when using hyperthreaded machines we had to use our own cgroups python script.
