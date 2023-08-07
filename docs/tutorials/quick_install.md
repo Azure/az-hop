@@ -138,6 +138,8 @@ During this task, you will prepare the **config.yml** file to configure the envi
    ```
 
 2. Review the **config.yml** file content, which describe the resources that will be provisioned. Use the following command to open the file in editor mode. You can leave the default configuration and just change the **project_name, location and resource_group** values.
+By default **PBS** is the scheduler selected to be installed but **SLURM** is also available. 
+You can change the scheduler in this file using the "queue_manager" variable.
 
     ```bash
     vim config.yml
