@@ -35,6 +35,7 @@ test('Linux Desktop', async ({ browser }) => {
     const context = await browser.newContext();
     // Create a page
     const page = await context.newPage();
+    page.on('dialog', dialog => dialog.accept());
     await page.goto('/', { waitUntil: 'networkidle' });
 
     await page.getByRole('button', { name: 'Interactive Apps' }).click();
@@ -45,8 +46,10 @@ test('Linux Desktop', async ({ browser }) => {
     await page.getByLabel('Maximum duration in hours of your remote session').fill('1');
     await page.getByLabel('Maximum duration in hours of your remote session').press('Tab');
     await page.getByRole('button', { name: 'Launch' }).click();
-    await page.getByRole('link', { name: ' Delete' }).click();
-    await page.getByRole('button', { name: 'Confirm' }).click();
+
+    await page.locator('#batch_connect_sessions div').filter({ hasText: /Linux Desktop/ }).getByRole('button', { name: 'Delete Linux Desktop Session' }).click();
+    //await page.getByRole('link', { name: 'Delete' }).click();
+    //await page.getByRole('button', { name: 'Confirm' }).click();
 
     await page.waitForLoadState('networkidle');
     await page.close()
@@ -60,15 +63,17 @@ test('CodeServer', async ({ browser }) => {
     const context = await browser.newContext();
     // Create a page
     const page = await context.newPage();
+    page.on('dialog', dialog => dialog.accept());
     await page.goto('/', { waitUntil: 'networkidle' });
 
     await page.getByRole('button', { name: 'Interactive Apps' }).click();
     await page.getByRole('link', { name: 'Code Server', exact: true }).click();
-    await page.getByRole('combobox', { name: 'Slot Type' }).selectOption('hb120v2');
+    await page.getByRole('combobox', { name: 'Slot Type' }).selectOption('hb120v3');
     await page.getByRole('combobox', { name: 'Slot Type' }).selectOption('execute');
     await page.getByRole('button', { name: 'Launch' }).click();
-    await page.getByRole('link', { name: ' Delete' }).click();
-    await page.getByRole('button', { name: 'Confirm' }).click();
+    await page.locator('#batch_connect_sessions div').filter({ hasText: /Code Server/ }).getByRole('button', { name: 'Delete Code Server Session' }).click();
+//    await page.getByRole('link', { name: ' Delete' }).click();
+//    await page.getByRole('button', { name: 'Confirm' }).click();
 
     await page.waitForLoadState('networkidle');
     await page.close()
