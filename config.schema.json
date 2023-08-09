@@ -1025,6 +1025,7 @@
             "additionalProperties": false,
             "properties": {
                 "vm_size": { "type": "string" },
+                "name": { "type": "string" },
                 "generate_certificate": { "type": "boolean", "default": true },
                 "fqdn": { "type": "string" }
             },
