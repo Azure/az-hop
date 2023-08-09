@@ -36,8 +36,10 @@ function build() {
         autoconf automake gcc-c++ git jq
 
     cd /mnt
+    rm -rf hwloc
     git clone https://github.com/open-mpi/hwloc.git -b v1.11
     cd hwloc
+    ./autogen.sh
     ./configure --enable-static --enable-embedded-mode
     make
     cd ..
