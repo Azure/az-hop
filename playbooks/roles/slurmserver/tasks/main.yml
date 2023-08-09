@@ -301,7 +301,7 @@
 - name: install cc autoscale api
   shell: |
       /opt/cycle/jetpack/system/embedded/bin/pip install /opt/cycle/slurm/cyclecloud_api-8.1.0-py2.py3-none-any.whl  2>&1
-      /opt/cycle/slurm/cyclecloud_slurm.sh initialize --cluster-name slurm1 --username "{{ cc_admin }}" --password "{{ cc_password }}" --url https://ccportal:9443/cyclecloud
+      /opt/cycle/slurm/cyclecloud_slurm.sh initialize --cluster-name slurm1 --username "{{ cc_admin }}" --password "{{ cc_password }}" --url https://{{ccportal_name}}:9443/cyclecloud
   args:
     creates: /opt/cycle/jetpack/config/autoscale.json
 

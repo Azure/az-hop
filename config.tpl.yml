@@ -237,6 +237,7 @@ scheduler:
   vm_size: Standard_B2ms
 # CycleCloud VM configuration
 cyclecloud:
+  name: ccportal
   vm_size: Standard_B2ms
   # version: 8.4.0-3122 # to specify a specific version, see https://packages.microsoft.com/yumrepos/cyclecloud/
   # Optional: use Ubuntu for the CycleCloud VM (default: linux_base_image)

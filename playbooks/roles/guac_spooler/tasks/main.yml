@@ -134,7 +134,7 @@
     /tmp/cyclecloud-guac/install.sh  --venv /opt/cycle/guac/venv --install-venv
     /tmp/cyclecloud-guac/generate_autoscale_json.sh  --install-dir /opt/cycle/guac \
                 --username {{ guac_spooler_admin_user }} --password "{{ admin_password.stdout }}" \
-                --url https://ccportal:9443/cyclecloud --cluster-name remoteviz \
+                --url https://{{ccportal_name}}:9443/cyclecloud --cluster-name remoteviz \
                 --spool-dir {{ guac_spooler_mountpoint }}/guac-spool \
                 --vaultname "{{ guac_spooler_key_vault }}"
   args:

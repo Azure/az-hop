@@ -251,7 +251,7 @@
 
   - name: setup cyclecloud proxy
     shell: |
-        if ! grep -q ccportal /opt/ood/ood-portal-generator/templates/ood-portal.conf.erb; then
+        if ! grep -q {{ccportal_name}} /opt/ood/ood-portal-generator/templates/ood-portal.conf.erb; then
           cd /root
           cat << EOF > cyclecloud_proxy
           SetEnv OOD_CC_URI "/cyclecloud"
@@ -262,8 +262,8 @@
             AuthPAMService ood
             Require valid-user
 
-            ProxyPass http://ccportal:80/cyclecloud
-            ProxyPassReverse http://ccportal:80/cyclecloud
+            ProxyPass http://{{ccportal_name}}:80/cyclecloud
+            ProxyPassReverse http://{{ccportal_name}}:80/cyclecloud
           </Location>
         EOF
           sed -i '$e cat cyclecloud_proxy' /opt/ood/ood-portal-generator/templates/ood-portal.conf.erb
