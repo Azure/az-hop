@@ -233,6 +233,7 @@ guacamole:
   vm_size: Standard_B2ms
 # Scheduler VM configuration
 scheduler:
+  name: scheduler
   vm_size: Standard_B2ms
 # CycleCloud VM configuration
 cyclecloud:

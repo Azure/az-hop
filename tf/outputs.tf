@@ -60,6 +60,7 @@ resource "local_file" "global_variables" {
       domain-name         = local.domain_name
       domain_join_user    = local.domain_join_user
       ldap-server         = "${local.ldap_server}.${local.domain_name}"
+      scheduler-name      = local.scheduler_name
     }
   )
   filename = "${local.playbook_root_dir}/group_vars/all.yml"
