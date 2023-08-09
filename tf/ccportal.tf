@@ -63,7 +63,7 @@ resource "azurerm_linux_virtual_machine" "ccportal" {
 }
 
 resource "azurerm_managed_disk" "ccportal_datadisk" {
-  name                 = "ccportal-datadisk0"
+  name                 = "${local.ccportal_name}-datadisk0"
   location             = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name  = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   storage_account_type = "Premium_LRS"
