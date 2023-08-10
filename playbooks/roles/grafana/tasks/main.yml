@@ -22,6 +22,11 @@
     src: '{{role_path}}/dashboards'
     dest: '{{ grafana_paths_provisioning }}/dashboards'
 
+- name: Copy templated dashboard file
+  template:
+    src: azhop_infra_servers.json.j2
+    dest: '{{ grafana_paths_provisioning }}/dashboards/azhop_infra_servers.json'
+
 - name: Start and enable the Grafana service
   service:
     name: grafana-server
