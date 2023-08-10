@@ -7,7 +7,7 @@ clusters:
       login:
         host: '{{ondemand_name}}'
       job:
-        host: scheduler
+        host: '{{scheduler_name}}'
       batch_connect:
         min_port: 61001
         max_port: 61010
