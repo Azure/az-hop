@@ -281,6 +281,7 @@ var config = {
     {
       ondemand: {
         subnet: 'frontend'
+        name: contains(azhopConfig.ondemand, 'name') ? azhopConfig.ondemand.name : 'ondemand'
         sku: azhopConfig.ondemand.vm_size
         osdisksku: 'StandardSSD_LRS'
         image: 'linux_base'
@@ -292,6 +293,7 @@ var config = {
       }
       ccportal: {
         subnet: 'admin'
+        name: contains(azhopConfig.cyclecloud, 'name') ? azhopConfig.cyclecloud.name : 'ccportal'
         sku: azhopConfig.cyclecloud.vm_size
         osdisksku: 'StandardSSD_LRS'
         image: 'cyclecloud_base'
@@ -312,6 +314,7 @@ var config = {
       }
       scheduler: {
         subnet: 'admin'
+        name: contains(azhopConfig.scheduler, 'name') ? azhopConfig.scheduler.name : 'scheduler'
         sku: azhopConfig.scheduler.vm_size
         osdisksku: 'StandardSSD_LRS'
         image: 'linux_base'
@@ -933,6 +936,9 @@ output azhopGlobalConfig object = union(
     key_vault_suffix              : substring(kvSuffix, 1, length(kvSuffix) - 1) // vault.azure.net - remove leading dot from env
     blob_storage_suffix           : 'blob.${environment().suffixes.storage}' // blob.core.windows.net
     jumpbox_ssh_port              : deployJumpbox ? config.vms.jumpbox.sshPort : 22
+    scheduler_name                : config.vms.scheduler.name
+    ondemand_name                 : config.vms.ondemand.name
+    ccportal_name                 : config.vms.ccportal.name
   },
   createComputeMI ? {
     compute_mi_id                 : resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', computemi.name)
