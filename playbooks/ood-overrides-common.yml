@@ -5,7 +5,7 @@ clusters:
       metadata:
         title: AZHOP - Cluster
       login:
-        host: ondemand
+        host: '{{ondemand_name}}'
       job:
         host: scheduler
       batch_connect:
