@@ -60,7 +60,7 @@ resource nic 'Microsoft.Network/networkInterfaces@2022-07-01' = {
 var datadisks = contains(vm, 'datadisks') ? vm.datadisks : []
 
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-11-01' = {
-  name: vm.name
+  name: name
   location: location
   plan: contains(image, 'plan') && empty(image.plan) == false ? {
     publisher: split(image.plan,':')[0]
@@ -109,7 +109,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-11-01' = {
     }
     osProfile: union(
       {
-        computerName: vm.name
+        computerName: name
         adminUsername: adminUser
       }, contains(vm, 'deploy_script') ? { // deploy script
         customData: base64(vm.deploy_script)
