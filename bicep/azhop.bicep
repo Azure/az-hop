@@ -677,7 +677,7 @@ module azhopVm './vm.bicep' = [ for vm in vmItems: {
   name: 'azhopVm${vm.key}'
   params: {
     location: location
-    name: contains(vm, 'name') ? vm.name : vm.key
+    name: contains(vm.value, 'name') ? vm.value.name : vm.key
     vm: vm.value
     image: config.images[vm.value.image]
     subnetId: subnetIds[vm.value.subnet]
