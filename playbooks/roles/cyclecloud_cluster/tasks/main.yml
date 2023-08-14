@@ -107,6 +107,12 @@
         src: '{{role_path}}/projects/openpbs/cluster-init'
         dest: '{{openpbs_project_root}}/specs/default/'
 
+    - name: Create installpbs.sh script
+      template:
+        src: '{{role_path}}/projects/openpbs/cluster-init/scripts/2-installpbs.sh.j2'
+        dest: '{{openpbs_project_root}}/specs/default/cluster-init/scripts/2-installpbs.sh'
+        mode: 0777
+
     - name: Upload OpenPBS CycleCloud project
       command: '/usr/local/bin/cyclecloud project upload'
       args:

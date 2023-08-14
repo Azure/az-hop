@@ -230,7 +230,7 @@
       apply:
         become: true
     vars:
-      pbs_server: scheduler
+      pbs_server: {{scheduler_name}}
     when: (queue_manager == "openpbs" or queue_manager is not defined)
 
   - name: Run the munge role
