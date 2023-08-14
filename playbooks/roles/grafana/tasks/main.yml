@@ -25,12 +25,12 @@
 - name: Copy infra dashboard file
   template:
     src: azhop_infra_servers.json.j2
-    dest: '{{ grafana_paths_provisioning }}/dashboards/azhop_infra_servers.json'
+    dest: '{{ grafana_paths_provisioning }}/dashboards/dashboards/azhop_infra_servers.json'
 
 - name: Copy apache dashboard file
   template:
     src: apache.json.j2
-    dest: '{{ grafana_paths_provisioning }}/dashboards/apache.json'
+    dest: '{{ grafana_paths_provisioning }}/dashboards/dashboards/apache.json'
 
 - name: Start and enable the Grafana service
   service:
