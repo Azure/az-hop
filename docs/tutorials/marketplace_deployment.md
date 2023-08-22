@@ -1,17 +1,19 @@
 <!--ts-->
-* [Quick Installation Guide](#quick-installation-guide)
-   * [Requirements](#requirements)
-   * [Before the hands-on lab](#before-the-hands-on-lab)
-      * [Task 1: Validate the owner role assignment in the Azure subscription](#task-1-validate-the-owner-role-assignment-in-the-azure-subscription)
-   * [Quick installation of the Azure HPC OnDemand Platform environment](#quick-installation-of-the-azure-hpc-ondemand-platform-environment)
-      * [Task 1: Set up WSL2](#task-1-set-up-wsl2)
-      * [Task 2: Validate a sufficient number of vCPU cores](#task-2-validate-a-sufficient-number-of-vcpu-cores)
-      * [Task 3: Installing the toolchain in the Linux system](#task-3-installing-the-toolchain-in-the-linux-system)
-      * [Task 4: Login in Azure](#task-4-login-in-azure)
-      * [Task 5 : Prepare the configuration file to build the environment](#task-5-prepare-the-configuration-file-to-build-the-environment)
-      * [Task 6: Deploy the resources and install apps](#task-6-deploy-the-resources-and-install-apps)
-      * [Task 7: Access the Azure HPC On-Demand Platform dashboard](#task-7-access-the-azure-hpc-on-demand-platform-dashboard)
-   * [Deprovision Azure HPC OnDemand Platform environment](#deprovision-azure-hpc-ondemand-platform-environment)
+* [Marketplace deployment](#marketplace-deployment)
+* [Deployment steps](#deployment-steps)
+   * [Basics](#basics)
+   * [Authentication](#authentication)
+   * [Home Directory](#home-directory)
+   * [Network](#network)
+   * [Scheduler](#scheduler)
+   * [Review](#review)
+* [Access OnDemand](#access-ondemand)
+   * [Retrieve credentials](#retrieve-credentials)
+      * [Granting Permissions](#granting-permissions)
+      * [Read password](#read-password)
+   * [Retrieve URL](#retrieve-url)
+   * [Testing](#testing)
+
 <!--te-->
 <!-- https://github.com/ekalinin/github-markdown-toc -->
 <!-- ./gh-md-toc --insert --no-backup --hide-footer -->
@@ -93,7 +95,7 @@ AzHop offers [Open PBS](https://learn.microsoft.com/en-us/azure/cyclecloud/openp
 
 **Next**
 
-## Review + create
+## Review
 Validate that the sumnmary configuration is looking as expected and select "Create" to initiate the installation process.
 
 # Access OnDemand
