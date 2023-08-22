@@ -17,9 +17,6 @@
 <!--te-->
 <!-- https://github.com/ekalinin/github-markdown-toc -->
 <!-- ./gh-md-toc --insert --no-backup --hide-footer -->
-
-
-[Quick Start](https://grafana.com/)
 # Marketplace deployment
 AzHop is now available in the Azure Marketplace allowing you to deploy the solution utilizing the installation process that you are familiar with like any other package in the Azure Marketplace.
 With this tutorial you will deploy the necessary architecture for AzHop to work in Azure.
