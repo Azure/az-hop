@@ -7,7 +7,16 @@ THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 port=$(find_port ${host})
 
 <%- if OodAppkit.clusters[context.cluster].job_config[:adapter] == 'pbspro' -%>
-# TODO : Use the job ID for the container name
+# use the job ID for the container name
 export CONTAINER_NAME=trame.$PBS_JOBID
+
+# replace '${gl}' with the appropriate value
+<%- if context.bc_slot_type == 'viz3d' or context.bc_slot_type == 'largeviz3d' -%>
+gl=egl
+<%- else -%>
+gl=osmesa
+<%- end -%>
+
+# get the container
 $THIS_DIR/get_container.sh <%=context.container_image%> $CONTAINER_NAME
 <%- end -%>
