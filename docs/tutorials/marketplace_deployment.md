@@ -35,7 +35,7 @@ This tutorial with create the following resources.
 Open your Microsoft Azure account and then go to the Azure Marketplace and **type** "Azhop" then **Enter**.
 From the search results **select** AzHop and then click on **Create**.
 
- ![image](_images/az-hop-marketplace-search.png)
+ ![image](../images/marketplace/az-hop-marketplace-search.png)
 
 ## Basics
 In the basics tab input the following parameters:
@@ -43,7 +43,7 @@ In the basics tab input the following parameters:
 - **Admin User** – Username for the cluster admin.
 - **Branch** - Specify the [AzHop Branch](https://github.com/Azure/az-hop/branches) you would like to deploy, "main" is the default one.
 
- ![image](_images/az-hop-marketplace-basics.png)
+ ![image](../images/marketplace/az-hop-marketplace-basics.png)
 
 **Next**
 
@@ -54,7 +54,7 @@ For the authentication section we have two options available, "Active Directory"
 
 The recommended configuration is to select Active Directory, this will allow you to manage users in multiple locations in one place.
 
- ![image](_images/az-hop-marketplace-authentication.png)
+ ![image](../images/marketplace/az-hop-marketplace-authentication.png)
 
 **Next**
 
@@ -66,7 +66,7 @@ For this tutorial the recommendation is to use Azure Files.
 - **Mount point** - Is where the drive will be mounted. Default value is "/clusterhome".
 - **Capacity** - Size of the drive that will be mounted. Defauilt value is "1024GB".
 
- ![image](_images/az-hop-marketplace-directory.png)
+ ![image](../images/marketplace/az-hop-marketplace-directory.png)
 
 **Next**
 
@@ -76,7 +76,7 @@ AzHop have the option to allow access through public IP as well as to customize 
 - **CIDR Prefix** - This will determine the amount of nodes available. Default value is "/24"
 - **Base IP Address** - Address space to use in the VNET hosting AzHop. Default value is "10.0.0.0".
 
- ![image](_images/az-hop-marketplace-network.png)
+ ![image](../images/marketplace/az-hop-marketplace-network.png)
 
 **Next**
 
@@ -88,7 +88,7 @@ AzHop offers [Open PBS](https://learn.microsoft.com/en-us/azure/cyclecloud/openp
 - **Scheduler** - Default value is "SLURM"
 - **SLURM accounting** - Default value is "Checked"
 
- ![image](_images/az-hop-marketplace-slurm.png)
+ ![image](../images/marketplace/az-hop-marketplace-slurm.png)
 
 **Next**
 
@@ -103,14 +103,14 @@ During the deployment process, AzHop created a secure password to access the OnD
 1.- Go to the resource group created and open the KeyVault.
 2.- Once in the KeyVault select "Access Policies" from the sidebar and then Create.
 
- ![image](_images/az-hop-marketplace-keyvault.png)
+ ![image](../images/marketplace/az-hop-marketplace-keyvault.png)
 
 3.- From the dropdown-list select "Key, Secret & Certificate Management" to create a policy with those permissions and click "Next"
 4.- Under the Principal Tab search for the account you are using to access the Azure environment. Once that you find it, select it and click "Next".
 5.- Skip the "Application" tab by clicking "Next".
 6.- Review the policy details and click "Create".
 
- ![image](_images/az-hop-marketplace-kpolicy.png)
+ ![image](../images/marketplace/az-hop-marketplace-kpolicy.png)
 
 This process will create a KeyVault policy and grant you access to read the "Secrets" which is where the credentials got save during the installation.
 
@@ -119,11 +119,11 @@ In the same KeyVault go to Secrets and then look for the item "clusteradmin-pass
 
 1.- Select the item under "CURRENT VERSION".
 
- ![image](_images/az-hop-marketplace-ksec.png)
+ ![image](../images/marketplace/az-hop-marketplace-ksec.png)
 
 2.- That will open the secret details, now select "Show Secret Value" to visualize the secure password and click on the copy icon to "Copy" the password.
 
- ![image](_images/az-hop-marketplace-kpass.png)
+ ![image](../images/marketplace/az-hop-marketplace-kpass.png)
 
 3.- Select "Close" to exit this view securely.
 
@@ -133,7 +133,7 @@ As instructed during the configuration process, AzHop create a Public IP to acce
 1.- Go back to the resource group for AzHop and find the "ondemand-pip" Public IP address item.
 2.- The URL will be under the essentials section next to the "DNS Name".
 
- ![image](_images/az-hop-marketplace-pip.png)
+ ![image](../images/marketplace/az-hop-marketplace-pip.png)
 
 ## Testing
 With this steps you should have:
@@ -146,8 +146,8 @@ Which is all you need to access the OnDemand platform.
 Go to your WebBrowser and insert the OnDemand URL and enter the credentials to access.
 >Note: It may take a few minutes to finish the installation process, after that the system should work as expected.
 
- ![image](_images/az-hop-marketplace-login.png)
+ ![image](../images/marketplace/az-hop-marketplace-login.png)
 
 Voila! AzureHPC OnDemand should be ready to use.
 
- ![image](_images/az-hop-marketplace-dash.png)
+ ![image](../images/marketplace/az-hop-marketplace-dash.png)
