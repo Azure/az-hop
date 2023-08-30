@@ -1,6 +1,6 @@
-linux_base_image: "almalinux:almalinux-hpc:8_7-hpc-gen2:latest" # publisher:offer:sku:version or image_id
+linux_base_image: almalinux:almalinux-x86_64:8_7-gen2:latest # almalinux:almalinux-hpc:8_7-hpc-gen2:latest # publisher:offer:sku:version or image_id
 # linux image plan if required, format is publisher:product:name
-linux_base_plan: almalinux:almalinux-hpc:8_7-hpc-gen2
+linux_base_plan: almalinux:almalinux-x86_64:8_7-gen2 #almalinux:almalinux-hpc:8_7-hpc-gen2
 
 queues:
   - name: execute
