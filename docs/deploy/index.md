@@ -581,6 +581,7 @@ ad:
   high_availability: false # Build AD in High Availability mode (2 Domain Controllers) - default to false
 # On demand VM configuration
 ondemand:
+  name: ondemand # When provided, it will be used as the name of the VM. Default to ondemand
   vm_size: Standard_D4s_v5
   #fqdn: azhop.foo.com # When provided it will be used for the certificate server name
   generate_certificate: true # Generate an SSL certificate for the OnDemand portal. Default to true
@@ -592,9 +593,11 @@ guacamole:
   vm_size: Standard_B2ms
 # Scheduler VM configuration
 scheduler:
+  name: scheduler # When provided, it will be used as the name of the scheduler VM. Default to scheduler
   vm_size: Standard_B2ms
 # CycleCloud VM configuration
 cyclecloud:
+  name: ccportal # When provided, it will be used as the name of the CycleCloud VM. Default to ccportal
   vm_size: Standard_B2ms
   # Optional: use Ubuntu for the CycleCloud VM (default: linux_base_image)
   # image: "canonical:0001-com-ubuntu-server-focal:20_04-lts-gen2:latest"
