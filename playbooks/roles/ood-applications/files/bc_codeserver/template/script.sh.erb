@@ -15,10 +15,11 @@ end
 if ! which code-server; then
     mkdir -p /mnt/resource/$USER
     pushd /mnt/resource/$USER
-    curl -fsSL https://code-server.dev/install.sh | sh -s -- --version 4.8.3 --method standalone
+    curl -fsSL https://code-server.dev/install.sh | sh -s -- --version 4.8.3 --method standalone --prefix /mnt/resource/$USER
     popd
 fi
 
+export PATH=/mnt/resource/$USER/bin:$PATH
 CODE_SERVER_DATAROOT="$HOME/.local/share/code-server"
 
 # Expose the password to the server.
