@@ -36,6 +36,11 @@ on:
         description: "Monitoring agent - ['ama', 'grafana', 'none'] - Default to ['grafana']"
         required: false
         default: "['grafana']" # use it with ${{ github.event.inputs.monitoring }}
+      infra_os:
+        description: "Infrastructure OS - ['centos', 'almalinux'] - Default to ['centos']"
+        required: false
+        default: "['centos']" # use it with ${{ github.event.inputs.infra_os }}
+
 jobs:
   deploy:
     strategy:
@@ -46,6 +51,7 @@ jobs:
         home_type: ${{ fromJson( github.event.inputs.home_type_list ) }}
         user_auth: ${{ fromJson( github.event.inputs.user_auth_list ) }}
         monitoring: ${{ fromJson( github.event.inputs.monitoring ) }}
+        infra_os: ${{ fromJson( github.event.inputs.infra_os ) }}
     uses: ./.github/workflows/z_base_callable.yml
     with:
       resource_group: ${{ github.event.inputs.resource_group }}
@@ -59,6 +65,7 @@ jobs:
       clean: ${{ github.event.inputs.clean }}
       ui_tests: ${{ github.event.inputs.ui_tests }}
       monitoring: ${{ matrix.monitoring }}
+      infra_os: ${{ matrix.infra_os }}
     secrets:
       ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
       ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}

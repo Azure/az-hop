@@ -48,6 +48,11 @@ on:
         required: false
         default: 'grafana' # use it with ${{ inputs.monitoring }}
         type: string
+      infra_os:
+        description: 'Operating System for the infrastructure: centos/almalinux - Default to centos'
+        required: false
+        default: 'centos' # use it with ${{ inputs.infra_os }}
+        type: string
     outputs:
       resource_group:
         description: 'Resource group name'
@@ -128,6 +133,10 @@ jobs:
           else
             # Update the default configuration with the resource group name and dual protocol options
             sed "s/__RESOURCE_GROUP__/$RESOURCE_GROUP/g" $AZHOP_CONFIGURATION > config.yml
+
+            # Add Infra VM OS configuration
+            INFRA_OS=${{ inputs.infra_os }}
+            cat $AZHOP_CONFIGURATION_DIR/$INFRA_OS.yml >> config.yml
 
             # Add scheduler configuration
             SCHEDULER=${{ inputs.scheduler }}

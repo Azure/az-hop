@@ -63,7 +63,11 @@ on:
         required: false
         default: 'true' # use it with ${{ inputs.clean }}
         type: string
-
+      infra_os:
+        description: 'Operating System for the infrastructure: centos/almalinux - Default to centos'
+        required: false
+        default: 'centos' # use it with ${{ inputs.infra_os }}
+        type: string
     secrets:
       ARM_SUBSCRIPTION_ID:
         required: true
@@ -86,6 +90,7 @@ jobs:
       winviz: ${{ inputs.winviz }}
       user_auth: ${{ inputs.user_auth }}
       monitoring: ${{ inputs.monitoring }}
+      infra_os: ${{ inputs.infra_os }}
     secrets:
       ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
       ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
