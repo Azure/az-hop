@@ -9,7 +9,7 @@ function install_or_build() {
     local version=$1
     case $version in
         19)
-            build
+            build19
             ;;
         20|22)
             install
@@ -26,7 +26,7 @@ function install() {
     dnf install -y https://github.com/Azure/cyclecloud-pbspro/releases/download/${cyclecloud_pbspro}/openpbs-execution-${openpbs_version}-0.x86_64.rpm jq
 }
 
-function build() {
+function build19() {
     [ -d /opt/pbs ] && exit 0
 
     dnf install -y gcc make rpm-build libtool hwloc-devel \
