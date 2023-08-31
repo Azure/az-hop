@@ -177,6 +177,8 @@ locked_down_network:
   public_ip: true # Enable public IP creation for Jumpbox, OnDemand and create images. Default to true
 
 # Base image configuration. Can be either an image reference or an image_id from the image registry or a custom managed image
+# For AlmaLinux 8.7 use almalinux:almalinux-x86_64:8_7-gen2:latest
+# For CentOS 7.9 use OpenLogic:CentOS:7_9-gen2:latest
 linux_base_image: "OpenLogic:CentOS:7_9-gen2:latest" # publisher:offer:sku:version or image_id
 # linux image plan if required, format is publisher:product:name
 #linux_base_plan:
