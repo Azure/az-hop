@@ -393,6 +393,7 @@ var config = {
     deployGrafana ? {
       grafana: {
         subnet: 'admin'
+        name: contains(azhopConfig.grafana, 'name') ? azhopConfig.grafana.name : 'grafana'
         sku: azhopConfig.grafana.vm_size
         osdisksku: 'StandardSSD_LRS'
         image: 'linux_base'
