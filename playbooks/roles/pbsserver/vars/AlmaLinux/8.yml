@@ -1,0 +1,3 @@
+openpbs_version: 22.05.11
+openpbs_package: "null"
+openpbs_server_rpm: https://github.com/Azure/cyclecloud-pbspro/releases/download/{{cyclecloud_pbspro}}/openpbs-server-{{openpbs_version}}-0.x86_64.rpm

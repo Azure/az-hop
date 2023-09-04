@@ -1,0 +1,4 @@
+munge_packages: 
+  - munge
+  - munge-libs
+  - munge-devel

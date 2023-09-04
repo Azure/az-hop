@@ -1,0 +1,19 @@
+---
+
+- name: Install mod_authnz_pam
+  yum:
+    name: mod_authnz_pam
+    state: latest
+    lock_timeout : 180
+
+- name: Set up PAM authentication
+  shell: |
+    mkdir -p /opt/rh/httpd24/root/usr/lib64/httpd/modules/
+    cp /usr/lib64/httpd/modules/mod_authnz_pam.so /opt/rh/httpd24/root/usr/lib64/httpd/modules/
+    mkdir -p /opt/rh/httpd24/root/etc/httpd/conf.modules.d
+    echo "LoadModule authnz_pam_module modules/mod_authnz_pam.so" > /opt/rh/httpd24/root/etc/httpd/conf.modules.d/55-authnz_pam.conf
+    cp /etc/pam.d/sshd /etc/pam.d/ood
+    chmod 640 /etc/shadow
+    chgrp apache /etc/shadow
+  args:
+    creates: /etc/pam.d/ood

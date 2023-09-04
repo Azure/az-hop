@@ -1,4 +1,17 @@
 ---
+- name: Include distribution variables
+  block:
+    - name: Include distribution variables
+      ansible.builtin.include_vars: "{{ item }}"
+      with_first_found:
+        - "{{ ansible_distribution }}/{{ ansible_distribution_major_version }}.yml"
+        - "{{ ansible_distribution }}.yml"
+      tags: [ 'always' ]
+  rescue:
+    - name: Change error message
+      ansible.builtin.fail:
+        msg: "unable to find anything in vars/ for this operating system! {{ ansible_distribution }}"
+
 - name: debug
   debug:
     msg:
@@ -30,8 +43,9 @@
 
 - name: install munge
   yum:
-    name: munge, munge-libs, munge-devel
+    name: '{{item}}'
     lock_timeout : 180
+  loop: '{{munge_packages}}'
 
 - name: check local munge dir
   file:

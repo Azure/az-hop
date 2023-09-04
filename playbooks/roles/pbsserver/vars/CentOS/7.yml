@@ -1,0 +1,3 @@
+openpbs_version: 19.1.1
+openpbs_package: https://github.com/openpbs/openpbs/releases/download/v{{openpbs_version}}/pbspro_{{openpbs_version}}.centos7.zip
+openpbs_server_rpm: /mnt/resource/pbspro_{{openpbs_version}}.centos7/pbspro-server-{{openpbs_version}}-0.x86_64.rpm

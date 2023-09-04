@@ -13,3 +13,4 @@ munge_uid: 11101
 munge_gid: 11101
 cvmfs_eessi_enabled: false
 cc_enable_remote_winviz: false
+cyclecloud_openbps_release: 2.0.19
