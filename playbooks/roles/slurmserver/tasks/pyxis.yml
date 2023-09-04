@@ -25,7 +25,7 @@
 
 - name: copy the plugin to the share
   copy:
-    src: '{{tmp_pyxis_dir.path}}/pyxis-{{pyxis_version}}/spank_pyxis.so'
+    src: '/usr/lib64/slurm/spank_pyxis.so'
     dest: '{{homedir_mountpoint}}/slurm/'
     remote_src: yes
     mode: 0755
