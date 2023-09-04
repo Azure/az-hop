@@ -237,7 +237,7 @@
       apply:
         become: true
     vars:
-      cc_slurm_version: '{{slurm.slurm_version | default("20.11.9")}}-1'
+      slurm_version: '{{slurm.slurm_version | default("20.11.9")}}-1'
     when: ( queue_manager is defined and queue_manager == "slurm" )
 
   - name: setup cyclecloud proxy

@@ -1,0 +1,1 @@
+slurmd_package: 'slurm-{{slurm_version}}.el8.x86_64.rpm'
