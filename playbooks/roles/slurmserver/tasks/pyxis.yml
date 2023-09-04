@@ -20,12 +20,12 @@
   shell: make
   args:
     chdir: '{{tmp_pyxis_dir.path}}/pyxis-{{pyxis_version}}'
-    creates: /usr/lib64/slurm/spank_pyxis.so
+#    creates: /usr/lib64/slurm/spank_pyxis.so
   become: yes
 
 - name: copy the plugin to the share
   copy:
-    src: '/usr/lib64/slurm/spank_pyxis.so'
+    src: '{{tmp_pyxis_dir.path}}/pyxis-{{pyxis_version}}/spank_pyxis.so'
     dest: '{{homedir_mountpoint}}/slurm/'
     remote_src: yes
     mode: 0755
