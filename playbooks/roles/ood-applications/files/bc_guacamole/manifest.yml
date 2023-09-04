@@ -1,8 +1,0 @@
----
-name: Windows Desktop
-category: Interactive Apps
-subcategory: Desktops
-role: batch_connect
-description: |
-  This app will create a Windows desktop with RDP access
-icon: fa://windows

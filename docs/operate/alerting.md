@@ -1,7 +1,6 @@
 # Monitoring and Alerting
 The [Azure Monitor Agent](https://learn.microsoft.com/en-us/azure/azure-monitor/agents/agents-overview) can be installed on the following VMs to collect syslog messages and expose key metrics via [VM Insights](https://learn.microsoft.com/en-us/azure/azure-monitor/vm/vminsights-overview): 
 - Scheduler
-- Guacamole
 - CycleCloud
 - OnDemand
 - Jumpbox 

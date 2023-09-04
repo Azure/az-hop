@@ -182,23 +182,6 @@
       - SSLCertificateKeyFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.key"
       - "{{SSLCertificateChainFile | default(None)}}"
 
-  - name: Use custom ood_core for Winviz 
-    block:
-    - name: cleanup ood_core gem directory
-      file:
-        state: absent
-        path: "/opt/ood/ondemand/root/usr/share/gems/2.7/ondemand/{{ ondemand_version }}/gems/ood_core-{{ood_core_version}}"
-
-    - name: get the ood_core specific gem
-      git:
-        repo: "https://github.com/xpillons/ood_core.git"
-        dest: "/opt/ood/ondemand/root/usr/share/gems/2.7/ondemand/{{ ondemand_version }}/gems/ood_core-{{ood_core_version}}"
-        version: "azhop/{{ood_core_version}}"
-        force: yes
-    when: 
-      - ondemand_version == '2.0.29'
-      - enable_remote_winviz | default(false)
-
   - name: Copy logo
     copy: 
       src: logo.png

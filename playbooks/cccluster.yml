@@ -70,33 +70,6 @@
     become: false
     with_items: "{{queues}}"
 
-# Rewrite remoteviz.image propertie to include the image version number for images stored in the SIG
-  - name: Overwrite image version when needed
-    shell: |
-      # If image name end with /latest, then retrieve the image version from the SIG
-      image={{item.image}}
-      version=${image##*/}
-      if [ "$version" == "latest" ]; then
-        img_def=${image%/*}
-        img_name=${img_def##*/}
-        sig_rg=$(echo $image | cut -d'/' -f 5)
-        sig_name=$(echo $image | cut -d'/' -f 9)
-        img_id=$(az sig image-version list -g $sig_rg -r $sig_name -i $img_name --query "[].[publishingProfile.publishedDate, id]" -o tsv | sort -V -r | head -n1 | cut -f2 | xargs)
-        if [ "$img_id" == "" ]; then
-          echo "unable to retrieve image id for $img_name"
-          exit 1
-        else
-          echo "  {{item.name}}: $img_id" >> {{lookup_img_file}}
-        fi
-      fi
-    args:
-      executable: /bin/bash
-    delegate_to: localhost
-    connection: local
-    become: false
-    with_items: "{{remoteviz | default([])}}"
-    when: enable_remote_winviz | default(false)
-
   - name: Load lookup image version
     include_vars:
       file: '{{lookup_img_file}}'
@@ -127,7 +100,6 @@
       enroot_version: '{{enroot.enroot_version | default("3.4.1")}}'
       enroot_scratch_dir: '/mnt/resource'
       cvmfs_eessi_enabled: '{{cvmfs_eessi.enabled | default(false)}}'
-      cc_enable_remote_winviz: '{{enable_remote_winviz | default(false)}}'
 
   # Generate the node array core lookup file for ondemand - will be only run if the marker file for ondemand exists
   - import_tasks: nodearray_lookup.yml

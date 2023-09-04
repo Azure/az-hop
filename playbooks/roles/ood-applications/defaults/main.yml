@@ -5,7 +5,6 @@ ood_azhop_apps:
     - { name: "cyclecloud", enabled: true, initialized: true }
     - { name: "grafana", enabled: '{{true if ( monitoring.grafana | default(true) ) else false}}', initialized: true }
     - { name: "robinhood", enabled: '{{true if ( lustre.create | default(false) ) else false}}', initialized: true }
-    - { name: "bc_guacamole", enabled: '{{enable_remote_winviz | default(false)}}' }
     - { name: "bc_codeserver", enabled: '{{applications.bc_codeserver.enabled | default(true)}}' }
     - { name: "bc_jupyter", enabled: '{{ applications.bc_jupyter.enabled | default(true)}}' }
     - { name: "bc_amlsdk", enabled: '{{ applications.bc_amlsdk.enabled | default(false)}}' }
@@ -14,4 +13,3 @@ ood_azhop_apps:
     - { name: "bc_paraview", enabled: '{{applications.bc_paraview.enabled | default(false)}}' }
     - { name: "bc_rstudio", enabled: '{{applications.bc_rstudio.enabled | default(false)}}' }
     - { name: "bc_vizer", enabled: '{{applications.bc_vizer.enabled | default(false)}}' }
-    - { name: "dashboard", enabled: '{{enable_remote_winviz | default(false)}}' }

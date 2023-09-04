@@ -1,9 +1,0 @@
----
-clusters:
-  guacamole:
-    v2:
-      metadata:
-        title: Windows Remote Desktop
-      job:
-        adapter: guacamole
-

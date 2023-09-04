@@ -1,5 +1,0 @@
-guac_spooler_key_vault:
-guac_spooler_admin_user: hpcadmin
-guac_spooler_database_user: sqladmin
-guac_spooler_database_fqdn:
-guac_spooler_mountpoint: /anfhome

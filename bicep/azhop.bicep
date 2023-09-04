@@ -44,7 +44,6 @@ var deployLustre = contains(azhopConfig, 'lustre') && contains(azhopConfig.lustr
 var deployJumpbox = contains(azhopConfig, 'jumpbox') ? true : false
 var deployDeployer = contains(azhopConfig, 'deployer') ? true : false
 var deployGrafana = contains(azhopConfig, 'monitoring') && contains(azhopConfig.monitoring, 'grafana') ? azhopConfig.monitoring.grafana : true
-var enableWinViz = contains(azhopConfig, 'enable_remote_winviz') ? azhopConfig.enable_remote_winviz : false
 
 var useExistingAD = contains(azhopConfig, 'domain') ? azhopConfig.domain.use_existing_dc : false
 var userAuth = contains(azhopConfig, 'authentication') && contains(azhopConfig.authentication, 'user_auth') ? azhopConfig.authentication.user_auth : 'ad'
@@ -60,7 +59,7 @@ var lustreBasePlan = contains(azhopConfig, 'lustre_base_plan') ? azhopConfig.lus
 var cyclecloudBaseImage = contains(azhopConfig.cyclecloud, 'image') ? azhopConfig.cyclecloud.image : linuxBaseImage
 var cyclecloudBasePlan = contains(azhopConfig.cyclecloud, 'plan') ? azhopConfig.cyclecloud.plan : linuxBasePlan
 
-var createDatabase = (config.queue_manager == 'slurm' && config.slurm.accounting_enabled ) || config.enable_remote_winviz
+var createDatabase = (config.queue_manager == 'slurm' && config.slurm.accounting_enabled )
 
 var computeMIoption = contains(azhopConfig, 'compute_vm_identity')
 var createComputeMI = computeMIoption && contains(azhopConfig.compute_vm_identity, 'create') ? azhopConfig.compute_vm_identity.create : false
@@ -135,7 +134,6 @@ var config = {
 
   deploy_grafana: deployGrafana
 
-  enable_remote_winviz : enableWinViz
   deploy_sig: contains(azhopConfig, 'image_gallery') && contains(azhopConfig.image_gallery, 'create') ? azhopConfig.image_gallery.create : false
 
   // Default home directory is ANF
@@ -286,7 +284,7 @@ var config = {
         image: 'linux_base'
         pip: enablePublicIP
         asgs: union(
-          [ 'asg-ssh', 'asg-ondemand', 'asg-ad-client', 'asg-nfs-client', 'asg-pbs-client', 'asg-telegraf', 'asg-guacamole', 'asg-cyclecloud-client', 'asg-mariadb-client' ],
+          [ 'asg-ssh', 'asg-ondemand', 'asg-ad-client', 'asg-nfs-client', 'asg-pbs-client', 'asg-telegraf', 'asg-cyclecloud-client', 'asg-mariadb-client' ],
           deployLustre ? [ 'asg-lustre-client' ] : []
         )
       }
@@ -361,20 +359,6 @@ var config = {
         asgs: [ 'asg-ad', 'asg-rdp', 'asg-ad-client' ]
       }
     } : {} ,
-    enableWinViz ? {
-      guacamole: {
-      identity: {
-        keyvault: {
-          secret_permissions: [ 'Get', 'List' ]
-        }
-      }
-      subnet: 'admin'
-      sku: azhopConfig.guacamole.vm_size
-      osdisksku: 'StandardSSD_LRS'
-      image: 'linux_base'
-      asgs: [ 'asg-ssh', 'asg-ad-client', 'asg-telegraf', 'asg-nfs-client', 'asg-cyclecloud-client', 'asg-mariadb-client' ]
-      }
-    } : {},
     deployJumpbox ? {
       jumpbox: {
         subnet: 'frontend'
@@ -419,7 +403,7 @@ var config = {
     } : {}
   )
 
-  asg_names: union([ 'asg-ssh', 'asg-rdp', 'asg-jumpbox', 'asg-ad', 'asg-ad-client', 'asg-pbs', 'asg-pbs-client', 'asg-cyclecloud', 'asg-cyclecloud-client', 'asg-nfs-client', 'asg-telegraf', 'asg-robinhood', 'asg-ondemand', 'asg-deployer', 'asg-guacamole', 'asg-mariadb-client' ],
+  asg_names: union([ 'asg-ssh', 'asg-rdp', 'asg-jumpbox', 'asg-ad', 'asg-ad-client', 'asg-pbs', 'asg-pbs-client', 'asg-cyclecloud', 'asg-cyclecloud-client', 'asg-nfs-client', 'asg-telegraf', 'asg-robinhood', 'asg-ondemand', 'asg-deployer', 'asg-mariadb-client' ],
     deployLustre ? [ 'asg-lustre', 'asg-lustre-client' ] : [],
     deployGrafana ? [ 'asg-grafana' ] : []
   )
@@ -448,7 +432,6 @@ var config = {
     // HTTPS, AMQP
     CycleCloud: ['9443', '5672']
     MariaDB: ['3306', '33060']
-    Guacamole: ['8080']
     WinRM: ['5985', '5986']
   }
 
@@ -505,16 +488,12 @@ var config = {
       AllowWinRMIn                : ['520', 'Inbound', 'Allow', 'Tcp', 'WinRM', 'asg', 'asg-jumpbox', 'asg', 'asg-rdp']
       AllowRdpIn                  : ['550', 'Inbound', 'Allow', 'Tcp', 'Rdp', 'asg', 'asg-jumpbox', 'asg', 'asg-rdp']
       AllowWebDeployerIn          : ['595', 'Inbound', 'Allow', 'Tcp', 'Web', 'asg', 'asg-deployer', 'asg', 'asg-ondemand']
-    
-      // Guacamole
-      AllowGuacamoleRdpIn         : ['610', 'Inbound', 'Allow', 'Tcp', 'Rdp', 'asg', 'asg-guacamole', 'subnet', 'compute']
-    
+
       // MariaDB
       AllowMariaDBIn              : ['700', 'Inbound', 'Allow', 'Tcp', 'MariaDB', 'asg', 'asg-mariadb-client', 'subnet', 'admin']
 
       // Deny all remaining traffic
       DenyVnetInbound             : ['3100', 'Inbound', 'Deny', '*', 'All', 'tag', 'VirtualNetwork', 'tag', 'VirtualNetwork']
-    
     
       //
       // Outbound
@@ -570,10 +549,7 @@ var config = {
       AllowWinRMOut               : ['580', 'Outbound', 'Allow', 'Tcp', 'WinRM', 'asg', 'asg-jumpbox', 'asg', 'asg-rdp']
       AllowDnsOut                 : ['590', 'Outbound', 'Allow', '*', 'Dns', 'tag', 'VirtualNetwork', 'tag', 'VirtualNetwork']
       AllowWebDeployerOut         : ['595', 'Outbound', 'Allow', 'Tcp', 'Web', 'asg', 'asg-deployer', 'asg', 'asg-ondemand']
-    
-      // Guacamole
-      AllowGuacamoleRdpOut        : ['610', 'Outbound', 'Allow', 'Tcp', 'Rdp', 'asg', 'asg-guacamole', 'subnet', 'compute']
-      
+
       // MariaDB
       AllowMariaDBOut             : ['700', 'Outbound', 'Allow', 'Tcp', 'MariaDB', 'asg', 'asg-mariadb-client', 'subnet', 'admin']
       
@@ -828,7 +804,7 @@ module azhopMariaDB './mariadb.bicep' = if (createDatabase) {
     adminPassword: autogenerateSecrets ? kv.getSecret(azhopSecrets.outputs.secrets.databaseAdminPassword) : databaseAdminPassword
     adminSubnetId: subnetIds.admin
     vnetId: azhopNetwork.outputs.vnetId
-    sslEnforcement: config.enable_remote_winviz ? false : true // based whether guacamole is enabled (guac doesn't support ssl atm)
+    sslEnforcement: true
   }
 }
 
@@ -1017,11 +993,6 @@ output azhopInventory object = {
         }
         robinhood: {
           ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'robinhood')].outputs.privateIp
-        }
-      } : {},
-      config.enable_remote_winviz ? {
-        guacamole: {
-          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'guacamole')].outputs.privateIp
         }
       } : {},
       config.deploy_grafana ? {
