@@ -103,7 +103,7 @@
                 },
                 "grafana": {
                     "description": "Grafana VM configuration",
-                    "$ref": "#/definitions/Cyclecloud"
+                    "$ref": "#/definitions/Grafana"
                 },
                 "guacamole": {
                     "description": "Guacamole VM configuration",
@@ -1033,6 +1033,18 @@
                 "vm_size"
             ],
             "title": "Ondemand"
+        },
+        "Grafana": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "vm_size": { "type": "string" },
+                "name": { "type": "string" }
+            },
+            "required": [
+                "vm_size"
+            ],
+            "title": "Grafana"
         },
         "Queue": {
             "type": "object",

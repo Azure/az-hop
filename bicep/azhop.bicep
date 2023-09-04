@@ -939,6 +939,7 @@ output azhopGlobalConfig object = union(
     scheduler_name                : config.vms.scheduler.name
     ondemand_name                 : config.vms.ondemand.name
     ccportal_name                 : config.vms.ccportal.name
+    grafana_name                  : config.vms.grafana.name
   },
   createComputeMI ? {
     compute_mi_id                 : resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', computemi.name)

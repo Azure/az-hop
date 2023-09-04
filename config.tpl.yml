@@ -228,6 +228,7 @@ ondemand:
   generate_certificate: true # Generate an SSL certificate for the OnDemand portal. Default to true
 # Grafana VM configuration
 grafana:
+  name: grafana
   vm_size: Standard_B2ms
 # Guacamole VM configuration
 guacamole:

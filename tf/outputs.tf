@@ -63,6 +63,7 @@ resource "local_file" "global_variables" {
       scheduler-name      = local.scheduler_name
       ccportal-name       = local.ccportal_name
       ondemand-name       = local.ondemand_name
+      grafana-name        = local.grafana_name
     }
   )
   filename = "${local.playbook_root_dir}/group_vars/all.yml"

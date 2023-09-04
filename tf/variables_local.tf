@@ -216,6 +216,7 @@ locals {
     scheduler_name = try(local.configuration_yml["scheduler"]["name"], "scheduler")
     ccportal_name = try(local.configuration_yml["cyclecloud"]["name"], "ccportal")
     ondemand_name = try(local.configuration_yml["ondemand"]["name"], "ondemand")
+    grafana_name = try(local.configuration_yml["grafana"]["name"], "grafana")
     key_vault_name = try(local.configuration_yml["azure_key_vault"]["name"], format("%s%s", "kv", random_string.resource_postfix.result))
     storage_account_name = try(local.configuration_yml["azure_storage_account"]["name"], "azhop${random_string.resource_postfix.result}")
     mariadb_name = try(local.configuration_yml["database"]["name"], "azhop-${random_string.resource_postfix.result}")
