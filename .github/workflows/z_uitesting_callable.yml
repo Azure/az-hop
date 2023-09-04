@@ -51,7 +51,7 @@ jobs:
   #       password: ${{ env.ARM_CLIENT_SECRET }}
   #     options: --user 0
   #   steps:
-  #     - uses: actions/checkout@v3
+  #     - uses: actions/checkout@v4
   #       with:
   #         submodules: true
   #     - name: Login azure
@@ -96,7 +96,7 @@ jobs:
       options: --user 0
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v3.8.1
         with:
           node-version: '14.x'
