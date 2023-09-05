@@ -373,6 +373,7 @@ var config = {
         }
       }
       subnet: 'admin'
+      name: contains(azhopConfig.guacamole, 'name') ? azhopConfig.guacamole.name : 'guacamole'
       sku: azhopConfig.guacamole.vm_size
       osdisksku: 'StandardSSD_LRS'
       image: 'linux_base'

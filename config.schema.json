@@ -107,7 +107,7 @@
                 },
                 "guacamole": {
                     "description": "Guacamole VM configuration",
-                    "$ref": "#/definitions/Cyclecloud"
+                    "$ref": "#/definitions/Guacamole"
                 },
                 "scheduler": {
                     "description": "Scheduler VM configuration",
@@ -1051,6 +1051,18 @@
                 "vm_size"
             ],
             "title": "Grafana"
+        },
+        "Guacamole": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "vm_size": { "type": "string" },
+                "name": { "type": "string" }
+            },
+            "required": [
+                "vm_size"
+            ],
+            "title": "Guacamole"
         },
         "Queue": {
             "type": "object",
