@@ -121,7 +121,7 @@ jobs:
         run_telegraf_job: ${{ steps.deploy.outputs.run_telegraf_job }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
 
@@ -340,7 +340,7 @@ jobs:
       options: --user 0
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
         if: needs.deploy.outputs.run_ad_job == 'true'
@@ -376,7 +376,7 @@ jobs:
       options: --user 0
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
         if: needs.deploy.outputs.run_lustre_job == 'true'
@@ -412,7 +412,7 @@ jobs:
       options: --user 0
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
         if: needs.deploy.outputs.run_ood_job == 'true'
@@ -445,7 +445,7 @@ jobs:
       options: --user 0
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
         if: needs.deploy.outputs.run_grafana_job == 'true'
@@ -478,7 +478,7 @@ jobs:
       options: --user 0
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
         if: needs.deploy.outputs.run_cycle_job == 'true'
@@ -511,7 +511,7 @@ jobs:
       options: --user 0
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
         if: needs.deploy.outputs.run_addusers_job == 'true'
@@ -544,7 +544,7 @@ jobs:
       options: --user 0
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
         if: needs.deploy.outputs.run_cyclecluster_job == 'true'
@@ -578,7 +578,7 @@ jobs:
       options: --user 0
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
         if: needs.deploy.outputs.run_guacamole_job == 'true'
@@ -612,7 +612,7 @@ jobs:
       options: --user 0
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
         if: needs.deploy.outputs.run_telegraf_job == 'true'
@@ -647,7 +647,7 @@ jobs:
       options: --user 0
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
 
@@ -691,7 +691,7 @@ jobs:
       options: --user 0
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
         if: needs.deploy.outputs.run_image_job == 'true'
@@ -727,7 +727,7 @@ jobs:
       options: --user 0
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
         if: needs.deploy.outputs.run_tests_job == 'true'
@@ -761,7 +761,7 @@ jobs:
       options: --user 0
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Login azure
         run: |
