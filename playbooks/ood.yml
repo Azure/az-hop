@@ -13,6 +13,7 @@
     ood_core_version: 0.22.0
     yq_version: v4.25.3
     yq_binary: yq_linux_amd64
+    ccportal_name: "{{cyclecloud.name | default('ccportal')}}"
 
   tasks:
   - name: Wait 300 seconds for the nodes to be ready
@@ -230,7 +231,7 @@
       apply:
         become: true
     vars:
-      pbs_server: '{{scheduler_name}}'
+      pbs_server: '{{scheduler.name | default("scheduler")}}'
     when: (queue_manager == "openpbs" or queue_manager is not defined)
 
   - name: Run the munge role

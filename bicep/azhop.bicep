@@ -939,10 +939,6 @@ output azhopGlobalConfig object = union(
     key_vault_suffix              : substring(kvSuffix, 1, length(kvSuffix) - 1) // vault.azure.net - remove leading dot from env
     blob_storage_suffix           : 'blob.${environment().suffixes.storage}' // blob.core.windows.net
     jumpbox_ssh_port              : deployJumpbox ? config.vms.jumpbox.sshPort : 22
-    scheduler_name                : config.vms.scheduler.name
-    ondemand_name                 : config.vms.ondemand.name
-    ccportal_name                 : config.vms.ccportal.name
-    grafana_name                  : config.vms.grafana.name
   },
   createComputeMI ? {
     compute_mi_id                 : resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', computemi.name)

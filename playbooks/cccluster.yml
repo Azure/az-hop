@@ -118,7 +118,7 @@
       cc_queue_manager: '{{ queue_manager | default("openpbs") }}'
       influxdb_database_name: "telegraf"
       telegraf_influxdb_urls: 
-        - "http://{{grafana_name}}:8086"
+        - "http://{{grafana.name | default('grafana')}}:8086"
       cc_slurm_version: '{{slurm.slurm_version | default("20.11.9")}}-1'
       slurm_uid: 11100
       slurm_gid: 11100

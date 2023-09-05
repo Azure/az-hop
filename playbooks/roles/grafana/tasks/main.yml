@@ -26,11 +26,18 @@
   template:
     src: azhop_infra_servers.json.j2
     dest: '{{ grafana_paths_provisioning }}/dashboards/dashboards/azhop_infra_servers.json'
+    vars:
+      scheduler_name: "{{scheduler.name | default('scheduler')}}"
+      ccportal_name: "{{cyclecloud.name | default('ccportal')}}"
+      grafana_name: "{{grafana.name | default('grafana')}}"
+      ondemand_name: "{{ondemand.name | default('ondemand')}}"
 
 - name: Copy apache dashboard file
   template:
     src: apache.json.j2
     dest: '{{ grafana_paths_provisioning }}/dashboards/dashboards/apache.json'
+    vars:
+      ondemand_name: "{{ondemand.name | default('ondemand')}}"
 
 - name: Start and enable the Grafana service
   service:

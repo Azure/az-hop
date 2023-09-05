@@ -60,7 +60,7 @@
         influxdb_password: "{{password.stdout}}"
         influxdb_database_name: "telegraf"
         telegraf_influxdb_urls: 
-          - "http://{{grafana_name}}:8086"
+          - "http://{{grafana.name | default('grafana')}}:8086"
 
     - name: Configure chrony
       include_role:

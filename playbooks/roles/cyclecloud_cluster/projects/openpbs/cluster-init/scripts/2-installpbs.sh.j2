@@ -12,8 +12,8 @@ fi
 
 echo "Configuring PBS"
 
-sed -i 's/CHANGE_THIS_TO_PBS_PRO_SERVER_HOSTNAME/{{scheduler_name}}/' /etc/pbs.conf
-sed -i 's/CHANGE_THIS_TO_PBS_PRO_SERVER_HOSTNAME/{{scheduler_name}}/' /var/spool/pbs/mom_priv/config
+sed -i 's/CHANGE_THIS_TO_PBS_PRO_SERVER_HOSTNAME/{{scheduler.name | default("scheduler")}}/' /etc/pbs.conf
+sed -i 's/CHANGE_THIS_TO_PBS_PRO_SERVER_HOSTNAME/{{scheduler.name | default("scheduler")}}/' /var/spool/pbs/mom_priv/config
 sed -i "s/^if /#if /g" /opt/pbs/lib/init.d/limits.pbs_mom
 sed -i "s/^fi/#fi /g" /opt/pbs/lib/init.d/limits.pbs_mom
 
