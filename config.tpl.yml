@@ -233,7 +233,6 @@ grafana:
   vm_size: Standard_B2ms
 # Guacamole VM configuration
 guacamole:
-  name: guacamole
   vm_size: Standard_B2ms
 # Scheduler VM configuration
 scheduler:

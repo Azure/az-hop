@@ -21,10 +21,6 @@
   when: item.enabled
   loop: '{{ood_azhop_apps}}'
 
-- name: update guacamole config
-  command: sed -i 's/__GUACAMOLE__/{{guacamole.name | default("guacamole")}}/g' /var/www/ood/apps/sys/bc_guacamole/view.html.erb
-  when: enable_remote_winviz | default(false)
-
 - name: Initialize application
   file:
     path: /var/lib/ondemand-nginx/config/apps/sys/{{ item.name }}.conf

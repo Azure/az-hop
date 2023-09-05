@@ -1,6 +1,6 @@
 resource "azurerm_network_interface" "guacamole-nic" {
   count               = local.enable_remote_winviz ? 1 : 0
-  name                = "${local.guacamole_name}-nic"
+  name                = "guacamole-nic"
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
 
@@ -13,7 +13,7 @@ resource "azurerm_network_interface" "guacamole-nic" {
 
 resource "azurerm_linux_virtual_machine" "guacamole" {
   count               = local.enable_remote_winviz ? 1 : 0
-  name                = local.guacamole_name
+  name                = "guacamole"
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   size                = try(local.configuration_yml["guacamole"].vm_size, "Standard_B2ms")

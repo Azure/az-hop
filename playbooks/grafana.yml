@@ -74,7 +74,6 @@
           options:
             path: /etc/grafana/provisioning/dashboards
             foldersFromFilesStructure: true
-      guacamole_name: "{{guacamole.name | default('guacamole')}}"
 
   - name: update packages for security
     become: true
