@@ -18,8 +18,6 @@ all:
     grafana:
       ansible_host: ${grafana-ip}
 %{ endif }
-    guacamole:
-      ansible_host: ${guacamole-ip}
 %{ if ad-ip!="0.0.0.0" }
     ad:
       ansible_host: ${ad-ip}

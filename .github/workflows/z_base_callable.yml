@@ -28,11 +28,6 @@ on:
         required: false
         default: 'false' # use it with ${{ inputs.lustre }}
         type: string
-      winviz:
-        description: 'Enable Winviz (true/false) - Default to false'
-        required: false
-        default: 'false' # use it with ${{ inputs.winviz }}
-        type: string
       home_type:
         description: 'Home directory type anf/azurefiles- Default to anf'
         required: false
@@ -87,7 +82,6 @@ jobs:
       scheduler: ${{ inputs.scheduler }}
       lustre: ${{ inputs.lustre }}
       home_type: ${{ inputs.home_type }}
-      winviz: ${{ inputs.winviz }}
       user_auth: ${{ inputs.user_auth }}
       monitoring: ${{ inputs.monitoring }}
       infra_os: ${{ inputs.infra_os }}

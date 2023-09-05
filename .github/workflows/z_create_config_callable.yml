@@ -28,11 +28,6 @@ on:
         required: false
         default: 'false' # use it with ${{ inputs.lustre }}
         type: string
-      winviz:
-        description: 'Enable Winviz (true/false) - Default to false'
-        required: false
-        default: 'false' # use it with ${{ inputs.winviz }}
-        type: string
       home_type:
         description: 'Home directory type anf/azurefiles- Default to anf'
         required: false
@@ -156,12 +151,6 @@ jobs:
             DEPLOY_LUSTRE=${{ inputs.lustre }}
             if [ "$DEPLOY_LUSTRE" == "true" ]; then
               cat $AZHOP_LUSTRE_CONFIGURATION >> config.yml
-            fi
-
-            # Add winviz configuration if winviz is true
-            WINVIZ=${{ inputs.winviz }}
-            if [ "$WINVIZ" == "true" ]; then
-              cat $AZHOP_CONFIGURATION_DIR/winviz.yml >> config.yml
             fi
 
             # Add user authentication configuration

@@ -23,7 +23,6 @@ jobs:
       scheduler: ${{ matrix.scheduler }}
       lustre: 'false'
       home_type: ${{ matrix.home_type }}
-      winviz: 'false'
       user_auth: ${{ matrix.user_auth }}
       deploy_with: 'bicep'
       clean: 'true'

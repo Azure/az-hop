@@ -7,4 +7,3 @@ cc_ad_join_password:
 cc_queues:
 cc_remoteviz:
 cc_queue_manager: 'openpbs'
-cc_enable_remote_winviz: false

@@ -63,7 +63,6 @@ jobs:
       scheduler: ${{ inputs.scheduler }}
       lustre: 'false'
       home_type: ${{ inputs.home_type }}
-      winviz: 'false'
       user_auth: ${{ inputs.user_auth }}
       monitoring: ${{ inputs.monitoring }}
     secrets:
