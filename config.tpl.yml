@@ -210,6 +210,7 @@ domain:
 
 # Jumpbox VM configuration, only needed when deploying thru a public IP and without a configured deployer VM
 jumpbox:
+  name: jumpbox
   vm_size: Standard_B2ms
   # SSH port under which the jumpbox SSH server listens on the public IP. Default to 22
   # Change this to, e.g., 2222, if security policies (like "zero trust") in your tenant automatically block access to port 22 from the internet

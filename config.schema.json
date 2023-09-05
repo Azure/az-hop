@@ -673,6 +673,9 @@
                 "vm_size": {
                     "type": "string"
                 },
+                "name": {
+                    "type": "string"
+                },
                 "ssh_port": {
                     "description": "Defaults to 22. Change this to, e.g., 2222, if security policies (like 'zero trust') in your tenant automatically block access to port 22 from the internet",
                     "type": "integer"
@@ -688,6 +691,9 @@
             "additionalProperties": false,
             "properties": {
                 "vm_size": {
+                    "type": "string"
+                },
+                "name": {
                     "type": "string"
                 },
                 "ssh_port": {

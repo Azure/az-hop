@@ -335,6 +335,7 @@ var config = {
     deployDeployer ? {
       deployer: {
           subnet: 'frontend'
+          name: contains(azhopConfig, 'deployer') && contains(azhopConfig.deployer, 'name') ? azhopConfig.deployer.name : 'deployer'
           sku: azhopConfig.deployer.vm_size
           osdisksku: 'Standard_LRS'
           image: 'ubuntu'
@@ -381,6 +382,7 @@ var config = {
     deployJumpbox ? {
       jumpbox: {
         subnet: 'frontend'
+        name: contains(azhopConfig.jumpbox, 'name') ? azhopConfig.jumpbox.name : 'jumpbox'
         sku: azhopConfig.jumpbox.vm_size
         osdisksku: 'StandardSSD_LRS'
         image: 'linux_base'
