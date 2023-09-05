@@ -21,6 +21,10 @@
   when: item.enabled
   loop: '{{ood_azhop_apps}}'
 
+- name: update grafana config
+  command: sed -i 's/__GRAFANA__/{{grafana.name | default("grafana")}}/g' /var/www/ood/apps/sys/grafana/app.py
+  when: monitoring.grafana | default(true)
+
 - name: Initialize application
   file:
     path: /var/lib/ondemand-nginx/config/apps/sys/{{ item.name }}.conf
