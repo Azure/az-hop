@@ -222,29 +222,50 @@
                         print("slurm_nodes,partition="+partition+",state="+state+" nodes="+numnodes+"i")
 
             def squeue():
+                jobsp = {}
                 jobs_running = 0
                 jobs_pending = 0
                 jobs_configuring = 0
                 jobs_other = 0
-                for sinfo_line in subprocess.check_output(["/bin/squeue", "-h", "-o", "%a %D %T"]).split('\n'):
+                for sinfo_line in subprocess.check_output(["/bin/squeue", "-h", "-o", "%a %D %T %P"]).split('\n'):
                     data = sinfo_line.split(' ')
                     if (data[0] != ''):
                         account = data[0]
                         numnodes = data[1]
                         state = data[2]
+                        partition = data[3]
+
+                        if( partition not in jobsp ):
+                            jobsp[partition] = {}
+                            jobsp[partition]['RUNNING'] = 0
+                            jobsp[partition]['PENDING'] = 0
+                            jobsp[partition]['CONFIGURING'] = 0
+                            jobsp[partition]['OTHER'] = 0
+
                         # print("slurm2jobs,account="+account+",state="+state+" nodes="+numnodes+"i")
                         if state == 'RUNNING':
                             jobs_running += 1
+                            jobsp[partition]['RUNNING'] += 1
                         elif state == 'PENDING':
                             jobs_pending += 1
+                            jobsp[partition]['PENDING'] += 1
                         elif state == 'CONFIGURING':
                             jobs_configuring += 1
+                            jobsp[partition]['CONFIGURING'] += 1
                         else:
                             jobs_other += 1
+                            jobsp[partition]['OTHER'] += 1
+
                 print("slurm_jobs,state=RUNNING jobs="+str(jobs_running)+"i")
                 print("slurm_jobs,state=PENDING jobs="+str(jobs_pending)+"i")
                 print("slurm_jobs,state=CONFIGURING jobs="+str(jobs_configuring)+"i")
                 print("slurm_jobs,state=OTHER jobs="+str(jobs_other)+"i")
+
+                for key in jobsp:
+                    print("slurm_jobsp,partition="+key+",state=RUNNING jobs="+str(jobsp[key]['RUNNING'])+"i")
+                    print("slurm_jobsp,partition="+key+",state=PENDING jobs="+str(jobsp[key]['PENDING'])+"i")
+                    print("slurm_jobsp,partition="+key+",state=CONFIGURING jobs="+str(jobsp[key]['CONFIGURING'])+"i")
+                    print("slurm_jobsp,partition="+key+",state=OTHER jobs="+str(jobsp[key]['OTHER'])+"i")
 
             sinfo()
             squeue()
