@@ -20,7 +20,8 @@
         "name": "adminUser",
         "type": "Microsoft.Common.TextBox",
         "label": "Admin User",
-        "toolTip": "Admin user for the Virtual Machines.",
+        "defaultValue": "hpcadmin",
+        "toolTip": "Local admin user for the Virtual Machines.",
         "constraints": {
           "required": true,
           "regex": "^[a-zA-Z][a-zA-Z0-9_]{5,19}$",
@@ -147,7 +148,7 @@
             "name": "userAuthentication",
             "type": "Microsoft.Common.DropDown",
             "label": "User Authentication",
-            "defaultValue": "Active Directory",
+            "defaultValue": "Local users",
             "toolTip": "Select the method to authenticate users",
             "constraints": {
               "allowedValues": [
@@ -426,7 +427,7 @@
             "type": "Microsoft.Common.CheckBox",
             "label": "SLURM accounting",
             "toolTip": "Select to enable SLURM accounting",
-            "defaultValue": true,
+            "defaultValue": false,
             "visible": "[equals(steps('scheduler').scheduler, 'slurm')]"
           }
         ]
