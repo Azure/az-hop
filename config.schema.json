@@ -1133,9 +1133,9 @@
                 },
                 "cyclecloud_slurm_version": {
                     "type": "string",
-                    "enum": ["2.7.0", "2.7.1"],
-                    "default": "2.7.1",
-                    "description": "CycleCloud for SLURM project version as defined in https://github.com/Azure/cyclecloud-slurm/releases. Currently supported: only 2.7.0 and 2.7.1."
+                    "enum": ["2.7.0", "2.7.1", "2.7.2"],
+                    "default": "2.7.2",
+                    "description": "CycleCloud for SLURM project version as defined in https://github.com/Azure/cyclecloud-slurm/releases. Currently supported: 2.7.0-2.7.2."
                 }
             },
             "required": [
