@@ -517,7 +517,6 @@ network:
 #     asg-robinhood: asg-robinhood
 #     asg-ondemand: asg-ondemand
 #     asg-deployer: asg-deployer
-#     asg-guacamole: asg-guacamole
 #     asg-mariadb-client: asg-mariadb-client
     
 #  peering: # This list is optional, and can be used to create VNet Peerings in the same subscription.
@@ -537,6 +536,8 @@ locked_down_network:
   public_ip: true # Enable public IP creation for Jumpbox, OnDemand and create images. Default to true
 
 # Base image configuration. Can be either an image reference or an image_id from the image registry or a custom managed image
+# For AlmaLinux 8.7 use almalinux:almalinux-x86_64:8_7-gen2:latest
+# For CentOS 7.9 use OpenLogic:CentOS:7_9-gen2:latest
 linux_base_image: "OpenLogic:CentOS:7_9-gen2:latest" # publisher:offer:sku:version or image_id
 # linux image plan if required, format is publisher:product:name
 #linux_base_plan:
@@ -587,9 +588,6 @@ ondemand:
   generate_certificate: true # Generate an SSL certificate for the OnDemand portal. Default to true
 # Grafana VM configuration
 grafana:
-  vm_size: Standard_B2ms
-# Guacamole VM configuration
-guacamole:
   vm_size: Standard_B2ms
 # Scheduler VM configuration
 scheduler:
@@ -675,7 +673,7 @@ enroot:
 database:
   # Name of the Azure database resource to be created. If not provided, a name will be generated
   name: custom_mariadb_name
-  # If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values
+  # If using an existing Managed MariaDB instance for SLURM accounting, specify these values
   # Admin user of the database for which the password will be retrieved from the azhop keyvault
   user: sqladmin
   # FQDN of the managed instance
@@ -879,18 +877,6 @@ queues:
     EnableAcceleratedNetworking: true
     max_hours: 12
     min_hours: 1
-
-# Remote Visualization definitions
-enable_remote_winviz: false # Set to true to enable windows remote visualization
-
-remoteviz:
-  - name: winviz # This name is fixed and can't be changed
-    vm_size: Standard_NV12s_v3 # Standard_NV8as_v4 Only NVsv3 and NVsV4 are supported
-    max_core_count: 48
-    image: "MicrosoftWindowsDesktop:Windows-10:21h1-pron:latest"
-    ColocateNodes: false
-    spot: false
-    EnableAcceleratedNetworking: true
 
 # Application settings
 applications:
@@ -1550,7 +1536,7 @@ This script need to be run before the `install.sh` or at least before the `ood` 
 An existing instance of an Azure Database for MariaDB server can be used to store the Slurm accounting data and/or the Windows Remote Desktop session requests. To enable it update the configuration file with these settings :
 
 ```yml
-# If using an existing Managed MariaDB instance for Slurm accounting and/or Guacamole, specify these values
+# If using an existing Managed MariaDB instance for Slurm accounting, specify these values
 database:
   # Admin user of the database for which the password will be retrieved from the azhop keyvault
   user: sqladmin

@@ -27,7 +27,7 @@ if [ "$BUILD_FROM_SOURCE" == "yes" ] ; then
     chmod 4755 /opt/pbs/sbin/pbs_iff /opt/pbs/sbin/pbs_rcp
 else
     wget https://github.com/openpbs/openpbs/releases/download/v20.0.1/openpbs_20.0.1.centos_8.zip
-    unzip -o pbspro_19.1.1.centos7.zip
+    unzip -o openpbs_20.0.1.centos_8.zip
     dnf install epel-release -y
     dnf install -y openpbs_20.0.1.centos_8/openpbs-execution-20.0.1-0.x86_64.rpm jq
     rm -rf openpbs_20.0.1.centos_8.zip

@@ -3,7 +3,7 @@ common_project_root: '{{project_root}}/common'
 openpbs_project_root: '{{project_root}}/openpbs'
 enroot_project_root: '{{project_root}}/enroot'
 cc_queue_manager:
-cyclecloud_slurm_release: '{{slurm.cyclecloud_slurm_version | default("2.7.1")}}'
+cyclecloud_slurm_release: '{{slurm.cyclecloud_slurm_version | default("2.7.2")}}'
 slurm_version: '{{cc_slurm_version}}'
 # slurm uid/gid match cyclecloud-slurm cookbook values
 slurm_uid: 11100
@@ -12,4 +12,4 @@ slurm_gid: 11100
 munge_uid: 11101
 munge_gid: 11101
 cvmfs_eessi_enabled: false
-cc_enable_remote_winviz: false
+cyclecloud_openbps_release: 2.0.19

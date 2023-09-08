@@ -28,11 +28,6 @@ on:
         required: false
         default: 'false' # use it with ${{ inputs.lustre }}
         type: string
-      winviz:
-        description: 'Enable Winviz (true/false) - Default to false'
-        required: false
-        default: 'false' # use it with ${{ inputs.winviz }}
-        type: string
       home_type:
         description: 'Home directory type anf/azurefiles- Default to anf'
         required: false
@@ -47,6 +42,11 @@ on:
         description: 'Monitoring agent - ama, grafana, none - Default to grafana'
         required: false
         default: 'grafana' # use it with ${{ inputs.monitoring }}
+        type: string
+      infra_os:
+        description: 'Operating System for the infrastructure: centos/almalinux - Default to centos'
+        required: false
+        default: 'centos' # use it with ${{ inputs.infra_os }}
         type: string
     outputs:
       resource_group:
@@ -97,7 +97,7 @@ jobs:
         resource_group: ${{ steps.build_config.outputs.resource_group }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
 
@@ -129,6 +129,10 @@ jobs:
             # Update the default configuration with the resource group name and dual protocol options
             sed "s/__RESOURCE_GROUP__/$RESOURCE_GROUP/g" $AZHOP_CONFIGURATION > config.yml
 
+            # Add Infra VM OS configuration
+            INFRA_OS=${{ inputs.infra_os }}
+            cat $AZHOP_CONFIGURATION_DIR/$INFRA_OS.yml >> config.yml
+
             # Add scheduler configuration
             SCHEDULER=${{ inputs.scheduler }}
             cat $AZHOP_CONFIGURATION_DIR/$SCHEDULER.yml >> config.yml
@@ -147,12 +151,6 @@ jobs:
             DEPLOY_LUSTRE=${{ inputs.lustre }}
             if [ "$DEPLOY_LUSTRE" == "true" ]; then
               cat $AZHOP_LUSTRE_CONFIGURATION >> config.yml
-            fi
-
-            # Add winviz configuration if winviz is true
-            WINVIZ=${{ inputs.winviz }}
-            if [ "$WINVIZ" == "true" ]; then
-              cat $AZHOP_CONFIGURATION_DIR/winviz.yml >> config.yml
             fi
 
             # Add user authentication configuration

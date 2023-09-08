@@ -48,6 +48,20 @@
           <Location "/server-status">
               SetHandler server-status
           </Location>
+      when: 
+        - ansible_distribution == 'CentOS'
+        - ansible_distribution_major_version == '7'
+
+    - name: enable apache mod_status
+      copy:
+        dest: /etc/httpd/conf.d/mod_status.conf
+        content: |
+          <Location "/server-status">
+              SetHandler server-status
+          </Location>
+      when: 
+        - ansible_distribution == 'AlmaLinux'
+        - ansible_distribution_major_version == '8'
 
     - name: add apache metrics to telegraf config
       blockinfile:
@@ -59,6 +73,18 @@
 
     - name: restart ood
       shell: systemctl try-restart httpd24-httpd.service httpd24-htcacheclean.service
+      when: 
+        - ansible_distribution == 'CentOS'
+        - ansible_distribution_major_version == '7'
+
+    - name: Ensure apache is running.
+      service: 
+        name: httpd
+        state: started
+        enabled: yes
+      when: 
+        - ansible_distribution == 'AlmaLinux'
+        - ansible_distribution_major_version == '8'
 
 - name: PBS metrics
   hosts: scheduler

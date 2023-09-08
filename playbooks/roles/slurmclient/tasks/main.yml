@@ -1,4 +1,16 @@
 ---
+- name: Include distribution variables
+  block:
+    - name: Include distribution variables
+      ansible.builtin.include_vars: "{{ item }}"
+      with_first_found:
+        - "{{ ansible_distribution }}/{{ ansible_distribution_major_version }}.yml"
+        - "{{ ansible_distribution }}.yml"
+      tags: [ 'always' ]
+  rescue:
+    - name: Change error message
+      ansible.builtin.fail:
+        msg: "unable to find anything in vars/ for this operating system! {{ ansible_distribution }}"
 
 - name: install epel
   yum: 
@@ -10,10 +22,11 @@
 - name: install slurmd client utilities
   yum:
     name:
-      -  '{{homedir_mountpoint}}/slurm/rpms/slurm-{{cc_slurm_version}}.el7.x86_64.rpm'
+      -  '{{homedir_mountpoint}}/slurm/rpms/{{slurmd_package}}'
     state: present
     allow_downgrade: yes
     lock_timeout : 180
+    disable_gpg_check: true
 
 - name: check slurm config directory
   file:

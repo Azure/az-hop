@@ -232,16 +232,13 @@ locals {
 
     # Use a jumpbox when defined
     jumpbox_enabled = try(length(local.configuration_yml["jumpbox"]) > 0, false)
-    # Enable Windows Remote Visualization scenarios
-    enable_remote_winviz = try(local.configuration_yml["enable_remote_winviz"], false)
 
     # Queue manager
     queue_manager = try(local.configuration_yml["queue_manager"], "openpbs")
 
     # Create Database
-    create_database  = ( local.enable_remote_winviz || try(local.configuration_yml["slurm"].accounting_enabled, false) ) && (! local.use_existing_database)
+    create_database  = ( try(local.configuration_yml["slurm"].accounting_enabled, false) ) && (! local.use_existing_database)
     use_existing_database = try(length(local.configuration_yml["database"].fqdn) > 0 ? true : false, false)
-#    slurm_accounting = local.enable_remote_winviz || try(local.configuration_yml["slurm"].accounting_enabled, false)
     database_user = local.create_database ? "sqladmin" : (local.use_existing_database ? try(local.configuration_yml["database"].user, "") : "")
     mariadb_private_dns_zone = local.azure_endpoints[local.azure_environment].MariaDBPrivateLink
 
@@ -321,7 +318,6 @@ locals {
         asg-robinhood = "asg-robinhood"
         asg-ondemand = "asg-ondemand"
         asg-deployer = "asg-deployer"
-        asg-guacamole = "asg-guacamole"
         asg-mariadb-client = "asg-mariadb-client"
     }
     #asgs = local.create_nsg ? local._default_asgs :  try(local.configuration_yml["network"]["asg"]["names"], local._default_asgs)
@@ -338,10 +334,9 @@ locals {
         grafana   = ["asg-ssh", "asg-grafana", "asg-ad-client", "asg-telegraf", "asg-nfs-client"]
         jumpbox   = ["asg-ssh", "asg-jumpbox", "asg-ad-client", "asg-telegraf", "asg-nfs-client"]
         lustre    = ["asg-ssh", "asg-lustre", "asg-lustre-client", "asg-telegraf"]
-        ondemand  = ["asg-ssh", "asg-ondemand", "asg-ad-client", "asg-nfs-client", "asg-pbs-client", "asg-lustre-client", "asg-telegraf", "asg-guacamole", "asg-cyclecloud-client", "asg-mariadb-client"]
+        ondemand  = ["asg-ssh", "asg-ondemand", "asg-ad-client", "asg-nfs-client", "asg-pbs-client", "asg-lustre-client", "asg-telegraf", "asg-cyclecloud-client", "asg-mariadb-client"]
         robinhood = ["asg-ssh", "asg-robinhood", "asg-lustre-client", "asg-telegraf"]
         scheduler = ["asg-ssh", "asg-pbs", "asg-ad-client", "asg-cyclecloud-client", "asg-nfs-client", "asg-telegraf", "asg-mariadb-client"]
-        guacamole = ["asg-ssh", "asg-ad-client", "asg-telegraf", "asg-nfs-client", "asg-cyclecloud-client", "asg-mariadb-client"]
     }
 
     # Open ports for NSG TCP rules
@@ -371,8 +366,6 @@ locals {
         CycleCloud = ["9443", "5672"],
         # MariaDB
         MariaDB = ["3306", "33060"],
-        # Guacamole
-        Guacamole = ["8080"]
         # WinRM
         WinRM = ["5985", "5986"]
     }
@@ -454,10 +447,6 @@ locals {
         AllowWinRMIn                = ["520", "Inbound", "Allow", "Tcp", "WinRM",              "asg/asg-jumpbox",          "asg/asg-rdp"],
         AllowRdpIn                  = ["550", "Inbound", "Allow", "Tcp", "Rdp",                "asg/asg-jumpbox",          "asg/asg-rdp"],
 
-        # Guacamole
-#        AllowGuacamoleWebIn         = ["600", "Inbound", "Allow", "Tcp", "Guacamole",           "asg/asg-ondemand",          "asg/asg-guacamole"],
-        AllowGuacamoleRdpIn         = ["610", "Inbound", "Allow", "Tcp", "Rdp",                 "asg/asg-guacamole",         "subnet/compute"],
-
         # MariaDB
         AllowMariaDBIn              = ["700", "Inbound", "Allow", "Tcp", "MariaDB",             "asg/asg-mariadb-client",    "subnet/admin"],
 
@@ -532,10 +521,6 @@ locals {
         AllowRdpOut                 = ["570", "Outbound", "Allow", "Tcp", "Rdp",                "asg/asg-jumpbox",          "asg/asg-rdp"],
         AllowWinRMOut               = ["580", "Outbound", "Allow", "Tcp", "WinRM",              "asg/asg-jumpbox",          "asg/asg-rdp"],
         AllowDnsOut                 = ["590", "Outbound", "Allow", "*",   "Dns",                "tag/VirtualNetwork",       "tag/VirtualNetwork"],
-
-        # Guacamole
-#        AllowGuacamoleWebOut        = ["600", "Outbound", "Allow", "Tcp", "Guacamole",           "asg/asg-ondemand",         "asg/asg-guacamole"],
-        AllowGuacamoleRdpOut        = ["610", "Outbound", "Allow", "Tcp", "Rdp",                 "asg/asg-guacamole",         "subnet/compute"],
 
         # MariaDB
         AllowMariaDBOut             = ["700", "Outbound", "Allow", "Tcp", "MariaDB",             "asg/asg-mariadb-client",    "subnet/admin"],

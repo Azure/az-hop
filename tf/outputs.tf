@@ -5,7 +5,6 @@ resource "local_file" "AnsibleInventory" {
       ondemand-ip       = azurerm_network_interface.ondemand-nic.private_ip_address
       ccportal-ip       = azurerm_network_interface.ccportal-nic.private_ip_address
       grafana-ip        = local.create_grafana ? azurerm_network_interface.grafana-nic[0].private_ip_address : "0.0.0.0"
-      guacamole-ip      = try(azurerm_network_interface.guacamole-nic[0].private_ip_address, "0.0.0.0")
       lustre-ip         = local.lustre_enabled ? azurerm_network_interface.lustre-nic[0].private_ip_address : "0.0.0.0"
       lustre-oss-ip     = concat(azurerm_network_interface.lustre-oss-nic[*].private_ip_address)
       robinhood-ip      = local.lustre_enabled ? azurerm_network_interface.robinhood-nic[0].private_ip_address : "0.0.0.0"

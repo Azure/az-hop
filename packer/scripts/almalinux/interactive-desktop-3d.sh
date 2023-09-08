@@ -108,3 +108,5 @@ cat << EOF >>/etc/sysctl.conf
 net.core.rmem_max=2097152
 net.core.wmem_max=2097152
 EOF
+
+dnf -y update --security

@@ -50,13 +50,3 @@ Then rerun the playbooks `cccluster` and `scheduler` (only for SLURM) installati
 ## How to add your own custom init scripts when building images ?
 There are two placeholder scripts named `zz-compute-custom.sh` and `zz-desktop-custom.sh` respectively for extending the compute nodes and remote desktop nodes image configuration. These scripts are in each OS section in the `./packer/scripts/<os>/` directory.
 Just update the related custom scripts with your content before building the image.
-
-## How to delete a Windows Remote Desktop session ?
-As an admin you may need to delete user's Windows Remote Desktop jobs. To do this :
-1. In the active jobs, select **All Jobs** for the **Windows Remote Desktop** cluster
-1. Note the job Ids and owner values
-1. Connect on the `guacamole` VM, then run this command :
-```bash
-cd /opt/cycle/guac
-sudo ./delete_session.sh -s <jobid> -u <user>
-```

@@ -3,7 +3,7 @@ name : All Bicep End to End
 on:
   workflow_dispatch:
   schedule:
-    - cron: "10 2 * * 1" # At 02:10 UTC on each Sunday
+    - cron: "10 4 * * 0" # At 04:10 UTC on each Saturday
 
 jobs:
   deploy:
@@ -15,6 +15,7 @@ jobs:
         home_type: ['azurefiles', 'anf']
         user_auth: ['local', 'ad']
         monitoring: ['none', 'grafana']
+        infra_os: ['centos', 'almalinux']
     uses: ./.github/workflows/z_base_callable.yml
     with:
       resource_group: 'AUTO_GENERATED'
@@ -22,12 +23,12 @@ jobs:
       scheduler: ${{ matrix.scheduler }}
       lustre: 'false'
       home_type: ${{ matrix.home_type }}
-      winviz: 'false'
       user_auth: ${{ matrix.user_auth }}
       deploy_with: 'bicep'
       clean: 'true'
       ui_tests: 'true'
       monitoring: ${{ matrix.monitoring }}
+      infra_os: ${{ matrix.infra_os }}
     secrets:
       ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
       ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}

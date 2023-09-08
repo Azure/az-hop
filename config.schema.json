@@ -105,10 +105,6 @@
                     "description": "Grafana VM configuration",
                     "$ref": "#/definitions/Grafana"
                 },
-                "guacamole": {
-                    "description": "Guacamole VM configuration",
-                    "$ref": "#/definitions/Cyclecloud"
-                },
                 "scheduler": {
                     "description": "Scheduler VM configuration",
                     "$ref": "#/definitions/Cyclecloud"
@@ -156,7 +152,7 @@
                     "$ref": "#/definitions/Enroot"
                 },
                 "database": {
-                    "description": "If using an existing Managed MariaDB instance for SLURM accounting and/or Guacamole, specify these values",
+                    "description": "If using an existing Managed MariaDB instance for SLURM accounting, specify these values",
                     "$ref": "#/definitions/Database"
                 },
                 "authentication": {
@@ -898,7 +894,6 @@
                 "asg-robinhood": { "type": "string" },
                 "asg-ondemand": { "type": "string" },
                 "asg-deployer": { "type": "string" },
-                "asg-guacamole": { "type": "string" },
                 "asg-mariadb-client": { "type": "string" }
             },
             "title": "ASG Mapping Names"
@@ -1158,9 +1153,9 @@
                 },
                 "cyclecloud_slurm_version": {
                     "type": "string",
-                    "enum": ["2.7.0", "2.7.1"],
-                    "default": "2.7.1",
-                    "description": "CycleCloud for SLURM project version as defined in https://github.com/Azure/cyclecloud-slurm/releases. Currently supported: only 2.7.0 and 2.7.1."
+                    "enum": ["2.7.0", "2.7.1", "2.7.2"],
+                    "default": "2.7.2",
+                    "description": "CycleCloud for SLURM project version as defined in https://github.com/Azure/cyclecloud-slurm/releases. Currently supported: 2.7.0-2.7.2."
                 }
             },
             "required": [

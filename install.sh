@@ -77,11 +77,8 @@ function enable_winviz ()
 
   echo "Enable WinViz is $enable_winviz"
   if [ "$enable_winviz" == "true" ]; then
-    ENABLE_WINVIZ_PLAYBOOK=$PLAYBOOKS_DIR/ood-overrides-guacamole.yml
-  else
-    touch $PLAYBOOKS_DIR/guacamole.ok
-    touch $PLAYBOOKS_DIR/guac_spooler.ok
-    ENABLE_WINVIZ_PLAYBOOK=
+    echo "Winviz is now deprecated, please disable it in the config.yml file"
+    exit 1
   fi
 }
 
@@ -185,10 +182,8 @@ case $TARGET in
     run_playbook add_local_users
     run_playbook cccluster
     run_playbook scheduler
-    run_playbook ood $PLAYBOOKS_DIR/ood-overrides-common.yml $PLAYBOOKS_DIR/ood-overrides-$SCHEDULER.yml $PLAYBOOKS_DIR/ood-overrides-auth-$OOD_AUTH.yml $ENABLE_WINVIZ_PLAYBOOK
+    run_playbook ood $PLAYBOOKS_DIR/ood-overrides-common.yml $PLAYBOOKS_DIR/ood-overrides-$SCHEDULER.yml $PLAYBOOKS_DIR/ood-overrides-auth-$OOD_AUTH.yml
     run_playbook ood-custom
-    run_playbook guacamole
-    run_playbook guac_spooler
     run_playbook telegraf
     run_playbook chrony
   ;;
@@ -196,11 +191,11 @@ case $TARGET in
     run_playbook lustre-sas
     run_playbook lustre
   ;;
-  ad | ad2 | linux | add_users | add_local_users | ccportal | chrony | cccluster | scheduler | grafana | telegraf | ood-custom | remove_users | tests | guacamole | guac_spooler | dns)
+  ad | ad2 | linux | add_users | add_local_users | ccportal | chrony | cccluster | scheduler | grafana | telegraf | ood-custom | remove_users | tests | dns)
     run_playbook $TARGET
   ;;
   ood)
-    run_playbook ood $PLAYBOOKS_DIR/ood-overrides-common.yml $PLAYBOOKS_DIR/ood-overrides-$SCHEDULER.yml $PLAYBOOKS_DIR/ood-overrides-auth-$OOD_AUTH.yml $ENABLE_WINVIZ_PLAYBOOK
+    run_playbook ood $PLAYBOOKS_DIR/ood-overrides-common.yml $PLAYBOOKS_DIR/ood-overrides-$SCHEDULER.yml $PLAYBOOKS_DIR/ood-overrides-auth-$OOD_AUTH.yml
     run_playbook ood-custom
   ;;
   *)
