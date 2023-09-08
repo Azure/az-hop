@@ -89,6 +89,16 @@ var nsgTargetForDC = {
   target: useExistingAD ? azhopConfig.domain.existing_dc_details.domain_controller_ip_addresses : 'asg-ad'
 }
 
+var vmNamesMap = {
+  ad : contains(azhopConfig, 'ad') && contains(azhopConfig.ad, 'name') ? azhopConfig.ad.name : 'ad'
+  ad2 : contains(azhopConfig, 'ad') && contains(azhopConfig.ad, 'ha_name') ? azhopConfig.ad.ha_name : 'ad2'
+  deployer: contains(azhopConfig, 'deployer') && contains(azhopConfig.deployer, 'name') ? azhopConfig.deployer.name : 'deployer'
+  jumpbox: contains(azhopConfig, 'jumpbox') && contains(azhopConfig.jumpbox, 'name') ? azhopConfig.jumpbox.name : 'jumpbox'
+  ccportal: contains(azhopConfig, 'ccportal') && contains(azhopConfig.ccportal, 'name') ? azhopConfig.ccportal.name : 'ccportal'
+  ondemand: contains(azhopConfig, 'ondemand') && contains(azhopConfig.ondemand, 'name') ? azhopConfig.ondemand.name : 'ondemand'
+  scheduler: contains(azhopConfig, 'scheduler') && contains(azhopConfig.scheduler, 'name') ? azhopConfig.scheduler.name : 'scheduler'
+  grafana: contains(azhopConfig, 'grafana') && contains(azhopConfig.grafana, 'name') ? azhopConfig.grafana.name : 'grafana'
+}
 // Convert the azhop configuration file to a pivot format used for the deployment
 var config = {
   admin_user: azhopConfig.admin_user
@@ -124,8 +134,8 @@ var config = {
     } : {
       username: ''
     }
-    domain_controlers : createAD ? (! highAvailabilityForAD ? ['ad'] : ['ad', 'ad2']) : useExistingAD ? azhopConfig.domain.existing_dc_details.domain_controller_names : []
-    ldap_server: createAD ? 'ad' : useExistingAD ? azhopConfig.domain.existing_dc_details.domain_controller_names[0] : ''
+    domain_controlers : createAD ? (! highAvailabilityForAD ? [vmNamesMap.ad] : [vmNamesMap.ad, vmNamesMap.ad2]) : useExistingAD ? azhopConfig.domain.existing_dc_details.domain_controller_names : []
+    ldap_server: createAD ? vmNamesMap.ad : useExistingAD ? azhopConfig.domain.existing_dc_details.domain_controller_names[0] : ''
   }
 
   key_vault_name: contains(azhopConfig, 'azure_key_vault') ? azhopConfig.azure_key_vault.name : 'kv${resourcePostfix}'
@@ -279,7 +289,7 @@ var config = {
     {
       ondemand: {
         subnet: 'frontend'
-        name: contains(azhopConfig.ondemand, 'name') ? azhopConfig.ondemand.name : 'ondemand'
+        name: vmNamesMap.ondemand
         sku: azhopConfig.ondemand.vm_size
         osdisksku: 'StandardSSD_LRS'
         image: 'linux_base'
@@ -291,7 +301,7 @@ var config = {
       }
       ccportal: {
         subnet: 'admin'
-        name: contains(azhopConfig.cyclecloud, 'name') ? azhopConfig.cyclecloud.name : 'ccportal'
+        name: vmNamesMap.ccportal
         sku: azhopConfig.cyclecloud.vm_size
         osdisksku: 'StandardSSD_LRS'
         image: 'cyclecloud_base'
@@ -312,7 +322,7 @@ var config = {
       }
       scheduler: {
         subnet: 'admin'
-        name: contains(azhopConfig.scheduler, 'name') ? azhopConfig.scheduler.name : 'scheduler'
+        name: vmNamesMap.scheduler
         sku: azhopConfig.scheduler.vm_size
         osdisksku: 'StandardSSD_LRS'
         image: 'linux_base'
@@ -323,6 +333,7 @@ var config = {
       ad: {
         subnet: 'ad'
         windows: true
+        name: vmNamesMap.ad
         ahub: contains(azhopConfig.ad, 'hybrid_benefit') ? azhopConfig.ad.hybrid_benefit : false
         sku: azhopConfig.ad.vm_size
         osdisksku: 'StandardSSD_LRS'
@@ -333,7 +344,7 @@ var config = {
     deployDeployer ? {
       deployer: {
           subnet: 'frontend'
-          name: contains(azhopConfig, 'deployer') && contains(azhopConfig.deployer, 'name') ? azhopConfig.deployer.name : 'deployer'
+          name: vmNamesMap.deployer
           sku: azhopConfig.deployer.vm_size
           osdisksku: 'Standard_LRS'
           image: 'ubuntu'
@@ -357,6 +368,7 @@ var config = {
         subnet: 'ad'
         windows: true
         ahub: contains(azhopConfig.ad, 'hybrid_benefit') ? azhopConfig.ad.hybrid_benefit : false
+        name: vmNamesMap.ad2
         sku: azhopConfig.ad.vm_size
         osdisksku: 'StandardSSD_LRS'
         image: 'win_base'
@@ -366,7 +378,7 @@ var config = {
     deployJumpbox ? {
       jumpbox: {
         subnet: 'frontend'
-        name: contains(azhopConfig.jumpbox, 'name') ? azhopConfig.jumpbox.name : 'jumpbox'
+        name: vmNamesMap.jumpbox
         sku: azhopConfig.jumpbox.vm_size
         osdisksku: 'StandardSSD_LRS'
         image: 'linux_base'
@@ -379,7 +391,7 @@ var config = {
     deployGrafana ? {
       grafana: {
         subnet: 'admin'
-        name: contains(azhopConfig.grafana, 'name') ? azhopConfig.grafana.name : 'grafana'
+        name: vmNamesMap.grafana
         sku: azhopConfig.grafana.vm_size
         osdisksku: 'StandardSSD_LRS'
         image: 'linux_base'
@@ -861,9 +873,9 @@ module azhopPrivateZone './privatezone.bicep' = {
 
 // list of DC VMs. The first one will be considered the default PDC (for DNS registration)
 // Trick to get the index of the DC VM in the vmItems array, to workaround a bug in bicep 0.14.85 as it throws an error when using indexOf(map(vmItems, item => item.key), 'ad2')
-var adIndex = createAD ? indexOf(map(vmItems, item => item.key), 'ad') : 0
+var adIndex = createAD ? indexOf(map(vmItems, item => item.key), vmNamesMap.ad) : 0
 var adIp = createAD ? azhopVm[adIndex].outputs.privateIp : ''
-var ad2Index = createAD && highAvailabilityForAD ? indexOf(map(vmItems, item => item.key), 'ad2') : 0
+var ad2Index = createAD && highAvailabilityForAD ? indexOf(map(vmItems, item => item.key), vmNamesMap.ad2) : 0
 var ad2Ip = createAD ? azhopVm[ad2Index].outputs.privateIp : ''
 var domain_controller_ip_addresses = useExistingAD && contains(azhopConfig, 'domain') && contains(azhopConfig.domain, 'existing_dc_details') ? azhopConfig.domain.existing_dc_details.domain_controller_ip_addresses : []
 var dcIps = createAD ? (! highAvailabilityForAD ? [adIp] : [adIp, ad2Ip]) : domain_controller_ip_addresses
@@ -876,7 +888,7 @@ module azhopADRecords './privatezone_records.bicep' = if (createAD || useExistin
   }
 }
 
-output ccportalPrincipalId string = azhopVm[indexOf(map(vmItems, item => item.key), 'ccportal')].outputs.principalId
+output ccportalPrincipalId string = azhopVm[indexOf(map(vmItems, item => item.key), vmNamesMap.ccportal)].outputs.principalId
 
 output keyvaultName string = azhopKeyvault.outputs.keyvaultName
 
@@ -901,7 +913,7 @@ output azhopGlobalConfig object = union(
     domain_name                   : config.domain.name
     ldap_server                   : '${config.domain.ldap_server}.${config.domain.name}'
     homedir_mountpoint            : config.homedir_mountpoint
-    ondemand_fqdn                 : config.public_ip ? azhopVm[indexOf(map(vmItems, item => item.key), 'ondemand')].outputs.fqdn : azhopVm[indexOf(map(vmItems, item => item.key), 'ondemand')].outputs.privateIp
+    ondemand_fqdn                 : config.public_ip ? azhopVm[indexOf(map(vmItems, item => item.key), vmNamesMap.ondemand)].outputs.fqdn : azhopVm[indexOf(map(vmItems, item => item.key), vmNamesMap.ondemand)].outputs.privateIp
     ansible_ssh_private_key_file  : '${config.admin_user}_id_rsa'
     subscription_id               : subscription().subscriptionId
     tenant_id                     : subscription().tenantId
@@ -939,7 +951,7 @@ output azhopGlobalConfig object = union(
   } : {}
 )
 
-var sshTunelIp = deployJumpbox ? ( config.public_ip ? azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.publicIp : azhopVm[indexOf(map(vmItems, item => item.key), 'jumpbox')].outputs.privateIp ) : ''
+var sshTunelIp = deployJumpbox ? ( config.public_ip ? azhopVm[indexOf(map(vmItems, item => item.key), vmNamesMap.jumpbox)].outputs.publicIp : azhopVm[indexOf(map(vmItems, item => item.key), vmNamesMap.jumpbox)].outputs.privateIp ) : ''
 
 output azhopInventory object = {
   all: {
@@ -949,16 +961,16 @@ output azhopInventory object = {
           psrp_ssh_proxy: sshTunelIp
         }
         scheduler: {
-          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'scheduler')].outputs.privateIp
+          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), vmNamesMap.scheduler)].outputs.privateIp
         }
         ondemand: {
-          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'ondemand')].outputs.privateIp
+          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), vmNamesMap.ondemand)].outputs.privateIp
         }
         ccportal: {
-          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'ccportal')].outputs.privateIp
+          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), vmNamesMap.ccportal)].outputs.privateIp
         }
       },
-      indexOf(map(vmItems, item => item.key), 'ad') >= 0 ? {
+      indexOf(map(vmItems, item => item.key), vmNamesMap.ad) >= 0 ? {
         ad: {
         ansible_host: adIp
         ansible_connection: 'psrp'
@@ -969,9 +981,9 @@ output azhopInventory object = {
         ansible_psrp_proxy: deployJumpbox ? 'socks5h://localhost:5985' : ''
         }
       } : {} ,
-      indexOf(map(vmItems, item => item.key), 'ad2') >= 0 ? {
+      indexOf(map(vmItems, item => item.key), vmNamesMap.ad2) >= 0 ? {
         ad2: {
-          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'ad2')].outputs.privateIp
+          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), vmNamesMap.ad2)].outputs.privateIp
           ansible_connection: 'psrp'
           ansible_psrp_protocol: 'http'
           ansible_user: config.admin_user
@@ -988,7 +1000,7 @@ output azhopInventory object = {
         }
       } : {
         deployer : {
-          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIp
+          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), vmNamesMap.deployer)].outputs.privateIp
           ansible_ssh_port: config.vms.deployer.sshPort
           ansible_ssh_common_args: ''
         }
@@ -1003,7 +1015,7 @@ output azhopInventory object = {
       } : {},
       config.deploy_grafana ? {
         grafana: {
-          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'grafana')].outputs.privateIp
+          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), vmNamesMap.grafana)].outputs.privateIp
         }
       } : {}
     )

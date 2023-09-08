@@ -577,9 +577,11 @@ jumpbox:
   #ssh_port: 2222
 # Active directory VM configuration
 ad:
+  name: ad
   vm_size: Standard_B2ms
   hybrid_benefit: false # Enable hybrid benefit for AD, default to false
-  high_availability: false # Build AD in High Availability mode (2 Domain Controllers) - default to false
+  high_availability: false # Build AD in High Availability mode (2 Domain Controlers) - default to false
+  ha_name: ad2 # name of the HA AD machine when high_availability=true
 # On demand VM configuration
 ondemand:
   name: ondemand # When provided, it will be used as the name of the VM. Default to ondemand

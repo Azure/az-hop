@@ -107,7 +107,7 @@
                 },
                 "scheduler": {
                     "description": "Scheduler VM configuration",
-                    "$ref": "#/definitions/Cyclecloud"
+                    "$ref": "#/definitions/Scheduler"
                 },
                 "cyclecloud": {
                     "description": "CycleCloud VM configuration",
@@ -302,6 +302,8 @@
                     "type": "string",
                     "description": "The size of VM to use when deploying a new active directory domain as part of AZHOP"
                 },
+                "name": { "type": "string", "default": "ad", "maxLength": 15, "pattern": "[0-9a-z\\-]+" },
+                "ha_name": { "type": "string", "default": "ad2", "maxLength": 15, "pattern": "[0-9a-z\\-]+" },
                 "hybrid_benefit": {
                     "type": "boolean",
                     "description": "Will hybrid benefit be used on the vm that is running the active directory domain vm being deployed for az-hop.",
@@ -313,8 +315,7 @@
                     "default": false
                 }
             },
-            "required": [
-            ],
+            "required": [],
             "title": "az-hopAd"
         },
         "Anf": {
@@ -586,7 +587,7 @@
             "additionalProperties": false,
             "properties": {
                 "vm_size": { "type": "string" },
-                "name": { "type": "string" },
+                "name": { "type": "string", "default": "ccportal", "maxLength": 15, "pattern": "[0-9a-z\\-]+" },
                 "version": { "type": "string" },
                 "image": {
                     "description": "Can be either an image reference or an image_id from the image registry or a custom managed image",
@@ -670,7 +671,7 @@
                     "type": "string"
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string", "default": "jumpbox", "maxLength": 15, "pattern": "[0-9a-z\\-]+"
                 },
                 "ssh_port": {
                     "description": "Defaults to 22. Change this to, e.g., 2222, if security policies (like 'zero trust') in your tenant automatically block access to port 22 from the internet",
@@ -690,7 +691,7 @@
                     "type": "string"
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string", "default": "deployer", "maxLength": 15, "pattern": "[0-9a-z\\-]+"
                 },
                 "ssh_port": {
                     "description": "Defaults to 22. Change this to, e.g., 2222, if security policies (like 'zero trust') in your tenant automatically block access to port 22 from the internet",
@@ -1026,7 +1027,7 @@
             "additionalProperties": false,
             "properties": {
                 "vm_size": { "type": "string" },
-                "name": { "type": "string" },
+                "name": { "type": "string", "default": "ondemand", "maxLength": 15, "pattern": "[0-9a-z\\-]+" },
                 "generate_certificate": { "type": "boolean", "default": true },
                 "fqdn": { "type": "string" }
             },
@@ -1035,12 +1036,24 @@
             ],
             "title": "Ondemand"
         },
+        "Scheduler": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "vm_size": { "type": "string" },
+                "name": { "type": "string", "default": "scheduler", "maxLength": 15, "pattern": "[0-9a-z\\-]+" }
+            },
+            "required": [
+                "vm_size"
+            ],
+            "title": "Scheduler"
+        },
         "Grafana": {
             "type": "object",
             "additionalProperties": false,
             "properties": {
                 "vm_size": { "type": "string" },
-                "name": { "type": "string" }
+                "name": { "type": "string", "default": "grafana", "maxLength": 15, "pattern": "[0-9a-z\\-]+" }
             },
             "required": [
                 "vm_size"
