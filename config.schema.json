@@ -1077,6 +1077,10 @@
                     "description": "Whether to create placement groups (SLURM only). Defaults to true",
                     "type": "boolean"
                 },
+                "warmup": {
+                    "description": "Always keep 1 node running. Defaults to false",
+                    "type": "boolean"
+                },
                 "idle_timeout": {
                     "description": "Idle time (seconds) before shutting down VMs. Choose lower than autoscale.idle_timeout",
                     "type": "integer"

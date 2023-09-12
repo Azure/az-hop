@@ -54,3 +54,23 @@
       name: '*'
       state: latest
 #      exclude: kernel*,kmod*,amlfs*
+
+  - name: copy queue warmup script
+    template:
+      src: 'queue-warmup.sh'
+      dest: '/usr/local/sbin/queue-warmup.sh'
+      mode: '0733'
+    when: ( queue_manager is defined and queue_manager == "slurm" )
+    tags: scheduler-warmup
+  - name: set up cronjob for queue warmup
+    cron:
+      name: "queue-warmup"
+      job: "/usr/local/sbin/queue-warmup.sh {{ warmup_queues | map(attribute='name') | join(' ') }}"
+      minute: "*/5"
+      weekday: 1-5
+      user: "root"
+      state: "present"
+    vars:
+      warmup_queues: "{{ queues | selectattr('warmup', 'defined') | selectattr('warmup', 'equalto', true) }}"
+    when: ( queue_manager is defined and queue_manager == "slurm" )
+    tags: scheduler-warmup
