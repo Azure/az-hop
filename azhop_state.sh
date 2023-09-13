@@ -79,7 +79,7 @@ case $COMMAND in
       echo "Resource group is empty, exiting"
       exit 1
     fi
-    BICEP_PARAMS=$resource_group.parameters.json
+    BICEP_PARAMS=$RESOURCE_GROUP.parameters.json
     # Copy state files into the state directory
     mkdir -p $STATE_DIR
     cp $AZHOP_CONFIG $STATE_DIR
