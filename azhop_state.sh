@@ -79,12 +79,15 @@ case $COMMAND in
       echo "Resource group is empty, exiting"
       exit 1
     fi
+    BICEP_PARAMS=$RESOURCE_GROUP.parameters.json
     # Copy state files into the state directory
     mkdir -p $STATE_DIR
     cp $AZHOP_CONFIG $STATE_DIR
     ADMIN_USER=$(yq eval '.admin_user' $AZHOP_CONFIG)
     cp ${ADMIN_USER}_id_rsa $STATE_DIR
     cp ${ADMIN_USER}_id_rsa.pub $STATE_DIR
+    cp ${BICEP_PARAMS} $STATE_DIR
+    
     mkdir -p $STATE_DIR/packer
     cp packer/options.json $STATE_DIR/packer/options.json
     mkdir -p $STATE_DIR/playbooks/group_vars

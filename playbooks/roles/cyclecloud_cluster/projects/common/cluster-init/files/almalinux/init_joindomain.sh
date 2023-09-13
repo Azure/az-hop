@@ -1,5 +1,5 @@
 #!/bin/bash
-packages="sssd realmd oddjob oddjob-mkhomedir adcli samba-common samba-common-tools krb5-workstation openldap-clients policycoreutils-python-utils"
+packages="sssd realmd oddjob oddjob-mkhomedir adcli samba-common samba-common-tools krb5-workstation openldap-clients python3-policycoreutils"
 
 if ! rpm -q $packages; then
   echo "Installing packages $packages" 
