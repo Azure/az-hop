@@ -51,11 +51,10 @@ jobs:
 
       - name: Login azure
         run: |
-          pwd
-          ls -alt
-          whereis miniconda
+          export HOME=/root # Hack to workaround miniconda installation
+          ./toolset/scripts/install.sh
           
-          source /miniconda/bin/activate
+          source ./miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
           echo "local user: $(whoami)"
@@ -64,7 +63,7 @@ jobs:
         id: install
         run: |
           set -e
-          source /miniconda/bin/activate
+          source ./miniconda/bin/activate
 
           RESOURCE_GROUP="${{ inputs.resource_group }}"
           echo "Download state files for $RESOURCE_GROUP"
