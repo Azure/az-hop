@@ -37,12 +37,12 @@ jobs:
     runs-on: self-hosted
     timeout-minutes: 60
 
-    # container:
-    #   image: azhop.azurecr.io/hpcrover:2306.0708
-    #   credentials:
-    #     username: ${{ env.ARM_CLIENT_ID }}
-    #     password: ${{ env.ARM_CLIENT_SECRET }}
-    #   options: --user 0
+    container:
+      image: azhop.azurecr.io/hpcrover:2309.1311
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
+      options: --user 0
 
     steps:
       - uses: actions/checkout@v4
@@ -51,10 +51,7 @@ jobs:
 
       - name: Login azure
         run: |
-          export HOME=/root # Hack to workaround miniconda installation
-          ./toolset/scripts/install.sh
-          
-          source ./miniconda/bin/activate
+          source /miniconda/bin/activate
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
           echo "local user: $(whoami)"
@@ -63,7 +60,7 @@ jobs:
         id: install
         run: |
           set -e
-          source ./miniconda/bin/activate
+          source /miniconda/bin/activate
 
           RESOURCE_GROUP="${{ inputs.resource_group }}"
           echo "Download state files for $RESOURCE_GROUP"
