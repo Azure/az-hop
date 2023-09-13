@@ -38,11 +38,11 @@
         delay: 30
         until: start_socks is succeeded
 
-      - name: Wait 300 seconds for the nodes to be ready
-        wait_for_connection:
-          timeout: 300
-      - name: Gather facts for first time
-        setup:
+      # - name: Wait 300 seconds for the nodes to be ready
+      #   wait_for_connection:
+      #     timeout: 300
+      # - name: Gather facts for first time
+      #   setup:
 
       - name: Run command to mitigate AD vulnerability 
         win_command: netsh int ipv4 set global sourceroutingbehavior=drop 
