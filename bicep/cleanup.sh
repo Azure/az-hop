@@ -20,7 +20,11 @@ if [ "$key_vault" != "" ]; then
 fi
 
 # Remove role assignments for ccportal at the subscription level
-ccportal_id=$(az vm show -n ccportal -g $rg --query 'identity.principalId' -o tsv)
+cc_portalname=$(yq eval '.cyclecloud.name' $AZHOP_CONFIG)
+if [ "$cc_portalname" == "" ]; then
+  cc_portalname="ccportal"
+fi
+ccportal_id=$(az vm show -n $cc_portalname -g $rg --query 'identity.principalId' -o tsv)
 if [ "$ccportal_id" != "" ]; then
   echo "Removing role assignments for ccportal"
   az role assignment delete --assignee $ccportal_id
