@@ -1,6 +1,6 @@
 ad:
   vm_size: Standard_B2ms
-  name: adxxx
+  name: ad
 
 authentication:
   user_auth: ad # local or ad
