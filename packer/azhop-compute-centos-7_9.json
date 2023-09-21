@@ -48,7 +48,8 @@
                 "rm -rf /tmp/*.sh",
                 "sed -i '/localhost.localdomain/d' /usr/sbin/waagent2.0",
                 "/usr/sbin/waagent -force -deprovision+user",
-                "export HISTSIZE=0 && sync"
+                "export HISTSIZE=0 && sync",
+                "grep hostname /var/log/messages"
             ],
             "inline_shebang": "/bin/sh -x",
             "type": "shell",
