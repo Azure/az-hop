@@ -45,7 +45,9 @@
                 "echo ' This is the end '",
                 "yum history sync",
                 "rm -rf /tmp/*.sh",
-                "/usr/sbin/waagent -force -deprovision+user && export HISTSIZE=0 && sync"
+                "/usr/sbin/waagent -force -deprovision+user",
+                "sed -i 's/localhost.localdomain//g' /etc/sysconfig/network-scripts/ifcfg-eth0",
+                "export HISTSIZE=0 && sync"
             ],
             "inline_shebang": "/bin/sh -x",
             "type": "shell",
