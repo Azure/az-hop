@@ -103,7 +103,8 @@ image_id=$(az image list -g $resource_group --query "[?name=='$image_name'].id" 
 
 # Generate install script checksum
 set +e
-find ./scripts/ -exec md5sum {} \; > md5sum.txt
+script_dir=$(jq -r '.provisioners[0].source' $PACKER_FILE)
+find $script_dir -exec md5sum {} \; > md5sum.txt
 md5sum $PACKER_FILE >> md5sum.txt
 set -e
 packer_md5=$(md5sum md5sum.txt | cut -d' ' -f 1)
