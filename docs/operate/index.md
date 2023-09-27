@@ -5,4 +5,5 @@
 - [Upgrade az-hop](upgrade.md)
 - [Configure Alerts](alerting.md)
 - [Assign Identities to Compute Nodes](identity.md)
+- [Marketplace images references](marketplace_images.md)
 - [How To](how_to.md)
