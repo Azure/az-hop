@@ -42,13 +42,14 @@
                 "/tmp/openpbs.sh || exit 1",
                 "/tmp/slurm.sh || exit 1",
                 "/tmp/telegraf.sh || exit 1",
-                "/tmp/lustreclient.sh b2_15  || exit 1",
                 "/tmp/interactive-desktop-3d.sh || exit 1",
                 "/tmp/desktop-packages.sh || exit 1",
                 "/tmp/zz-desktop-custom.sh || exit 1",
                 "echo ' This is the end '",
                 "rm -rf /tmp/*.sh",
-                "/usr/sbin/waagent -force -deprovision+user && export HISTSIZE=0 && sync"
+                "/usr/sbin/waagent -force -deprovision+user",
+                "sed -i 's/^send host-name =.*/send host-name = \"\"/' /etc/dhcp/dhclient.conf",
+                "export HISTSIZE=0 && sync"
             ],
             "inline_shebang": "/bin/sh -x",
             "type": "shell",
