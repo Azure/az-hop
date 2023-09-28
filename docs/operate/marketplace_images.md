@@ -4,6 +4,10 @@ There is a list of predefined images pushed in the azure marketplace under the p
 az vm image list --all --publisher azhpc
 ```
 
+## How these images are built ?
+These images are built with the definitions and scripts located in the `packer` directory. Once built they are tagged with the pattern `YYYY.mmdd.HHMM`so you can easily retrieve from the repo history which changes have been done in the `packer/scripts` folder.
+
+## List of published images and base
 These ready to go images are built on top of existing Azure HPC images, and the table below will help you to map the azhop image version with the azure hpc image version.
 
 |Publisher|Offer|SKU|Version|Base|
