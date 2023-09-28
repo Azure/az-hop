@@ -247,12 +247,6 @@ In this exercise, you will set up an Azure VM that you will use for deployment o
    az account set --subscription '<subscription_ID>'
    ```
 
-1. Run the following command to ensure that the Azure HPC Lustre marketplace image is available in your Azure subscription:
-
-   ```bash
-   az vm image terms accept --offer azurehpc-lustre --publisher azhpc --plan azurehpc-lustre-2_12
-   ```
-
 1. Run the following command to register the Azure NetApp Resource Provider:
 
    ```bash

@@ -77,14 +77,6 @@
                     "description": "Can be either an image reference or an image_id from the image registry or a custom managed image",
                     "type": "string"
                 },
-                "lustre_base_image": {
-                    "description": "Can be either an image reference or an image_id from the image registry or a custom managed image",
-                    "type": "string"
-                },
-                "lustre_base_plan": {
-                    "description": "The lustre plan to use. Only needed when using the default lustre image from the marketplace. use '::' for an empty plan",
-                    "type": "string"
-                },
                 "jumpbox": {
                     "description": "Jumpbox VM configuration, only needed when deploying thru a public IP and without a configured deployer VM",
                     "$ref": "#/definitions/Jumpbox"
@@ -704,34 +696,6 @@
                     "type": "boolean",
                     "default": false
                 },
-                "rbh_sku": {
-                    "description": "",
-                    "type": "string"
-                },
-                "mds_sku": {
-                    "description": "",
-                    "type": "string"
-                },
-                "oss_sku": {
-                    "description": "",
-                    "type": "string"
-                },
-                "oss_count": {
-                    "description": "",
-                    "type": "integer"
-                },
-                "hsm_max_requests": {
-                    "description": "",
-                    "type": "integer"
-                },
-                "mdt_device": {
-                    "description": "",
-                    "type": "string"
-                },
-                "ost_device": {
-                    "description": "",
-                    "type": "string"
-                },
                 "hsm": {
                     "description": "Use existing storage account for the archive (optional). If not included, will use az-hop storage account.",
                     "$ref": "#/definitions/HSM"
@@ -875,7 +839,6 @@
                 "asg-jumpbox": { "type": "string" },
                 "asg-ad": { "type": "string" },
                 "asg-ad-client": { "type": "string" },
-                "asg-lustre": { "type": "string" },
                 "asg-lustre-client": { "type": "string" },
                 "asg-pbs": { "type": "string" },
                 "asg-pbs-client": { "type": "string" },

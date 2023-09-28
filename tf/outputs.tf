@@ -5,24 +5,20 @@ resource "local_file" "AnsibleInventory" {
       ondemand-ip       = azurerm_network_interface.ondemand-nic.private_ip_address
       ccportal-ip       = azurerm_network_interface.ccportal-nic.private_ip_address
       grafana-ip        = local.create_grafana ? azurerm_network_interface.grafana-nic[0].private_ip_address : "0.0.0.0"
-      lustre-ip         = local.lustre_enabled ? azurerm_network_interface.lustre-nic[0].private_ip_address : "0.0.0.0"
-      lustre-oss-ip     = concat(azurerm_network_interface.lustre-oss-nic[*].private_ip_address)
-      robinhood-ip      = local.lustre_enabled ? azurerm_network_interface.robinhood-nic[0].private_ip_address : "0.0.0.0"
       jumpbox-pip       = local.allow_public_ip ? azurerm_public_ip.jumpbox-pip[0].ip_address : ( local.jumpbox_enabled ? azurerm_network_interface.jumpbox-nic[0].private_ip_address : "0.0.0.0")
       admin-user        = local.admin_username
       jumpbox-ssh-port  = local.jumpbox_ssh_port
       ad-ip             = local.create_ad ? azurerm_network_interface.ad-nic[0].private_ip_address : "0.0.0.0"
       ad2-ip            = local.ad_ha ? azurerm_network_interface.ad2-nic[0].private_ip_address : (local.create_ad ? azurerm_network_interface.ad-nic[0].private_ip_address : "0.0.0.0")
       ad-passwd         = local.domain_join_password
-      lustre-oss-count  = local.lustre_oss_count
     }
   )
   filename = "${local.playbook_root_dir}/inventory"
 }
 resource "local_file" "CISInventory" { 
   content = templatefile("${local.playbooks_template_dir}/inventory.cis.tmpl",
-   {
-      lustre-oss-count  = local.lustre_oss_count
+    {
+      lustre-oss-count  = 0
     }
   )
   filename = "${local.playbook_root_dir}/inventory.cis.yml"
@@ -50,8 +46,6 @@ resource "local_file" "global_variables" {
       tenant_id           = data.azurerm_subscription.primary.tenant_id
       key_vault           = azurerm_key_vault.azhop.name
       sig_name            = local.create_sig ? azurerm_shared_image_gallery.sig[0].name : ""
-      lustre_hsm_storage_account = ( local.lustre_archive_account != null ? local.lustre_archive_account : azurerm_storage_account.azhop.name )
-      lustre_hsm_storage_container = ( local.lustre_archive_account != null ? local.configuration_yml["lustre"]["hsm"]["storage_container"] : (local.lustre_enabled ? azurerm_storage_container.lustre_archive[0].name : "") )
       database-fqdn       = local.create_database ? azurerm_mariadb_server.mariadb[0].fqdn : (local.use_existing_database ? local.configuration_yml["database"].fqdn : "")
       database-user       = local.database_user
       jumpbox-ssh-port    = local.jumpbox_ssh_port

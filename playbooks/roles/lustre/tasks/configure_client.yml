@@ -26,5 +26,5 @@
       selinux:
         state: disabled
     - name: install Lustre client
-      shell: yum install -y amlfs-lustre-client-2.15.1_24_gbaa21ca-$(uname -r | sed -e "s/\.$(uname -p)$//" | sed -re 's/[-_]/\./g')-1
+      shell: yum install -y amlfs-lustre-client-2.15.1_29_gbae0abe-$(uname -r | sed -e "s/\.$(uname -p)$//" | sed -re 's/[-_]/\./g')-1
   when: "'lustre-client' not in ansible_facts.packages"

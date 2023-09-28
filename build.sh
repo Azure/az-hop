@@ -204,28 +204,6 @@ function check_azcli_version {
   fi
 }
 
-function accept_terms()
-{
-  # Accept Lustre marketplace image terms
-  accepted=$(az vm image terms show --offer azurehpc-lustre --publisher azhpc --plan azurehpc-lustre-2_12 --query 'accepted' -o tsv)
-  if [ "$accepted" != "true" ]; then
-    echo "Azure Lustre marketplace image terms are not accepted, accepting them now"
-    az vm image terms accept --offer azurehpc-lustre --publisher azhpc --plan azurehpc-lustre-2_12 -o tsv
-  else
-    echo "Azure Lustre marketplace image terms already accepted"
-  fi
-
-  # Accept AlmaLinux marketplace image terms
-  # accepted=$(az vm image terms show --offer almalinux-hpc --publisher almalinux --plan 8_5-hpc-gen2 --query 'accepted' -o tsv)
-  # if [ "$accepted" != "true" ]; then
-  #   echo "Azure AlmaLinux marketplace image terms are not accepted, accepting them now"
-  #   az vm image terms accept --offer almalinux-hpc --publisher almalinux --plan 8_5-hpc-gen2 -o tsv
-  # else
-  #   echo "Azure AlmaLinux marketplace image terms already accepted"
-  # fi
-
-}
-
 function get_azure_cloud_env()
 {
   # Retrieve on which cloud environment we run on

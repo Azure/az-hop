@@ -116,8 +116,6 @@ locals {
 
     # Use a linux custom image reference if the linux_base_image is defined and contains ":"
     use_linux_image_reference = try(length(split(":", local.configuration_yml["linux_base_image"])[1])>0, false)
-    # Use a lustre custom image reference if the lustre_base_image is defined and contains ":"
-    use_lustre_image_reference = try(length(split(":", local.configuration_yml["lustre_base_image"])[1])>0, false)
     # Use a linux custom image reference if the linux_base_image is defined and contains ":"
     use_windows_image_reference = try(length(split(":", local.configuration_yml["windows_base_image"])[1])>0, false)
     # Use a linux custom image reference if the linux_base_image is defined and contains ":"
@@ -128,12 +126,6 @@ locals {
         offer     = local.use_linux_image_reference ? split(":", local.configuration_yml["linux_base_image"])[1] : "CentOS"
         sku       = local.use_linux_image_reference ? split(":", local.configuration_yml["linux_base_image"])[2] : "7_9-gen2"
         version   = local.use_linux_image_reference ? split(":", local.configuration_yml["linux_base_image"])[3] : "latest"
-    }
-    lustre_base_image_reference = {
-        publisher = local.use_lustre_image_reference ? split(":", local.configuration_yml["lustre_base_image"])[0] : "azhpc"
-        offer     = local.use_lustre_image_reference ? split(":", local.configuration_yml["lustre_base_image"])[1] : "azurehpc-lustre"
-        sku       = local.use_lustre_image_reference ? split(":", local.configuration_yml["lustre_base_image"])[2] : "azurehpc-lustre-2_12"
-        version   = local.use_lustre_image_reference ? split(":", local.configuration_yml["lustre_base_image"])[3] : "latest"
     }
     windows_base_image_reference = {
         publisher = local.use_windows_image_reference ? split(":", local.configuration_yml["windows_base_image"])[0] : "MicrosoftWindowsServer"
@@ -152,10 +144,6 @@ locals {
     use_linux_image_id = try(length(split("/", local.configuration_yml["linux_base_image"])[1])>0, false)
     linux_image_id = local.use_linux_image_id ? local.configuration_yml["linux_base_image"] : null
 
-    # Use a lustre custom image id if the lustre_base_image is defined and contains "/"
-    use_lustre_image_id = try(length(split("/", local.configuration_yml["lustre_base_image"])[1])>0, false)
-    lustre_image_id = local.use_lustre_image_id ? local.configuration_yml["lustre_base_image"] : null
-
     # Use a windows custom image id if the windows_base_image is defined and contains "/"
     use_windows_image_id = try(length(split("/", local.configuration_yml["windows_base_image"])[1])>0, false)
     windows_image_id = local.use_windows_image_id ? local.configuration_yml["windows_base_image"] : null
@@ -171,13 +159,6 @@ locals {
         name      = try(split(":", local.configuration_yml["linux_base_plan"])[2], "")
     }
     linux_image_plan = try( length(local._linux_base_image_plan.publisher) > 0 ? local._linux_base_image_plan : local._empty_image_plan, local._empty_image_plan)
-
-    _lustre_base_image_plan = {
-        publisher = try(split(":", local.configuration_yml["lustre_base_plan"])[0], "azhpc")
-        product   = try(split(":", local.configuration_yml["lustre_base_plan"])[1], "azurehpc-lustre")
-        name      = try(split(":", local.configuration_yml["lustre_base_plan"])[2], "azurehpc-lustre-2_12")
-    }
-    lustre_image_plan = try( length(local._lustre_base_image_plan.publisher) > 0 ? local._lustre_base_image_plan : local._empty_image_plan, local._empty_image_plan)
 
     _cyclecloud_image_plan = {
         publisher = try(split(":", local.configuration_yml["cyclecloud"]["plan"])[0], "")
@@ -216,13 +197,8 @@ locals {
     storage_account_name = try(local.configuration_yml["azure_storage_account"]["name"], "azhop${random_string.resource_postfix.result}")
     mariadb_name = try(local.configuration_yml["database"]["name"], "azhop-${random_string.resource_postfix.result}")
 
-    # Lustre
-    lustre_enabled = try(local.configuration_yml["lustre"]["create"], false)
-    lustre_archive_account = try(local.configuration_yml["lustre"]["hsm"]["storage_account"], null)
-    lustre_rbh_sku = try(local.configuration_yml["lustre"]["rbh_sku"], "Standard_D8d_v4")
-    lustre_mds_sku = try(local.configuration_yml["lustre"]["mds_sku"], "Standard_D8d_v4")
-    lustre_oss_sku = try(local.configuration_yml["lustre"]["oss_sku"], "Standard_D32d_v4")
-    lustre_oss_count = try(local.configuration_yml["lustre"]["oss_count"], local.lustre_enabled ? 2 : 0)
+    # Lustre - AMLFS not implemented for TF
+    lustre_enabled = false
 
     # Use a jumpbox when defined
     jumpbox_enabled = try(length(local.configuration_yml["jumpbox"]) > 0, false)
@@ -300,7 +276,6 @@ locals {
         asg-jumpbox = "asg-jumpbox"
         asg-ad = "asg-ad"
         asg-ad-client = "asg-ad-client"
-        asg-lustre = "asg-lustre"
         asg-lustre-client = "asg-lustre-client"
         asg-pbs = "asg-pbs"
         asg-pbs-client = "asg-pbs-client"
@@ -327,7 +302,6 @@ locals {
         ccportal  = ["asg-ssh", "asg-cyclecloud", "asg-telegraf", "asg-ad-client"]
         grafana   = ["asg-ssh", "asg-grafana", "asg-ad-client", "asg-telegraf", "asg-nfs-client"]
         jumpbox   = ["asg-ssh", "asg-jumpbox", "asg-ad-client", "asg-telegraf", "asg-nfs-client"]
-        lustre    = ["asg-ssh", "asg-lustre", "asg-lustre-client", "asg-telegraf"]
         ondemand  = ["asg-ssh", "asg-ondemand", "asg-ad-client", "asg-nfs-client", "asg-pbs-client", "asg-lustre-client", "asg-telegraf", "asg-cyclecloud-client", "asg-mariadb-client"]
         robinhood = ["asg-ssh", "asg-robinhood", "asg-lustre-client", "asg-telegraf"]
         scheduler = ["asg-ssh", "asg-pbs", "asg-ad-client", "asg-cyclecloud-client", "asg-nfs-client", "asg-telegraf", "asg-mariadb-client"]
@@ -422,10 +396,8 @@ locals {
         AllowComputeSlurmIn         = ["405", "Inbound", "Allow", "*",   "Slurmd",             "asg/asg-ondemand",    "subnet/compute"],
 
         # Lustre
-        AllowLustreIn               = ["409", "Inbound", "Allow", "Tcp", "Lustre",             "asg/asg-lustre",        "asg/asg-lustre-client"],
-        AllowLustreClientIn         = ["410", "Inbound", "Allow", "Tcp", "Lustre",             "asg/asg-lustre-client", "asg/asg-lustre"],
-        AllowLustreClientComputeIn  = ["420", "Inbound", "Allow", "Tcp", "Lustre",             "subnet/compute",        "asg/asg-lustre"],
-        AllowRobinhoodIn            = ["430", "Inbound", "Allow", "Tcp", "Web",                "asg/asg-ondemand",      "asg/asg-robinhood"],
+        AllowLustreClientIn         = ["410", "Inbound", "Allow", "Tcp", "Lustre",             "asg/asg-lustre-client", "subnet/admin"],
+        AllowLustreClientComputeIn  = ["420", "Inbound", "Allow", "Tcp", "Lustre",             "subnet/compute",        "subnet/admin"],
 
         # CycleCloud
         AllowCycleWebIn             = ["440", "Inbound", "Allow", "Tcp", "Web",                "asg/asg-ondemand",          "asg/asg-cyclecloud"],
@@ -486,11 +458,8 @@ locals {
         AllowSlurmComputeOut        = ["385", "Outbound", "Allow", "*",   "Slurmd",             "asg/asg-ondemand",        "subnet/compute"],
 
         # Lustre
-        AllowLustreOut              = ["390", "Outbound", "Allow", "Tcp", "Lustre",             "asg/asg-lustre",           "asg/asg-lustre-client"],
-        AllowLustreClientOut        = ["400", "Outbound", "Allow", "Tcp", "Lustre",             "asg/asg-lustre-client",    "asg/asg-lustre"],
-#        AllowLustreComputeOut       = ["410", "Outbound", "Allow", "Tcp", "Lustre",             "asg/asg-lustre",           "subnet/compute"],
-        AllowLustreClientComputeOut = ["420", "Outbound", "Allow", "Tcp", "Lustre",             "subnet/compute",           "asg/asg-lustre"],
-        AllowRobinhoodOut           = ["430", "Outbound", "Allow", "Tcp", "Web",                "asg/asg-ondemand",         "asg/asg-robinhood"],
+        AllowLustreClientOut        = ["400", "Outbound", "Allow", "Tcp", "Lustre",             "asg/asg-lustre-client",    "subnet/admin"],
+        AllowLustreClientComputeOut = ["420", "Outbound", "Allow", "Tcp", "Lustre",             "subnet/compute",           "subnet/admin"],
 
         # NFS
         AllowNfsOut                 = ["440", "Outbound", "Allow", "*",   "Nfs",                "asg/asg-nfs-client",       "subnet/netapp"],

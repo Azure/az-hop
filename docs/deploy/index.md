@@ -110,10 +110,6 @@ Once deployed, you can connect to the OnDemand web portal via:
   - **"Reader"** on the subscription
 - Your subscription need to be registered for NetApp resource provider as explained [here](https://docs.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-register#waitlist)
 - If using ANF Dual Protocol be aware of the limitation of one ANF account allow to be domain joined per region in the same subscription
-- If deploying a Lustre Cluster, the Azure HPC Lustre marketplace image terms need to be accepted
-```bash
-az vm image terms accept --offer azurehpc-lustre --publisher azhpc --plan azurehpc-lustre-2_12
-```
 - If AlmaLinux Marketplace image is used, the terms need to be accepted as well
 ```bash
 az vm image terms accept --offer almalinux-hpc --publisher almalinux --plan 8_5-hpc-gen2

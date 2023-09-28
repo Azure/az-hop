@@ -8,7 +8,7 @@
 - name: mount lustre
   mount:
     path: /lustre
-    src: lustre@tcp0:/LustreFS
-    opts: flock,defaults,_netdev
+    src: "{{ lustre_mgs }}@tcp0:/lustrefs"
+    opts: noatime,flock,defaults,_netdev
     state: mounted
     fstype: lustre
