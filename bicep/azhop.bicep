@@ -765,6 +765,14 @@ module azhopVpnGateway './vpngateway.bicep' = if (config.deploy_gateway) {
   }
 }
 
+module azhopAmlfs './amlfs.bicep' = if (deployLustre) {
+  name: 'azhopAmlfs'
+  params: {
+    location: location
+    subnetId: subnetIds.admin
+  }
+}
+
 module azhopAnf './anf.bicep' = if (config.anf.create) {
   name: 'azhopAnf'
   params: {
@@ -877,7 +885,7 @@ output azhopGlobalConfig object = union(
     anf_home_opts                 : azhopConfig.mounts.home.options
   } : {},
   deployLustre ? {
-    lustre_mgs                    : 'TODO'
+    lustre_mgs                    : azhopAmlfs.outputs.lustre_mgs
   } : {}
 )
 
