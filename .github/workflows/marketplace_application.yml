@@ -43,13 +43,13 @@ jobs:
           ./marketplace/solution/build.sh
 
       - name: Run ARM-TTK
-        uses: venura9/arm-ttk@master
+        uses: microsoft/action-armttk@v1
         id: bicep
-        with: 
-          path: marketplace/solution/build
-#          file: mainTemplate.json
+        with:
+          workdir: marketplace/solution/build
+          armttkVersion: aka.ms/arm-ttk-marketplace
 
-      - name: Results for Run ARM-TTK
-        run: |
-          content=${{ steps.bicep.outputs.results }}
-          echo "Results $content"
+      # - name: Results for Run ARM-TTK
+      #   run: |
+      #     content=${{ steps.bicep.outputs.results }}
+      #     echo "Results $content"
