@@ -10,6 +10,8 @@ on:
     types: [ closed ]
     branches:
       - main
+    paths:
+      - 'packer/**'
   workflow_dispatch:
     inputs:
       publish:

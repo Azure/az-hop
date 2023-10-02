@@ -3,4 +3,10 @@ THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 [[ $(type -t module) == "function" ]] && export -f module
 
 # Find available port to run server on
-port=$(find_port ${host})
+export port=$(find_port ${host})
+
+<%- if OodAppkit.clusters[context.cluster].job_config[:adapter] == 'pbspro' -%>
+# TODO : Use the job ID for the container name
+export CONTAINER_NAME=rstudio.$PBS_JOBID
+$THIS_DIR/get_container.sh <%=context.container_image%> $CONTAINER_NAME
+<%- end -%>

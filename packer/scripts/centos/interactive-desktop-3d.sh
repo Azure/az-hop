@@ -62,6 +62,8 @@ yum groupinstall -y xfce
 yum install -y https://yum.osc.edu/ondemand/3.0/compute/el7/x86_64/turbovnc-2.2.5-1.el7.x86_64.rpm
 #yum install -y https://cbs.centos.org/kojifiles/packages/python-websockify/0.8.0/13.el7/noarch/python2-websockify-0.8.0-13.el7.noarch.rpm
 yum install -y https://yum.osc.edu/ondemand/3.0/compute/el7/x86_64/python3-websockify-0.10.0-1.el7.noarch.rpm
+# Numpy is required to optimize HyBi protocol in websockify
+pip3 install numpy
 
 wget --no-check-certificate "https://virtualgl.com/pmwiki/uploads/Downloads/VirtualGL.repo" -O /etc/yum.repos.d/VirtualGL.repo
 
