@@ -10,22 +10,41 @@ on:
       - main
     paths:
       - 'bicep/**'
+      - 'marketplace/solution/**'
   workflow_dispatch:
+
+env:
+  ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+
+defaults:
+  run:
+    shell: bash
 
 jobs:
   arm_validation:
     runs-on: ubuntu-latest
 
+    container:
+      image: azhop.azurecr.io/hpcrover:2306.0708
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
+      options: --user 0
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run ARM-TTK
-        uses: venura9/arm-ttk@master
-        id: bicep
-        with: 
-          path: bicep/*.bicep
-
-      - name: Results for Run ARM-TTK
+      - name: Build ARM
+        id: build
         run: |
-          content=${{ steps.bicep.outputs.results }}
-          echo "Results $content"
+          set -e
+          source /miniconda/bin/activate
+          ./marketplace/solution/build.sh
+
+      - name: Run ARM-TTK
+        uses: microsoft/action-armttk@v1
+        with:
+          workdir: marketplace/solution/build
+          armttkVersion: aka.ms/arm-ttk-marketplace
+          reporter: github-pr-review
