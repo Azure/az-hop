@@ -46,7 +46,7 @@ jobs:
         uses: venura9/arm-ttk@master
         id: bicep
         with: 
-          path: marketplace/solution
+          path: marketplace/solution/build
           file: mainTemplate.json
 
       - name: Results for Run ARM-TTK
