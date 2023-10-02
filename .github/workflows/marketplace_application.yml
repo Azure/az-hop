@@ -47,7 +47,7 @@ jobs:
         id: bicep
         with: 
           path: marketplace/solution/build
-          file: mainTemplate.json
+#          file: mainTemplate.json
 
       - name: Results for Run ARM-TTK
         run: |
