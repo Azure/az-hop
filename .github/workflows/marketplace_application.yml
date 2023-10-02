@@ -5,7 +5,6 @@
 name : marketplace application
 on:
   pull_request:
-    types: [ closed ]
     branches:
       - main
     paths:
