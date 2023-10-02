@@ -1,0 +1,31 @@
+#
+# Copyright (c) Microsoft Corporation
+# Licensed under the MIT License.
+#
+name : marketplace application
+on:
+  pull_request:
+    types: [ closed ]
+    branches:
+      - main
+    paths:
+      - 'bicep/**'
+  workflow_dispatch:
+
+jobs:
+  arm_validation:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run ARM-TTK
+        uses: venura9/arm-ttk@master
+        id: bicep
+        with: 
+          path: bicep/*.bicep
+
+      - name: Results for Run ARM-TTK
+        run: |
+          content=${{ steps.bicep.outputs.results }}
+          echo "Results $content"
