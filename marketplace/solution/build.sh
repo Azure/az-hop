@@ -7,6 +7,8 @@ AZHOP_ROOT=${THIS_DIR}/../..
 if [ -d ${AZHOP_ROOT}/miniconda ]; then
   echo "Activating conda environment"
   source ${AZHOP_ROOT}/miniconda/bin/activate
+
+  ansible-playbook ${THIS_DIR}/arm-ttk.yml 
 fi
 
 build_dir="${THIS_DIR}/build"
