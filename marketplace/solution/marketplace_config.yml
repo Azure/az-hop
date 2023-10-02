@@ -21,6 +21,11 @@ alerting:
   admin_email: admin.mail@contoso.com
   local_volume_threshold: 80
 
+lustre:
+  create: "[steps('lustre').deployLustre]"
+  sku: "[steps('lustre').lustreSku]"
+  capacity: "[steps('lustre').lustreCapacity]"
+
 anf:
   create: "[equals(steps('homedir').type, 'anf')]"
   homefs_size_tb: "[if(equals(steps('homedir').type, 'anf'), steps('homedir').anfcapacity, 4)]"
@@ -68,7 +73,7 @@ network:
       gateway:
         address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.48/28')]"
         create: true
-      bastion:
+      lustre:
         address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.64/26')]"
         create: true
       compute:

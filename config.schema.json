@@ -696,6 +696,15 @@
                     "type": "boolean",
                     "default": false
                 },
+                "sku": {
+                    "description": "The Lustre tier to use",
+                    "enum": ["AMLFS-Durable-Premium-40", "AMLFS-Durable-Premium-120", "AMLFS-Durable-Premium-250", "AMLFS-Durable-Premium-500"],
+                    "type": "string"
+                },
+                "capacity": {
+                    "description": "Size of the Lustre file system in TB",
+                    "type": "integer"
+                },
                 "hsm": {
                     "description": "Use existing storage account for the archive (optional). If not included, will use az-hop storage account.",
                     "$ref": "#/definitions/HSM"

@@ -120,6 +120,12 @@ var config = {
   homedir_type: contains(azhopConfig.mounts.home, 'type') ? azhopConfig.mounts.home.type : 'existing'
   homedir_mountpoint: azhopConfig.mounts.home.mountpoint
 
+  lustre: {
+    create: deployLustre ? true : false
+    sku: contains(azhopConfig, 'lustre') && contains(azhopConfig.lustre, 'sku') ? azhopConfig.lustre.sku : 'AMLFS-Durable-Premium-250'
+    capacity: contains(azhopConfig, 'lustre') && contains(azhopConfig.lustre, 'capacity') ? azhopConfig.lustre.capacity : 8
+  }
+
   anf: {
     create: contains(azhopConfig, 'anf') && contains(azhopConfig.anf, 'create') ? azhopConfig.anf.create : (contains(azhopConfig, 'anf') ? true : false)
     dual_protocol: contains(azhopConfig, 'anf') && contains(azhopConfig.anf, 'dual_protocol') ? azhopConfig.anf.dual_protocol : false
@@ -169,6 +175,12 @@ var config = {
         ]
       }
     },
+    deployLustre ? {
+      lustre: {
+        name: contains(azhopConfig.network.vnet.subnets.lustre, 'name') ? azhopConfig.network.vnet.subnets.lustre.name : 'lustre'
+        cidr: azhopConfig.network.vnet.subnets.lustre.address_prefixes
+      }
+    } : {},
     createAD ? {
       ad: {
         name: contains(azhopConfig.network.vnet.subnets.ad, 'name') ? azhopConfig.network.vnet.subnets.ad.name : 'ad'
@@ -374,7 +386,7 @@ var config = {
     Rdp: ['3389']
     Pbs: ['6200', '15001-15009', '17001', '32768-61000', '6817-6819']
     Slurmd: ['6818']
-    Lustre: ['635', '988']
+    Lustre: ['988', '1019-1023']
     Nfs: ['111', '635', '2049', '4045', '4046']
     SMB: ['445']
     Telegraf: ['8086']
@@ -444,7 +456,7 @@ var config = {
 
       // Deny all remaining traffic
       DenyVnetInbound             : ['3100', 'Inbound', 'Deny', '*', 'All', 'tag', 'VirtualNetwork', 'tag', 'VirtualNetwork']
-    
+      
       //
       // Outbound
       //
@@ -509,11 +521,14 @@ var config = {
     }
     lustre: {
       // Inbound
-      AllowLustreClientIn         : ['410', 'Inbound', 'Allow', 'Tcp', 'Lustre', 'asg', 'asg-lustre-client', 'subnet', 'admin']
-      AllowLustreClientComputeIn  : ['420', 'Inbound', 'Allow', 'Tcp', 'Lustre', 'subnet', 'compute', 'subnet', 'admin']
+      AllowLustreClientIn         : ['410', 'Inbound', 'Allow', 'Tcp', 'Lustre', 'asg', 'asg-lustre-client', 'subnet', 'lustre']
+      AllowLustreClientComputeIn  : ['420', 'Inbound', 'Allow', 'Tcp', 'Lustre', 'subnet', 'lustre', 'subnet', 'lustre']
+      AllowLustreSubnetAnyInbound : ['430', 'Inbound', 'Allow', '*', 'All', 'subnet', 'lustre', 'subnet', 'lustre']
       // Outbound
-      AllowLustreClientOut        : ['400', 'Outbound', 'Allow', 'Tcp', 'Lustre', 'asg', 'asg-lustre-client', 'subnet', 'admin']
-      AllowLustreClientComputeOut : ['420', 'Outbound', 'Allow', 'Tcp', 'Lustre', 'subnet', 'compute', 'subnet', 'admin']
+      AllowAzureCloudServiceAccess: ['400', 'Outbound', 'Allow', '*', 'All', 'tag', 'VirtualNetwork', 'tag', 'AzureCloud']
+      AllowLustreClientOut        : ['410', 'Outbound', 'Allow', 'Tcp', 'Lustre', 'asg', 'asg-lustre-client', 'subnet', 'lustre']
+      AllowLustreClientComputeOut : ['420', 'Outbound', 'Allow', 'Tcp', 'Lustre', 'subnet', 'compute', 'subnet', 'lustre']
+      AllowLustreSubnetAnyOutbound: ['430', 'Outbound', 'Allow', '*', 'All', 'subnet', 'lustre', 'subnet', 'lustre']
     }
     internet: {
       AllowInternetSshIn          : ['200', 'Inbound', 'Allow', 'Tcp', 'HubSsh', 'tag', 'Internet', 'asg', 'asg-jumpbox']
@@ -521,7 +536,7 @@ var config = {
     }
     hub: {
       AllowHubSshIn               : ['200', 'Inbound', 'Allow', 'Tcp', 'HubSsh', 'tag', 'VirtualNetwork', 'asg', 'asg-jumpbox']
-      AllowHubHttpIn              : ['210', 'Inbound', 'Allow', 'Tcp', 'Web',        'tag', 'VirtualNetwork', 'asg', 'asg-ondemand']
+      AllowHubHttpIn              : ['210', 'Inbound', 'Allow', 'Tcp', 'Web', 'tag', 'VirtualNetwork', 'asg', 'asg-ondemand']
     }
     bastion: {
       AllowBastionIn              : ['530', 'Inbound', 'Allow', 'Tcp', 'Bastion', 'subnet', 'bastion', 'tag', 'VirtualNetwork']
@@ -770,6 +785,8 @@ module azhopAmlfs './amlfs.bicep' = if (deployLustre) {
   params: {
     location: location
     subnetId: subnetIds.admin
+    sku: config.lustre.sku
+    capacity: config.lustre.capacity
   }
 }
 
