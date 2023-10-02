@@ -10,6 +10,7 @@ on:
       - main
     paths:
       - 'bicep/**'
+      - 'marketplace/solution/**'
   workflow_dispatch:
 
 jobs:
@@ -19,11 +20,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Build ARM
+        id: build
+        run: |
+          set -e
+          source /miniconda/bin/activate
+          ./marketplace/solution/build.sh
+
       - name: Run ARM-TTK
         uses: venura9/arm-ttk@master
         id: bicep
         with: 
-          path: bicep/*.bicep
+          path: marketplace/solution
+          file: mainTemplate.json
 
       - name: Results for Run ARM-TTK
         run: |
