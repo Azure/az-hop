@@ -17,6 +17,10 @@ env:
   ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
   ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   arm_validation:
     runs-on: ubuntu-latest
