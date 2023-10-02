@@ -44,12 +44,7 @@ jobs:
 
       - name: Run ARM-TTK
         uses: microsoft/action-armttk@v1
-        id: bicep
         with:
           workdir: marketplace/solution/build
           armttkVersion: aka.ms/arm-ttk-marketplace
-
-      # - name: Results for Run ARM-TTK
-      #   run: |
-      #     content=${{ steps.bicep.outputs.results }}
-      #     echo "Results $content"
+          reporter: github-pr-review
