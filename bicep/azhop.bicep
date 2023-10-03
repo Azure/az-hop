@@ -708,7 +708,7 @@ module kvAccessPoliciesSecrets './kv_access_policies.bicep' = if (autogenerateSe
     name: 'kvAccessPoliciesSecrets'
     vaultName: azhopKeyvault.outputs.keyvaultName
     secret_permissions: ['Set']
-    principalId: !empty(identity) ? identity.properties.principalId : ''
+    principalId: autogenerateSecrets ? identity.properties.principalId : ''
   }
 }
 
