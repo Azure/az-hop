@@ -611,7 +611,7 @@ module azhopSecrets './secrets.bicep' = if (autogenerateSecrets) {
   }
 }
 
-resource kv 'Microsoft.KeyVault/vaults@2021-10-01' existing = if (autogenerateSecrets) {
+resource kv 'Microsoft.KeyVault/vaults@2022-11-01' existing = if (autogenerateSecrets) {
   name: azhopKeyvaultSecrets.outputs.keyvaultName
 }
 

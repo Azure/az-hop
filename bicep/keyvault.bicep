@@ -11,7 +11,7 @@ param identityPerms array
 
 output keyvaultName string = kvName
 
-resource kv 'Microsoft.KeyVault/vaults@2021-10-01' = {
+resource kv 'Microsoft.KeyVault/vaults@2022-11-01' = {
   name: kvName
   location: location
   properties: {
