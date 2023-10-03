@@ -600,12 +600,13 @@ var config = {
 
 var vmItems = concat(items(config.vms), ossVmConfig)
 var _identityId_secrets = autogenerateSecrets ? identity.id : '' // trick to avoid unreferenced resource for identity
+var _kvName_secrets = azhopKeyvaultSecrets.outputs.keyvaultName
 
 module azhopSecrets './secrets.bicep' = if (autogenerateSecrets) {
   name: 'azhopSecrets'
   params: {
     location: location
-    kvName: autogenerateSecrets ? azhopKeyvaultSecrets.outputs.keyvaultName : 'foo' // trick to avoid unreferenced resource for azhopKeyvaultSecrets
+    kvName: _kvName_secrets
     adminUser: config.admin_user
     dbAdminUser: config.slurm.admin_user
     identityId: _identityId_secrets
