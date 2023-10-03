@@ -600,7 +600,7 @@ var config = {
 
 var vmItems = concat(items(config.vms), ossVmConfig)
 var _identityId_secrets = autogenerateSecrets ? identity.id : '' // trick to avoid unreferenced resource for identity
-var _kvName_secrets = azhopKeyvaultSecrets.outputs.keyvaultName
+var _kvName_secrets = azhopKeyvault.outputs.keyvaultName
 
 module azhopSecrets './secrets.bicep' = if (autogenerateSecrets) {
   name: 'azhopSecrets'
@@ -697,6 +697,16 @@ module azhopKeyvaultSecrets './keyvault.bicep' = if (autogenerateSecrets) {
     //   principalId: identity.properties.principalId
     //   secret_permissions: ['Set']
     // }] : [] // trick to avoid unreferenced resource for identity
+  }
+}
+
+module kvAccessPoliciesSecrets './kv_access_policies.bicep' = if (autogenerateSecrets) {
+  name: 'kvAccessPoliciesSecrets'
+  params: {
+    name: 'kvAccessPoliciesSecrets'
+    vaultName: azhopKeyvault.outputs.keyvaultName
+    secret_permissions: ['Set']
+    principalId: identity.properties.principalId
   }
 }
 
