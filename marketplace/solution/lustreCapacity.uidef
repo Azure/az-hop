@@ -28,7 +28,7 @@
 ]
 
 # lustreCapacity
-# increment
+# step
 [
     if(
         equals(steps('lustre').lustreSku,'AMLFS-Durable-Premium-40'),
