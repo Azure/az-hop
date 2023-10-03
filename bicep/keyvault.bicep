@@ -9,8 +9,8 @@ param lockDownNetwork bool
 param allowableIps array
 //param identityPerms array
 
-// Why are we doing this? Because the keyvaultName parameter is already a parameter, so it should be known by the caller 
-//output keyvaultName string = kvName
+// Use the output so that the keyvault name can be used in other modules as a dependency
+output keyvaultName string = kvName
 
 resource kv 'Microsoft.KeyVault/vaults@2022-11-01' = {
   name: kvName
