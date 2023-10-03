@@ -9,9 +9,6 @@ if [ -d ${AZHOP_ROOT}/miniconda ]; then
   source ${AZHOP_ROOT}/miniconda/bin/activate
 fi
 
-# Install arm ttk dependencies
-ansible-playbook ${THIS_DIR}/arm-ttk.yml
-
 build_dir="${THIS_DIR}/build"
 rm -rf $build_dir
 mkdir -p $build_dir
@@ -41,3 +38,8 @@ echo "Creating zipfile"
 pushd $build_dir
 zip -r $build_dir.zip *
 popd
+
+# Install arm toolkit
+ansible-playbook ${THIS_DIR}/arm-ttk.yml
+
+${THIS_DIR}/arm-ttk/arm-ttk/Test-AzTemplate.sh $build_dir

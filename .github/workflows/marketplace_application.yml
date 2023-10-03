@@ -41,9 +41,3 @@ jobs:
           source /miniconda/bin/activate
           ./marketplace/solution/build.sh
 
-      - name: Run ARM-TTK
-        uses: microsoft/action-armttk@v1
-        with:
-          workdir: marketplace/solution/build
-          armttkVersion: aka.ms/arm-ttk-marketplace
-          reporter: github-pr-review
