@@ -599,19 +599,15 @@ var config = {
 }
 
 var vmItems = concat(items(config.vms), ossVmConfig)
-var _identityId_secrets = autogenerateSecrets ? identity.id : '' // trick to avoid unreferenced resource for identity
-//var _identityPrincipalId_secrets = identity.properties.principalId // toLower(autogenerateSecrets ? identity.properties.principalId : '')
-
-var _kvName_secrets = azhopKeyvault.outputs.keyvaultName
 
 module azhopSecrets './secrets.bicep' = if (autogenerateSecrets) {
   name: 'azhopSecrets'
   params: {
     location: location
-    kvName: _kvName_secrets
+    kvName: autogenerateSecrets ? azhopKeyvaultSecrets.outputs.keyvaultName : 'foo' // trick to avoid unreferenced resource for azhopKeyvaultSecrets
     adminUser: config.admin_user
     dbAdminUser: config.slurm.admin_user
-    identityId: _identityId_secrets
+    identityId: autogenerateSecrets ? identity.id : '' // trick to avoid unreferenced resource for identity
   }
 }
 
@@ -706,7 +702,7 @@ module kvAccessPoliciesSecrets './kv_access_policies.bicep' = if (autogenerateSe
   name: 'kvAccessPoliciesSecrets'
   params: {
     name: 'kvAccessPoliciesSecrets'
-    vaultName: azhopKeyvault.outputs.keyvaultName
+    vaultName: autogenerateSecrets ? azhopKeyvaultSecrets.outputs.keyvaultName : 'foo' // trick to avoid unreferenced resource for azhopKeyvaultSecrets
     secret_permissions: ['Set']
     principalId: autogenerateSecrets ? identity.properties.principalId : ''
   }
