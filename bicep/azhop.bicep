@@ -692,10 +692,10 @@ module azhopKeyvaultSecrets './keyvault.bicep' = if (autogenerateSecrets) {
     lockDownNetwork: config.lock_down_network.enforce
     allowableIps: config.lock_down_network.grant_access_from
     keyvaultOwnerId: loggedUserObjectId
-    identityPerms: autogenerateSecrets ? [{
-      principalId: identity.properties.principalId
-      secret_permissions: ['Set']
-    }] : [] // trick to avoid unreferenced resource for identity
+    // identityPerms: autogenerateSecrets ? [{
+    //   principalId: identity.properties.principalId
+    //   secret_permissions: ['Set']
+    // }] : [] // trick to avoid unreferenced resource for identity
   }
 }
 
@@ -709,13 +709,24 @@ module azhopKeyvault './keyvault.bicep' = {
     lockDownNetwork: config.lock_down_network.enforce
     allowableIps: config.lock_down_network.grant_access_from
     keyvaultOwnerId: loggedUserObjectId
-    identityPerms: [ for i in range(0, length(vmItems)): {
-      principalId: azhopVm[i].outputs.principalId
-      key_permissions: (contains(vmItems[i].value, 'identity') && contains(vmItems[i].value.identity, 'keyvault') && contains(vmItems[i].value.identity.keyvault, 'key_permissions')) ? vmItems[i].value.identity.keyvault.key_permissions : []
-      secret_permissions: (contains(vmItems[i].value, 'identity') && contains(vmItems[i].value.identity, 'keyvault')) ? vmItems[i].value.identity.keyvault.secret_permissions : []
-    }]
+    // identityPerms: [ for i in range(0, length(vmItems)): {
+    //   principalId: azhopVm[i].outputs.principalId
+    //   key_permissions: (contains(vmItems[i].value, 'identity') && contains(vmItems[i].value.identity, 'keyvault') && contains(vmItems[i].value.identity.keyvault, 'key_permissions')) ? vmItems[i].value.identity.keyvault.key_permissions : []
+    //   secret_permissions: (contains(vmItems[i].value, 'identity') && contains(vmItems[i].value.identity, 'keyvault')) ? vmItems[i].value.identity.keyvault.secret_permissions : []
+    // }]
   }
 }
+
+module kvAccessPolicies './kv_access_policies.bicep' = [ for vm in vmItems: if (contains(vm.value, 'identity') && contains(vm.value.identity, 'keyvault')) {
+  name: 'kvAccessPolicies${vm.key}'
+  params: {
+    name: vm.key
+    vaultName: config.key_vault_name
+    secret_permissions: contains(vm.value.identity, 'secret_permissions') ? vm.value.identity.secret_permissions : []
+    principalId: azhopVm[indexOf(map(vmItems, item => item.key), vm.key)].outputs.principalId
+  }
+}]
+
 
 module kvSecretAdminPassword './kv_secrets.bicep' = if (!autogenerateSecrets) {
   name: 'kvSecrets-admin-password'

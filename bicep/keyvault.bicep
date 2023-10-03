@@ -7,7 +7,7 @@ param keyvaultReaderOids array
 param keyvaultOwnerId string
 param lockDownNetwork bool
 param allowableIps array
-param identityPerms array
+//param identityPerms array
 
 // Why are we doing this? Because the keyvaultName parameter is already a parameter, so it should be known by the caller 
 //output keyvaultName string = kvName
@@ -45,19 +45,19 @@ resource kv 'Microsoft.KeyVault/vaults@2022-11-01' = {
         }
         tenantId: subscription().tenantId
       }),
-      map(
-        filter(
-          identityPerms,
-          id => (contains(id, 'key_permissions') && !empty(id.key_permissions)) || (contains(id, 'secret_permissions') && !empty(id.secret_permissions))
-        ),
-        id => {
-        objectId: id.principalId
-        permissions: {
-          keys: contains(id, 'key_permissions') ? id.key_permissions : []
-          secrets: contains(id, 'secret_permissions') ? id.secret_permissions : []
-        }
-        tenantId: subscription().tenantId
-      }),
+      // map(
+      //   filter(
+      //     identityPerms,
+      //     id => (contains(id, 'key_permissions') && !empty(id.key_permissions)) || (contains(id, 'secret_permissions') && !empty(id.secret_permissions))
+      //   ),
+      //   id => {
+      //   objectId: id.principalId
+      //   permissions: {
+      //     keys: contains(id, 'key_permissions') ? id.key_permissions : []
+      //     secrets: contains(id, 'secret_permissions') ? id.secret_permissions : []
+      //   }
+      //   tenantId: subscription().tenantId
+      // }),
       keyvaultOwnerId != '' ? [{
         objectId: keyvaultOwnerId
         permissions: {
