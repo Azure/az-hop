@@ -599,20 +599,21 @@ var config = {
 }
 
 var vmItems = concat(items(config.vms), ossVmConfig)
+var _identityId_secrets = autogenerateSecrets ? identity.id : '' // trick to avoid unreferenced resource for identity
 
 module azhopSecrets './secrets.bicep' = if (autogenerateSecrets) {
   name: 'azhopSecrets'
   params: {
     location: location
-    kvName: autogenerateSecrets ? azhopKeyvaultSecrets.outputs.keyvaultName : 'foo' // trick to avoid unreferenced resource for azhopKeyvaultSecrets
+    kvName: config.key_vault_name // autogenerateSecrets ? azhopKeyvaultSecrets.outputs.keyvaultName : 'foo' // trick to avoid unreferenced resource for azhopKeyvaultSecrets
     adminUser: config.admin_user
     dbAdminUser: config.slurm.admin_user
-    identityId: autogenerateSecrets ? identity.id : '' // trick to avoid unreferenced resource for identity
+    identityId: _identityId_secrets
   }
 }
 
 resource kv 'Microsoft.KeyVault/vaults@2022-11-01' existing = if (autogenerateSecrets) {
-  name: azhopKeyvaultSecrets.outputs.keyvaultName
+  name: config.key_vault_name // azhopKeyvaultSecrets.outputs.keyvaultName
 }
 
 module azhopNetwork './network.bicep' = {
@@ -719,7 +720,7 @@ module azhopKeyvault './keyvault.bicep' = {
 module kvSecretAdminPassword './kv_secrets.bicep' = if (!autogenerateSecrets) {
   name: 'kvSecrets-admin-password'
   params: {
-    vaultName: azhopKeyvault.outputs.keyvaultName
+    vaultName: config.key_vault_name // azhopKeyvault.outputs.keyvaultName
     name: '${config.admin_user}-password'
     value: adminPassword
   }
@@ -728,7 +729,7 @@ module kvSecretAdminPassword './kv_secrets.bicep' = if (!autogenerateSecrets) {
 module kvSecretAdminPubKey './kv_secrets.bicep' = if (!autogenerateSecrets)  {
   name: 'kvSecrets-admin-pubkey'
   params: {
-    vaultName: azhopKeyvault.outputs.keyvaultName
+    vaultName: config.key_vault_name // azhopKeyvault.outputs.keyvaultName
     name: '${config.admin_user}-pubkey'
     value: adminSshPublicKey
   }
@@ -737,7 +738,7 @@ module kvSecretAdminPubKey './kv_secrets.bicep' = if (!autogenerateSecrets)  {
 module kvSecretAdminPrivKey './kv_secrets.bicep' = if (!autogenerateSecrets)  {
   name: 'kvSecrets-admin-privkey'
   params: {
-    vaultName: azhopKeyvault.outputs.keyvaultName
+    vaultName: config.key_vault_name // azhopKeyvault.outputs.keyvaultName
     name: '${config.admin_user}-privkey'
     value: adminSshPrivateKey
   }
@@ -746,7 +747,7 @@ module kvSecretAdminPrivKey './kv_secrets.bicep' = if (!autogenerateSecrets)  {
 module kvSecretDBPassword './kv_secrets.bicep' = if (!autogenerateSecrets && createDatabase) {
   name: 'kvSecrets-db-password'
   params: {
-    vaultName: azhopKeyvault.outputs.keyvaultName
+    vaultName: config.key_vault_name // azhopKeyvault.outputs.keyvaultName
     name: '${config.slurm.admin_user}-password'
     value: databaseAdminPassword
   }
@@ -756,7 +757,7 @@ module kvSecretDBPassword './kv_secrets.bicep' = if (!autogenerateSecrets && cre
 module kvSecretDomainJoin './kv_secrets.bicep' = if (createAD) {
   name: 'kvSecrets-domain-join'
   params: {
-    vaultName: azhopKeyvault.outputs.keyvaultName
+    vaultName: config.key_vault_name // azhopKeyvault.outputs.keyvaultName
     name: '${config.domain.domain_join_user.username}-password'
     value: autogenerateSecrets ? kv.getSecret(azhopSecrets.outputs.secrets.adminPassword) : adminPassword
   }
@@ -770,7 +771,7 @@ resource domainJoinUserKV 'Microsoft.KeyVault/vaults@2021-10-01' existing = if (
 module kvSecretExistingDomainJoin './kv_secrets.bicep' = if (useExistingAD) {
   name: 'kvSecrets-existing-domain-join'
   params: {
-    vaultName: azhopKeyvault.outputs.keyvaultName
+    vaultName: config.key_vault_name // azhopKeyvault.outputs.keyvaultName
     name: '${config.domain.domain_join_user.username}-password'
     value: domainJoinUserKV.getSecret(config.domain.domain_join_user.password_key_vault_secret_name)
   }
@@ -872,7 +873,7 @@ module azhopADRecords './privatezone_records.bicep' = if (createAD || useExistin
 
 output ccportalPrincipalId string = azhopVm[indexOf(map(vmItems, item => item.key), 'ccportal')].outputs.principalId
 
-output keyvaultName string = azhopKeyvault.outputs.keyvaultName
+output keyvaultName string = config.key_vault_name // azhopKeyvault.outputs.keyvaultName
 
 // Our input file is also the deployment output
 output azhopConfig object = azhopConfig

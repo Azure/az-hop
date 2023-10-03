@@ -9,7 +9,8 @@ param lockDownNetwork bool
 param allowableIps array
 param identityPerms array
 
-output keyvaultName string = kvName
+// Why are we doing this? Because the keyvaultName parameter is already a parameter, so it should be known by the caller 
+//output keyvaultName string = kvName
 
 resource kv 'Microsoft.KeyVault/vaults@2022-11-01' = {
   name: kvName
