@@ -681,23 +681,6 @@ resource computemi 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31'
   location: location
 }
 
-// module azhopKeyvaultSecrets './keyvault.bicep' = if (autogenerateSecrets) {
-//   name: 'azhopKeyvaultSecrets'
-//   params: {
-//     location: location
-//     kvName: config.key_vault_name
-//     subnetId: subnetIds.admin
-//     keyvaultReaderOids: config.keyvault_readers
-//     lockDownNetwork: config.lock_down_network.enforce
-//     allowableIps: config.lock_down_network.grant_access_from
-//     keyvaultOwnerId: loggedUserObjectId
-//     // identityPerms: autogenerateSecrets ? [{
-//     //   principalId: identity.properties.principalId
-//     //   secret_permissions: ['Set']
-//     // }] : [] // trick to avoid unreferenced resource for identity
-//   }
-// }
-
 module kvAccessPoliciesSecrets './kv_access_policies.bicep' = if (autogenerateSecrets) {
   name: 'kvAccessPoliciesSecrets'
   params: {
@@ -717,11 +700,6 @@ module azhopKeyvault './keyvault.bicep' = {
     lockDownNetwork: config.lock_down_network.enforce
     allowableIps: config.lock_down_network.grant_access_from
     keyvaultOwnerId: loggedUserObjectId
-    // identityPerms: [ for i in range(0, length(vmItems)): {
-    //   principalId: azhopVm[i].outputs.principalId
-    //   key_permissions: (contains(vmItems[i].value, 'identity') && contains(vmItems[i].value.identity, 'keyvault') && contains(vmItems[i].value.identity.keyvault, 'key_permissions')) ? vmItems[i].value.identity.keyvault.key_permissions : []
-    //   secret_permissions: (contains(vmItems[i].value, 'identity') && contains(vmItems[i].value.identity, 'keyvault')) ? vmItems[i].value.identity.keyvault.secret_permissions : []
-    // }]
   }
 }
 

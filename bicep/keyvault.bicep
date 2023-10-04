@@ -7,7 +7,6 @@ param keyvaultReaderOids array
 param keyvaultOwnerId string
 param lockDownNetwork bool
 param allowableIps array
-//param identityPerms array
 
 // Use the output so that the keyvault name can be used in other modules as a dependency
 output keyvaultName string = kvName
@@ -45,19 +44,6 @@ resource kv 'Microsoft.KeyVault/vaults@2022-11-01' = {
         }
         tenantId: subscription().tenantId
       }),
-      // map(
-      //   filter(
-      //     identityPerms,
-      //     id => (contains(id, 'key_permissions') && !empty(id.key_permissions)) || (contains(id, 'secret_permissions') && !empty(id.secret_permissions))
-      //   ),
-      //   id => {
-      //   objectId: id.principalId
-      //   permissions: {
-      //     keys: contains(id, 'key_permissions') ? id.key_permissions : []
-      //     secrets: contains(id, 'secret_permissions') ? id.secret_permissions : []
-      //   }
-      //   tenantId: subscription().tenantId
-      // }),
       keyvaultOwnerId != '' ? [{
         objectId: keyvaultOwnerId
         permissions: {
