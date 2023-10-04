@@ -953,6 +953,9 @@
                 "bastion": {
                     "$ref": "#/definitions/subnetClass"
                 },
+                "lustre": {
+                    "$ref": "#/definitions/subnetClass"
+                },
                 "gateway": {
                     "$ref": "#/definitions/subnetClass"
                 },
