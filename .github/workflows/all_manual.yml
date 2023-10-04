@@ -64,7 +64,7 @@ jobs:
       lustre: 'false'
       home_type: ${{ matrix.home_type }}
       user_auth: ${{ matrix.user_auth }}
-      deploy_with: ${{ github.event.inputs.deploy_with }}}
+      deploy_with: ${{ github.event.inputs.deploy_with }}
       clean: ${{ github.event.inputs.clean }}
       ui_tests: ${{ github.event.inputs.ui_tests }}
       monitoring: ${{ matrix.monitoring }}
