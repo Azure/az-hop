@@ -784,7 +784,7 @@ module azhopAmlfs './amlfs.bicep' = if (deployLustre) {
   name: 'azhopAmlfs'
   params: {
     location: location
-    subnetId: subnetIds.admin
+    subnetId: subnetIds.lustre
     sku: config.lustre.sku
     capacity: config.lustre.capacity
   }
