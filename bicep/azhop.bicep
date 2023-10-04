@@ -729,7 +729,7 @@ module kvAccessPolicies './kv_access_policies.bicep' = [ for vm in vmItems: if (
   name: 'kvAccessPolicies${vm.key}'
   params: {
     vaultName: azhopKeyvault.outputs.keyvaultName
-    secret_permissions: contains(vm.value.identity, 'secret_permissions') ? vm.value.identity.secret_permissions : []
+    secret_permissions: contains(vm.value.identity.keyvault, 'secret_permissions') ? vm.value.identity.keyvault.secret_permissions : []
     principalId: azhopVm[indexOf(map(vmItems, item => item.key), vm.key)].outputs.principalId
   }
 }]
