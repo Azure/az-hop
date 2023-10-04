@@ -604,7 +604,7 @@ module azhopSecrets './secrets.bicep' = if (autogenerateSecrets) {
   name: 'azhopSecrets'
   params: {
     location: location
-    kvName: autogenerateSecrets ? azhopKeyvaultSecrets.outputs.keyvaultName : 'foo' // trick to avoid unreferenced resource for azhopKeyvaultSecrets
+    kvName: autogenerateSecrets ? azhopKeyvault.outputs.keyvaultName : 'foo' // trick to avoid unreferenced resource for azhopKeyvaultSecrets
     adminUser: config.admin_user
     dbAdminUser: config.slurm.admin_user
     identityId: autogenerateSecrets ? identity.id : '' // trick to avoid unreferenced resource for identity
@@ -612,7 +612,7 @@ module azhopSecrets './secrets.bicep' = if (autogenerateSecrets) {
 }
 
 resource kv 'Microsoft.KeyVault/vaults@2022-11-01' existing = if (autogenerateSecrets) {
-  name: azhopKeyvaultSecrets.outputs.keyvaultName
+  name: azhopKeyvault.outputs.keyvaultName
 }
 
 module azhopNetwork './network.bicep' = {
@@ -681,28 +681,28 @@ resource computemi 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31'
   location: location
 }
 
-module azhopKeyvaultSecrets './keyvault.bicep' = if (autogenerateSecrets) {
-  name: 'azhopKeyvaultSecrets'
-  params: {
-    location: location
-    kvName: config.key_vault_name
-    subnetId: subnetIds.admin
-    keyvaultReaderOids: config.keyvault_readers
-    lockDownNetwork: config.lock_down_network.enforce
-    allowableIps: config.lock_down_network.grant_access_from
-    keyvaultOwnerId: loggedUserObjectId
-    // identityPerms: autogenerateSecrets ? [{
-    //   principalId: identity.properties.principalId
-    //   secret_permissions: ['Set']
-    // }] : [] // trick to avoid unreferenced resource for identity
-  }
-}
+// module azhopKeyvaultSecrets './keyvault.bicep' = if (autogenerateSecrets) {
+//   name: 'azhopKeyvaultSecrets'
+//   params: {
+//     location: location
+//     kvName: config.key_vault_name
+//     subnetId: subnetIds.admin
+//     keyvaultReaderOids: config.keyvault_readers
+//     lockDownNetwork: config.lock_down_network.enforce
+//     allowableIps: config.lock_down_network.grant_access_from
+//     keyvaultOwnerId: loggedUserObjectId
+//     // identityPerms: autogenerateSecrets ? [{
+//     //   principalId: identity.properties.principalId
+//     //   secret_permissions: ['Set']
+//     // }] : [] // trick to avoid unreferenced resource for identity
+//   }
+// }
 
 module kvAccessPoliciesSecrets './kv_access_policies.bicep' = if (autogenerateSecrets) {
   name: 'kvAccessPoliciesSecrets'
   params: {
     name: 'kvAccessPoliciesSecrets'
-    vaultName: autogenerateSecrets ? azhopKeyvaultSecrets.outputs.keyvaultName : 'foo' // trick to avoid unreferenced resource for azhopKeyvaultSecrets
+    vaultName: autogenerateSecrets ? azhopKeyvault.outputs.keyvaultName : 'foo' // trick to avoid unreferenced resource for azhopKeyvaultSecrets
     secret_permissions: ['Set']
     principalId: autogenerateSecrets ? identity.properties.principalId : ''
   }
