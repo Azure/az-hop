@@ -701,7 +701,6 @@ resource computemi 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31'
 module kvAccessPoliciesSecrets './kv_access_policies.bicep' = if (autogenerateSecrets) {
   name: 'kvAccessPoliciesSecrets'
   params: {
-    name: 'kvAccessPoliciesSecrets'
     vaultName: autogenerateSecrets ? azhopKeyvault.outputs.keyvaultName : 'foo' // trick to avoid unreferenced resource for azhopKeyvaultSecrets
     secret_permissions: ['Set']
     principalId: autogenerateSecrets ? identity.properties.principalId : ''
@@ -729,7 +728,6 @@ module azhopKeyvault './keyvault.bicep' = {
 module kvAccessPolicies './kv_access_policies.bicep' = [ for vm in vmItems: if (contains(vm.value, 'identity') && contains(vm.value.identity, 'keyvault')) {
   name: 'kvAccessPolicies${vm.key}'
   params: {
-    name: vm.key
     vaultName: azhopKeyvault.outputs.keyvaultName
     secret_permissions: contains(vm.value.identity, 'secret_permissions') ? vm.value.identity.secret_permissions : []
     principalId: azhopVm[indexOf(map(vmItems, item => item.key), vm.key)].outputs.principalId
