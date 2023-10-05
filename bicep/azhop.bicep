@@ -604,15 +604,15 @@ module azhopSecrets './secrets.bicep' = if (autogenerateSecrets) {
   name: 'azhopSecrets'
   params: {
     location: location
-    kvName: autogenerateSecrets ? azhopKeyvaultSecrets.outputs.keyvaultName : 'foo' // trick to avoid unreferenced resource for azhopKeyvaultSecrets
+    kvName: autogenerateSecrets ? azhopKeyvault.outputs.keyvaultName : 'foo' // trick to avoid unreferenced resource for azhopKeyvaultSecrets
     adminUser: config.admin_user
     dbAdminUser: config.slurm.admin_user
     identityId: autogenerateSecrets ? identity.id : '' // trick to avoid unreferenced resource for identity
   }
 }
 
-resource kv 'Microsoft.KeyVault/vaults@2021-10-01' existing = if (autogenerateSecrets) {
-  name: azhopKeyvaultSecrets.outputs.keyvaultName
+resource kv 'Microsoft.KeyVault/vaults@2022-11-01' existing = if (autogenerateSecrets) {
+  name: azhopKeyvault.outputs.keyvaultName
 }
 
 module azhopNetwork './network.bicep' = {
@@ -681,20 +681,12 @@ resource computemi 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31'
   location: location
 }
 
-module azhopKeyvaultSecrets './keyvault.bicep' = if (autogenerateSecrets) {
-  name: 'azhopKeyvaultSecrets'
+module kvAccessPoliciesSecrets './kv_access_policies.bicep' = if (autogenerateSecrets) {
+  name: 'kvAccessPoliciesSecrets'
   params: {
-    location: location
-    kvName: config.key_vault_name
-    subnetId: subnetIds.admin
-    keyvaultReaderOids: config.keyvault_readers
-    lockDownNetwork: config.lock_down_network.enforce
-    allowableIps: config.lock_down_network.grant_access_from
-    keyvaultOwnerId: loggedUserObjectId
-    identityPerms: autogenerateSecrets ? [{
-      principalId: identity.properties.principalId
-      secret_permissions: ['Set']
-    }] : [] // trick to avoid unreferenced resource for identity
+    vaultName: autogenerateSecrets ? azhopKeyvault.outputs.keyvaultName : 'foo' // trick to avoid unreferenced resource for azhopKeyvaultSecrets
+    secret_permissions: ['Set']
+    principalId: autogenerateSecrets ? identity.properties.principalId : ''
   }
 }
 
@@ -708,13 +700,18 @@ module azhopKeyvault './keyvault.bicep' = {
     lockDownNetwork: config.lock_down_network.enforce
     allowableIps: config.lock_down_network.grant_access_from
     keyvaultOwnerId: loggedUserObjectId
-    identityPerms: [ for i in range(0, length(vmItems)): {
-      principalId: azhopVm[i].outputs.principalId
-      key_permissions: (contains(vmItems[i].value, 'identity') && contains(vmItems[i].value.identity, 'keyvault') && contains(vmItems[i].value.identity.keyvault, 'key_permissions')) ? vmItems[i].value.identity.keyvault.key_permissions : []
-      secret_permissions: (contains(vmItems[i].value, 'identity') && contains(vmItems[i].value.identity, 'keyvault')) ? vmItems[i].value.identity.keyvault.secret_permissions : []
-    }]
   }
 }
+
+module kvAccessPolicies './kv_access_policies.bicep' = [ for vm in vmItems: if (contains(vm.value, 'identity') && contains(vm.value.identity, 'keyvault')) {
+  name: 'kvAccessPolicies${vm.key}'
+  params: {
+    vaultName: azhopKeyvault.outputs.keyvaultName
+    secret_permissions: contains(vm.value.identity.keyvault, 'secret_permissions') ? vm.value.identity.keyvault.secret_permissions : []
+    principalId: azhopVm[indexOf(map(vmItems, item => item.key), vm.key)].outputs.principalId
+  }
+}]
+
 
 module kvSecretAdminPassword './kv_secrets.bicep' = if (!autogenerateSecrets) {
   name: 'kvSecrets-admin-password'

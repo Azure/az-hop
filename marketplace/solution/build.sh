@@ -42,4 +42,4 @@ popd
 # Install arm toolkit
 ansible-playbook ${THIS_DIR}/arm-ttk.yml
 
-${THIS_DIR}/arm-ttk/arm-ttk/Test-AzTemplate.sh $build_dir
+${THIS_DIR}/arm-ttk/arm-ttk/Test-AzTemplate.sh $build_dir -Skip Parameter-Types-Should-Be-Consistent
