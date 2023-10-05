@@ -4,15 +4,9 @@
     state: disabled
   register: selinux
 
-- name: reboot 
-  reboot:
-  when: selinux.reboot_required 
-
-- name: Update packages marked for security
-  yum:
-    state: latest
-    security: yes
-    lock_timeout : 180
+# - name: reboot 
+#   reboot:
+#   when: selinux.reboot_required 
 
 - name: install AZ CLI repo (CentOS)
   shell: |

@@ -1,0 +1,24 @@
+---
+- name: Update apt-cache
+  apt:
+    update_cache: yes
+
+- name: Prevent packages from being upgraded
+  dpkg_selections:
+    name: "{{ item }}"
+    selection: hold
+  loop: "{{ packages_to_exclude_from_upgrade }}"
+
+- name: Update all packages to their latest version
+  ansible.builtin.apt:
+    name: "*"
+    state: latest
+
+- name: Check if reboot is required
+  stat:
+    path: /var/run/reboot-required
+  register: reboot_required
+
+- name: Reboot if required
+  reboot:
+  when: reboot_required.stat.exists == true

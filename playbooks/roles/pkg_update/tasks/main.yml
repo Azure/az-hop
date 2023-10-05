@@ -1,0 +1,5 @@
+---
+
+- name: Perform OS dependent configuration tasks
+  include_tasks: "{{ansible_distribution}}.yml"
+

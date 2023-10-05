@@ -1,0 +1,19 @@
+---
+- name: update packages
+  become: true
+  dnf:
+    name: '*'
+    state: latest
+    exclude: "{{ packages_to_exclude_from_upgrade }}"
+    lock_timeout : 180
+
+- name: check if reboot is required
+  command: "/usr/bin/needs-restarting -r"
+  register: reboot_required
+  changed_when: false
+  failed_when: reboot_required.rc == 2
+  ignore_errors: true
+
+- name: reboot 
+  reboot:
+  when: reboot_required.rc == 1
