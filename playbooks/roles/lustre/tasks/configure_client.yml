@@ -14,7 +14,7 @@
     - name: add AMLFS repo
       shell: |
         rpm --import https://packages.microsoft.com/keys/microsoft.asc
-        DISTRIB_CODENAME=el7
+        DISTRIB_CODENAME=el$(sed 's/[^0-9]*\([0-9]\).*/\1/' /etc/redhat-release)
         REPO_PATH=/etc/yum.repos.d/amlfs.repo
         echo -e "[amlfs]" > ${REPO_PATH}
         echo -e "name=Azure Lustre Packages" >> ${REPO_PATH}
