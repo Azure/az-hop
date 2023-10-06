@@ -419,7 +419,7 @@ while (( "$#" )); do
     -a|--action)
       TF_COMMAND=${2}
       # verify that the action is either plan, apply or destroy
-      if [ "$TF_COMMAND" != "plan" ] && [ "$TF_COMMAND" != "apply" ] && [ "$TF_COMMAND" != "destroy" ]; then
+      if [ "$TF_COMMAND" != "plan" ] && [ "$TF_COMMAND" != "apply" ] && [ "$TF_COMMAND" != "destroy" ] && [ "$TF_COMMAND" != "import" ] && [ "$TF_COMMAND" != "state" ]; then
         echo "Invalid action $TF_COMMAND. Valid values are plan, apply or destroy"
         exit 1
       fi

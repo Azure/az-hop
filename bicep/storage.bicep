@@ -6,7 +6,7 @@ param lockDownNetwork bool
 param allowableIps array
 param subnetIds array
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' = {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: saName
   location: location
   sku: {
@@ -32,12 +32,12 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' = {
   )
 }
 
-resource blobServices 'Microsoft.Storage/storageAccounts/blobServices@2021-09-01' = {
+resource blobServices 'Microsoft.Storage/storageAccounts/blobServices@2022-09-01' = {
   name: 'default'
   parent: storageAccount
 }
 
-resource lustreArchive 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-09-01' = {
+resource lustreArchive 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
   name: 'lustre'
   parent: blobServices
   properties: {

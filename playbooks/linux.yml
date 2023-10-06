@@ -26,7 +26,6 @@
     yum:
       name: '*'
       state: latest
-      exclude: kernel*,kmod*,amlfs*
 
 - name: Join AD domain or create local users, mount shared home
   hosts: scheduler, ondemand, grafana

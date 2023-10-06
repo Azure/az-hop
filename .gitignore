@@ -62,3 +62,8 @@ toolset/scripts/ansible-build
 
 marketplace/solution/build
 marketplace/solution/build.zip
+
+# arm toolkit
+marketplace/solution/arm-ttk
+marketplace/solution/arm-ttk.zip
+marketplace/solution/packages-microsoft-prod.deb
