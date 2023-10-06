@@ -48,9 +48,8 @@
       enroot_scratch_dir: '/mnt/resource'
     when: ( queue_manager is defined and queue_manager == "slurm" )
 
-  - name: update packages for security
-    become: true
-    yum:
-      name: '*'
-      state: latest
-#      exclude: kernel*,kmod*,amlfs*
+  - name: Update Packages
+    include_role:
+      name: pkg_update
+      apply: 
+        become: true
