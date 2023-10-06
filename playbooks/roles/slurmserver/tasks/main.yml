@@ -192,6 +192,14 @@
     lock_timeout : 180
   loop: '{{slurm_server_packages}}'
 
+- name: Update slurm service to start after the home directory is mounted
+  lineinfile:
+    path: /usr/lib/systemd/system/slurmctld.service
+    insertafter: 'ConditionPathExists='
+    line: 'RequiresMountsFor={{homedir_mountpoint}}'
+    state: present
+    firstmatch: yes
+
 - name: create slurm config
   template:
     src: slurm.conf.j2
