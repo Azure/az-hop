@@ -211,29 +211,36 @@ domain:
 
 # Jumpbox VM configuration, only needed when deploying thru a public IP and without a configured deployer VM
 jumpbox:
+  name: jumpbox
   vm_size: Standard_B2ms
   # SSH port under which the jumpbox SSH server listens on the public IP. Default to 22
   # Change this to, e.g., 2222, if security policies (like "zero trust") in your tenant automatically block access to port 22 from the internet
   #ssh_port: 2222
 # Active directory VM configuration
 ad:
+  name: ad
   vm_size: Standard_B2ms
   hybrid_benefit: false # Enable hybrid benefit for AD, default to false
   high_availability: false # Build AD in High Availability mode (2 Domain Controlers) - default to false
+  ha_name: ad2 # name of the HA AD machine when high_availability=true
 
 # On demand VM configuration
 ondemand:
+  name: ondemand
   vm_size: Standard_D4s_v5
   #fqdn: azhop.foo.com # When provided it will be used for the certificate server name
   generate_certificate: true # Generate an SSL certificate for the OnDemand portal. Default to true
 # Grafana VM configuration
 grafana:
+  name: grafana
   vm_size: Standard_B2ms
 # Scheduler VM configuration
 scheduler:
+  name: scheduler
   vm_size: Standard_B2ms
 # CycleCloud VM configuration
 cyclecloud:
+  name: ccportal
   vm_size: Standard_B2ms
   # version: 8.4.0-3122 # to specify a specific version, see https://packages.microsoft.com/yumrepos/cyclecloud/
   # Optional: use Ubuntu for the CycleCloud VM (default: linux_base_image)

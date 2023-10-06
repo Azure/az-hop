@@ -14,7 +14,7 @@ data "azurerm_key_vault_secret" "domain_join_password" {
 
 resource "azurerm_network_interface" "ad-nic" {
   count               = local.create_ad ? 1 : 0
-  name                = "ad-nic"
+  name                = "${local.ad_name}-nic"
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
 
@@ -27,7 +27,7 @@ resource "azurerm_network_interface" "ad-nic" {
 
 resource "azurerm_windows_virtual_machine" "ad" {
   count               = local.create_ad ? 1 : 0
-  name                = "ad"
+  name                = local.ad_name
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   size                = try(local.configuration_yml["ad"].vm_size, "Standard_D2s_v3")
@@ -77,7 +77,7 @@ resource "azurerm_network_interface_application_security_group_association" "ad-
 ## Second AD VM for high availability scenario
 resource "azurerm_network_interface" "ad2-nic" {
   count               = local.ad_ha ? 1 : 0
-  name                = "ad2-nic"
+  name                = "${local.ad2_name}-nic"
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
 
@@ -90,7 +90,7 @@ resource "azurerm_network_interface" "ad2-nic" {
 
 resource "azurerm_windows_virtual_machine" "ad2" {
   count               = local.ad_ha ? 1 : 0
-  name                = "ad2"
+  name                = local.ad2_name
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   size                = try(local.configuration_yml["ad"].vm_size, "Standard_D2s_v3")
