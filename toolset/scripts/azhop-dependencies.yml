@@ -12,7 +12,7 @@
     }
     linux_azcopy_file: downloadazcopy-v10-linux
     mac_azcopy_file: downloadazcopy-v10-mac
-    yq_version: v4.25.3
+    yq_version: v4.35.2
     yq_binary: yq_linux_amd64
 
   tasks:

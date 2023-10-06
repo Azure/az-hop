@@ -14,7 +14,7 @@ resource bastionPip 'Microsoft.Network/publicIpAddresses@2022-07-01' = {
   }
 }
 
-resource bastionHost 'Microsoft.Network/bastionHosts@2021-08-01' = {
+resource bastionHost 'Microsoft.Network/bastionHosts@2022-07-01' = {
   name: 'bastion'
   location: location
   sku: {

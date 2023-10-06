@@ -5,7 +5,7 @@ param resourcePostfix string
 param allowedSubnetIds array
 param sizeGB int
 
-resource nfsFilesStorageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' = {
+resource nfsFilesStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: 'nfsfiles${resourcePostfix}'
   location: location
   sku: {
@@ -51,7 +51,7 @@ resource nfsFilesStorageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' =
   }
 }
 
-resource nfsFilesFileServices 'Microsoft.Storage/storageAccounts/fileServices@2021-09-01' = {
+resource nfsFilesFileServices 'Microsoft.Storage/storageAccounts/fileServices@2022-09-01' = {
   parent: nfsFilesStorageAccount
   name: 'default'
   properties: {
@@ -69,7 +69,7 @@ resource nfsFilesFileServices 'Microsoft.Storage/storageAccounts/fileServices@20
   }
 }
 
-resource nfsFilesHome 'Microsoft.Storage/storageAccounts/fileServices/shares@2021-09-01' = {
+resource nfsFilesHome 'Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01' = {
   parent: nfsFilesFileServices
   name: 'nfshome'
   properties: {
