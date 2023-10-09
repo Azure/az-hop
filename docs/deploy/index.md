@@ -577,11 +577,14 @@ jumpbox:
   #ssh_port: 2222
 # Active directory VM configuration
 ad:
+  name: ad
   vm_size: Standard_B2ms
   hybrid_benefit: false # Enable hybrid benefit for AD, default to false
-  high_availability: false # Build AD in High Availability mode (2 Domain Controllers) - default to false
+  high_availability: false # Build AD in High Availability mode (2 Domain Controlers) - default to false
+  ha_name: ad2 # name of the HA AD machine when high_availability=true
 # On demand VM configuration
 ondemand:
+  name: ondemand # When provided, it will be used as the name of the VM. Default to ondemand
   vm_size: Standard_D4s_v5
   #fqdn: azhop.foo.com # When provided it will be used for the certificate server name
   generate_certificate: true # Generate an SSL certificate for the OnDemand portal. Default to true
@@ -590,9 +593,11 @@ grafana:
   vm_size: Standard_B2ms
 # Scheduler VM configuration
 scheduler:
+  name: scheduler # When provided, it will be used as the name of the scheduler VM. Default to scheduler
   vm_size: Standard_B2ms
 # CycleCloud VM configuration
 cyclecloud:
+  name: ccportal # When provided, it will be used as the name of the CycleCloud VM. Default to ccportal
   vm_size: Standard_B2ms
   # Optional: use Ubuntu for the CycleCloud VM (default: linux_base_image)
   # image: "canonical:0001-com-ubuntu-server-focal:20_04-lts-gen2:latest"
@@ -771,13 +776,6 @@ images:
     hyper_v: V2
     os_type: Linux
     version: 7.9
-  - name: azhop-compute-ubuntu-1804
-    publisher: azhpc
-    offer: azhop-compute
-    sku: ubuntu-1804
-    hyper_v: V2
-    os_type: Linux
-    version: 18.04
   - name: azhop-win10
     publisher: azhop
     offer: Windows-10

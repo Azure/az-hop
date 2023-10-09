@@ -4053,8 +4053,8 @@
         "allValue": null,
         "current": {
           "selected": true,
-          "text": "ondemand",
-          "value": "ondemand"
+          "text": "{{ondemand_name}}",
+          "value": "{{ondemand_name}}"
         },
         "description": null,
         "error": null,
@@ -4066,18 +4066,18 @@
         "options": [
           {
             "selected": false,
-            "text": "scheduler",
-            "value": "scheduler"
+            "text": "{{scheduler_name}}",
+            "value": "{{scheduler_name}}"
           },
           {
             "selected": true,
-            "text": "ondemand",
-            "value": "ondemand"
+            "text": "{{ondemand_name}}",
+            "value": "{{ondemand_name}}"
           },
           {
             "selected": false,
-            "text": "ccportal",
-            "value": "ccportal"
+            "text": "{{ccportal_name}}",
+            "value": "{{ccportal_name}}"
           },
           {
             "selected": false,
@@ -4086,11 +4086,16 @@
           },
           {
             "selected": false,
-            "text": "grafana",
-            "value": "grafana"
+            "text": "{{grafana_name}}",
+            "value": "{{grafana_name}}"
+          },
+          {
+            "selected": false,
+            "text": "guacamole",
+            "value": "guacamole"
           }
         ],
-        "query": "scheduler, ondemand, ccportal, robinhood, grafana",
+        "query": "{{scheduler_name}}, {{ondemand_name}}, {{ccportal_name}}, robinhood, {{grafana_name}}",
         "queryValue": "",
         "skipUrlSync": false,
         "type": "custom"

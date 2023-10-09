@@ -1,6 +1,6 @@
 resource "azurerm_public_ip" "jumpbox-pip" {
   count               = local.allow_public_ip && local.jumpbox_enabled ? 1 : 0
-  name                = "jumpbox-pip"
+  name                = "${local.jumpbox_name}-pip"
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   allocation_method   = "Static"
@@ -8,7 +8,7 @@ resource "azurerm_public_ip" "jumpbox-pip" {
 
 resource "azurerm_network_interface" "jumpbox-nic" {
   count               = local.jumpbox_enabled ? 1 : 0
-  name                = "jumpbox-nic"
+  name                = "${local.jumpbox_name}-nic"
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
 
@@ -22,7 +22,7 @@ resource "azurerm_network_interface" "jumpbox-nic" {
 
 resource "azurerm_linux_virtual_machine" "jumpbox" {
   count               = local.jumpbox_enabled ? 1 : 0
-  name                = "jumpbox"
+  name                = local.jumpbox_name
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   size                = try(local.configuration_yml["jumpbox"].vm_size, "Standard_D2s_v3")

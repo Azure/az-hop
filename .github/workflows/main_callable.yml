@@ -100,7 +100,7 @@ jobs:
     timeout-minutes: 60
 
     container:
-      image: azhop.azurecr.io/hpcrover:2306.0708
+      image: azhop.azurecr.io/hpcrover:2310.0508
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -186,7 +186,6 @@ jobs:
                 sed -i "s|azhpc:azhop-compute:centos-7_9:latest|$SHARED_SIG/azhop-compute-centos-7_9/latest|g" config.yml
                 sed -i "s|azhpc:azhop-desktop:centos-7_9:latest|$SHARED_SIG/azhop-desktop-centos-7_9/latest|g" config.yml
                 sed -i "s|azhpc:azhop-compute:almalinux-8_7:latest|$SHARED_SIG/azhop-compute-almalinux-8_7/latest|g" config.yml
-                sed -i "s|azhpc:azhop-compute:ubuntu-18_04:latest|$SHARED_SIG/azhop-compute-ubuntu-1804/latest|g" config.yml
                 sed -i "s|azhpc:azhop-compute:ubuntu-20_04:latest|$SHARED_SIG/azhop-compute-ubuntu-2004/latest|g" config.yml
 
                 sed -i "s|__ALMA8_PLAN__|plan: almalinux:almalinux:8-gen2|g" config.yml
@@ -198,7 +197,6 @@ jobs:
                 sed -i "s|azhpc:azhop-compute:centos-7_9:latest|$SIG/azhop-compute-centos-7_9/latest|g" config.yml
                 sed -i "s|azhpc:azhop-desktop:centos-7_9:latest|$SIG/azhop-desktop-centos-7_9/latest|g" config.yml
                 sed -i "s|azhpc:azhop-compute:almalinux-8_7:latest|$SIG/azhop-compute-almalinux-8_7/latest|g" config.yml
-                sed -i "s|azhpc:azhop-compute:ubuntu-18_04:latest|$SIG/azhop-compute-ubuntu-1804/latest|g" config.yml
                 sed -i "s|azhpc:azhop-compute:ubuntu-20_04:latest|$SIG/azhop-compute-ubuntu-2004/latest|g" config.yml
 
                 sed -i "s|__ALMA8_PLAN__|plan: almalinux:almalinux:8-gen2|g" config.yml
@@ -329,7 +327,7 @@ jobs:
     needs: deploy
 
     container:
-      image: azhop.azurecr.io/hpcrover:2306.0708
+      image: azhop.azurecr.io/hpcrover:2310.0508
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -365,7 +363,7 @@ jobs:
 #    if: inputs.deploy_only == 'false' && inputs.deploy_with != 'arm'
 
     container:
-      image: azhop.azurecr.io/hpcrover:2306.0708
+      image: azhop.azurecr.io/hpcrover:2310.0508
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -401,7 +399,7 @@ jobs:
     needs: [cycle_cluster, lustre, deploy]
 
     container:
-      image: azhop.azurecr.io/hpcrover:2306.0708
+      image: azhop.azurecr.io/hpcrover:2310.0508
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -434,7 +432,7 @@ jobs:
     needs: [ad, deploy]
 
     container:
-      image: azhop.azurecr.io/hpcrover:2306.0708
+      image: azhop.azurecr.io/hpcrover:2310.0508
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -467,7 +465,7 @@ jobs:
     needs: [ad, deploy]
 
     container:
-      image: azhop.azurecr.io/hpcrover:2306.0708
+      image: azhop.azurecr.io/hpcrover:2310.0508
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -500,7 +498,7 @@ jobs:
     needs: [cycle, deploy]
 
     container:
-      image: azhop.azurecr.io/hpcrover:2306.0708
+      image: azhop.azurecr.io/hpcrover:2310.0508
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -533,7 +531,7 @@ jobs:
     needs: [add_users, deploy, build_image]
 
     container:
-      image: azhop.azurecr.io/hpcrover:2306.0708
+      image: azhop.azurecr.io/hpcrover:2310.0508
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -567,7 +565,7 @@ jobs:
     needs: [grafana, cycle, deploy]
 
     container:
-      image: azhop.azurecr.io/hpcrover:2306.0708
+      image: azhop.azurecr.io/hpcrover:2310.0508
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -602,7 +600,7 @@ jobs:
     if: inputs.deploy_only == 'false'
 
     container:
-      image: azhop.azurecr.io/hpcrover:2306.0708
+      image: azhop.azurecr.io/hpcrover:2310.0508
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -646,7 +644,7 @@ jobs:
       matrix:
         packer_file: ${{ fromJson(needs.set_image_list.outputs.matrix) }}
     container:
-      image: azhop.azurecr.io/hpcrover:2306.0708
+      image: azhop.azurecr.io/hpcrover:2310.0508
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -682,7 +680,7 @@ jobs:
     runs-on: self-hosted
     needs: [deploy, cycle, ood, cycle_cluster]
     container:
-      image: azhop.azurecr.io/hpcrover:2306.0708
+      image: azhop.azurecr.io/hpcrover:2310.0508
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}
@@ -716,7 +714,7 @@ jobs:
     needs: [deploy, run_tests, telegraf]
 
     container:
-      image: azhop.azurecr.io/hpcrover:2306.0708
+      image: azhop.azurecr.io/hpcrover:2310.0508
       credentials:
         username: ${{ env.ARM_CLIENT_ID }}
         password: ${{ env.ARM_CLIENT_SECRET }}

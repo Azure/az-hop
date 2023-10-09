@@ -21,12 +21,10 @@
     service:
       name: sshd
       state: restarted
-  - name: update packages for security
-    become: true
-    yum:
-      name: '*'
-      state: latest
-      exclude: kernel*,kmod*,amlfs*
+  - name: Update Packages
+    include_role:
+      name: pkg_update
+
 
 - name: Join AD domain or create local users, mount shared home
   hosts: scheduler, ondemand, grafana

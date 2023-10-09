@@ -1,0 +1,43 @@
+#
+# Copyright (c) Microsoft Corporation
+# Licensed under the MIT License.
+#
+name : marketplace application
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'bicep/**'
+      - 'marketplace/solution/**'
+  workflow_dispatch:
+
+env:
+  ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  arm_validation:
+    runs-on: ubuntu-latest
+
+    container:
+      image: azhop.azurecr.io/hpcrover:2310.0508
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
+      options: --user 0
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build ARM
+        id: build
+        run: |
+          set -e
+          source /miniconda/bin/activate
+          ./marketplace/solution/build.sh
+

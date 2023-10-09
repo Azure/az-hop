@@ -24,7 +24,7 @@ resource "azurerm_private_dns_a_record" "ad" {
 
 resource "azurerm_private_dns_a_record" "ad2" {
   count               = local.ad_ha ? 1 : 0
-  name                = try(values(local.domain_controlers)[1], "ad2")
+  name                = try(values(local.domain_controlers)[1], local.ad2_name)
   resource_group_name = azurerm_private_dns_zone.azhop_private_dns.resource_group_name
   zone_name           = azurerm_private_dns_zone.azhop_private_dns.name
   ttl                 = 3600

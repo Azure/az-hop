@@ -89,6 +89,16 @@ var nsgTargetForDC = {
   target: useExistingAD ? azhopConfig.domain.existing_dc_details.domain_controller_ip_addresses : 'asg-ad'
 }
 
+var vmNamesMap = {
+  ad : contains(azhopConfig, 'ad') && contains(azhopConfig.ad, 'name') ? azhopConfig.ad.name : 'ad'
+  ad2 : contains(azhopConfig, 'ad') && contains(azhopConfig.ad, 'ha_name') ? azhopConfig.ad.ha_name : 'ad2'
+  deployer: contains(azhopConfig, 'deployer') && contains(azhopConfig.deployer, 'name') ? azhopConfig.deployer.name : 'deployer'
+  jumpbox: contains(azhopConfig, 'jumpbox') && contains(azhopConfig.jumpbox, 'name') ? azhopConfig.jumpbox.name : 'jumpbox'
+  ccportal: contains(azhopConfig, 'cyclecloud') && contains(azhopConfig.cyclecloud, 'name') ? azhopConfig.cyclecloud.name : 'ccportal'
+  ondemand: contains(azhopConfig, 'ondemand') && contains(azhopConfig.ondemand, 'name') ? azhopConfig.ondemand.name : 'ondemand'
+  scheduler: contains(azhopConfig, 'scheduler') && contains(azhopConfig.scheduler, 'name') ? azhopConfig.scheduler.name : 'scheduler'
+  grafana: contains(azhopConfig, 'grafana') && contains(azhopConfig.grafana, 'name') ? azhopConfig.grafana.name : 'grafana'
+}
 // Convert the azhop configuration file to a pivot format used for the deployment
 var config = {
   admin_user: azhopConfig.admin_user
@@ -124,8 +134,8 @@ var config = {
     } : {
       username: ''
     }
-    domain_controlers : createAD ? (! highAvailabilityForAD ? ['ad'] : ['ad', 'ad2']) : useExistingAD ? azhopConfig.domain.existing_dc_details.domain_controller_names : []
-    ldap_server: createAD ? 'ad' : useExistingAD ? azhopConfig.domain.existing_dc_details.domain_controller_names[0] : ''
+    domain_controlers : createAD ? (! highAvailabilityForAD ? [vmNamesMap.ad] : [vmNamesMap.ad, vmNamesMap.ad2]) : useExistingAD ? azhopConfig.domain.existing_dc_details.domain_controller_names : []
+    ldap_server: createAD ? vmNamesMap.ad : useExistingAD ? azhopConfig.domain.existing_dc_details.domain_controller_names[0] : ''
   }
 
   key_vault_name: contains(azhopConfig, 'azure_key_vault') ? azhopConfig.azure_key_vault.name : 'kv${resourcePostfix}'
@@ -279,6 +289,7 @@ var config = {
     {
       ondemand: {
         subnet: 'frontend'
+        name: vmNamesMap.ondemand
         sku: azhopConfig.ondemand.vm_size
         osdisksku: 'StandardSSD_LRS'
         image: 'linux_base'
@@ -290,12 +301,13 @@ var config = {
       }
       ccportal: {
         subnet: 'admin'
+        name: vmNamesMap.ccportal
         sku: azhopConfig.cyclecloud.vm_size
         osdisksku: 'StandardSSD_LRS'
         image: 'cyclecloud_base'
         datadisks: [
           {
-            name: 'ccportal-datadisk0'
+            name: '${vmNamesMap.ccportal}-datadisk0'
             disksku: 'Premium_LRS'
             size: 128
             caching: 'ReadWrite'
@@ -310,6 +322,7 @@ var config = {
       }
       scheduler: {
         subnet: 'admin'
+        name: vmNamesMap.scheduler
         sku: azhopConfig.scheduler.vm_size
         osdisksku: 'StandardSSD_LRS'
         image: 'linux_base'
@@ -320,6 +333,7 @@ var config = {
       ad: {
         subnet: 'ad'
         windows: true
+        name: vmNamesMap.ad
         ahub: contains(azhopConfig.ad, 'hybrid_benefit') ? azhopConfig.ad.hybrid_benefit : false
         sku: azhopConfig.ad.vm_size
         osdisksku: 'StandardSSD_LRS'
@@ -330,6 +344,7 @@ var config = {
     deployDeployer ? {
       deployer: {
           subnet: 'frontend'
+          name: vmNamesMap.deployer
           sku: azhopConfig.deployer.vm_size
           osdisksku: 'Standard_LRS'
           image: 'ubuntu'
@@ -353,6 +368,7 @@ var config = {
         subnet: 'ad'
         windows: true
         ahub: contains(azhopConfig.ad, 'hybrid_benefit') ? azhopConfig.ad.hybrid_benefit : false
+        name: vmNamesMap.ad2
         sku: azhopConfig.ad.vm_size
         osdisksku: 'StandardSSD_LRS'
         image: 'win_base'
@@ -362,6 +378,7 @@ var config = {
     deployJumpbox ? {
       jumpbox: {
         subnet: 'frontend'
+        name: vmNamesMap.jumpbox
         sku: azhopConfig.jumpbox.vm_size
         osdisksku: 'StandardSSD_LRS'
         image: 'linux_base'
@@ -374,6 +391,7 @@ var config = {
     deployGrafana ? {
       grafana: {
         subnet: 'admin'
+        name: vmNamesMap.grafana
         sku: azhopConfig.grafana.vm_size
         osdisksku: 'StandardSSD_LRS'
         image: 'linux_base'
@@ -604,15 +622,15 @@ module azhopSecrets './secrets.bicep' = if (autogenerateSecrets) {
   name: 'azhopSecrets'
   params: {
     location: location
-    kvName: autogenerateSecrets ? azhopKeyvaultSecrets.outputs.keyvaultName : 'foo' // trick to avoid unreferenced resource for azhopKeyvaultSecrets
+    kvName: autogenerateSecrets ? azhopKeyvault.outputs.keyvaultName : 'foo' // trick to avoid unreferenced resource for azhopKeyvaultSecrets
     adminUser: config.admin_user
     dbAdminUser: config.slurm.admin_user
     identityId: autogenerateSecrets ? identity.id : '' // trick to avoid unreferenced resource for identity
   }
 }
 
-resource kv 'Microsoft.KeyVault/vaults@2021-10-01' existing = if (autogenerateSecrets) {
-  name: azhopKeyvaultSecrets.outputs.keyvaultName
+resource kv 'Microsoft.KeyVault/vaults@2022-11-01' existing = if (autogenerateSecrets) {
+  name: azhopKeyvault.outputs.keyvaultName
 }
 
 module azhopNetwork './network.bicep' = {
@@ -650,7 +668,7 @@ module azhopVm './vm.bicep' = [ for vm in vmItems: {
   name: 'azhopVm${vm.key}'
   params: {
     location: location
-    name: vm.key
+    name: contains(vm.value, 'name') ? vm.value.name : vm.key
     vm: vm.value
     image: config.images[vm.value.image]
     subnetId: subnetIds[vm.value.subnet]
@@ -681,20 +699,12 @@ resource computemi 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31'
   location: location
 }
 
-module azhopKeyvaultSecrets './keyvault.bicep' = if (autogenerateSecrets) {
-  name: 'azhopKeyvaultSecrets'
+module kvAccessPoliciesSecrets './kv_access_policies.bicep' = if (autogenerateSecrets) {
+  name: 'kvAccessPoliciesSecrets'
   params: {
-    location: location
-    kvName: config.key_vault_name
-    subnetId: subnetIds.admin
-    keyvaultReaderOids: config.keyvault_readers
-    lockDownNetwork: config.lock_down_network.enforce
-    allowableIps: config.lock_down_network.grant_access_from
-    keyvaultOwnerId: loggedUserObjectId
-    identityPerms: autogenerateSecrets ? [{
-      principalId: identity.properties.principalId
-      secret_permissions: ['Set']
-    }] : [] // trick to avoid unreferenced resource for identity
+    vaultName: autogenerateSecrets ? azhopKeyvault.outputs.keyvaultName : 'foo' // trick to avoid unreferenced resource for azhopKeyvaultSecrets
+    secret_permissions: ['Set']
+    principalId: autogenerateSecrets ? identity.properties.principalId : ''
   }
 }
 
@@ -708,13 +718,18 @@ module azhopKeyvault './keyvault.bicep' = {
     lockDownNetwork: config.lock_down_network.enforce
     allowableIps: config.lock_down_network.grant_access_from
     keyvaultOwnerId: loggedUserObjectId
-    identityPerms: [ for i in range(0, length(vmItems)): {
-      principalId: azhopVm[i].outputs.principalId
-      key_permissions: (contains(vmItems[i].value, 'identity') && contains(vmItems[i].value.identity, 'keyvault') && contains(vmItems[i].value.identity.keyvault, 'key_permissions')) ? vmItems[i].value.identity.keyvault.key_permissions : []
-      secret_permissions: (contains(vmItems[i].value, 'identity') && contains(vmItems[i].value.identity, 'keyvault')) ? vmItems[i].value.identity.keyvault.secret_permissions : []
-    }]
   }
 }
+
+module kvAccessPolicies './kv_access_policies.bicep' = [ for vm in vmItems: if (contains(vm.value, 'identity') && contains(vm.value.identity, 'keyvault')) {
+  name: 'kvAccessPolicies${vm.key}'
+  params: {
+    vaultName: azhopKeyvault.outputs.keyvaultName
+    secret_permissions: contains(vm.value.identity.keyvault, 'secret_permissions') ? vm.value.identity.keyvault.secret_permissions : []
+    principalId: azhopVm[indexOf(map(vmItems, item => item.key), vm.key)].outputs.principalId
+  }
+}]
+
 
 module kvSecretAdminPassword './kv_secrets.bicep' = if (!autogenerateSecrets) {
   name: 'kvSecrets-admin-password'

@@ -11,8 +11,9 @@
   vars:
     ondemand_version: 3.0.1
     ood_core_version: 0.22.0
-    yq_version: v4.25.3
+    yq_version: v4.35.2
     yq_binary: yq_linux_amd64
+    ccportal_name: "{{cyclecloud.name | default('ccportal')}}"
 
   tasks:
   - name: Wait 300 seconds for the nodes to be ready
@@ -204,7 +205,7 @@
       apply:
         become: true
     vars:
-      pbs_server: scheduler
+      pbs_server: '{{scheduler.name | default("scheduler")}}'
     when: (queue_manager == "openpbs" or queue_manager is not defined)
 
   - name: Run the munge role
@@ -225,7 +226,7 @@
 
   - name: setup cyclecloud proxy
     shell: |
-        if ! grep -q ccportal /opt/ood/ood-portal-generator/templates/ood-portal.conf.erb; then
+        if ! grep -q {{ccportal_name}} /opt/ood/ood-portal-generator/templates/ood-portal.conf.erb; then
           cd /root
           cat << EOF > cyclecloud_proxy
           SetEnv OOD_CC_URI "/cyclecloud"
@@ -236,8 +237,8 @@
             AuthPAMService ood
             Require valid-user
 
-            ProxyPass http://ccportal:80/cyclecloud
-            ProxyPassReverse http://ccportal:80/cyclecloud
+            ProxyPass http://{{ccportal_name}}:80/cyclecloud
+            ProxyPassReverse http://{{ccportal_name}}:80/cyclecloud
           </Location>
         EOF
           sed -i '$e cat cyclecloud_proxy' /opt/ood/ood-portal-generator/templates/ood-portal.conf.erb
@@ -484,9 +485,10 @@
     vars:
       marker_file: cccluster.ok
 
-  - name: update packages for security
-    become: true
-    yum:
-      name: '*'
-      state: latest
-      exclude: kernel*,kmod*,amlfs*,ondemand*
+  - name: Update Packages
+    include_role:
+      name: pkg_update
+      apply: 
+        become: true
+    vars:
+      packages_to_exclude_from_upgrade: "ondemand*"

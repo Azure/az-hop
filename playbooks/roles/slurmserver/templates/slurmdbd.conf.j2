@@ -8,7 +8,7 @@ ArchiveUsage=no
 #ArchiveScript=/usr/sbin/slurm.dbd.archive
 AuthInfo=/var/run/munge/munge.socket.2
 AuthType=auth/munge
-DbdHost=scheduler
+DbdHost={{ scheduler.name | default("scheduler") }}
 # use debug5 for more detailed output
 DebugLevel=verbose
 #DbdPort=6819

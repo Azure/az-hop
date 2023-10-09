@@ -14,7 +14,7 @@ SelectType=select/cons_tres
 GresTypes=gpu
 SelectTypeParameters=CR_Core_Memory
 ClusterName={{ slurm.cluster_name | default("slurm") }}
-SlurmctldHost=scheduler
+SlurmctldHost={{ scheduler.name | default("scheduler") }}
 SlurmctldDebug=debug
 SlurmctldLogFile=/var/log/slurmctld/slurmctld.log
 SlurmctldParameters=idle_on_node_suspend
@@ -37,7 +37,7 @@ SchedulerParameters=max_switch_wait=24:00:00
 {% if accounting_enabled %}
 JobAcctGatherType=jobacct_gather/linux
 AccountingStorageType=accounting_storage/slurmdbd
-AccountingStorageHost=scheduler
+AccountingStorageHost={{ scheduler.name | default("scheduler") }}
 {% else %}
 AccountingStorageType=accounting_storage/none
 JobAcctGatherType=jobacct_gather/none

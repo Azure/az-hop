@@ -1,0 +1,35 @@
+---
+
+- name: Install ARM Toolkit
+  hosts: localhost
+  connection: local
+  gather_facts: true
+
+  tasks:
+    - name: Install arm-ttk for {{ansible_distribution}}
+      include_tasks: "{{ansible_distribution}}.yml"
+
+    - name: Create arm-ttk directory
+      file:
+        path: 'arm-ttk'
+        state: directory
+        mode: 0755
+
+    - name: Download arm toolkit
+      unarchive:
+        src: https://github.com/Azure/arm-ttk/releases/download/20230619/arm-ttk.zip
+        dest: '.'
+        remote_src: yes
+
+    # - name: Prepare arm-ttk
+    #   shell: |
+    #     Get-ChildItem *.ps1, *.psd1, *.ps1xml, *.psm1 -Recurse | Unblock-File
+    #   args:
+    #     chdir: arm-ttk/arm-ttk
+    #     executable: /usr/bin/pwsh
+
+    - name: Add execute permissions to arm-ttk shell script
+      file:
+        path: arm-ttk/arm-ttk/Test-AzTemplate.sh
+        state: touch
+        mode: u+x,g+x,o+x
