@@ -1,4 +1,4 @@
 lustre:
   create: true
-  sku: AMLFS-Durable-Premium-40
-  capacity: 4
+  sku: AMLFS-Durable-Premium-250
+  capacity: 8

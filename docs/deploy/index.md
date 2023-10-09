@@ -434,6 +434,7 @@ azurefiles:
 lustre:
   create: false
   # Options: AMLFS-Durable-Premium-40, AMLFS-Durable-Premium-125, AMLFS-Durable-Premium-250, AMLFS-Durable-Premium-500
+  # See documentation for more details: https://learn.microsoft.com/en-us/azure/azure-managed-lustre/create-file-system-resource-manager
   sku: AMLFS-Durable-Premium-250
   # The step sizes are dependent on the SKU.
   # - AMLFS-Durable-Premium-40: 48TB
