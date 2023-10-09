@@ -126,12 +126,6 @@ queues:
     __ALMA8_PLAN__
     ColocateNodes: true
     EnableAcceleratedNetworking: true
-  - name: hbv3u18
-    vm_size: Standard_HB120rs_v3
-    max_core_count: 1200
-    image: azhpc:azhop-compute:ubuntu-18_04:latest
-    ColocateNodes: true
-    EnableAcceleratedNetworking: true
   - name: hbv3u20
     vm_size: Standard_HB120rs_v3
     max_core_count: 1200
