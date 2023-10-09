@@ -22,6 +22,14 @@
     src: '{{role_path}}/dashboards'
     dest: '{{ grafana_paths_provisioning }}/dashboards'
 
+- name: Copy template dashboards
+  template:
+    src: "{{ item.dashboard }}"
+    dest: "{{ item.destination }}"
+  with_items:
+    - { dashboard: cluster-stats.json.j2, destination: '{{ grafana_paths_provisioning }}/dashboards/dashboards/cluster-stats.json' }
+    - { dashboard: azhop_compute_servers.json.j2, destination: '{{ grafana_paths_provisioning }}/dashboards/dashboards/azhop_compute_servers.json' }
+    
 - name: Start and enable the Grafana service
   service:
     name: grafana-server
