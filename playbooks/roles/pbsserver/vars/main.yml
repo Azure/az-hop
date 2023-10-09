@@ -1,1 +1,2 @@
 cyclecloud_pbspro: 2.0.19
+ccportal_name: "{{cyclecloud.name | default('ccportal')}}"
