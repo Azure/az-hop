@@ -84,15 +84,20 @@ windows_base_image: "MicrosoftWindowsServer:WindowsServer:2019-Datacenter-smalld
 jumpbox:
   vm_size: Standard_B2ms
   ssh_port: 8822 # SSH port used on the public IP, default to 22
+  name: jumpbox
 ondemand:
   vm_size: Standard_D4ls_v5
   generate_certificate: true
+  name: ondemand
 grafana:
   vm_size: Standard_B2ms
+  name: grafana
 scheduler:
   vm_size: Standard_B2ms
+  name: scheduler
 cyclecloud:
   vm_size: Standard_B2ms
+  name: ccportal
 
 users:
   - { name: hpcuser, uid: 10001 }

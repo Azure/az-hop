@@ -1,6 +1,6 @@
 resource "azurerm_public_ip" "ondemand-pip" {
   count               = local.allow_public_ip ? 1 : 0
-  name                = "ondemand-pip"
+  name                = "${local.ondemand_name}-pip"
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   allocation_method   = "Static"
@@ -8,7 +8,7 @@ resource "azurerm_public_ip" "ondemand-pip" {
 }
 
 resource "azurerm_network_interface" "ondemand-nic" {
-  name                = "ondemand-nic"
+  name                = "${local.ondemand_name}-nic"
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   enable_accelerated_networking = true
@@ -22,7 +22,7 @@ resource "azurerm_network_interface" "ondemand-nic" {
 }
 
 resource "azurerm_linux_virtual_machine" "ondemand" {
-  name                = "ondemand"
+  name                = local.ondemand_name
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   size                = try(local.configuration_yml["ondemand"].vm_size, "Standard_D4s_v3")

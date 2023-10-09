@@ -5,9 +5,9 @@ clusters:
       metadata:
         title: AZHOP - Cluster
       login:
-        host: ondemand
+        host: '{{ondemand.name | default("ondemand")}}'
       job:
-        host: scheduler
+        host: '{{scheduler.name | default("scheduler")}}'
       batch_connect:
         min_port: 61001
         max_port: 61010

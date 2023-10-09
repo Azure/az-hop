@@ -35,7 +35,7 @@
           set -e
           set -o pipefail
           mkdir -p /etc/ood/config/apps/bc_desktop/config
-          curl -k --connect-timeout 30 -u "{{admin_user}}:{{user_password.stdout}}" "https://ccportal:9443/cyclecloud/clusters/{{cluster_name}}/status?nodes" | jq '[.nodearrays[] | {name: .name, machineType: .buckets[0].definition.machineType, vcpuCount: .buckets[0].virtualMachine.vcpuCount}]' | yq e -P > /etc/ood/config/apps/bc_desktop/config/node_arrays.yml
+          curl -k --connect-timeout 30 -u "{{admin_user}}:{{user_password.stdout}}" "https://{{cyclecloud.name | default('ccportal')}}:9443/cyclecloud/clusters/{{cluster_name}}/status?nodes" | jq '[.nodearrays[] | {name: .name, machineType: .buckets[0].definition.machineType, vcpuCount: .buckets[0].virtualMachine.vcpuCount}]' | yq e -P > /etc/ood/config/apps/bc_desktop/config/node_arrays.yml
       args:
         executable: /bin/bash
       delegate_to: ondemand

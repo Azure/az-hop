@@ -1,6 +1,6 @@
 resource "azurerm_network_interface" "grafana-nic" {
   count               = local.create_grafana ? 1 : 0
-  name                = "grafana-nic"
+  name                = "${local.grafana_name}-nic"
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
 
@@ -13,7 +13,7 @@ resource "azurerm_network_interface" "grafana-nic" {
 
 resource "azurerm_linux_virtual_machine" "grafana" {
   count               = local.create_grafana ? 1 : 0
-  name                = "grafana"
+  name                = local.grafana_name
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   size                = try(local.configuration_yml["grafana"].vm_size, "Standard_D2s_v3")

@@ -69,6 +69,16 @@ var nsgTargetForDC = {
   target: useExistingAD ? azhopConfig.domain.existing_dc_details.domain_controller_ip_addresses : 'asg-ad'
 }
 
+var vmNamesMap = {
+  ad : contains(azhopConfig, 'ad') && contains(azhopConfig.ad, 'name') ? azhopConfig.ad.name : 'ad'
+  ad2 : contains(azhopConfig, 'ad') && contains(azhopConfig.ad, 'ha_name') ? azhopConfig.ad.ha_name : 'ad2'
+  deployer: contains(azhopConfig, 'deployer') && contains(azhopConfig.deployer, 'name') ? azhopConfig.deployer.name : 'deployer'
+  jumpbox: contains(azhopConfig, 'jumpbox') && contains(azhopConfig.jumpbox, 'name') ? azhopConfig.jumpbox.name : 'jumpbox'
+  ccportal: contains(azhopConfig, 'cyclecloud') && contains(azhopConfig.cyclecloud, 'name') ? azhopConfig.cyclecloud.name : 'ccportal'
+  ondemand: contains(azhopConfig, 'ondemand') && contains(azhopConfig.ondemand, 'name') ? azhopConfig.ondemand.name : 'ondemand'
+  scheduler: contains(azhopConfig, 'scheduler') && contains(azhopConfig.scheduler, 'name') ? azhopConfig.scheduler.name : 'scheduler'
+  grafana: contains(azhopConfig, 'grafana') && contains(azhopConfig.grafana, 'name') ? azhopConfig.grafana.name : 'grafana'
+}
 // Convert the azhop configuration file to a pivot format used for the deployment
 var config = {
   admin_user: azhopConfig.admin_user
@@ -104,8 +114,8 @@ var config = {
     } : {
       username: ''
     }
-    domain_controlers : createAD ? (! highAvailabilityForAD ? ['ad'] : ['ad', 'ad2']) : useExistingAD ? azhopConfig.domain.existing_dc_details.domain_controller_names : []
-    ldap_server: createAD ? 'ad' : useExistingAD ? azhopConfig.domain.existing_dc_details.domain_controller_names[0] : ''
+    domain_controlers : createAD ? (! highAvailabilityForAD ? [vmNamesMap.ad] : [vmNamesMap.ad, vmNamesMap.ad2]) : useExistingAD ? azhopConfig.domain.existing_dc_details.domain_controller_names : []
+    ldap_server: createAD ? vmNamesMap.ad : useExistingAD ? azhopConfig.domain.existing_dc_details.domain_controller_names[0] : ''
   }
 
   key_vault_name: contains(azhopConfig, 'azure_key_vault') ? azhopConfig.azure_key_vault.name : 'kv${resourcePostfix}'
@@ -262,6 +272,7 @@ var config = {
     {
       ondemand: {
         subnet: 'frontend'
+        name: vmNamesMap.ondemand
         sku: azhopConfig.ondemand.vm_size
         osdisksku: 'StandardSSD_LRS'
         image: 'linux_base'
@@ -273,12 +284,13 @@ var config = {
       }
       ccportal: {
         subnet: 'admin'
+        name: vmNamesMap.ccportal
         sku: azhopConfig.cyclecloud.vm_size
         osdisksku: 'StandardSSD_LRS'
         image: 'cyclecloud_base'
         datadisks: [
           {
-            name: 'ccportal-datadisk0'
+            name: '${vmNamesMap.ccportal}-datadisk0'
             disksku: 'Premium_LRS'
             size: 128
             caching: 'ReadWrite'
@@ -293,6 +305,7 @@ var config = {
       }
       scheduler: {
         subnet: 'admin'
+        name: vmNamesMap.scheduler
         sku: azhopConfig.scheduler.vm_size
         osdisksku: 'StandardSSD_LRS'
         image: 'linux_base'
@@ -303,6 +316,7 @@ var config = {
       ad: {
         subnet: 'ad'
         windows: true
+        name: vmNamesMap.ad
         ahub: contains(azhopConfig.ad, 'hybrid_benefit') ? azhopConfig.ad.hybrid_benefit : false
         sku: azhopConfig.ad.vm_size
         osdisksku: 'StandardSSD_LRS'
@@ -313,6 +327,7 @@ var config = {
     deployDeployer ? {
       deployer: {
           subnet: 'frontend'
+          name: vmNamesMap.deployer
           sku: azhopConfig.deployer.vm_size
           osdisksku: 'Standard_LRS'
           image: 'ubuntu'
@@ -336,6 +351,7 @@ var config = {
         subnet: 'ad'
         windows: true
         ahub: contains(azhopConfig.ad, 'hybrid_benefit') ? azhopConfig.ad.hybrid_benefit : false
+        name: vmNamesMap.ad2
         sku: azhopConfig.ad.vm_size
         osdisksku: 'StandardSSD_LRS'
         image: 'win_base'
@@ -345,6 +361,7 @@ var config = {
     deployJumpbox ? {
       jumpbox: {
         subnet: 'frontend'
+        name: vmNamesMap.jumpbox
         sku: azhopConfig.jumpbox.vm_size
         osdisksku: 'StandardSSD_LRS'
         image: 'linux_base'
@@ -357,6 +374,7 @@ var config = {
     deployGrafana ? {
       grafana: {
         subnet: 'admin'
+        name: vmNamesMap.grafana
         sku: azhopConfig.grafana.vm_size
         osdisksku: 'StandardSSD_LRS'
         image: 'linux_base'
@@ -610,7 +628,7 @@ module azhopVm './vm.bicep' = [ for vm in vmItems: {
   name: 'azhopVm${vm.key}'
   params: {
     location: location
-    name: vm.key
+    name: contains(vm.value, 'name') ? vm.value.name : vm.key
     vm: vm.value
     image: config.images[vm.value.image]
     subnetId: subnetIds[vm.value.subnet]

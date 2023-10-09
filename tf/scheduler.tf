@@ -1,5 +1,5 @@
 resource "azurerm_network_interface" "scheduler-nic" {
-  name                = "scheduler-nic"
+  name                = "${local.scheduler_name}-nic"
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
 
@@ -11,7 +11,7 @@ resource "azurerm_network_interface" "scheduler-nic" {
 }
 
 resource "azurerm_linux_virtual_machine" "scheduler" {
-  name                = "scheduler"
+  name                = local.scheduler_name
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   size                = try(local.configuration_yml["scheduler"].vm_size, "Standard_D2s_v3")
