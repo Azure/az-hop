@@ -186,7 +186,6 @@ jobs:
                 sed -i "s|azhpc:azhop-compute:centos-7_9:latest|$SHARED_SIG/azhop-compute-centos-7_9/latest|g" config.yml
                 sed -i "s|azhpc:azhop-desktop:centos-7_9:latest|$SHARED_SIG/azhop-desktop-centos-7_9/latest|g" config.yml
                 sed -i "s|azhpc:azhop-compute:almalinux-8_7:latest|$SHARED_SIG/azhop-compute-almalinux-8_7/latest|g" config.yml
-                sed -i "s|azhpc:azhop-compute:ubuntu-18_04:latest|$SHARED_SIG/azhop-compute-ubuntu-1804/latest|g" config.yml
                 sed -i "s|azhpc:azhop-compute:ubuntu-20_04:latest|$SHARED_SIG/azhop-compute-ubuntu-2004/latest|g" config.yml
 
                 sed -i "s|__ALMA8_PLAN__|plan: almalinux:almalinux:8-gen2|g" config.yml
@@ -198,7 +197,6 @@ jobs:
                 sed -i "s|azhpc:azhop-compute:centos-7_9:latest|$SIG/azhop-compute-centos-7_9/latest|g" config.yml
                 sed -i "s|azhpc:azhop-desktop:centos-7_9:latest|$SIG/azhop-desktop-centos-7_9/latest|g" config.yml
                 sed -i "s|azhpc:azhop-compute:almalinux-8_7:latest|$SIG/azhop-compute-almalinux-8_7/latest|g" config.yml
-                sed -i "s|azhpc:azhop-compute:ubuntu-18_04:latest|$SIG/azhop-compute-ubuntu-1804/latest|g" config.yml
                 sed -i "s|azhpc:azhop-compute:ubuntu-20_04:latest|$SIG/azhop-compute-ubuntu-2004/latest|g" config.yml
 
                 sed -i "s|__ALMA8_PLAN__|plan: almalinux:almalinux:8-gen2|g" config.yml
