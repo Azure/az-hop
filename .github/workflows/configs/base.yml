@@ -53,17 +53,20 @@ network:
         name: netapp
         address_prefixes: "10.128.0.32/28"
         create: true
+      lustre: # Lustre subnet when deploying a lustre filesystem
+        address_prefixes: "10.128.0.128/26"
+        create: true
       # the outbounddns is optional and only when deploying an Azure Private DNS Resolver
-      outbounddns:
-        name: outbounddns
-        address_prefixes: "10.128.0.48/28"
-        create: true
-      gateway: # Gateway subnet name is always fixed to GatewaySubnet
-        address_prefixes: "10.128.0.128/27" # Recommendation is to use /27 network
-        create: true
-      bastion: # Bastion subnet name is always fixed to AzureBastionSubnet
-        address_prefixes: "10.128.0.64/26" # CIDR minimal range must be /26
-        create: true
+      # outbounddns:
+      #   name: outbounddns
+      #   address_prefixes: "10.128.0.48/28"
+      #   create: true
+      # gateway: # Gateway subnet name is always fixed to GatewaySubnet
+      #   address_prefixes: "10.128.0.128/27" # Recommendation is to use /27 network
+      #   create: true
+      # bastion: # Bastion subnet name is always fixed to AzureBastionSubnet
+      #   address_prefixes: "10.128.0.64/26" # CIDR minimal range must be /26
+      #   create: true
       compute:
         name: compute
         address_prefixes: "10.128.1.0/24"
