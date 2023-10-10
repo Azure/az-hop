@@ -1,6 +1,7 @@
 targetScope = 'resourceGroup'
 
 param location string
+param name string
 param subnetId string
 @allowed([
   'AMLFS-Durable-Premium-40'
@@ -19,7 +20,7 @@ The step sizes are dependent on the SKU.
 param capacity int
 
 resource fileSystem 'Microsoft.StorageCache/amlFileSystems@2021-11-01-preview' = {
-  name: 'amlfs'
+  name: name
   location: location
   sku: {
     name: sku
@@ -29,7 +30,7 @@ resource fileSystem 'Microsoft.StorageCache/amlFileSystems@2021-11-01-preview' =
     zones: [ 1 ]
     filesystemSubnet: subnetId
     maintenanceWindow: {
-      dayOfWeek: 'Friday'
+      dayOfWeek: 'Saturday'
       timeOfDay: '21:00'
     }
   }
