@@ -1,47 +1,10 @@
 ---
 
-- import_tasks: configure_server.yml
-  become: true
-  when: install_mds or install_oss
-
 - import_tasks: configure_client.yml
   become: true
   when: install_client
 
-- import_tasks: mds.yml
-  become: true
-  tags: [ 'mds' ]
-  when: install_mds
-
-- name: install Lemur
-  become: true
-  shell: |
-    min_ver="2.1.2"
-    ver=$(rpm -q --qf "%{VERSION}" lemur-azure-hsm-agent)
-    if [ $? -gt 0 ] || [ "$ver" != "$(printf "$min_ver\n$ver" | sort -t '.' -k 1,1 -k 2,2 -k 3,3 -g | tail -n1)" ]; then
-      yum -y install https://github.com/edwardsp/lemur/releases/download/2.1.2/lemur-azure-data-movers-${min_ver}-lustre_2.12.x86_64.rpm https://github.com/edwardsp/lemur/releases/download/2.1.2/lemur-azure-hsm-agent-${min_ver}-lustre_2.12.x86_64.rpm
-    fi
-  when: install_oss or install_robinhood
-
-- import_tasks: oss.yml
-  become: true
-  tags: [ 'oss' ]
-  when: install_oss
-
 - import_tasks: client.yml
   become: true
   tags: [ 'client' ]
-  when: install_client or install_robinhood
-
-- import_tasks: robinhood.yml
-  become: true
-  tags: [ 'robinhood' ]
-  when: install_robinhood
-
-- name: update packages for security
-  become: true
-  yum:
-    name: '*'
-    state: latest
-    exclude: kernel*,kmod*,amlfs*
-  when: install_oss or install_robinhood or install_mds
+  when: install_client

@@ -82,26 +82,6 @@ function enable_winviz ()
   fi
 }
 
-function enable_lustre ()
-{
-  FEATURE_LUSTRE_IN_CONFIG=$(yq eval '.lustre.create' config.yml)
-  if [ "$FEATURE_LUSTRE_IN_CONFIG" != "null" ]; then
-    ENABLE_LUSTRE=$(yq '.lustre.create' ./config.yml | tr '[:upper:]' '[:lower:]')
-  else
-    LUSTRE_VM_IN_CONFIG=$(yq eval '.lustre.oss_count' config.yml)
-    if [ "$LUSTRE_VM_IN_CONFIG" == "null" ]; then
-      ENABLE_LUSTRE=false
-    else
-      ENABLE_LUSTRE=true
-    fi
-  fi
-  
-  if [ "$ENABLE_LUSTRE" == "false" ]; then
-    touch $PLAYBOOKS_DIR/lustre.ok
-    touch $PLAYBOOKS_DIR/lustre-sas.ok
-  fi
-}
-
 function use_existing_ad()
 {
   local use_existing_ad
@@ -164,7 +144,6 @@ $THIS_DIR/validate_config.sh config.yml
 get_scheduler
 get_ood_auth
 enable_winviz
-enable_lustre
 use_existing_ad
 use_local_users
 use_grafana_telegraf
@@ -175,8 +154,6 @@ case $TARGET in
     run_playbook dns
     run_playbook linux
     run_playbook grafana
-    run_playbook lustre-sas
-    run_playbook lustre
     run_playbook ccportal
     run_playbook add_users
     run_playbook add_local_users
@@ -186,10 +163,6 @@ case $TARGET in
     run_playbook ood-custom
     run_playbook telegraf
     run_playbook chrony
-  ;;
-  lustre)
-    run_playbook lustre-sas
-    run_playbook lustre
   ;;
   ad | ad2 | linux | add_users | add_local_users | ccportal | chrony | cccluster | scheduler | grafana | telegraf | ood-custom | remove_users | tests | dns)
     run_playbook $TARGET

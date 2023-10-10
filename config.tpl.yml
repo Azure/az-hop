@@ -129,8 +129,11 @@ network:
       # bastion: # Bastion subnet name is always fixed to AzureBastionSubnet
       #   address_prefixes: "10.0.0.64/26" # CIDR minimal range must be /26
       #   create: true
+      # lustre: # Lustre subnet when deploying a lustre filesystem
+      #   address_prefixes: "10.0.0.128/26"
+      #   create: true
       # gateway: # Gateway subnet name is always fixed to GatewaySubnet
-      #   address_prefixes: "10.0.0.128/27" # Recommendation is to use /27 or /26 network
+      #   address_prefixes: "10.0.0.192/27" # Recommendation is to use /27 or /26 network
       #   create: true
       compute:
         name: compute
@@ -182,9 +185,6 @@ linux_base_image: "OpenLogic:CentOS:7_9-gen2:latest" # publisher:offer:sku:versi
 # linux image plan if required, format is publisher:product:name
 #linux_base_plan:
 windows_base_image: "MicrosoftWindowsServer:WindowsServer:2019-Datacenter-smalldisk:latest" # publisher:offer:sku:version or image_id
-lustre_base_image: "azhpc:azurehpc-lustre:azurehpc-lustre-2_12:latest"
-# The lustre plan to use. Only needed when using the default lustre image from the marketplace. use "::" for an empty plan
-lustre_base_plan: "azhpc:azurehpc-lustre:azurehpc-lustre-2_12" # publisher:product:name
 
 domain:
   name: "hpc.azure"
@@ -250,13 +250,16 @@ cyclecloud:
 # Lustre cluster is optional and can be used to create a Lustre cluster in the environment.
 lustre:
   create: false # true or false to create a lustre cluster
-  rbh_sku: "Standard_D8d_v4"
-  mds_sku: "Standard_D8d_v4"
-  oss_sku: "Standard_D32d_v4"
-  oss_count: 2
-  hsm_max_requests: 8
-  mdt_device: "/dev/sdb"
-  ost_device: "/dev/sdb"
+  # Options: AMLFS-Durable-Premium-40, AMLFS-Durable-Premium-125, AMLFS-Durable-Premium-250, AMLFS-Durable-Premium-500
+  # See documentation for more details: https://learn.microsoft.com/en-us/azure/azure-managed-lustre/create-file-system-resource-manager
+  sku: AMLFS-Durable-Premium-250
+  # The step sizes are dependent on the SKU.
+  # - AMLFS-Durable-Premium-40: 48TB
+  # - AMLFS-Durable-Premium-125: 16TB
+  # - AMLFS-Durable-Premium-250: 8TB
+  # - AMLFS-Durable-Premium-500: 4TB
+  capacity: 8
+
   # optional to use existing storage for the archive
   # if not included it will use the azhop storage account that is created
   # hsm:

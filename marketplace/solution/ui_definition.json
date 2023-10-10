@@ -391,6 +391,69 @@
         ]
       },
       {
+        "name": "lustre",
+        "label": "Lustre",
+        "subLabel": {
+          "preValidation": "Configure your Azure Managed Lustre settings",
+          "postValidation": "Done"
+        },
+        "bladeTitle": "Lustre Settings",
+        "elements": [
+          {
+            "name": "deployLustre",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Deploy an Azure Managed Lustre Filesystem.",
+            "toolTip": "Deploy an Azure Managed Lustre Filesystem.",
+            "defaultValue": false
+          },
+          {
+            "name": "lustreSku",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Lustre Tier",
+            "defaultValue": "AMLFS-Durable-Premium-250",
+            "toolTip": "Select the Azure Manage Lustre SKU to use",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "AMLFS-Durable-Premium-40",
+                  "description": "40 MB/s/TB, 48TB size increment",
+                  "value": "AMLFS-Durable-Premium-40"
+                },
+                {
+                  "label": "AMLFS-Durable-Premium-125",
+                  "description": "125 MB/s/TB, 16TB size increment",
+                  "value": "AMLFS-Durable-Premium-125"
+                },
+                {
+                  "label": "AMLFS-Durable-Premium-250",
+                  "description": "250 MB/s/TB, 8TB size increment",
+                  "value": "AMLFS-Durable-Premium-250"
+                },
+                {
+                  "label": "AMLFS-Durable-Premium-500",
+                  "description": "500 MB/s/TB, 4TB size increment",
+                  "value": "AMLFS-Durable-Premium-500"
+                }
+              ],
+              "required": true
+            },
+            "visible": "[steps('lustre').deployLustre]"
+          },
+          {
+            "name": "lustreCapacity",
+            "type": "Microsoft.Common.Slider",
+            "label": "Capacity",
+            "toolTip": "Capacity of the Lustre filesystem.",
+            "subLabel": "TB",
+            "defaultValue": "[if(equals(steps('lustre').lustreSku,'AMLFS-Durable-Premium-40'),48,if(equals(steps('lustre').lustreSku,'AMLFS-Durable-Premium-125'),16,if(equals(steps('lustre').lustreSku,'AMLFS-Durable-Premium-250'),8,4)))]",
+            "min": "[if(equals(steps('lustre').lustreSku,'AMLFS-Durable-Premium-40'),48,if(equals(steps('lustre').lustreSku,'AMLFS-Durable-Premium-125'),16,if(equals(steps('lustre').lustreSku,'AMLFS-Durable-Premium-250'),8,4)))]",
+            "max": "[if(equals(steps('lustre').lustreSku,'AMLFS-Durable-Premium-40'),768,128)]",
+            "step": "[if(equals(steps('lustre').lustreSku,'AMLFS-Durable-Premium-40'),48,if(equals(steps('lustre').lustreSku,'AMLFS-Durable-Premium-125'),16,if(equals(steps('lustre').lustreSku,'AMLFS-Durable-Premium-250'),8,4)))]",
+            "visible": "[steps('lustre').deployLustre]"
+          }
+        ]
+      },
+      {
         "name": "scheduler",
         "label": "Scheduler",
         "subLabel": {

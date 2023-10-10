@@ -14,7 +14,7 @@
     - name: add AMLFS repo
       shell: |
         rpm --import https://packages.microsoft.com/keys/microsoft.asc
-        DISTRIB_CODENAME=el7
+        DISTRIB_CODENAME=el$(sed 's/[^0-9]*\([0-9]\).*/\1/' /etc/redhat-release)
         REPO_PATH=/etc/yum.repos.d/amlfs.repo
         echo -e "[amlfs]" > ${REPO_PATH}
         echo -e "name=Azure Lustre Packages" >> ${REPO_PATH}
@@ -26,5 +26,5 @@
       selinux:
         state: disabled
     - name: install Lustre client
-      shell: yum install -y amlfs-lustre-client-2.15.1_24_gbaa21ca-$(uname -r | sed -e "s/\.$(uname -p)$//" | sed -re 's/[-_]/\./g')-1
+      shell: yum install -y amlfs-lustre-client-2.15.1_29_gbae0abe-$(uname -r | sed -e "s/\.$(uname -p)$//" | sed -re 's/[-_]/\./g')-1
   when: "'lustre-client' not in ansible_facts.packages"

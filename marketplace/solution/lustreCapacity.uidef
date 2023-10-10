@@ -1,0 +1,64 @@
+
+# lustreCapacity
+# min
+[
+    if(
+        equals(steps('lustre').lustreSku,'AMLFS-Durable-Premium-40'),
+        48,
+        if(
+            equals(steps('lustre').lustreSku,'AMLFS-Durable-Premium-125'),
+            16,
+            if(
+                equals(steps('lustre').lustreSku,'AMLFS-Durable-Premium-250'),
+                8,
+                4
+            )    
+        )
+    )
+]
+
+# lustreCapacity
+# max
+[
+    if(
+        equals(steps('lustre').lustreSku,'AMLFS-Durable-Premium-40'),
+        768,
+        128
+    )
+]
+
+# lustreCapacity
+# step
+[
+    if(
+        equals(steps('lustre').lustreSku,'AMLFS-Durable-Premium-40'),
+        48,
+        if(
+            equals(steps('lustre').lustreSku,'AMLFS-Durable-Premium-125'),
+            16,
+            if(
+                equals(steps('lustre').lustreSku,'AMLFS-Durable-Premium-250'),
+                8,
+                4
+            )    
+        )
+    )
+]
+
+# lustreCapacity
+# default
+[
+    if(
+        equals(steps('lustre').lustreSku,'AMLFS-Durable-Premium-40'),
+        48,
+        if(
+            equals(steps('lustre').lustreSku,'AMLFS-Durable-Premium-125'),
+            16,
+            if(
+                equals(steps('lustre').lustreSku,'AMLFS-Durable-Premium-250'),
+                8,
+                4
+            )    
+        )
+    )
+]

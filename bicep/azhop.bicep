@@ -54,8 +54,6 @@ var highAvailabilityForAD = contains(azhopConfig, 'ad') && contains(azhopConfig.
 var linuxBaseImage = contains(azhopConfig, 'linux_base_image') ? azhopConfig.linux_base_image : 'OpenLogic:CentOS:7_9-gen2:latest'
 var linuxBasePlan = contains(azhopConfig, 'linux_base_plan') ? azhopConfig.linux_base_plan : ''
 var windowsBaseImage = contains(azhopConfig, 'windows_base_image') ? azhopConfig.windows_base_image : 'MicrosoftWindowsServer:WindowsServer:2019-Datacenter-smalldisk:latest'
-var lustreBaseImage = contains(azhopConfig, 'lustre_base_image') ? azhopConfig.lustre_base_image : 'azhpc:azurehpc-lustre:azurehpc-lustre-2_12:latest'
-var lustreBasePlan = contains(azhopConfig, 'lustre_base_plan') ? azhopConfig.lustre_base_plan : 'azhpc:azurehpc-lustre:azurehpc-lustre-2_12'
 var cyclecloudBaseImage = contains(azhopConfig.cyclecloud, 'image') ? azhopConfig.cyclecloud.image : linuxBaseImage
 var cyclecloudBasePlan = contains(azhopConfig.cyclecloud, 'plan') ? azhopConfig.cyclecloud.plan : linuxBasePlan
 
@@ -65,24 +63,6 @@ var computeMIoption = contains(azhopConfig, 'compute_vm_identity')
 var createComputeMI = computeMIoption && contains(azhopConfig.compute_vm_identity, 'create') ? azhopConfig.compute_vm_identity.create : false
 var computeMIname =   computeMIoption && contains(azhopConfig.compute_vm_identity, 'name') ? azhopConfig.compute_vm_identity.name : 'compute-mi'
 var existingComputeMIrg = !createComputeMI && computeMIoption && contains(azhopConfig.compute_vm_identity, 'resource_group') ? azhopConfig.compute_vm_identity.resource_group : ''
-
-var lustreOssCount = deployLustre ? azhopConfig.lustre.oss_count : 0
-
-var ossVmConfig = [for oss in range(0, lustreOssCount) : { 
-  key: 'lustre-oss-${oss}'
-  value: {
-    identity: {
-      keyvault: {
-        secret_permissions: [ 'Get', 'List' ]
-      }
-    }
-    subnet: 'admin'
-    sku: azhopConfig.lustre.oss_sku
-    osdisksku: 'StandardSSD_LRS'
-    image: 'lustre'
-    asgs: [ 'asg-ssh', 'asg-lustre', 'asg-lustre-client', 'asg-telegraf' ]
-  }
-} ]
 
 var nsgTargetForDC = {
   type: useExistingAD ? 'ips' : 'asg'
@@ -150,6 +130,12 @@ var config = {
   homedir_type: contains(azhopConfig.mounts.home, 'type') ? azhopConfig.mounts.home.type : 'existing'
   homedir_mountpoint: azhopConfig.mounts.home.mountpoint
 
+  lustre: {
+    create: deployLustre ? true : false
+    sku: contains(azhopConfig, 'lustre') && contains(azhopConfig.lustre, 'sku') ? azhopConfig.lustre.sku : 'AMLFS-Durable-Premium-250'
+    capacity: contains(azhopConfig, 'lustre') && contains(azhopConfig.lustre, 'capacity') ? azhopConfig.lustre.capacity : 8
+  }
+
   anf: {
     create: contains(azhopConfig, 'anf') && contains(azhopConfig.anf, 'create') ? azhopConfig.anf.create : (contains(azhopConfig, 'anf') ? true : false)
     dual_protocol: contains(azhopConfig, 'anf') && contains(azhopConfig.anf, 'dual_protocol') ? azhopConfig.anf.dual_protocol : false
@@ -199,6 +185,12 @@ var config = {
         ]
       }
     },
+    deployLustre ? {
+      lustre: {
+        name: contains(azhopConfig.network.vnet.subnets.lustre, 'name') ? azhopConfig.network.vnet.subnets.lustre.name : 'lustre'
+        cidr: azhopConfig.network.vnet.subnets.lustre.address_prefixes
+      }
+    } : {},
     createAD ? {
       ad: {
         name: contains(azhopConfig.network.vnet.subnets.ad, 'name') ? azhopConfig.network.vnet.subnets.ad.name : 'ad'
@@ -233,15 +225,6 @@ var config = {
   }
 
   images: {
-    lustre: {
-      plan: lustreBasePlan
-      ref: {
-        publisher: split(lustreBaseImage,':')[0]
-        offer: split(lustreBaseImage,':')[1]
-        sku: split(lustreBaseImage,':')[2]
-        version: split(lustreBaseImage,':')[3]
-      }
-    }
     ubuntu: {
       ref: {
         publisher: 'Canonical'
@@ -397,32 +380,11 @@ var config = {
         image: 'linux_base'
         asgs: [ 'asg-ssh', 'asg-grafana', 'asg-ad-client', 'asg-telegraf', 'asg-nfs-client' ]
       }
-    } : {},
-    deployLustre ? {
-      lustre: {
-        subnet: 'admin'
-        sku: azhopConfig.lustre.mds_sku
-        osdisksku: 'StandardSSD_LRS'
-        image: 'lustre'
-        asgs: [ 'asg-ssh', 'asg-lustre', 'asg-lustre-client', 'asg-telegraf' ]
-      }
-      robinhood: {
-        identity: {
-          keyvault: {
-            secret_permissions: [ 'Get', 'List' ]
-          }
-        }
-        subnet: 'admin'
-        sku: azhopConfig.lustre.rbh_sku
-        osdisksku: 'StandardSSD_LRS'
-        image: 'lustre'
-        asgs: [ 'asg-ssh', 'asg-robinhood', 'asg-lustre-client', 'asg-telegraf' ]
-      }
     } : {}
   )
 
   asg_names: union([ 'asg-ssh', 'asg-rdp', 'asg-jumpbox', 'asg-ad', 'asg-ad-client', 'asg-pbs', 'asg-pbs-client', 'asg-cyclecloud', 'asg-cyclecloud-client', 'asg-nfs-client', 'asg-telegraf', 'asg-robinhood', 'asg-ondemand', 'asg-deployer', 'asg-mariadb-client' ],
-    deployLustre ? [ 'asg-lustre', 'asg-lustre-client' ] : [],
+    deployLustre ? [ 'asg-lustre-client' ] : [],
     deployGrafana ? [ 'asg-grafana' ] : []
   )
 
@@ -442,7 +404,7 @@ var config = {
     Rdp: ['3389']
     Pbs: ['6200', '15001-15009', '17001', '32768-61000', '6817-6819']
     Slurmd: ['6818']
-    Lustre: ['635', '988']
+    Lustre: ['988', '1019-1023']
     Nfs: ['111', '635', '2049', '4045', '4046']
     SMB: ['445']
     Telegraf: ['8086']
@@ -512,7 +474,7 @@ var config = {
 
       // Deny all remaining traffic
       DenyVnetInbound             : ['3100', 'Inbound', 'Deny', '*', 'All', 'tag', 'VirtualNetwork', 'tag', 'VirtualNetwork']
-    
+      
       //
       // Outbound
       //
@@ -577,16 +539,14 @@ var config = {
     }
     lustre: {
       // Inbound
-      AllowLustreIn               : ['409', 'Inbound', 'Allow', 'Tcp', 'Lustre', 'asg', 'asg-lustre', 'asg', 'asg-lustre-client']
-      AllowLustreClientIn         : ['410', 'Inbound', 'Allow', 'Tcp', 'Lustre', 'asg', 'asg-lustre-client', 'asg', 'asg-lustre']
-      AllowLustreClientComputeIn  : ['420', 'Inbound', 'Allow', 'Tcp', 'Lustre', 'subnet', 'compute', 'asg', 'asg-lustre']
-      AllowRobinhoodIn            : ['430', 'Inbound', 'Allow', 'Tcp', 'Web', 'asg', 'asg-ondemand', 'asg', 'asg-robinhood']
+      AllowLustreClientIn         : ['410', 'Inbound', 'Allow', 'Tcp', 'Lustre', 'asg', 'asg-lustre-client', 'subnet', 'lustre']
+      AllowLustreClientComputeIn  : ['420', 'Inbound', 'Allow', 'Tcp', 'Lustre', 'subnet', 'compute', 'subnet', 'lustre']
+      AllowLustreSubnetAnyInbound : ['430', 'Inbound', 'Allow', '*', 'All', 'subnet', 'lustre', 'subnet', 'lustre']
       // Outbound
-      AllowLustreOut              : ['390', 'Outbound', 'Allow', 'Tcp', 'Lustre', 'asg', 'asg-lustre', 'asg', 'asg-lustre-client']
-      AllowLustreClientOut        : ['400', 'Outbound', 'Allow', 'Tcp', 'Lustre', 'asg', 'asg-lustre-client', 'asg', 'asg-lustre']
-      //AllowLustreComputeOut       : ['410', 'Outbound', 'Allow', 'Tcp', 'Lustre', 'asg', 'asg-lustre', 'subnet', 'compute']
-      AllowLustreClientComputeOut : ['420', 'Outbound', 'Allow', 'Tcp', 'Lustre', 'subnet', 'compute', 'asg', 'asg-lustre']
-      AllowRobinhoodOut           : ['430', 'Outbound', 'Allow', 'Tcp', 'Web', 'asg', 'asg-ondemand', 'asg', 'asg-robinhood']
+      AllowAzureCloudServiceAccess: ['400', 'Outbound', 'Allow', '*', 'All', 'tag', 'VirtualNetwork', 'tag', 'AzureCloud']
+      AllowLustreClientOut        : ['410', 'Outbound', 'Allow', 'Tcp', 'Lustre', 'asg', 'asg-lustre-client', 'subnet', 'lustre']
+      AllowLustreClientComputeOut : ['420', 'Outbound', 'Allow', 'Tcp', 'Lustre', 'subnet', 'compute', 'subnet', 'lustre']
+      AllowLustreSubnetAnyOutbound: ['430', 'Outbound', 'Allow', '*', 'All', 'subnet', 'lustre', 'subnet', 'lustre']
     }
     internet: {
       AllowInternetSshIn          : ['200', 'Inbound', 'Allow', 'Tcp', 'HubSsh', 'tag', 'Internet', 'asg', 'asg-jumpbox']
@@ -594,7 +554,7 @@ var config = {
     }
     hub: {
       AllowHubSshIn               : ['200', 'Inbound', 'Allow', 'Tcp', 'HubSsh', 'tag', 'VirtualNetwork', 'asg', 'asg-jumpbox']
-      AllowHubHttpIn              : ['210', 'Inbound', 'Allow', 'Tcp', 'Web',        'tag', 'VirtualNetwork', 'asg', 'asg-ondemand']
+      AllowHubHttpIn              : ['210', 'Inbound', 'Allow', 'Tcp', 'Web', 'tag', 'VirtualNetwork', 'asg', 'asg-ondemand']
     }
     bastion: {
       AllowBastionIn              : ['530', 'Inbound', 'Allow', 'Tcp', 'Bastion', 'subnet', 'bastion', 'tag', 'VirtualNetwork']
@@ -616,7 +576,7 @@ var config = {
   }
 }
 
-var vmItems = concat(items(config.vms), ossVmConfig)
+var vmItems = items(config.vms)
 
 module azhopSecrets './secrets.bicep' = if (autogenerateSecrets) {
   name: 'azhopSecrets'
@@ -835,6 +795,17 @@ module azhopVpnGateway './vpngateway.bicep' = if (config.deploy_gateway) {
   }
 }
 
+module azhopAmlfs './amlfs.bicep' = if (deployLustre) {
+  name: 'azhopAmlfs'
+  params: {
+    location: location
+    name: 'amlfs${resourcePostfix}'
+    subnetId: subnetIds.lustre
+    sku: config.lustre.sku
+    capacity: config.lustre.capacity
+  }
+}
+
 module azhopAnf './anf.bicep' = if (config.anf.create) {
   name: 'azhopAnf'
   params: {
@@ -945,6 +916,9 @@ output azhopGlobalConfig object = union(
     anf_home_ip                   : azhopConfig.mounts.home.server
     anf_home_path                 : azhopConfig.mounts.home.export
     anf_home_opts                 : azhopConfig.mounts.home.options
+  } : {},
+  deployLustre ? {
+    lustre_mgs                    : azhopAmlfs.outputs.lustre_mgs
   } : {}
 )
 
@@ -1001,16 +975,7 @@ output azhopInventory object = {
           ansible_ssh_port: config.vms.deployer.sshPort
           ansible_ssh_common_args: ''
         }
-      },
-      config.deploy_lustre ? {
-        lustre: {
-          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'lustre')].outputs.privateIp
-        }
-        robinhood: {
-          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'robinhood')].outputs.privateIp
-        }
-      } : {},
-      config.deploy_grafana ? {
+      },config.deploy_grafana ? {
         grafana: {
           ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'grafana')].outputs.privateIp
         }
@@ -1023,9 +988,6 @@ output azhopInventory object = {
     }
   }
 }
-
-// need to add this to the inventory file as bicep will not allow me to generate it
-output lustre_oss_private_ips array = [for i in range(0, lustreOssCount): azhopVm[indexOf(map(vmItems, item => item.key), format('lustre-oss-{0}', i))].outputs.privateIp]
 
 output azhopPackerOptions object = (config.deploy_sig) ? {
   var_subscription_id: subscription().subscriptionId

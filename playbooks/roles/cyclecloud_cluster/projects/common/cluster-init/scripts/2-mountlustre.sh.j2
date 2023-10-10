@@ -1,6 +1,6 @@
 #!/bin/bash
 
-lustre_vm=lustre
+lustre_mgs={{ lustre_mgs }}
 lustre_mount=/lustre
 
 # exit if lustre module is not installed
@@ -30,7 +30,7 @@ done
 # Mount the lustre filesystem
 echo "Mount the lustre filesystem"
 mkdir $lustre_mount
-echo "${lustre_vm}@tcp0:/LustreFS $lustre_mount lustre flock,defaults,_netdev 0 0" >> /etc/fstab
+echo "${lustre_mgs}@tcp0:/lustrefs $lustre_mount lustre noatime,flock,defaults,_netdev 0 0" >> /etc/fstab
 mount $lustre_mount 
 if [ $? -eq 1 ]; then
   echo "Unable to mount lustre"
