@@ -20,12 +20,12 @@
 
 - name: Install CycleCloud (Ubuntu)
   package:
-    name: "cyclecloud8={{cc_version}}"
+    name: "cyclecloud8={{cyclecloud_version}}"
     state: present
     lock_timeout : 180
 
 - name: Install Jetpack (Ubuntu)
   package:
-    name: "jetpack8={{cc_version}}"
+    name: "jetpack8={{cyclecloud_version}}"
     state: present
     lock_timeout : 180

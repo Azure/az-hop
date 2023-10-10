@@ -1,0 +1,1 @@
+cyclecloud_version: "{{'8.4.2-3186' if (cc_version | default('', true) | trim == '') else cc_version}}"
