@@ -19,3 +19,4 @@ ood_auth_openidc:
   OIDCPassIDTokenAs: '{{authentication.ood_auth_openidc.OIDCPassIDTokenAs}}'
   OIDCPassRefreshToken: '{{authentication.ood_auth_openidc.OIDCPassRefreshToken}}'
   OIDCPassClaimsAs: '{{authentication.ood_auth_openidc.OIDCPassClaimsAs}}'
+  OIDCStateMaxNumberOfCookies: '{{authentication.ood_auth_openidc.OIDCStateMaxNumberOfCookies | default([7, true])}}'
