@@ -12,4 +12,4 @@ EOF
 
 # Launch the Rstudio server
 set -x
-/usr/lib/rstudio-server/bin/rserver --www-port ${PORT}
+/usr/lib/rstudio-server/bin/rserver --www-port ${port}
