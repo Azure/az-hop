@@ -19,21 +19,21 @@ The step sizes are dependent on the SKU.
 ''')
 param capacity int
 
-resource fileSystem 'Microsoft.StorageCache/amlFileSystems@2021-11-01-preview' = {
+resource fileSystem 'Microsoft.StorageCache/amlFileSystems@2023-05-01' = {
   name: name
   location: location
   sku: {
     name: sku
   }
+  zones: [ '1' ]
   properties: {
     storageCapacityTiB: capacity
-    zones: [ 1 ]
     filesystemSubnet: subnetId
     maintenanceWindow: {
       dayOfWeek: 'Saturday'
-      timeOfDay: '21:00'
+      timeOfDayUTC: '23:00'
     }
   }
 }
 
-output lustre_mgs string = fileSystem.properties.mgsAddress
+output lustre_mgs string = fileSystem.properties.clientInfo.mgsAddress
