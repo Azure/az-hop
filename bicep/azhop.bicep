@@ -831,7 +831,7 @@ module azhopNfsFiles './nfsfiles.bicep' = if (config.azurefiles.create ) {
   }
 }
 
-module azhopPrivateZone './privatezone.bicep' = {
+module azhopPrivateZone './privatezone.bicep' = if (createAD || useExistingAD) {
   name: 'azhopPrivateZone'
   params: {
     privateDnsZoneName: config.domain.name
