@@ -726,6 +726,7 @@ authentication:
   #   OIDCPassIDTokenAs: # for AAD use 'serialized'
   #   OIDCPassRefreshToken: # for AAD use 'On'
   #   OIDCPassClaimsAs: # for AAD use 'environment'
+  #   OIDCStateMaxNumberOfCookies: # in case of too many connections error for the same user set this to '10 true'
 
 image_gallery:
   create: true # Create the shared image gallery to store custom images
