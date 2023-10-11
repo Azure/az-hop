@@ -46,7 +46,7 @@ mounts:
     options: "[if(equals(steps('homedir').type, 'azurefiles'), 'vers=4,minorversion=1,sec=sys', '{{anf_home_opts}}')]"
 
 admin_user: "[basics('adminUser')]"
-key_vault_readers: "[basics('keyvaultReader')]"
+key_vault_readers: "[steps('otherSettings').keyvaultReader]"
 
 network:
   create_nsg: true
@@ -80,7 +80,7 @@ network:
         name: compute
         address_prefixes: "[concat(_X1_, '.', _X2_, '.', if(equals(steps('network').cidrPrefix, '/24'), concat(_X3_, '.128/25'), if(equals(steps('network').cidrPrefix, '/23'), concat(string(add(_X3i_,1)), '.0/24'), if(equals(steps('network').cidrPrefix, '/22'), concat(string(add(_X3i_,2)), '.0/23'), if(equals(steps('network').cidrPrefix, '/21'), concat(string(add(_X3i_,4)), '.0/22'), concat(string(add(_X3i_,8)), '.0/21'))))))]"
         create: true
-  peering: "[if(steps('network').peering, parse(concat('[{\"vnet_name\":\"', steps('network').vnetname, '\", \"vnet_resource_group\": \"', steps('network').vnetrg, '\"}]')), parse('[]'))]"
+  peering: "[if(steps('network').peering, parse(concat('[{\"vnet_name\":\"', steps('network').vnetPeeredVnetSelector.name, '\", \"vnet_resource_group\": \"', take(skip(split(steps('network').vnetPeeredVnetSelector,'/'),2),1), '\"}]')), parse('[]'))]"
   # This list is optional, and can be used to create VNet Peerings in the same subscription.
   #  - vnet_name: "azhop_hub" #"VNET Name to Peer to"
   #    vnet_resource_group: "azhop_control_plane_westeurope" #"Resource Group of the VNET to peer to"
@@ -145,7 +145,7 @@ vpn_gateway:
   create: false
 
 authentication:
-  user_auth: "[steps('authentication').userAuthentication]"
+  user_auth: local #"[steps('authentication').userAuthentication]"
   httpd_auth: basic # oidc or basic
 
 autoscale:
@@ -202,8 +202,6 @@ applications:
     enabled: "[steps('applications').enableJupyter]"
   bc_rstudio:
     enabled: "[steps('applications').enableRStudio]"
-  bc_ansys_workbench:
-    enabled: "[steps('applications').enableAnsysWorkbench]"
   bc_vmd:
     enabled: "[steps('applications').enableVMD]"
   bc_paraview:
