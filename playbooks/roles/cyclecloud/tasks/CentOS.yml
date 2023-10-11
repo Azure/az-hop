@@ -35,11 +35,40 @@
   args:
     creates: /etc/yum.repos.d/cyclecloud.repo
 
-- name: Install pre-reqs packages
+- name: Install epel-release
   yum:
-    name: azure-cli, dnsmasq, unzip
+    name: epel-release
     state: present
     lock_timeout : 180
+
+- name: Install pre-reqs packages
+  yum:
+    name: azure-cli, dnsmasq, unzip, gcc, openssl-devel, bzip2-devel, libffi-devel, zlib-devel, openssl11, openssl11-libs, openssl11-devel
+    state: present
+    lock_timeout : 180
+
+- name: download Python 3.9  
+  unarchive: 
+    src: "https://www.python.org/ftp/python/3.9.18/Python-3.9.18.tgz"
+    dest: /tmp/
+    remote_src: yes
+  args:
+    creates: /usr/local/bin/python3.9
+
+- name: Build Python 3.9
+  shell: |
+    set -e
+    cd /tmp/Python-3.9.18
+    ./configure --enable-optimizations
+    make altinstall
+  args:
+    creates: /usr/local/bin/python3.9
+
+- name: Upgrade PIP
+  shell: |
+    set -e
+    alternatives --install /usr/bin/python3 python3 /usr/local/bin/python3.9 1
+    python3 -m pip install --upgrade pip
 
 - name: Install CycleCloud
   yum:
