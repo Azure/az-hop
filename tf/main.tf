@@ -100,15 +100,6 @@ resource "azurerm_storage_account" "azhop" {
   }
 }
 
-# create a container for the lustre archive if not using an existing account
-resource "azurerm_storage_container" "lustre_archive" {
-    count                 = (local.lustre_archive_account == null ? ( local.lustre_enabled ? 1 : 0) : 0)
-    name                  = "lustre"
-    storage_account_name  = azurerm_storage_account.azhop.name
-    container_access_type = "private"
-}
-
-
 # This is the azhop telemetry deployment that is only created if telemetry is enabled.
 # It is deployed to the resource group
 resource "azurerm_resource_group_template_deployment" "telemetry_azhop" {
