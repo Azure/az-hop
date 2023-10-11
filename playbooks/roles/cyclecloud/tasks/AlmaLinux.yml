@@ -37,9 +37,16 @@
 
 - name: Install pre-reqs packages
   yum:
-    name: azure-cli, dnsmasq, unzip, java
+    name: azure-cli, dnsmasq, unzip, java, python39, python39-pip
     state: present
     lock_timeout : 180
+
+- name: Upgrade PIP
+  shell: |
+    set -e
+    alternatives --set python /usr/bin/python3.9
+    alternatives --set python3 /usr/bin/python3.9
+    python3 -m pip install --upgrade pip
 
 - name: Install CycleCloud
   yum:
