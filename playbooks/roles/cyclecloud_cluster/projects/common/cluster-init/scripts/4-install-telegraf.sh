@@ -13,7 +13,6 @@ ARRAY=$(jetpack config cyclecloud.node.template)
 
 sed -i "s/__SKU__/${AZHPC_VMSIZE}/g" ../files/telegraf.conf
 sed -i "s/__PHYS_HOST__/${PHYSICAL_HOST}/g" ../files/telegraf.conf
-sed -i "s/__VMSS__/${VMSS}/g" ../files/telegraf.conf
 sed -i "s/__ARRAY__/${ARRAY}/g" ../files/telegraf.conf
 
 echo "Copy configuration file to use"
