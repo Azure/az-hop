@@ -408,6 +408,29 @@
             "visible": true
           },
           {
+            "name": "slurmVersion",
+            "type": "Microsoft.Common.DropDown",
+            "label": "SLURM Version",
+            "defaultValue": "22.05.3",
+            "toolTip": "Select the version of SLURM to use",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "22.05.3",
+                  "description": "Version 22.05.3",
+                  "value": "22.05.3"
+                },
+                {
+                  "label": "20.11.9",
+                  "description": "Version 20.11.9",
+                  "value": "20.11.9"
+                }
+              ],
+              "required": true
+            },
+            "visible": "[equals(steps('scheduler').scheduler, 'slurm')]"
+          },
+          {
             "name": "slurmAccounting",
             "type": "Microsoft.Common.CheckBox",
             "label": "SLURM accounting",
