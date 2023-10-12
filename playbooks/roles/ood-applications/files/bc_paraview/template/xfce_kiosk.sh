@@ -1,0 +1,1 @@
+../../library/xfce_kiosk.sh

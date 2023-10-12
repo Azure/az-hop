@@ -9,17 +9,7 @@ module purge
 cd "${HOME}"
 
 # Launch Xfce Window Manager and Panel
-(
-  module restore
-  export XDG_CONFIG_HOME="<%= session.staged_root.join("config") %>"
-  export XDG_DATA_HOME="<%= session.staged_root.join("share") %>"
-  export XDG_CACHE_HOME="$(mktemp -d)"
-  xfwm4 --compositor=off --daemon --sm-client-disable
-  xsetroot -solid "#D3D3D3"
-  xfsettingsd --sm-client-disable
-  export XFCE_PANEL_MIGRATE_DEFAULT=yes
-  xfce4-panel --sm-client-disable
-) &
+source "<%= session.staged_root.join("xfce_kiosk.sh") %>"
 
 <%- if gpu -%>
 GL_LAUNCHER="vglrun"
