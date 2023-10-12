@@ -137,7 +137,7 @@
             "name": "mountpoint",
             "type": "Microsoft.Common.TextBox",
             "label": "Mountpoint",
-            "defaultValue": "/clusterhome",
+            "defaultValue": "/nfshome",
             "toolTip": "Home directory mountpoint on the VMs.",
             "constraints": {
               "required": false,
@@ -411,7 +411,7 @@
             "name": "slurmAccounting",
             "type": "Microsoft.Common.CheckBox",
             "label": "SLURM accounting",
-            "toolTip": "Select to enable SLURM accounting",
+            "toolTip": "Select to enable SLURM accounting in a managed MariaDB instance",
             "defaultValue": false,
             "visible": "[equals(steps('scheduler').scheduler, 'slurm')]"
           }
