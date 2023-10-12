@@ -28,8 +28,9 @@ docker build . -t ${login_server}/${hpcrover}
 case "$buildenv" in
     "github")
         docker login ${login_server}
-        docker tag ${login_server}/${hpcrover} ${login_server}/${latest}
+        docker tag ${login_server}/${hpcrover} 
         docker push ${login_server}/${hpcrover}
+        docker push ${login_server}/${latest}
     ;;
 
     "local")
