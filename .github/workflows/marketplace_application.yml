@@ -4,6 +4,9 @@
 #
 name : marketplace application
 on:
+  push:
+    tags:
+      - '*'
   pull_request:
     branches:
       - main
@@ -41,3 +44,8 @@ jobs:
           source /miniconda/bin/activate
           ./marketplace/solution/build.sh
 
+      - uses: actions/upload-artifact@v3
+#        if: startsWith(github.ref, 'refs/tags/v')
+        with:
+          name: marketplace package
+          path: marketplace/solution/build.zip
