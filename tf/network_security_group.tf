@@ -96,6 +96,12 @@ resource "azurerm_subnet_network_security_group_association" "admin" {
   network_security_group_id = azurerm_network_security_group.common[0].id
 }
 
+resource "azurerm_subnet_network_security_group_association" "netapp" {
+  count                     = local.create_nsg ? 1 : 0
+  subnet_id                 = local.create_netapp_subnet ? azurerm_subnet.netapp[0].id : data.azurerm_subnet.netapp[0].id
+  network_security_group_id = azurerm_network_security_group.common[0].id
+}
+
 resource "azurerm_subnet_network_security_group_association" "outbounddns" {
   count                     = local.create_nsg ? (local.no_outbounddns_subnet ? 0 : 1) : 0
   subnet_id                 = local.create_outbounddns_subnet ? azurerm_subnet.outbounddns[0].id : data.azurerm_subnet.outbounddns[0].id

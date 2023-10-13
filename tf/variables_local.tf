@@ -408,6 +408,10 @@ locals {
         AllowLustreClientIn         = ["410", "Inbound", "Allow", "Tcp", "Lustre",             "asg/asg-lustre-client", "subnet/admin"],
         AllowLustreClientComputeIn  = ["420", "Inbound", "Allow", "Tcp", "Lustre",             "subnet/compute",        "subnet/admin"],
 
+        # NFS
+        AllowNfsIn                  = ["430", "Inbound", "Allow", "*",   "Nfs",                "asg/asg-nfs-client",       "subnet/netapp"],
+        AllowNfsComputeIn           = ["435", "Inbound", "Allow", "*",   "Nfs",                "subnet/compute",           "subnet/netapp"],
+
         # CycleCloud
         AllowCycleWebIn             = ["440", "Inbound", "Allow", "Tcp", "Web",                "asg/asg-ondemand",          "asg/asg-cyclecloud"],
         AllowCycleClientIn          = ["450", "Inbound", "Allow", "Tcp", "CycleCloud",         "asg/asg-cyclecloud-client", "asg/asg-cyclecloud"],
