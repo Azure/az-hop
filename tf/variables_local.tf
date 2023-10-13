@@ -134,10 +134,10 @@ locals {
         version   = local.use_windows_image_reference ? split(":", local.configuration_yml["windows_base_image"])[3] : "latest"
     }
     cyclecloud_image_reference = {
-        publisher = local.use_cyclecloud_image_reference ? split(":", local.configuration_yml["cyclecloud"]["image"])[0] : "OpenLogic"
-        offer     = local.use_cyclecloud_image_reference ? split(":", local.configuration_yml["cyclecloud"]["image"])[1] : "CentOS"
-        sku       = local.use_cyclecloud_image_reference ? split(":", local.configuration_yml["cyclecloud"]["image"])[2] : "7_9-gen2"
-        version   = local.use_cyclecloud_image_reference ? split(":", local.configuration_yml["cyclecloud"]["image"])[3] : "latest"
+        publisher = local.use_cyclecloud_image_reference ? split(":", local.configuration_yml["cyclecloud"]["image"])[0] : local.linux_base_image_reference.publisher
+        offer     = local.use_cyclecloud_image_reference ? split(":", local.configuration_yml["cyclecloud"]["image"])[1] : local.linux_base_image_reference.offer
+        sku       = local.use_cyclecloud_image_reference ? split(":", local.configuration_yml["cyclecloud"]["image"])[2] : local.linux_base_image_reference.sku
+        version   = local.use_cyclecloud_image_reference ? split(":", local.configuration_yml["cyclecloud"]["image"])[3] : local.linux_base_image_reference.version
     }
 
     # Use a linux custom image id if the linux_base_image is defined and contains "/"
