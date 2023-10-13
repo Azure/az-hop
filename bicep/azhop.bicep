@@ -170,7 +170,6 @@ var config = {
         ]
       }
       netapp: {
-        apply_nsg: false
         name: contains(azhopConfig.network.vnet.subnets.netapp, 'name') ? azhopConfig.network.vnet.subnets.netapp.name : 'netapp'
         cidr: azhopConfig.network.vnet.subnets.netapp.address_prefixes
         delegations: [
@@ -453,7 +452,11 @@ var config = {
     
       // SLURM
       AllowComputeSlurmIn         : ['405', 'Inbound', 'Allow', '*', 'Slurmd', 'asg', 'asg-ondemand', 'subnet', 'compute']
-    
+
+      // NFS
+      AllowNfsIn                  : ['430', 'Inbound', 'Allow', '*', 'Nfs', 'asg', 'asg-nfs-client', 'subnet', 'netapp']
+      AllowNfsComputeIn           : ['435', 'Inbound', 'Allow', '*', 'Nfs', 'subnet', 'compute', 'subnet', 'netapp']
+      
       // CycleCloud
       AllowCycleWebIn             : ['440', 'Inbound', 'Allow', 'Tcp', 'Web', 'asg', 'asg-ondemand', 'asg', 'asg-cyclecloud']
       AllowCycleClientIn          : ['450', 'Inbound', 'Allow', 'Tcp', 'CycleCloud', 'asg', 'asg-cyclecloud-client', 'asg', 'asg-cyclecloud']
