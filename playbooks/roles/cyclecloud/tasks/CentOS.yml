@@ -43,9 +43,29 @@
 
 - name: Install pre-reqs packages
   yum:
-    name: azure-cli, dnsmasq, unzip, gcc, openssl-devel, bzip2-devel, libffi-devel, zlib-devel, openssl11, openssl11-libs, openssl11-devel
+    name: azure-cli, dnsmasq, unzip, gcc, bzip2-devel, libffi-devel, zlib-devel
     state: present
     lock_timeout : 180
+
+- name: Install OpenSSL
+  unarchive: 
+    src: "https://github.com/openssl/openssl/releases/download/openssl-1.1.1w/openssl-1.1.1w.tar.gz"
+    dest: /tmp/
+    remote_src: yes
+  args:
+    creates: /usr/local/openssl
+
+- name: Build OpenSSL
+  shell: |
+    set -e
+    cd /tmp/openssl-1.1.1w
+    ./config --prefix=/usr/local/openssl --openssldir=/usr/local/openssl
+    make
+    make install
+    echo "/usr/local/openssl/lib" > /etc/ld.so.conf.d/openssl.conf
+    ldconfig
+  args:
+    creates: /usr/local/openssl
 
 - name: download Python 3.9  
   unarchive: 
@@ -59,7 +79,7 @@
   shell: |
     set -e
     cd /tmp/Python-3.9.18
-    ./configure --enable-optimizations
+    ./configure --enable-optimizations --with-openssl=/usr/local/openssl
     make altinstall
   args:
     creates: /usr/local/bin/python3.9
