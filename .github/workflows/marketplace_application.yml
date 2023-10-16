@@ -43,10 +43,10 @@ jobs:
         run: |
           set -e
           source /miniconda/bin/activate
-          ./marketplace/solution/build.sh ${BRANCH_NAME}
+          ./marketplace/solution/build.sh ${{ env.BRANCH_NAME }}
 
       - uses: actions/upload-artifact@v3
 #        if: startsWith(github.ref, 'refs/tags/v')
         with:
           name: marketplace package
-          path: marketplace/solution/build_${BRANCH_NAME}
+          path: marketplace/solution/build_${{ env.BRANCH_NAME }}

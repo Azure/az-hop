@@ -31,6 +31,9 @@ jq --argfile azhopConfig $build_dir/config.json '.parameters.outputs.azhopConfig
     | sed "s/_X3i_/int(first(skip(split(steps('network').baseIpAddress,'.'),2)))/g" \
     | sed "s/_X4i_/int(last(split(steps('network').baseIpAddress,'.')))/g" \
     > $build_dir/createUiDefinition.json
+# Set the branch name in the UI definition and parameters
+sed -i "s/__BRANCH_NAME__/${BUILD_NAME}/g" $build_dir/createUiDefinition.json
+
 rm $build_dir/config.json
 echo "Converting Bicep to ARM template"
 az bicep build --file ${AZHOP_ROOT}/bicep/mainTemplate.bicep --outdir $build_dir
