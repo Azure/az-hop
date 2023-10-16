@@ -50,3 +50,4 @@ jobs:
         with:
           name: marketplace package
           path: marketplace/solution/build_${{ env.BRANCH_NAME }//\//_}
+          if-no-files-found: error
