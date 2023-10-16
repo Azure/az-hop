@@ -43,11 +43,12 @@ jobs:
         run: |
           set -e
           source /miniconda/bin/activate
-          ./marketplace/solution/build.sh ${{ env.BRANCH_NAME }}
+          ./marketplace/solution/build.sh $BRANCH_NAME
+          echo "escaped_branch_name=${BRANCH_NAME//\//_}" >> $GITHUB_ENV
 
       - uses: actions/upload-artifact@v3
 #        if: startsWith(github.ref, 'refs/tags/v')
         with:
           name: marketplace package
-          path: marketplace/solution/build_${{ env.BRANCH_NAME//\//_ }}
+          path: marketplace/solution/build_${{ steps.build.outputs.escaped_branch_name }}
           if-no-files-found: error
