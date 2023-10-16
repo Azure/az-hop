@@ -47,9 +47,9 @@
     state: present
     lock_timeout : 180
 
-- name: Install OpenSSL
+- name: Download OpenSSL
   unarchive: 
-    src: "https://github.com/openssl/openssl/releases/download/openssl-1.1.1w/openssl-1.1.1w.tar.gz"
+    src: "https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_1w/openssl-1.1.1w.tar.gz"
     dest: /tmp/
     remote_src: yes
   args:
@@ -63,6 +63,7 @@
     make
     make install
     echo "/usr/local/openssl/lib" > /etc/ld.so.conf.d/openssl.conf
+    ln -s /etc/ssl/certs/ca-bundle.trust.crt /usr/local/openssl/cert.pem
     ldconfig
   args:
     creates: /usr/local/openssl
