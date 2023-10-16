@@ -1,15 +1,22 @@
 #!/bin/bash
 set -e
+# This script builds the ARM template and UI definition for the azhop marketplace solution
+BUILD_NAME=${1:-main}
+
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 AZHOP_ROOT=${THIS_DIR}/../..
 
 
-if [ -d ${AZHOP_ROOT}/miniconda ]; then
-  echo "Activating conda environment"
-  source ${AZHOP_ROOT}/miniconda/bin/activate
-fi
+load_miniconda() {
+  # Note: packaging this inside a function to avoid forwarding arguments to conda
+  if [ -d ${AZHOP_ROOT}/miniconda ]; then
+    echo "Activating conda environment"
+    source ${AZHOP_ROOT}/miniconda/bin/activate
+  fi
+}
+load_miniconda
 
-build_dir="${THIS_DIR}/build"
+build_dir="${THIS_DIR}/build_${BUILD_NAME//\//_}"
 rm -rf $build_dir
 mkdir -p $build_dir
 echo "Converting YAML config to JSON"
@@ -28,6 +35,9 @@ jq --argfile azhopConfig $build_dir/config.json '.parameters.outputs.azhopConfig
     | sed "s/_X3i_/int(first(skip(split(steps('network').baseIpAddress,'.'),2)))/g" \
     | sed "s/_X4i_/int(last(split(steps('network').baseIpAddress,'.')))/g" \
     > $build_dir/createUiDefinition.json
+# Set the branch name in the UI definition and parameters
+sed -i "s|__BRANCH_NAME__|${BUILD_NAME}|g" $build_dir/createUiDefinition.json
+
 rm $build_dir/config.json
 echo "Converting Bicep to ARM template"
 az bicep build --file ${AZHOP_ROOT}/bicep/mainTemplate.bicep --outdir $build_dir
