@@ -25,6 +25,14 @@
 - name: Perform OS dependent configuration tasks
   include_tasks: "{{ansible_distribution}}.yml"
 
+- name: Update Packages
+  include_role:
+    name: pkg_update
+    apply: 
+      become: true
+  vars:
+    packages_to_exclude_from_upgrade: "cyclecloud*"
+
 - name: Create a data record for azhop and start cycleserver
   shell: |
     set -e
@@ -48,7 +56,7 @@
     CS_ROOT=/opt/cycle_server
     unzip $CS_ROOT/tools/cyclecloud-cli.zip
     cd cyclecloud-cli-installer
-    ./install.sh --system -y
+    ./install.sh --system -y -v
     cd $mydir
     # Update properties
     sed -i 's/webServerMaxHeapSize\=2048M/webServerMaxHeapSize\=4096M/' $CS_ROOT/config/cycle_server.properties
