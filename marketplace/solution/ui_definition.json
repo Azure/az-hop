@@ -532,7 +532,7 @@
               "name": "branchName",
               "type": "Microsoft.Common.TextBox",
               "label": "Branch Name",
-              "defaultValue": "main",
+              "defaultValue": "__BRANCH_NAME__",
               "toolTip": "Branch of the azhop repo to pull - Default to main",
               "constraints": {
                 "required": false,

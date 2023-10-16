@@ -4,6 +4,9 @@
 #
 name : marketplace application
 on:
+  push:
+    tags:
+      - '*'
   pull_request:
     branches:
       - main
@@ -15,6 +18,7 @@ on:
 env:
   ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
   ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}  # https://docs.github.com/en/actions/learn-github-actions/contexts#github-context
 
 defaults:
   run:
@@ -39,5 +43,12 @@ jobs:
         run: |
           set -e
           source /miniconda/bin/activate
-          ./marketplace/solution/build.sh
+          ./marketplace/solution/build.sh $BRANCH_NAME
+          echo "escaped_branch_name=${BRANCH_NAME//\//_}" >> $GITHUB_ENV
 
+      - uses: actions/upload-artifact@v3
+#        if: startsWith(github.ref, 'refs/tags/v')
+        with:
+          name: marketplace package
+          path: marketplace/solution/build_${{ env.escaped_branch_name }}
+          if-no-files-found: error
