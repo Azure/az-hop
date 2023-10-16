@@ -1,5 +1,5 @@
 #!/bin/bash
-set -xe
+set -e
 # This script builds the ARM template and UI definition for the azhop marketplace solution
 BUILD_NAME=${1:-main}
 
