@@ -49,4 +49,4 @@ jobs:
 #        if: startsWith(github.ref, 'refs/tags/v')
         with:
           name: marketplace package
-          path: marketplace/solution/build_${{ env.BRANCH_NAME }}
+          path: marketplace/solution/build_${{ env.BRANCH_NAME }//\//_}
