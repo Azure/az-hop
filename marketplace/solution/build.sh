@@ -1,5 +1,8 @@
 #!/bin/bash
-set -e
+set -xe
+# This script builds the ARM template and UI definition for the azhop marketplace solution
+BUILD_NAME=${1:-main}
+
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 AZHOP_ROOT=${THIS_DIR}/../..
 
@@ -9,7 +12,7 @@ if [ -d ${AZHOP_ROOT}/miniconda ]; then
   source ${AZHOP_ROOT}/miniconda/bin/activate
 fi
 
-build_dir="${THIS_DIR}/build"
+build_dir="${THIS_DIR}/build_${BUILD_NAME}"
 rm -rf $build_dir
 mkdir -p $build_dir
 echo "Converting YAML config to JSON"

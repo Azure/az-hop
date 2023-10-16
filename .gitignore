@@ -60,8 +60,8 @@ deploy/*params.json
 # build dir that may have .git moduless
 toolset/scripts/ansible-build
 
-marketplace/solution/build
-marketplace/solution/build.zip
+marketplace/solution/build_*
+marketplace/solution/build_*.zip
 
 # arm toolkit
 marketplace/solution/arm-ttk
