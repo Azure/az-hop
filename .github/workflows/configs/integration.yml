@@ -204,39 +204,39 @@ autoscale:
   idle_timeout: 180 # Idle time in seconds before shutting down VMs - default to 1800 like in CycleCloud
 
 queues:
-  - name: execute
+  - name: htc
     vm_size: Standard_F2s_v2
     max_core_count: 512
     image: azhpc:azhop-compute:centos-7_9:latest
-    spot: false
     ColocateNodes: false
   - name: hc44rs
     vm_size: Standard_HC44rs
     max_core_count: 440
     image: azhpc:azhop-compute:centos-7_9:latest
     ColocateNodes: true
-    spot: false
     EnableAcceleratedNetworking: true
   - name: hb60rs
     vm_size: Standard_HB60rs
     max_core_count: 600
     image: azhpc:azhop-compute:centos-7_9:latest
     ColocateNodes: true
-    spot: false
     EnableAcceleratedNetworking: true
   - name: hb120v2
     vm_size: Standard_HB120rs_v2
     max_core_count: 1200
     image: azhpc:azhop-compute:centos-7_9:latest
     ColocateNodes: true
-    spot: false
     EnableAcceleratedNetworking: true
-  - name: hb120v3
+  - name: hpc
     vm_size: Standard_HB120rs_v3
     max_core_count: 1200
     image: azhpc:azhop-compute:centos-7_9:latest
     ColocateNodes: true
-    spot: false
+    EnableAcceleratedNetworking: true
+  - name: gpu
+    vm_size: Standard_NC24ads_A100_v4
+    max_core_count: 96
+    image: azhpc:azhop-compute:centos-7_9:latest
     EnableAcceleratedNetworking: true
   - name: hbv3al
     vm_size: Standard_HB120rs_v3
@@ -244,14 +244,12 @@ queues:
     image: azhpc:azhop-compute:almalinux-8_7:latest
     __ALMA8_PLAN__
     ColocateNodes: true
-    spot: false
     EnableAcceleratedNetworking: true
   - name: hbv3u20
     vm_size: Standard_HB120rs_v3
     max_core_count: 1200
     image: azhpc:azhop-compute:ubuntu-20_04:latest
     ColocateNodes: true
-    spot: false
     EnableAcceleratedNetworking: true
   - name: nc24v3
     vm_size: Standard_NC24rs_v3

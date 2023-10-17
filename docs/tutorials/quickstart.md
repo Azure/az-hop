@@ -243,11 +243,11 @@ In this exercise, you will install and configure Spack from Code Server, as docu
 
    > Note: This will open another browser tab displaying the **Code Server** launching page.
 
-1. On the **Code Server** launching page, in the **Maximum duration of your remote session** field, enter **3**. In the **Slot Type** text box, enter **hb120v3**, and then select **Launch**.
+1. On the **Code Server** launching page, in the **Maximum duration of your remote session** field, enter **3**. In the **Slot Type** text box, enter **hpc**, and then select **Launch**.
 
    > Note: This will initiate the provisioning of a compute node of the type you specified. Note that this creates a new job and the **Queued** status for this job is displayed on the same page.
 
-1. Switch to the **Azure CycleCloud for Azure HPC On-Demand Platform** portal and monitor the progress of the **hb120v3** node provisioning.
+1. Switch to the **Azure CycleCloud for Azure HPC On-Demand Platform** portal and monitor the progress of the **hpc** node provisioning.
 
    > Note: Wait until the node status changes to **Ready**. This should take about 5 minutes.
 
@@ -257,7 +257,7 @@ In this exercise, you will install and configure Spack from Code Server, as docu
 
 1. Review the interface, and then close the **Welcome** tab.
 1. Select the **Application** menu, from the drop-down menu select **Terminal**, and then from the sub-menu that opens, select **New Terminal**.
-1. In the **Terminal** pane, at the **[clusteradmin@hb120v3-1 ~]$** prompt, run the following command to clone the azurehpc repo and use the azhop/spack branch:
+1. In the **Terminal** pane, at the **[clusteradmin@hpc-1 ~]$** prompt, run the following command to clone the azurehpc repo and use the azhop/spack branch:
 
    ```bash
    git clone https://github.com/Azure/azurehpc.git
@@ -275,7 +275,7 @@ In this exercise, you will install and configure Spack from Code Server, as docu
    > Note: The output should resemble the following listing:
 
    ```bash
-   [clusteradmin@hb120v3-1 ~]$ ~/azurehpc/experimental/azhop/spack/install.sh
+   [clusteradmin@hpc-1 ~]$ ~/azurehpc/experimental/azhop/spack/install.sh
    Cloning into '/anfhome/clusteradmin/spack'...
    remote: Enumerating objects: 402411, done.
    remote: Counting objects: 100% (163/163), done.
@@ -296,7 +296,7 @@ In this exercise, you will install and configure Spack from Code Server, as docu
 
    Checking out files: 100% (9474/9474), done.
 
-   [clusteradmin@hb120v3-1 ~]$ ~/azurehpc/experimental/azhop/spack/configure.sh
+   [clusteradmin@hpc-1 ~]$ ~/azurehpc/experimental/azhop/spack/configure.sh
    Configuring for OpenMPI Version 4.1.1
    Configuring for HPCX Version 2.9.0
    Configuring for GCC version 9.2.0
@@ -319,8 +319,8 @@ In this exercise, you will install and configure Spack from Code Server, as docu
    > Note: The output should resemble the following listing:
 
    ```bash
-   [clusteradmin@hb120v3-1 ~]$
-   [clusteradmin@hb120v3-1 ~]$ spack compilers
+   [clusteradmin@hpc-1 ~]$
+   [clusteradmin@hpc-1 ~]$ spack compilers
    ==> Available compilers
    -- gcc centos7-x86_64 -------------------------------------------
    gcc@9.2.0
@@ -333,7 +333,7 @@ In this exercise, you will build and run some of the OSU Benchmarks used to meas
 
 Duration: 30 minutes
 ### Task 1: Build OSU Benchmarks with OpenMPI
-1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hb120v3-1 ~]$**  prompt, run the following command to load Spack modules:
+1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hpc-1 ~]$**  prompt, run the following command to load Spack modules:
 
    ```bash
    . ~/spack/share/spack/setup-env.sh
@@ -342,7 +342,7 @@ Duration: 30 minutes
 1. List modules available. These contains the all the modules provided in the Azure HPC marketplace image, like Intel MPI, OpenMPI, HPCX and MVAPICH2.
 
    ```bash
-   [clusteradmin@hb120v3-1 ~]$ module avail
+   [clusteradmin@hpc-1 ~]$ module avail
 
    --------------------------------------------------------------------------------------------- /usr/share/Modules/modulefiles ---------------------------------------------------------------------------------------------
       amd/aocl              dot          module-git     modules            mpi/hpcx               mpi/impi_2021.4.0    mpi/impi-2021    mpi/mvapich2-2.3.6    mpi/openmpi-4.1.1 (D)    use.own
@@ -378,12 +378,12 @@ chmod +x ~/osu_benchmarks.sh
 ### Task 3: Submit OSU jobs
 1. Submit a first job for running the bandwidth benchmarks. Note the **slot_type** used in the select statement to specify on which CycleCloud node array to submit to.
 ```bash
-qsub -N BW -joe -koe -l select=2:slot_type=hb120v3 -- osu_benchmarks.sh osu_bw
+qsub -N BW -joe -koe -l select=2:slot_type=hpc -- osu_benchmarks.sh osu_bw
 ```
 
 1. And a second one for the latency test
 ```bash
-qsub -N LAT -joe -koe -l select=2:slot_type=hb120v3 -- osu_benchmarks.sh osu_latency
+qsub -N LAT -joe -koe -l select=2:slot_type=hpc -- osu_benchmarks.sh osu_latency
 ```
 
 1. Check the jobs statuses within the terminal or thru the web UI as well as the node provisioning state in the CycleCloud portal.
@@ -398,7 +398,7 @@ In this exercise you will run and analyze the DrivAer-Fastback CFD simulation wi
 
 ### Task 1: Prepare the DrivAer-Fastback example
 
-1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hb120v3-1 ~]$**  prompt, run the following command to download the OpenFOAM-9 sample from GitHub:
+1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hpc-1 ~]$**  prompt, run the following command to download the OpenFOAM-9 sample from GitHub:
 
    ```bash
    wget https://github.com/OpenFOAM/OpenFOAM-9/archive/refs/tags/20220602.tar.gz

@@ -1150,7 +1150,7 @@ To specify the new custom images to use, just comment the default `image: azhpc:
 *Before the update*
 ```yml
 queues:
-  - name: hb120v3
+  - name: hpc
     vm_size: Standard_HB120rs_v3
     max_core_count: 1200
     image: azhpc:azhop-compute:centos-7_9:latest
@@ -1167,7 +1167,7 @@ queues:
 *After the update*
 ```yml
 queues:
-  - name: hb120v3
+  - name: hpc
     vm_size: Standard_HB120rs_v3
     max_core_count: 1200
 #    image: azhpc:azhop-compute:centos-7_9:latest

@@ -108,12 +108,12 @@ slurm:
   slurm_version: 20.11.9
 
 queues:
-  - name: execute
+  - name: htc
     vm_size: Standard_F2s_v2
     max_core_count: 512
     image: azhpc:azhop-compute:centos-7_9:latest
     ColocateNodes: false
-  - name: hb120v3
+  - name: hpc
     vm_size: Standard_HB120rs_v3
     max_core_count: 1200
     image: azhpc:azhop-compute:centos-7_9:latest

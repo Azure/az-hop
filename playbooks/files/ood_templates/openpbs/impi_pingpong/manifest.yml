@@ -1,5 +1,5 @@
 ---
 name: Intel MPI PingPong
 host: ondemand
-notes: A very basic template for running Intel MPI ping pong. Default is to run on hb120v3, make sure to edit the script if you want to run on another node type
+notes: A very basic template for running Intel MPI ping pong.
 script: pingpong.sh
