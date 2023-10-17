@@ -454,7 +454,7 @@ var config = {
       AllowComputeSlurmIn         : ['405', 'Inbound', 'Allow', '*', 'Slurmd', 'asg', 'asg-ondemand', 'subnet', 'compute']
 
       // NFS
-      AllowNfsIn                  : ['430', 'Inbound', 'Allow', '*', 'Nfs', 'asg', 'asg-nfs-client', 'subnet', 'netapp']
+      AllowNfsIn                  : ['434', 'Inbound', 'Allow', '*', 'Nfs', 'asg', 'asg-nfs-client', 'subnet', 'netapp']
       AllowNfsComputeIn           : ['435', 'Inbound', 'Allow', '*', 'Nfs', 'subnet', 'compute', 'subnet', 'netapp']
       
       // CycleCloud
