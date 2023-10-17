@@ -1,6 +1,6 @@
 {
   "apiVersion": "2020-06-01",
-  "name": "pid-9dde42e6-8b35-48e9-90b2-e7acb2691dce-partnercenter",
+  "name": "pid-3975e326-819f-41ac-8318-bfb6902ac49d-partnercenter",
   "resourceGroup": "[variables('resource_group_name')]",
   "type": "Microsoft.Resources/deployments",
   "properties": {
