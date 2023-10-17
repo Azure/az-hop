@@ -82,92 +82,12 @@
     group: slurm
     state: directory
 
-- name: Build SLURM RPMs
-  block:
-
-  - name: install dependencies
-    yum:
-      name: python3, python3-pip, rpm-build, readline-devel, pam-devel, perl-ExtUtils-MakeMaker, gcc, mariadb-devel, autoconf
-      lock_timeout : 180
-
-  - name: extract slurm tarball version number
-    set_fact:
-      slurm_version_short: "{{slurm_version | regex_replace('-.*$', '')}}"
-
-  - name: check if slurm rpms exist
-    stat:
-      path: '{{homedir_mountpoint}}/slurm/rpms/slurm-{{slurm_version}}.el7.x86_64.rpm'
-    register: slurm_rpms
-
-  - name: check if job submit plugin exists
-    stat:
-      path: '{{homedir_mountpoint}}/slurm/job_submit_cyclecloud.so'
-    register: slurm_job_submit_plugin
-
-  - name: download slurm
-    get_url:
-      url: 'https://download.schedmd.com/slurm/slurm-{{slurm_version_short}}.tar.bz2'
-      dest: /mnt/resource
-      timeout: 180
-    when: slurm_rpms.stat.exists == False
-
-  - name: download cc source code
-    unarchive:
-      src: https://github.com/Azure/cyclecloud-slurm/archive/refs/tags/{{cyclecloud_slurm_release}}/{{cyclecloud_slurm_release}}.tar.gz
-      dest: /mnt/resource
-      remote_src: yes
-
-  - name: check slurm build dir
-    file:
-      path: /root/rpmbuild
-      mode: 0755
-      state: directory
-
-  - name: build slurm
-    shell: |
-      rpmbuild --clean -ta /mnt/resource/slurm-{{slurm_version_short}}.tar.bz2 > log.txt
-      sudo cp /root/rpmbuild/RPMS/x86_64/slurm-*.rpm {{homedir_mountpoint}}/slurm/rpms/
-    args:
-      chdir: "{{ ansible_env.HOME }}/rpmbuild"
-    when: slurm_rpms.stat.exists == False
-  
-  - name: build job submit plugin
-    shell: |
-      CC_SRC_DIR=/mnt/resource/cyclecloud-slurm-{{cyclecloud_slurm_release}}
-      BUILD_DIR=/mnt/resource/job_submit
-      SLURM_SRC_DIR=$BUILD_DIR/slurm-{{slurm_version_short}}
-
-      rm -rf $BUILD_DIR
-      mkdir -p $BUILD_DIR
-      cd $BUILD_DIR
-      tar xjf /mnt/resource/slurm-{{slurm_version_short}}.tar.bz2
-      mkdir -p ${SLURM_SRC_DIR}/src/plugins/job_submit/cyclecloud/
-      cd ${SLURM_SRC_DIR}/src/plugins/job_submit/cyclecloud/
-      rsync -a $CC_SRC_DIR/specs/default/cluster-init/files/JobSubmitPlugin/ .
-      mv Makefile.in.v19 Makefile.in
-      cd $BUILD_DIR
-      sed -i 's/src\/plugins\/job_submit\/Makefile/src\/plugins\/job_submit\/Makefile\n                 src\/plugins\/job_submit\/cyclecloud\/Makefile/g'  ${SLURM_SRC_DIR}/configure.ac
-      cd ${SLURM_SRC_DIR}
-
-      autoconf
-      ./configure
-      make -j > make.log
-      cd ${SLURM_SRC_DIR}/src/plugins/job_submit/cyclecloud/
-      make > make_plugin.log
-      cp .libs/job_submit_cyclecloud.so {{homedir_mountpoint}}/slurm/job_submit_cyclecloud.so
-    when: slurm_job_submit_plugin.stat.exists == False
-  when: build_rpms
-
-- name: Use CycleCloud pre-built SLURM RPMs
-  block:
-
-  - name: download cc slurm RPMs
-    get_url:
-      url: https://github.com/Azure/cyclecloud-slurm/releases/download/{{cyclecloud_slurm_release}}/{{ item }}
-      dest: '{{homedir_mountpoint}}/slurm/rpms'
-      timeout: 180
-    loop: '{{slurm_server_packages}}'
-  when: not build_rpms
+- name: download cc slurm RPMs
+  get_url:
+    url: https://github.com/Azure/cyclecloud-slurm/releases/download/{{cyclecloud_slurm_release}}/{{ item }}
+    dest: '{{homedir_mountpoint}}/slurm/rpms'
+    timeout: 180
+  loop: '{{slurm_server_packages}}'
 
 - name: query the size of the installed slurm RPM
   shell: rpm -qi slurm | grep Size | awk '{print $3}'
