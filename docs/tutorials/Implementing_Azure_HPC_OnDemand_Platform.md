@@ -504,7 +504,7 @@ In this exercise, you will review the main features of the Azure HPC OnDemand Pl
 1. In the shell session, run the following command to submit a simple test job:
 
    ```bash
-   qsub -l select=1:slot_type=execute -- /usr/bin/bash -c 'sleep 60'
+   qsub -l select=1:slot_type=htc -- /usr/bin/bash -c 'sleep 60'
    ```
 
    > Note: Be careful when pasting the commands to make sure the exacts characters are used, especially for hyphen.
@@ -523,7 +523,7 @@ In this exercise, you will review the main features of the Azure HPC OnDemand Pl
 
    > Note: Examine the output of the command and verify that the submitted job is in the queue.
 
-1. Switch to the browser tab with the **Azure CycleCloud for Azure HPC On-Demand Platform** page. After some time (less than a minute), a new **execute** instance is created.
+1. Switch to the browser tab with the **Azure CycleCloud for Azure HPC On-Demand Platform** page. After some time (less than a minute), a new **htc** instance is created.
 1. Review the newly created job's progress, including the new VM creation.
 
 ### Task 3: Running interactive apps using Code Server and Linux Desktop
@@ -535,11 +535,11 @@ In this exercise, you will review the main features of the Azure HPC OnDemand Pl
 
    > Note: This will open another browser tab displaying the **Code Server** launching page.
 
-1. On the **Code Server** launching page, in the **Maximum duration of your remote session** field, enter **1**. In the **Slot Type** text box, enter **execute**, and then select **Launch**.
+1. On the **Code Server** launching page, in the **Maximum duration of your remote session** field, enter **1**. In the **Slot Type** text box, enter **htc**, and then select **Launch**.
 
    > Note: This will initiate the provisioning of a compute node of the type you specified. Note that this creates a new job and the **Queued** status for this job is displayed on the same page.
 
-1. Switch to the **Azure CycleCloud for Azure HPC On-Demand Platform** portal and monitor the **execute** node provisioning's progress.
+1. Switch to the **Azure CycleCloud for Azure HPC On-Demand Platform** portal and monitor the **htc** node provisioning's progress.
 
    > Note: Wait until the node status changes to **Ready**. This should take about 5 minutes.
 
@@ -550,7 +550,7 @@ In this exercise, you will review the main features of the Azure HPC OnDemand Pl
 
 1. Review the interface, and then close the **Welcome** tab.
 1. In the top left corner of the page, select the **Application** menu. From the drop-down menu, select **Terminal**, and then in the cascading menu, select **New Terminal**.
-1. In the **Terminal** pane, at the **[clusteradmin@execute-1 ~]$** prompt, enter `qstat` to observe the currently running job.
+1. In the **Terminal** pane, at the **[clusteradmin@htc-1 ~]$** prompt, enter `qstat` to observe the currently running job.
 1. You can now edit any files located in your home directory, git clone repos and connect to your github account.
 1. Switch back to the **Azure HPC On-Demand Platform** home page, or the `Dashboard`.
 1. Select **Linux Desktop**.
@@ -598,7 +598,7 @@ In this exercise, you will review the main features of the Azure HPC OnDemand Pl
 On the **Dashboard** page, select the **Jobs** menu title, and from the drop-down menu, select **Job Composer**.
 1. On the **Jobs** page, select **+ New job**, and from the drop-down menu, select **From Default Template**.
 
-   > Note: This will automatically create a job named **(default) Sample Sequential Job** that targets the **execute** CycleCloud array. To identify the content of the job script, ensure that the newly created job is selected, and then review the **Script contents** pane.
+   > Note: This will automatically create a job named **(default) Sample Sequential Job** that targets the **htc** CycleCloud array. To identify the content of the job script, ensure that the newly created job is selected, and then review the **Script contents** pane.
 
 1. Repeat the previous step twice to create two additional jobs based on the default template.
 
@@ -610,7 +610,7 @@ On the **Dashboard** page, select the **Jobs** menu title, and from the drop-dow
 
 1. On the lab computer, in the browser window displaying the Azure HPC On-Demand Platform portal, select the **Azure HPC On-Demand Platform** header. Select the **Monitoring** menu, and from the drop-down list, select **Azure CycleCloud**.
 1. In the **Azure CycleCloud for Azure HPC On-Demand Platform** portal, monitor the status of the cluster and note that the number of nodes increases to **3**, which initially are listed in the **acquiring** state. This can takes a minute to come.
-1. On the **Nodes** tab, verify that **execute** appears in the **Template** column, the **Nodes** column contains the entry **3**, and the **Last status** column displays the **Creating VM** message.
+1. On the **Nodes** tab, verify that **htc** appears in the **Template** column, the **Nodes** column contains the entry **3**, and the **Last status** column displays the **Creating VM** message.
 1. In the **Azure CycleCloud for Azure HPC On-Demand Platform** portal, on the **pbs1** page, select the **Scalesets** tab. Note a scaleset that hosts the cluster nodes with its size set to **3**.
 1. Select the entry on the **Nodes** tab, and then review the details of the cluster nodes in the lower section of the page, including:
    - The name of each node
@@ -1101,7 +1101,7 @@ Duration: 60 minutes
        Resource_List.nodect = 1
        Resource_List.place = scatter:excl
        Resource_List.select = 1:ncpus=120:mpiprocs=60:slot_type=hpc
-       Resource_List.slot_type = execute
+       Resource_List.slot_type = htc
        Resource_List.ungrouped = false
        Resource_List.walltime = 01:00:00
        stime = Tue Feb 22 18:35:47 2022

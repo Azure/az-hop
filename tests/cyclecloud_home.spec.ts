@@ -25,8 +25,7 @@ test('CycleCloud', async ({browser}) => {
     await page1.waitForLoadState('networkidle');
     // Click text=Arrays
     await page1.click('text=Arrays');
-    // Click #CloudStatus-NodeArraysTable-tbody >> text=execute
-    await page1.click('#CloudStatus-NodeArraysTable-tbody >> text=execute');
+    await page1.click('#CloudStatus-NodeArraysTable-tbody >> text=htc');
 
     // Click text=Activity
     await page1.click('text=Activity');

@@ -1,7 +1,7 @@
 linux_base_image: "OpenLogic:CentOS:7_9-gen2:latest" # publisher:offer:sku:version or image_id
 
 queues:
-  - name: execute
+  - name: htc
     vm_size: Standard_F2s_v2
     max_core_count: 512
     image: azhpc:azhop-compute:centos-7_9:latest
