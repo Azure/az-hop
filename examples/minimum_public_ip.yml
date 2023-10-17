@@ -104,22 +104,12 @@ slurm:
 # List of queues (node arrays in Cycle) to be defined
 # don't use queue names longer than 8 characters in order to leave space for node suffix, as hostnames are limited to 15 chars due to domain join and NETBIOS constraints.
 queues:
-  - name: execute
+  - name: htc
     vm_size: Standard_F2s_v2
     max_core_count: 128
     image: azhpc:azhop-compute:centos-7_9:latest
     ColocateNodes: false
-  - name: hc44rs
-    vm_size: Standard_HC44rs
-    max_core_count: 176
-    image: azhpc:azhop-compute:centos-7_9:latest
-    EnableAcceleratedNetworking: true
-  - name: hb120v2
-    vm_size: Standard_HB120rs_v2
-    max_core_count: 480
-    image: azhpc:azhop-compute:centos-7_9:latest
-    EnableAcceleratedNetworking: true
-  - name: hb120v3
+  - name: hpc
     vm_size: Standard_HB120rs_v3
     max_core_count: 480
     image: azhpc:azhop-compute:centos-7_9:latest
