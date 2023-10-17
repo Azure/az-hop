@@ -127,7 +127,7 @@ az vm image terms accept --offer almalinux-hpc --publisher almalinux --plan 8_5-
     - 220 cores Standard_HC44rs
     - and/or 600 cores of Standard HBrsv2 Family
     - and/or 600 cores of Standard HBv3 Family
-    - and/or 96 cores of Standard NC A100 v4 Family
+    - and/or 96 cores of Standard NCADS_A100_v4 Family
   - For Remote Visualization
     - 24 cores of Standard NVs_v3 Family
 
