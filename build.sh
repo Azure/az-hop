@@ -276,7 +276,7 @@ function set_bicep_azhopconfig()
 function arm_init()
 {
   pushd $ARM_ROOT
-  ./build.sh
+  ./build.sh local
   popd
 }
 
@@ -355,7 +355,7 @@ function bicep_run()
       TEMPLATE_FILE=$BICEP_ROOT/mainTemplate.bicep
       ;;
     "arm")
-      TEMPLATE_FILE=$ARM_ROOT/build/mainTemplate.json
+      TEMPLATE_FILE=$ARM_ROOT/build_local/mainTemplate.json
       echo "* Deploying using ARM"
       ;;
   esac
