@@ -80,12 +80,13 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-11-01' = {
         managedDisk: {
           storageAccountType: disk.disksku
         }
-        diskSizeGB: disk.size
         lun: idx
-        createOption: 'Empty'
-      }, contains(disk, 'caching') ? {
-        caching: disk.caching
-      } : {}
+        createOption: disk.createOption
+        },
+        disk.createOption == 'FromImage' ? {} : {diskSizeGB: disk.size},
+        contains(disk, 'caching') ? {
+          caching: disk.caching
+        } : {}
       )]
       osDisk: union(
         {

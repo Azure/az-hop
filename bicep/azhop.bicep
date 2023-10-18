@@ -291,8 +291,9 @@ var config = {
           {
             name: '${vmNamesMap.ccportal}-datadisk0'
             disksku: 'Premium_LRS'
-            size: 128
+            size: split(cyclecloudBaseImage,':')[0] == 'azurecyclecloud' ? 0 : 128
             caching: 'ReadWrite'
+            createOption: split(cyclecloudBaseImage,':')[0] == 'azurecyclecloud' ? 'FromImage' : 'Empty'
           }
         ]
         identity: {
