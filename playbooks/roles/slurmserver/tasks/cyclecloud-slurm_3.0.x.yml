@@ -1,0 +1,56 @@
+# Setup slurm when using cyclecloud-slurm version 3.0.x only
+- name: install CycleCloud repo
+  shell: |
+    cat > /etc/yum.repos.d/cyclecloud.repo <<EOF
+    [cyclecloud]
+    name=cyclecloud
+    baseurl=https://packages.microsoft.com/yumrepos/cyclecloud
+    gpgcheck=1
+    gpgkey=https://packages.microsoft.com/keys/microsoft.asc
+    EOF
+  args:
+    creates: /etc/yum.repos.d/cyclecloud.repo
+
+- name: Install Jetpack
+  yum:
+    name: "jetpack8-{{cc_version}}"
+    state: present
+    lock_timeout : 180
+
+- name: fix jetpack permissions
+  file:
+    path: /opt/cycle/jetpack
+    mode: u=rwX,g=rX,o=rX
+    recurse: yes
+
+- name: install azure-slurm-install
+  shell: |
+    set -e
+    install_pkg=azure-slurm-install-pkg-{{cyclecloud_slurm_release}}.tar.gz
+    slurm_project_name=slurm
+    platform=rhel
+
+    cd /mnt
+
+    rm -rf azure-slurm-install
+    /opt/cycle/jetpack/bin/jetpack download --project $slurm_project_name $install_pkg
+    tar xzf $install_pkg
+    cd azure-slurm-install
+    python3 install.py --platform $platform --mode scheduler --bootstrap-config /opt/cycle/jetpack/config/node.json
+
+- name: install azure-slurm
+  shell: |
+    set -e
+    autoscale_pkg=azure-slurm-pkg-{{cyclecloud_slurm_release}}.tar.gz
+    slurm_project_name=slurm
+    platform=rhel
+
+    cd /mnt
+
+    rm -rf azure-slurm
+    /opt/cycle/jetpack/bin/jetpack download --project $slurm_project_name $autoscale_pkg
+    tar xzf $autoscale_pkg
+    cd azure-slurm
+    ./install.sh
+
+
