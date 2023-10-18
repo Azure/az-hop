@@ -6,6 +6,7 @@
     msg:
       - "cyclecloud_version={{cyclecloud_version}}"
       - "Distribution={{ansible_distribution}}"
+      - "Install CC={{install_cyclecloud}}"
 
 - name: mount data disk
   shell: |
@@ -21,9 +22,11 @@
     mkdir /opt/cycle_server
     echo "UUID=$disk_uuid /opt/cycle_server xfs defaults,nofail 1 2" >> /etc/fstab
     mount /opt/cycle_server
+  when: install_cyclecloud
 
 - name: Perform OS dependent configuration tasks
   include_tasks: "{{ansible_distribution}}.yml"
+  when: install_cyclecloud
 
 - name: Update Packages
   include_role:
@@ -32,20 +35,6 @@
       become: true
   vars:
     packages_to_exclude_from_upgrade: "cyclecloud*"
-
-- name: Create a data record for azhop and start cycleserver
-  shell: |
-    set -e
-    # create a data record to identify this installation as an az-hop VM
-    cat > /opt/cycle_server/config/data/azhop.txt <<EOF
-    AdType = "Application.Setting"
-    Name = "distribution_method"
-    Value = "azhop"
-    EOF
-    /opt/cycle_server/cycle_server await_startup
-    #/opt/cycle_server/cycle_server execute 'update Application.Setting set Value = undefined where Name == "site_id" || Name == "reported_version"'
-  args:
-    creates: /opt/cycle_server/config/data/azhop.txt.imported
 
 - name: Extract and install the CLI
   shell: |
@@ -66,6 +55,21 @@
     touch /opt/cycle_server/cli_installed
   args:
     creates: /opt/cycle_server/cli_installed
+  when: install_cyclecloud
+
+- name: Create a data record for azhop and start cycleserver
+  shell: |
+    set -e
+    # create a data record to identify this installation as an az-hop VM
+    cat > /opt/cycle_server/config/data/azhop.txt <<EOF
+    AdType = "Application.Setting"
+    Name = "distribution_method"
+    Value = "azhop"
+    EOF
+    /opt/cycle_server/cycle_server await_startup
+    #/opt/cycle_server/cycle_server execute 'update Application.Setting set Value = undefined where Name == "site_id" || Name == "reported_version"'
+  args:
+    creates: /opt/cycle_server/config/data/azhop.txt.imported
 
 - name: stop cycle_server
   service:

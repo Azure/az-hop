@@ -8,7 +8,7 @@
 #   reboot:
 #   when: selinux.reboot_required 
 
-- name: install AZ CLI repo (CentOS)
+- name: install AZ CLI repo (AlmaLinux)
   shell: |
     set -e
     rpm --import https://packages.microsoft.com/keys/microsoft.asc
