@@ -6,3 +6,5 @@ pyxis_version: 0.15.0
 accounting_enabled: false
 cc_admin: hpcadmin
 cc_password: 
+install_pkg: azure-slurm-install-pkg-{{cyclecloud_slurm_release}}.tar.gz
+autoscale_pkg: azure-slurm-pkg-{{cyclecloud_slurm_release}}.tar.gz

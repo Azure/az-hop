@@ -28,13 +28,6 @@
     state: present
     firstmatch: yes
 
-- include: accounting.yml
-  become: true
-  tags: [ 'accounting' ]
-  vars:
-    - cluster_name: "{{ slurm.cluster_name | default('slurm') }}"
-  when: accounting_enabled
-
 - name: check slurm scripts dir
   file:
     path: /sched/scripts

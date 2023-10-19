@@ -1,4 +1,9 @@
 # Setup slurm when using cyclecloud-slurm version 2.7.x only
+- include_role: 
+    name: munge
+    apply: 
+      become: true
+
 - name: add slurm group
   group:
     name: slurm
@@ -260,3 +265,10 @@
     dest: /etc/slurm/topology.conf
     state: link
     force: true
+
+- include: accounting.yml
+  become: true
+  tags: [ 'accounting' ]
+  vars:
+    - cluster_name: "{{ slurm.cluster_name | default('slurm') }}"
+  when: accounting_enabled

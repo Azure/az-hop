@@ -30,12 +30,6 @@
     when: (queue_manager == "openpbs" or queue_manager is not defined) # default
 
   - include_role: 
-      name: munge
-      apply: 
-        become: true
-    when: ( queue_manager is defined and queue_manager == "slurm" )
-
-  - include_role: 
       name: slurmserver
       apply: 
         become: true

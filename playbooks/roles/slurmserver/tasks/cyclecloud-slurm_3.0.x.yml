@@ -23,34 +23,52 @@
     mode: u=rwX,g=rX,o=rX
     recurse: yes
 
+- name: create jetpack.ini file
+  template:
+    src: templates/jetpack.ini.j2
+    dest: /opt/cycle/jetpack/config/jetpack.ini
+    mode: 0700
+
+- name: create scheduler node info
+  template:
+    src: templates/node.json.j2
+    dest: /opt/cycle/jetpack/config/node.json
+    mode: 0700
+
+# Install slurm. 
+# For reference see https://github.com/Azure/cyclecloud-slurm/blob/master/specs/scheduler/cluster-init/scripts/00-install.sh
 - name: install azure-slurm-install
   shell: |
     set -e
-    install_pkg=azure-slurm-install-pkg-{{cyclecloud_slurm_release}}.tar.gz
-    slurm_project_name=slurm
-    platform=rhel
+    install_pkg=https://github.com/Azure/cyclecloud-slurm/releases/download/{{cyclecloud_slurm_release}}/{{install_pkg}}
 
-    cd /mnt
+    cd /opt/cycle/jetpack/system/bootstrap
 
     rm -rf azure-slurm-install
-    /opt/cycle/jetpack/bin/jetpack download --project $slurm_project_name $install_pkg
-    tar xzf $install_pkg
+    wget $install_pkg
+    tar xzf {{install_pkg}}
     cd azure-slurm-install
-    python3 install.py --platform $platform --mode scheduler --bootstrap-config /opt/cycle/jetpack/config/node.json
+    ./install.sh --mode scheduler --bootstrap-config /opt/cycle/jetpack/config/node.json
 
+# Install autoscaling for slurm. 
+# For reference see https://github.com/Azure/cyclecloud-slurm/blob/master/specs/scheduler/cluster-init/scripts/00-install.sh
 - name: install azure-slurm
   shell: |
     set -e
-    autoscale_pkg=azure-slurm-pkg-{{cyclecloud_slurm_release}}.tar.gz
-    slurm_project_name=slurm
-    platform=rhel
+    autoscale_pkg=https://github.com/Azure/cyclecloud-slurm/releases/download/{{cyclecloud_slurm_release}}/{{autoscale_pkg}}
 
-    cd /mnt
+    cd /opt/cycle/jetpack/system/bootstrap
 
     rm -rf azure-slurm
-    /opt/cycle/jetpack/bin/jetpack download --project $slurm_project_name $autoscale_pkg
-    tar xzf $autoscale_pkg
+    wget $autoscale_pkg
+    tar xzf {{autoscale_pkg}}
     cd azure-slurm
     ./install.sh
 
-
+# Start service. 
+# For reference see https://github.com/Azure/cyclecloud-slurm/blob/master/specs/scheduler/cluster-init/scripts/00-install.sh
+- name: start service
+  shell: |
+    set -e
+    /opt/cycle/jetpack/system/bootstrap/azure-slurm-install/start-services.sh scheduler
+    
