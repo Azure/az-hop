@@ -1,46 +1,18 @@
 ---
-- name: Include distribution variables
-  block:
-    - name: Include distribution variables
-      ansible.builtin.include_vars: "{{ item }}"
-      with_first_found:
-        - "{{ ansible_distribution }}/{{ ansible_distribution_major_version }}.yml"
-        - "{{ ansible_distribution }}.yml"
-      tags: [ 'always' ]
-  rescue:
-    - name: Change error message
-      ansible.builtin.fail:
-        msg: "unable to find anything in vars/ for this operating system! {{ ansible_distribution }}"
-
-- name: add slurm group
-  group:
-    name: slurm
-    gid: '{{ slurm_gid }}'
-    state: present
-
-- name: add slurm user
-  user:
-    comment: 'User to run slurmd'
-    name: slurm
-    group: slurm
-    shell: /bin/false
-    uid: '{{ slurm_uid }}'
-    state: present
-
 - name: check slurm share
   file:
     path: '{{homedir_mountpoint}}/slurm/'
     mode: 0755
-    owner: slurm
-    group: slurm
+    owner: '{{ slurm_uid }}'
+    group: '{{ slurm_gid }}'
     state: directory
 
 - name: check slurm config dir
   file:
     path: '{{homedir_mountpoint}}/slurm/config/'
     mode: 0755
-    owner: slurm
-    group: slurm
+    owner: '{{ slurm_uid }}'
+    group: '{{ slurm_gid }}'
     state: directory
 
 - name: check slurm rpm dir
@@ -53,16 +25,16 @@
   file:
     path: /etc/slurm/
     mode: 0755
-    owner: slurm
-    group: slurm
+    owner: '{{ slurm_uid }}'
+    group: '{{ slurm_gid }}'
     state: directory
 
 - name: create a symbolic link for slurm config dir
   file:
     src: '{{homedir_mountpoint}}/slurm/config'
     dest: /sched
-    owner: slurm
-    group: slurm
+    owner: '{{ slurm_uid }}'
+    group: '{{ slurm_gid }}'
     state: link
     force: true
 
@@ -70,25 +42,25 @@
   file:
     path: /var/log/slurmctld/
     mode: 0755
-    owner: slurm
-    group: slurm
+    owner: '{{ slurm_uid }}'
+    group: '{{ slurm_gid }}'
     state: directory
 
 - name: check slurmctld log dir
   file:
     path: /var/spool/slurmd/
     mode: 0755
-    owner: slurm
-    group: slurm
+    owner: '{{ slurm_uid }}'
+    group: '{{ slurm_gid }}'
     state: directory
 
-- include: cyclecloud-slurm_2.7.x.yml
+- import_tasks: cyclecloud-server_2.7.x.yml
   become: true
-  when: '2.7.' in cyclecloud_slurm_release
+  when: ('2.7.' in cyclecloud_slurm_release)
 
-- include: cyclecloud-slurm_3.0.x.yml
+- import_tasks: cyclecloud-server_3.0.x.yml
   become: true
-  when: '3.0.' in cyclecloud_slurm_release
+  when: ('3.0.' in cyclecloud_slurm_release)
 
 - name: Update slurm service to start after the home directory is mounted
   lineinfile:
@@ -97,28 +69,6 @@
     line: 'RequiresMountsFor={{homedir_mountpoint}}'
     state: present
     firstmatch: yes
-
-- name: check slurm scripts dir
-  file:
-    path: /sched/scripts
-    mode: 0755
-    state: directory
-
-- name: create slurm prolog
-  template:
-    src: templates/prolog.sh.j2
-    dest: /sched/scripts/prolog.sh
-    owner: slurm
-    group: slurm
-    mode: 0755
-
-- name: create slurm epilog
-  template:
-    src: templates/epilog.sh.j2
-    dest: /sched/scripts/epilog.sh
-    owner: slurm
-    group: slurm
-    mode: 0755
 
 - name: ensure slurmctld is running.
   service:
@@ -148,6 +98,6 @@
     src: files/slurm.logrotate
     dest: /etc/logrotate.d/slurm
 
-- include: pyxis.yml
+- import_tasks: pyxis.yml
   become: true
   tags: [ 'pyxis' ]

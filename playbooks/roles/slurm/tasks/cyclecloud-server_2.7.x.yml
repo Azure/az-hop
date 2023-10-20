@@ -4,6 +4,21 @@
     apply: 
       become: true
 
+- name: add slurm group
+  group:
+    name: slurm
+    gid: '{{ slurm_gid }}'
+    state: present
+
+- name: add slurm user
+  user:
+    comment: 'User to run slurmd'
+    name: slurm
+    group: slurm
+    shell: /bin/false
+    uid: '{{ slurm_uid }}'
+    state: present
+
 - name: download cc slurm RPMs
   get_url:
     url: https://github.com/Azure/cyclecloud-slurm/releases/download/{{cyclecloud_slurm_release}}/{{ item }}
@@ -195,6 +210,28 @@
     dest: /etc/slurm/topology.conf
     state: link
     force: true
+
+- name: check slurm scripts dir
+  file:
+    path: /sched/scripts
+    mode: 0755
+    state: directory
+
+- name: create slurm prolog
+  template:
+    src: templates/prolog.sh.j2
+    dest: /sched/scripts/prolog.sh
+    owner: slurm
+    group: slurm
+    mode: 0755
+
+- name: create slurm epilog
+  template:
+    src: templates/epilog.sh.j2
+    dest: /sched/scripts/epilog.sh
+    owner: slurm
+    group: slurm
+    mode: 0755
 
 - include: accounting.yml
   become: true

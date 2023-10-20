@@ -1,0 +1,9 @@
+HealthCheckProgram=/usr/sbin/nhc
+HealthCheckInterval=300
+HealthCheckNodeState=IDLE
+SrunPortRange=59000-61000
+Prolog=/sched/scripts/prolog.sh
+PrologFlags=Alloc
+Epilog=/sched/scripts/epilog.sh
+SuspendTimeout={{autoscale.idle_timeout | default(900)}}
+SuspendTime={{autoscale.idle_timeout | default(900)}}

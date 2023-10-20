@@ -1,0 +1,29 @@
+ArchiveEvents=yes
+ArchiveJobs=yes
+ArchiveResvs=yes
+ArchiveSteps=no
+ArchiveSuspend=no
+ArchiveTXN=no
+ArchiveUsage=no
+#ArchiveScript=/usr/sbin/slurm.dbd.archive
+AuthInfo=/var/run/munge/munge.socket.2
+AuthType=auth/munge
+DbdHost={{ scheduler.name | default("scheduler") }}
+# use debug5 for more detailed output
+DebugLevel=verbose
+#DbdPort=6819
+PurgeEventAfter=1month
+PurgeJobAfter=12month
+PurgeResvAfter=1month
+PurgeStepAfter=1month
+PurgeSuspendAfter=1month
+PurgeTXNAfter=12month
+PurgeUsageAfter=24month
+LogFile=/var/log/slurmctld/slurmdbd.log
+PidFile=/var/run/slurmdbd.pid
+SlurmUser=slurm
+StorageHost={{ database_fqdn }}
+StoragePass="{{ database_password }}"
+StorageUser={{ database_user }}@{{ database_fqdn }}
+StorageType=accounting_storage/mysql
+StorageParameters=SSL_CA=/etc/slurm/DigiCertGlobalRootG2.crt.pem

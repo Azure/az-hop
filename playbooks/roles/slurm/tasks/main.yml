@@ -1,0 +1,3 @@
+---
+- import_tasks: '{{slurm_role}}.yml'
+  become: true

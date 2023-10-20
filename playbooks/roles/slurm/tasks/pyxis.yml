@@ -1,0 +1,80 @@
+- name: install prerequisites
+  yum:
+    name: gcc, make
+    state: present
+    lock_timeout : 180
+
+- name: Create temporary pyxis directory
+  ansible.builtin.tempfile:
+    state: directory
+    suffix: pyxis
+  register: tmp_pyxis_dir
+
+- name: Download Pyxis plugin
+  unarchive:
+    src: https://github.com/NVIDIA/pyxis/archive/refs/tags/v{{pyxis_version}}.tar.gz
+    dest: '{{tmp_pyxis_dir.path}}'
+    remote_src: yes
+
+- name: Build Pyxis
+  shell: make
+  args:
+    chdir: '{{tmp_pyxis_dir.path}}/pyxis-{{pyxis_version}}'
+#    creates: /usr/lib64/slurm/spank_pyxis.so
+  become: yes
+
+- name: copy the plugin to the share
+  copy:
+    src: '{{tmp_pyxis_dir.path}}/pyxis-{{pyxis_version}}/spank_pyxis.so'
+    dest: '{{homedir_mountpoint}}/slurm/'
+    remote_src: yes
+    mode: 0755
+
+- name: install the plugin
+  copy:
+    src: '{{homedir_mountpoint}}/slurm/spank_pyxis.so'
+    dest: /usr/lib64/slurm/
+    remote_src: yes
+    mode: 0755
+
+- name: create plugstack.conf
+  copy:
+    content: "include /etc/slurm/plugstack.conf.d/*"
+    dest: /sched/plugstack.conf
+    owner: slurm
+    group: slurm
+
+- name: create plugstack directory
+  file:
+    path: /sched/plugstack.conf.d
+    state: directory
+    mode: 0755
+
+- name: create pyxis.conf
+  copy:
+    content: "required /usr/lib64/slurm/spank_pyxis.so runtime_path=/mnt/resource/enroot-runtime"
+    dest: /sched/plugstack.conf.d/pyxis.conf
+    owner: slurm
+    group: slurm
+    mode: 0644
+
+- name: create scripts directory
+  file:
+    path: /sched/scripts
+    state: directory
+    mode: 0755
+
+- name: make symlinks
+  file:
+    src: /sched/{{ item }}
+    state: link
+    dest: /etc/slurm/{{ item }}
+  with_items:
+    - plugstack.conf
+    - plugstack.conf.d
+
+
+- name: restart slurmctld
+  service:
+    name: slurmctld
+    state: restarted
