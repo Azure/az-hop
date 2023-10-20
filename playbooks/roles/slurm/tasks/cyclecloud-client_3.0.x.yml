@@ -1,4 +1,13 @@
 # Setup slurm when using cyclecloud-slurm version 3.0.x only
+- name: create a symbolic link for slurm config dir
+  file:
+    src: '{{homedir_mountpoint}}/slurm/config'
+    dest: /sched
+    owner: '{{ slurm_uid }}'
+    group: '{{ slurm_gid }}'
+    state: link
+    force: true
+
 - name: install CycleCloud repo
   shell: |
     cat > /etc/yum.repos.d/cyclecloud.repo <<EOF
