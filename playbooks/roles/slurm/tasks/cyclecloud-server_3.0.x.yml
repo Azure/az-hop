@@ -70,7 +70,7 @@
 - name: create slurm extension config
   template:
     src: azhop.conf.j2
-    dest: /etc/slurm/azhop.conf
+    dest: /etc/slurm/{{ slurm.cluster_name | default('slurm1') }}/azhop.conf
     owner: slurm
     group: slurm
 
