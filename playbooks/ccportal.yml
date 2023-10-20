@@ -39,7 +39,7 @@
       cc_domain: '{{domain_name}}'
       cc_ldap_server: '{{ldap_server}}'
       cc_version: '{{cyclecloud.version | default("")}}'
-      install_cyclecloud: '{{not "azurecyclecloud" in cyclecloud.image | default(true)}}' # don't install cyclecloud when using the azurecyclecloud marketplace image
+      install_cyclecloud: '{{(not "azurecyclecloud" in cyclecloud.image) | default(true)}}' # don't install cyclecloud when using the azurecyclecloud marketplace image
 
   - name: Update Packages
     include_role:
