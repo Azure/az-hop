@@ -120,9 +120,6 @@ az vm image terms accept --offer almalinux-hpc --publisher almalinux --plan 8_5-
     - 5 x Standard_B2ms
   - 4 cores of Standard DSv5 Family
     - 1 x Standard_D4s_v5
-  - 80 cores of Standard DDv4 Family when deploying a Lustre Cluster
-    - 2 x Standard_D8d_v4
-    - 2 x Standard_D32d_v4
 - For the compute and visualization nodes, you can adjust the maximum quota in your configuration file but make sure you have quota for these instances too :
   - For Code Server :
     - 10 cores of Standard FSv2 Family
@@ -130,6 +127,7 @@ az vm image terms accept --offer almalinux-hpc --publisher almalinux --plan 8_5-
     - 220 cores Standard_HC44rs
     - and/or 600 cores of Standard HBrsv2 Family
     - and/or 600 cores of Standard HBv3 Family
+    - and/or 96 cores of Standard NCADS_A100_v4 Family
   - For Remote Visualization
     - 24 cores of Standard NVs_v3 Family
 
@@ -815,7 +813,7 @@ autoscale:
 # List of queues (node arrays in Cycle) to be defined
 # don't use queue names longer than 8 characters in order to leave space for node suffix, as hostnames are limited to 15 chars due to domain join and NETBIOS constraints.
 queues:
-  - name: execute # name of the Cycle Cloud node array
+  - name: htc # name of the Cycle Cloud node array
     # Azure VM Instance type
     vm_size: Standard_F2s_v2
     # maximum number of cores that can be instantiated
@@ -837,23 +835,15 @@ queues:
     # Set the max number of vm's in a VMSS; requires additional limit raise through support ticket for >100; 
     # 100 is default value; lower numbers will improve scaling for single node jobs or jobs with small number of nodes
     MaxScaleSetSize: 100
-  - name: hc44rs
-    vm_size: Standard_HC44rs
-    max_core_count: 440
-    image: azhpc:azhop-compute:centos-7_9:latest
-    spot: true
-    EnableAcceleratedNetworking: true
-  - name: hb120v2
-    vm_size: Standard_HB120rs_v2
-    max_core_count: 1200
-    image: azhpc:azhop-compute:centos-7_9:latest
-    spot: true
-    EnableAcceleratedNetworking: true
-  - name: hb120v3
+  - name: hpc
     vm_size: Standard_HB120rs_v3
     max_core_count: 1200
     image: azhpc:azhop-compute:centos-7_9:latest
-    spot: true
+    EnableAcceleratedNetworking: true
+  - name: gpu
+    vm_size: Standard_NC24ads_A100_v4
+    max_core_count: 0
+    image: azhpc:azhop-compute:centos-7_9:latest
     EnableAcceleratedNetworking: true
     # Queue dedicated to GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz3d
@@ -864,7 +854,6 @@ queues:
     # Use this image ID when building your own custom images
     #image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
     ColocateNodes: false
-    spot: false
     EnableAcceleratedNetworking: true
     max_hours: 12 # Maximum session duration
     min_hours: 1 # Minimum session duration - 0 is infinite
@@ -875,7 +864,6 @@ queues:
     image: azhpc:azhop-desktop:centos-7_9:latest
     ColocateNodes: false
     EnableAcceleratedNetworking: true
-    spot: false
     max_hours: 12
     min_hours: 1
     # Queue dedicated to non GPU remote viz nodes. This name is fixed and can't be changed
@@ -884,7 +872,6 @@ queues:
     max_core_count: 200
     image: azhpc:azhop-desktop:centos-7_9:latest
     ColocateNodes: false
-    spot: false
     EnableAcceleratedNetworking: true
     max_hours: 12
     min_hours: 1
@@ -1163,7 +1150,7 @@ To specify the new custom images to use, just comment the default `image: azhpc:
 *Before the update*
 ```yml
 queues:
-  - name: hb120v3
+  - name: hpc
     vm_size: Standard_HB120rs_v3
     max_core_count: 1200
     image: azhpc:azhop-compute:centos-7_9:latest
@@ -1180,7 +1167,7 @@ queues:
 *After the update*
 ```yml
 queues:
-  - name: hb120v3
+  - name: hpc
     vm_size: Standard_HB120rs_v3
     max_core_count: 1200
 #    image: azhpc:azhop-compute:centos-7_9:latest

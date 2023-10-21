@@ -504,7 +504,7 @@ In this exercise, you will review the main features of the Azure HPC OnDemand Pl
 1. In the shell session, run the following command to submit a simple test job:
 
    ```bash
-   qsub -l select=1:slot_type=execute -- /usr/bin/bash -c 'sleep 60'
+   qsub -l select=1:slot_type=htc -- /usr/bin/bash -c 'sleep 60'
    ```
 
    > Note: Be careful when pasting the commands to make sure the exacts characters are used, especially for hyphen.
@@ -523,7 +523,7 @@ In this exercise, you will review the main features of the Azure HPC OnDemand Pl
 
    > Note: Examine the output of the command and verify that the submitted job is in the queue.
 
-1. Switch to the browser tab with the **Azure CycleCloud for Azure HPC On-Demand Platform** page. After some time (less than a minute), a new **execute** instance is created.
+1. Switch to the browser tab with the **Azure CycleCloud for Azure HPC On-Demand Platform** page. After some time (less than a minute), a new **htc** instance is created.
 1. Review the newly created job's progress, including the new VM creation.
 
 ### Task 3: Running interactive apps using Code Server and Linux Desktop
@@ -535,11 +535,11 @@ In this exercise, you will review the main features of the Azure HPC OnDemand Pl
 
    > Note: This will open another browser tab displaying the **Code Server** launching page.
 
-1. On the **Code Server** launching page, in the **Maximum duration of your remote session** field, enter **1**. In the **Slot Type** text box, enter **execute**, and then select **Launch**.
+1. On the **Code Server** launching page, in the **Maximum duration of your remote session** field, enter **1**. In the **Slot Type** text box, enter **htc**, and then select **Launch**.
 
    > Note: This will initiate the provisioning of a compute node of the type you specified. Note that this creates a new job and the **Queued** status for this job is displayed on the same page.
 
-1. Switch to the **Azure CycleCloud for Azure HPC On-Demand Platform** portal and monitor the **execute** node provisioning's progress.
+1. Switch to the **Azure CycleCloud for Azure HPC On-Demand Platform** portal and monitor the **htc** node provisioning's progress.
 
    > Note: Wait until the node status changes to **Ready**. This should take about 5 minutes.
 
@@ -550,7 +550,7 @@ In this exercise, you will review the main features of the Azure HPC OnDemand Pl
 
 1. Review the interface, and then close the **Welcome** tab.
 1. In the top left corner of the page, select the **Application** menu. From the drop-down menu, select **Terminal**, and then in the cascading menu, select **New Terminal**.
-1. In the **Terminal** pane, at the **[clusteradmin@execute-1 ~]$** prompt, enter `qstat` to observe the currently running job.
+1. In the **Terminal** pane, at the **[clusteradmin@htc-1 ~]$** prompt, enter `qstat` to observe the currently running job.
 1. You can now edit any files located in your home directory, git clone repos and connect to your github account.
 1. Switch back to the **Azure HPC On-Demand Platform** home page, or the `Dashboard`.
 1. Select **Linux Desktop**.
@@ -598,7 +598,7 @@ In this exercise, you will review the main features of the Azure HPC OnDemand Pl
 On the **Dashboard** page, select the **Jobs** menu title, and from the drop-down menu, select **Job Composer**.
 1. On the **Jobs** page, select **+ New job**, and from the drop-down menu, select **From Default Template**.
 
-   > Note: This will automatically create a job named **(default) Sample Sequential Job** that targets the **execute** CycleCloud array. To identify the content of the job script, ensure that the newly created job is selected, and then review the **Script contents** pane.
+   > Note: This will automatically create a job named **(default) Sample Sequential Job** that targets the **htc** CycleCloud array. To identify the content of the job script, ensure that the newly created job is selected, and then review the **Script contents** pane.
 
 1. Repeat the previous step twice to create two additional jobs based on the default template.
 
@@ -610,7 +610,7 @@ On the **Dashboard** page, select the **Jobs** menu title, and from the drop-dow
 
 1. On the lab computer, in the browser window displaying the Azure HPC On-Demand Platform portal, select the **Azure HPC On-Demand Platform** header. Select the **Monitoring** menu, and from the drop-down list, select **Azure CycleCloud**.
 1. In the **Azure CycleCloud for Azure HPC On-Demand Platform** portal, monitor the status of the cluster and note that the number of nodes increases to **3**, which initially are listed in the **acquiring** state. This can takes a minute to come.
-1. On the **Nodes** tab, verify that **execute** appears in the **Template** column, the **Nodes** column contains the entry **3**, and the **Last status** column displays the **Creating VM** message.
+1. On the **Nodes** tab, verify that **htc** appears in the **Template** column, the **Nodes** column contains the entry **3**, and the **Last status** column displays the **Creating VM** message.
 1. In the **Azure CycleCloud for Azure HPC On-Demand Platform** portal, on the **pbs1** page, select the **Scalesets** tab. Note a scaleset that hosts the cluster nodes with its size set to **3**.
 1. Select the entry on the **Nodes** tab, and then review the details of the cluster nodes in the lower section of the page, including:
    - The name of each node
@@ -643,10 +643,6 @@ On the **Dashboard** page, select the **Jobs** menu title, and from the drop-dow
 1. On the **Templates** page, in the list of predefined templates, select the **Intel MPI PingPong** entry, and then select **Create New Job**.
 
    > Note: The Message Passing Interface (MPI) ping-pong tests measure network latency and throughput between nodes in the cluster by sending packets of data back and forth between paired nodes repeatedly. The *latency* is the average of half of the time that it takes for a packet to make a round trip between a pair of nodes, in microseconds. The *throughput* is the average rate of data transfer between a pair of nodes, in MB/second.
-
-   > Note: This will automatically create a job named **Intel MPI PingPong** that targets the **hb120v3** slot_type, as this lab is setup for **hb120v2** you will have to update the job file.
-1. In the **Submit Script** from the right panel, click on the button **Open Editor** at the bottom. This will open a new tab with the pingpong script open.
-1. On line 3, change **hb120v3** to **hb120v2**. Click on the **Save** button and close the tab.
 
 1. Create two additional jobs based on the **Intel MPI PingPong** job by expanding the **+ New Job** button and chosing the **From Selected Job**.
 1. Note that, as before, all three jobs are currently in the **Not Submitted** state. To submit them, select each one of them, and then select **Submit**.
@@ -684,11 +680,11 @@ In this exercise, you will install and configure Spack from Code Server, as docu
 
    > Note: This will open another browser tab displaying the **Code Server** launching page.
 
-1. On the **Code Server** launching page, in the **Maximum duration of your remote session** field, enter **3**. In the **Slot Type** text box, enter **hb120v2**, and then select **Launch**.
+1. On the **Code Server** launching page, in the **Maximum duration of your remote session** field, enter **3**. In the **Slot Type** text box, enter **hpc**, and then select **Launch**.
 
    > Note: This will initiate the provisioning of a compute node of the type you specified. Note that this creates a new job and the **Queued** status for this job is displayed on the same page.
 
-1. Switch to the **Azure CycleCloud for Azure HPC On-Demand Platform** portal and monitor the progress of the **hb120v2** node provisioning.
+1. Switch to the **Azure CycleCloud for Azure HPC On-Demand Platform** portal and monitor the progress of the **hpc** node provisioning.
 
    > Note: Wait until the node status changes to **Ready**. This should take about 5 minutes.
 
@@ -698,7 +694,7 @@ In this exercise, you will install and configure Spack from Code Server, as docu
 
 1. Review the interface, and then close the **Welcome** tab.
 1. Select the **Application** menu, from the drop-down menu select **Terminal**, and then from the sub-menu that opens, select **New Terminal**.
-1. In the **Terminal** pane, at the **[clusteradmin@hb120v2-1 ~]$** prompt, run the following command to clone the azurehpc repo and use the azhop/spack branch:
+1. In the **Terminal** pane, at the **[clusteradmin@hpc-1 ~]$** prompt, run the following command to clone the azurehpc repo and use the azhop/spack branch:
 
    ```bash
    git clone https://github.com/Azure/azurehpc.git
@@ -716,7 +712,7 @@ In this exercise, you will install and configure Spack from Code Server, as docu
    > Note: The output should resemble the following listing:
 
    ```bash
-   [clusteradmin@hb120v2-1 ~]$ ~/azurehpc/experimental/azhop/spack/install.sh
+   [clusteradmin@hpc-1 ~]$ ~/azurehpc/experimental/azhop/spack/install.sh
    Cloning into '/anfhome/clusteradmin/spack'...
    remote: Enumerating objects: 389726, done.
    remote: Counting objects: 100% (18/18), done.
@@ -728,7 +724,7 @@ In this exercise, you will install and configure Spack from Code Server, as docu
    Checking out files: 100% (6826/6826), done.
    Branch releases/v0.18 set up to track remote branch releases/v0.18 from origin.
    Switched to a new branch 'releases/v0.18'
-   [clusteradmin@hb120v2-1 ~]$ ~/azurehpc/experimental/azhop/spack/configure.sh
+   [clusteradmin@hpc-1 ~]$ ~/azurehpc/experimental/azhop/spack/configure.sh
    Add GCC compiler
    ==> Added 1 new compiler to /anfhome/clusteradmin/.spack/linux/compilers.yaml
        gcc@9.2.0
@@ -748,8 +744,8 @@ In this exercise, you will install and configure Spack from Code Server, as docu
    > Note: The output should resemble the following listing:
 
    ```bash
-   [clusteradmin@hb120v2-1 ~]$
-   [clusteradmin@hb120v2-1 ~]$ spack compilers
+   [clusteradmin@hpc-1 ~]$
+   [clusteradmin@hpc-1 ~]$ spack compilers
    ==> Available compilers
    -- gcc centos7-x86_64 -------------------------------------------
    gcc@9.2.0
@@ -762,7 +758,7 @@ In this exercise, you will build and run some of the OSU Benchmarks used to meas
 
 Duration: 30 minutes
 ### Task 1: Build OSU Benchmarks with OpenMPI
-1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hb120v2-1 ~]$**  prompt, run the following command to load Spack modules:
+1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hpc-1 ~]$**  prompt, run the following command to load Spack modules:
 
    ```bash
    . ~/spack/share/spack/setup-env.sh
@@ -794,12 +790,12 @@ chmod +x ~/osu_benchmarks.sh
 ### Task 3: Submit OSU jobs
 1. Submit a first job for running the bandwidth benchmarks. Note the **slot_type** used in the select statement.
 ```bash
-qsub -N BW -joe -koe -l select=2:slot_type=hb120v2 -- osu_benchmarks.sh osu_bw
+qsub -N BW -joe -koe -l select=2:slot_type=hpc -- osu_benchmarks.sh osu_bw
 ```
 
 1. And a second one for the latency test
 ```bash
-qsub -N LAT -joe -koe -l select=2:slot_type=hb120v2 -- osu_benchmarks.sh osu_latency
+qsub -N LAT -joe -koe -l select=2:slot_type=hpc -- osu_benchmarks.sh osu_latency
 ```
 
 2. Review the results of the jobs in files names **LAT.o??** and **BW.o??** at the root of the home directory
@@ -813,7 +809,7 @@ Duration: 60 minutes
 
 ### Task 1: Build OPM
 
-1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hb120v2-1 ~]$**  prompt, run the following command to load Spack modules:
+1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hpc-1 ~]$**  prompt, run the following command to load Spack modules:
 
    ```bash
    module use /usr/share/Modules/modulefiles
@@ -841,7 +837,7 @@ Duration: 60 minutes
    > Note: The output should resemble the following listing:
 
    ```bash
-   [clusteradmin@hb120v2-1 ~]$ ~/azurehpc/experimental/azhop/opm/configure.sh
+   [clusteradmin@hpc-1 ~]$ ~/azurehpc/experimental/azhop/opm/configure.sh
    Cloning into 'dune-spack'...
    remote: Enumerating objects: 357, done.
    remote: Total 357 (delta 0), reused 0 (delta 0), pack-reused 357
@@ -860,7 +856,7 @@ Duration: 60 minutes
    > Note: The output should resemble the following listing:
 
    ```bash
-   [clusteradmin@hb120v2-1 ~]$ module avail
+   [clusteradmin@hpc-1 ~]$ module avail
 
       --------------------------------------------------------------------------------------------- /usr/share/Modules/modulefiles ---------------------------------------------------------------------------------------------
       amd/aocl            dot                 module-git          modules             mpi/hpcx-v2.9.0     mpi/impi_2018.4.274 mpi/impi_2021.4.0   mpi/mvapich2-2.3.6  mpi/openmpi-4.1.1   use.own
@@ -918,7 +914,7 @@ Duration: 60 minutes
    > Note: The output should start with the following listing:
 
    ```bash
-   [clusteradmin@hb120v2-1 ~]$ ~/azurehpc/experimental/azhop/opm/build.sh
+   [clusteradmin@hpc-1 ~]$ ~/azurehpc/experimental/azhop/opm/build.sh
    ==> Warning: Missing a source id for openmpi@4.1.1
    ==> Warning: Missing a source id for dune@2.7
    ==> Installing pkg-config-0.29.2-opt4cajmlefjsbaqmhcuxegkkdr6gvac
@@ -933,7 +929,7 @@ Duration: 60 minutes
 
 ### Task 2: Retrieve test data and run a flow job
 
-1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hb120v2-1 ~]$** prompt, run the following commands to download test data:
+1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hpc-1 ~]$** prompt, run the following commands to download test data:
 
    ```bash
    cd /lustre
@@ -948,11 +944,11 @@ Duration: 60 minutes
    cp ~/azurehpc/experimental/azhop/opm/run_opm.sh ~
    ```
 
-1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hb120v2-1 ~]$** prompt, open the newly created copy of the **run_opm.sh** file in a text editor.
+1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hpc-1 ~]$** prompt, open the newly created copy of the **run_opm.sh** file in a text editor.
 1. Make the following changes to the file, and close it after saving the changes:
 
    - Modify the input file path (`INPUT`) by replacing the entry `~/opm-data/norne` with `/lustre/$USER/opm-data/norne`).
-   - Modify the compute node configuration by replacing the entry `select=1:ncpus=40:mpiprocs=40:slot_type=hc44rs` with `select=1:ncpus=120:mpiprocs=60:slot_type=hb120v2`.
+   - Modify the compute node configuration by replacing the entry `select=1:ncpus=40:mpiprocs=40:slot_type=hc44rs` with `select=1:ncpus=120:mpiprocs=60:slot_type=hpc`.
    - Add the `which flow` line following the `spack load opm-simulators` line.
 
    > Note: Leave the number of nodes set to **1** to avoid the quota limit issues.
@@ -1001,7 +997,7 @@ Duration: 60 minutes
    ```bash
    #!/bin/bash
    #PBS -N OPM
-   #PBS -l select=1:ncpus=120:mpiprocs=60:slot_type=hb120v2
+   #PBS -l select=1:ncpus=120:mpiprocs=60:slot_type=hpc
    #PBS -k oed
    #PBS -j oe
    #PBS -l walltime=3600
@@ -1036,7 +1032,7 @@ Duration: 60 minutes
    popd
    ```
 
-1. On the lab computer, in the browser window displaying the Code Server, in the Terminal pane, from the prompt **[clusteradmin@hb120v2-1 ~]$**, run the following command to submit the job referenced in the **~/run_opm.sh** file:
+1. On the lab computer, in the browser window displaying the Code Server, in the Terminal pane, from the prompt **[clusteradmin@hpc-1 ~]$**, run the following command to submit the job referenced in the **~/run_opm.sh** file:
 
    ```bash
    qsub ~/run_opm.sh 
@@ -1051,9 +1047,9 @@ Duration: 60 minutes
    > Note: The output should resemble the following listing:
 
    ```bash
-   [clusteradmin@hb120v2-1 clusteradmin]$ qsub ~/run_opm.sh
+   [clusteradmin@hpc-1 clusteradmin]$ qsub ~/run_opm.sh
    8.scheduler
-   [clusteradmin@hb120v2-1 clusteradmin]$ qstat
+   [clusteradmin@hpc-1 clusteradmin]$ qstat
    Job id            Name             User              Time Use S Queue
    ----------------  ---------------- ----------------  -------- - -----
    6.scheduler       sys-dashboard-s  clusteradmin      00:00:17 R workq           
@@ -1073,10 +1069,10 @@ Duration: 60 minutes
    > Note: The output should start with the following listing:
 
    ```bash
-   [clusteradmin@hb120v2-1 clusteradmin]$ qstat -fx 8.scheduler
+   [clusteradmin@hpc-1 clusteradmin]$ qstat -fx 8.scheduler
    Job Id: 8.scheduler
        Job_Name = OPM
-       Job_Owner = clusteradmin@hb120v2-1.internal.cloudapp.net
+       Job_Owner = clusteradmin@hpc-1.internal.cloudapp.net
        resources_used.cpupercent = 1635
        resources_used.cput = 00:45:00
        resources_used.mem = 29380680kb
@@ -1088,15 +1084,15 @@ Duration: 60 minutes
        server = scheduler
        Checkpoint = u
        ctime = Tue Feb 22 18:26:47 2022
-       Error_Path = hb120v2-1.internal.cloudapp.net:/lustre/clusteradmin/OPM.e8
-       exec_host = hb120v2-2/0*120
-       exec_vnode = (hb120v2-2:ncpus=120)
+       Error_Path = hpc-1.internal.cloudapp.net:/lustre/clusteradmin/OPM.e8
+       exec_host = hpc-2/0*120
+       exec_vnode = (hpc-2:ncpus=120)
        Hold_Types = n
        Join_Path = oe
        Keep_Files = oed
        Mail_Points = a
        mtime = Tue Feb 22 18:36:42 2022
-       Output_Path = hb120v2-1.internal.cloudapp.net:/lustre/clusteradmin/OPM.o8
+       Output_Path = hpc-1.internal.cloudapp.net:/lustre/clusteradmin/OPM.o8
        Priority = 0
        qtime = Tue Feb 22 18:26:47 2022
        Rerunable = True
@@ -1104,8 +1100,8 @@ Duration: 60 minutes
        Resource_List.ncpus = 120
        Resource_List.nodect = 1
        Resource_List.place = scatter:excl
-       Resource_List.select = 1:ncpus=120:mpiprocs=60:slot_type=hb120v2
-       Resource_List.slot_type = execute
+       Resource_List.select = 1:ncpus=120:mpiprocs=60:slot_type=hpc
+       Resource_List.slot_type = htc
        Resource_List.ungrouped = false
        Resource_List.walltime = 01:00:00
        stime = Tue Feb 22 18:35:47 2022
@@ -1119,7 +1115,7 @@ Duration: 60 minutes
            .local/bin:/anfhome/clusteradmin/bin,
            PBS_O_MAIL=/var/spool/mail/clusteradmin,PBS_O_SHELL=/bin/bash,
            PBS_O_WORKDIR=/lustre/clusteradmin,PBS_O_SYSTEM=Linux,
-           PBS_O_QUEUE=workq,PBS_O_HOST=hb120v2-1.internal.cloudapp.net
+           PBS_O_QUEUE=workq,PBS_O_HOST=hpc-1.internal.cloudapp.net
        comment = Not Running: Not enough free nodes available
        etime = Tue Feb 22 18:26:47 2022
        run_count = 1
@@ -1132,7 +1128,7 @@ Duration: 60 minutes
 
    > Note: Wait for the job to complete. This might take about 5 minutes.
 
-   > Note: To verify that the job completed, you can rerun the `qstat` command or the `qstat -fx <jobid>` command. The second command should display the comment in the format `comment = Job run at Tue Feb 22 at 18:40 on (hb120v2-2:ncpus=120) and finished`.
+   > Note: To verify that the job completed, you can rerun the `qstat` command or the `qstat -fx <jobid>` command. The second command should display the comment in the format `comment = Job run at Tue Feb 22 at 18:40 on (hpc-2:ncpus=120) and finished`.
 
 1. Run the following command to verify that the job has generated the expected output:
 
@@ -1145,7 +1141,7 @@ Duration: 60 minutes
    > Note: The output should resemble the following listing:
 
    ```bash
-   [clusteradmin@hb120v2-1 clusteradmin]$ ls /lustre/$USER/opm-data/norne/out_parallel/
+   [clusteradmin@hpc-1 clusteradmin]$ ls /lustre/$USER/opm-data/norne/out_parallel/
    NORNE_ATW2013.EGRID     NORNE_ATW2013.INIT  NORNE_ATW2013.SMSPEC  NORNE_ATW2013.UNSMRY
    NORNE_ATW2013.INFOSTEP  NORNE_ATW2013.RFT   NORNE_ATW2013.UNRST
    ```
@@ -1192,7 +1188,7 @@ Duration: 60 minutes
 
 ### Task 1: Build OpenFOAM
 
-1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hb120v2-1 ~]$**  prompt, run the following command to build OpenFOAM 8:
+1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hpc-1 ~]$**  prompt, run the following command to build OpenFOAM 8:
 
    ```bash
    . ~/spack/share/spack/setup-env.sh
@@ -1202,7 +1198,7 @@ Duration: 60 minutes
    > Note: Wait for the build to complete. This might take about 30 minutes.
 ### Task 2: Running the motorbike tutorial on a single node
 
-1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hb120v2-1 ~]$**  prompt, run the following command to load OpenFOAM modules:
+1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hpc-1 ~]$**  prompt, run the following command to load OpenFOAM modules:
    ```bash
    spack load openfoam-org@8
    ```
@@ -1229,7 +1225,7 @@ The following updates are needed:
 - Add FOAM_MPIRUN_FLAGS to the mpirun command when using runParallel (needed for all version of OpenFOAM)
 - Reconstruct the single partition after the solve
 
-1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hb120v2-1 ~]$**  prompt, run the following commands:
+1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hpc-1 ~]$**  prompt, run the following commands:
 
    ```bash
       cd /lustre/$USER/motorBike
@@ -1258,7 +1254,7 @@ $PBS_O_WORKDIR/Allrun -cores $(wc -l <$PBS_NODEFILE)
 
 ```bash
 rm log.*
-qsub -l select=2:slot_type=hb120v2:ncpus=120:mpiprocs=120,place=scatter:excl submit.sh
+qsub -l select=2:slot_type=hpc:ncpus=120:mpiprocs=120,place=scatter:excl submit.sh
 ```
 
 1. Monitor the job and wait for the job to be finished

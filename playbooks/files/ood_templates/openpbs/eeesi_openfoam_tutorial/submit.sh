@@ -1,6 +1,6 @@
 #!/bin/bash
 #PBS -N drivaer
-#PBS -l select=2:ncpus=120:mpiprocs=120:slot_type=hb120v3,place=scatter:excl
+#PBS -l select=2:ncpus=120:mpiprocs=120:slot_type=hpc,place=scatter:excl
 #PBS -k oed
 #PBS -j oe
 

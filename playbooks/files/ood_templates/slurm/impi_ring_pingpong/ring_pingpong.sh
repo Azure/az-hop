@@ -2,7 +2,7 @@
 #SBATCH -J RingPingPong
 #SBATCH -N 4
 #SBATCH --ntasks-per-node=1
-#SBATCH -p hc44rs
+#SBATCH -p hpc
 #SBATCH -t 5
 #SBATCH --export=NONE
 

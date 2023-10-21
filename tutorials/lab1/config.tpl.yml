@@ -180,7 +180,7 @@ images:
 
 # List of queues (node arays in Cycle) to be defined
 queues:
-  - name: execute # name of the Cycle Cloud node array
+  - name: htc # name of the Cycle Cloud node array
     # Azure VM Instance type
     vm_size: Standard_F2s_v2
     # maximum number of cores that can be instanciated

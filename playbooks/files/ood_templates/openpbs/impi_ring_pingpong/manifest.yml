@@ -1,5 +1,5 @@
 ---
 name: Intel MPI Ring PingPong
 host: ondemand
-notes: A very basic template for running Intel MPI ping pong in a ring. Default is to run on 4xhb120v3, make sure to edit the script if you want to run on more nodes or another node type
+notes: A very basic template for running Intel MPI ping pong in a ring. Default is to run on 4xhpc nodes
 script: ring_pingpong.sh

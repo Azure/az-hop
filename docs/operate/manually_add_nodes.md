@@ -18,5 +18,5 @@ To add nodes :
 
 > Note: When using PBS, and if `Colocate nodes` is not checked then you should specify `ungrouped=true` in the resource constraints of the qsub command.
 
-> qsub -l select=1:slot_type=execute:ungrouped=true -I
+> qsub -l select=1:slot_type=htc:ungrouped=true -I
 

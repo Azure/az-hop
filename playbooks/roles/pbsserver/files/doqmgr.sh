@@ -27,7 +27,7 @@ create_resource machinetype string
 #/opt/pbs/bin/qmgr -c "set queue workq resources_default.ungrouped = false"
 #/opt/pbs/bin/qmgr -c "set queue workq resources_default.place = scatter" # Default in scalelib is scatter:excl
 /opt/pbs/bin/qmgr -c "set queue workq default_chunk.ungrouped = false"
-/opt/pbs/bin/qmgr -c "set queue workq resources_default.slot_type = execute"
+/opt/pbs/bin/qmgr -c "set queue workq resources_default.slot_type = htc"
 
 #/opt/pbs/bin/qmgr -c "create queue htcq"
 #/opt/pbs/bin/qmgr -c "set queue htcq queue_type = Execution"
@@ -36,7 +36,7 @@ create_resource machinetype string
 #/opt/pbs/bin/qmgr -c "set queue htcq default_chunk.ungrouped = true"
 #/opt/pbs/bin/qmgr -c "set queue htcq enabled = true"
 #/opt/pbs/bin/qmgr -c "set queue htcq started = true"
-/opt/pbs/bin/qmgr -c "set queue htcq resources_default.slot_type = execute"
+/opt/pbs/bin/qmgr -c "set queue htcq resources_default.slot_type = htc"
 
 /opt/pbs/bin/qmgr -c "create queue vizq"
 /opt/pbs/bin/qmgr -c "set queue vizq queue_type = Execution"

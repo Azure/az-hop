@@ -6,14 +6,14 @@ Docker containers are supported via NVIDIA [enroot](https://github.com/NVIDIA/en
 ## Examples
 ### Start an interactive job in Ubuntu container
 ```bash
-srun -N1 -p hc44rs --exclusive --container-image=ubuntu --pty bash
+srun -N1 -p hpc --exclusive --container-image=ubuntu --pty bash
 ```
 
 ### Reusing a container within a job with `--container-name` switch
 
 #### Allocate a node
 ```bash
-salloc -N1 -p hc44rs --exclusive
+salloc -N1 -p hpc --exclusive
 ```
 
 #### Run an interactive session in Ubuntu container from Docker Hub

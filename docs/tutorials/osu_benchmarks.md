@@ -3,7 +3,7 @@
 ### Start a shell session
 ### Start an interactive job on a compute node
 ```bash
-qsub -l select=1:slot_type=hc44rs -I
+qsub -l select=1:slot_type=hpc -I
 ```
 
 ### Load Spack environment and modules
@@ -32,8 +32,8 @@ Grant execute right on the osu_benchmarks.sh
 
 ### Submit jobs on 2 nodes
 ```bash
-qsub -N BW -joe -koe -l select=2:slot_type=hc44rs -- osu_benchmarks.sh osu_bw
-qsub -N LAT -joe -koe -l select=2:slot_type=hc44rs -- osu_benchmarks.sh osu_latency
+qsub -N BW -joe -koe -l select=2:slot_type=hpc -- osu_benchmarks.sh osu_bw
+qsub -N LAT -joe -koe -l select=2:slot_type=hpc -- osu_benchmarks.sh osu_latency
 ```
 
 Wait for the jobs to be completed. Use CycleCloud to monitor the node provisioning if any.
