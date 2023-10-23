@@ -7,7 +7,7 @@ git clone https://github.com/Azure/azurehpc.git
 
 ### Start an interactive job on a compute node
 ```bash
-qsub -l select=1:slot_type=hc44rs -I
+qsub -l select=1:slot_type=hpc -I
 ```
 
 ### Load Spack environment and modules

@@ -37,8 +37,8 @@ test('CodeServer', async ({ browser }) => {
 
     await page.getByRole('button', { name: 'Interactive Apps' }).click();
     await page.getByRole('link', { name: 'Code Server', exact: true }).click();
-    await page.getByRole('combobox', { name: 'Slot Type' }).selectOption('hb120v3');
-    await page.getByRole('combobox', { name: 'Slot Type' }).selectOption('execute');
+    await page.getByRole('combobox', { name: 'Slot Type' }).selectOption('hpc');
+    await page.getByRole('combobox', { name: 'Slot Type' }).selectOption('htc');
     await page.getByRole('button', { name: 'Launch' }).click();
     await page.locator('#batch_connect_sessions div').filter({ hasText: /Code Server/ }).getByRole('button', { name: 'Delete Code Server Session' }).click();
 

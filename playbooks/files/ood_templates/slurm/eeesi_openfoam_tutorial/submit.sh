@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name drivaer
-#SBATCH --partition=hb120v3
+#SBATCH --partition=hpc
 #SBATCH --nodes=2
 #SBATCH --ntasks-per-node=64
 

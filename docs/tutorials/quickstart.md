@@ -67,7 +67,7 @@ In this exercise, you will review the main features of the Azure HPC OnDemand Pl
 1. In the shell session, run the following command to submit a simple test job:
 
    ```bash
-   qsub -l select=1:slot_type=execute -- /usr/bin/bash -c 'sleep 60'
+   qsub -l select=1:slot_type=htc -- /usr/bin/bash -c 'sleep 60'
    ```
 
    > Note: Be careful when pasting the commands to make sure the exacts characters are used, especially for hyphen.
@@ -86,7 +86,7 @@ In this exercise, you will review the main features of the Azure HPC OnDemand Pl
 
    > Note: Examine the output of the command and verify that the submitted job is in the queue.
 
-1. Switch to the browser tab with the **Azure CycleCloud for Azure HPC On-Demand Platform** page. After some time (less than a minute), a new **execute** instance is created.
+1. Switch to the browser tab with the **Azure CycleCloud for Azure HPC On-Demand Platform** page. After some time (less than a minute), a new **htc** instance is created.
 1. Review the newly created job's progress, including the new VM creation.
 
 ### Task 3: Hello World job
@@ -95,7 +95,7 @@ In this exercise, you will review the main features of the Azure HPC OnDemand Pl
 On the **Dashboard** page, select the **Jobs** menu title, and from the drop-down menu, select **Job Composer**.
 1. On the **Jobs** page, select **+ New job**, and from the drop-down menu, select **From Default Template**.
 
-   > Note: This will automatically create a job named **(default) Sample Sequential Job** that targets the **execute** CycleCloud array. To identify the content of the job script, ensure that the newly created job is selected, and then review the **Script contents** pane.
+   > Note: This will automatically create a job named **(default) Sample Sequential Job** that targets the **htc** CycleCloud array. To identify the content of the job script, ensure that the newly created job is selected, and then review the **Script contents** pane.
 
 1. Repeat the previous step twice to create two additional jobs based on the default template.
 
@@ -107,7 +107,7 @@ On the **Dashboard** page, select the **Jobs** menu title, and from the drop-dow
 
 1. On the lab computer, in the browser window displaying the Azure HPC On-Demand Platform portal, select the **Azure HPC On-Demand Platform** header. Select the **Monitoring** menu, and from the drop-down list, select **Azure CycleCloud**.
 1. In the **Azure CycleCloud for Azure HPC On-Demand Platform** portal, monitor the status of the cluster and note that the number of nodes increased to **2**, which initially are listed in the **acquiring** state. This can takes a minute to come.
-1. On the **Nodes** tab, verify that **execute** appears in the **Template** column, the **Nodes** column contains the entry **2**, and the **Last status** column displays the **Creating VM** message.
+1. On the **Nodes** tab, verify that **htc** appears in the **Template** column, the **Nodes** column contains the entry **2**, and the **Last status** column displays the **Creating VM** message.
 1. In the **Azure CycleCloud for Azure HPC On-Demand Platform** portal, on the **pbs1** page, select the **Scalesets** tab. Note a scaleset that hosts the cluster nodes with its size set to **2**.
 1. Select the entry on the **Nodes** tab, and then review the details of the cluster nodes in the lower section of the page, including:
    - The name of each node
@@ -174,11 +174,11 @@ On the **Dashboard** page, select the **Jobs** menu title, and from the drop-dow
 
    > Note: This will open another browser tab displaying the **Code Server** launching page.
 
-1. On the **Code Server** launching page, in the **Maximum duration of your remote session** field, enter **1**. In the **Slot Type** text box, enter **execute**, and then select **Launch**.
+1. On the **Code Server** launching page, in the **Maximum duration of your remote session** field, enter **1**. In the **Slot Type** text box, enter **htc**, and then select **Launch**.
 
    > Note: This will initiate the provisioning of a compute node of the type you specified. Note that this creates a new job and the **Queued** status for this job is displayed on the same page.
 
-1. Switch to the **Azure CycleCloud for Azure HPC On-Demand Platform** portal and monitor the **execute** node provisioning's progress.
+1. Switch to the **Azure CycleCloud for Azure HPC On-Demand Platform** portal and monitor the **htc** node provisioning's progress.
 
    > Note: Wait until the node status changes to **Ready**. This should take about 5 minutes.
 
@@ -189,7 +189,7 @@ On the **Dashboard** page, select the **Jobs** menu title, and from the drop-dow
 
 1. Review the interface, and then close the **Welcome** tab.
 1. In the top left corner of the page, select the **Application** menu. From the drop-down menu, select **Terminal**, and then in the cascading menu, select **New Terminal**.
-1. In the **Terminal** pane, at the **[clusteradmin@execute-1 ~]$** prompt, enter `qstat` to observe the currently running job.
+1. In the **Terminal** pane, at the **[clusteradmin@htc-1 ~]$** prompt, enter `qstat` to observe the currently running job.
 1. You can now edit any files located in your home directory, git clone repos and connect to your GitHub account.
 1. Switch back to the **Azure HPC On-Demand Platform** home page, or the `Dashboard`.
 1. Select **Linux Desktop**.
@@ -243,11 +243,11 @@ In this exercise, you will install and configure Spack from Code Server, as docu
 
    > Note: This will open another browser tab displaying the **Code Server** launching page.
 
-1. On the **Code Server** launching page, in the **Maximum duration of your remote session** field, enter **3**. In the **Slot Type** text box, enter **hb120v3**, and then select **Launch**.
+1. On the **Code Server** launching page, in the **Maximum duration of your remote session** field, enter **3**. In the **Slot Type** text box, enter **hpc**, and then select **Launch**.
 
    > Note: This will initiate the provisioning of a compute node of the type you specified. Note that this creates a new job and the **Queued** status for this job is displayed on the same page.
 
-1. Switch to the **Azure CycleCloud for Azure HPC On-Demand Platform** portal and monitor the progress of the **hb120v3** node provisioning.
+1. Switch to the **Azure CycleCloud for Azure HPC On-Demand Platform** portal and monitor the progress of the **hpc** node provisioning.
 
    > Note: Wait until the node status changes to **Ready**. This should take about 5 minutes.
 
@@ -257,7 +257,7 @@ In this exercise, you will install and configure Spack from Code Server, as docu
 
 1. Review the interface, and then close the **Welcome** tab.
 1. Select the **Application** menu, from the drop-down menu select **Terminal**, and then from the sub-menu that opens, select **New Terminal**.
-1. In the **Terminal** pane, at the **[clusteradmin@hb120v3-1 ~]$** prompt, run the following command to clone the azurehpc repo and use the azhop/spack branch:
+1. In the **Terminal** pane, at the **[clusteradmin@hpc-1 ~]$** prompt, run the following command to clone the azurehpc repo and use the azhop/spack branch:
 
    ```bash
    git clone https://github.com/Azure/azurehpc.git
@@ -275,7 +275,7 @@ In this exercise, you will install and configure Spack from Code Server, as docu
    > Note: The output should resemble the following listing:
 
    ```bash
-   [clusteradmin@hb120v3-1 ~]$ ~/azurehpc/experimental/azhop/spack/install.sh
+   [clusteradmin@hpc-1 ~]$ ~/azurehpc/experimental/azhop/spack/install.sh
    Cloning into '/anfhome/clusteradmin/spack'...
    remote: Enumerating objects: 402411, done.
    remote: Counting objects: 100% (163/163), done.
@@ -296,7 +296,7 @@ In this exercise, you will install and configure Spack from Code Server, as docu
 
    Checking out files: 100% (9474/9474), done.
 
-   [clusteradmin@hb120v3-1 ~]$ ~/azurehpc/experimental/azhop/spack/configure.sh
+   [clusteradmin@hpc-1 ~]$ ~/azurehpc/experimental/azhop/spack/configure.sh
    Configuring for OpenMPI Version 4.1.1
    Configuring for HPCX Version 2.9.0
    Configuring for GCC version 9.2.0
@@ -319,8 +319,8 @@ In this exercise, you will install and configure Spack from Code Server, as docu
    > Note: The output should resemble the following listing:
 
    ```bash
-   [clusteradmin@hb120v3-1 ~]$
-   [clusteradmin@hb120v3-1 ~]$ spack compilers
+   [clusteradmin@hpc-1 ~]$
+   [clusteradmin@hpc-1 ~]$ spack compilers
    ==> Available compilers
    -- gcc centos7-x86_64 -------------------------------------------
    gcc@9.2.0
@@ -333,7 +333,7 @@ In this exercise, you will build and run some of the OSU Benchmarks used to meas
 
 Duration: 30 minutes
 ### Task 1: Build OSU Benchmarks with OpenMPI
-1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hb120v3-1 ~]$**  prompt, run the following command to load Spack modules:
+1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hpc-1 ~]$**  prompt, run the following command to load Spack modules:
 
    ```bash
    . ~/spack/share/spack/setup-env.sh
@@ -342,7 +342,7 @@ Duration: 30 minutes
 1. List modules available. These contains the all the modules provided in the Azure HPC marketplace image, like Intel MPI, OpenMPI, HPCX and MVAPICH2.
 
    ```bash
-   [clusteradmin@hb120v3-1 ~]$ module avail
+   [clusteradmin@hpc-1 ~]$ module avail
 
    --------------------------------------------------------------------------------------------- /usr/share/Modules/modulefiles ---------------------------------------------------------------------------------------------
       amd/aocl              dot          module-git     modules            mpi/hpcx               mpi/impi_2021.4.0    mpi/impi-2021    mpi/mvapich2-2.3.6    mpi/openmpi-4.1.1 (D)    use.own
@@ -378,12 +378,12 @@ chmod +x ~/osu_benchmarks.sh
 ### Task 3: Submit OSU jobs
 1. Submit a first job for running the bandwidth benchmarks. Note the **slot_type** used in the select statement to specify on which CycleCloud node array to submit to.
 ```bash
-qsub -N BW -joe -koe -l select=2:slot_type=hb120v3 -- osu_benchmarks.sh osu_bw
+qsub -N BW -joe -koe -l select=2:slot_type=hpc -- osu_benchmarks.sh osu_bw
 ```
 
 1. And a second one for the latency test
 ```bash
-qsub -N LAT -joe -koe -l select=2:slot_type=hb120v3 -- osu_benchmarks.sh osu_latency
+qsub -N LAT -joe -koe -l select=2:slot_type=hpc -- osu_benchmarks.sh osu_latency
 ```
 
 1. Check the jobs statuses within the terminal or thru the web UI as well as the node provisioning state in the CycleCloud portal.
@@ -398,7 +398,7 @@ In this exercise you will run and analyze the DrivAer-Fastback CFD simulation wi
 
 ### Task 1: Prepare the DrivAer-Fastback example
 
-1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hb120v3-1 ~]$**  prompt, run the following command to download the OpenFOAM-9 sample from GitHub:
+1. On the lab computer, in the browser window displaying the Code Server, in the **Terminal** pane, at the **[clusteradmin@hpc-1 ~]$**  prompt, run the following command to download the OpenFOAM-9 sample from GitHub:
 
    ```bash
    wget https://github.com/OpenFOAM/OpenFOAM-9/archive/refs/tags/20220602.tar.gz
