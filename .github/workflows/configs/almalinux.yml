@@ -3,7 +3,7 @@ linux_base_image: almalinux:almalinux-x86_64:8_7-gen2:latest # almalinux:almalin
 #linux_base_plan: almalinux:almalinux-hpc:8_7-hpc-gen2
 
 queues:
-  - name: hpc
+  - name: htc
     vm_size: Standard_F2s_v2
     max_core_count: 512
     image: azhpc:azhop-compute:almalinux-8_7:latest
