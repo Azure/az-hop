@@ -53,7 +53,15 @@
     remote_src: yes
   args: 
     creates: '{{jetpack_home}}/system/bootstrap/{{install_pkg}}'
-    
+
+- name: create a symbolic link for slurm extension config file
+  file:
+    src: '/sched/{{ slurm.cluster_name | default("slurm1") }}/azhop.conf'
+    dest: /etc/slurm/azhop.conf
+    owner: slurm 
+    group: slurm 
+    state: link
+
 - name: install azure-slurm-install
   shell: |
     set -e
