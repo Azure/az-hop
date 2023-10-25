@@ -56,7 +56,7 @@
 
 - name: create a symbolic link for slurm extension config file
   file:
-    src: '/sched/{{ slurm.cluster_name | default("slurm1") }}/azhop.conf'
+    src: '/sched/{{ slurm_cluster_name }}/azhop.conf'
     dest: /etc/slurm/azhop.conf
     owner: slurm 
     group: slurm 

@@ -237,5 +237,5 @@
   become: true
   tags: [ 'accounting' ]
   vars:
-    - cluster_name: "{{ slurm.cluster_name | default('slurm') }}"
+    - cluster_name: "{{ slurm_cluster_name }}"
   when: accounting_enabled

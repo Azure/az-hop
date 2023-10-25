@@ -10,7 +10,7 @@
         },
         "cluster": 
         {
-            "name": "{{ slurm.cluster_name | default('slurm1') }}"
+            "name": "{{ slurm_cluster_name }}"
         },
         "node":
         {
@@ -48,7 +48,7 @@
             "compute": {
                 "subscriptionId": "{{subscription_id}}",
                 "vmSize": "{{scheduler.vm_size}}",
-                "tags": "ClusterId:{{ slurm.cluster_name | default('slurm1') }}(user@foo:unique);ClusterName:{{ slurm.cluster_name | default('slurm1') }}"
+                "tags": "ClusterId:{{ slurm_cluster_name }}(user@foo:unique);ClusterName:{{ slurm_cluster_name }}"
             }
         }
     }

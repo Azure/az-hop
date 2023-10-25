@@ -10,3 +10,4 @@ install_pkg: azure-slurm-install-pkg-{{cyclecloud_slurm_release}}.tar.gz
 autoscale_pkg: azure-slurm-pkg-{{cyclecloud_slurm_release}}.tar.gz
 cc_role: "{{'scheduler' if 'slurmserver' in slurm_role else 'login'}}"
 slurm_role: slurmserver # default to slurmserver, can be slurmclient
+slurm_cluster_name: '{{ slurm.cluster_name | default("slurm1") }}'

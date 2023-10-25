@@ -70,17 +70,9 @@
 - name: create slurm extension config
   template:
     src: azhop.conf.j2
-    dest: '/sched/{{ slurm.cluster_name | default("slurm1") }}/azhop.conf'
+    dest: '/sched/{{ slurm_cluster_name }}/azhop.conf'
     owner: slurm
     group: slurm
-
-- name: create a symbolic link for slurm extension config file
-  file:
-    src: '/sched/{{ slurm.cluster_name | default("slurm1") }}/azhop.conf'
-    dest: /etc/slurm/azhop.conf
-    owner: slurm 
-    group: slurm 
-    state: link
 
 - name: remove all SuspendTime* values from slurm.conf as they exists in azhop.conf
   lineinfile:
@@ -94,8 +86,14 @@
 - name: Include the azhop.conf in slurm.conf
   lineinfile:
     path: /etc/slurm/slurm.conf
-    line: 'Include azhop.conf'
+    line: 'Include /sched/{{ slurm_cluster_name }}/azhop.conf'
     state: present
+
+- name: refresh slurm node list
+  shell: |
+    set -e
+    azslurm scale
+    ln -fs /sched/{{ slurm_cluster_name }}/gres.conf /etc/slurm/gres.conf && chown slurm:slurm /etc/slurm/gres.conf
 
 # Start service. 
 # For reference see https://github.com/Azure/cyclecloud-slurm/blob/master/specs/scheduler/cluster-init/scripts/00-install.sh
