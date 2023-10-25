@@ -1,3 +1,0 @@
-# slurm uid/gid match cyclecloud-slurm cookbook values
-slurm_uid: 11100
-slurm_gid: 11100
