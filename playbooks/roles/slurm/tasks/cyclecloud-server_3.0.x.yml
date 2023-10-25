@@ -65,6 +65,7 @@
   shell: |
     set -e
     cd {{jetpack_home}}/system/bootstrap/azure-slurm
+    source ~/.bash_profile
     ./install.sh
 
 - name: create slurm extension config
@@ -89,10 +90,26 @@
     line: 'Include /sched/{{ slurm_cluster_name }}/azhop.conf'
     state: present
 
+- name: create slurm prolog
+  template:
+    src: templates/prolog.sh.j2
+    dest: /sched/{{ slurm_cluster_name }}/prolog.sh
+    owner: slurm
+    group: slurm
+    mode: 0755
+
+- name: create slurm epilog
+  template:
+    src: templates/epilog.sh.j2
+    dest: /sched/{{ slurm_cluster_name }}/epilog.sh
+    owner: slurm
+    group: slurm
+    mode: 0755
+
 - name: refresh slurm node list
   shell: |
     set -e
-    azslurm scale
+    /root/bin/azslurm scale
     ln -fs /sched/{{ slurm_cluster_name }}/gres.conf /etc/slurm/gres.conf && chown slurm:slurm /etc/slurm/gres.conf
 
 # Start service. 
