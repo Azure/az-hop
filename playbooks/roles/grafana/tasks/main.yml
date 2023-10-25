@@ -31,6 +31,10 @@
     - { dashboard: azhop_compute_servers.json.j2, destination: '{{ grafana_paths_provisioning }}/dashboards/dashboards/azhop_compute_servers.json' }
   vars:
     scheduler_name: "{{scheduler.name | default('scheduler')}}"
+    thresholds: ["10", "20", "30", "40", "50","60", "70", "80", "90", "100"]
+    idle_threshold: "{{monitoring.idle_threshold | default('70')}}"
+    mem_threshold: "{{monitoring.mem_threshold | default('30')}}"
+    iowait_threshold: "{{monitoring.iowait_threshold | default('40')}}"
     
 - name: Copy infra dashboard file
   template:
