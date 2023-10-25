@@ -102,6 +102,7 @@ echo "cloud-init done" >> /tmp/cloud-init.txt
         #slurm.node_prefix = ${ifThenElse(NodeNamePrefix=="Cluster Prefix", StrJoin("-", ClusterName, ""), NodeNamePrefix)}
         slurm.use_nodename_as_hostname = true
         slurm.dampen_memory = 8 # Reservation of 8% of the node's memory
+        slurm.use_pcpu = false # set pcpu = false for all hyperthreaded VMs - doesn't seems to impact non hyperthreaded VMs
         [[[cluster-init cyclecloud/slurm:execute:{{cyclecloud_slurm_release}}]]]
 
 {% for queue in cc_queues %}
