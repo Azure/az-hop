@@ -32,7 +32,10 @@
         "node_prefix": "{{ ansible_hostname }}",
         "ensure_waagent_monitor_hostname": true,
         "accounting": {
-            "enabled": false
+            "enabled": {{ (slurm.accounting_enabled | lower) | default(false)}},
+            "user": "{{ database_user }}@{{ database_fqdn }}",
+            "password": "{{ database_password }}",
+            "url": "{{ database_fqdn }}"
         }
     },
     "munge":

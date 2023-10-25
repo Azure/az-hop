@@ -29,11 +29,21 @@
     dest: '{{jetpack_home}}/config/jetpack.ini'
     mode: 0700
 
+- name: Read database Password from KV
+  command: az keyvault secret show --vault-name {{key_vault}} -n {{database_user}}-password --query "value" -o tsv
+  delegate_to: localhost
+  connection: local
+  register: database_password_out
+  become: false
+  when: slurm.accounting_enabled | default(false)
+
 - name: create scheduler node info
   template:
     src: templates/node.json.j2
     dest: '{{jetpack_home}}/config/node.json'
     mode: 0700
+  vars:
+    database_password: "{{database_password_out.stdout | default('')}}"
 
 # Install slurm. 
 # For reference see https://github.com/Azure/cyclecloud-slurm/blob/master/specs/scheduler/cluster-init/scripts/00-install.sh
