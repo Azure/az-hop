@@ -129,8 +129,8 @@ queue_manager: "[steps('scheduler').scheduler]"
 slurm:
   accounting_enabled: "[if(equals(steps('scheduler').scheduler, 'slurm'), steps('scheduler').slurmAccounting, false)]"
   slurm_version: "[steps('scheduler').slurmVersion]"
-  # CycleCloud for SLURM project version as defined in https://github.com/Azure/cyclecloud-slurm/releases. Currently supported: 2.7.0-2.7.2. Default to 2.7.2
-  cyclecloud_slurm_version: 2.7.2
+  # CycleCloud for SLURM project version as defined in https://github.com/Azure/cyclecloud-slurm/releases
+  cyclecloud_slurm_version: 3.0.4
 
 enroot:
   enroot_version: 3.4.1
