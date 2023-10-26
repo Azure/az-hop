@@ -144,7 +144,7 @@ jobs:
             CYCLE_SLURM_VERSION=${{ inputs.cycle_slurm_version }}
             case $SCHEDULER in
               slurm)
-                cat $AZHOP_CONFIGURATION_DIR/$SCHEDULER_$CYCLE_SLURM_VERSION.yml >> config.yml
+                cat $AZHOP_CONFIGURATION_DIR/${SCHEDULER}_${CYCLE_SLURM_VERSION}.yml >> config.yml
               ;;
               openpbs)
                 cat $AZHOP_CONFIGURATION_DIR/$SCHEDULER.yml >> config.yml
