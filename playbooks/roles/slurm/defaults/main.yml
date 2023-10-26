@@ -1,0 +1,13 @@
+# slurm uid/gid match cyclecloud-slurm cookbook values
+slurm_uid: 11100
+slurm_gid: 11100
+cyclecloud_slurm_release: '{{slurm.cyclecloud_slurm_version | default("2.7.2")}}'
+pyxis_version: 0.15.0
+accounting_enabled: false
+cc_admin: hpcadmin
+cc_password: 
+install_pkg: azure-slurm-install-pkg-{{cyclecloud_slurm_release}}.tar.gz
+autoscale_pkg: azure-slurm-pkg-{{cyclecloud_slurm_release}}.tar.gz
+cc_role: "{{'scheduler' if 'slurmserver' in slurm_role else 'login'}}"
+slurm_role: slurmserver # default to slurmserver, can be slurmclient
+slurm_cluster_name: '{{ slurm.cluster_name | default("slurm1") }}'

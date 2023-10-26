@@ -25,6 +25,10 @@ on:
         description: 'Deploy a Lustre cluster (true/false) - Default to true'
         required: false
         default: 'false' # use it with ${{ github.event.inputs.lustre }}
+      cycle_slurm_version:
+        description: 'Version of the cyclecloud slurm project 2.7 or 3.0 - default to 2.7'
+        required: false
+        default: '2.7' # use it with ${{  github.event.inputs.cycle_slurm_version }}
 
 jobs:
   deploy:
@@ -41,6 +45,7 @@ jobs:
       ui_tests: 'false'
       monitoring: 'grafana'
       infra_os: 'almalinux'
+      cycle_slurm_version: ${{  github.event.inputs.cycle_slurm_version }}
     secrets:
       ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
       ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}

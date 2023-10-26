@@ -30,16 +30,11 @@
     when: (queue_manager == "openpbs" or queue_manager is not defined) # default
 
   - include_role: 
-      name: munge
-      apply: 
-        become: true
-    when: ( queue_manager is defined and queue_manager == "slurm" )
-
-  - include_role: 
-      name: slurmserver
+      name: slurm
       apply: 
         become: true
     vars:
+      slurm_role: 'slurmserver'
       cc_admin: '{{admin_user}}'
       cc_password: '{{password.stdout}}'
       cc_version: '{{cyclecloud.version | default("8.4.2-3186")}}'

@@ -1,0 +1,103 @@
+---
+- name: check slurm share
+  file:
+    path: '{{homedir_mountpoint}}/slurm/'
+    mode: 0755
+    owner: '{{ slurm_uid }}'
+    group: '{{ slurm_gid }}'
+    state: directory
+
+- name: check slurm config dir
+  file:
+    path: '{{homedir_mountpoint}}/slurm/config/'
+    mode: 0755
+    owner: '{{ slurm_uid }}'
+    group: '{{ slurm_gid }}'
+    state: directory
+
+- name: check slurm rpm dir
+  file:
+    path: '{{homedir_mountpoint}}/slurm/rpms/'
+    mode: 0755
+    state: directory
+
+- name: check local slurm config dir
+  file:
+    path: /etc/slurm/
+    mode: 0755
+    owner: '{{ slurm_uid }}'
+    group: '{{ slurm_gid }}'
+    state: directory
+
+- name: create a symbolic link for slurm config dir
+  file:
+    src: '{{homedir_mountpoint}}/slurm/config'
+    dest: /sched
+    owner: '{{ slurm_uid }}'
+    group: '{{ slurm_gid }}'
+    state: link
+    force: true
+
+- name: check slurmctld log dir
+  file:
+    path: /var/log/slurmctld/
+    mode: 0755
+    owner: '{{ slurm_uid }}'
+    group: '{{ slurm_gid }}'
+    state: directory
+
+- name: check slurmctld log dir
+  file:
+    path: /var/spool/slurmd/
+    mode: 0755
+    owner: '{{ slurm_uid }}'
+    group: '{{ slurm_gid }}'
+    state: directory
+
+- import_tasks: cyclecloud-server_2.7.x.yml
+  become: true
+  when: ('2.7.' in cyclecloud_slurm_release)
+
+- import_tasks: cyclecloud-server_3.0.x.yml
+  become: true
+  when: ('3.0.' in cyclecloud_slurm_release)
+
+- name: Update slurm service to start after the home directory is mounted
+  lineinfile:
+    path: /usr/lib/systemd/system/slurmctld.service
+    insertafter: 'ConditionPathExists='
+    line: 'RequiresMountsFor={{homedir_mountpoint}}'
+    state: present
+    firstmatch: yes
+
+- name: ensure slurmctld is running.
+  service:
+    name: slurmctld
+    state: restarted
+    enabled: yes
+
+- name: Wait a maximum of 120 seconds until slurctld is running
+  wait_for:
+    path: /var/log/slurmctld/slurmctld.log
+    # slurmctld version \d+.\d+.\d+ started
+    search_regex: Running as primary controller
+    timeout: 120
+
+# Will fail with database error if slurm is downgraded from 22.05 to 20.11.
+# Run "slurmctld -i" to fix. 
+# WARNING: using -i will lose the state data that can't be recovered.
+- name: check slurm connection
+  command: "sinfo -l"
+  retries: 5
+  delay: 3
+  register: result
+  until: result.rc == 0
+
+- name: create slurm logrotate config
+  copy:
+    src: files/slurm.logrotate
+    dest: /etc/logrotate.d/slurm
+
+- import_tasks: pyxis.yml
+  become: true
+  tags: [ 'pyxis' ]

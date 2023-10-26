@@ -1,1 +1,0 @@
-slurmd_package: 'slurm-{{slurm_version}}.el7.x86_64.rpm'

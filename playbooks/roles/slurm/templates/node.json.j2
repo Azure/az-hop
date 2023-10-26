@@ -1,0 +1,58 @@
+{
+    "hostname": "{{ ansible_hostname }}",
+    "cyclecloud": 
+    {
+        "config": 
+        {
+            "web_server": "https://{{ cyclecloud.name | default('ccportal') }}:9443/cyclecloud",
+            "username": "{{admin_user}}",
+            "password": "{{cc_password}}"
+        },
+        "cluster": 
+        {
+            "name": "{{ slurm_cluster_name }}"
+        },
+        "node":
+        {
+            "name": "{{ ansible_hostname }}"
+        }
+    },
+    "slurm":
+    {
+        "version": "{{slurm_version}}",
+        "autoscale_version": "{{cyclecloud_slurm_release}}",
+        "user": {
+            "name": "slurm",
+            "uid": 11100,
+            "gid": 11100
+          },
+        "install": true,
+        "use_nodename_as_hostname": false,
+        "role": "{{cc_role}}",
+        "node_prefix": "{{ ansible_hostname }}",
+        "ensure_waagent_monitor_hostname": true,
+        "accounting": {
+            "enabled": {{ (slurm.accounting_enabled | lower) | default(false)}},
+            "user": "{{ database_user }}@{{ database_fqdn }}",
+            "password": "{{ database_password | default('') }}",
+            "url": "{{ database_fqdn }}"
+        }
+    },
+    "munge":
+    {
+        "user": {
+          "name": "munge",
+          "uid": 11101,
+          "gid": 11101
+        }
+    },
+    "azure": {
+        "metadata": {
+            "compute": {
+                "subscriptionId": "{{subscription_id}}",
+                "vmSize": "{{scheduler.vm_size}}",
+                "tags": "ClusterId:{{ slurm_cluster_name }}(user@foo:unique);ClusterName:{{ slurm_cluster_name }}"
+            }
+        }
+    }
+}

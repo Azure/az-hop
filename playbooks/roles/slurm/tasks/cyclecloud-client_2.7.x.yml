@@ -1,16 +1,8 @@
----
-- name: Include distribution variables
-  block:
-    - name: Include distribution variables
-      ansible.builtin.include_vars: "{{ item }}"
-      with_first_found:
-        - "{{ ansible_distribution }}/{{ ansible_distribution_major_version }}.yml"
-        - "{{ ansible_distribution }}.yml"
-      tags: [ 'always' ]
-  rescue:
-    - name: Change error message
-      ansible.builtin.fail:
-        msg: "unable to find anything in vars/ for this operating system! {{ ansible_distribution }}"
+# Setup slurm when using cyclecloud-slurm version 2.7.x only
+- include_role: 
+    name: munge
+    apply: 
+      become: true
 
 - name: install epel
   yum: 
@@ -82,21 +74,3 @@
     - cgroup.conf
     - cyclecloud.conf
     - topology.conf
-
-- name: Configure Pyxis plugin
-  block:
-    - name: Install pyxis plugin
-      copy:
-        src: '{{homedir_mountpoint}}/slurm/spank_pyxis.so'
-        remote_src: yes
-        dest: /usr/lib64/slurm/spank_pyxis.so
-        mode: 0755
-    - name: Create symlinks
-      file:
-        src: /sched/{{item}}
-        dest: /etc/slurm/{{item}}
-        state: link
-        force: yes
-      with_items:
-        - plugstack.conf
-        - plugstack.conf.d
