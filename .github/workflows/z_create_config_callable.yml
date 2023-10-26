@@ -48,6 +48,12 @@ on:
         required: false
         default: 'centos' # use it with ${{ inputs.infra_os }}
         type: string
+      cycle_slurm_version:
+        description: 'Version of the cyclecloud slurm project 2.7 or 3.0 - default to 2.7'
+        required: false
+        default: '2.7' # use it with ${{ inputs.cycle_slurm_version }}
+        type: string
+
     outputs:
       resource_group:
         description: 'Resource group name'
@@ -135,7 +141,14 @@ jobs:
 
             # Add scheduler configuration
             SCHEDULER=${{ inputs.scheduler }}
-            cat $AZHOP_CONFIGURATION_DIR/$SCHEDULER.yml >> config.yml
+            case $SCHEDULER in
+              slurm)
+                cat $AZHOP_CONFIGURATION_DIR/$SCHEDULER_${{ inputs.cycle_slurm_version }}.yml >> config.yml
+              ;;
+              openpbs)
+                cat $AZHOP_CONFIGURATION_DIR/$SCHEDULER.yml >> config.yml
+              ;;
+            esac
             sed -i "s/__SCHEDULER__/$SCHEDULER/g" config.yml
 
             # Add local configuration

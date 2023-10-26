@@ -1,0 +1,10 @@
+# scheduler to be installed and configured
+queue_manager: slurm
+
+# Specific SLURM configuration
+slurm:
+  # Enable SLURM accounting, this will create a SLURM accounting database in a managed MySQL server instance
+  accounting_enabled: true
+  # SLURM version to install. Currently supported: only 20.11.9 and 22.05.3.
+  slurm_version: 20.11.9
+  cyclecloud_slurm_version: 2.7.2

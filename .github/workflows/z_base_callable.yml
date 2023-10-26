@@ -63,6 +63,12 @@ on:
         required: false
         default: 'centos' # use it with ${{ inputs.infra_os }}
         type: string
+      cycle_slurm_version:
+        description: 'Version of the cyclecloud slurm project 2.7 or 3.0 - default to 2.7'
+        required: false
+        default: '2.7' # use it with ${{ inputs.cycle_slurm_version }}
+        type: string
+
     secrets:
       ARM_SUBSCRIPTION_ID:
         required: true
@@ -85,6 +91,7 @@ jobs:
       user_auth: ${{ inputs.user_auth }}
       monitoring: ${{ inputs.monitoring }}
       infra_os: ${{ inputs.infra_os }}
+      cycle_slurm_version: ${{ inputs.cycle_slurm_version }}
     secrets:
       ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
       ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
