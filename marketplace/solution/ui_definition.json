@@ -7,8 +7,8 @@
       {
         "name": "azhopResourceGroup",
         "type": "Microsoft.Common.TextBox",
-        "label": "Azhop Resource Group",
-        "toolTip": "Resource group name to use for the azhop deployment.",
+        "label": "Resource Group",
+        "toolTip": "Resource group name to use for the deployment.",
         "constraints": {
           "required": true,
           "regex": "^[a-zA-Z0-9](?:[a-zA-Z0-9._-]*[a-zA-Z0-9])?$",
@@ -286,7 +286,7 @@
             "name": "publicIp",
             "type": "Microsoft.Common.CheckBox",
             "label": "Enable public IP address for the ondemand VM.",
-            "toolTip": "This is required for public access to the AZHOP.",
+            "toolTip": "This is required for public access.",
             "defaultValue": true
           },
           {
@@ -294,7 +294,7 @@
             "type": "Microsoft.Common.CheckBox",
             "label": "Peer to an existing VNET.",
             "defaultValue": false,
-            "toolTip": "Enable peering azhop to your existing VNET.",
+            "toolTip": "Enable peering this vnet to your existing VNET.",
             "visible": "[not(steps('network').publicIp)]"
           },
           {
@@ -533,7 +533,7 @@
               "type": "Microsoft.Common.TextBox",
               "label": "Branch Name",
               "defaultValue": "__BRANCH_NAME__",
-              "toolTip": "Branch of the azhop repo to pull - Default to main",
+              "toolTip": "Branch of the repo to pull - Default to main",
               "constraints": {
                 "required": false,
                 "regex": "^[A-Za-z0-9_.\\-/]+$",
