@@ -43,20 +43,25 @@ echo "cloud-init done" >> /tmp/cloud-init.txt
 '''
 
         [[[configuration]]]
+        slurm.install_pkg = azure-slurm-install-pkg-{{cyclecloud_slurm_release}}.tar.gz
+        slurm.autoscale_pkg = azure-slurm-pkg-{{cyclecloud_slurm_release}}.tar.gz
         slurm.install = true
         slurm.version = {{ slurm_version }}
         slurm.user.uid = {{ slurm_uid }}
         slurm.user.gid = {{ slurm_gid }}
         munge.user.uid = {{ munge_uid }}
         munge.user.gid = {{ munge_gid }}
-        slurm.accounting.enabled = false
+        slurm.accounting.enabled = false # because we deploy our scheduler
         #slurm.accounting.url = $configuration_slurm_accounting_url
         #slurm.accounting.user = $configuration_slurm_accounting_user
         #slurm.accounting.password = $configuration_slurm_accounting_password
         #slurm.additional.config = $additional_slurm_config
+        #slurm.ha_enabled = $configuration_slurm_ha_enabled
+        #slurm.launch_parameters = $configuration_slurm_launch_parameters
 
         keepalive.timeout = 3600 # The amount of time in seconds to keep a node "alive" if it has not finished installing/configuring software.
         cyclecloud.converge_on_boot = true
+        
         # Disable ip-XXXXXXXX hostname generation
         cyclecloud.hosts.standalone_dns.enabled = false
         cyclecloud.hosts.simple_vpc_dns.enabled = false
@@ -97,6 +102,7 @@ echo "cloud-init done" >> /tmp/cloud-init.txt
         #slurm.node_prefix = ${ifThenElse(NodeNamePrefix=="Cluster Prefix", StrJoin("-", ClusterName, ""), NodeNamePrefix)}
         slurm.use_nodename_as_hostname = true
         slurm.dampen_memory = 8 # Reservation of 8% of the node's memory
+        slurm.use_pcpu = false # set pcpu = false for all hyperthreaded VMs - doesn't seems to impact non hyperthreaded VMs
         [[[cluster-init cyclecloud/slurm:execute:{{cyclecloud_slurm_release}}]]]
 
 {% for queue in cc_queues %}
@@ -131,7 +137,7 @@ echo "cloud-init done" >> /tmp/cloud-init.txt
       {% if queue.ColocateNodes is defined %}
         slurm.hpc = {{ queue.ColocateNodes }}
       {% else %}
-        slurm.hpc = true
+        slurm.hpc = false
       {% endif %}
       {% if queue.idle_timeout is defined %}
         cyclecloud.cluster.autoscale.idle_time_after_jobs = {{queue.idle_timeout}}

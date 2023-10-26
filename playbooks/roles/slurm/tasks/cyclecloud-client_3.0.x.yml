@@ -1,0 +1,72 @@
+# Setup slurm when using cyclecloud-slurm version 3.0.x only
+- name: create a symbolic link for slurm config dir
+  file:
+    src: '{{homedir_mountpoint}}/slurm/config'
+    dest: /sched
+    owner: '{{ slurm_uid }}'
+    group: '{{ slurm_gid }}'
+    state: link
+    force: true
+
+- name: install CycleCloud repo
+  shell: |
+    cat > /etc/yum.repos.d/cyclecloud.repo <<EOF
+    [cyclecloud]
+    name=cyclecloud
+    baseurl=https://packages.microsoft.com/yumrepos/cyclecloud
+    gpgcheck=1
+    gpgkey=https://packages.microsoft.com/keys/microsoft.asc
+    EOF
+  args:
+    creates: /etc/yum.repos.d/cyclecloud.repo
+
+- name: Install Jetpack
+  yum:
+    name: "jetpack8-{{cc_version}}"
+    state: present
+    lock_timeout : 180
+
+- name: fix jetpack permissions
+  file:
+    path: /opt/cycle/jetpack
+    mode: u=rwX,g=rX,o=rX
+    recurse: yes
+
+- name: create jetpack.ini file
+  template:
+    src: templates/jetpack.ini.j2
+    dest: /opt/cycle/jetpack/config/jetpack.ini
+    mode: 0700
+
+- name: create login node info
+  template:
+    src: templates/node.json.j2
+    dest: /opt/cycle/jetpack/config/node.json
+    mode: 0700
+
+# Install slurm. 
+# For reference see https://github.com/Azure/cyclecloud-slurm/blob/master/specs/login/cluster-init/scripts/00-install-login.sh
+- name: Download and extract {{install_pkg}}
+  unarchive:
+    src: https://github.com/Azure/cyclecloud-slurm/releases/download/{{cyclecloud_slurm_release}}/{{install_pkg}}
+    dest: '{{jetpack_home}}/system/bootstrap'
+    remote_src: yes
+  args: 
+    creates: '{{jetpack_home}}/system/bootstrap/{{install_pkg}}'
+
+- name: install azure-slurm-install
+  shell: |
+    set -e
+    cd {{jetpack_home}}/system/bootstrap/azure-slurm-install
+    ./install.sh --mode login --bootstrap-config {{jetpack_home}}/config/node.json
+
+# Start service. 
+# For reference see https://github.com/Azure/cyclecloud-slurm/blob/master/specs/login/cluster-init/scripts/00-install-login.sh
+- name: start service
+  shell: |
+    set -e
+    {{jetpack_home}}/system/bootstrap/azure-slurm-install/start-services.sh login
+  retries: 5
+  delay: 10
+  register: result
+  until: result.rc == 0

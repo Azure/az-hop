@@ -1,0 +1,25 @@
+- include: cyclecloud-client_2.7.x.yml
+  become: true
+  when: ('2.7.' in cyclecloud_slurm_release)
+
+- include: cyclecloud-client_3.0.x.yml
+  become: true
+  when: ('3.0.' in cyclecloud_slurm_release)
+
+- name: Configure Pyxis plugin
+  block:
+    - name: Install pyxis plugin
+      copy:
+        src: '{{homedir_mountpoint}}/slurm/spank_pyxis.so'
+        remote_src: yes
+        dest: /usr/lib64/slurm/spank_pyxis.so
+        mode: 0755
+    - name: Create symlinks
+      file:
+        src: /sched/{{item}}
+        dest: /etc/slurm/{{item}}
+        state: link
+        force: yes
+      with_items:
+        - plugstack.conf
+        - plugstack.conf.d

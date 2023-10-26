@@ -1,0 +1,241 @@
+# Setup slurm when using cyclecloud-slurm version 2.7.x only
+- include_role: 
+    name: munge
+    apply: 
+      become: true
+
+- name: add slurm group
+  group:
+    name: slurm
+    gid: '{{ slurm_gid }}'
+    state: present
+
+- name: add slurm user
+  user:
+    comment: 'User to run slurmd'
+    name: slurm
+    group: slurm
+    shell: /bin/false
+    uid: '{{ slurm_uid }}'
+    state: present
+
+- name: download cc slurm RPMs
+  get_url:
+    url: https://github.com/Azure/cyclecloud-slurm/releases/download/{{cyclecloud_slurm_release}}/{{ item }}
+    dest: '{{homedir_mountpoint}}/slurm/rpms'
+    timeout: 180
+  loop: '{{slurm_server_packages}}'
+
+- name: query the size of the installed slurm RPM
+  shell: rpm -qi slurm | grep Size | awk '{print $3}'
+  register: installed_slurm_size
+  ignore_errors: yes
+
+- name: get the size of the slurm RPM package file
+  shell: rpm -qip {{homedir_mountpoint}}/slurm/rpms/{{slurm_server_packages[0]}} | grep Size | awk '{print $3}'
+  register: downloaded_slurm_size
+  ignore_errors: yes
+
+- name: uninstall slurm if the installed RPM size is different than the downloaded version
+  shell: yum remove -y slurm*
+  when: installed_slurm_size.stdout|int != downloaded_slurm_size.stdout|int
+
+- name: install slurm
+  yum:
+    name: '{{homedir_mountpoint}}/slurm/rpms/{{item}}'
+    state: present
+    disable_gpg_check: true
+    # allow_downgrade: true
+    lock_timeout : 180
+  loop: '{{slurm_server_packages}}'
+
+- name: create slurm config
+  template:
+    src: slurm.conf.j2
+    dest: /sched/slurm.conf
+    owner: slurm
+    group: slurm
+
+- name: create slurm cgroup config
+  copy:
+    src: files/cgroup.conf
+    dest: /sched/cgroup.conf
+    owner: slurm
+    group: slurm
+
+- name: symbolic link for slurm.conf
+  file:
+    src: /sched/slurm.conf
+    dest: /etc/slurm/slurm.conf
+    state: link
+    force: true
+
+- name: symbolic link for cgroup.conf
+  file:
+    src: /sched/cgroup.conf
+    dest: /etc/slurm/cgroup.conf
+    state: link
+    force: true
+
+- name: check slurm autoscale dir
+  file:
+    path: /opt/cycle/slurm/
+    mode: 0755
+    state: directory
+
+- name: download cc autoscale scripts
+  get_url:
+    url: https://raw.githubusercontent.com/Azure/cyclecloud-slurm/{{cyclecloud_slurm_release}}/specs/default/chef/site-cookbooks/slurm/files/default/{{ item }}
+    dest: /opt/cycle/slurm
+    timeout: 180
+  with_items:
+    - clusterwrapper.py
+    - cyclecloud_nodeinfo.sh
+    - cyclecloud_slurm.py
+    - cyclecloud_slurm.sh
+    - cyclecloud_slurm_test.py
+    - get_acct_info.sh
+    - job_submit.lua
+    - resume_fail_program.sh
+    - resume_program.sh
+    - return_to_idle.sh
+    - slurm-limits.conf
+    - slurmcc.py
+    - slurmcc_test.py
+    - slurmctld.override
+    - start_nodes.sh
+    - suspend_program.sh
+    - terminate_nodes.sh
+
+- name: check execute bit for /opt/cycle/slurm/*.sh
+  shell: |
+    chmod 755 /opt/cycle/slurm/*.sh
+    chown slurm:slurm /opt/cycle/slurm/*.sh
+
+- name: install CycleCloud repo
+  shell: |
+    cat > /etc/yum.repos.d/cyclecloud.repo <<EOF
+    [cyclecloud]
+    name=cyclecloud
+    baseurl=https://packages.microsoft.com/yumrepos/cyclecloud
+    gpgcheck=1
+    gpgkey=https://packages.microsoft.com/keys/microsoft.asc
+    EOF
+  args:
+    creates: /etc/yum.repos.d/cyclecloud.repo
+
+- name: Install Jetpack
+  yum:
+    name: "jetpack8-{{cc_version}}"
+    state: present
+    lock_timeout : 180
+
+- name: fix jetpack permissions
+  file:
+    path: /opt/cycle/jetpack
+    mode: u=rwX,g=rX,o=rX
+    recurse: yes
+
+- name: download cc autoscale api
+  get_url:
+    url: https://github.com/Azure/cyclecloud-slurm/releases/download/{{cyclecloud_slurm_release}}/cyclecloud_api-8.1.0-py2.py3-none-any.whl
+    dest: /opt/cycle/slurm
+    timeout: 180
+
+- name: install cc job_submit.lua plugin
+  copy:
+    src: /opt/cycle/slurm/job_submit.lua
+    dest: /etc/slurm/job_submit.lua
+    mode: 0755
+    remote_src: yes
+
+- name: install cc autoscale api
+  shell: |
+      /opt/cycle/jetpack/system/embedded/bin/pip install /opt/cycle/slurm/cyclecloud_api-8.1.0-py2.py3-none-any.whl  2>&1
+      /opt/cycle/slurm/cyclecloud_slurm.sh initialize --cluster-name slurm1 --username "{{ cc_admin }}" --password "{{ cc_password }}" --url https://{{cyclecloud.name | default("ccportal")}}:9443/cyclecloud
+  args:
+    creates: /opt/cycle/jetpack/config/autoscale.json
+
+- name: create emtpy cyclecloud.conf
+  copy:
+    content: ""
+    dest: /sched/cyclecloud.conf
+    owner: slurm
+    group: slurm
+    force: no
+
+- name: symbolic link for cyclecloud.conf
+  file:
+    src: /sched/cyclecloud.conf
+    dest: /etc/slurm/cyclecloud.conf
+    state: link
+    force: true
+
+- name: cyclecloud_slurm.sh upgrade_conf
+  shell: |
+    /opt/cycle/slurm/cyclecloud_slurm.sh upgrade_conf
+
+- name: cyclecloud_slurm.sh create_nodes
+  shell: |
+    /opt/cycle/slurm/cyclecloud_slurm.sh create_nodes --policy AllowExisting
+
+- name: cyclecloud_slurm.sh slurm_conf
+  shell: |
+    /opt/cycle/slurm/cyclecloud_slurm.sh slurm_conf > /sched/cyclecloud.conf
+
+- name: cyclecloud_slurm.sh gres_conf
+  shell: |
+    /opt/cycle/slurm/cyclecloud_slurm.sh gres_conf > /sched/gres.conf
+
+- name: cyclecloud_slurm.sh topology
+  shell: |
+    /opt/cycle/slurm/cyclecloud_slurm.sh topology > /sched/topology.conf
+
+- name: create cron entry to update idle nodes
+  cron:
+    name: "return_to_idle"
+    minute: "*/5"
+    job: "/opt/cycle/slurm/return_to_idle.sh 1>&2 >> /opt/cycle/jetpack/logs/return_to_idle.log"
+
+- name: symbolic link for gres.conf
+  file:
+    src: /sched/gres.conf
+    dest: /etc/slurm/gres.conf
+    state: link
+    force: true
+
+- name: symbolic link for topology.conf
+  file:
+    src: /sched/topology.conf
+    dest: /etc/slurm/topology.conf
+    state: link
+    force: true
+
+- name: check slurm scripts dir
+  file:
+    path: /sched/scripts
+    mode: 0755
+    state: directory
+
+- name: create slurm prolog
+  template:
+    src: templates/prolog.sh.j2
+    dest: /sched/scripts/prolog.sh
+    owner: slurm
+    group: slurm
+    mode: 0755
+
+- name: create slurm epilog
+  template:
+    src: templates/epilog.sh.j2
+    dest: /sched/scripts/epilog.sh
+    owner: slurm
+    group: slurm
+    mode: 0755
+
+- include: accounting.yml
+  become: true
+  tags: [ 'accounting' ]
+  vars:
+    - cluster_name: "{{ slurm_cluster_name }}"
+  when: accounting_enabled
