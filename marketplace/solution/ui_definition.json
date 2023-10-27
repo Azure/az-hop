@@ -388,12 +388,12 @@
             "name": "scheduler",
             "type": "Microsoft.Common.DropDown",
             "label": "Scheduler",
-            "defaultValue": "SLURM",
+            "defaultValue": "Slurm",
             "toolTip": "Select the scheduler to use",
             "constraints": {
               "allowedValues": [
                 {
-                  "label": "SLURM",
+                  "label": "Slurm",
                   "description": "Simple Linux Utility for Resource Management scheduler",
                   "value": "slurm"
                 },
@@ -410,9 +410,9 @@
           {
             "name": "slurmVersion",
             "type": "Microsoft.Common.DropDown",
-            "label": "SLURM Version",
+            "label": "Slurm Version",
             "defaultValue": "22.05.9",
-            "toolTip": "Select the version of SLURM to use",
+            "toolTip": "Select the version of Slurm to use",
             "constraints": {
               "allowedValues": [
                 {
@@ -433,8 +433,8 @@
           {
             "name": "slurmAccounting",
             "type": "Microsoft.Common.CheckBox",
-            "label": "SLURM accounting",
-            "toolTip": "Select to enable SLURM accounting in a managed MariaDB instance",
+            "label": "Slurm job accounting",
+            "toolTip": "Select to enable Slurm job accounting in a managed MariaDB instance",
             "defaultValue": false,
             "visible": "[equals(steps('scheduler').scheduler, 'slurm')]"
           }
@@ -526,6 +526,14 @@
                 "regex": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$",
                 "validationMessage": "Enter a valid ObjectId"
               },
+              "visible": false
+            },
+            {
+              "name": "enableGrafana",
+              "type": "Microsoft.Common.CheckBox",
+              "label": "Enable Grafana Dashboards",
+              "toolTip": "Select to enable configure a Grafana VM with monitoring dashboards",
+              "defaultValue": false,
               "visible": true
             },
             {

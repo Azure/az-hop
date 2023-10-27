@@ -15,6 +15,9 @@ log_analytics:
 
 monitoring: 
   azure_monitor_agent: false
+  # Optional settings to deploy Grafana and install Telegraf
+  telegraf: "[steps('otherSettings').enableGrafana]" # Install telegraf on static infra VMs and dynamic compute nodes. Default: true
+  grafana: "[steps('otherSettings').enableGrafana]" # Deploy a Grafana instance with pre-defined dashboards. Default: true
 
 alerting:
   enabled: false
