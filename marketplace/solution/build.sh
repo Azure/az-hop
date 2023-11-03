@@ -2,6 +2,8 @@
 set -e
 # This script builds the ARM template and UI definition for the azhop marketplace solution
 BUILD_NAME=${1:-main}
+CONFIG_FILE=${2:-marketplace_config.yml}
+UI_DEFINITION=${3:-ui_definition.json}
 
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 AZHOP_ROOT=${THIS_DIR}/../..
@@ -20,12 +22,12 @@ build_dir="${THIS_DIR}/build_${BUILD_NAME//\//_}"
 rm -rf $build_dir
 mkdir -p $build_dir
 echo "Converting YAML config to JSON"
-yq -o=json <${THIS_DIR}/marketplace_config.yml >$build_dir/config.json
+yq -o=json <${THIS_DIR}/${CONFIG_FILE} >$build_dir/config.json
 echo "Embedding config into createUiDefinition.json"
 # substitutions for the logic in the createUiDefinition
 # * _Xn_ is the nth octet of the baseIpAddress (string)
 # * _Xni_ is the nth octet of the baseIpAddress (int)
-jq --argfile azhopConfig $build_dir/config.json '.parameters.outputs.azhopConfig += $azhopConfig' ${THIS_DIR}/ui_definition.json \
+jq --argfile azhopConfig $build_dir/config.json '.parameters.outputs.azhopConfig += $azhopConfig' ${THIS_DIR}/${UI_DEFINITION} \
     | sed "s/_X1_/first(split(steps('network').baseIpAddress,'.'))/g" \
     | sed "s/_X2_/first(skip(split(steps('network').baseIpAddress,'.'),1))/g" \
     | sed "s/_X3_/first(skip(split(steps('network').baseIpAddress,'.'),2))/g" \

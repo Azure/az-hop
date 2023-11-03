@@ -1,0 +1,185 @@
+---
+project_name: az-hop
+
+location: "[location()]"
+resource_group: "[basics('azhopResourceGroup')]"
+use_existing_rg: false
+
+tags:
+  env: dev
+  project: azhop
+  scheduler: slurm
+
+log_analytics:
+  create: false
+
+monitoring: 
+  azure_monitor_agent: false
+  # Optional settings to deploy Grafana and install Telegraf
+  telegraf: false # Install telegraf on static infra VMs and dynamic compute nodes. Default: true
+  grafana: false # Deploy a Grafana instance with pre-defined dashboards. Default: true
+
+alerting:
+  enabled: false
+  admin_email: admin.mail@contoso.com
+  local_volume_threshold: 80
+
+lustre:
+  create: "[steps('lustre').deployLustre]"
+  sku: "[steps('lustre').lustreSku]"
+  capacity: "[steps('lustre').lustreCapacity]"
+
+anf:
+  create: "[equals(steps('homedir').type, 'anf')]"
+  homefs_size_tb: "[if(equals(steps('homedir').type, 'anf'), steps('homedir').anfcapacity, 4)]"
+  homefs_service_level: "[if(equals(steps('homedir').type, 'anf'), steps('homedir').anftier, 'Premium')]"
+  dual_protocol: false # true to enable SMB support. false by default
+  alert_threshold: 80 # alert when ANF volume reaches this threshold
+
+azurefiles:
+  create: "[equals(steps('homedir').type, 'azurefiles')]"
+  size_gb: "[if(equals(steps('homedir').type, 'azurefiles'), steps('homedir').azurefilescapacity, 1024)]"
+
+mounts:
+  home:
+    type: "[steps('homedir').type]" # anf or azurefiles, default to anf. One of the two should be defined in order to mount the home directory
+    mountpoint: "[steps('homedir').mountpoint]" # /sharedhome for example
+    server: '{{anf_home_ip}}' # Specify an existing NFS server name or IP, when using the ANF built in use '{{anf_home_ip}}'
+    export: '{{anf_home_path}}' # Specify an existing NFS export directory, when using the ANF built in use '{{anf_home_path}}'
+    options: "[if(equals(steps('homedir').type, 'azurefiles'), 'vers=4,minorversion=1,sec=sys', '{{anf_home_opts}}')]"
+
+admin_user: "[basics('adminUser')]"
+
+network:
+  create_nsg: true
+  vnet:
+    name: hpcvnet # Optional - default to hpcvnet
+    address_space: "[concat(steps('network').baseIpAddress, steps('network').cidrPrefix)]" # Optional - default to "10.0.0.0/16"
+    subnets: # all subnets are optionals
+      frontend: 
+        name: frontend
+        address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.0/29')]"
+        create: true # create the subnet if true. default to true when not specified, default to false if using an existing VNET when not specified
+      ad:
+        name: ad
+        address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.8/29')]"
+        create: true
+      admin:
+        name: admin
+        address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.16/28')]"
+        create: true
+      netapp:
+        name: netapp
+        address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.32/28')]"
+        create: true
+      gateway:
+        address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.48/28')]"
+        create: true
+      lustre:
+        address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.64/26')]"
+        create: true
+      compute:
+        name: compute
+        address_prefixes: "[concat(_X1_, '.', _X2_, '.', if(equals(steps('network').cidrPrefix, '/24'), concat(_X3_, '.128/25'), if(equals(steps('network').cidrPrefix, '/23'), concat(string(add(_X3i_,1)), '.0/24'), if(equals(steps('network').cidrPrefix, '/22'), concat(string(add(_X3i_,2)), '.0/23'), if(equals(steps('network').cidrPrefix, '/21'), concat(string(add(_X3i_,4)), '.0/22'), concat(string(add(_X3i_,8)), '.0/21'))))))]"
+        create: true
+  peering: "[if(steps('network').peering, parse(concat('[{\"vnet_name\":\"', steps('network').vnetPeeredVnetSelector.name, '\", \"vnet_resource_group\": \"', take(skip(split(steps('network').vnetPeeredVnetSelector.id,'/'),4),1), '\"}]')), parse('[]'))]"
+  # This list is optional, and can be used to create VNet Peerings in the same subscription.
+  #  - vnet_name: "azhop_hub" #"VNET Name to Peer to"
+  #    vnet_resource_group: "azhop_control_plane_westeurope" #"Resource Group of the VNET to peer to"
+
+locked_down_network:
+  enforce: false
+  public_ip: "[steps('network').publicIp]" # Enable public IP creation for Jumpbox, OnDemand and create images. Default to true
+
+linux_base_image: almalinux:almalinux-x86_64:8_7-gen2:latest # publisher:offer:sku:version or image_id
+windows_base_image: "MicrosoftWindowsServer:WindowsServer:2019-Datacenter-smalldisk:latest" # publisher:offer:sku:version or image_id
+
+deployer:
+  vm_size: Standard_B2ms
+  ssh_port: 8822
+ad:
+  vm_size: Standard_B2ms
+ondemand:
+  vm_size: Standard_D8s_v5
+  generate_certificate: true
+scheduler:
+  vm_size: Standard_B2ms
+cyclecloud:
+  vm_size: Standard_B2ms
+
+users:
+  - { name: hpcuser, uid: 10001 }
+  - { name: clusteradmin, uid: 10002, groups: [5001, 5002] }
+
+usergroups:
+  - name: azhop-users # All users will be added to this one by default
+    gid: 5000
+  - name: azhop-admins # For users with azhop admin privilege
+    gid: 5001
+    description: "For users with azhop admin privileges"
+  - name: azhop-localadmins # For users with sudo right on nodes
+    gid: 5002
+    description: "For users with sudo right or local admin right on nodes"
+
+cvmfs_eessi:
+  enabled: true
+
+queue_manager: "slurm"
+
+slurm:
+  accounting_enabled: "[if(equals(steps('scheduler').scheduler, 'slurm'), steps('scheduler').slurmAccounting, false)]"
+  slurm_version: "[steps('scheduler').slurmVersion]"
+  # CycleCloud for SLURM project version as defined in https://github.com/Azure/cyclecloud-slurm/releases
+  cyclecloud_slurm_version: 3.0.4
+
+enroot:
+  enroot_version: 3.4.1
+
+database:
+  user: sqladmin
+
+authentication:
+  user_auth: local #"[steps('authentication').userAuthentication]"
+  httpd_auth: basic # oidc or basic
+
+autoscale:
+  idle_timeout: 180 # Idle time in seconds before shutting down VMs - default to 1800 like in CycleCloud
+
+queues:
+  - name: htc
+    vm_size: Standard_F2s_v2
+    max_core_count: 128
+    image: azhpc:azhop-compute:almalinux-8_7:latest
+    ColocateNodes: false
+  - name: hpc
+    vm_size: Standard_HB120rs_v3
+    max_core_count: 1200
+    image: azhpc:azhop-compute:almalinux-8_7:latest
+    EnableAcceleratedNetworking: true
+  - name: gpu
+    vm_size: Standard_NC24ads_A100_v4
+    max_core_count: 0
+    image: azhpc:azhop-compute:almalinux-8_7:latest
+    EnableAcceleratedNetworking: true
+    # Queue dedicated to GPU remote viz nodes. This name is fixed and can't be changed
+  - name: viz3d
+    vm_size: Standard_NV12s_v3
+    max_core_count: 48
+    # Use the pre-built azhop image from the marketplace
+    image: azhpc:azhop-desktop:almalinux-8_7:latest
+    ColocateNodes: false
+    EnableAcceleratedNetworking: true
+    # Queue dedicated to share GPU remote viz nodes. This name is fixed and can't be changed
+  - name: largeviz3d
+    vm_size: Standard_NV48s_v3
+    max_core_count: 96
+    image: azhpc:azhop-desktop:almalinux-8_7:latest
+    ColocateNodes: false
+    EnableAcceleratedNetworking: true
+    # Queue dedicated to non GPU remote viz nodes. This name is fixed and can't be changed
+  - name: viz
+    vm_size: Standard_D8s_v5
+    max_core_count: 0
+    image: azhpc:azhop-desktop:almalinux-8_7:latest
+    ColocateNodes: false
+    EnableAcceleratedNetworking: true
