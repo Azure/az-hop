@@ -219,7 +219,6 @@
             },
             "required": [
                 "admin_user",
-                "applications",
                 "cyclecloud",
                 "location",
                 "mounts",

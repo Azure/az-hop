@@ -97,15 +97,13 @@ windows_base_image: "MicrosoftWindowsServer:WindowsServer:2019-Datacenter-smalld
 deployer:
   vm_size: Standard_B2ms
   ssh_port: 8822
-ad:
-  vm_size: Standard_B2ms
-ondemand:
-  vm_size: Standard_D8s_v5
-  generate_certificate: true
 scheduler:
   vm_size: Standard_B2ms
 cyclecloud:
   vm_size: Standard_B2ms
+  image: azurecyclecloud:azure-cyclecloud:cyclecloud8-gen2:8.4.220231009
+  # az vm image terms accept --publisher azurecyclecloud --offer azure-cyclecloud --plan cyclecloud8-gen2
+  plan: azurecyclecloud:azure-cyclecloud:cyclecloud8-gen2
 
 users:
   - { name: hpcuser, uid: 10001 }
@@ -127,7 +125,7 @@ cvmfs_eessi:
 queue_manager: "slurm"
 
 slurm:
-  accounting_enabled: "[if(equals(steps('scheduler').scheduler, 'slurm'), steps('scheduler').slurmAccounting, false)]"
+  accounting_enabled: "[steps('scheduler').slurmAccounting]"
   slurm_version: "[steps('scheduler').slurmVersion]"
   # CycleCloud for SLURM project version as defined in https://github.com/Azure/cyclecloud-slurm/releases
   cyclecloud_slurm_version: 3.0.4

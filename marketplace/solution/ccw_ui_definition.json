@@ -405,7 +405,7 @@
               ],
               "required": true
             },
-            "visible": "[equals(steps('scheduler').scheduler, 'slurm')]"
+            "visible": true
           },
           {
             "name": "slurmAccounting",
@@ -413,7 +413,7 @@
             "label": "Slurm job accounting",
             "toolTip": "Select to enable Slurm job accounting in a managed MariaDB instance",
             "defaultValue": false,
-            "visible": "[equals(steps('scheduler').scheduler, 'slurm')]"
+            "visible": true
           }
         ]
       },
