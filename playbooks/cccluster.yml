@@ -105,3 +105,4 @@
   - import_tasks: nodearray_lookup.yml
     vars:
       marker_file: ood.ok
+    when: (ondemand is defined)

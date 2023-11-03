@@ -44,6 +44,7 @@ var deployLustre = contains(azhopConfig, 'lustre') && contains(azhopConfig.lustr
 var deployJumpbox = contains(azhopConfig, 'jumpbox') ? true : false
 var deployDeployer = contains(azhopConfig, 'deployer') ? true : false
 var deployGrafana = contains(azhopConfig, 'monitoring') && contains(azhopConfig.monitoring, 'grafana') ? azhopConfig.monitoring.grafana : true
+var deployOnDemand = contains(azhopConfig, 'ondemand') ? true : false
 
 var useExistingAD = contains(azhopConfig, 'domain') ? azhopConfig.domain.use_existing_dc : false
 var userAuth = contains(azhopConfig, 'authentication') && contains(azhopConfig.authentication, 'user_auth') ? azhopConfig.authentication.user_auth : 'ad'
@@ -123,7 +124,7 @@ var config = {
   mariadb_name: contains(azhopConfig, 'database') && contains(azhopConfig.database, 'name') ? azhopConfig.database.name : 'azhop-${resourcePostfix}'
 
   deploy_grafana: deployGrafana
-
+  deploy_ondemand: deployOnDemand
   deploy_sig: contains(azhopConfig, 'image_gallery') && contains(azhopConfig.image_gallery, 'create') ? azhopConfig.image_gallery.create : false
 
   // Default home directory is ANF
@@ -268,7 +269,7 @@ var config = {
 
 
   vms: union(
-    {
+    deployOnDemand ? {
       ondemand: {
         subnet: 'frontend'
         name: vmNamesMap.ondemand
@@ -281,8 +282,10 @@ var config = {
           deployLustre ? [ 'asg-lustre-client' ] : []
         )
       }
+    } : {},
+    {
       ccportal: {
-        subnet: 'admin'
+        subnet: deployOnDemand ? 'admin' : 'frontend'
         name: vmNamesMap.ccportal
         sku: azhopConfig.cyclecloud.vm_size
         osdisksku: 'StandardSSD_LRS'
@@ -885,7 +888,7 @@ output azhopGlobalConfig object = union(
     domain_name                   : config.domain.name
     ldap_server                   : '${config.domain.ldap_server}.${config.domain.name}'
     homedir_mountpoint            : config.homedir_mountpoint
-    ondemand_fqdn                 : config.public_ip ? azhopVm[indexOf(map(vmItems, item => item.key), 'ondemand')].outputs.fqdn : azhopVm[indexOf(map(vmItems, item => item.key), 'ondemand')].outputs.privateIp
+    ondemand_fqdn                 : deployOnDemand ? (config.public_ip ? azhopVm[indexOf(map(vmItems, item => item.key), 'ondemand')].outputs.fqdn : azhopVm[indexOf(map(vmItems, item => item.key), 'ondemand')].outputs.privateIp) : ''
     ansible_ssh_private_key_file  : '${config.admin_user}_id_rsa'
     subscription_id               : subscription().subscriptionId
     tenant_id                     : subscription().tenantId
@@ -938,13 +941,15 @@ output azhopInventory object = {
         scheduler: {
           ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'scheduler')].outputs.privateIp
         }
-        ondemand: {
-          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'ondemand')].outputs.privateIp
-        }
         ccportal: {
           ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'ccportal')].outputs.privateIp
         }
       },
+      config.deploy_ondemand ? {
+        ondemand: {
+          ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'ondemand')].outputs.privateIp
+        }
+      } : {},
       indexOf(map(vmItems, item => item.key), 'ad') >= 0 ? {
         ad: {
         ansible_host: adIp
@@ -979,7 +984,8 @@ output azhopInventory object = {
           ansible_ssh_port: config.vms.deployer.sshPort
           ansible_ssh_common_args: ''
         }
-      },config.deploy_grafana ? {
+      },
+      config.deploy_grafana ? {
         grafana: {
           ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'grafana')].outputs.privateIp
         }

@@ -5,7 +5,7 @@
   become: true
 
 - name: Run test suite
-  hosts: ondemand
+  hosts: scheduler
   become: true
   gather_facts: no
   vars_files:
