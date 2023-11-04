@@ -32,9 +32,10 @@
       state: latest
       lock_timeout : 180
 
-  - name: Set up PAM authentication for OOD
-    include_role:
-      name: ood_pam_auth
+  - name: Set up mod_authnz_external modules (for cyclecloud proxy)
+    yum:
+      name: mod_authnz_external
+      lock_timeout: 180  
 
   - name: Retrieve OIDC secret
     block:
@@ -232,12 +233,13 @@
         if ! grep -q {{ccportal_name}} /opt/ood/ood-portal-generator/templates/ood-portal.conf.erb; then
           cd /root
           cat << EOF > cyclecloud_proxy
+          DefineExternalAuth pwauth pipe /usr/bin/pwauth
           SetEnv OOD_CC_URI "/cyclecloud"
           <Location "/cyclecloud">
             AuthType Basic
             AuthName "Open OnDemand"
-            AuthBasicProvider PAM
-            AuthPAMService ood
+            AuthBasicProvider external
+            AuthExternal pwauth
             Require valid-user
 
             ProxyPass http://{{ccportal_name}}:80/cyclecloud
