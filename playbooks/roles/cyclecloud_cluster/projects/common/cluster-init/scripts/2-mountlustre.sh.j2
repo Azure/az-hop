@@ -39,3 +39,10 @@ fi
 
 # TODO : don't chmod 777, but instead reorganize lustre directories structure and permissions
 chmod 777 $lustre_mount
+
+# Fix the read-ahead issue present in some HPC images
+for bdi in /sys/devices/virtual/bdi/lustrefs-* ; do
+  if [ -e $bdi/read_ahead_kb ] ; then
+    echo 0 > $bdi/read_ahead_kb
+  fi
+done
