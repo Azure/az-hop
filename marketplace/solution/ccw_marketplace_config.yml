@@ -63,7 +63,7 @@ network:
       ad:
         name: ad
         address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.8/29')]"
-        create: true
+        create: false
       admin:
         name: admin
         address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.16/28')]"
@@ -71,13 +71,13 @@ network:
       netapp:
         name: netapp
         address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.32/28')]"
-        create: true
+        create: "[equals(steps('homedir').type, 'anf')]"
       gateway:
         address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.48/28')]"
-        create: true
+        create: false
       lustre:
         address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.64/26')]"
-        create: true
+        create: "[steps('lustre').deployLustre]"
       compute:
         name: compute
         address_prefixes: "[concat(_X1_, '.', _X2_, '.', if(equals(steps('network').cidrPrefix, '/24'), concat(_X3_, '.128/25'), if(equals(steps('network').cidrPrefix, '/23'), concat(string(add(_X3i_,1)), '.0/24'), if(equals(steps('network').cidrPrefix, '/22'), concat(string(add(_X3i_,2)), '.0/23'), if(equals(steps('network').cidrPrefix, '/21'), concat(string(add(_X3i_,4)), '.0/22'), concat(string(add(_X3i_,8)), '.0/21'))))))]"

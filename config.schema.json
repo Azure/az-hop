@@ -228,8 +228,7 @@
                 "resource_group",
                 "scheduler",
                 "usergroups",
-                "users",
-                "windows_base_image"
+                "users"
             ],
             "title": "az-hop"
         },
