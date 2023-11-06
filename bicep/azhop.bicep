@@ -560,8 +560,8 @@ var config = {
       AllowInternetHttpIn         : ['210', 'Inbound', 'Allow', 'Tcp', 'Web', 'tag', 'Internet', 'asg', 'asg-ondemand']
     }
     hub: {
-      AllowHubSshIn               : ['200', 'Inbound', 'Allow', 'Tcp', 'HubSsh', 'tag', 'VirtualNetwork', 'asg', 'asg-jumpbox']
-      AllowHubHttpIn              : ['210', 'Inbound', 'Allow', 'Tcp', 'Web', 'tag', 'VirtualNetwork', 'asg', 'asg-ondemand']
+      AllowHubSshIn               : ['200', 'Inbound', 'Allow', 'Tcp', 'HubSsh', 'tag', 'VirtualNetwork', 'tag', 'VirtualNetwork']
+      AllowHubHttpIn              : ['210', 'Inbound', 'Allow', 'Tcp', 'Web', 'tag', 'VirtualNetwork', 'tag', 'VirtualNetwork']
     }
     bastion: {
       AllowBastionIn              : ['530', 'Inbound', 'Allow', 'Tcp', 'Bastion', 'subnet', 'bastion', 'tag', 'VirtualNetwork']
