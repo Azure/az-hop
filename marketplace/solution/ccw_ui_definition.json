@@ -285,7 +285,7 @@
           {
             "name": "publicIp",
             "type": "Microsoft.Common.CheckBox",
-            "label": "Enable public IP address for the ondemand VM.",
+            "label": "Enable public IP address for the frontend access",
             "toolTip": "This is required for public access.",
             "defaultValue": true
           },

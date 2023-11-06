@@ -162,24 +162,24 @@ queues:
     EnableAcceleratedNetworking: true
     ColocateNodes: true
     # Queue dedicated to GPU remote viz nodes. This name is fixed and can't be changed
-  - name: viz3d
-    vm_size: Standard_NV12s_v3
-    max_core_count: 48
-    # Use the pre-built azhop image from the marketplace
-    image: azhpc:azhop-desktop:almalinux-8_7:latest
-    ColocateNodes: false
-    EnableAcceleratedNetworking: true
-    # Queue dedicated to share GPU remote viz nodes. This name is fixed and can't be changed
-  - name: largeviz3d
-    vm_size: Standard_NV48s_v3
-    max_core_count: 96
-    image: azhpc:azhop-desktop:almalinux-8_7:latest
-    ColocateNodes: false
-    EnableAcceleratedNetworking: true
-    # Queue dedicated to non GPU remote viz nodes. This name is fixed and can't be changed
-  - name: viz
-    vm_size: Standard_D8s_v5
-    max_core_count: 0
-    image: azhpc:azhop-desktop:almalinux-8_7:latest
-    ColocateNodes: false
-    EnableAcceleratedNetworking: true
+  # - name: viz3d
+  #   vm_size: Standard_NV12s_v3
+  #   max_core_count: 48
+  #   # Use the pre-built azhop image from the marketplace
+  #   image: azhpc:azhop-desktop:almalinux-8_7:latest
+  #   ColocateNodes: false
+  #   EnableAcceleratedNetworking: true
+  #   # Queue dedicated to share GPU remote viz nodes. This name is fixed and can't be changed
+  # - name: largeviz3d
+  #   vm_size: Standard_NV48s_v3
+  #   max_core_count: 96
+  #   image: azhpc:azhop-desktop:almalinux-8_7:latest
+  #   ColocateNodes: false
+  #   EnableAcceleratedNetworking: true
+  #   # Queue dedicated to non GPU remote viz nodes. This name is fixed and can't be changed
+  # - name: viz
+  #   vm_size: Standard_D8s_v5
+  #   max_core_count: 0
+  #   image: azhpc:azhop-desktop:almalinux-8_7:latest
+  #   ColocateNodes: false
+  #   EnableAcceleratedNetworking: true
