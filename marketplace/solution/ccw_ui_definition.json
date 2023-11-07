@@ -495,11 +495,15 @@
                   "allowedValues": [
                     {
                       "label": "Ubuntu 20.04",
-                      "value": "azhpc:azhop-compute:ubuntu-20_04:latest"
+                      "value": "microsoft-dsvm:ubuntu-hpc:2004:latest"
+                    },
+                    {
+                      "label": "Ubuntu 22.04",
+                      "value": "microsoft-dsvm:ubuntu-hpc:2204:latest"
                     },
                     {
                       "label": "Alma Linux 8.7",
-                      "value": "azhpc:azhop-compute:almalinux-8_7:latest"
+                      "value": "almalinux:almalinux-hpc:8_7-hpc-gen2:latest"
                     }
                   ],
                   "required": true,
@@ -549,11 +553,15 @@
                   "allowedValues": [
                     {
                       "label": "Ubuntu 20.04",
-                      "value": "azhpc:azhop-compute:ubuntu-20_04:latest"
+                      "value": "microsoft-dsvm:ubuntu-hpc:2004:latest"
+                    },
+                    {
+                      "label": "Ubuntu 22.04",
+                      "value": "microsoft-dsvm:ubuntu-hpc:2204:latest"
                     },
                     {
                       "label": "Alma Linux 8.7",
-                      "value": "azhpc:azhop-compute:almalinux-8_7:latest"
+                      "value": "almalinux:almalinux-hpc:8_7-hpc-gen2:latest"
                     }
                   ],
                   "required": true,
@@ -605,11 +613,15 @@
                   "allowedValues": [
                     {
                       "label": "Ubuntu 20.04",
-                      "value": "azhpc:azhop-compute:ubuntu-20_04:latest"
+                      "value": "microsoft-dsvm:ubuntu-hpc:2004:latest"
+                    },
+                    {
+                      "label": "Ubuntu 22.04",
+                      "value": "microsoft-dsvm:ubuntu-hpc:2204:latest"
                     },
                     {
                       "label": "Alma Linux 8.7",
-                      "value": "azhpc:azhop-compute:almalinux-8_7:latest"
+                      "value": "almalinux:almalinux-hpc:8_7-hpc-gen2:latest"
                     }
                   ],
                   "required": true,

@@ -1,5 +1,5 @@
 ---
-project_name: az-hop
+project_name: cyclecloud-slurm-workspace
 
 location: "[location()]"
 resource_group: "[basics('azhopResourceGroup')]"
