@@ -3855,50 +3855,102 @@
       }
     },
     {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
       "datasource": "azhpc",
-      "decimals": 0,
-      "fill": 1,
-      "fillGradient": 0,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMax": 100,
+            "axisSoftMin": 0,
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 60
+              }
+            ]
+          },
+          "unit": "binBps"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "recv bytes/sec"
+            },
+            "properties": [
+              {
+                "id": "custom.transform",
+                "value": "negative-Y"
+              }
+            ]
+          }
+        ]
+      },
       "gridPos": {
         "h": 7,
         "w": 8,
         "x": 8,
         "y": 27.5
       },
-      "hiddenSeries": false,
-      "id": 78,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null",
+      "id": 108,
       "options": {
-        "alertThreshold": true
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
       },
-      "percentage": false,
-      "pluginVersion": "8.1.1",
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
+      "repeatDirection": "h",
       "targets": [
         {
-          "alias": "Established",
+          "alias": "recv bytes/sec",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "P37B1EAF5C6A7BE1B"
+          },
           "groupBy": [
             {
               "params": [
@@ -3908,40 +3960,59 @@
             },
             {
               "params": [
-                "none"
+                "null"
               ],
               "type": "fill"
             }
           ],
-          "measurement": "netstat",
+          "hide": false,
+          "measurement": "net",
           "orderByTime": "ASC",
-          "policy": "default",
+          "policy": "autogen",
+          "query": "SELECT derivative(first(\"bytes_recv\"), 1s) FROM \"autogen\".\"net\" WHERE (\"node_array\"::tag =~ /^$node_array$/ AND \"interface\"::tag = 'eth0') AND $timeFilter GROUP BY time($__interval), \"host\"::tag fill(null)",
+          "rawQuery": false,
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
             [
               {
                 "params": [
-                  "tcp_established"
+                  "bytes_recv"
                 ],
                 "type": "field"
               },
               {
                 "params": [],
-                "type": "mean"
+                "type": "first"
+              },
+              {
+                "params": [
+                  "1s"
+                ],
+                "type": "derivative"
               }
             ]
           ],
           "tags": [
             {
-              "key": "host",
+              "key": "host::tag",
               "operator": "=~",
               "value": "/^$Host$/"
+            },
+            {
+              "condition": "AND",
+              "key": "interface::tag",
+              "operator": "=",
+              "value": "eth0"
             }
           ]
         },
         {
-          "alias": "Listen",
+          "alias": "sent bytes/sec",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "P37B1EAF5C6A7BE1B"
+          },
           "groupBy": [
             {
               "params": [
@@ -3951,123 +4022,63 @@
             },
             {
               "params": [
-                "none"
+                "null"
               ],
               "type": "fill"
             }
           ],
-          "measurement": "netstat",
+          "hide": false,
+          "measurement": "net",
           "orderByTime": "ASC",
-          "policy": "default",
+          "policy": "autogen",
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
             [
               {
                 "params": [
-                  "tcp_listen"
+                  "bytes_sent"
                 ],
                 "type": "field"
               },
               {
                 "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": [
-            {
-              "key": "host",
-              "operator": "=~",
-              "value": "/^$Host$/"
-            }
-          ]
-        },
-        {
-          "alias": "Closing",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "none"
-              ],
-              "type": "fill"
-            }
-          ],
-          "measurement": "netstat",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "refId": "C",
-          "resultFormat": "time_series",
-          "select": [
-            [
+                "type": "first"
+              },
               {
                 "params": [
-                  "tcp_closing"
+                  "1s"
                 ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
+                "type": "derivative"
               }
             ]
           ],
           "tags": [
             {
-              "key": "host",
+              "key": "host::tag",
               "operator": "=~",
               "value": "/^$Host$/"
+            },
+            {
+              "condition": "AND",
+              "key": "interface::tag",
+              "operator": "=",
+              "value": "eth0"
             }
           ]
         }
       ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Netstat",
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
+      "title": "eth0: send/recv traffic ",
+      "transformations": [
         {
-          "decimals": 0,
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(^cpu\\.mean\\s)(\\{host:\\s)([a-zA-Z0-9-]+)(.*)",
+            "renamePattern": "$3"
+          }
         }
       ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
+      "type": "timeseries"
     }
   ],
   "refresh": "1m",
