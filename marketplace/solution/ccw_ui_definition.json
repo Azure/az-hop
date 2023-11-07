@@ -17,6 +17,20 @@
         "visible": true
       },
       {
+        "name": "CycleCloudVmSize",
+        "type": "Microsoft.Compute.SizeSelector",
+        "label": "CycleCloud VM Size",
+        "toolTip": "Select a size for the CycleCloud VM",
+        "recommendedSizes": [
+          "Standard_B2ms"
+        ],
+        "options": {
+          "hideDiskTypeFilter": true
+        },
+        "osPlatform": "Linux",
+        "visible": true
+      },
+      {
         "name": "adminUser",
         "type": "Microsoft.Common.TextBox",
         "label": "Admin User",
@@ -385,6 +399,20 @@
         "bladeTitle": "Scheduler Settings",
         "elements": [
           {
+            "name": "vmsize",
+            "type": "Microsoft.Compute.SizeSelector",
+            "label": "Size",
+            "toolTip": "Select a size for the Scheduler VM",
+            "recommendedSizes": [
+              "Standard_B2ms"
+            ],
+            "options": {
+              "hideDiskTypeFilter": true
+            },
+            "osPlatform": "Linux",
+            "visible": true
+          },
+          {
             "name": "slurmVersion",
             "type": "Microsoft.Common.DropDown",
             "label": "Slurm Version",
@@ -414,6 +442,181 @@
             "toolTip": "Select to enable Slurm job accounting in a managed MariaDB instance",
             "defaultValue": false,
             "visible": true
+          }
+        ]
+      },
+      {
+        "name": "Partitions",
+        "label": "Partitions",
+        "subLabel": {
+          "preValidation": "Configure your Slurm partitions",
+          "postValidation": "Configuration complete"
+        },
+        "bladeTitle": "Slurm Partitions",
+        "elements": [
+          {
+            "name": "HTCSection",
+            "type": "Microsoft.Common.Section",
+            "label": "HTC Partition",
+            "elements": [
+              {
+                "name": "vmsize",
+                "type": "Microsoft.Compute.SizeSelector",
+                "label": "Size",
+                "toolTip": "Select a VM Size for the HTC partition",
+                "recommendedSizes": [
+                  "Standard_F2s_v2"
+                ],
+                "options": {
+                  "hideDiskTypeFilter": true
+                },
+                "osPlatform": "Linux",
+                "visible": true
+              },
+              {
+                "name": "NodeNumber",
+                "type": "Microsoft.Common.Slider",
+                "label": "Number of nodes",
+                "toolTip": "Maximum number of nodes to scale to",
+                "subLabel": "Number",
+                "defaultValue": 32,
+                "min": 0,
+                "max": 512,
+                "step": 4,
+                "visible": true
+              },      
+              {
+                "name": "ImageName",
+                "type": "Microsoft.Common.DropDown",
+                "label": "Image Name",
+                "defaultValue": "Alma Linux 8.7",
+                "toolTip": "Select the image to use for the HTC partition",
+                "constraints": {
+                  "allowedValues": [
+                    {
+                      "label": "Ubuntu 20.04",
+                      "value": "azhpc:azhop-compute:ubuntu-20_04:latest"
+                    },
+                    {
+                      "label": "Alma Linux 8.7",
+                      "value": "azhpc:azhop-compute:almalinux-8_7:latest"
+                    }
+                  ],
+                  "required": true,
+                  "validationMessage": "A choice is required."
+                }
+              }
+            ]
+          },
+          {
+            "name": "HPCSection",
+            "type": "Microsoft.Common.Section",
+            "label": "HPC Partition",
+            "elements": [
+              {
+                "name": "vmsize",
+                "type": "Microsoft.Compute.SizeSelector",
+                "label": "Size",
+                "toolTip": "Select a VM Size for the HPC partition",
+                "recommendedSizes": [
+                  "Standard_HB120rs_v3"
+                ],
+                "options": {
+                  "hideDiskTypeFilter": true
+                },
+                "osPlatform": "Linux",
+                "visible": true
+              },
+              {
+                "name": "NodeNumber",
+                "type": "Microsoft.Common.Slider",
+                "label": "Number of nodes",
+                "toolTip": "Maximum number of nodes to scale to",
+                "subLabel": "Number",
+                "defaultValue": 4,
+                "min": 0,
+                "max": 100,
+                "step": 2,
+                "visible": true
+              },
+              {
+                "name": "ImageName",
+                "type": "Microsoft.Common.DropDown",
+                "label": "Image Name",
+                "defaultValue": "Alma Linux 8.7",
+                "toolTip": "Select the image to use for the HPC partition",
+                "constraints": {
+                  "allowedValues": [
+                    {
+                      "label": "Ubuntu 20.04",
+                      "value": "azhpc:azhop-compute:ubuntu-20_04:latest"
+                    },
+                    {
+                      "label": "Alma Linux 8.7",
+                      "value": "azhpc:azhop-compute:almalinux-8_7:latest"
+                    }
+                  ],
+                  "required": true,
+                  "validationMessage": "A choice is required."
+                }
+              }
+            ]
+          },
+          {
+            "name": "GPUSection",
+            "type": "Microsoft.Common.Section",
+            "label": "GPU Partition",
+            "elements": [
+              {
+                "name": "vmsize",
+                "type": "Microsoft.Compute.SizeSelector",
+                "label": "Size",
+                "toolTip": "Select a VM Size for the GPU partition",
+                "recommendedSizes": [
+                  "Standard_ND96asr_v4",
+                  "Standard_ND96amsr_A100_v4",
+                  "Standard_NC24ads_A100_v4"
+                ],
+                "options": {
+                  "hideDiskTypeFilter": true
+                },
+                "osPlatform": "Linux",
+                "visible": true
+              },
+              {
+                "name": "NodeNumber",
+                "type": "Microsoft.Common.Slider",
+                "label": "Number of nodes",
+                "toolTip": "Maximum number of nodes to scale to",
+                "subLabel": "Number",
+                "defaultValue": 4,
+                "min": 0,
+                "max": 100,
+                "step": 2,
+                "visible": true
+              },
+              {
+                "name": "ImageName",
+                "type": "Microsoft.Common.DropDown",
+                "label": "Image Name",
+                "defaultValue": "Alma Linux 8.7",
+                "toolTip": "Select the image to use for the GPU partition",
+                "constraints": {
+                  "allowedValues": [
+                    {
+                      "label": "Ubuntu 20.04",
+                      "value": "azhpc:azhop-compute:ubuntu-20_04:latest"
+                    },
+                    {
+                      "label": "Alma Linux 8.7",
+                      "value": "azhpc:azhop-compute:almalinux-8_7:latest"
+                    }
+                  ],
+                  "required": true,
+                  "validationMessage": "A choice is required."
+                }
+              }
+            ]
           }
         ]
       },

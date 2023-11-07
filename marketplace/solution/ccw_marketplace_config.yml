@@ -7,7 +7,7 @@ use_existing_rg: false
 
 tags:
   env: dev
-  project: azhop
+  project: cc_workspace
   scheduler: slurm
 
 log_analytics:
@@ -97,9 +97,9 @@ deployer:
   vm_size: Standard_B2ms
   ssh_port: 8822
 scheduler:
-  vm_size: Standard_B2ms
+  vm_size: "[steps('scheduler').vmsize]"
 cyclecloud:
-  vm_size: Standard_B2ms
+  vm_size: "[basics('CycleCloudVmSize')]"
   image: azurecyclecloud:azure-cyclecloud:cyclecloud8-gen2:8.4.220231009
   # az vm image terms accept --publisher azurecyclecloud --offer azure-cyclecloud --plan cyclecloud8-gen2
   plan: azurecyclecloud:azure-cyclecloud:cyclecloud8-gen2
@@ -144,41 +144,20 @@ autoscale:
 
 queues:
   - name: htc
-    vm_size: Standard_F2s_v2
-    max_core_count: 128
-    image: azhpc:azhop-compute:almalinux-8_7:latest
+    vm_size: "[steps('Partitions').HTCSection.vmsize]"
+    max_core_count: "[mul(steps('Partitions').HTCSection.NodeNumber, 2)]" # Cores per node need to be retrieved or instead of specifying max cores we need to specify the number of nodes
+    image: "[steps('Partitions').HTCSection.ImageName]"
     ColocateNodes: false
   - name: hpc
-    vm_size: Standard_HB120rs_v3
-    max_core_count: 1200
-    image: azhpc:azhop-compute:almalinux-8_7:latest
+    vm_size: "[steps('Partitions').HPCSection.vmsize]"
+    max_core_count: "[mul(steps('Partitions').HPCSection.NodeNumber, 120)]"
+    image: "[steps('Partitions').HPCSection.ImageName]"
     EnableAcceleratedNetworking: true
     ColocateNodes: true
   - name: gpu
-    vm_size: Standard_NC24ads_A100_v4
-    max_core_count: 0
-    image: azhpc:azhop-compute:almalinux-8_7:latest
+    vm_size: "[steps('Partitions').GPUSection.vmsize]"
+    max_core_count: "[mul(steps('Partitions').GPUSection.NodeNumber, 96)]"
+    image: "[steps('Partitions').GPUSection.ImageName]"
     EnableAcceleratedNetworking: true
     ColocateNodes: true
-    # Queue dedicated to GPU remote viz nodes. This name is fixed and can't be changed
-  # - name: viz3d
-  #   vm_size: Standard_NV12s_v3
-  #   max_core_count: 48
-  #   # Use the pre-built azhop image from the marketplace
-  #   image: azhpc:azhop-desktop:almalinux-8_7:latest
-  #   ColocateNodes: false
-  #   EnableAcceleratedNetworking: true
-  #   # Queue dedicated to share GPU remote viz nodes. This name is fixed and can't be changed
-  # - name: largeviz3d
-  #   vm_size: Standard_NV48s_v3
-  #   max_core_count: 96
-  #   image: azhpc:azhop-desktop:almalinux-8_7:latest
-  #   ColocateNodes: false
-  #   EnableAcceleratedNetworking: true
-  #   # Queue dedicated to non GPU remote viz nodes. This name is fixed and can't be changed
-  # - name: viz
-  #   vm_size: Standard_D8s_v5
-  #   max_core_count: 0
-  #   image: azhpc:azhop-desktop:almalinux-8_7:latest
-  #   ColocateNodes: false
-  #   EnableAcceleratedNetworking: true
+
