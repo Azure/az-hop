@@ -1,39 +1,39 @@
 #!/bin/bash
+function package_update() {
+  packages="sssd libsss-simpleifp0 sssd-dbus sssd-tools realmd oddjob oddjob-mkhomedir adcli samba-common krb5-user ldap-utils packagekit resolvconf"
 
-packages="sssd libsss-simpleifp0 sssd-dbus sssd-tools realmd oddjob oddjob-mkhomedir adcli samba-common krb5-user ldap-utils packagekit resolvconf"
+  if [ "$os_maj_ver" == "18.04" ]; then
+      packages="$packages python-sss"
+  fi
 
-if [ "$os_maj_ver" == "18.04" ]; then
-    packages="$packages python-sss"
-fi
+  if ! dpkg -l $packages ; then
+    apt -y update
+    echo "Installing packages $packages" 
+    # this export is needed to stop input for krb5-user
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get install -y $packages
+    echo "Restart dbus"
+    # Manually restarting dbus is blocked on ubuntu
+    # systemctl restart dbus
+    echo "Restart systemd-logind"
+    systemctl restart systemd-logind
+  fi
 
-if ! dpkg -l $packages ; then
-  apt -y update
-  echo "Installing packages $packages" 
-  # this export is needed to stop input for krb5-user
-  export DEBIAN_FRONTEND=noninteractive
-  apt-get install -y $packages
-  echo "Restart dbus"
-  # Manually restarting dbus is blocked on ubuntu
-  # systemctl restart dbus
-  echo "Restart systemd-logind"
-  systemctl restart systemd-logind
-fi
+  # https://docs.microsoft.com/en-us/azure/virtual-machines/linux/azure-dns
+  if grep "^options " /etc/resolv.conf; then
+    sed -i 's/^options /options timeout:1 attempts:5 /' /etc/resolv.conf
+  else
+    echo "options timeout:1 attempts:5" >> /etc/resolv.conf
+  fi
 
-# https://docs.microsoft.com/en-us/azure/virtual-machines/linux/azure-dns
-if grep "^options " /etc/resolv.conf; then
-  sed -i 's/^options /options timeout:1 attempts:5 /' /etc/resolv.conf
-else
-  echo "options timeout:1 attempts:5" >> /etc/resolv.conf
-fi
-
-# Disable rdns for libdefaults in /etc/krb5.conf
-if grep "rdns = false" /etc/krb5.conf; then
-  echo "rdns already set to false"
-else
-  echo "set rdns to false for libdefaults"
-  sed -i '/\[libdefaults\]/a\\trdns = false' /etc/krb5.conf
-fi
-
+  # Disable rdns for libdefaults in /etc/krb5.conf
+  if grep "rdns = false" /etc/krb5.conf; then
+    echo "rdns already set to false"
+  else
+    echo "set rdns to false for libdefaults"
+    sed -i '/\[libdefaults\]/a\\trdns = false' /etc/krb5.conf
+  fi
+}
 
 function enforce_hostname() {
   local system_hostname=$1
