@@ -653,6 +653,19 @@
                 "validationMessage": "Invalid branch name"
               },
               "visible": true
+            },
+            {
+              "name": "deployerSshPort",
+              "type": "Microsoft.Common.TextBox",
+              "label": "Deployer SSH Port",
+              "defaultValue": "22",
+              "toolTip": "SSH port for the deployer VM.",
+              "constraints": {
+                "required": true,
+                "regex": "^[0-9]+$",
+                "validationMessage": "Invalid port number"
+              },
+              "visible": true
             }
           ]
       }

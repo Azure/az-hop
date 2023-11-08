@@ -60,10 +60,6 @@ network:
         name: frontend
         address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.0/29')]"
         create: true # create the subnet if true. default to true when not specified, default to false if using an existing VNET when not specified
-      ad:
-        name: ad
-        address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.8/29')]"
-        create: false
       admin:
         name: admin
         address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.16/28')]"
@@ -72,9 +68,6 @@ network:
         name: netapp
         address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.32/28')]"
         create: "[equals(steps('homedir').type, 'anf')]"
-      gateway:
-        address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.48/28')]"
-        create: false
       lustre:
         address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.64/26')]"
         create: "[steps('lustre').deployLustre]"
@@ -95,7 +88,7 @@ linux_base_image: almalinux:almalinux-x86_64:8_7-gen2:latest # publisher:offer:s
 
 deployer:
   vm_size: Standard_B2ms
-  ssh_port: 8822
+  ssh_port: "[basics('deployerSshPort')]"
 scheduler:
   vm_size: "[steps('scheduler').vmsize]"
 cyclecloud:
