@@ -1061,6 +1061,10 @@
                     "description": "Maximum number of cores that can be allocated for the entire queue.",
                     "type": "integer"
                 },
+                "max_count": {
+                    "description": "Maximum number of nodes that can be allocated for the entire queue.",
+                    "type": "integer"
+                },
                 "image": {
                     "description": "Can be either an image reference or an image_id from the image registry or a custom managed image",
                     "type": "string"
@@ -1100,7 +1104,6 @@
             },
             "required": [
                 "image",
-                "max_core_count",
                 "name",
                 "vm_size"
             ],

@@ -54,7 +54,12 @@ Autoscale = true
 {% for queue in cc_queues %}
     [[nodearray {{ queue.name }}]]
     MachineType = {{ queue.vm_size }} 
+  {% if queue.max_core_count is defined %}
     MaxCoreCount = {{ queue.max_core_count }}
+  {% endif %}
+  {% if queue.max_count is defined %}
+    MaxCount = {{ queue.max_count }}
+  {% endif %}
   {% if queue.EnableAcceleratedNetworking is defined %}
     EnableAcceleratedNetworking = {{ queue.EnableAcceleratedNetworking }}
   {% endif %}

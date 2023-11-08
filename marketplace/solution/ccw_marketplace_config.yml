@@ -138,18 +138,18 @@ autoscale:
 queues:
   - name: htc
     vm_size: "[steps('Partitions').HTCSection.vmsize]"
-    max_core_count: "[mul(steps('Partitions').HTCSection.NodeNumber, 2)]" # Cores per node need to be retrieved or instead of specifying max cores we need to specify the number of nodes
+    max_count: "[steps('Partitions').HTCSection.NodeNumber)]"
     image: "[steps('Partitions').HTCSection.ImageName]"
     ColocateNodes: false
   - name: hpc
     vm_size: "[steps('Partitions').HPCSection.vmsize]"
-    max_core_count: "[mul(steps('Partitions').HPCSection.NodeNumber, 120)]"
+    max_count: "[steps('Partitions').HPCSection.NodeNumber]"
     image: "[steps('Partitions').HPCSection.ImageName]"
     EnableAcceleratedNetworking: true
     ColocateNodes: true
   - name: gpu
     vm_size: "[steps('Partitions').GPUSection.vmsize]"
-    max_core_count: "[mul(steps('Partitions').GPUSection.NodeNumber, 96)]"
+    max_count: "[steps('Partitions').GPUSection.NodeNumber]"
     image: "[steps('Partitions').GPUSection.ImageName]"
     EnableAcceleratedNetworking: true
     ColocateNodes: true
