@@ -1,0 +1,994 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "",
+  "editable": false,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 9,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
+      "gridPos": {
+        "h": 1.5,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 15,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "\n[Detailed Metrics for ${server}](https://{{ ondemand_fqdn }}/rnode/grafana/{{ grafana_server_http_port }}/d/bc46c194-059a-4136-8774-d2f25fdac456/azhop-compute-servers?orgId=1&refresh=1m&var-Host=${server})\n\n\n",
+        "mode": "markdown"
+      },
+      "pluginVersion": "9.5.3",
+      "repeat": "server",
+      "repeatDirection": "v",
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "P37B1EAF5C6A7BE1B"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 1.5
+      },
+      "id": 2,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "alias": "${node_array} $tag_state",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "P37B1EAF5C6A7BE1B"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "state"
+              ],
+              "type": "tag"
+            },
+            {
+              "params": [
+                "none"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "slurm_nodes",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "nodes"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "condition": "AND",
+              "key": "partition::tag",
+              "operator": "=~",
+              "value": "/^$node_array$/"
+            }
+          ]
+        }
+      ],
+      "title": "Compute Node States",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "P37B1EAF5C6A7BE1B"
+      },
+      "description": "Compute node VMs",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "__systemRef": "hideSeriesFrom",
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "exclude",
+                "names": [
+                  "execute"
+                ],
+                "prefix": "All except:",
+                "readOnly": true
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": true
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 8.5
+      },
+      "id": 12,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "mean",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "alias": "$tag_partition",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "P37B1EAF5C6A7BE1B"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "partition"
+              ],
+              "type": "tag"
+            },
+            {
+              "params": [
+                "none"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "slurm_nodes",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "nodes"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "key": "state",
+              "operator": "!=",
+              "value": "idle~"
+            },
+            {
+              "condition": "AND",
+              "key": "partition::tag",
+              "operator": "=~",
+              "value": "/^$node_array$/"
+            }
+          ]
+        }
+      ],
+      "title": "Running VMs",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "P37B1EAF5C6A7BE1B"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 60
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 15.5
+      },
+      "id": 14,
+      "options": {
+        "legend": {
+          "calcs": [
+            "last"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "repeatDirection": "h",
+      "targets": [
+        {
+          "alias": "$tag_host % idle",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "P37B1EAF5C6A7BE1B"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "host::tag"
+              ],
+              "type": "tag"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "cpu",
+          "orderByTime": "ASC",
+          "policy": "autogen",
+          "query": "SELECT mean(\"usage_idle\") FROM \"autogen\".\"cpu\" WHERE (\"cpu\"::tag = 'cpu-total' AND \"node_array\"::tag =~ /^$node_array$/ AND \"usage_idle\"::field > ${idle:raw}) AND $timeFilter GROUP BY time($__interval), \"host\"::tag fill(null)",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "usage_idle"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "condition": "AND",
+              "key": "cpu::tag",
+              "operator": "=",
+              "value": "cpu-total"
+            },
+            {
+              "condition": "AND",
+              "key": "node_array::tag",
+              "operator": "=~",
+              "value": "/^$node_array$/"
+            },
+            {
+              "condition": "AND",
+              "key": "usage_idle::field",
+              "operator": ">",
+              "value": "/^$idle$/"
+            }
+          ]
+        }
+      ],
+      "title": "VMs with CPU % Idle > ${idle}",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(^cpu\\.mean\\s)(\\{host:\\s)([a-zA-Z0-9-]+)(.*)",
+            "renamePattern": "$3"
+          }
+        }
+      ],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "P37B1EAF5C6A7BE1B"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMax": 100,
+            "axisSoftMin": 0,
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 60
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 23.5
+      },
+      "id": 16,
+      "options": {
+        "legend": {
+          "calcs": [ "last" ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "repeatDirection": "h",
+      "targets": [
+        {
+          "alias": "$tag_host: Available Memory %",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "P37B1EAF5C6A7BE1B"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "host::tag"
+              ],
+              "type": "tag"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "mem",
+          "orderByTime": "ASC",
+          "policy": "autogen",
+          "query": "SELECT mean(\"available_percent\") FROM \"autogen\".\"mem\" WHERE (\"node_array\"::tag =~ /^$node_array$/ AND \"available_percent\"::field < ${memory:raw}) AND $timeFilter GROUP BY time($__interval), \"host\"::tag fill(null)",
+          "rawQuery": true,
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "available_percent"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "key": "node_array::tag",
+              "operator": "=~",
+              "value": "/^$node_array$/"
+            },
+            {
+              "condition": "AND",
+              "key": "available_percent::field",
+              "operator": "<",
+              "value": "/^$memory$/"
+            }
+          ]
+        }
+      ],
+      "title": "VMs with Available Memory < ${memory}%",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(^cpu\\.mean\\s)(\\{host:\\s)([a-zA-Z0-9-]+)(.*)",
+            "renamePattern": "$3"
+          }
+        }
+      ],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "P37B1EAF5C6A7BE1B"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMax": 100,
+            "axisSoftMin": 0,
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 60
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 31.5
+      },
+      "id": 17,
+      "options": {
+        "legend": {
+          "calcs": [ "last" ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "repeatDirection": "h",
+      "targets": [
+        {
+          "alias": "$tag_host: % iowait",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "P37B1EAF5C6A7BE1B"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "host::tag"
+              ],
+              "type": "tag"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "cpu",
+          "orderByTime": "ASC",
+          "policy": "autogen",
+          "query": "SELECT mean(\"usage_iowait\") FROM \"autogen\".\"cpu\" WHERE (\"node_array\"::tag =~ /^$node_array$/ AND \"usage_iowait\"::field > ${iowait:raw}) AND $timeFilter GROUP BY time($__interval), \"host\"::tag fill(null)",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "usage_iowait"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "key": "node_array::tag",
+              "operator": "=~",
+              "value": "/^$node_array$/"
+            },
+            {
+              "condition": "AND",
+              "key": "usage_iowait::field",
+              "operator": "=~",
+              "value": "/^$iowait$/"
+            }
+          ]
+        }
+      ],
+      "title": "VMs with iowait > ${iowait}%",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(^cpu\\.mean\\s)(\\{host:\\s)([a-zA-Z0-9-]+)(.*)",
+            "renamePattern": "$3"
+          }
+        }
+      ],
+      "type": "timeseries"
+    }    
+  ],
+  "refresh": "",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "execute",
+          "value": "execute"
+        },
+        "datasource": {
+          "type": "influxdb",
+          "uid": "P37B1EAF5C6A7BE1B"
+        },
+        "definition": "SHOW TAG VALUES FROM slurm_nodes WITH KEY = \"partition\"",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Node Array",
+        "multi": false,
+        "name": "node_array",
+        "options": [],
+        "query": "SHOW TAG VALUES FROM slurm_nodes WITH KEY = \"partition\"",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": [
+            "execute-1"
+          ],
+          "value": [
+            "execute-1"
+          ]
+        },
+        "datasource": {
+          "type": "influxdb",
+          "uid": "P37B1EAF5C6A7BE1B"
+        },
+        "definition": "SHOW TAG VALUES FROM system WITH KEY = \"host\" WHERE node_array=~ /$node_array/",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Array Nodes",
+        "multi": true,
+        "name": "server",
+        "options": [],
+        "query": "SHOW TAG VALUES FROM system WITH KEY = \"host\" WHERE node_array=~ /$node_array/",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "{{idle_threshold}}",
+          "value": "{{idle_threshold}}"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Idle Threshold",
+        "multi": false,
+        "name": "idle",
+        "options": [
+{% for t in thresholds %}
+          {
+{% if t|string() == idle_threshold|string() %}
+          "selected": true,
+{% else %}
+          "selected": false, 
+{% endif %} 
+          "text": "{{t}}",
+          "value": "{{t}}"
+          {{"}," if not loop.last else "}"}} 
+{% endfor %}
+        ],
+        "query": "10, 20, 30, 40, 50, 60, 70, 80, 90, 100",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "{{mem_threshold}}",
+          "value": "{{mem_threshold}}"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Memory Threshold",
+        "multi": false,
+        "name": "memory",
+        "options": [
+{% for t in thresholds %}
+          {
+{% if t|string() == mem_threshold|string() %}
+          "selected": true,
+{% else %}
+          "selected": false, 
+{% endif %} 
+          "text": "{{t}}",
+          "value": "{{t}}"
+          {{"}," if not loop.last else "}"}} 
+{% endfor %}
+        ],
+        "query": "10, 20, 30, 40, 50, 60, 70, 80, 90, 100",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "{{iowait_threshold}}",
+          "value": "{{iowait_threshold}}"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "IO Wait Threshold",
+        "multi": false,
+        "name": "iowait",
+        "options": [
+{% for t in thresholds %}
+          {
+{% if t|string() == iowait_threshold|string() %}
+          "selected": true,
+{% else %}
+          "selected": false, 
+{% endif %} 
+          "text": "{{t}}",
+          "value": "{{t}}"
+          {{"}," if not loop.last else "}"}} 
+{% endfor %}
+        ],
+        "query": "10, 20, 30, 40, 50, 60, 70, 80, 90, 100",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-3h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "HPC Cluster Statistics",
+  "uid": "fee18801-1a75-44a2-b6f2-0a6af99c9658",
+  "version": 14,
+  "weekStart": ""
+}
