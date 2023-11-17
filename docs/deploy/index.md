@@ -816,7 +816,9 @@ queues:
     # Azure VM Instance type
     vm_size: Standard_F2s_v2
     # maximum number of cores that can be instantiated
-    max_core_count: 1024
+    #max_core_count: 1024
+    # maximum number of nodes that can be instanciated. The lower of the two will be used
+    max_count: 128
     # Use the pre-built azhop image from the marketplace
     image: azhpc:azhop-compute:centos-7_9:latest
     # Use this image ID when building your own custom images
@@ -836,18 +838,18 @@ queues:
     MaxScaleSetSize: 100
   - name: hpc
     vm_size: Standard_HB120rs_v3
-    max_core_count: 1200
+    max_count: 10
     image: azhpc:azhop-compute:centos-7_9:latest
     EnableAcceleratedNetworking: true
   - name: gpu
     vm_size: Standard_NC24ads_A100_v4
-    max_core_count: 0
+    max_count: 0
     image: azhpc:azhop-compute:centos-7_9:latest
     EnableAcceleratedNetworking: true
     # Queue dedicated to GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz3d
     vm_size: Standard_NV12s_v3
-    max_core_count: 48
+    max_count: 4
     # Use the pre-built azhop image from the marketplace
     image: azhpc:azhop-desktop:centos-7_9:latest
     # Use this image ID when building your own custom images
@@ -859,7 +861,7 @@ queues:
     # Queue dedicated to share GPU remote viz nodes. This name is fixed and can't be changed
   - name: largeviz3d
     vm_size: Standard_NV48s_v3
-    max_core_count: 96
+    max_count: 2
     image: azhpc:azhop-desktop:centos-7_9:latest
     ColocateNodes: false
     EnableAcceleratedNetworking: true
@@ -868,7 +870,7 @@ queues:
     # Queue dedicated to non GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz
     vm_size: Standard_D8s_v5
-    max_core_count: 200
+    max_count: 10
     image: azhpc:azhop-desktop:centos-7_9:latest
     ColocateNodes: false
     EnableAcceleratedNetworking: true
