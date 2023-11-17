@@ -265,7 +265,10 @@
                 "install_agent": {"type": "boolean", "default": true, "deprecated": true },
                 "azure_monitor_agent": {"type": "boolean", "default": false },
                 "telegraf": {"type": "boolean", "default": true },
-                "grafana": {"type": "boolean", "default": true }
+                "grafana": {"type": "boolean", "default": true },
+		"idle_threshold": {"type": "string", "pattern": "^(10|20|30|40|50|60|70|80|90|100)$", "default": "70"},
+		"iowait_threshold": {"type": "string", "pattern": "^(10|20|30|40|50|60|70|80|90|100)$", "default": "40"},
+		"mem_threshold": {"type": "string", "pattern": "^(10|20|30|40|50|60|70|80|90|100)$", "default": "30"}
             },
             "title": "monitoring"
         },

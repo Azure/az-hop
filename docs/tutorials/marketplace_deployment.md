@@ -32,6 +32,7 @@ This tutorial with create the following resources.
 - [Grafana](https://grafana.com/) dashboards to monitor your cluster.
 
 # Deployment steps
+
 Open your Microsoft Azure account and then go to the Azure Marketplace and **type** "Azhop" then **Enter**.
 From the search results **select** AzHop and then click on **Create**.
 
@@ -41,20 +42,12 @@ From the search results **select** AzHop and then click on **Create**.
 In the basics tab input the following parameters:
 - **AzHop Resource Group** – Name of the resource where it is going to be deployed.
 - **Admin User** – Username for the cluster admin.
-- **Branch** - Specify the [AzHop Branch](https://github.com/Azure/az-hop/branches) you would like to deploy, "main" is the default one.
+
+By default, this deployment will pull the latest version available of AzHOP and deploy it.
+
+The auto generate feature will generate a new SSH key pair and save it in the KeyVault, if you would like to use your own pair of keys, uncheck this option and provide the key.
 
  ![image](../images/marketplace/az-hop-marketplace-basics.png)
-
-**Next**
-
-## Authentication
-For the authentication section we have two options available, "Active Directory" and "Local"
-- **Active Directory** - AzHop manage users through Active Directory and create passwords in they KeyVault.
-- **Local** - AzHop manage users locally for each application and create passwords in KeyVault.
-
-The recommended configuration is to select Active Directory, this will allow you to manage users in multiple locations in one place.
-
- ![image](../images/marketplace/az-hop-marketplace-authentication.png)
 
 **Next**
 
@@ -63,7 +56,7 @@ The Home Directory is where the files from the High Performance Computing projec
 AzHop has the capability of using the power of [Azure Files](https://learn.microsoft.com/en-us/azure/storage/files/storage-files-introduction) and [Azure NetApp Files](https://learn.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-introduction) for your projects.
 - **Storage Type** - Review the [Azure Files and Azure NetApp Files comparison](https://learn.microsoft.com/en-us/azure/storage/files/storage-files-netapp-comparison).
 For this tutorial the recommendation is to use Azure Files.
-- **Mount point** - Is where the drive will be mounted. Default value is "/clusterhome".
+- **Mount point** - Is where the drive will be mounted. Default value is "/nfshome".
 - **Capacity** - Size of the drive that will be mounted. Defauilt value is "1024GB".
 
  ![image](../images/marketplace/az-hop-marketplace-directory.png)
@@ -72,11 +65,22 @@ For this tutorial the recommendation is to use Azure Files.
 
 ## Network
 AzHop have the option to allow access through public IP as well as to customize the CIDR Prefix to use and the Base IP address.
-- **Enable Public IP address** - Default value is "checked"
+- **Enable Public IP address** - Default value is "checked", this will create a new Public IP to access the OnDemand platform and provide you access to the dashboard. In case you would like to keep it private and access the resources through an Azure VNET, "unchek" this option and select a VNET to peer.
 - **CIDR Prefix** - This will determine the amount of nodes available. Default value is "/24"
 - **Base IP Address** - Address space to use in the VNET hosting AzHop. Default value is "10.0.0.0".
 
  ![image](../images/marketplace/az-hop-marketplace-network.png)
+
+**Next**
+
+## Lustre
+[Azure Managed Lustre](https://learn.microsoft.com/en-us/azure/storage/files/storage-files-introduction) is a managed, pay-as-you-go file system for high-performance computing (HPC) and AI workloads, its installation is optional.
+
+- **Deploy an Azure Managed Lustre Filesystem.** - Check this option.
+- **Lustre Tier** - Select the tier for Lustre, the default is "AMLFS Durable Premium 40"
+- **Capacity** - Is the size of the Manage file system.
+
+ ![image](../images/marketplace/az-hop-marketplace-lustre.png)
 
 **Next**
 
@@ -86,9 +90,25 @@ The scheduler will dictate how the workload is going to operate.
 AzHop offers [Open PBS](https://learn.microsoft.com/en-us/azure/cyclecloud/openpbs?view=cyclecloud-8) and [SLURM](https://learn.microsoft.com/en-us/azure/cyclecloud/slurm?view=cyclecloud-8) with SLURM Accounting as optional.
 
 - **Scheduler** - Default value is "SLURM"
+- **SLURM version** - Latest version is 22.05.3
 - **SLURM accounting** - Default value is "Checked"
 
  ![image](../images/marketplace/az-hop-marketplace-slurm.png)
+
+**Next**
+
+## Applications
+In addition to the default applications, AzHOP Marketplace deployment offers a variety of applications supported in the HPC environment, select the ones that are more appropriate to your needs by checking the boxes next to the option.
+
+ ![image](../images/marketplace/az-hop-marketplace-applications.png)
+
+**Next**
+
+## Other Settings
+- **Additional Keyvault Reader** - This will allow you to configure access to the KeyVault to a user. Input the your "Object ID" from your user or the user that will have access to read the KeyVault.
+- **Branch Name** - This will pull automatically the latest version available for AzHOP but you can install another version and configure it here.
+
+ ![image](../images/marketplace/az-hop-marketplace-other-settings.png)
 
 **Next**
 
