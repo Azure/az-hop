@@ -18,6 +18,7 @@ Autoscale = true
     KeyPairLocation = ~/.ssh/cyclecloud.pem
     EnableAcceleratedNetworking = false
     Interruptible = false
+    EphemeralOSDisk = true
     {% if compute_mi_id is defined and compute_mi_id|length %}
     Azure.Identities = {{ compute_mi_id }}
     {% endif %}
