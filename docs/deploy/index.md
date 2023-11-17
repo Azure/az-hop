@@ -830,8 +830,8 @@ queues:
   - name: htc # name of the Cycle Cloud node array
     # Azure VM Instance type
     vm_size: Standard_F2s_v2
-    # maximum number of cores that can be instanciated
-    max_core_count: 1024
+    # maximum number of cores that can be instantiated
+    #max_core_count: 1024
     # maximum number of nodes that can be instanciated. The lower of the two will be used
     max_count: 128
     # Use the pre-built azhop image from the marketplace

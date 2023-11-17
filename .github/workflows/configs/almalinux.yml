@@ -5,69 +5,69 @@ linux_base_image: almalinux:almalinux-x86_64:8_7-gen2:latest # almalinux:almalin
 queues:
   - name: htc
     vm_size: Standard_F2s_v2
-    max_core_count: 512
+    max_count: 256
     image: azhpc:azhop-compute:almalinux-8_7:latest
     ColocateNodes: false
 
   - name: hc44rs
     vm_size: Standard_HC44rs
-    max_core_count: 440
+    max_count: 10
     image: azhpc:azhop-compute:almalinux-8_7:latest
     ColocateNodes: true
     EnableAcceleratedNetworking: true
 
   - name: hb60rs
     vm_size: Standard_HB60rs
-    max_core_count: 600
+    max_count: 10
     image: azhpc:azhop-compute:almalinux-8_7:latest
     ColocateNodes: true
     EnableAcceleratedNetworking: true
 
   - name: hb120v2
     vm_size: Standard_HB120rs_v2
-    max_core_count: 1200
+    max_count: 10
     image: azhpc:azhop-compute:almalinux-8_7:latest
     ColocateNodes: true
     EnableAcceleratedNetworking: true
 
   - name: hpc
     vm_size: Standard_HB120rs_v3
-    max_core_count: 1200
+    max_count: 10
     image: azhpc:azhop-compute:almalinux-8_7:latest
     ColocateNodes: true
     EnableAcceleratedNetworking: true
 
   - name: gpu
     vm_size: Standard_NC24ads_A100_v4
-    max_core_count: 96
+    max_count: 4
     image: azhpc:azhop-compute:almalinux-8_7:latest
     ColocateNodes: true
     EnableAcceleratedNetworking: true
 
   - name: hbv3u20
     vm_size: Standard_HB120rs_v3
-    max_core_count: 1200
+    max_count: 10
     image: azhpc:azhop-compute:ubuntu-20_04:latest
     ColocateNodes: true
     EnableAcceleratedNetworking: true
 
   - name: nc24v3
     vm_size: Standard_NC24rs_v3
-    max_core_count: 96
+    max_count: 4
     image: azhpc:azhop-compute:almalinux-8_7:latest
     ColocateNodes: true
 
 # Remote Viz Queues
   - name: viz3d
     vm_size: Standard_NV12s_v3
-    max_core_count: 48
+    max_count: 4
     image: azhpc:azhop-desktop:almalinux-8_7:latest
     ColocateNodes: false
     EnableAcceleratedNetworking: true
 
   - name: viz
     vm_size: Standard_D8s_v5
-    max_core_count: 200
+    max_count: 10
     image: azhpc:azhop-desktop:almalinux-8_7:latest
     ColocateNodes: false
     EnableAcceleratedNetworking: true
@@ -76,7 +76,7 @@ queues:
 
   - name: largeviz3d
     vm_size: Standard_NV48s_v3
-    max_core_count: 96
+    max_count: 4
     image: azhpc:azhop-desktop:almalinux-8_7:latest
     ColocateNodes: false
     EnableAcceleratedNetworking: true
