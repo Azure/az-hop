@@ -460,7 +460,7 @@ queues:
     vm_size: Standard_F2s_v2
     # maximum number of cores that can be instanciated
     max_core_count: 1024
-      # maximum number of nodes that can be instanciated. The lower of the two will be used
+    # maximum number of nodes that can be instanciated. The lower of the two will be used
     max_count: 128
     # Use the pre-built azhop image from the marketplace
     image: azhpc:azhop-compute:centos-7_9:latest
