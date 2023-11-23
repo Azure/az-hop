@@ -604,7 +604,7 @@ ad:
 
 # On demand VM configuration
 ondemand:
-  name: ondemand
+  name: ondemand # When provided, it will be used as the name of the VM. Default to ondemand
   vm_size: Standard_D4s_v5
   #fqdn: azhop.foo.com # When provided it will be used for the certificate server name
   generate_certificate: true # Generate an SSL certificate for the OnDemand portal. Default to true
@@ -614,11 +614,11 @@ grafana:
   vm_size: Standard_B2ms
 # Scheduler VM configuration
 scheduler:
-  name: scheduler
+  name: scheduler # When provided, it will be used as the name of the scheduler VM. Default to scheduler
   vm_size: Standard_B2ms
 # CycleCloud VM configuration
 cyclecloud:
-  name: ccportal
+  name: ccportal # When provided, it will be used as the name of the CycleCloud VM. Default to ccportal
   vm_size: Standard_B2ms
   # version: # to specify a specific version, see https://packages.microsoft.com/yumrepos/cyclecloud/
   # Optional: use Ubuntu for the CycleCloud VM (default: linux_base_image)
