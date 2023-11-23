@@ -415,6 +415,9 @@ monitoring:
   # Optional settings to deploy Grafana and install Telegraf
   telegraf: true # Install telegraf on static infra VMs and dynamic compute nodes. Default: true
   grafana: true # Deploy a Grafana instance with pre-defined dashboards. Default: true
+  idle_threshold: '70' # default threshold to highlight idle VMs in grafana cluster stats dashboard
+  mem_threshold: '30' # default threshold to highlight VMs running out of memory in grafana cluster stats dashboard
+  iowait_threshold: '40' # default threshold to highlight VMs waiting on IO in  grafana cluster stats dashboard 
 
 #If set to true, it will create alert rules associated with az-hop. Enablement of alerting will require the specification of an admin email to send alerts to.
 alerting:
@@ -830,9 +833,9 @@ queues:
   - name: htc # name of the Cycle Cloud node array
     # Azure VM Instance type
     vm_size: Standard_F2s_v2
-    # maximum number of cores that can be instantiated
-    #max_core_count: 1024
-    # maximum number of nodes that can be instanciated. The lower of the two will be used
+    # maximum number of cores that can be instanciated
+    max_core_count: 1024
+      # maximum number of nodes that can be instanciated. The lower of the two will be used
     max_count: 128
     # Use the pre-built azhop image from the marketplace
     image: azhpc:azhop-compute:centos-7_9:latest
