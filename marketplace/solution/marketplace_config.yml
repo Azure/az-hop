@@ -15,6 +15,9 @@ log_analytics:
 
 monitoring: 
   azure_monitor_agent: false
+  # Optional settings to deploy Grafana and install Telegraf
+  telegraf: "[steps('otherSettings').enableGrafana]" # Install telegraf on static infra VMs and dynamic compute nodes. Default: true
+  grafana: "[steps('otherSettings').enableGrafana]" # Deploy a Grafana instance with pre-defined dashboards. Default: true
 
 alerting:
   enabled: false
@@ -129,9 +132,8 @@ queue_manager: "[steps('scheduler').scheduler]"
 slurm:
   accounting_enabled: "[if(equals(steps('scheduler').scheduler, 'slurm'), steps('scheduler').slurmAccounting, false)]"
   slurm_version: "[steps('scheduler').slurmVersion]"
-  # CycleCloud for SLURM project version as defined in https://github.com/Azure/cyclecloud-slurm/releases. Currently supported: 2.7.0-2.7.2. Default to 2.7.2
-  cyclecloud_slurm_version: 2.7.2
-
+  # CycleCloud for SLURM project version as defined in https://github.com/Azure/cyclecloud-slurm/releases
+  cyclecloud_slurm_version: 3.0.4
 enroot:
   enroot_version: 3.4.1
 
