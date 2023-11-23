@@ -6,6 +6,6 @@ Roles = {"azhop Cluster Admin"}
 {% else %}
 Roles = {"User"}
 {% endif %}
-Superuser = false
 UID = {{ user.uid }}
+Superuser = false
 RawPassword = "{{password.stdout}}"
