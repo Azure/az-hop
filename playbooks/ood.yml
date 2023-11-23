@@ -363,6 +363,15 @@
       regexp: 'limit: 1,$'
       replace: 'limit: 1, timeout: 0,'
 
+  - name: Enable file extension restriction in Uppy
+    lineinfile:
+      path: /var/www/ood/apps/sys/dashboard/app/views/files/index.html.erb
+      regex: 'allowedFileTypes'
+      state: 'present'
+      insertafter: 'restrictions:'
+      line: '      allowedFileTypes: {{ ondemand.file_upload_allowed_extensions | default("[]") }},'
+    when: (ondemand.file_upload_allowed_extensions is defined)
+
   - name: create cron entry to make sure the passenger-tmp folder exists
     cron:
       name: "create passenger tmp directory and set permissions"

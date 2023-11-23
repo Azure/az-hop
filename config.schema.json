@@ -1003,7 +1003,9 @@
                 "vm_size": { "type": "string" },
                 "name": { "type": "string", "default": "ondemand", "maxLength": 15, "pattern": "[0-9a-z\\-]+" },
                 "generate_certificate": { "type": "boolean", "default": true },
-                "fqdn": { "type": "string" }
+                "fqdn": { "type": "string" },
+                "file_upload_max": { "type": "integer" },
+                "file_upload_allowed_extensions": { "type": "array" }
             },
             "required": [
                 "vm_size"
