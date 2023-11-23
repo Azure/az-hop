@@ -6,7 +6,7 @@ param adminUser string
 param dbAdminUser string
 param identityId string
 
-resource secrets 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+resource secrets 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
   name: 'secrets'
   location: location
   identity: {
