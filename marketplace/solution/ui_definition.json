@@ -7,8 +7,8 @@
       {
         "name": "azhopResourceGroup",
         "type": "Microsoft.Common.TextBox",
-        "label": "Azhop Resource Group",
-        "toolTip": "Resource group name to use for the azhop deployment.",
+        "label": "Resource Group",
+        "toolTip": "Resource group name to use for the deployment.",
         "constraints": {
           "required": true,
           "regex": "^[a-zA-Z0-9](?:[a-zA-Z0-9._-]*[a-zA-Z0-9])?$",
@@ -216,7 +216,7 @@
               "allowedValues": [
                 {
                   "label": "/24",
-                  "description": "59 compute nodes",
+                  "description": "123 compute nodes",
                   "value": "/24"
                 },
                 {
@@ -286,7 +286,7 @@
             "name": "publicIp",
             "type": "Microsoft.Common.CheckBox",
             "label": "Enable public IP address for the ondemand VM.",
-            "toolTip": "This is required for public access to the AZHOP.",
+            "toolTip": "This is required for public access.",
             "defaultValue": true
           },
           {
@@ -294,7 +294,7 @@
             "type": "Microsoft.Common.CheckBox",
             "label": "Peer to an existing VNET.",
             "defaultValue": false,
-            "toolTip": "Enable peering azhop to your existing VNET.",
+            "toolTip": "Enable peering this vnet to your existing VNET.",
             "visible": "[not(steps('network').publicIp)]"
           },
           {
@@ -388,12 +388,12 @@
             "name": "scheduler",
             "type": "Microsoft.Common.DropDown",
             "label": "Scheduler",
-            "defaultValue": "SLURM",
+            "defaultValue": "Slurm",
             "toolTip": "Select the scheduler to use",
             "constraints": {
               "allowedValues": [
                 {
-                  "label": "SLURM",
+                  "label": "Slurm",
                   "description": "Simple Linux Utility for Resource Management scheduler",
                   "value": "slurm"
                 },
@@ -410,20 +410,20 @@
           {
             "name": "slurmVersion",
             "type": "Microsoft.Common.DropDown",
-            "label": "SLURM Version",
-            "defaultValue": "22.05.3",
-            "toolTip": "Select the version of SLURM to use",
+            "label": "Slurm Version",
+            "defaultValue": "22.05.9",
+            "toolTip": "Select the version of Slurm to use",
             "constraints": {
               "allowedValues": [
                 {
-                  "label": "22.05.3",
-                  "description": "Version 22.05.3",
-                  "value": "22.05.3"
+                  "label": "22.05.9",
+                  "description": "Version 22.05.9",
+                  "value": "22.05.9"
                 },
                 {
-                  "label": "20.11.9",
-                  "description": "Version 20.11.9",
-                  "value": "20.11.9"
+                  "label": "23.02.5",
+                  "description": "Version 23.02.5",
+                  "value": "23.02.5"
                 }
               ],
               "required": true
@@ -433,8 +433,8 @@
           {
             "name": "slurmAccounting",
             "type": "Microsoft.Common.CheckBox",
-            "label": "SLURM accounting",
-            "toolTip": "Select to enable SLURM accounting in a managed MariaDB instance",
+            "label": "Slurm job accounting",
+            "toolTip": "Select to enable Slurm job accounting in a managed MariaDB instance",
             "defaultValue": false,
             "visible": "[equals(steps('scheduler').scheduler, 'slurm')]"
           }
@@ -526,6 +526,14 @@
                 "regex": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$",
                 "validationMessage": "Enter a valid ObjectId"
               },
+              "visible": false
+            },
+            {
+              "name": "enableGrafana",
+              "type": "Microsoft.Common.CheckBox",
+              "label": "Enable Grafana Dashboards",
+              "toolTip": "Select to enable configure a Grafana VM with monitoring dashboards",
+              "defaultValue": false,
               "visible": true
             },
             {
@@ -533,7 +541,7 @@
               "type": "Microsoft.Common.TextBox",
               "label": "Branch Name",
               "defaultValue": "__BRANCH_NAME__",
-              "toolTip": "Branch of the azhop repo to pull - Default to main",
+              "toolTip": "Branch of the repo to pull - Default to main",
               "constraints": {
                 "required": false,
                 "regex": "^[A-Za-z0-9_.\\-/]+$",
