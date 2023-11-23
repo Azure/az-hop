@@ -98,11 +98,6 @@
     src: '{{role_path}}/files/cyclecloud-slurm.txt'
     dest: /opt/cycle_server/config/data/cyclecloud-slurm.txt
 
-# - name: Rebranding record
-#   copy:
-#     src: '{{role_path}}/files/brand.json'
-#     dest: /opt/cycle_server/config/data/brand.json
-
 - name: Fix CSS
   copy:
     src: '{{role_path}}/files/fabric.css'
