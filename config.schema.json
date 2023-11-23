@@ -219,20 +219,16 @@
             },
             "required": [
                 "admin_user",
-                "applications",
                 "cyclecloud",
-                "grafana",
                 "location",
                 "mounts",
                 "network",
-                "ondemand",
                 "queue_manager",
                 "queues",
                 "resource_group",
                 "scheduler",
                 "usergroups",
-                "users",
-                "windows_base_image"
+                "users"
             ],
             "title": "az-hop"
         },
@@ -1256,4 +1252,3 @@
         }
     }
 }
-
