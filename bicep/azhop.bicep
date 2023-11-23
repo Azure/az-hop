@@ -1055,4 +1055,3 @@ secret_name=$(echo $user-password | tr -dc 'a-zA-Z0-9-')
 az keyvault secret show --vault-name {0} -n $secret_name --query "value" -o tsv
 
 ''', config.key_vault_name)
-
