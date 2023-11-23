@@ -5,7 +5,7 @@
   become: true
 
 - name: Run test suite
-  hosts: ondemand
+  hosts: scheduler, ondemand
   become: true
   gather_facts: no
   vars_files:
@@ -26,3 +26,4 @@
       test_mounts:
         - '{{mounts.home.mountpoint | default("/anfhome")}}'
         - '{{ ( lustre.create | default(false) ) | ternary("/lustre", "/") }}'
+    run_once: true
