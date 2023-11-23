@@ -180,6 +180,8 @@
       - SSLCertificateFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.crt"
       - SSLCertificateKeyFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.key"
       - "{{SSLCertificateChainFile | default(None)}}"
+      - SSLProtocol all -SSLv2 -SSLv3 -TLSv1 -TLSv1.1
+      - SSLCipherSuite ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256
 
   - name: Copy logo
     copy: 
