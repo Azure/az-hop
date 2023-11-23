@@ -2,8 +2,11 @@
 set -e
 # This script builds the ARM template and UI definition for the azhop marketplace solution
 BUILD_NAME=${1:-main}
-CONFIG_FILE=${2:-marketplace_config.yml}
-UI_DEFINITION=${3:-ui_definition.json}
+OFFER=${2-:azhop}
+
+CONFIG_FILE=${OFFER}/marketplace_config.yml
+UI_DEFINITION=${OFFER}/ui_definition.json
+TRACKING=${OFFER}/tracking_resource.json
 
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 AZHOP_ROOT=${THIS_DIR}/../..
@@ -44,7 +47,7 @@ rm $build_dir/config.json
 echo "Converting Bicep to ARM template"
 az bicep build --file ${AZHOP_ROOT}/bicep/mainTemplate.bicep --outdir $build_dir
 echo "Adding tracking resource to ARM template"
-jq --argfile trackingResource ${THIS_DIR}/tracking_resource.json '.resources += [$trackingResource]' $build_dir/mainTemplate.json > $build_dir/mainTemplateTracking.json
+jq --argfile trackingResource ${THIS_DIR}/${TRACKING} '.resources += [$trackingResource]' $build_dir/mainTemplate.json > $build_dir/mainTemplateTracking.json
 mv $build_dir/mainTemplateTracking.json $build_dir/mainTemplate.json
 echo "Creating zipfile"
 pushd $build_dir
