@@ -2,7 +2,7 @@
 set -e
 # This script builds the ARM template and UI definition for the azhop marketplace solution
 BUILD_NAME=${1:-main}
-OFFER=${2-:azhop}
+OFFER=${2:-azhop}
 
 CONFIG_FILE=${OFFER}/marketplace_config.yml
 UI_DEFINITION=${OFFER}/ui_definition.json
