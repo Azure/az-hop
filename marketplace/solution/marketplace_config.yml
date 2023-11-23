@@ -134,7 +134,6 @@ slurm:
   slurm_version: "[steps('scheduler').slurmVersion]"
   # CycleCloud for SLURM project version as defined in https://github.com/Azure/cyclecloud-slurm/releases
   cyclecloud_slurm_version: 3.0.4
-
 enroot:
   enroot_version: 3.4.1
 
