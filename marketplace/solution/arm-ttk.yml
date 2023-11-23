@@ -15,9 +15,9 @@
         state: directory
         mode: 0755
 
-    - name: Download arm toolkit
+    - name: Download arm toolkit 0.24
       unarchive:
-        src: https://github.com/Azure/arm-ttk/releases/download/20230619/arm-ttk.zip
+        src: https://github.com/Azure/arm-ttk/releases/download/20231122/arm-ttk.zip
         dest: '.'
         remote_src: yes
 
