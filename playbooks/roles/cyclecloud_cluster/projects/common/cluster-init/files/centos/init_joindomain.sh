@@ -1,19 +1,21 @@
 #!/bin/bash
-packages="sssd realmd oddjob oddjob-mkhomedir adcli samba-common samba-common-tools krb5-workstation openldap-clients policycoreutils-python"
+function package_update() {
+  packages="sssd realmd oddjob oddjob-mkhomedir adcli samba-common samba-common-tools krb5-workstation openldap-clients policycoreutils-python"
 
-if ! rpm -q $packages; then
-  echo "Installing packages $packages" 
-  yum install -y $packages
-  echo "Restart dbus systemd-logind"
-  systemctl restart dbus
-  systemctl restart systemd-logind
-fi
+  if ! rpm -q $packages; then
+    echo "Installing packages $packages" 
+    yum install -y $packages
+    echo "Restart dbus systemd-logind"
+    systemctl restart dbus
+    systemctl restart systemd-logind
+  fi
 
-echo "Update nameserver"
-# https://docs.microsoft.com/en-us/azure/virtual-machines/linux/azure-dns
-if ! grep "RES_OPTIONS" /etc/sysconfig/network; then
-  echo "RES_OPTIONS=\"timeout:1 attempts:5\"" >> /etc/sysconfig/network
-fi
+  echo "Update nameserver"
+  # https://docs.microsoft.com/en-us/azure/virtual-machines/linux/azure-dns
+  if ! grep "RES_OPTIONS" /etc/sysconfig/network; then
+    echo "RES_OPTIONS=\"timeout:1 attempts:5\"" >> /etc/sysconfig/network
+  fi
+}
 
 function enforce_hostname() {
   local system_hostname=$1
