@@ -3,10 +3,9 @@ Name =  "{{ user.name }}"
 Authentication = "internal"
 {% if (usergroups | selectattr('gid', 'in', (user.groups | default([], true))) | selectattr('name', 'match', 'azhop-admins') | map(attribute='name') | count ) > 0 %}
 Roles = {"azhop Cluster Admin"}
-Superuser = true
 {% else %}
 Roles = {"User"}
-Superuser = false
 {% endif %}
+Superuser = false
 UID = {{ user.uid }}
 RawPassword = "{{password.stdout}}"
