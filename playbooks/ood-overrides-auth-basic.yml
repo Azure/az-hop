@@ -2,6 +2,11 @@
 httpd_auth:
 - AuthType Basic
 - AuthName "Open OnDemand"
-- AuthBasicProvider PAM
-- AuthPAMService ood
+- AuthBasicProvider external
+- AuthExternal pwauth
 - Require valid-user
+
+# Thee will be the value to used when this https://github.com/OSC/ood-ansible/issues/222 will be fixed
+httpd_extra: |
+  AddExternalAuth pwauth /usr/bin/pwauth
+  SetExternalAuthMethod pwauth pipe

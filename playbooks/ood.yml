@@ -32,9 +32,10 @@
       state: latest
       lock_timeout : 180
 
-  - name: Set up PAM authentication for OOD
-    include_role:
-      name: ood_pam_auth
+  - name: Set up mod_authnz_external modules (for cyclecloud proxy)
+    yum:
+      name: mod_authnz_external,pwauth
+      lock_timeout: 180  
 
   - name: Retrieve OIDC secret
     block:
@@ -229,6 +230,15 @@
       slurm_version: '{{slurm.slurm_version | default("20.11.9")}}-1'
     when: ( queue_manager is defined and queue_manager == "slurm" )
 
+  # temporary workaround waiting for this https://github.com/OSC/ood-ansible/issues/222 to be fixed
+  - name: Configure pwauth for Apache
+    blockinfile:
+      path: /opt/ood/ood-portal-generator/templates/ood-portal.conf.erb
+      insertafter: OOD_PUN_STAGE_CMD
+      block: |
+        AddExternalAuth pwauth /usr/bin/pwauth
+        SetExternalAuthMethod pwauth pipe
+
   - name: setup cyclecloud proxy
     shell: |
         if ! grep -q {{ccportal_name}} /opt/ood/ood-portal-generator/templates/ood-portal.conf.erb; then
@@ -238,8 +248,8 @@
           <Location "/cyclecloud">
             AuthType Basic
             AuthName "Open OnDemand"
-            AuthBasicProvider PAM
-            AuthPAMService ood
+            AuthBasicProvider external
+            AuthExternal pwauth
             Require valid-user
 
             ProxyPass http://{{ccportal_name}}:80/cyclecloud
