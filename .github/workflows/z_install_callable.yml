@@ -35,7 +35,7 @@ jobs:
   install:
     name: install
     runs-on: self-hosted
-    timeout-minutes: 60
+    timeout-minutes: 80
 
     container:
       image: azhop.azurecr.io/hpcrover:latest
