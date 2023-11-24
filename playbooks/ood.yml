@@ -230,6 +230,15 @@
       slurm_version: '{{slurm.slurm_version | default("20.11.9")}}-1'
     when: ( queue_manager is defined and queue_manager == "slurm" )
 
+  # temporary workaround waiting for this https://github.com/OSC/ood-ansible/issues/222 to be fixed
+  - name: Configure pwauth for Apache
+    blockinfile:
+      path: /opt/ood/ood-portal-generator/templates/ood-portal.conf.erb
+      insertafter: OOD_PUN_STAGE_CMD
+      block: |
+        AddExternalAuth pwauth /usr/bin/pwauth
+        SetExternalAuthMethod pwauth pipe
+
   - name: setup cyclecloud proxy
     shell: |
         if ! grep -q {{ccportal_name}} /opt/ood/ood-portal-generator/templates/ood-portal.conf.erb; then
