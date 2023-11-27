@@ -7,13 +7,27 @@
       {
         "name": "azhopResourceGroup",
         "type": "Microsoft.Common.TextBox",
-        "label": "Azhop Resource Group",
-        "toolTip": "Resource group name to use for the azhop deployment.",
+        "label": "Resource Group",
+        "toolTip": "Resource group name to use for the deployment.",
         "constraints": {
           "required": true,
           "regex": "^[a-zA-Z0-9](?:[a-zA-Z0-9._-]*[a-zA-Z0-9])?$",
           "validationMessage": "Invalid resource group name"
         },
+        "visible": true
+      },
+      {
+        "name": "CycleCloudVmSize",
+        "type": "Microsoft.Compute.SizeSelector",
+        "label": "CycleCloud VM Size",
+        "toolTip": "Select a size for the CycleCloud VM",
+        "recommendedSizes": [
+          "Standard_B2ms"
+        ],
+        "options": {
+          "hideDiskTypeFilter": true
+        },
+        "osPlatform": "Linux",
         "visible": true
       },
       {
@@ -216,7 +230,7 @@
               "allowedValues": [
                 {
                   "label": "/24",
-                  "description": "59 compute nodes",
+                  "description": "123 compute nodes",
                   "value": "/24"
                 },
                 {
@@ -285,8 +299,8 @@
           {
             "name": "publicIp",
             "type": "Microsoft.Common.CheckBox",
-            "label": "Enable public IP address for the ondemand VM.",
-            "toolTip": "This is required for public access to the AZHOP.",
+            "label": "Enable public IP address for the frontend access",
+            "toolTip": "This is required for public access.",
             "defaultValue": true
           },
           {
@@ -294,7 +308,7 @@
             "type": "Microsoft.Common.CheckBox",
             "label": "Peer to an existing VNET.",
             "defaultValue": false,
-            "toolTip": "Enable peering azhop to your existing VNET.",
+            "toolTip": "Enable peering this vnet to your existing VNET.",
             "visible": "[not(steps('network').publicIp)]"
           },
           {
@@ -385,117 +399,236 @@
         "bladeTitle": "Scheduler Settings",
         "elements": [
           {
-            "name": "scheduler",
-            "type": "Microsoft.Common.DropDown",
-            "label": "Scheduler",
-            "defaultValue": "SLURM",
-            "toolTip": "Select the scheduler to use",
-            "constraints": {
-              "allowedValues": [
-                {
-                  "label": "SLURM",
-                  "description": "Simple Linux Utility for Resource Management scheduler",
-                  "value": "slurm"
-                },
-                {
-                  "label": "OpenPBS",
-                  "description": "Open Portable Batch System scheduler",
-                  "value": "openpbs"
-                }
-              ],
-              "required": true
+            "name": "vmsize",
+            "type": "Microsoft.Compute.SizeSelector",
+            "label": "Size",
+            "toolTip": "Select a size for the Scheduler VM",
+            "recommendedSizes": [
+              "Standard_B2ms"
+            ],
+            "options": {
+              "hideDiskTypeFilter": true
             },
+            "osPlatform": "Linux",
             "visible": true
           },
           {
             "name": "slurmVersion",
             "type": "Microsoft.Common.DropDown",
-            "label": "SLURM Version",
-            "defaultValue": "22.05.3",
-            "toolTip": "Select the version of SLURM to use",
+            "label": "Slurm Version",
+            "defaultValue": "22.05.9",
+            "toolTip": "Select the version of Slurm to use",
             "constraints": {
               "allowedValues": [
                 {
-                  "label": "22.05.3",
-                  "description": "Version 22.05.3",
-                  "value": "22.05.3"
+                  "label": "22.05.9",
+                  "description": "Version 22.05.9",
+                  "value": "22.05.9"
                 },
                 {
-                  "label": "20.11.9",
-                  "description": "Version 20.11.9",
-                  "value": "20.11.9"
+                  "label": "23.02.5",
+                  "description": "Version 23.02.5",
+                  "value": "23.02.5"
                 }
               ],
               "required": true
             },
-            "visible": "[equals(steps('scheduler').scheduler, 'slurm')]"
+            "visible": true
           },
           {
             "name": "slurmAccounting",
             "type": "Microsoft.Common.CheckBox",
-            "label": "SLURM accounting",
-            "toolTip": "Select to enable SLURM accounting in a managed MariaDB instance",
+            "label": "Slurm job accounting",
+            "toolTip": "Select to enable Slurm job accounting in a managed MariaDB instance",
             "defaultValue": false,
-            "visible": "[equals(steps('scheduler').scheduler, 'slurm')]"
+            "visible": true
           }
         ]
       },
       {
-        "name": "applications",
-        "label": "Applications",
+        "name": "Partitions",
+        "label": "Partitions",
         "subLabel": {
-          "preValidation": "Applications you want to install",
-          "postValidation": "Done"
+          "preValidation": "Configure your Slurm partitions",
+          "postValidation": "Configuration complete"
         },
-        "bladeTitle": "Applications",
-        "elements": [        
+        "bladeTitle": "Slurm Partitions",
+        "elements": [
           {
-            "name": "enableCodeserver",
-            "type": "Microsoft.Common.CheckBox",
-            "label": "Enable Codeserver",
-            "toolTip": "Enable the Codeserver application",
-            "defaultValue": true,
-            "visible": true
+            "name": "HTCSection",
+            "type": "Microsoft.Common.Section",
+            "label": "HTC Partition",
+            "elements": [
+              {
+                "name": "vmsize",
+                "type": "Microsoft.Compute.SizeSelector",
+                "label": "Size",
+                "toolTip": "Select a VM Size for the HTC partition",
+                "recommendedSizes": [
+                  "Standard_F2s_v2"
+                ],
+                "options": {
+                  "hideDiskTypeFilter": true
+                },
+                "osPlatform": "Linux",
+                "visible": true
+              },
+              {
+                "name": "NodeNumber",
+                "type": "Microsoft.Common.Slider",
+                "label": "Number of nodes",
+                "toolTip": "Maximum number of nodes to scale to",
+                "subLabel": "Number",
+                "defaultValue": 32,
+                "min": 0,
+                "max": 512,
+                "step": 4,
+                "visible": true
+              },      
+              {
+                "name": "ImageName",
+                "type": "Microsoft.Common.DropDown",
+                "label": "Image Name",
+                "defaultValue": "Alma Linux 8.7",
+                "toolTip": "Select the image to use for the HTC partition",
+                "constraints": {
+                  "allowedValues": [
+                    {
+                      "label": "Ubuntu 20.04",
+                      "value": "microsoft-dsvm:ubuntu-hpc:2004:latest"
+                    },
+                    {
+                      "label": "Ubuntu 22.04",
+                      "value": "microsoft-dsvm:ubuntu-hpc:2204:latest"
+                    },
+                    {
+                      "label": "Alma Linux 8.7",
+                      "value": "almalinux:almalinux-hpc:8_7-hpc-gen2:latest"
+                    }
+                  ],
+                  "required": true,
+                  "validationMessage": "A choice is required."
+                }
+              }
+            ]
           },
           {
-            "name": "enableJupyter",
-            "type": "Microsoft.Common.CheckBox",
-            "label": "Enable Jupyter",
-            "toolTip": "Enable the Jupyter application",
-            "defaultValue": true,
-            "visible": true
+            "name": "HPCSection",
+            "type": "Microsoft.Common.Section",
+            "label": "HPC Partition",
+            "elements": [
+              {
+                "name": "vmsize",
+                "type": "Microsoft.Compute.SizeSelector",
+                "label": "Size",
+                "toolTip": "Select a VM Size for the HPC partition",
+                "recommendedSizes": [
+                  "Standard_HB120rs_v3"
+                ],
+                "options": {
+                  "hideDiskTypeFilter": true
+                },
+                "osPlatform": "Linux",
+                "visible": true
+              },
+              {
+                "name": "NodeNumber",
+                "type": "Microsoft.Common.Slider",
+                "label": "Number of nodes",
+                "toolTip": "Maximum number of nodes to scale to",
+                "subLabel": "Number",
+                "defaultValue": 4,
+                "min": 0,
+                "max": 100,
+                "step": 2,
+                "visible": true
+              },
+              {
+                "name": "ImageName",
+                "type": "Microsoft.Common.DropDown",
+                "label": "Image Name",
+                "defaultValue": "Alma Linux 8.7",
+                "toolTip": "Select the image to use for the HPC partition",
+                "constraints": {
+                  "allowedValues": [
+                    {
+                      "label": "Ubuntu 20.04",
+                      "value": "microsoft-dsvm:ubuntu-hpc:2004:latest"
+                    },
+                    {
+                      "label": "Ubuntu 22.04",
+                      "value": "microsoft-dsvm:ubuntu-hpc:2204:latest"
+                    },
+                    {
+                      "label": "Alma Linux 8.7",
+                      "value": "almalinux:almalinux-hpc:8_7-hpc-gen2:latest"
+                    }
+                  ],
+                  "required": true,
+                  "validationMessage": "A choice is required."
+                }
+              }
+            ]
           },
           {
-            "name": "enableRStudio",
-            "type": "Microsoft.Common.CheckBox",
-            "label": "Enable RStudio",
-            "toolTip": "Enable the RStudio application",
-            "defaultValue": true,
-            "visible": true
-          },
-          {
-            "name": "enableParaview",
-            "type": "Microsoft.Common.CheckBox",
-            "label": "Enable Paraview",
-            "toolTip": "Enable the Paraview application",
-            "defaultValue": false,
-            "visible": true
-          },
-          {
-            "name": "enableVizer",
-            "type": "Microsoft.Common.CheckBox",
-            "label": "Enable Vizer",
-            "toolTip": "Enable the Vizer application",
-            "defaultValue": false,
-            "visible": true
-          },
-          {
-            "name": "enableVMD",
-            "type": "Microsoft.Common.CheckBox",
-            "label": "Enable VMD",
-            "toolTip": "VMD won't be installed and instructions need to be followed from this [link](https://azure.github.io/az-hop/apps/index#visual-molecular-dynamics).",
-            "defaultValue": false,
-            "visible": true
+            "name": "GPUSection",
+            "type": "Microsoft.Common.Section",
+            "label": "GPU Partition",
+            "elements": [
+              {
+                "name": "vmsize",
+                "type": "Microsoft.Compute.SizeSelector",
+                "label": "Size",
+                "toolTip": "Select a VM Size for the GPU partition",
+                "recommendedSizes": [
+                  "Standard_ND96asr_v4",
+                  "Standard_ND96amsr_A100_v4",
+                  "Standard_NC24ads_A100_v4"
+                ],
+                "options": {
+                  "hideDiskTypeFilter": true
+                },
+                "osPlatform": "Linux",
+                "visible": true
+              },
+              {
+                "name": "NodeNumber",
+                "type": "Microsoft.Common.Slider",
+                "label": "Number of nodes",
+                "toolTip": "Maximum number of nodes to scale to",
+                "subLabel": "Number",
+                "defaultValue": 4,
+                "min": 0,
+                "max": 100,
+                "step": 2,
+                "visible": true
+              },
+              {
+                "name": "ImageName",
+                "type": "Microsoft.Common.DropDown",
+                "label": "Image Name",
+                "defaultValue": "Alma Linux 8.7",
+                "toolTip": "Select the image to use for the GPU partition",
+                "constraints": {
+                  "allowedValues": [
+                    {
+                      "label": "Ubuntu 20.04",
+                      "value": "microsoft-dsvm:ubuntu-hpc:2004:latest"
+                    },
+                    {
+                      "label": "Ubuntu 22.04",
+                      "value": "microsoft-dsvm:ubuntu-hpc:2204:latest"
+                    },
+                    {
+                      "label": "Alma Linux 8.7",
+                      "value": "almalinux:almalinux-hpc:8_7-hpc-gen2:latest"
+                    }
+                  ],
+                  "required": true,
+                  "validationMessage": "A choice is required."
+                }
+              }
+            ]
           }
         ]
       },
@@ -509,35 +642,28 @@
         "bladeTitle": "Other Settings",
         "elements": [        
             {
-              "name": "announcement",
-              "type": "Microsoft.Common.TextBlock",
-              "visible": true,
-              "options": {
-                "text": "The following option allows an additional user to access the Azure KeyVault.  An ObjectId is required here.  To get the currently signed in user with the AzureCLI, use 'az ad signed-in-user show --query id -o tsv'."
-              }
-            },
-            {
-              "name": "keyvaultReader",
-              "type": "Microsoft.Common.TextBox",
-              "label": "Additional Keyvault Reader",
-              "toolTip": "This must be a ObjectId",
-              "constraints": {
-                "required": false,
-                "regex": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$",
-                "validationMessage": "Enter a valid ObjectId"
-              },
-              "visible": true
-            },
-            {
               "name": "branchName",
               "type": "Microsoft.Common.TextBox",
               "label": "Branch Name",
               "defaultValue": "__BRANCH_NAME__",
-              "toolTip": "Branch of the azhop repo to pull - Default to main",
+              "toolTip": "Branch of the repo to pull - Default to main",
               "constraints": {
                 "required": false,
                 "regex": "^[A-Za-z0-9_.\\-/]+$",
                 "validationMessage": "Invalid branch name"
+              },
+              "visible": true
+            },
+            {
+              "name": "deployerSshPort",
+              "type": "Microsoft.Common.TextBox",
+              "label": "Deployer SSH Port",
+              "defaultValue": "22",
+              "toolTip": "SSH port for the deployer VM.",
+              "constraints": {
+                "required": true,
+                "regex": "^[0-9]+$",
+                "validationMessage": "Invalid port number"
               },
               "visible": true
             }

@@ -1,0 +1,566 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
+  "handler": "Microsoft.Azure.CreateUIDef",
+  "version": "0.1.2-preview",
+  "parameters": {
+    "basics": [
+      {
+        "name": "azhopResourceGroup",
+        "type": "Microsoft.Common.TextBox",
+        "label": "Resource Group",
+        "toolTip": "Resource group name to use for the deployment.",
+        "constraints": {
+          "required": true,
+          "regex": "^[a-zA-Z0-9](?:[a-zA-Z0-9._-]*[a-zA-Z0-9])?$",
+          "validationMessage": "Invalid resource group name"
+        },
+        "visible": true
+      },
+      {
+        "name": "adminUser",
+        "type": "Microsoft.Common.TextBox",
+        "label": "Admin User",
+        "defaultValue": "hpcadmin",
+        "toolTip": "Local admin user for the Virtual Machines.",
+        "constraints": {
+          "required": true,
+          "regex": "^[a-zA-Z][a-zA-Z0-9_]{5,19}$",
+          "validationMessage": "Enter a valid username"
+        },
+        "visible": true
+      },
+      {
+        "name": "autogeneratePasswordsAndKeys",
+        "type": "Microsoft.Common.CheckBox",
+        "label": "Autogenerate keypair and passwords",
+        "defaultValue": true,
+        "toolTip": "Keypair and passwords can be retrieved from keyvault after deploying.",
+        "constraints": {
+          "required": false
+        }
+      },
+      {
+        "name": "adminSshPublicKey",
+        "type": "Microsoft.Common.TextBox",
+        "label": "Admin Ssh Public Key",
+        "toolTip": "SSH Public Key for the Virtual Machines.",
+        "constraints": {
+          "required": "[not(basics('autogeneratePasswordsAndKeys'))]",
+          "regex": "^ssh-rsa [0-9A-Za-z+/]+[=]{0,2} [A-Za-z0-9@._-]+$",
+          "validationMessage": "Invalid public key"
+        },
+        "visible": "[not(basics('autogeneratePasswordsAndKeys'))]"
+      },
+      {
+        "name": "adminSshPrivateKey",
+        "type": "Microsoft.Common.TextBox",
+        "label": "Admin Ssh Private Key",
+        "toolTip": "SSH Private Key for the Virtual Machines.",
+        "multiLine": true,
+        "constraints": {
+          "required": "[not(basics('autogeneratePasswordsAndKeys'))]",
+          "regex": "^-----BEGIN [A-Z]+ PRIVATE KEY-----\r?\n([a-zA-Z0-9+/]+={0,2}\r?\n)+-----END [A-Z]+ PRIVATE KEY-----$",
+          "validationMessage": "Invalid private key"
+        },
+        "visible": "[not(basics('autogeneratePasswordsAndKeys'))]"
+      },
+      {
+        "name": "adminPassword",
+        "type": "Microsoft.Common.PasswordBox",
+        "label": {
+          "password": "Admin Password",
+          "confirmPassword": "Confirm password"
+        },
+        "toolTip": "The Windows/Active Directory password.",
+        "constraints": {
+          "required": "[not(basics('autogeneratePasswordsAndKeys'))]",
+          "regex": "^[\\x20-\\x7E]{12,}$",
+          "validationMessage": "Enter at least 12 characters"
+        },
+        "options": {
+          "hideConfirmation": false
+        },
+        "visible": "[not(basics('autogeneratePasswordsAndKeys'))]"
+      },
+      {
+        "name": "databaseAdminPassword",
+        "type": "Microsoft.Common.PasswordBox",
+        "label": {
+          "password": "Database Admin Password",
+          "confirmPassword": "Confirm password"
+        },
+        "toolTip": "Password for the database admin user",
+        "constraints": {
+          "required": "[not(basics('autogeneratePasswordsAndKeys'))]",
+          "regex": "^[\\x20-\\x7E]{12,}$",
+          "validationMessage": "Enter at least 12 characters"
+        },
+        "options": {
+          "hideConfirmation": false
+        },
+        "visible": "[not(basics('autogeneratePasswordsAndKeys'))]"
+      }
+    ],
+    "steps": [
+      {
+        "name": "homedir",
+        "label": "Home Directory",
+        "subLabel": {
+          "preValidation": "Configure your home directory settings",
+          "postValidation": "Done"
+        },
+        "bladeTitle": "Home Directory Settings",
+        "elements": [
+          {
+            "name": "type",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Storage Type",
+            "defaultValue": "Azure Files",
+            "toolTip": "Storage type for the home directory.",
+            "multiselect": false,
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "Azure Files",
+                  "value": "azurefiles"
+                },
+                {
+                  "label": "Azure NetApp Files",
+                  "value": "anf"
+                }
+              ],
+              "required": true
+            },
+            "visible": true
+          },
+          {
+            "name": "mountpoint",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Mountpoint",
+            "defaultValue": "/nfshome",
+            "toolTip": "Home directory mountpoint on the VMs.",
+            "constraints": {
+              "required": false,
+              "regex": "^\/(?:[\\w-.]+\/)*[\\w-.]+$",
+              "validationMessage": "Must be an absolute path"
+            },
+            "visible": true
+          },
+          {
+            "name": "anftier",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Service Level",
+            "defaultValue": "Premium",
+            "multiselect": false,
+            "toolTip": "Service level for the Azure NetApp Files volume.",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "Standard",
+                  "value": "Standard"
+                },
+                {
+                  "label": "Premium",
+                  "value": "Premium"
+                },
+                {
+                  "label": "Ultra",
+                  "value": "Ultra"
+                }
+              ],
+              "required": true
+            },
+            "visible": "[equals(steps('homedir').type,'anf')]"
+          },
+          {
+            "name": "anfcapacity",
+            "type": "Microsoft.Common.Slider",
+            "label": "Capacity",
+            "toolTip": "Capacity of the Azure NetApp Files volume.",
+            "subLabel": "TB",
+            "defaultValue": 4,
+            "min": 4,
+            "max": 100,
+            "visible": "[equals(steps('homedir').type,'anf')]"
+          },
+          {
+            "name": "azurefilescapacity",
+            "type": "Microsoft.Common.Slider",
+            "label": "Capacity",
+            "toolTip": "Capacity of the Azure Files share.",
+            "subLabel": "GB",
+            "defaultValue": 1024,
+            "min": 100,
+            "max": 102400,
+            "visible": "[equals(steps('homedir').type,'azurefiles')]"
+          }
+        ]
+      },
+      {
+        "name": "network",
+        "label": "Network",
+        "subLabel": {
+          "preValidation": "Configure your network settings",
+          "postValidation": "Done"
+        },
+        "bladeTitle": "Network Settings",
+        "elements": [
+          {
+            "name": "cidrPrefix",
+            "type": "Microsoft.Common.DropDown",
+            "label": "CIDR Prefix",
+            "defaultValue": "/24",
+            "multiLine": true,
+            "toolTip": "Select the CIDR prefix",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "/24",
+                  "description": "123 compute nodes",
+                  "value": "/24"
+                },
+                {
+                  "label": "/23",
+                  "description": "251 compute nodes",
+                  "value": "/23"
+                },
+                {
+                  "label": "/22",
+                  "description": "507 compute nodes",
+                  "value": "/22"
+                },
+                {
+                  "label": "/21",
+                  "description": "1019 compute nodes",
+                  "value": "/21"
+                },
+                {
+                  "label": "/20",
+                  "description": "2043 compute nodes",
+                  "value": "/20"
+                }
+              ],
+              "required": true
+            },
+            "visible": true
+          },
+          {
+            "name": "baseIpAddress",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Base IP Address",
+            "defaultValue": "10.0.0.0",
+            "toolTip": "The base IP address for the IP range",
+            "multiLine": false,
+            "constraints": {
+              "required": true,
+              "validations": [
+                {
+                  "regex": "^(\\d{1,3}.){3}\\d{1,3}$",
+                  "message": "Invalid IP address"
+                },
+                {
+                  "isValid": "[and(greaterOrEquals(_X1i_, 0),lessOrEquals(_X1i_, 255))]",
+                  "message": "Invalid number for first octet (range is 0-255)"
+                },
+                {
+                  "isValid": "[and(greaterOrEquals(_X2i_, 0),lessOrEquals(_X2i_, 255))]",
+                  "message": "Invalid number for second octet (range is 0-255)"
+                },
+                {
+                  "isValid": "[and(greaterOrEquals(_X3i_, 0),lessOrEquals(_X3i_, 255))]",
+                  "message": "Invalid number for third octet (range is 0-255)"
+                },
+                {
+                  "isValid": "[or(equals(steps('network').cidrPrefix, '/24'),and(equals(steps('network').cidrPrefix, '/23'), equals(mod(_X3i_, 2),0)),and(equals(steps('network').cidrPrefix, '/22'), equals(mod(_X3i_, 4),0)),and(equals(steps('network').cidrPrefix, '/21'), equals(mod(_X3i_, 8),0)),and(equals(steps('network').cidrPrefix, '/20'), equals(mod(_X3i_, 16),0)))]",
+                  "message": "Invalid third octet for the selected CIDR prefix"
+                },
+                {
+                  "isValid": "[equals(_X4i_, 0)]",
+                  "message": "Invalid last octet for the selected CIDR prefix"
+                }
+              ]
+            },
+            "visible": true
+          },
+          {
+            "name": "publicIp",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Enable public IP address for the ondemand VM.",
+            "toolTip": "This is required for public access.",
+            "defaultValue": true
+          },
+          {
+            "name": "peering",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Peer to an existing VNET.",
+            "defaultValue": false,
+            "toolTip": "Enable peering this vnet to your existing VNET.",
+            "visible": "[not(steps('network').publicIp)]"
+          },
+          {
+            "name": "vnetPeeredVnetSelector",
+            "type": "Microsoft.Solutions.ResourceSelector",
+            "label": "Select VNET to peer with",
+            "toolTip": "Select the VNET you want to peer with. Has to be in the same subscription",
+            "resourceType": "Microsoft.Network/virtualNetworks",
+            "options": {
+              "filter": {
+                "subscription": "onBasics"
+              }
+            },
+            "visible": "[and(not(steps('network').publicIp),steps('network').peering)]"
+          }
+        ]
+      },
+      {
+        "name": "lustre",
+        "label": "Lustre",
+        "subLabel": {
+          "preValidation": "Configure your Azure Managed Lustre settings",
+          "postValidation": "Done"
+        },
+        "bladeTitle": "Lustre Settings",
+        "elements": [
+          {
+            "name": "deployLustre",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Deploy an Azure Managed Lustre Filesystem.",
+            "toolTip": "Deploy an Azure Managed Lustre Filesystem.",
+            "defaultValue": false
+          },
+          {
+            "name": "lustreSku",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Lustre Tier",
+            "defaultValue": "AMLFS-Durable-Premium-250",
+            "toolTip": "Select the Azure Manage Lustre SKU to use",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "AMLFS-Durable-Premium-40",
+                  "description": "40 MB/s/TB, 48TB size increment",
+                  "value": "AMLFS-Durable-Premium-40"
+                },
+                {
+                  "label": "AMLFS-Durable-Premium-125",
+                  "description": "125 MB/s/TB, 16TB size increment",
+                  "value": "AMLFS-Durable-Premium-125"
+                },
+                {
+                  "label": "AMLFS-Durable-Premium-250",
+                  "description": "250 MB/s/TB, 8TB size increment",
+                  "value": "AMLFS-Durable-Premium-250"
+                },
+                {
+                  "label": "AMLFS-Durable-Premium-500",
+                  "description": "500 MB/s/TB, 4TB size increment",
+                  "value": "AMLFS-Durable-Premium-500"
+                }
+              ],
+              "required": true
+            },
+            "visible": "[steps('lustre').deployLustre]"
+          },
+          {
+            "name": "lustreCapacity",
+            "type": "Microsoft.Common.Slider",
+            "label": "Capacity",
+            "toolTip": "Capacity of the Lustre filesystem.",
+            "subLabel": "TB",
+            "defaultValue": "[if(equals(steps('lustre').lustreSku,'AMLFS-Durable-Premium-40'),48,if(equals(steps('lustre').lustreSku,'AMLFS-Durable-Premium-125'),16,if(equals(steps('lustre').lustreSku,'AMLFS-Durable-Premium-250'),8,4)))]",
+            "min": "[if(equals(steps('lustre').lustreSku,'AMLFS-Durable-Premium-40'),48,if(equals(steps('lustre').lustreSku,'AMLFS-Durable-Premium-125'),16,if(equals(steps('lustre').lustreSku,'AMLFS-Durable-Premium-250'),8,4)))]",
+            "max": "[if(equals(steps('lustre').lustreSku,'AMLFS-Durable-Premium-40'),768,128)]",
+            "step": "[if(equals(steps('lustre').lustreSku,'AMLFS-Durable-Premium-40'),48,if(equals(steps('lustre').lustreSku,'AMLFS-Durable-Premium-125'),16,if(equals(steps('lustre').lustreSku,'AMLFS-Durable-Premium-250'),8,4)))]",
+            "visible": "[steps('lustre').deployLustre]"
+          }
+        ]
+      },
+      {
+        "name": "scheduler",
+        "label": "Scheduler",
+        "subLabel": {
+          "preValidation": "Configure your scheduler settings",
+          "postValidation": "Done"
+        },
+        "bladeTitle": "Scheduler Settings",
+        "elements": [
+          {
+            "name": "scheduler",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Scheduler",
+            "defaultValue": "Slurm",
+            "toolTip": "Select the scheduler to use",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "Slurm",
+                  "description": "Simple Linux Utility for Resource Management scheduler",
+                  "value": "slurm"
+                },
+                {
+                  "label": "OpenPBS",
+                  "description": "Open Portable Batch System scheduler",
+                  "value": "openpbs"
+                }
+              ],
+              "required": true
+            },
+            "visible": true
+          },
+          {
+            "name": "slurmVersion",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Slurm Version",
+            "defaultValue": "22.05.9",
+            "toolTip": "Select the version of Slurm to use",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "22.05.9",
+                  "description": "Version 22.05.9",
+                  "value": "22.05.9"
+                },
+                {
+                  "label": "23.02.5",
+                  "description": "Version 23.02.5",
+                  "value": "23.02.5"
+                }
+              ],
+              "required": true
+            },
+            "visible": "[equals(steps('scheduler').scheduler, 'slurm')]"
+          },
+          {
+            "name": "slurmAccounting",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Slurm job accounting",
+            "toolTip": "Select to enable Slurm job accounting in a managed MariaDB instance",
+            "defaultValue": false,
+            "visible": "[equals(steps('scheduler').scheduler, 'slurm')]"
+          }
+        ]
+      },
+      {
+        "name": "applications",
+        "label": "Applications",
+        "subLabel": {
+          "preValidation": "Applications you want to install",
+          "postValidation": "Done"
+        },
+        "bladeTitle": "Applications",
+        "elements": [        
+          {
+            "name": "enableCodeserver",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Enable Codeserver",
+            "toolTip": "Enable the Codeserver application",
+            "defaultValue": true,
+            "visible": true
+          },
+          {
+            "name": "enableJupyter",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Enable Jupyter",
+            "toolTip": "Enable the Jupyter application",
+            "defaultValue": true,
+            "visible": true
+          },
+          {
+            "name": "enableRStudio",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Enable RStudio",
+            "toolTip": "Enable the RStudio application",
+            "defaultValue": true,
+            "visible": true
+          },
+          {
+            "name": "enableParaview",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Enable Paraview",
+            "toolTip": "Enable the Paraview application",
+            "defaultValue": false,
+            "visible": true
+          },
+          {
+            "name": "enableVizer",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Enable Vizer",
+            "toolTip": "Enable the Vizer application",
+            "defaultValue": false,
+            "visible": true
+          },
+          {
+            "name": "enableVMD",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Enable VMD",
+            "toolTip": "VMD won't be installed and instructions need to be followed from this [link](https://azure.github.io/az-hop/apps/index#visual-molecular-dynamics).",
+            "defaultValue": false,
+            "visible": true
+          }
+        ]
+      },
+      {
+        "name": "otherSettings",
+        "label": "Other Settings",
+        "subLabel": {
+          "preValidation": "Miscellaneous Properties",
+          "postValidation": "Done"
+        },
+        "bladeTitle": "Other Settings",
+        "elements": [        
+            {
+              "name": "announcement",
+              "type": "Microsoft.Common.TextBlock",
+              "visible": true,
+              "options": {
+                "text": "The following option allows an additional user to access the Azure KeyVault.  An ObjectId is required here.  To get the currently signed in user with the AzureCLI, use 'az ad signed-in-user show --query id -o tsv'."
+              }
+            },
+            {
+              "name": "keyvaultReader",
+              "type": "Microsoft.Common.TextBox",
+              "label": "Additional Keyvault Reader",
+              "toolTip": "This must be a ObjectId",
+              "constraints": {
+                "required": false,
+                "regex": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$",
+                "validationMessage": "Enter a valid ObjectId"
+              },
+              "visible": false
+            },
+            {
+              "name": "enableGrafana",
+              "type": "Microsoft.Common.CheckBox",
+              "label": "Enable Grafana Dashboards",
+              "toolTip": "Select to enable configure a Grafana VM with monitoring dashboards",
+              "defaultValue": false,
+              "visible": true
+            },
+            {
+              "name": "branchName",
+              "type": "Microsoft.Common.TextBox",
+              "label": "Branch Name",
+              "defaultValue": "__BRANCH_NAME__",
+              "toolTip": "Branch of the repo to pull - Default to main",
+              "constraints": {
+                "required": false,
+                "regex": "^[A-Za-z0-9_.\\-/]+$",
+                "validationMessage": "Invalid branch name"
+              },
+              "visible": true
+            }
+          ]
+      }
+    ],
+    "outputs": {
+      "location": "[location()]",
+      "branchName": "[steps('otherSettings').branchName]",
+      "autogenerateSecrets": "[basics('autogeneratePasswordsAndKeys')]",
+      "adminSshPublicKey": "[if(basics('autogeneratePasswordsAndKeys'),'',basics('adminSshPublicKey'))]",
+      "adminSshPrivateKey": "[if(basics('autogeneratePasswordsAndKeys'),'',basics('adminSshPrivateKey'))]",
+      "adminPassword": "[if(basics('autogeneratePasswordsAndKeys'),'',basics('adminPassword'))]",
+      "databaseAdminPassword": "[if(basics('autogeneratePasswordsAndKeys'),'',basics('databaseAdminPassword'))]",
+      "azhopConfig": {}    
+    }
+  }
+}

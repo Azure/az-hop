@@ -1,0 +1,17 @@
+{
+  "apiVersion": "2020-06-01",
+  "name": "pid-3975e326-819f-41ac-8318-bfb6902ac49d-partnercenter",
+  "resourceGroup": "[variables('resource_group_name')]",
+  "type": "Microsoft.Resources/deployments",
+  "properties": {
+    "mode": "Incremental",
+    "template": {
+      "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+      "contentVersion": "1.0.0.0",
+      "resources": []
+    }
+  },
+  "dependsOn": [
+    "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resource_group_name'))]"
+  ]
+}

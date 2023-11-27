@@ -219,20 +219,16 @@
             },
             "required": [
                 "admin_user",
-                "applications",
                 "cyclecloud",
-                "grafana",
                 "location",
                 "mounts",
                 "network",
-                "ondemand",
                 "queue_manager",
                 "queues",
                 "resource_group",
                 "scheduler",
                 "usergroups",
-                "users",
-                "windows_base_image"
+                "users"
             ],
             "title": "az-hop"
         },
@@ -1008,7 +1004,9 @@
                 "name": { "type": "string", "default": "ondemand", "maxLength": 15, "pattern": "[0-9a-z\\-]+" },
                 "generate_certificate": { "type": "boolean", "default": true },
                 "fqdn": { "type": "string" },
-                "whitelist_path": { "type": "string" }
+                "whitelist_path": { "type": "string" },
+                "file_upload_max": { "type": "integer" },
+                "file_upload_allowed_extensions": { "type": "array" }
             },
             "required": [
                 "vm_size"
@@ -1069,6 +1067,10 @@
                     "description": "Maximum number of cores that can be allocated for the entire queue.",
                     "type": "integer"
                 },
+                "max_count": {
+                    "description": "Maximum number of nodes that can be allocated for the entire queue.",
+                    "type": "integer"
+                },
                 "image": {
                     "description": "Can be either an image reference or an image_id from the image registry or a custom managed image",
                     "type": "string"
@@ -1108,7 +1110,6 @@
             },
             "required": [
                 "image",
-                "max_core_count",
                 "name",
                 "vm_size"
             ],
@@ -1254,4 +1255,3 @@
         }
     }
 }
-

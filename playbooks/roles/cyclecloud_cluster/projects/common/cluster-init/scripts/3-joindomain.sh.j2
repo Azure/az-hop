@@ -111,6 +111,7 @@ rename_host
 
 case {{ authentication.user_auth | default("ad") }} in
   ad)
+    package_update
     domain_join
     ;;
   local)

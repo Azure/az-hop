@@ -130,6 +130,16 @@ function use_grafana_telegraf()
   fi
 }
 
+function install_ondemand()
+{
+  local install_ondemand
+  install_ondemand=$(yq eval '.ondemand' config.yml)
+  if [ "$install_ondemand" == "null" ]; then
+    echo "Installing OnDemand"
+    touch $PLAYBOOKS_DIR/ood.ok
+    touch $PLAYBOOKS_DIR/ood-custom.ok
+  fi
+}
 
 # Ensure submodule exists
 if [ ! -d "${PLAYBOOKS_DIR}/roles/ood-ansible/.github" ]; then
@@ -147,6 +157,7 @@ enable_winviz
 use_existing_ad
 use_local_users
 use_grafana_telegraf
+install_ondemand
 
 case $TARGET in
   all)
@@ -176,4 +187,3 @@ case $TARGET in
     exit 1
   ;;
 esac
-

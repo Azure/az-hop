@@ -21,6 +21,36 @@
   - name: Gather facts for first time
     setup:
 
+  - name: set httpd_auth values when using basic auth
+    block:
+      - name: set httpd_auth values when using basic auth on Alma 8
+        set_fact:
+          httpd_auth:
+            - AuthType Basic
+            - AuthName "Open OnDemand"
+            - AuthBasicProvider external
+            - AuthExternal pwauth
+            - Require valid-user
+        when:
+          - ansible_distribution == 'AlmaLinux'
+          - ansible_distribution_major_version == '8'      
+
+      - name: set httpd_auth values when using basic auth on CentOS 7
+        set_fact:
+          httpd_auth:
+            - AuthType Basic
+            - AuthName "Open OnDemand"
+            - AuthBasicProvider PAM
+            - AuthPAMService ood
+            - Require valid-user
+        when:
+          - ansible_distribution == 'CentOS'
+          - ansible_distribution_major_version == '7'  
+
+    when:
+      - authentication.httpd_auth is defined
+      - authentication.httpd_auth == 'basic'
+
   # - name: debug
   #   debug:
   #     msg: 
@@ -35,6 +65,17 @@
   - name: Set up PAM authentication for OOD
     include_role:
       name: ood_pam_auth
+    when: 
+      - ansible_distribution == 'CentOS'
+      - ansible_distribution_major_version == '7'
+
+  - name: Set up mod_authnz_external modules (for cyclecloud proxy)
+    yum:
+      name: mod_authnz_external,pwauth
+      lock_timeout: 180  
+    when: 
+      - ansible_distribution == 'AlmaLinux'
+      - ansible_distribution_major_version == '8'
 
   - name: Retrieve OIDC secret
     block:
@@ -180,6 +221,8 @@
       - SSLCertificateFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.crt"
       - SSLCertificateKeyFile "/etc/ssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.key"
       - "{{SSLCertificateChainFile | default(None)}}"
+      - SSLProtocol all -SSLv2 -SSLv3 -TLSv1 -TLSv1.1
+      - SSLCipherSuite ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256
 
   - name: Copy logo
     copy: 
@@ -227,28 +270,37 @@
       slurm_version: '{{slurm.slurm_version | default("20.11.9")}}-1'
     when: ( queue_manager is defined and queue_manager == "slurm" )
 
+  # temporary workaround waiting for this https://github.com/OSC/ood-ansible/issues/222 to be fixed
+  - name: Configure pwauth for Apache
+    blockinfile:
+      path: /opt/ood/ood-portal-generator/templates/ood-portal.conf.erb
+      insertafter: OOD_PUN_STAGE_CMD
+      marker: "# {mark} ANSIBLE MANAGED BLOCK - Configure pwauth for Apache"
+      block: |
+          AddExternalAuth pwauth /usr/bin/pwauth
+          SetExternalAuthMethod pwauth pipe
+    when: 
+      - authentication.httpd_auth is defined
+      - authentication.httpd_auth == 'basic'
+      - ansible_distribution == 'AlmaLinux'
+      - ansible_distribution_major_version == '8'
+
   - name: setup cyclecloud proxy
-    shell: |
-        if ! grep -q {{ccportal_name}} /opt/ood/ood-portal-generator/templates/ood-portal.conf.erb; then
-          cd /root
-          cat << EOF > cyclecloud_proxy
+    blockinfile:
+      path: /opt/ood/ood-portal-generator/templates/ood-portal.conf.erb
+      insertafter: EOF
+      marker: "# {mark} ANSIBLE MANAGED BLOCK - setup cyclecloud proxy"
+      block: |
           SetEnv OOD_CC_URI "/cyclecloud"
           <Location "/cyclecloud">
-            AuthType Basic
-            AuthName "Open OnDemand"
-            AuthBasicProvider PAM
-            AuthPAMService ood
-            Require valid-user
+            {% for auth in httpd_auth  %}
+            {{ auth }}
+            {% endfor %}
 
             ProxyPass http://{{ccportal_name}}:80/cyclecloud
             ProxyPassReverse http://{{ccportal_name}}:80/cyclecloud
           </Location>
-        EOF
-          sed -i '$e cat cyclecloud_proxy' /opt/ood/ood-portal-generator/templates/ood-portal.conf.erb
-          rm cyclecloud_proxy
-          /opt/ood/ood-portal-generator/sbin/update_ood_portal
-        fi
-
+  
   - name: Configure Lmod
     block:
       - name: enable powertools
@@ -360,6 +412,15 @@
       path: /var/www/ood/apps/sys/dashboard/app/views/files/index.html.erb
       regexp: 'limit: 1,$'
       replace: 'limit: 1, timeout: 0,'
+
+  - name: Enable file extension restriction in Uppy
+    lineinfile:
+      path: /var/www/ood/apps/sys/dashboard/app/views/files/index.html.erb
+      regex: 'allowedFileTypes'
+      state: 'present'
+      insertafter: 'restrictions:'
+      line: '      allowedFileTypes: {{ ondemand.file_upload_allowed_extensions | default("[]") }},'
+    when: (ondemand.file_upload_allowed_extensions is defined)
 
   - name: create cron entry to make sure the passenger-tmp folder exists
     cron:

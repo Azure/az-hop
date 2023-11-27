@@ -30,6 +30,7 @@ ood_apps:
   dashboard:
     env:
       ood_bc_dynamic_js: true
+      file_upload_max: "{{ondemand.file_upload_max | default(omit)}}"
 
   bc_desktop:
     title: "Linux Desktop"
