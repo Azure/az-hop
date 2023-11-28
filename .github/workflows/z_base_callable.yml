@@ -66,7 +66,7 @@ on:
       cycle_slurm_version:
         description: 'Version of the cyclecloud slurm project 2.7 or 3.0 - default to 2.7'
         required: false
-        default: '2.7' # use it with ${{ inputs.cycle_slurm_version }}
+        default: '3.0' # use it with ${{ inputs.cycle_slurm_version }}
         type: string
 
     secrets:

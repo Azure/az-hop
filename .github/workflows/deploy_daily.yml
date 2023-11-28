@@ -18,7 +18,7 @@ jobs:
         scheduler: ['slurm']
         home_type: ['azurefiles', 'anf']
         user_auth: ['local', 'ad']
-        deploy_with: ['bicep', 'arm']
+        deploy_with: ['bicep']
         monitoring: ['grafana', 'none']
     uses: ./.github/workflows/z_deploy_only_callable.yml
     with:
