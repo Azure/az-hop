@@ -564,6 +564,11 @@ linux_base_image: "OpenLogic:CentOS:7_9-gen2:latest" # publisher:offer:sku:versi
 #linux_base_plan:
 windows_base_image: "MicrosoftWindowsServer:WindowsServer:2019-Datacenter-smalldisk:latest" # publisher:offer:sku:version or image_id
 
+private_dns:
+  create: false # Create a private DNS zone for the environment. Default to false
+  name: hpc.azure # Name of the private DNS zone to be created. Default to hpc.azure
+  registration_enabled: false # Enable auto-registration of VMs in the private DNS zone. Default to false
+
 domain:
   name: "hpc.azure"
   #domain_join_ou: "OU=azhop" # OU to set the machine in. Make sure the OU exists in the domain as it won't be created for you

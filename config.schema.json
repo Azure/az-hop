@@ -215,6 +215,10 @@
                 "alerting": {
                     "description": "If set to true, it will create alert rules associated with az-hop. Enablement of alerting will require the specification of an admin email to send alerts to.",
                     "$ref": "#/definitions/alerting"
+                },
+                "private_dns": {
+                    "description": "Configuration of a private DNS zone to create",
+                    "$ref": "#/definitions/private_dns"
                 }
             },
             "required": [
@@ -231,6 +235,17 @@
                 "users"
             ],
             "title": "az-hop"
+        },
+        "private_dns": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "create": {"type": "boolean", "default": false},
+                "name": {"type": "string"},
+                "registration_enabled": {"type": "boolean", "default": false}
+            },
+            "required": [ "create", "name" ],
+            "title": "privateDNSZone"
         },
         "logAnalytics": {
             "type": "object",

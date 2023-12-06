@@ -103,6 +103,13 @@ var config = {
     accounting_enabled: contains(azhopConfig, 'slurm') && contains(azhopConfig.slurm, 'accounting_enabled') ? azhopConfig.slurm.accounting_enabled : false
   }
 
+  private_dns: {
+    create: contains(azhopConfig, 'private_dns') && contains(azhopConfig.private_dns, 'create') ? azhopConfig.private_dns.create : false
+    name: contains(azhopConfig, 'private_dns') && contains(azhopConfig.private_dns, 'name') ? azhopConfig.private_dns.name : 'hpc.azure'
+    registration_enabled: contains(azhopConfig, 'private_dns') && contains(azhopConfig.private_dns, 'registration_enabled') ? azhopConfig.private_dns.registration_enabled : false
+  }
+
+
   domain: {
     name : contains(azhopConfig, 'domain') ? azhopConfig.domain.name : 'hpc.azure'
     domain_join_user: createAD ? {
@@ -838,11 +845,12 @@ module azhopNfsFiles './nfsfiles.bicep' = if (config.azurefiles.create ) {
   }
 }
 
-module azhopPrivateZone './privatezone.bicep' = if (createAD || useExistingAD) {
+module azhopPrivateZone './privatezone.bicep' = if (createAD || useExistingAD || config.private_dns.create) {
   name: 'azhopPrivateZone'
   params: {
     privateDnsZoneName: config.domain.name
     vnetId: azhopNetwork.outputs.vnetId
+    registrationEnabled: config.private_dns.registration_enabled
   }
 }
 
