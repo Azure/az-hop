@@ -205,14 +205,14 @@
           mode: 0755
           owner: telegraf
           content: |
-            #!/usr/bin/env python
+            #!/usr/bin/env python3
 
             import json
             import subprocess
             import sys
 
             def sinfo():
-                for sinfo_line in subprocess.check_output(["/bin/sinfo", "-h", "-o", "%R %D %F %T"]).split('\n'):
+                for sinfo_line in subprocess.check_output(["/bin/sinfo", "-h", "-o", "%R %D %F %T"]).decode().split('\n'):
                     data = sinfo_line.split(' ')
                     if (data[0] != ''):
                         partition = data[0]
@@ -227,7 +227,7 @@
                 jobs_pending = 0
                 jobs_configuring = 0
                 jobs_other = 0
-                for sinfo_line in subprocess.check_output(["/bin/squeue", "-h", "-o", "%a %D %T %P"]).split('\n'):
+                for sinfo_line in subprocess.check_output(["/bin/squeue", "-h", "-o", "%a %D %T %P"]).decode().split('\n'):
                     data = sinfo_line.split(' ')
                     if (data[0] != ''):
                         account = data[0]
