@@ -46,6 +46,14 @@
       lock_timeout : 180
       state: present
 
+  - name: setup private domain if not set in resolv.conf
+    shell: |
+      if ! grep -q {{private_dns.name}} /etc/resolv.conf; then
+        nmcli con mod "System eth0" ipv4.dns-search "{{private_dns.name}}"
+        systemctl restart NetworkManager
+      fi
+    when: private_dns.create | default(false)
+
   - name: mount home
     block:
       - name: debug
