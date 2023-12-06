@@ -1106,6 +1106,14 @@
                 "min_hours": {
                     "description": "Minimum session duration",
                     "type": "integer"
+                },
+                "location" : {
+                    "description": "Azure Location of the queue. Only used it for multi-region scenario. Defaults to the location of the az-hop deployment",
+                    "type": "string"
+                },
+                "subnet" : {
+                    "description": "Subnet of the queue. Only used and required for multi-region scenario. Format for the remove subnet is <resource_group>/<vnet_name>/<subnet_name> Defaults to the subnet of the az-hop deployment",
+                    "type": "string"
                 }
             },
             "required": [
