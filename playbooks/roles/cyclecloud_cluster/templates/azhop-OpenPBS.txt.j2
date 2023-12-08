@@ -79,6 +79,10 @@ Autoscale = true
     ImagePlan.Product = {{ plan_details[1] }}
     ImagePlan.Name = {{ plan_details[2] }}
   {% endif %}
+  {% if queue.location is defined %}
+    SubnetId = {{ queue.subnet }}
+    Region = {{ queue.location }}    
+  {% endif %}
         [[[configuration]]]
         pbspro.slot_type = {{ queue.name }}
         # Specific Autoscale settings
