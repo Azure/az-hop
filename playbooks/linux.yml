@@ -50,12 +50,10 @@
   - name: setup private domain if not set in resolv.conf
     shell: |
       if ! grep -q {{private_dns.name}} /etc/resolv.conf; then
-        nmcli con mod "System eth0" ipv4.dns-search "{{private_dns.name}}"
-        systemctl restart NetworkManager
+        sed -i 's/search /search {{private_dns.name}} /' /etc/resolv.conf
       fi
     when: 
       - private_dns.create | default(false)
-#      - queuemanager == "slurm"
 
   - name: mount home
     block:

@@ -16,5 +16,6 @@ sed -i "s/^fi/#fi /g" /opt/pbs/lib/init.d/limits.pbs_mom
 # for version 20 and above
 sed -i 's/CHANGE_THIS_TO_PBS_SERVER_HOSTNAME/{{scheduler.name | default("scheduler")}}/' /etc/pbs.conf
 
-systemctl restart pbs || exit 1
+echo "Restart PBS"
+retry_command "systemctl restart pbs"
 echo "PBS Restarted"

@@ -33,12 +33,6 @@ date >> /tmp/cloud-init.txt
 case `grep "^ID=" /etc/os-release | cut -d= -f2 | xargs` in
     centos|rhel|almalinux|rocky|oraclelinux)
         yum remove munge* slurm* -y >> /tmp/cloud-init.txt
-        {% if private_dns.name is defined %}
-        if ! grep -q {{private_dns.name}} /etc/resolv.conf; then
-            nmcli con mod "System eth0" ipv4.dns-search "{{private_dns.name}}"
-            systemctl restart NetworkManager
-        fi
-        {% endif %}
         ;;
     ubuntu|debian)
         apt-get remove munge* slurm* -y >> /tmp/cloud-init.txt
