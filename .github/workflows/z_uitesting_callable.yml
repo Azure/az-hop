@@ -129,12 +129,12 @@ jobs:
           # wait_time=$((RANDOM % 10))
           # sleep ${wait_time}s
           ./run_ui_tests.sh # ${{ matrix.users }} ${{ inputs.scenarios }}
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: playwright-test-results
           path: test-results/
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: playwright-report
