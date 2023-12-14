@@ -30,6 +30,7 @@
     - { dashboard: cluster-stats.json.j2, destination: '{{ grafana_paths_provisioning }}/dashboards/dashboards/cluster-stats.json' }
     - { dashboard: azhop_compute_servers.json.j2, destination: '{{ grafana_paths_provisioning }}/dashboards/dashboards/azhop_compute_servers.json' }
   vars:
+    sched: "{{queue_manager}}"
     scheduler_name: "{{scheduler.name | default('scheduler')}}"
     thresholds: ["10", "20", "30", "40", "50","60", "70", "80", "90", "100"]
     idle_threshold: "{{monitoring.idle_threshold | default('70')}}"

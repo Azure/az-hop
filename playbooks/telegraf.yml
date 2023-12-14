@@ -108,7 +108,7 @@
           mode: 0755
           owner: telegraf
           content: |
-            #!/usr/bin/env python
+            #!/usr/bin/env python3
 
             # How to run in telegraf
             #
@@ -123,20 +123,22 @@
             def read_pbsnodes():
                     # output:
                     # nodes,slot_type=<slot_type>,state=<state> <count>
-                    
-                    data = {}
-                    res = json.loads(subprocess.check_output(["/opt/pbs/bin/pbsnodes", "-a", "-F", "json"]))
-                    for node in res.get("nodes", {}).keys():
-                            details = res["nodes"][node]
-                            slot_type = details["resources_available"]["slot_type"]
-                            state = details["state"].replace("-", "_")
-                            key = ":".join([state, slot_type])
-                            if key not in data: data[key] = 0
-                            data[key] += 1
-                    
-                    for key in data.keys():
-                            state, slot_type = key.split(":")
-                            print("pbsnodes,slot_type="+slot_type+",state="+state+" nodes="+str(data[key])+"i")
+                    try:                    
+                            data = {}
+                            res = json.loads(subprocess.check_output(["/opt/pbs/bin/pbsnodes", "-a", "-F", "json"], stderr=subprocess.DEVNULL))
+                            for node in res.get("nodes", {}).keys():
+                                    details = res["nodes"][node]
+                                    slot_type = details["resources_available"]["slot_type"]
+                                    state = details["state"].replace("-", "_")
+                                    key = ":".join([state, slot_type])
+                                    if key not in data: data[key] = 0
+                                    data[key] += 1
+                            
+                            for key in data.keys():
+                                    state, slot_type = key.split(":")
+                                    print("pbsnodes,slot_type="+slot_type+",state="+state+" nodes="+str(data[key])+"i")
+                    except: 
+                            pass
 
             def read_pbsqueue():
                     # output:

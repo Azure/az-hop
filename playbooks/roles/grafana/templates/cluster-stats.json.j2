@@ -148,8 +148,13 @@
             },
             {
               "params": [
+{% if sched == "slurm" %}
                 "state"
-              ],
+{% else %}
+                "state::tag"
+{% endif %}
+          
+    ],
               "type": "tag"
             },
             {
@@ -159,9 +164,13 @@
               "type": "fill"
             }
           ],
+{% if sched == "slurm" %}
           "measurement": "slurm_nodes",
+{% else %}
+          "measurement": "pbsnodes",
+{% endif %}
           "orderByTime": "ASC",
-          "policy": "default",
+          "policy": "autogen",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -180,8 +189,12 @@
           ],
           "tags": [
             {
+{% if sched == "slurm" %}
               "condition": "AND",
               "key": "partition::tag",
+{% else %}
+              "key": "slot_type::tag",
+{% endif %}
               "operator": "=~",
               "value": "/^$node_array$/"
             }
@@ -255,7 +268,7 @@
               "options": {
                 "mode": "exclude",
                 "names": [
-                  "execute"
+                  "htc"
                 ],
                 "prefix": "All except:",
                 "readOnly": true
@@ -299,7 +312,11 @@
       },
       "targets": [
         {
+{% if sched == "slurm" %}
           "alias": "$tag_partition",
+{% else %}
+          "alias": "$node_array",
+{% endif %}
           "datasource": {
             "type": "influxdb",
             "uid": "P37B1EAF5C6A7BE1B"
@@ -313,19 +330,25 @@
             },
             {
               "params": [
+{% if sched == "slurm" %}
                 "partition"
               ],
               "type": "tag"
             },
             {
               "params": [
+{% endif %}
                 "none"
               ],
               "type": "fill"
             }
           ],
           "hide": false,
+{% if sched == "slurm" %}
           "measurement": "slurm_nodes",
+{% else %}
+          "measurement": "pbsnodes",
+{% endif %}
           "orderByTime": "ASC",
           "policy": "default",
           "refId": "B",
@@ -346,6 +369,7 @@
           ],
           "tags": [
             {
+{% if sched == "slurm" %}
               "key": "state",
               "operator": "!=",
               "value": "idle~"
@@ -353,6 +377,15 @@
             {
               "condition": "AND",
               "key": "partition::tag",
+{% else %}
+              "key": "state::tag",
+              "operator": "!=",
+              "value": "offline"
+            },
+            {
+              "condition": "AND",
+              "key": "slot_type::tag",
+{% endif %}
               "operator": "=~",
               "value": "/^$node_array$/"
             }
@@ -843,21 +876,21 @@
       {
         "current": {
           "selected": false,
-          "text": "execute",
-          "value": "execute"
+          "text": "htc",
+          "value": "htc"
         },
         "datasource": {
           "type": "influxdb",
           "uid": "P37B1EAF5C6A7BE1B"
         },
-        "definition": "SHOW TAG VALUES FROM slurm_nodes WITH KEY = \"partition\"",
+        "definition": "SHOW TAG VALUES FROM system WITH KEY = \"node_array\"",
         "hide": 0,
         "includeAll": false,
         "label": "Node Array",
         "multi": false,
         "name": "node_array",
         "options": [],
-        "query": "SHOW TAG VALUES FROM slurm_nodes WITH KEY = \"partition\"",
+        "query": "SHOW TAG VALUES FROM system WITH KEY = \"node_array\"",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -868,10 +901,10 @@
         "current": {
           "selected": false,
           "text": [
-            "execute-1"
+            "htc-1"
           ],
           "value": [
-            "execute-1"
+            "htc-1"
           ]
         },
         "datasource": {
