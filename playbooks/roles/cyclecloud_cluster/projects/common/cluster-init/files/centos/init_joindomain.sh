@@ -1,4 +1,10 @@
 #!/bin/bash
+# Stop NetworkManager overwriting /etc/resolv.conf
+cat > /etc/NetworkManager/conf.d/90-dns-none.conf << EOF
+[main]
+dns=none
+EOF
+
 function package_update() {
   packages="sssd realmd oddjob oddjob-mkhomedir adcli samba-common samba-common-tools krb5-workstation openldap-clients policycoreutils-python"
 
