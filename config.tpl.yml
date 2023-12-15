@@ -357,7 +357,7 @@ authentication:
   # ood_auth_openidc:
   #   OIDCProviderMetadataURL: # for AAD use 'https://sts.windows.net/{{tenant_id}}/.well-known/openid-configuration'
   #   OIDCClientID: 'XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX'
-  #   OIDCRemoteUserClaim: # for AAD use 'upn'
+  #   OIDCRemoteUserClaim: # for AAD use 'unique_name'
   #   OIDCScope: # for AAD use 'openid profile email groups'
   #   OIDCPassIDTokenAs: # for AAD use 'serialized'
   #   OIDCPassRefreshToken: # for AAD use 'On'
