@@ -482,6 +482,8 @@ queues:
     # Set the max number of vm's in a VMSS; requires additional limit raise through support ticket for >100; 
     # 100 is default value; lower numbers will improve scaling for single node jobs or jobs with small number of nodes
     MaxScaleSetSize: 100
+    # Use ephemeral boot disk for VM, check here for supported family https://learn.microsoft.com/en-us/azure/virtual-machines/ephemeral-os-disks
+    EphemeralOSDisk: false
   - name: hpc
     vm_size: Standard_HB120rs_v3
     max_count: 10

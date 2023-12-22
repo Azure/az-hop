@@ -1099,6 +1099,11 @@
                     "description": "Maximum number of VMs in a scale set (default: 100). Lowering may make it easier to provision VMs from Azure, increasing beyond 100 requires raising Azure limit via support ticket.",
                     "type": "integer"
                 },
+                "EphemeralOSDisk": {
+                    "description": "Use ephemeral boot disk for VM, if supported. Defaults to false",
+                    "type": "boolean",
+                    "default": false
+                },
                 "max_hours": {
                     "description": "Maximum session duration. 0 means 'no limit'.",
                     "type": "integer"
