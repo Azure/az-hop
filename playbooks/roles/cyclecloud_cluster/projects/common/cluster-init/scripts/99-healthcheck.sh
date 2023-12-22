@@ -1,6 +1,6 @@
 #!/bin/bash
 
-errormessage=$( /usr/sbin/nhc 2>&1)
+errormessage=$( /opt/azurehpc/test/azurehpc-health-checks/run-health-checks.sh -c /etc/nhc/nhc.conf 2>&1)
 error=$?
 
 # In case of health check failure, shutdown the node by calling the script /usr/libexec/nhc/azhop-node-offline.sh

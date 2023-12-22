@@ -2,7 +2,7 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Install NHC if not already installed in the image
-if [ ! -f /usr/sbin/nhc ] || [ ! -d /opt/azurehpc/test/azurehpc-health-checks ] ; then
+if [ ! -d /opt/azurehpc/test/azurehpc-health-checks ] ; then
     mkdir -p /opt/azurehpc/test/
     cd /opt/azurehpc/test/
     git clone https://github.com/Azure/azurehpc-health-checks.git
