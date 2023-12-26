@@ -215,6 +215,10 @@
                 "alerting": {
                     "description": "If set to true, it will create alert rules associated with az-hop. Enablement of alerting will require the specification of an admin email to send alerts to.",
                     "$ref": "#/definitions/alerting"
+                },
+                "nat_gateway": {
+                    "description": "Create a NAT Gateway to enable outbound connectivity",
+                    "$ref": "#/definitions/natgateway"
                 }
             },
             "required": [
@@ -284,6 +288,18 @@
                 "enabled"
             ],
             "title": "alerting"
+        },
+        "natgateway" : {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "create": {"type": "boolean", "default": false },
+                "name": { "type": "string" }
+            },
+            "required": [
+                "create"
+            ],
+            "title": "NAT Gateway"
         },
         "az-hopAd": {
             "type": "object",

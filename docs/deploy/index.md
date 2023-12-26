@@ -556,6 +556,11 @@ locked_down_network:
 #   grant_access_from: [a.b.c.d] # Array of CIDR to grant access from, see https://docs.microsoft.com/en-us/azure/storage/common/storage-network-security?tabs=azure-portal#grant-access-from-an-internet-ip-range
   public_ip: true # Enable public IP creation for Jumpbox, OnDemand and create images. Default to true
 
+# NAT Gateway is used for outbound internet connectivity
+nat_gateway:
+  create: true
+  #name: foo # name to be used instead of the default one created for you
+
 # Base image configuration. Can be either an image reference or an image_id from the image registry or a custom managed image
 # For AlmaLinux 8.7 use almalinux:almalinux-x86_64:8_7-gen2:latest
 # For CentOS 7.9 use OpenLogic:CentOS:7_9-gen2:latest
