@@ -245,7 +245,8 @@ locals {
         frontend = "frontend",
         admin = "admin",
         netapp = "netapp",
-        compute = "compute"
+        compute = "compute",
+        ad = "ad"
     }
 
     # Create subnet if required. If not specified create only if vnet is created
