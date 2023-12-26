@@ -2,12 +2,13 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Install NHC if not already installed in the image
-if [ ! -f /usr/sbin/nhc ] || [ ! -d /opt/azurehpc/test/azurehpc-health-checks ] ; then
+if [ ! -d /opt/azurehpc/test/azurehpc-health-checks ] ; then
     mkdir -p /opt/azurehpc/test/
     cd /opt/azurehpc/test/
-    git clone https://github.com/Azure/azurehpc-health-checks.git
+    git clone https://github.com/Azure/azurehpc-health-checks.git -b v0.2.6
     cd azurehpc-health-checks
     ./install-nhc.sh
+    cp /opt/azurehpc/test/azurehpc-health-checks/customTests/*.nhc /etc/nhc/scripts
 fi
 
 # Install azhop-node-offline.sh
