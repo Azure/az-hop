@@ -235,6 +235,11 @@ locals {
     grant_access_from   = try(local.configuration_yml["locked_down_network"]["grant_access_from"], [])
     allow_public_ip     = try(local.configuration_yml["locked_down_network"]["public_ip"], true)
     jumpbox_ssh_port    = try(local.configuration_yml["jumpbox"]["ssh_port"], "22")
+
+    # NAT Gateway
+    create_nat_gateway = try(local.configuration_yml["nat_gateway"]["create"], false)
+    nat_gateway_name = try(local.configuration_yml["nat_gateway"]["name"], "natgw-${random_string.resource_postfix.result}")
+
     # subnets
     _subnets = {
         frontend = "frontend",
