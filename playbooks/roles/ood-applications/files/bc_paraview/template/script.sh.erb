@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-<%- gpu = context.bc_slot_type.include?("3d") -%>
+<%- gpu = context.target.include?("3d") -%>
 
 # Clean the environment
 module purge

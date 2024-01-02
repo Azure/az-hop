@@ -11,7 +11,7 @@ port=$(find_port ${host})
 export CONTAINER_NAME=trame.$PBS_JOBID
 
 # replace '${gl}' with the appropriate value
-<%- if context.bc_slot_type == 'viz3d' or context.bc_slot_type == 'largeviz3d' -%>
+<%- if context.target == 'viz3d' or context.target == 'largeviz3d' -%>
 gl=egl
 <%- else -%>
 gl=osmesa
