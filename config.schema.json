@@ -181,17 +181,6 @@
                         "$ref": "#/definitions/Queue"
                     }
                 },
-                "enable_remote_winviz": {
-                    "description": "",
-                    "type": "boolean"
-                },
-                "remoteviz": {
-                    "description": "Remote visualization configuration",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/Queue"
-                    }
-                },
                 "applications": {
                     "description": "Configure applications in OnDemand web portal",
                     "$ref": "#/definitions/Applications"

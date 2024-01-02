@@ -85,7 +85,6 @@
       cc_password: '{{password.stdout}}'
       cc_ad_join_password: '{{ad_join_password.stdout | default("")}}'
       cc_queues: '{{queues}}'
-      cc_remoteviz: '{{remoteviz}}'
       cc_image_lookup: '{{image_lookup}}'
       cc_domain: '{{domain_name}}'
       cc_queue_manager: '{{ queue_manager | default("openpbs") }}'
