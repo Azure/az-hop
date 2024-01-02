@@ -3,7 +3,7 @@ cluster:
     - "ondemand"
 form:
     - bc_num_hours
-    - bc_slot_type
+    - target
     - bucket
     - container_image
     - dataset
@@ -17,7 +17,7 @@ attributes:
         help: |
             This is the maximum duration in hours of your session once started.
         step: 1
-    bc_slot_type:
+    target:
         widget: "select"
         label: "Node type"
         help: |

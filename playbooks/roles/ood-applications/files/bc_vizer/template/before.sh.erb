@@ -10,8 +10,16 @@ port=$(find_port ${host})
 # use the job ID for the container name
 export CONTAINER_NAME=trame.$PBS_JOBID
 
+<%- 
+require "yaml"
+node_arrays = YAML.load_file("/etc/ood/config/apps/bc_desktop/config/node_arrays.yml")
+slot_type = node_arrays.find { |slot_type| slot_type["name"] == context.target }
+
+gpu_count = slot_type["gpuCount"].to_i 
+-%>
+
+<%- if gpu_count > 0 -%>
 # replace '${gl}' with the appropriate value
-<%- if context.bc_slot_type == 'viz3d' or context.bc_slot_type == 'largeviz3d' -%>
 gl=egl
 <%- else -%>
 gl=osmesa
