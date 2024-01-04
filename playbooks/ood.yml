@@ -21,7 +21,7 @@
   - name: Gather facts for first time
     setup:
 
-   - name: set httpd_auth values when using basic auth
+  - name: set httpd_auth values when using basic auth
     block:
       - name: set httpd_auth values when using basic auth on Alma 8
         set_fact:
