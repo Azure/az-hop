@@ -41,6 +41,13 @@
       delegate_to: ondemand
       become: true
 
+    - name: Copy the viz node configuration file
+      template:
+        src: 'viz_nodes.yml.j2'
+        dest: '/etc/ood/config/apps/bc_desktop/config/viz_nodes.yml'
+      delegate_to: ondemand
+      become: true
+
     # - name: create config directory
     #   file:
     #     path: /etc/ood/config/apps/bc_desktop/config

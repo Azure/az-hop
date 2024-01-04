@@ -538,13 +538,36 @@
         shell: cvmfs_config setup 
     when:  ( cvmfs_eessi.enabled | default(false) )
 
-  # Generate the node array core lookup file for ondemand - will be only run if the marker file for ondemand exists
   - name: "yq: Download and install (CentOS)"
     get_url:
       url: "https://github.com/mikefarah/yq/releases/download/{{ yq_version }}/{{ yq_binary }}"
       dest: /usr/bin/yq
       mode: 0755
 
+# Configure bc_desktop for dynamic remote viz targets
+  - name: copy bc_desktop file
+    copy:
+      remote_src: true
+      src: /etc/ood/config/apps/bc_desktop/ondemand.yml
+      dest: /etc/ood/config/apps/bc_desktop/ondemand.yml.erb
+
+  - name: configure bc_desktop to dynamically load viz targets
+    blockinfile:
+      path: /etc/ood/config/apps/bc_desktop/ondemand.yml.erb
+      insertafter : "options: null"
+      backup: no
+      block: |
+        # Dynamically load viz targets - keep indentation as is
+                <%- File.readlines("/etc/ood/config/apps/bc_desktop/config/viz_nodes.yml").each do |line|  %>
+                    <%= line.to_s %>
+                <%- end %>
+  - name: remove the null value of the options
+    replace:
+      path: /etc/ood/config/apps/bc_desktop/ondemand.yml.erb
+      regexp: 'options: null'
+      replace: 'options:' 
+
+  # Generate the node array core lookup file for ondemand - will be only run if the marker file for ccluster exists
   - import_tasks: nodearray_lookup.yml
     vars:
       marker_file: cccluster.ok

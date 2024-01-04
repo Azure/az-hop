@@ -262,6 +262,8 @@ queues:
 
 # Remote Viz Queues
   - name: viz3d
+    type: remoteviz
+    description: "With GPU - Small GPU node for single session"
     vm_size: Standard_NV12s_v3
     max_count: 4
     image: azhpc:azhop-desktop:centos-7_9:latest
@@ -270,6 +272,8 @@ queues:
     EnableAcceleratedNetworking: true
   - name: viz
     vm_size: Standard_D8s_v5
+    type: remoteviz
+    description: "Without GPU - for single session"
     max_count: 10
     image: azhpc:azhop-desktop:centos-7_9:latest
     ColocateNodes: false
@@ -278,6 +282,9 @@ queues:
     max_hours: 12 # Maximum session duration
     min_hours: 1 # Minimum session duration - 0 is infinite
   - name: largeviz3d
+    type: remoteviz
+    description: "Large With GPU - Intented for shared sessions"
+    shareable: true
     vm_size: Standard_NV48s_v3
     max_count: 2
     image: azhpc:azhop-desktop:centos-7_9:latest
