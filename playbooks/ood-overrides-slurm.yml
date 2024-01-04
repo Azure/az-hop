@@ -12,12 +12,6 @@ ood_apps:
         require "yaml"
         scheduler_args = ["-p", target]
 
-        # If the user has specified a number of hours, set the job walltime
-        hours = num_hours.to_i
-        if hours > 0
-          scheduler_args += ["-t", "%02d:00:00" % hours]
-        end
-
         # If the user has specified a node ratio greather than 1, set the job ppn
         node_ratio = bucket.to_i
         node_arrays = YAML.load_file("/etc/ood/config/apps/bc_desktop/config/node_arrays.yml")

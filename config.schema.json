@@ -1116,6 +1116,23 @@
                 "min_hours": {
                     "description": "Minimum session duration",
                     "type": "integer"
+                },
+                "type": {
+                    "description": "Type of queue - mandatory for remoteviz nodes",
+                    "enum": [
+                        "remoteviz",
+                        "compute"
+                    ],
+                    "type": "string"
+                },
+                "description": {
+                    "description": "Description of the queue that will appear in the node selection choice of the ood portal",
+                    "type": "string"
+                },
+                "shareable": {
+                    "description": "Whether the remote visualization node can be shared by multiple users. Defaults to false",
+                    "type": "boolean",
+                    "default": false
                 }
             },
             "required": [

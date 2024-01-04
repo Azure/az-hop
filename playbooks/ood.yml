@@ -21,6 +21,23 @@
   - name: Gather facts for first time
     setup:
 
+  - name: copy bc_desktop file
+    copy:
+      remote_src: true
+      src: /etc/ood/config/apps/bc_desktop/ondemand.yml
+      dest: /etc/ood/config/apps/bc_desktop/ondemand.yml.erb
+
+  - name: configure bc_desktop to dynamically load viz targets
+    blockinfile:
+      path: /etc/ood/config/apps/bc_desktop/ondemand.yml.erb
+      insertafter : "__TARGET_OPTIONS__"
+      backup: no
+      block: |
+        # Dynamically load viz targets - keep indentation as is
+                <%- File.readlines("/etc/ood/config/apps/bc_desktop/config/viz_nodes.yml").each do |line|  %>
+                    <%= line.to_s %>
+                <%- end %>      
+
   - name: set httpd_auth values when using basic auth
     block:
       - name: set httpd_auth values when using basic auth on Alma 8

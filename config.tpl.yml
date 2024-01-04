@@ -499,8 +499,11 @@ queues:
     max_count: 0
     image: azhpc:azhop-compute:centos-7_9:latest
     EnableAcceleratedNetworking: true
-    # Queue dedicated to GPU remote viz nodes. This name is fixed and can't be changed
+
+# Queues for remote visualization
   - name: viz3d
+    type: remoteviz # mandatory property to specify the queue is for remote viz nodes
+    description: "With GPU - Small GPU node for single session" # optional description that will appear in the node selection choice of the ood portal
     vm_size: Standard_NV12s_v3
     max_count: 4
     # Use the pre-built azhop image from the marketplace
@@ -511,8 +514,11 @@ queues:
     EnableAcceleratedNetworking: true
     max_hours: 12 # Maximum session duration
     min_hours: 1 # Minimum session duration - 0 is infinite
-    # Queue dedicated to share GPU remote viz nodes. This name is fixed and can't be changed
+
   - name: largeviz3d
+    type: remoteviz
+    description: "Large With GPU - Intented for shared sessions"
+    shareable: true # Set to true to allow multiple users to connect to the same node - false by default
     vm_size: Standard_NV48s_v3
     max_count: 2
     image: azhpc:azhop-desktop:centos-7_9:latest
@@ -520,8 +526,10 @@ queues:
     EnableAcceleratedNetworking: true
     max_hours: 12
     min_hours: 1
-    # Queue dedicated to non GPU remote viz nodes. This name is fixed and can't be changed
+
   - name: viz
+    type: remoteviz
+    description: "Without GPU - for single session"
     vm_size: Standard_D8s_v5
     max_count: 10
     image: azhpc:azhop-desktop:centos-7_9:latest
