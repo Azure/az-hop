@@ -181,17 +181,6 @@
                         "$ref": "#/definitions/Queue"
                     }
                 },
-                "enable_remote_winviz": {
-                    "description": "",
-                    "type": "boolean"
-                },
-                "remoteviz": {
-                    "description": "Remote visualization configuration",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/Queue"
-                    }
-                },
                 "applications": {
                     "description": "Configure applications in OnDemand web portal",
                     "$ref": "#/definitions/Applications"
@@ -215,6 +204,10 @@
                 "alerting": {
                     "description": "If set to true, it will create alert rules associated with az-hop. Enablement of alerting will require the specification of an admin email to send alerts to.",
                     "$ref": "#/definitions/alerting"
+                },
+                "nat_gateway": {
+                    "description": "Create a NAT Gateway to enable outbound connectivity",
+                    "$ref": "#/definitions/natgateway"
                 },
                 "private_dns": {
                     "description": "Configuration of a private DNS zone to create",
@@ -300,6 +293,18 @@
             ],
             "title": "alerting"
         },
+        "natgateway" : {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "create": {"type": "boolean", "default": false },
+                "name": { "type": "string" }
+            },
+            "required": [
+                "create"
+            ],
+            "title": "NAT Gateway"
+        },
         "az-hopAd": {
             "type": "object",
             "additionalProperties": false,
@@ -308,8 +313,8 @@
                     "type": "string",
                     "description": "The size of VM to use when deploying a new active directory domain as part of AZHOP"
                 },
-                "name": { "type": "string", "default": "ad", "maxLength": 15, "pattern": "[0-9a-z\\-]+" },
-                "ha_name": { "type": "string", "default": "ad2", "maxLength": 15, "pattern": "[0-9a-z\\-]+" },
+                "name": { "type": "string", "default": "ad", "maxLength": 15, "pattern": "^([0-9a-z\\-]+)$" },
+                "ha_name": { "type": "string", "default": "ad2", "maxLength": 15, "pattern": "^([0-9a-z\\-]+)$" },
                 "hybrid_benefit": {
                     "type": "boolean",
                     "description": "Will hybrid benefit be used on the vm that is running the active directory domain vm being deployed for az-hop.",
@@ -593,7 +598,7 @@
             "additionalProperties": false,
             "properties": {
                 "vm_size": { "type": "string" },
-                "name": { "type": "string", "default": "ccportal", "maxLength": 15, "pattern": "[0-9a-z\\-]+" },
+                "name": { "type": "string", "default": "ccportal", "maxLength": 15, "pattern": "^([0-9a-z\\-]+)$" },
                 "version": { "type": "string" },
                 "image": {
                     "description": "Can be either an image reference or an image_id from the image registry or a custom managed image",
@@ -677,7 +682,7 @@
                     "type": "string"
                 },
                 "name": {
-                    "type": "string", "default": "jumpbox", "maxLength": 15, "pattern": "[0-9a-z\\-]+"
+                    "type": "string", "default": "jumpbox", "maxLength": 15, "pattern": "^([0-9a-z\\-]+)$"
                 },
                 "ssh_port": {
                     "description": "Defaults to 22. Change this to, e.g., 2222, if security policies (like 'zero trust') in your tenant automatically block access to port 22 from the internet",
@@ -697,7 +702,7 @@
                     "type": "string"
                 },
                 "name": {
-                    "type": "string", "default": "deployer", "maxLength": 15, "pattern": "[0-9a-z\\-]+"
+                    "type": "string", "default": "deployer", "maxLength": 15, "pattern": "^([0-9a-z\\-]+)$"
                 },
                 "ssh_port": {
                     "description": "Defaults to 22. Change this to, e.g., 2222, if security policies (like 'zero trust') in your tenant automatically block access to port 22 from the internet",
@@ -1016,7 +1021,7 @@
             "additionalProperties": false,
             "properties": {
                 "vm_size": { "type": "string" },
-                "name": { "type": "string", "default": "ondemand", "maxLength": 15, "pattern": "[0-9a-z\\-]+" },
+                "name": { "type": "string", "default": "ondemand", "maxLength": 15, "pattern": "^([0-9a-z\\-]+)$" },
                 "generate_certificate": { "type": "boolean", "default": true },
                 "fqdn": { "type": "string" },
                 "whitelist_path": { "type": "string" },
@@ -1033,7 +1038,7 @@
             "additionalProperties": false,
             "properties": {
                 "vm_size": { "type": "string" },
-                "name": { "type": "string", "default": "scheduler", "maxLength": 15, "pattern": "[0-9a-z\\-]+" }
+                "name": { "type": "string", "default": "scheduler", "maxLength": 15, "pattern": "^([0-9a-z\\-]+)$" }
             },
             "required": [
                 "vm_size"
@@ -1045,7 +1050,7 @@
             "additionalProperties": false,
             "properties": {
                 "vm_size": { "type": "string" },
-                "name": { "type": "string", "default": "grafana", "maxLength": 15, "pattern": "[0-9a-z\\-]+" }
+                "name": { "type": "string", "default": "grafana", "maxLength": 15, "pattern": "^([0-9a-z\\-]+)$" }
             },
             "required": [
                 "vm_size"
@@ -1061,7 +1066,7 @@
                         {
                             "description": "Name of queue (max. 8 characters, lowercase). This is to leave space for node suffix, as hostnames are limited to 15 characters by domain join and NETBIOS constraints.",
                             "maxLength": 9,
-                            "pattern": "[0-9a-z\\-]+",
+                            "pattern": "^([0-9a-z\\-]+)$",
                             "type": "string"
                         },
                         {
@@ -1114,6 +1119,11 @@
                     "description": "Maximum number of VMs in a scale set (default: 100). Lowering may make it easier to provision VMs from Azure, increasing beyond 100 requires raising Azure limit via support ticket.",
                     "type": "integer"
                 },
+                "EphemeralOSDisk": {
+                    "description": "Use ephemeral boot disk for VM, if supported. Defaults to false",
+                    "type": "boolean",
+                    "default": false
+                },
                 "max_hours": {
                     "description": "Maximum session duration. 0 means 'no limit'.",
                     "type": "integer"
@@ -1121,6 +1131,23 @@
                 "min_hours": {
                     "description": "Minimum session duration",
                     "type": "integer"
+                },
+                "type": {
+                    "description": "Type of queue - mandatory for remoteviz nodes",
+                    "enum": [
+                        "remoteviz",
+                        "compute"
+                    ],
+                    "type": "string"
+                },
+                "description": {
+                    "description": "Description of the queue that will appear in the node selection choice of the ood portal",
+                    "type": "string"
+                },
+                "shareable": {
+                    "description": "Whether the remote visualization node can be shared by multiple users. Defaults to false",
+                    "type": "boolean",
+                    "default": false
                 },
                 "location" : {
                     "description": "Azure Location of the queue. Only used it for multi-region scenario. Defaults to the location of the az-hop deployment",

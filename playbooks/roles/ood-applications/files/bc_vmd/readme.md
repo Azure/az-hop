@@ -6,6 +6,8 @@ Adapted from https://github.com/OSC/bc_osc_vmd
 ## Prerequisites
 
 [VMD] need to be installed on a file share system accessible by the nodes. 
+Download, exatract and follow instructions in the README file.
+
 The default VMD root directory is defined as `/anfhome/apps/vmd`, but it can be changed in the `form.yml.erb` file and is a parameter in the UI.
 
 ## Enabling the OnDemand application
@@ -25,7 +27,6 @@ $ ./install.sh ood-custom
 ```
 
 [VMD]: http://www.ks.uiuc.edu/Research/vmd/
-
 ## License
 
 * VMD and its logo are intellectual property owned by the University of Illinois, and all right, 

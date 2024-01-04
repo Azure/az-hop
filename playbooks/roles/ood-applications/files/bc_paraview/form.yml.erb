@@ -3,7 +3,7 @@ cluster:
     - "ondemand"
 form:
     - bc_num_hours
-    - bc_slot_type
+    - target
     - bucket
     - version
     - paraview_home
@@ -12,32 +12,18 @@ attributes:
         widget: "number_field"
         label: "Maximum duration in hours of your session"
         value: 1
-        min: 1
-        max: 8
         help: |
             This is the maximum duration in hours of your session once started.
         step: 1
-    bc_slot_type:
+    target:
         widget: "select"
         label: "Node type"
         help: |
             Select the resource target for the remote desktop session <br>
-            - **With GPU** <br>
-                These are standard small GPU nodes for visualization for a single user session.<br>
-            - **Large With GPU** <br>
-                These are standard large GPU nodes for visualization, usually for multiple users sessions sharing the same node.<br>
-            - **Without GPU** <br>
-                Same as for **With GPU** but without a GPU accelerator.
         options:
-            - ["With GPU - Small GPU node for single session", "viz3d", data-hide-bucket: true, data-set-bucket: 1,
-                data-max-bc-num-hours: "8",
-                data-min-bc-num-hours: "1"]
-            - ["Large With GPU - Intented for shared sessions", "largeviz3d",
-                data-max-bc-num-hours: "8",
-                data-min-bc-num-hours: "1"]
-            - ["Without GPU - for single session", "viz", data-hide-bucket: true, data-set-bucket: 1,
-                data-max-bc-num-hours: "8",
-                data-min-bc-num-hours: "1"]
+        <%- File.readlines("/etc/ood/config/apps/bc_desktop/config/viz_nodes.yml").each do |line|  %>
+            <%= line.to_s %>
+        <%- end %>
     bucket:
         widget: "select"
         label: "Node bucket"

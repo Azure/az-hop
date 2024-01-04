@@ -181,6 +181,11 @@ locked_down_network:
 #   grant_access_from: [a.b.c.d] # Array of CIDR to grant access from, see https://docs.microsoft.com/en-us/azure/storage/common/storage-network-security?tabs=azure-portal#grant-access-from-an-internet-ip-range
   public_ip: true # Enable public IP creation for Jumpbox, OnDemand and create images. Default to true
 
+# NAT Gateway is used for outbound internet connectivity
+nat_gateway:
+  create: true
+  #name: foo # name to be used instead of the default one created for you
+
 # Base image configuration. Can be either an image reference or an image_id from the image registry or a custom managed image
 # For AlmaLinux 8.7 use almalinux:almalinux-x86_64:8_7-gen2:latest
 # For CentOS 7.9 use OpenLogic:CentOS:7_9-gen2:latest
@@ -362,7 +367,7 @@ authentication:
   # ood_auth_openidc:
   #   OIDCProviderMetadataURL: # for AAD use 'https://sts.windows.net/{{tenant_id}}/.well-known/openid-configuration'
   #   OIDCClientID: 'XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX'
-  #   OIDCRemoteUserClaim: # for AAD use 'upn'
+  #   OIDCRemoteUserClaim: # for AAD use 'unique_name'
   #   OIDCScope: # for AAD use 'openid profile email groups'
   #   OIDCPassIDTokenAs: # for AAD use 'serialized'
   #   OIDCPassRefreshToken: # for AAD use 'On'
@@ -487,6 +492,8 @@ queues:
     # Set the max number of vm's in a VMSS; requires additional limit raise through support ticket for >100; 
     # 100 is default value; lower numbers will improve scaling for single node jobs or jobs with small number of nodes
     MaxScaleSetSize: 100
+    # Use ephemeral boot disk for VM, check here for supported family https://learn.microsoft.com/en-us/azure/virtual-machines/ephemeral-os-disks
+    EphemeralOSDisk: false
   - name: hpc
     vm_size: Standard_HB120rs_v3
     max_count: 10
@@ -497,8 +504,11 @@ queues:
     max_count: 0
     image: azhpc:azhop-compute:centos-7_9:latest
     EnableAcceleratedNetworking: true
-    # Queue dedicated to GPU remote viz nodes. This name is fixed and can't be changed
+
+# Queues for remote visualization
   - name: viz3d
+    type: remoteviz # mandatory property to specify the queue is for remote viz nodes
+    description: "With GPU - Small GPU node for single session" # optional description that will appear in the node selection choice of the ood portal
     vm_size: Standard_NV12s_v3
     max_count: 4
     # Use the pre-built azhop image from the marketplace
@@ -509,8 +519,11 @@ queues:
     EnableAcceleratedNetworking: true
     max_hours: 12 # Maximum session duration
     min_hours: 1 # Minimum session duration - 0 is infinite
-    # Queue dedicated to share GPU remote viz nodes. This name is fixed and can't be changed
+
   - name: largeviz3d
+    type: remoteviz
+    description: "Large With GPU - Intented for shared sessions"
+    shareable: true # Set to true to allow multiple users to connect to the same node - false by default
     vm_size: Standard_NV48s_v3
     max_count: 2
     image: azhpc:azhop-desktop:centos-7_9:latest
@@ -518,8 +531,10 @@ queues:
     EnableAcceleratedNetworking: true
     max_hours: 12
     min_hours: 1
-    # Queue dedicated to non GPU remote viz nodes. This name is fixed and can't be changed
+
   - name: viz
+    type: remoteviz
+    description: "Without GPU - for single session"
     vm_size: Standard_D8s_v5
     max_count: 10
     image: azhpc:azhop-desktop:centos-7_9:latest

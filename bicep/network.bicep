@@ -11,6 +11,7 @@ param asgNames array
 param servicePorts object
 param nsgRules object
 param peerings array
+param natGatewayId string = ''
 
 var securityRules = [ for rule in items(union(
     nsgRules.default,
@@ -80,6 +81,9 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2022-07-01' = {
       name: subnet.value.name
       properties: {
         addressPrefix: subnet.value.cidr
+        natGateway: natGatewayId != '' && (contains(subnet.value, 'nat_gateway') && subnet.value.nat_gateway) ? {
+          id: natGatewayId
+        } : null
         networkSecurityGroup: contains(subnet.value, 'apply_nsg') && subnet.value.apply_nsg == false ? null : {
           id: commonNsg.id
         }

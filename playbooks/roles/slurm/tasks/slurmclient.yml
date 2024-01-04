@@ -6,6 +6,12 @@
   become: true
   when: ('3.0.' in cyclecloud_slurm_release)
 
+- name: ensure munge is running.
+  service:
+    name: munge 
+    state: restarted
+    enabled: yes
+
 - name: Configure Pyxis plugin
   block:
     - name: Install pyxis plugin

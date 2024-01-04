@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 
-<%- gpu = context.bc_slot_type.include?("3d") -%>
+<%- 
+require "yaml"
+node_arrays = YAML.load_file("/etc/ood/config/apps/bc_desktop/config/node_arrays.yml")
+slot_type = node_arrays.find { |slot_type| slot_type["name"] == context.target }
+
+gpu_count = slot_type["gpuCount"].to_i 
+-%>
 
 # Clean the environment
 module purge
@@ -11,7 +17,7 @@ cd "${HOME}"
 # Launch Xfce Window Manager and Panel
 source "<%= session.staged_root.join("xfce_kiosk.sh") %>"
 
-<%- if gpu -%>
+<%- if gpu_count > 0 -%>
 GL_LAUNCHER="vglrun"
 PARAVIEW_SERVER_IMPL="egl"
 PARAVIEW_EXTRA_ARGS=

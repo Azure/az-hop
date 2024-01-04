@@ -24,22 +24,10 @@ attributes:
     label: "Session target"
     help: |
       Select the resource target for the remote desktop session <br>
-      - **With GPU** <br>
-        These are standard small GPU nodes for visualization for a single user session.<br>
-      - **Large With GPU** <br>
-        These are standard large GPU nodes for visualization, usually for multiple users sessions sharing the same node.<br>
-      - **Without GPU** <br>
-        Same as for **With GPU** but without a GPU accelerator.
     options:
-      - ["With GPU - Small GPU node for single session", "viz3d", data-hide-bucket: true, data-set-bucket: 1, 
-          data-max-bc-num-hours: "8", 
-          data-min-bc-num-hours: "1"]
-      - ["Large With GPU - Intented for shared sessions", "largeviz3d", 
-          data-max-bc-num-hours: "8", 
-          data-min-bc-num-hours: "1"]
-      - ["Without GPU - for single session", "viz", data-hide-bucket: true, data-set-bucket: 1, 
-          data-max-bc-num-hours: "8", 
-          data-min-bc-num-hours: "1"]
+        <%- File.readlines("/etc/ood/config/apps/bc_desktop/config/viz_nodes.yml").each do |line|  %>
+            <%= line.to_s %>
+        <%- end %>
   bucket:
       widget: "select"
       label: "Node bucket"

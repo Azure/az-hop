@@ -96,6 +96,11 @@ var config = {
     grant_access_from: contains(azhopConfig, 'locked_down_network') && contains(azhopConfig.locked_down_network, 'grant_access_from') ? ( empty(azhopConfig.locked_down_network.grant_access_from) ? [] : [ azhopConfig.locked_down_network.grant_access_from ] ) : []
   }
 
+  nat_gateway: {
+    create: contains(azhopConfig, 'nat_gateway') && contains(azhopConfig.nat_gateway, 'create') ? azhopConfig.nat_gateway.create : false
+    name: contains(azhopConfig, 'nat_gateway') && contains(azhopConfig.nat_gateway, 'name') ? azhopConfig.nat_gateway.name : 'natgw-${resourcePostfix}'
+  }
+
   queue_manager: contains(azhopConfig, 'queue_manager') ? azhopConfig.queue_manager : 'openpbs'
 
   slurm: {
@@ -165,6 +170,7 @@ var config = {
       frontend: {
         name: contains(azhopConfig.network.vnet.subnets.frontend, 'name') ? azhopConfig.network.vnet.subnets.frontend.name : 'frontend'
         cidr: azhopConfig.network.vnet.subnets.frontend.address_prefixes
+        nat_gateway: true
         service_endpoints: [
           'Microsoft.Storage'
         ]
@@ -172,6 +178,7 @@ var config = {
       admin: {
         name: contains(azhopConfig.network.vnet.subnets.admin, 'name') ? azhopConfig.network.vnet.subnets.admin.name : 'admin'
         cidr: azhopConfig.network.vnet.subnets.admin.address_prefixes
+        nat_gateway: true
         service_endpoints: [
           'Microsoft.KeyVault'
           'Microsoft.Storage'
@@ -187,6 +194,7 @@ var config = {
       compute: {
         name: contains(azhopConfig.network.vnet.subnets.compute, 'name') ? azhopConfig.network.vnet.subnets.compute.name : 'compute'
         cidr: azhopConfig.network.vnet.subnets.compute.address_prefixes
+        nat_gateway: true
         service_endpoints: [
           'Microsoft.Storage'
         ]
@@ -202,6 +210,7 @@ var config = {
       ad: {
         name: contains(azhopConfig.network.vnet.subnets.ad, 'name') ? azhopConfig.network.vnet.subnets.ad.name : 'ad'
         cidr: azhopConfig.network.vnet.subnets.ad.address_prefixes
+        nat_gateway: true
       }
     } : {},
     contains(azhopConfig.network.vnet.subnets,'bastion') ? {
@@ -607,6 +616,16 @@ resource kv 'Microsoft.KeyVault/vaults@2022-11-01' existing = if (autogenerateSe
   name: azhopKeyvault.outputs.keyvaultName
 }
 
+module natgateway './natgateway.bicep' = if (config.nat_gateway.create) {
+  name: 'natgateway'
+  params: {
+    location: location
+    name: config.nat_gateway.name
+  }
+}
+
+var natGatewayId = config.nat_gateway.create ? natgateway.outputs.NATGatewayId : ''
+
 module azhopNetwork './network.bicep' = {
   name: 'azhopNetwork'
   params: {
@@ -621,6 +640,7 @@ module azhopNetwork './network.bicep' = {
     servicePorts: config.service_ports
     nsgRules: config.nsg_rules
     peerings: config.vnet.peerings
+    natGatewayId: natGatewayId
   }
 }
 

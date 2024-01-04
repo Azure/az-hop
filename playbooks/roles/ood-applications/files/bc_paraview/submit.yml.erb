@@ -7,29 +7,28 @@ node_ratio = bucket.to_i
 node_count = 1
 
 if OodAppkit.clusters[cluster].job_config[:adapter] == 'slurm'
-  scheduler_args = ["-p", bc_slot_type]
-  if bc_slot_type == "viz3d" or bc_slot_type == "largeviz3d"
-    scheduler_args += ["--gpus=1"]
-  end
+  scheduler_args = ["-p", target]
 
   # If the user has specified a node ratio greather than 1, set the job ppn
+  slot_type = node_arrays.find { |slot_type| slot_type["name"] == target }
+  gpu_count = slot_type["gpuCount"].to_i
   if node_ratio > 1
-    node_arrays.each do |slot_type|
-      if slot_type["name"] == bc_slot_type
-        cores = (slot_type["vcpuCount"].to_i / node_ratio)
-        scheduler_args += ["--ntasks-per-node=%d" % cores]
-        break
-      end
-    end
+    cores = (slot_type["vcpuCount"].to_i / node_ratio)
+    gpu_count = (gpu_count.to_f / node_ratio.to_f).ceil
+    scheduler_args += ["--ntasks-per-node=%d" % cores]
   else
     scheduler_args += ["--exclusive"]
   end
+  if gpu_count > 0
+    scheduler_args += ["--gpus=%d" % gpu_count]
+  end
+
 else
   scheduler_args = ["-q", "vizq"]
   node_arrays.each do |slot_type|
-    if slot_type["name"] == bc_slot_type
+    if slot_type["name"] == target
       cores = (slot_type["vcpuCount"].to_i / node_ratio)
-      scheduler_args += ["-l", "select=%d:slot_type=%s:ncpus=%d:mpiprocs=%d" % [node_count, bc_slot_type, cores, cores]]
+      scheduler_args += ["-l", "select=%d:slot_type=%s:ncpus=%d:mpiprocs=%d" % [node_count, target, cores, cores]]
       break
     end
   end
