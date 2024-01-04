@@ -48,7 +48,7 @@ ood_apps:
         label: "Session target"
         help: |
           Select the resource target for the remote desktop session <br>
-        options: #__TARGET_OPTIONS__
+        options:
       bc_num_hours:
         widget: "number_field"
         label: "Maximum duration in hours of your remote session"

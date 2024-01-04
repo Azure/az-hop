@@ -554,13 +554,18 @@
   - name: configure bc_desktop to dynamically load viz targets
     blockinfile:
       path: /etc/ood/config/apps/bc_desktop/ondemand.yml.erb
-      insertafter : "__TARGET_OPTIONS__"
+      insertafter : "options: null"
       backup: no
       block: |
         # Dynamically load viz targets - keep indentation as is
                 <%- File.readlines("/etc/ood/config/apps/bc_desktop/config/viz_nodes.yml").each do |line|  %>
                     <%= line.to_s %>
                 <%- end %>
+  - name: remove the null value of the options
+    replace:
+      path: /etc/ood/config/apps/bc_desktop/ondemand.yml.erb
+      regexp: 'options: null'
+      replace: 'options:' 
 
   # Generate the node array core lookup file for ondemand - will be only run if the marker file for ccluster exists
   - import_tasks: nodearray_lookup.yml
