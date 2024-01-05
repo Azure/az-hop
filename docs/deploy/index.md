@@ -62,6 +62,13 @@
       * [Domain pre-requisites](#domain-pre-requisites)
       * [azhop configuration file](#azhop-configuration-file)
       * [Deploy and configure your environemnt](#deploy-and-configure-your-environemnt)
+   * [Multi Region support](#multi-region-support)
+      * [Networking configuration](#networking-configuration)
+      * [Communication Rules](#communication-rules)
+      * [Private DNS](#private-dns)
+      * [Update the CycleCloud VM managed identity](#update-the-cyclecloud-vm-managed-identity)
+      * [Configure queues for other regions](#configure-queues-for-other-regions)
+      * [PBS Only - Fix the autoscaler](#pbs-only---fix-the-autoscaler)
 * [Terraform and Bicep coverage table](#terraform-and-bicep-coverage-table)
 * [Helper Scripts](#helper-scripts)
    * [ansible_prereqs.sh](#ansible_prereqssh)
@@ -1089,6 +1096,66 @@ users:
 
 ### Deploy and configure your environemnt
 Once all the pre-requisites are satisfied, you can deploy the `azhop` environment as usual.
+
+## Multi Region support
+Multi region supportt will allow the use of compute or remote visualization nodes in a different region than the one in which your `azhop` environment has been deployed. Because all shared resources will be accessed from a different region you have to make sure your application will work correctly with an increased latency for data access. Here are the steps to follow, some will be automated, others are manual. 
+
+> Note : Multi-region is only supported for a single subscription mode
+
+### Networking configuration
+The first step is to design your network for the remote region following the hub and spoke pattern. The hub will be the `azhop` network in the main region which will be then peered to the hub vnet in the remote region. Several spokes will be possible if needed. You can create the peering yourself or let `azhop` configure it for you by adding new values in the `network.peering` section and rerun the `./build.sh` command. When designing the spoke vnet be sure to specify an IP range which is not overlapping the one from the hub.
+
+### Communication Rules
+Make sure to allow all inbound/outbound communications between peered vnets, as the default azhop nsg `nsg-common` will block them. You may have to ovverride them manually. A quick way of doing it is to allow nsg-common inbound and outbound rules 3100.
+
+### Private DNS
+To provide name resolutions across the peered vnets, you have to create a private dns zone. If you are using Active Directory deployed by `azhop` there is one already created for you. If not you can configure it in the `config.yml` file like this:
+
+```yml
+private_dns:
+  create: true # Create a private DNS zone for the environment. Default to false
+  name: hpc.azure # Name of the private DNS zone to be created. Default to hpc.azure
+  registration_enabled: false # Enable auto-registration of VMs in the private DNS zone. Default to false
+```
+When using `PBS` registration_enabled should be false as PBS doesn't support multi domain resolution.
+
+- Add a A record in the private DNZ zone for the scheduler VM so it can be resolved from spokes.
+- For spoke VNETs, add a virtual network link in the private DNS zone and enabled autoregistration 
+
+### Update the CycleCloud VM managed identity
+CycleCloud need to be granted the permissions to create resources in the spoke vnet. Update the managed idenity of the `ccportal` VM to grant the `contributor` role on the resource group hosting the spoke vnet.
+
+### Configure queues for other regions
+Two new properties will allow you to specify the `location` and `subnet` of remote region to use. The `subnet` format to use is `<Resource Group name>/<Vnet name>/<subnet name>`. Do this only for remote ones, below is an example of a queue definition to provision nodes in eastus. You will have to apply this new configuration with the `./install.sh cccluster` command.
+
+```yml
+- name: hpc
+    vm_size: Standard_HB120rs_v3
+    max_count: 10
+    image: azhpc:azhop-compute:centos-7_9:latest
+    ColocateNodes: true
+    EnableAcceleratedNetworking: true
+    location: eastus
+    subnet: azhop_compute_eastus/azhop_eastus/compute
+```
+
+> Note : Make sure that you have enough quota in the remote region for the VM type to use
+
+### PBS Only - Fix the autoscaler
+The autoscaler for PBS need to be fixed to avoid a mismatch reverse dns lookup. On the scheduler VM in `/opt/cycle/pbspro/venv/lib/python*/site-packages/pbspro/driver.py`, locate the call to `self._validate_reverse_dns`, and comment the whole if section like below
+
+ ![Alt text](../images/pbs_autoscaler_hack.png)
+ 
+
+Make sure that the autoscaler is still running by tailing the log file. 
+```
+tail -f /opt/cycle/pbspro/autoscale.log
+``` 
+ 
+There should be new lines written every minute, if not then rollback your change, check the syntax as any errors would break the autoscaler. Try again
+
+> Note: Be careful as this change could be ovewritten the next time you run the scheduler playbook.
+
 # Terraform and Bicep coverage table
 As we made progress in using bicep as a deployment tool, the table below shows the difference in coverage between the two.
 
