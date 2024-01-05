@@ -141,6 +141,21 @@ function install_ondemand()
   fi
 }
 
+function validate_uids ()
+{
+  # validate that all uids are unique
+  uids=$(yq eval '.users[] | .uid' config.yml)
+  if [ "$uids" != "null" ]; then
+    # uniq -d only prints duplicate lines
+    duplicates=$(echo $uids | tr ' ' '\n' | sort | uniq -d)
+    if [ "$duplicates" != "" ]; then
+      echo "Error: duplicate uid(s) $duplicates detected in config.yml"
+      exit 1
+    fi
+  fi
+}
+
+
 # Ensure submodule exists
 if [ ! -d "${PLAYBOOKS_DIR}/roles/ood-ansible/.github" ]; then
     printf "Installing OOD Ansible submodule\n"
@@ -150,6 +165,7 @@ fi
 
 # Validate config against schema
 $THIS_DIR/validate_config.sh config.yml
+validate_uids
 
 get_scheduler
 get_ood_auth
