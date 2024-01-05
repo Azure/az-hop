@@ -144,7 +144,7 @@ function install_ondemand()
 function validate_uids ()
 {
   # validate that all uids are unique
-  uids=$(yq eval '.users[] | .uid' $AZHOP_CONFIG)
+  uids=$(yq eval '.users[] | .uid' config.yml)
   if [ "$uids" != "null" ]; then
     # uniq -d only prints duplicate lines
     duplicates=$(echo $uids | tr ' ' '\n' | sort | uniq -d)
