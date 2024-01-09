@@ -135,6 +135,51 @@
           password_never_expires: true
           update_password: on_create
 
+      - name: enable TLS 1.2 Client
+        win_regedit:
+          path: HKLM:\system\currentcontrolset\control\securityproviders\schannel\protocols\tls 1.2\client
+          name: Enabled
+          data: 1
+          type: dword
+          state: present
+      - name: enable TLS 1.2 Server
+        win_regedit:
+          path: HKLM:\system\currentcontrolset\control\securityproviders\schannel\protocols\tls 1.2\server
+          name: Enabled
+          data: 1
+          type: dword
+          state: present
+  
+      - name: disable TLS 1.0 Client
+        win_regedit:
+          path: HKLM:\system\currentcontrolset\control\securityproviders\schannel\protocols\tls 1.0\client
+          name: Enabled
+          data: 0
+          type: dword
+          state: present
+      - name: disable TLS 1.0 Server
+        win_regedit:
+          path: HKLM:\system\currentcontrolset\control\securityproviders\schannel\protocols\tls 1.0\server
+          name: Enabled
+          data: 0
+          type: dword
+          state: present
+
+      - name: disable TLS 1.1 Client
+        win_regedit:
+          path: HKLM:\system\currentcontrolset\control\securityproviders\schannel\protocols\tls 1.1\client
+          name: Enabled
+          data: 0
+          type: dword
+          state: present
+      - name: disable TLS 1.1 Server
+        win_regedit:
+          path: HKLM:\system\currentcontrolset\control\securityproviders\schannel\protocols\tls 1.1\server
+          name: Enabled
+          data: 0
+          type: dword
+          state: present
+
     always:
       - name: close session on local port
         shell: ps aux | grep localhost:5985 | grep -v grep | awk '{print "kill -9 " $2}' | sh
