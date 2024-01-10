@@ -10,7 +10,7 @@
     - '{{global_config_file}}'
   vars:
     ondemand_version: 3.0.3
-    yq_version: v4.35.2
+    yq_version: v4.40.5
     yq_binary: yq_linux_amd64
     ccportal_name: "{{cyclecloud.name | default('ccportal')}}"
 
