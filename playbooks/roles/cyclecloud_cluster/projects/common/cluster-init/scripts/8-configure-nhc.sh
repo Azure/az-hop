@@ -1,14 +1,26 @@
 #!/bin/bash
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+# Don't configure NHC if not enabled
+enabled_nhc=$(jetpack config healthchecks.enabled | tr '[:upper:]' '[:lower:]')
+if [[ $enabled_nhc != "true" ]]; then
+    exit 0
+fi
+
+
 # Install NHC if not already installed in the image
-if [ ! -d /opt/azurehpc/test/azurehpc-health-checks ] ; then
+az_nhc_installed_version=$(grep Azure-NHC /opt/azurehpc/test/azurehpc-health-checks/docs/version.log | cut -d':' -f2 | xargs)
+az_nhc_target_version="v0.2.7"
+
+if [ "$az_nhc_installed_version" != "$az_nhc_target_version" ] ; then
+    if [ -d /opt/azurehpc/test/azurehpc-health-checks ]; then
+        rm -rf /opt/azurehpc/test/azurehpc-health-checks
+    fi
     mkdir -p /opt/azurehpc/test/
     cd /opt/azurehpc/test/
-    git clone https://github.com/Azure/azurehpc-health-checks.git -b v0.2.6
+    git clone https://github.com/Azure/azurehpc-health-checks.git -b v0.2.7
     cd azurehpc-health-checks
     ./install-nhc.sh
-    cp /opt/azurehpc/test/azurehpc-health-checks/customTests/*.nhc /etc/nhc/scripts
 fi
 
 # Install azhop-node-offline.sh

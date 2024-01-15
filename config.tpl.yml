@@ -489,6 +489,8 @@ queues:
     MaxScaleSetSize: 100
     # Use ephemeral boot disk for VM, check here for supported family https://learn.microsoft.com/en-us/azure/virtual-machines/ephemeral-os-disks
     EphemeralOSDisk: false
+    # Whether to enable healthchecks. Defaults to true
+    healthchecks: false
   - name: hpc
     vm_size: Standard_HB120rs_v3
     max_count: 10

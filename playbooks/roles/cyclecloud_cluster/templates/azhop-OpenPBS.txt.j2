@@ -80,6 +80,7 @@ Autoscale = true
     ImagePlan.Name = {{ plan_details[2] }}
   {% endif %}
         [[[configuration]]]
+        healthchecks.enabled = {{ queue.healthchecks | default(true) }}
         pbspro.slot_type = {{ queue.name }}
         # Specific Autoscale settings
         {% if queue.idle_timeout is defined %}

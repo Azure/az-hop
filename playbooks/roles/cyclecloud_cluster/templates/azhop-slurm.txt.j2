@@ -136,6 +136,7 @@ echo "cloud-init done" >> /tmp/cloud-init.txt
     ImagePlan.Name = {{ plan_details[2] }}
   {% endif %}
         [[[configuration]]]
+        healthchecks.enabled = {{ queue.healthchecks | default(true) }}
         slurm.partition = {{ queue.name }}
       {% if loop.index == 1 %}
         slurm.default_partition = true
