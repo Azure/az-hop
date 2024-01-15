@@ -1133,6 +1133,11 @@
                     "description": "Whether the remote visualization node can be shared by multiple users. Defaults to false",
                     "type": "boolean",
                     "default": false
+                },
+                "healthchecks": {
+                    "description": "Whether to enable healthchecks. Defaults to true",
+                    "type": "boolean",
+                    "default": true
                 }
             },
             "required": [
