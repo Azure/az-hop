@@ -87,7 +87,7 @@ queues:
   - name: largeviz3d
     vm_size: Standard_NV48s_v3
     type: remoteviz
-    description: "Large With GPU - Intented for shared sessions"
+    description: "Large With GPU - Intended for shared sessions"
     shareable: true
     max_count: 4
     image: azhpc:azhop-desktop:centos-7_9:latest

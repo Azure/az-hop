@@ -80,7 +80,7 @@ queues:
 
   - name: largeviz3d
     type: remoteviz
-    description: "Large With GPU - Intented for shared sessions"
+    description: "Large With GPU - Intended for shared sessions"
     shareable: true
     vm_size: Standard_NV48s_v3
     max_count: 4
