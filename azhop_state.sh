@@ -80,6 +80,8 @@ case $COMMAND in
       exit 1
     fi
     BICEP_PARAMS=$RESOURCE_GROUP.parameters.json
+    # cleanup state directory
+    rm -rf $STATE_DIR
     # Copy state files into the state directory
     mkdir -p $STATE_DIR
     cp $AZHOP_CONFIG $STATE_DIR
