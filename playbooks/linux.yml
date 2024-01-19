@@ -46,6 +46,20 @@
       lock_timeout : 180
       state: present
 
+  # use the private DNS when defined
+  - name: setup private domain if not set in resolv.conf
+    shell: |
+      if ! grep -q {{private_dns.name}} /etc/resolv.conf; then
+        sed -i 's/search /search {{private_dns.name}} /' /etc/resolv.conf
+        # Stop NetworkManager overwriting /etc/resolv.conf
+        cat > /etc/NetworkManager/conf.d/90-dns-none.conf << EOF
+        [main]
+        dns=none
+      EOF
+      fi
+    when: 
+      - private_dns.create | default(false)
+
   - name: mount home
     block:
       - name: debug

@@ -114,6 +114,11 @@ locals {
     private_dns_servers   = local.use_existing_ad ? local.configuration_yml["domain"].existing_dc_details.private_dns_servers            : (local.create_ad ? (local.ad_ha ? [azurerm_network_interface.ad-nic[0].private_ip_address, azurerm_network_interface.ad2-nic[0].private_ip_address] : [azurerm_network_interface.ad-nic[0].private_ip_address]) : [])
     domain_controller_ips = local.use_existing_ad ? local.configuration_yml["domain"].existing_dc_details.domain_controller_ip_addresses : (local.create_ad ? (local.ad_ha ? [azurerm_network_interface.ad-nic[0].private_ip_address, azurerm_network_interface.ad2-nic[0].private_ip_address] : [azurerm_network_interface.ad-nic[0].private_ip_address]) : [])
 
+    # private DNS 
+    create_private_dns = try(local.configuration_yml["private_dns"].create, false)
+    private_dns_zone_name = try(local.configuration_yml["private_dns"].name, "hpc.azure")
+    private_dns_registration_enabled = try(local.configuration_yml["private_dns"].registration_enabled, false)
+
     # Use a linux custom image reference if the linux_base_image is defined and contains ":"
     use_linux_image_reference = try(length(split(":", local.configuration_yml["linux_base_image"])[1])>0, false)
     # Use a linux custom image reference if the linux_base_image is defined and contains ":"

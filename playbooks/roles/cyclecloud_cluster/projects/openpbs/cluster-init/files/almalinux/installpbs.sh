@@ -55,19 +55,20 @@ function build19() {
     chmod 4755 /opt/pbs/sbin/pbs_iff /opt/pbs/sbin/pbs_rcp
 }
 
+install_or_build $major_wanted_pbs_version
 
-# If PBS is not installed, then install it
-if [ ! -f "/etc/pbs.conf" ]; then
-    install_or_build $major_wanted_pbs_version
-else
-    # If installed version is not the same as the version we want to install, then remove and install it
-    if [ "$major_installed_pbs_version" != "major_wanted_pbs_version" ]; then
-        echo "Removing old PBS version $major_installed_pbs_version"
-        set +e
-        systemctl stop pbs
-        rm -rf /opt/pbs
-        rm -rf /var/spool/pbs
-        set -e
-        install_or_build $major_wanted_pbs_version
-    fi
-fi
+# # If PBS is not installed, then install it
+# if [ ! -f "/etc/pbs.conf" ]; then
+#     install_or_build $major_wanted_pbs_version
+# else
+#     # If installed version is not the same as the version we want to install, then remove and install it
+#     if [ "$major_installed_pbs_version" != "major_wanted_pbs_version" ]; then
+#         echo "Removing old PBS version $major_installed_pbs_version"
+#         set +e
+#         systemctl stop pbs
+#         rm -rf /opt/pbs
+#         rm -rf /var/spool/pbs
+#         set -e
+#         install_or_build $major_wanted_pbs_version
+#     fi
+# fi

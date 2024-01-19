@@ -10,6 +10,13 @@ DOMAIN_JOIN_OU={{ domain.domain_join_ou | default('') }}
 
 source $script_dir/../files/$os_release/init_joindomain.sh
 
+# Append the domain name in the domain search if defined
+{% if private_dns.name is defined %}
+if ! grep -q {{private_dns.name}} /etc/resolv.conf; then
+    sed -i 's/search /search {{private_dns.name}} /' /etc/resolv.conf
+fi
+{% endif %}
+
 sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
 
 cat <<EOF >/etc/ssh/ssh_config

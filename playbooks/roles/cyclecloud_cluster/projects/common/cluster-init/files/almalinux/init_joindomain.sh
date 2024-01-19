@@ -1,4 +1,10 @@
 #!/bin/bash
+# Stop NetworkManager overwriting /etc/resolv.conf
+cat > /etc/NetworkManager/conf.d/90-dns-none.conf << EOF
+[main]
+dns=none
+EOF
+
 function package_update() {
   packages="sssd realmd oddjob oddjob-mkhomedir adcli samba-common samba-common-tools krb5-workstation openldap-clients python3-policycoreutils"
 
@@ -18,12 +24,6 @@ function package_update() {
 
   # By default, Samba on RHEL 8.3 no longer supports the deprecated RC4 cipher suite 
   update-crypto-policies --set DEFAULT:AD-SUPPORT
-
-  # Stop NetworkManager overwriting /etc/resolv.conf
-  cat > /etc/NetworkManager/conf.d/90-dns-none.conf << EOF
-[main]
-dns=none
-EOF
 }
 
 function enforce_hostname() {

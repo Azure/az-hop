@@ -1,3 +1,8 @@
 authentication:
   user_auth: local # local or ad
   httpd_auth: basic # oidc or basic
+
+private_dns:
+  create: false # Create a private DNS zone for the environment. Default to false
+  name: hpc.azure # Name of the private DNS zone to be created. Default to hpc.azure
+  registration_enabled: false # Enable auto-registration of VMs in the private DNS zone. Default to false

@@ -16,5 +16,9 @@ sed -i "s/^fi/#fi /g" /opt/pbs/lib/init.d/limits.pbs_mom
 # for version 20 and above
 sed -i 's/CHANGE_THIS_TO_PBS_SERVER_HOSTNAME/{{scheduler.name | default("scheduler")}}/' /etc/pbs.conf
 
-systemctl restart pbs || exit 1
+# Add $usecp option if it doesn't exists in the mom config
+grep -q -F '$usecp' /var/spool/pbs/mom_priv/config || echo '$usecp *:{{mounts.home.mountpoint}} {{mounts.home.mountpoint}}' >> /var/spool/pbs/mom_priv/config
+
+echo "Restart PBS"
+retry_command "systemctl restart pbs"
 echo "PBS Restarted"

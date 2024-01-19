@@ -1,17 +1,17 @@
 # https://www.techopedia.com/2/31981/networking/networking-hardware/dismissing-the-myth-that-active-directory-requires-microsoft-dns
 resource "azurerm_private_dns_zone" "azhop_private_dns" {
-  count               = local.create_dns_records? 1 : 0
-  name                = local.domain_name
+  count               = local.create_private_dns ? 1 : 0
+  name                = local.private_dns_zone_name
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "azhop_dns_link" {
-  count                 = local.create_dns_records? 1 : 0
+  count                 = local.create_private_dns ? 1 : 0
   name                  = "az-hop"
   resource_group_name   = azurerm_private_dns_zone.azhop_private_dns[0].resource_group_name
   private_dns_zone_name = azurerm_private_dns_zone.azhop_private_dns[0].name
   virtual_network_id    = local.create_vnet ? azurerm_virtual_network.azhop[0].id : data.azurerm_virtual_network.azhop[0].id
-  registration_enabled  = false
+  registration_enabled  = local.private_dns_registration_enabled
 }
 
 ## Domain Controlers entries
