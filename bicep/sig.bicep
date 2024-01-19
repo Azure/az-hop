@@ -3,7 +3,7 @@ targetScope = 'resourceGroup'
 param location string
 param resourcePostfix string
 
-resource sig 'Microsoft.Compute/galleries@2022-01-03' = {
+resource sig 'Microsoft.Compute/galleries@2022-03-03' = {
   name: 'azhop_${resourcePostfix}'
   location: location
   properties: {
