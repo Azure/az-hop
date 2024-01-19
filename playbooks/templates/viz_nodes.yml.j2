@@ -1,11 +1,3 @@
-# If no queue is defined with remoteviz type then use the hard coded ones
-{% if ( queues | rejectattr('type', 'undefined') | selectattr('type', 'match', 'remoteviz')) | length == 0 %}
-{% for queue in ( queues | selectattr('name', 'in', ['viz', 'viz3d', 'largeviz3d'])) %}
-- ["{{ ([{'name':'viz','description':'Without GPU - for single session'}, {'name':'viz3d','description':'With GPU - for single session'},{'name':'largeviz3d','description':'Large With GPU - Intended for shared sessions'}] | selectattr('name', 'match', queue.name) | map(attribute='description'))[0] }}", "{{ queue.name }}", data-max-bc-num-hours: {{ queue.max_hours | default(8) }}, data-min-bc-num-hours: {{ queue.min_hours | default(1) }}{% if queue.name != "largeviz3d" %}, data-hide-bucket: true, data-set-bucket: 1 {% endif %}]
-{% endfor %}
-# else dynamically build it
-{% else %}
 {% for queue in ( queues | rejectattr('type', 'undefined') | selectattr('type', 'match', 'remoteviz'))%}
 - ["{{ queue.description | default(queue.name) }}", "{{ queue.name }}", data-max-bc-num-hours: {{ queue.max_hours | default(8) }}, data-min-bc-num-hours: {{ queue.min_hours | default(1) }}{% if (queue.shareable is not defined) or (queue.shareable is defined and not queue.shareable) %}, data-hide-bucket: true, data-set-bucket: 1 {% endif %}]
 {% endfor %}
-{% endif %}
