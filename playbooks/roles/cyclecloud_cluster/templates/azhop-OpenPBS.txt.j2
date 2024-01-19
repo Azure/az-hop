@@ -84,6 +84,7 @@ Autoscale = true
     Region = {{ queue.location }}    
   {% endif %}
         [[[configuration]]]
+        healthchecks.enabled = {{ queue.healthchecks | default(true) }}
         pbspro.slot_type = {{ queue.name }}
         # Specific Autoscale settings
         {% if queue.idle_timeout is defined %}

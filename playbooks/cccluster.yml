@@ -97,7 +97,6 @@
       munge_uid: 11101
       munge_gid: 11101
       enroot_version: '{{enroot.enroot_version | default("3.4.1")}}'
-      enroot_scratch_dir: '/mnt/resource'
       cvmfs_eessi_enabled: '{{cvmfs_eessi.enabled | default(false)}}'
 
   # Generate the node array core lookup file for ondemand - will be only run if the marker file for ondemand exists

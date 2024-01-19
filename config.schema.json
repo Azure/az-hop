@@ -1156,6 +1156,11 @@
                 "subnet" : {
                     "description": "Subnet of the queue. Only used and required for multi-region scenario. Format for the remove subnet is <resource_group>/<vnet_name>/<subnet_name> Defaults to the subnet of the az-hop deployment",
                     "type": "string"
+                },
+                "healthchecks": {
+                    "description": "Whether to enable healthchecks. Defaults to true",
+                    "type": "boolean",
+                    "default": true
                 }
             },
             "required": [

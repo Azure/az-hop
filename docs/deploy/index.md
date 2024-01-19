@@ -1036,7 +1036,7 @@ Store the database user password in the `azhop` keyvault as a secret with the na
 By default `azhop` is deployed with it's own sandboxed Active Directory Domain Service VM and it's own domain. Starting from release `1.0.35` it is now possible to use an existing Active Directory Domain to allow a better enterprise integration. For linux user integration there are some pre-requisites to be satisfied in the target domain as well as on the network.
 
 ### Network pre-requisites
-For all subnets configured in `azhop`, the correct NSGs will be set to the external Domain Controlers (DC) IP addresses. However if the existing DCs are outside of the `azhop` subnets, which will be certainly the case in most scenarios, then you have to make sure that the following ports are open to and from the DCs :
+For all subnets configured in `azhop`, the correct NSGs will be set to the external Domain Controllers (DC) IP addresses. However if the existing DCs are outside of the `azhop` subnets, which will be certainly the case in most scenarios, then you have to make sure that the following ports are open to and from the DCs :
  - TCP ports 53 88 135 389 445 464 636 3268 3269 9389 49152-65535
  - UDP ports 53 88 123 138 389 464 636
 
@@ -1094,7 +1094,7 @@ users:
   - { name: user,   uid: 10001, groups: [5001] }
 ```
 
-### Deploy and configure your environemnt
+### Deploy and configure your environment
 Once all the pre-requisites are satisfied, you can deploy the `azhop` environment as usual.
 
 ## Multi Region support
