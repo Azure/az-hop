@@ -40,7 +40,6 @@
       cc_version: '{{cyclecloud.version | default("8.4.2-3186")}}'
       slurm_version: '{{slurm.slurm_version | default("20.11.9")}}-1'
       accounting_enabled: '{{slurm.accounting_enabled | default(false)}}'
-      enroot_scratch_dir: '/mnt/resource'
     when: ( queue_manager is defined and queue_manager == "slurm" )
 
   - name: Update Packages

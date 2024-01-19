@@ -24,15 +24,22 @@ else
     echo Enroot is already at version $enroot_version
 fi
 
-mkdir -pv /run/enroot /mnt/resource/{enroot-cache,enroot-data,enroot-temp,enroot-runtime}
-chmod -v 777 /run/enroot /mnt/resource/{enroot-cache,enroot-data,enroot-temp,enroot-runtime}
+# enroot default scratch dir to /mnt/resource
+ENROOT_SCRATCH_DIR=/mnt/resource
+if [ -d /mnt/nvme ]; then
+    # If /mnt/nvme exists, use it as the default scratch dir
+    ENROOT_SCRATCH_DIR=/mnt/nvme
+fi
+
+mkdir -pv /run/enroot $ENROOT_SCRATCH_DIR/{enroot-cache,enroot-data,enroot-temp,enroot-runtime}
+chmod -v 777 /run/enroot $ENROOT_SCRATCH_DIR/{enroot-cache,enroot-data,enroot-temp,enroot-runtime}
 
 # Use local temporary disk for enroot
 cat <<EOF > /etc/enroot/enroot.conf
 ENROOT_RUNTIME_PATH /run/enroot/user-\$(id -u)
-ENROOT_CACHE_PATH {{ enroot_scratch_dir }}/enroot-cache/user-\$(id -u)
-ENROOT_DATA_PATH {{ enroot_scratch_dir }}/enroot-data/user-\$(id -u)
-ENROOT_TEMP_PATH {{ enroot_scratch_dir }}/enroot-temp
+ENROOT_CACHE_PATH $ENROOT_SCRATCH_DIR/enroot-cache/user-\$(id -u)
+ENROOT_DATA_PATH $ENROOT_SCRATCH_DIR/enroot-data/user-\$(id -u)
+ENROOT_TEMP_PATH $ENROOT_SCRATCH_DIR/enroot-temp
 ENROOT_SQUASH_OPTIONS -noI -noD -noF -noX -no-duplicates
 ENROOT_MOUNT_HOME y
 ENROOT_RESTRICT_DEV y
