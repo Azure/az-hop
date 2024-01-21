@@ -85,7 +85,6 @@ jobs:
       checks: read
       contents: read
       deployments: read
-      id-token: read
       issues: read
       discussions: read
       packages: write
