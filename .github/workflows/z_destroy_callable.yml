@@ -34,6 +34,7 @@ jobs:
   destroy:
     name: destroy
     runs-on: self-hosted
+    permissions: read-all
     timeout-minutes: 60
 
     container:
