@@ -80,6 +80,19 @@ jobs:
   run_tests:
     name: run_tests
     runs-on: self-hosted
+    permissions:
+      actions: read
+      checks: read
+      contents: read
+      deployments: read
+      issues: read
+      discussions: read
+      packages: write
+      pages: read
+      pull-requests: read
+      repository-projects: read
+      security-events: read
+      statuses: read
     # needs: [init_matrix]
     # strategy: 
     #   matrix:
