@@ -70,6 +70,26 @@
     state: present
     firstmatch: yes
 
+- name: Update slurm service to auto restart 
+  lineinfile:
+    path: /usr/lib/systemd/system/slurmctld.service
+    insertafter: 'ExecStart='
+    line: 'Restart=always'
+    state: present
+    firstmatch: yes
+
+- name: Update slurm service to auto restart after 30 seconds
+  lineinfile:
+    path: /usr/lib/systemd/system/slurmctld.service
+    insertafter: 'Restart='
+    line: 'RestartSec=30'
+    state: present
+    firstmatch: yes
+
+- name: restart daemon-reload
+  shell: |
+    systemctl daemon-reload
+
 - name: ensure slurmctld is running.
   service:
     name: slurmctld
