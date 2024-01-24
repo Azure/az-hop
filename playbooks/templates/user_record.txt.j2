@@ -3,11 +3,12 @@ AdType = "AuthenticatedUser"
 Name =  "{{ user.name }}"
 Authentication = "active_directory"
 {% if (usergroups | selectattr('gid', 'in', (user.groups | default([], true))) | selectattr('name', 'match', 'azhop-admins') | map(attribute='name') | count ) > 0 %}
-Roles = {"azhop Cluster Admin"}
+Roles = {"Administrator"}
+Superuser = true
 {% else %}
 Roles = {"User"}
+Superuser = false
 {% endif %}
 UID = {{ user.uid }}
-Superuser = false
 
 {% endfor %}
