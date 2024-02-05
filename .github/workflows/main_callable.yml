@@ -97,7 +97,8 @@ jobs:
   deploy:
     name: deploy
     runs-on: self-hosted
-    permissions: read-all
+    permissions:
+      contents: read
     timeout-minutes: 60
 
     container:
@@ -325,7 +326,8 @@ jobs:
   ad:
     name: ad
     runs-on: self-hosted
-    permissions: read-all
+    permissions:
+      contents: read    
     needs: deploy
 
     container:
@@ -361,7 +363,8 @@ jobs:
   lustre:
     name: lustre
     runs-on: self-hosted
-    permissions: read-all
+    permissions:
+      contents: read    
     needs: [ad, deploy, grafana]
 #    if: inputs.deploy_only == 'false' && inputs.deploy_with != 'arm'
 
@@ -399,7 +402,8 @@ jobs:
   ood:
     name: ood
     runs-on: self-hosted
-    permissions: read-all
+    permissions:
+      contents: read    
     needs: [cycle_cluster, lustre, deploy]
 
     container:
@@ -433,7 +437,8 @@ jobs:
   grafana:
     name: grafana
     runs-on: self-hosted
-    permissions: read-all
+    permissions:
+      contents: read    
     needs: [ad, deploy]
 
     container:
@@ -467,7 +472,8 @@ jobs:
   cycle:
     name: cycle
     runs-on: self-hosted
-    permissions: read-all
+    permissions:
+      contents: read    
     needs: [ad, deploy]
 
     container:
@@ -501,7 +507,8 @@ jobs:
   add_users:
     name: add_users
     runs-on: self-hosted
-    permissions: read-all
+    permissions:
+      contents: read    
     needs: [cycle, deploy]
 
     container:
@@ -535,7 +542,8 @@ jobs:
   cycle_cluster:
     name: cycle_cluster
     runs-on: self-hosted
-    permissions: read-all
+    permissions:
+      contents: read    
     needs: [add_users, deploy, build_image]
 
     container:
@@ -570,7 +578,8 @@ jobs:
   telegraf:
     name: telegraf
     runs-on: self-hosted
-    permissions: read-all
+    permissions:
+      contents: read    
     needs: [grafana, cycle, deploy]
 
     container:
@@ -605,7 +614,8 @@ jobs:
   set_image_list:
     name: set_image_list
     runs-on: ubuntu-latest
-    permissions: read-all
+    permissions:
+      contents: read    
     needs: [deploy]
     if: inputs.deploy_only == 'false'
 
@@ -648,7 +658,8 @@ jobs:
   build_image:
     name: build_image
     runs-on: self-hosted
-    permissions: read-all
+    permissions:
+      contents: read    
     needs: [deploy, set_image_list]
     if: inputs.deploy_only == 'false'
     strategy:
@@ -689,7 +700,8 @@ jobs:
   run_tests:
     name: run_tests
     runs-on: self-hosted
-    permissions: read-all
+    permissions:
+      contents: read    
     needs: [deploy, cycle, ood, cycle_cluster]
     container:
       image: azhop.azurecr.io/hpcrover:latest
@@ -722,7 +734,8 @@ jobs:
   cleanup:
     name: cleanup
     runs-on: ubuntu-latest
-    permissions: read-all
+    permissions:
+      contents: read    
     if: always() && inputs.clean == 'true'
     needs: [deploy, run_tests, telegraf]
 
