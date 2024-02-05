@@ -43,7 +43,7 @@ jobs:
   deploy:
     name: deploy
     runs-on: self-hosted
-    permissions: read-all
+    permissions: {}
     timeout-minutes: 80
 
     container:

@@ -42,7 +42,7 @@ jobs:
   set_image_list:
     name: set_image_list
     runs-on: ubuntu-latest
-    permissions: read-all
+    permissions: {}
 
     container:
       image: azhop.azurecr.io/hpcrover:latest
@@ -85,7 +85,7 @@ jobs:
   build_image:
     name: build_image
     runs-on: self-hosted
-    permissions: read-all
+    permissions: {}
     needs: [set_image_list]
     strategy: 
       matrix:

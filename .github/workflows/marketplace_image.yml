@@ -36,7 +36,7 @@ jobs:
   set_image_list:
     name: set_image_list
     runs-on: ubuntu-latest
-    permissions: read-all
+    permissions: {}
 
     container:
       image: azhop.azurecr.io/hpcrover:latest
@@ -77,7 +77,7 @@ jobs:
   build_image:
     name: build_image
     runs-on: self-hosted
-    permissions: read-all
+    permissions: {}
     continue-on-error: true
     needs: [set_image_list]
     strategy:
@@ -111,7 +111,7 @@ jobs:
   copy_disk:
     name: copy_disk
     runs-on: ubuntu-latest
-    permissions: read-all
+    permissions: {}
     continue-on-error: true
     if: inputs.publish == 'true'
     needs: [set_image_list, build_image]
@@ -167,7 +167,7 @@ jobs:
   put_offer:
     name: put_offer
     runs-on: ubuntu-latest
-    permissions: read-all
+    permissions: {}
     continue-on-error: true
     if: inputs.publish == 'true'
     needs: [set_image_list, copy_disk]

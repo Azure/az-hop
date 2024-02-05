@@ -35,7 +35,7 @@ jobs:
   test:
     name: test
     runs-on: self-hosted
-    permissions: read-all
+    permissions: {}
     timeout-minutes: 60
 
     container:
