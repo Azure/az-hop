@@ -90,8 +90,6 @@ jobs:
   build_config:
     name: Build configuration file
     runs-on: self-hosted
-    permissions:
-      actions: read
     timeout-minutes: 60
 
     container:
