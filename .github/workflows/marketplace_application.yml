@@ -27,7 +27,8 @@ defaults:
 jobs:
   arm_validation:
     runs-on: ubuntu-latest
-    permissions: {}
+    permissions:
+      id-token: write    
 
     container:
       image: azhop.azurecr.io/hpcrover:latest

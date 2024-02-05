@@ -35,7 +35,8 @@ jobs:
   test:
     name: test
     runs-on: self-hosted
-    permissions: {}
+    permissions:
+      id-token: write    
     timeout-minutes: 60
 
     container:

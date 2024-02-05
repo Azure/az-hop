@@ -35,7 +35,8 @@ jobs:
   install:
     name: install
     runs-on: self-hosted
-    permissions: {}
+    permissions:
+      id-token: write
     timeout-minutes: 80
 
     container:
