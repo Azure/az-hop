@@ -82,8 +82,6 @@ jobs:
     runs-on: self-hosted
     permissions:
       contents: read
-      packages: write
-      pull-requests: read
     # needs: [init_matrix]
     # strategy: 
     #   matrix:
