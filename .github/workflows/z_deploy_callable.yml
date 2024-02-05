@@ -44,7 +44,7 @@ jobs:
     name: deploy
     runs-on: self-hosted
     permissions:
-      id-token: write
+      contents: read
     timeout-minutes: 80
 
     container:

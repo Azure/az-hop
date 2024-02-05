@@ -81,7 +81,6 @@ jobs:
     name: run_tests
     runs-on: self-hosted
     permissions:
-      id-token: write    
       actions: read
       checks: read
       contents: read

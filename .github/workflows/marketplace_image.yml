@@ -37,7 +37,7 @@ jobs:
     name: set_image_list
     runs-on: ubuntu-latest
     permissions:
-      id-token: write    
+      contents: read    
 
     container:
       image: azhop.azurecr.io/hpcrover:latest
@@ -79,7 +79,7 @@ jobs:
     name: build_image
     runs-on: self-hosted
     permissions:
-      id-token: write    
+      contents: read    
     continue-on-error: true
     needs: [set_image_list]
     strategy:
@@ -114,7 +114,7 @@ jobs:
     name: copy_disk
     runs-on: ubuntu-latest
     permissions:
-      id-token: write
+      contents: read
     continue-on-error: true
     if: inputs.publish == 'true'
     needs: [set_image_list, build_image]
@@ -171,7 +171,7 @@ jobs:
     name: put_offer
     runs-on: ubuntu-latest
     permissions:
-      id-token: write
+      contents: read
     continue-on-error: true
     if: inputs.publish == 'true'
     needs: [set_image_list, copy_disk]
