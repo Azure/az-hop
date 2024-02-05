@@ -91,7 +91,7 @@ jobs:
     name: Build configuration file
     runs-on: self-hosted
     permissions:
-      id-token: write
+      contents: read
     timeout-minutes: 60
 
     container:
