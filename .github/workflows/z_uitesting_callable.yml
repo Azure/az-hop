@@ -77,8 +77,8 @@ jobs:
   #   outputs:
   #     matrix: ${{ steps.set-matrix.outputs.matrix }}
 
-  run_tests:
-    name: run_tests
+  ui_tests:
+    name: ui_tests
     runs-on: self-hosted
     permissions:
       contents: read
@@ -134,10 +134,10 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-test-results
+          name: playwright-results-${{ inputs.resource_group }}
           path: test-results/
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-report
+          name: playwright-report-${{ inputs.resource_group }}
           path: playwright-report/
