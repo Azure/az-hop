@@ -741,7 +741,7 @@ By default every users can access the CycleCloud portal as a read only user. If 
 ./bin/connect cyclecloud
 ```
 
-Browse to the cycle UI https://localhost:9443/cyclecloud
+Browse to the cycle UI https://localhost:9443
 
 Connect to Cycle with the **hpcadmin** user, read the secret stored in the key vault by running the **get_secret** helper command.
 ```bash

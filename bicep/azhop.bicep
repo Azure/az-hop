@@ -1054,7 +1054,7 @@ var azhopSSHConnectScript = format('''
 #!/bin/bash
 case $1 in
   cyclecloud)
-    echo go create tunnel to cyclecloud at https://localhost:9443/cyclecloud
+    echo go create tunnel to cyclecloud at https://localhost:9443
     ssh -i {0}_id_rsa -fN -L 9443:ccportal:9443 -p {1} {0}@{2}
     ;;
   ad)

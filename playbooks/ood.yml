@@ -297,8 +297,8 @@
             {{ auth }}
             {% endfor %}
 
-            ProxyPass http://{{ccportal_name}}:80/cyclecloud
-            ProxyPassReverse http://{{ccportal_name}}:80/cyclecloud
+            ProxyPass http://{{ccportal_name}}:80
+            ProxyPassReverse http://{{ccportal_name}}:80
           </Location>
   
   - name: Configure Lmod

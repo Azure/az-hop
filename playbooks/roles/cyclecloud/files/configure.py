@@ -207,7 +207,7 @@ def initialize_cyclecloud_cli(admin_user, cyclecloud_admin_pw):
     password_flag = ("--password=%s" % cyclecloud_admin_pw)
     print("Initializing cyclecloud CLI")
     _catch_sys_error([path_to_cyclecloud, "initialize", "--loglevel=debug", "--batch",
-                      "--url=https://localhost/cyclecloud", "--verify-ssl=false", 
+                      "--url=https://localhost", "--verify-ssl=false", 
                       "--username=%s" % admin_user, password_flag])
 
 
