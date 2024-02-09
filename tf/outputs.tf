@@ -15,14 +15,6 @@ resource "local_file" "AnsibleInventory" {
   )
   filename = "${local.playbook_root_dir}/inventory"
 }
-resource "local_file" "CISInventory" { 
-  content = templatefile("${local.playbooks_template_dir}/inventory.cis.tmpl",
-    {
-      lustre-oss-count  = 0
-    }
-  )
-  filename = "${local.playbook_root_dir}/inventory.cis.yml"
-}
 
 resource "local_file" "global_variables" {
   content = templatefile("${local.playbooks_template_dir}/global_variables.tmpl",
