@@ -43,7 +43,6 @@ There are actually 9 application folder under the ood-applications ansible role 
 - [bc_vmd](#visual-molecular-dynamics) : A Visual Molecular Dynamics launcher running as a Linux Remote Desktop session
 - cyclecloud : A python passenger application to launch the Cycle Cloud Web UI
 - grafana : A python passenger application to launch the Grafana Web UI
-- robinhood : A python passenger application to launch the Robinhood Web UI
 
 The specific bc_* pattern comes from Open OnDemand and means that the Batch Connect feature is used. This provides form design, job scheduler integration, remote desktop integration, session management and more.
 To add a new Interactive Application named `foo` follow these steps :

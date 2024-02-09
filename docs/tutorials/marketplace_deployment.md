@@ -28,7 +28,6 @@ This tutorial with create the following resources.
 - [Azure CycleCloud](https://learn.microsoft.com/en-us/azure/cyclecloud/?view=cyclecloud-8&WT.mc_id=Portal-Microsoft_Azure_Marketplace) to handle autoscaling of nodes thru job scheduler integration,
 - A Jumpbox to provide admin access,
 - Azure Netapp Files for home directory and data storage,
-- A Lustre cluster for the scratch storage with HSM capabilities to Azure Blobs thru a [Robinhood](https://github.com/cea-hpc/robinhood) integration,
 - [Grafana](https://grafana.com/) dashboards to monitor your cluster.
 
 # Deployment steps

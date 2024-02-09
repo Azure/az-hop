@@ -304,7 +304,6 @@ locals {
         asg-nfs-client = "asg-nfs-client"
         asg-telegraf = "asg-telegraf"
         asg-grafana = "asg-grafana"
-        asg-robinhood = "asg-robinhood"
         asg-ondemand = "asg-ondemand"
         asg-deployer = "asg-deployer"
         asg-mariadb-client = "asg-mariadb-client"
@@ -323,7 +322,6 @@ locals {
         grafana   = ["asg-ssh", "asg-grafana", "asg-ad-client", "asg-telegraf", "asg-nfs-client"]
         jumpbox   = ["asg-ssh", "asg-jumpbox", "asg-ad-client", "asg-telegraf", "asg-nfs-client"]
         ondemand  = ["asg-ssh", "asg-ondemand", "asg-ad-client", "asg-nfs-client", "asg-pbs-client", "asg-lustre-client", "asg-telegraf", "asg-cyclecloud-client", "asg-mariadb-client"]
-        robinhood = ["asg-ssh", "asg-robinhood", "asg-lustre-client", "asg-telegraf"]
         scheduler = ["asg-ssh", "asg-pbs", "asg-ad-client", "asg-cyclecloud-client", "asg-nfs-client", "asg-telegraf", "asg-mariadb-client"]
     }
 

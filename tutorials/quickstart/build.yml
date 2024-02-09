@@ -224,7 +224,6 @@ _nsg_rules:
     AllowLustreIn               : ['409', 'Inbound', 'Allow', 'Tcp', 'Lustre',             'asg/asg-lustre',        'asg/asg-lustre-client']
     AllowLustreClientIn         : ['410', 'Inbound', 'Allow', 'Tcp', 'Lustre',             'asg/asg-lustre-client', 'asg/asg-lustre']
     AllowLustreClientComputeIn  : ['420', 'Inbound', 'Allow', 'Tcp', 'Lustre',             'subnet/compute',        'asg/asg-lustre']
-    AllowRobinhoodIn            : ['430', 'Inbound', 'Allow', 'Tcp', 'Web',                'asg/asg-ondemand',      'asg/asg-robinhood']
 
     # CycleCloud
     AllowCycleWebIn             : ['440', 'Inbound', 'Allow', 'Tcp', 'Web',                'asg/asg-ondemand',          'asg/asg-cyclecloud']

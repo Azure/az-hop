@@ -11,4 +11,3 @@
 - Monitoring
   - [CycleCloud](cycle_cloud.md)
   - [Grafana Dashboards](grafana.md)
-  - [Lustre HSM monitoring](robinhood.md)
