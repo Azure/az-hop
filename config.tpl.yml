@@ -160,7 +160,6 @@ network:
 #     asg-nfs-client: asg-nfs-client
 #     asg-telegraf: asg-telegraf
 #     asg-grafana: asg-grafana
-#     asg-robinhood: asg-robinhood
 #     asg-ondemand: asg-ondemand
 #     asg-deployer: asg-deployer
 #     asg-mariadb-client: asg-mariadb-client

@@ -883,7 +883,6 @@
                 "asg-nfs-client": { "type": "string" },
                 "asg-telegraf": { "type": "string" },
                 "asg-grafana": { "type": "string" },
-                "asg-robinhood": { "type": "string" },
                 "asg-ondemand": { "type": "string" },
                 "asg-deployer": { "type": "string" },
                 "asg-mariadb-client": { "type": "string" }
