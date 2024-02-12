@@ -58,7 +58,8 @@ var windowsBaseImage = contains(azhopConfig, 'windows_base_image') ? azhopConfig
 var cyclecloudBaseImage = contains(azhopConfig.cyclecloud, 'image') ? azhopConfig.cyclecloud.image : linuxBaseImage
 var cyclecloudBasePlan = contains(azhopConfig.cyclecloud, 'plan') ? azhopConfig.cyclecloud.plan : linuxBasePlan
 
-var createDatabase = (config.queue_manager == 'slurm' && config.slurm.accounting_enabled )
+var createDatabase = queue_manager == 'slurm' && slurm_accounting_enabled
+var slurm_accounting_enabled = contains(azhopConfig, 'slurm') && contains(azhopConfig.slurm, 'accounting_enabled') ? azhopConfig.slurm.accounting_enabled : false 
 
 var computeMIoption = contains(azhopConfig, 'compute_vm_identity')
 var createComputeMI = computeMIoption && contains(azhopConfig.compute_vm_identity, 'create') ? azhopConfig.compute_vm_identity.create : false
@@ -80,6 +81,7 @@ var vmNamesMap = {
   scheduler: contains(azhopConfig, 'scheduler') && contains(azhopConfig.scheduler, 'name') ? azhopConfig.scheduler.name : 'scheduler'
   grafana: contains(azhopConfig, 'grafana') && contains(azhopConfig.grafana, 'name') ? azhopConfig.grafana.name : 'grafana'
 }
+var queue_manager= contains(azhopConfig, 'queue_manager') ? azhopConfig.queue_manager : 'openpbs'
 // Convert the azhop configuration file to a pivot format used for the deployment
 var config = {
   admin_user: azhopConfig.admin_user
@@ -101,7 +103,7 @@ var config = {
     name: contains(azhopConfig, 'nat_gateway') && contains(azhopConfig.nat_gateway, 'name') ? azhopConfig.nat_gateway.name : 'natgw-${resourcePostfix}'
   }
 
-  queue_manager: contains(azhopConfig, 'queue_manager') ? azhopConfig.queue_manager : 'openpbs'
+  queue_manager: queue_manager
 
   slurm: {
     admin_user: contains(azhopConfig, 'database') && contains(azhopConfig.database, 'user') ? azhopConfig.database.user : 'sqladmin'
@@ -294,7 +296,9 @@ var config = {
         image: 'linux_base'
         pip: enablePublicIP
         asgs: union(
-          [ 'asg-ssh', 'asg-ondemand', 'asg-ad-client', 'asg-nfs-client', 'asg-pbs-client', 'asg-telegraf', 'asg-cyclecloud-client', 'asg-mariadb-client' ],
+          [ 'asg-ssh', 'asg-ondemand', 'asg-nfs-client', 'asg-sched', 'asg-cyclecloud-client', 'asg-mariadb-client' ],
+          deployGrafana ? ['asg-telegraf'] : [],
+          (userAuth == 'ad') ? ['asg-ad-client'] : [],
           deployLustre ? [ 'asg-lustre-client' ] : []
         )
       }
@@ -320,7 +324,11 @@ var config = {
             'Contributor'
           ]
         }
-        asgs: [ 'asg-ssh', 'asg-cyclecloud', 'asg-telegraf', 'asg-ad-client' ]
+        asgs: union(
+          [ 'asg-ssh', 'asg-cyclecloud' ],
+          (userAuth == 'ad') ? ['asg-ad-client'] : [],
+          deployGrafana ? ['asg-telegraf'] : []
+        )
       }
       scheduler: {
         subnet: 'admin'
@@ -328,7 +336,12 @@ var config = {
         sku: azhopConfig.scheduler.vm_size
         osdisksku: 'StandardSSD_LRS'
         image: 'linux_base'
-        asgs: [ 'asg-ssh', 'asg-pbs', 'asg-ad-client', 'asg-cyclecloud-client', 'asg-nfs-client', 'asg-telegraf', 'asg-mariadb-client' ]
+        asgs: union(
+          [ 'asg-ssh', 'asg-sched', 'asg-cyclecloud-client', 'asg-nfs-client' ],
+          (userAuth == 'ad') ? ['asg-ad-client'] : [],
+          deployGrafana ? ['asg-telegraf'] : [],
+          createDatabase ? ['asg-mariadb-client'] : []
+        )
       }
     },
     createAD ? {
@@ -352,7 +365,10 @@ var config = {
           image: 'ubuntu'
           pip: enablePublicIP
           sshPort: deployerSshPort
-          asgs: [ 'asg-ssh', 'asg-jumpbox', 'asg-deployer', 'asg-telegraf' ]
+          asgs: union( 
+            [ 'asg-ssh', 'asg-jumpbox', 'asg-deployer' ],
+            deployGrafana ? ['asg-telegraf'] : []
+            )    
           deploy_script: replace(replace(loadTextContent('install.sh'), '__INSERT_AZHOP_BRANCH__', branchName), '__SSH_PORT__', string(deployerSshPort))
           identity: {
             keyvault: {
@@ -386,7 +402,10 @@ var config = {
         image: 'linux_base'
         pip: enablePublicIP
         sshPort: jumpboxSshPort
-        asgs: [ 'asg-ssh', 'asg-jumpbox', 'asg-ad-client', 'asg-telegraf', 'asg-nfs-client' ]
+        asgs: union(
+          [ 'asg-ssh', 'asg-jumpbox' ],
+          deployGrafana ? ['asg-telegraf'] : []
+          )  
         deploy_script: jumpboxSshPort != 22 ? replace(loadTextContent('jumpbox.yml'), '__SSH_PORT__', string(jumpboxSshPort)) : ''
       }
     } : {},
@@ -397,14 +416,21 @@ var config = {
         sku: azhopConfig.grafana.vm_size
         osdisksku: 'StandardSSD_LRS'
         image: 'linux_base'
-        asgs: [ 'asg-ssh', 'asg-grafana', 'asg-ad-client', 'asg-telegraf', 'asg-nfs-client' ]
+        asgs: union (
+          [ 'asg-ssh', 'asg-grafana', 'asg-telegraf', 'asg-nfs-client' ],
+          (userAuth == 'ad') ? ['asg-ad-client'] : []
+        )
       }
     } : {}
   )
 
-  asg_names: union([ 'asg-ssh', 'asg-rdp', 'asg-jumpbox', 'asg-ad', 'asg-ad-client', 'asg-pbs', 'asg-pbs-client', 'asg-cyclecloud', 'asg-cyclecloud-client', 'asg-nfs-client', 'asg-telegraf', 'asg-ondemand', 'asg-deployer', 'asg-mariadb-client' ],
-    deployLustre ? [ 'asg-lustre-client' ] : [],
-    deployGrafana ? [ 'asg-grafana' ] : []
+  asg_names: union([ 'asg-ssh', 'asg-jumpbox', 'asg-sched', 'asg-cyclecloud', 'asg-cyclecloud-client', 'asg-nfs-client' ],
+    deployLustre        ? [ 'asg-lustre-client' ] : [],
+    deployGrafana       ? [ 'asg-grafana', 'asg-telegraf' ] : [],
+    (userAuth == 'ad')  ? ['asg-rdp', 'asg-ad', 'asg-ad-client'] : [],
+    deployOnDemand      ? ['asg-ondemand']: [],
+    createDatabase      ? ['asg-mariadb-client']: [],
+    deployDeployer      ? ['asg-deployer']: []
   )
 
   service_ports: {
@@ -421,8 +447,9 @@ var config = {
     NoVnc: ['80', '443', '5900-5910', '61001-61010']
     Dns: ['53']
     Rdp: ['3389']
-    Pbs: ['6200', '15001-15009', '17001', '32768-61000', '6817-6819']
-    Slurmd: ['6818']
+//    Pbs: ['6200', '15001-15009', '17001', '32768-61000']
+//    Slurm: ['6817-6819']
+    Shed: (queue_manager == 'slurm') ? ['6817-6819'] : ['6200', '15001-15009', '17001', '32768-61000']
     Lustre: ['988', '1019-1023']
     Nfs: ['111', '635', '2049', '4045', '4046']
     SMB: ['445']
@@ -440,6 +467,76 @@ var config = {
       // INBOUND RULES
       //
     
+      // SSH internal rules
+      AllowSshFromJumpboxIn       : ['320', 'Inbound', 'Allow', 'Tcp', 'Ssh', 'asg', 'asg-jumpbox', 'asg', 'asg-ssh']
+      AllowSshFromComputeIn       : ['330', 'Inbound', 'Allow', 'Tcp', 'Ssh', 'subnet', 'compute', 'asg', 'asg-ssh']
+      AllowSshToComputeIn         : ['360', 'Inbound', 'Allow', 'Tcp', 'Ssh', 'asg', 'asg-ssh', 'subnet', 'compute']
+      AllowSshComputeComputeIn    : ['365', 'Inbound', 'Allow', 'Tcp', 'Ssh', 'subnet', 'compute', 'subnet', 'compute']
+    
+      // Scheduler
+      AllowSchedIn                : ['369', 'Inbound', 'Allow', '*', 'Shed', 'asg', 'asg-sched', 'asg', 'asg-sched']
+//      AllowPbsClientIn            : ['370', 'Inbound', 'Allow', '*', 'Pbs', 'asg', 'asg-pbs-client', 'asg', 'asg-pbs']
+      AllowSchedComputeIn         : ['380', 'Inbound', 'Allow', '*', 'Shed', 'asg', 'asg-sched', 'subnet', 'compute']
+//      AllowComputePbsClientIn     : ['390', 'Inbound', 'Allow', '*', 'Pbs', 'subnet', 'compute', 'asg', 'asg-pbs-client']
+      AllowComputeSchedIn         : ['400', 'Inbound', 'Allow', '*', 'Shed', 'subnet', 'compute', 'asg', 'asg-sched']
+      AllowComputeComputeSchedIn  : ['401', 'Inbound', 'Allow', '*', 'Shed', 'subnet', 'compute', 'subnet', 'compute']
+    
+      // NFS
+      AllowNfsIn                  : ['434', 'Inbound', 'Allow', '*', 'Nfs', 'asg', 'asg-nfs-client', 'subnet', 'netapp']
+      AllowNfsComputeIn           : ['435', 'Inbound', 'Allow', '*', 'Nfs', 'subnet', 'compute', 'subnet', 'netapp']
+      
+      // CycleCloud
+      AllowCycleClientIn          : ['450', 'Inbound', 'Allow', 'Tcp', 'CycleCloud', 'asg', 'asg-cyclecloud-client', 'asg', 'asg-cyclecloud']
+      AllowCycleClientComputeIn   : ['460', 'Inbound', 'Allow', 'Tcp', 'CycleCloud', 'subnet', 'compute', 'asg', 'asg-cyclecloud']
+      AllowCycleServerIn          : ['465', 'Inbound', 'Allow', 'Tcp', 'CycleCloud', 'asg', 'asg-cyclecloud', 'asg', 'asg-cyclecloud-client']
+    
+      // Deny all remaining traffic
+      DenyVnetInbound             : ['3100', 'Inbound', 'Deny', '*', 'All', 'tag', 'VirtualNetwork', 'tag', 'VirtualNetwork']
+      
+      //
+      // Outbound
+      //
+       
+      // CycleCloud
+      AllowCycleServerOut         : ['300', 'Outbound', 'Allow', 'Tcp', 'CycleCloud', 'asg', 'asg-cyclecloud', 'asg', 'asg-cyclecloud-client']
+      AllowCycleClientOut         : ['310', 'Outbound', 'Allow', 'Tcp', 'CycleCloud', 'asg', 'asg-cyclecloud-client', 'asg', 'asg-cyclecloud']
+      AllowComputeCycleClientIn   : ['320', 'Outbound', 'Allow', 'Tcp', 'CycleCloud', 'subnet', 'compute', 'asg', 'asg-cyclecloud']
+    
+      // Scheduler
+      AllowSchedOut               : ['340', 'Outbound', 'Allow', '*', 'Shed', 'asg', 'asg-sched', 'asg', 'asg-sched']
+//      AllowPbsClientOut           : ['350', 'Outbound', 'Allow', '*', 'Pbs', 'asg', 'asg-pbs-client', 'asg', 'asg-pbs']
+      AllowSchedComputeOut        : ['360', 'Outbound', 'Allow', '*', 'Shed', 'asg', 'asg-sched', 'subnet', 'compute']
+      AllowComputeSchedOut        : ['370', 'Outbound', 'Allow', '*', 'Shed', 'subnet', 'compute', 'asg', 'asg-sched']
+      //AllowComputePbsClientOut    : ['380', 'Outbound', 'Allow', '*', 'Pbs', 'subnet', 'compute', 'asg', 'asg-pbs-client']
+      AllowComputeComputeSchedOut : ['381', 'Outbound', 'Allow', '*', 'Shed', 'subnet', 'compute', 'subnet', 'compute']
+        
+      // NFS
+      AllowNfsOut                 : ['440', 'Outbound', 'Allow', '*', 'Nfs', 'asg', 'asg-nfs-client', 'subnet', 'netapp']
+      AllowNfsComputeOut          : ['450', 'Outbound', 'Allow', '*', 'Nfs', 'subnet', 'compute', 'subnet', 'netapp']
+    
+      // SSH internal rules
+      AllowSshFromJumpboxOut      : ['490', 'Outbound', 'Allow', 'Tcp', 'Ssh', 'asg', 'asg-jumpbox', 'asg', 'asg-ssh']
+      AllowSshComputeOut          : ['500', 'Outbound', 'Allow', 'Tcp', 'Ssh', 'asg', 'asg-ssh', 'subnet', 'compute']
+      AllowSshFromComputeOut      : ['530', 'Outbound', 'Allow', 'Tcp', 'Ssh', 'subnet', 'compute', 'asg', 'asg-ssh']
+      AllowSshComputeComputeOut   : ['540', 'Outbound', 'Allow', 'Tcp', 'Ssh', 'subnet', 'compute', 'subnet', 'compute']
+        
+      // Admin and Deployment
+      AllowDnsOut                 : ['590', 'Outbound', 'Allow', '*', 'Dns', 'tag', 'VirtualNetwork', 'tag', 'VirtualNetwork']
+     
+      // Deny all remaining traffic and allow Internet access
+      AllowInternetOutBound       : ['3000', 'Outbound', 'Allow', 'Tcp', 'All', 'tag', 'VirtualNetwork', 'tag', 'Internet']
+      DenyVnetOutbound            : ['3100', 'Outbound', 'Deny', '*', 'All', 'tag', 'VirtualNetwork', 'tag', 'VirtualNetwork']
+    }
+    internet: {
+      AllowInternetSshIn          : ['200', 'Inbound', 'Allow', 'Tcp', 'HubSsh', 'tag', 'Internet', 'asg', 'asg-jumpbox']
+      AllowInternetHttpIn         : ['210', 'Inbound', 'Allow', 'Tcp', 'Web', 'tag', 'Internet', 'subnet', 'frontend']
+    }
+    hub: {
+      AllowHubSshIn               : ['200', 'Inbound', 'Allow', 'Tcp', 'HubSsh', 'tag', 'VirtualNetwork', 'tag', 'VirtualNetwork']
+      AllowHubHttpIn              : ['210', 'Inbound', 'Allow', 'Tcp', 'Web', 'tag', 'VirtualNetwork', 'tag', 'VirtualNetwork']
+    }
+    ad: {
+      // Inbound
       // AD communication
       AllowAdServerTcpIn          : ['220', 'Inbound', 'Allow', 'Tcp', 'DomainControlerTcp', nsgTargetForDC.type, nsgTargetForDC.target, 'asg', 'asg-ad-client']
       AllowAdServerUdpIn          : ['230', 'Inbound', 'Allow', 'Udp', 'DomainControlerUdp', nsgTargetForDC.type, nsgTargetForDC.target, 'asg', 'asg-ad-client']
@@ -451,57 +548,9 @@ var config = {
       AllowAdClientComputeUdpIn   : ['290', 'Inbound', 'Allow', 'Udp', 'DomainControlerUdp', 'subnet', 'compute', nsgTargetForDC.type, nsgTargetForDC.target]
       AllowAdServerNetappTcpIn    : ['300', 'Inbound', 'Allow', 'Tcp', 'DomainControlerTcp', 'subnet', 'netapp', nsgTargetForDC.type, nsgTargetForDC.target]
       AllowAdServerNetappUdpIn    : ['310', 'Inbound', 'Allow', 'Udp', 'DomainControlerUdp', 'subnet', 'netapp', nsgTargetForDC.type, nsgTargetForDC.target]
-    
-      // SSH internal rules
-      AllowSshFromJumpboxIn       : ['320', 'Inbound', 'Allow', 'Tcp', 'Ssh', 'asg', 'asg-jumpbox', 'asg', 'asg-ssh']
-      AllowSshFromComputeIn       : ['330', 'Inbound', 'Allow', 'Tcp', 'Ssh', 'subnet', 'compute', 'asg', 'asg-ssh']
-      // Only in a deployer VM scenario
-      AllowSshFromDeployerIn      : ['340', 'Inbound', 'Allow', 'Tcp', 'Ssh', 'asg', 'asg-deployer', 'asg', 'asg-ssh'] 
-      // Only in a deployer VM scenario
-      AllowDeployerToPackerSshIn  : ['350', 'Inbound', 'Allow', 'Tcp', 'Ssh', 'asg', 'asg-deployer', 'subnet', 'admin']
-      AllowSshToComputeIn         : ['360', 'Inbound', 'Allow', 'Tcp', 'Ssh', 'asg', 'asg-ssh', 'subnet', 'compute']
-      AllowSshComputeComputeIn    : ['365', 'Inbound', 'Allow', 'Tcp', 'Ssh', 'subnet', 'compute', 'subnet', 'compute']
-    
-      // PBS
-      AllowPbsIn                  : ['369', 'Inbound', 'Allow', '*', 'Pbs', 'asg', 'asg-pbs', 'asg', 'asg-pbs-client']
-      AllowPbsClientIn            : ['370', 'Inbound', 'Allow', '*', 'Pbs', 'asg', 'asg-pbs-client', 'asg', 'asg-pbs']
-      AllowPbsComputeIn           : ['380', 'Inbound', 'Allow', '*', 'Pbs', 'asg', 'asg-pbs', 'subnet', 'compute']
-      AllowComputePbsClientIn     : ['390', 'Inbound', 'Allow', '*', 'Pbs', 'subnet', 'compute', 'asg', 'asg-pbs-client']
-      AllowComputePbsIn           : ['400', 'Inbound', 'Allow', '*', 'Pbs', 'subnet', 'compute', 'asg', 'asg-pbs']
-      AllowComputeComputePbsIn    : ['401', 'Inbound', 'Allow', '*', 'Pbs', 'subnet', 'compute', 'subnet', 'compute']
-    
-      // SLURM
-      AllowComputeSlurmIn         : ['405', 'Inbound', 'Allow', '*', 'Slurmd', 'asg', 'asg-ondemand', 'subnet', 'compute']
-
-      // NFS
-      AllowNfsIn                  : ['434', 'Inbound', 'Allow', '*', 'Nfs', 'asg', 'asg-nfs-client', 'subnet', 'netapp']
-      AllowNfsComputeIn           : ['435', 'Inbound', 'Allow', '*', 'Nfs', 'subnet', 'compute', 'subnet', 'netapp']
-      
-      // CycleCloud
-      AllowCycleWebIn             : ['440', 'Inbound', 'Allow', 'Tcp', 'Web', 'asg', 'asg-ondemand', 'asg', 'asg-cyclecloud']
-      AllowCycleClientIn          : ['450', 'Inbound', 'Allow', 'Tcp', 'CycleCloud', 'asg', 'asg-cyclecloud-client', 'asg', 'asg-cyclecloud']
-      AllowCycleClientComputeIn   : ['460', 'Inbound', 'Allow', 'Tcp', 'CycleCloud', 'subnet', 'compute', 'asg', 'asg-cyclecloud']
-      AllowCycleServerIn          : ['465', 'Inbound', 'Allow', 'Tcp', 'CycleCloud', 'asg', 'asg-cyclecloud', 'asg', 'asg-cyclecloud-client']
-    
-      // OnDemand NoVNC
-      AllowComputeNoVncIn         : ['470', 'Inbound', 'Allow', 'Tcp', 'NoVnc', 'subnet', 'compute', 'asg', 'asg-ondemand']
-      AllowNoVncComputeIn         : ['480', 'Inbound', 'Allow', 'Tcp', 'NoVnc', 'asg', 'asg-ondemand', 'subnet', 'compute']
-    
-      // Admin and Deployment
       AllowWinRMIn                : ['520', 'Inbound', 'Allow', 'Tcp', 'WinRM', 'asg', 'asg-jumpbox', 'asg', 'asg-rdp']
       AllowRdpIn                  : ['550', 'Inbound', 'Allow', 'Tcp', 'Rdp', 'asg', 'asg-jumpbox', 'asg', 'asg-rdp']
-      AllowWebDeployerIn          : ['595', 'Inbound', 'Allow', 'Tcp', 'Web', 'asg', 'asg-deployer', 'asg', 'asg-ondemand']
-
-      // MariaDB
-      AllowMariaDBIn              : ['700', 'Inbound', 'Allow', 'Tcp', 'MariaDB', 'asg', 'asg-mariadb-client', 'subnet', 'admin']
-
-      // Deny all remaining traffic
-      DenyVnetInbound             : ['3100', 'Inbound', 'Deny', '*', 'All', 'tag', 'VirtualNetwork', 'tag', 'VirtualNetwork']
-      
-      //
       // Outbound
-      //
-    
       // AD communication
       AllowAdClientTcpOut         : ['200', 'Outbound', 'Allow', 'Tcp', 'DomainControlerTcp', 'asg', 'asg-ad-client', nsgTargetForDC.type, nsgTargetForDC.target]
       AllowAdClientUdpOut         : ['210', 'Outbound', 'Allow', 'Udp', 'DomainControlerUdp', 'asg', 'asg-ad-client', nsgTargetForDC.type, nsgTargetForDC.target]
@@ -513,52 +562,29 @@ var config = {
       AllowAdServerComputeUdpOut  : ['270', 'Outbound', 'Allow', 'Udp', 'DomainControlerUdp', nsgTargetForDC.type, nsgTargetForDC.target, 'subnet', 'compute']
       AllowAdServerNetappTcpOut   : ['280', 'Outbound', 'Allow', 'Tcp', 'DomainControlerTcp', nsgTargetForDC.type, nsgTargetForDC.target, 'subnet', 'netapp']
       AllowAdServerNetappUdpOut   : ['290', 'Outbound', 'Allow', 'Udp', 'DomainControlerUdp', nsgTargetForDC.type, nsgTargetForDC.target, 'subnet', 'netapp']
-    
-      // CycleCloud
-      AllowCycleServerOut         : ['300', 'Outbound', 'Allow', 'Tcp', 'CycleCloud', 'asg', 'asg-cyclecloud', 'asg', 'asg-cyclecloud-client']
-      AllowCycleClientOut         : ['310', 'Outbound', 'Allow', 'Tcp', 'CycleCloud', 'asg', 'asg-cyclecloud-client', 'asg', 'asg-cyclecloud']
-      AllowComputeCycleClientIn   : ['320', 'Outbound', 'Allow', 'Tcp', 'CycleCloud', 'subnet', 'compute', 'asg', 'asg-cyclecloud']
-      AllowCycleWebOut            : ['330', 'Outbound', 'Allow', 'Tcp', 'Web', 'asg', 'asg-ondemand', 'asg', 'asg-cyclecloud']
-    
-      // PBS
-      AllowPbsOut                 : ['340', 'Outbound', 'Allow', '*', 'Pbs', 'asg', 'asg-pbs', 'asg', 'asg-pbs-client']
-      AllowPbsClientOut           : ['350', 'Outbound', 'Allow', '*', 'Pbs', 'asg', 'asg-pbs-client', 'asg', 'asg-pbs']
-      AllowPbsComputeOut          : ['360', 'Outbound', 'Allow', '*', 'Pbs', 'asg', 'asg-pbs', 'subnet', 'compute']
-      AllowPbsClientComputeOut    : ['370', 'Outbound', 'Allow', '*', 'Pbs', 'subnet', 'compute', 'asg', 'asg-pbs']
-      AllowComputePbsClientOut    : ['380', 'Outbound', 'Allow', '*', 'Pbs', 'subnet', 'compute', 'asg', 'asg-pbs-client']
-      AllowComputeComputePbsOut   : ['381', 'Outbound', 'Allow', '*', 'Pbs', 'subnet', 'compute', 'subnet', 'compute']
-    
-      // SLURM
-      AllowSlurmComputeOut        : ['385', 'Outbound', 'Allow', '*', 'Slurmd', 'asg', 'asg-ondemand', 'subnet', 'compute']
-    
-      // NFS
-      AllowNfsOut                 : ['440', 'Outbound', 'Allow', '*', 'Nfs', 'asg', 'asg-nfs-client', 'subnet', 'netapp']
-      AllowNfsComputeOut          : ['450', 'Outbound', 'Allow', '*', 'Nfs', 'subnet', 'compute', 'subnet', 'netapp']
-    
-      // SSH internal rules
-      AllowSshFromJumpboxOut      : ['490', 'Outbound', 'Allow', 'Tcp', 'Ssh', 'asg', 'asg-jumpbox', 'asg', 'asg-ssh']
-      AllowSshComputeOut          : ['500', 'Outbound', 'Allow', 'Tcp', 'Ssh', 'asg', 'asg-ssh', 'subnet', 'compute']
-      AllowSshDeployerOut         : ['510', 'Outbound', 'Allow', 'Tcp', 'Ssh', 'asg', 'asg-deployer', 'asg', 'asg-ssh']
-      AllowSshDeployerPackerOut   : ['520', 'Outbound', 'Allow', 'Tcp', 'Ssh', 'asg', 'asg-deployer', 'subnet', 'admin']
-      AllowSshFromComputeOut      : ['530', 'Outbound', 'Allow', 'Tcp', 'Ssh', 'subnet', 'compute', 'asg', 'asg-ssh']
-      AllowSshComputeComputeOut   : ['540', 'Outbound', 'Allow', 'Tcp', 'Ssh', 'subnet', 'compute', 'subnet', 'compute']
-    
-      // OnDemand NoVNC
-      AllowComputeNoVncOut        : ['550', 'Outbound', 'Allow', 'Tcp', 'NoVnc', 'subnet', 'compute', 'asg', 'asg-ondemand']
-      AllowNoVncComputeOut        : ['560', 'Outbound', 'Allow', 'Tcp', 'NoVnc', 'asg', 'asg-ondemand', 'subnet', 'compute']
-    
-      // Admin and Deployment
       AllowRdpOut                 : ['570', 'Outbound', 'Allow', 'Tcp', 'Rdp', 'asg', 'asg-jumpbox', 'asg', 'asg-rdp']
       AllowWinRMOut               : ['580', 'Outbound', 'Allow', 'Tcp', 'WinRM', 'asg', 'asg-jumpbox', 'asg', 'asg-rdp']
-      AllowDnsOut                 : ['590', 'Outbound', 'Allow', '*', 'Dns', 'tag', 'VirtualNetwork', 'tag', 'VirtualNetwork']
-      AllowWebDeployerOut         : ['595', 'Outbound', 'Allow', 'Tcp', 'Web', 'asg', 'asg-deployer', 'asg', 'asg-ondemand']
-
-      // MariaDB
+    }
+    ondemand: {
+      // Inbound
+      //AllowComputeSlurmIn         : ['405', 'Inbound', 'Allow', '*', 'Slurmd', 'asg', 'asg-ondemand', 'subnet', 'compute']
+      AllowCycleWebIn             : ['440', 'Inbound', 'Allow', 'Tcp', 'Web', 'asg', 'asg-ondemand', 'asg', 'asg-cyclecloud']
+      AllowComputeNoVncIn         : ['470', 'Inbound', 'Allow', 'Tcp', 'NoVnc', 'subnet', 'compute', 'asg', 'asg-ondemand']
+      AllowNoVncComputeIn         : ['480', 'Inbound', 'Allow', 'Tcp', 'NoVnc', 'asg', 'asg-ondemand', 'subnet', 'compute']
+      // Not sure if this is really needed. Why opening web port from deployer to ondemand ?
+      // AllowWebDeployerIn          : ['595', 'Inbound', 'Allow', 'Tcp', 'Web', 'asg', 'asg-deployer', 'asg', 'asg-ondemand']
+      // Outbound
+      AllowCycleWebOut            : ['330', 'Outbound', 'Allow', 'Tcp', 'Web', 'asg', 'asg-ondemand', 'asg', 'asg-cyclecloud']
+      //AllowSlurmComputeOut        : ['385', 'Outbound', 'Allow', '*', 'Slurmd', 'asg', 'asg-ondemand', 'subnet', 'compute']
+      AllowComputeNoVncOut        : ['550', 'Outbound', 'Allow', 'Tcp', 'NoVnc', 'subnet', 'compute', 'asg', 'asg-ondemand']
+      AllowNoVncComputeOut        : ['560', 'Outbound', 'Allow', 'Tcp', 'NoVnc', 'asg', 'asg-ondemand', 'subnet', 'compute']
+      // AllowWebDeployerOut         : ['595', 'Outbound', 'Allow', 'Tcp', 'Web', 'asg', 'asg-deployer', 'asg', 'asg-ondemand']
+    }
+    mariadb: {
+      // Inbound
+      AllowMariaDBIn              : ['700', 'Inbound', 'Allow', 'Tcp', 'MariaDB', 'asg', 'asg-mariadb-client', 'subnet', 'admin']
+      // Outbound
       AllowMariaDBOut             : ['700', 'Outbound', 'Allow', 'Tcp', 'MariaDB', 'asg', 'asg-mariadb-client', 'subnet', 'admin']
-      
-      // Deny all remaining traffic and allow Internet access
-      AllowInternetOutBound       : ['3000', 'Outbound', 'Allow', 'Tcp', 'All', 'tag', 'VirtualNetwork', 'tag', 'Internet']
-      DenyVnetOutbound            : ['3100', 'Outbound', 'Deny', '*', 'All', 'tag', 'VirtualNetwork', 'tag', 'VirtualNetwork']
     }
     lustre: {
       // Inbound
@@ -570,14 +596,6 @@ var config = {
       AllowLustreClientOut        : ['410', 'Outbound', 'Allow', 'Tcp', 'Lustre', 'asg', 'asg-lustre-client', 'subnet', 'lustre']
       AllowLustreClientComputeOut : ['420', 'Outbound', 'Allow', 'Tcp', 'Lustre', 'subnet', 'compute', 'subnet', 'lustre']
       AllowLustreSubnetAnyOutbound: ['430', 'Outbound', 'Allow', '*', 'All', 'subnet', 'lustre', 'subnet', 'lustre']
-    }
-    internet: {
-      AllowInternetSshIn          : ['200', 'Inbound', 'Allow', 'Tcp', 'HubSsh', 'tag', 'Internet', 'asg', 'asg-jumpbox']
-      AllowInternetHttpIn         : ['210', 'Inbound', 'Allow', 'Tcp', 'Web', 'tag', 'Internet', 'asg', 'asg-ondemand']
-    }
-    hub: {
-      AllowHubSshIn               : ['200', 'Inbound', 'Allow', 'Tcp', 'HubSsh', 'tag', 'VirtualNetwork', 'tag', 'VirtualNetwork']
-      AllowHubHttpIn              : ['210', 'Inbound', 'Allow', 'Tcp', 'Web', 'tag', 'VirtualNetwork', 'tag', 'VirtualNetwork']
     }
     bastion: {
       AllowBastionIn              : ['530', 'Inbound', 'Allow', 'Tcp', 'Bastion', 'subnet', 'bastion', 'tag', 'VirtualNetwork']
@@ -595,6 +613,14 @@ var config = {
       AllowTelegrafOut            : ['460', 'Outbound', 'Allow', 'Tcp', 'Telegraf', 'asg', 'asg-telegraf', 'asg', 'asg-grafana']
       AllowComputeTelegrafOut     : ['470', 'Outbound', 'Allow', 'Tcp', 'Telegraf', 'subnet', 'compute', 'asg', 'asg-grafana']
       AllowGrafanaOut             : ['480', 'Outbound', 'Allow', 'Tcp', 'Grafana', 'asg', 'asg-ondemand', 'asg', 'asg-grafana']
+    }
+    deployer: {
+      // Inbound
+      AllowSshFromDeployerIn      : ['340', 'Inbound', 'Allow', 'Tcp', 'Ssh', 'asg', 'asg-deployer', 'asg', 'asg-ssh'] 
+      AllowDeployerToPackerSshIn  : ['350', 'Inbound', 'Allow', 'Tcp', 'Ssh', 'asg', 'asg-deployer', 'subnet', 'admin']
+      // Outbound
+      AllowSshDeployerOut         : ['510', 'Outbound', 'Allow', 'Tcp', 'Ssh', 'asg', 'asg-deployer', 'asg', 'asg-ssh']
+      AllowSshDeployerPackerOut   : ['520', 'Outbound', 'Allow', 'Tcp', 'Ssh', 'asg', 'asg-deployer', 'subnet', 'admin']
     }
   }
 }
@@ -625,20 +651,27 @@ module natgateway './natgateway.bicep' = if (config.nat_gateway.create) {
 }
 
 var natGatewayId = config.nat_gateway.create ? natgateway.outputs.NATGatewayId : ''
+var nsgRules = items(union(
+  config.nsg_rules.default,
+  (userAuth == 'ad') ? config.nsg_rules.ad : {},
+  config.public_ip ? config.nsg_rules.internet : config.nsg_rules.hub,
+  config.deploy_bastion ? config.nsg_rules.bastion : {},
+  config.deploy_gateway ? config.nsg_rules.gateway : {},
+  config.deploy_lustre ? config.nsg_rules.lustre : {},
+  config.deploy_grafana ? config.nsg_rules.grafana : {},
+  config.deploy_ondemand ? config.nsg_rules.ondemand: {},
+  createDatabase ? config.nsg_rules.mariadb: {},
+  deployDeployer ? config.nsg_rules.deployer: {}
+))
 
 module azhopNetwork './network.bicep' = {
   name: 'azhopNetwork'
   params: {
     location: location
-    deployGateway: config.deploy_gateway
-    deployBastion: config.deploy_bastion
-    deployLustre: config.deploy_lustre
-    deployGrafana: config.deploy_grafana
-    publicIp: config.public_ip
     vnet: config.vnet
     asgNames: config.asg_names
     servicePorts: config.service_ports
-    nsgRules: config.nsg_rules
+    nsgRules: nsgRules
     peerings: config.vnet.peerings
     natGatewayId: natGatewayId
   }

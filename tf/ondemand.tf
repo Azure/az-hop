@@ -1,5 +1,5 @@
 resource "azurerm_public_ip" "ondemand-pip" {
-  count               = local.allow_public_ip ? 1 : 0
+  count               = local.allow_public_ip && local.create_ondemand ? 1 : 0
   name                = "${local.ondemand_name}-pip"
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
@@ -8,6 +8,7 @@ resource "azurerm_public_ip" "ondemand-pip" {
 }
 
 resource "azurerm_network_interface" "ondemand-nic" {
+  count               = local.create_ondemand ? 1 : 0
   name                = "${local.ondemand_name}-nic"
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
@@ -22,13 +23,14 @@ resource "azurerm_network_interface" "ondemand-nic" {
 }
 
 resource "azurerm_linux_virtual_machine" "ondemand" {
+  count               = local.create_ondemand ? 1 : 0
   name                = local.ondemand_name
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   size                = try(local.configuration_yml["ondemand"].vm_size, "Standard_D4s_v3")
   admin_username      = local.admin_username
   network_interface_ids = [
-    azurerm_network_interface.ondemand-nic.id,
+    azurerm_network_interface.ondemand-nic[0].id,
   ]
 
   identity {
@@ -73,15 +75,15 @@ resource "azurerm_linux_virtual_machine" "ondemand" {
 }
 
 resource "azurerm_network_interface_application_security_group_association" "ondemand-asg-asso" {
-  for_each = toset(local.asg_associations["ondemand"])
-  network_interface_id          = azurerm_network_interface.ondemand-nic.id
+  for_each = local.create_ondemand ? toset(local.asg_associations["ondemand"]) : []
+  network_interface_id          = azurerm_network_interface.ondemand-nic[0].id
   application_security_group_id = local.create_nsg ? azurerm_application_security_group.asg[each.key].id : data.azurerm_application_security_group.asg[each.key].id
 }
 
 resource "azurerm_virtual_machine_extension" "AzureMonitorLinuxAgent_ondemand" {
-  count                      = local.ama_install ? 1 : 0
+  count                      = local.create_ondemand && local.ama_install ? 1 : 0
   name                       = "AzureMonitorLinuxAgent"
-  virtual_machine_id         = azurerm_linux_virtual_machine.ondemand.id
+  virtual_machine_id         = azurerm_linux_virtual_machine.ondemand[0].id
   publisher                  = "Microsoft.Azure.Monitor"
   type                       = "AzureMonitorLinuxAgent"
   type_handler_version       = "1.0"
@@ -89,23 +91,23 @@ resource "azurerm_virtual_machine_extension" "AzureMonitorLinuxAgent_ondemand" {
 }
 
 resource "azurerm_monitor_data_collection_rule_association" "dcra_ondemand_metrics" {
-    count               = local.monitor ? 1 : 0
+    count               = local.create_ondemand && local.monitor ? 1 : 0
     name                = "ondemand-data-collection-ra"
-    target_resource_id = azurerm_linux_virtual_machine.ondemand.id
+    target_resource_id = azurerm_linux_virtual_machine.ondemand[0].id
     data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_data_collection_rule[0].id
     description = "OnDemand Data Collection Rule Association for VM Metrics"
 }
 
 resource "azurerm_monitor_data_collection_rule_association" "dcra_ondemand_insights" {
-    count               = local.monitor ? 1 : 0
+    count               = local.create_ondemand && local.monitor ? 1 : 0
     name                = "ondemand-insights-collection-ra"
-    target_resource_id = azurerm_linux_virtual_machine.ondemand.id
+    target_resource_id = azurerm_linux_virtual_machine.ondemand[0].id
     data_collection_rule_id = azurerm_monitor_data_collection_rule.vm_insights_collection_rule[0].id
     description = "OnDemand Data Collection Rule Association for VM Insights"
 }
 
 resource "azurerm_monitor_scheduled_query_rules_alert_v2" "od_volume_alert" {
-    count = local.create_alerts ? 1 : 0
+    count = local.create_ondemand && local.create_alerts ? 1 : 0
     name = "od-volume-alert"
     location = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
     resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
@@ -113,7 +115,7 @@ resource "azurerm_monitor_scheduled_query_rules_alert_v2" "od_volume_alert" {
 
     evaluation_frequency = "PT5M"
     window_duration = "PT5M"
-    scopes = [azurerm_linux_virtual_machine.ondemand.id]
+    scopes = [azurerm_linux_virtual_machine.ondemand[0].id]
     severity = 3
 
     criteria {

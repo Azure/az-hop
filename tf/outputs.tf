@@ -2,7 +2,7 @@ resource "local_file" "AnsibleInventory" {
   content = templatefile("${local.playbooks_template_dir}/inventory.tmpl",
    {
       scheduler-ip      = azurerm_network_interface.scheduler-nic.private_ip_address
-      ondemand-ip       = azurerm_network_interface.ondemand-nic.private_ip_address
+      ondemand-ip       = local.create_ondemand ? azurerm_network_interface.ondemand-nic[0].private_ip_address : "0.0.0.0"
       ccportal-ip       = azurerm_network_interface.ccportal-nic.private_ip_address
       grafana-ip        = local.create_grafana ? azurerm_network_interface.grafana-nic[0].private_ip_address : "0.0.0.0"
       jumpbox-pip       = local.allow_public_ip ? azurerm_public_ip.jumpbox-pip[0].ip_address : ( local.jumpbox_enabled ? azurerm_network_interface.jumpbox-nic[0].private_ip_address : "0.0.0.0")
@@ -33,7 +33,7 @@ resource "local_file" "global_variables" {
       anf-home-ip         = local.homedir_type == "anf" ? element(azurerm_netapp_volume.home[0].mount_ip_addresses, 0) : ( local.homedir_type == "azurefiles" ? "${azurerm_storage_account.nfsfiles[0].name}.${local.azure_endpoints[local.azure_environment].FileStorageSuffix}" : local.config_nfs_home_ip)
       anf-home-path       = local.homedir_type == "anf" ? azurerm_netapp_volume.home[0].volume_path : ( local.homedir_type == "azurefiles" ? "/${azurerm_storage_account.nfsfiles[0].name}/nfshome" : local.config_nfs_home_path)
       homedir_options     = local.homedir_type == "anf" ? "rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev" : ( local.homedir_type == "azurefiles" ? "vers=4,minorversion=1,sec=sys" : local.config_nfs_home_opts)
-      ondemand-fqdn       = local.allow_public_ip ? azurerm_public_ip.ondemand-pip[0].fqdn : try( local.configuration_yml["ondemand"]["fqdn"], azurerm_network_interface.ondemand-nic.private_ip_address)
+      ondemand-fqdn       = local.allow_public_ip && local.create_ondemand ? azurerm_public_ip.ondemand-pip[0].fqdn : try( local.configuration_yml["ondemand"]["fqdn"], local.create_ondemand ? azurerm_network_interface.ondemand-nic[0].private_ip_address : "")
       subscription_id     = data.azurerm_subscription.primary.subscription_id
       tenant_id           = data.azurerm_subscription.primary.tenant_id
       key_vault           = azurerm_key_vault.azhop.name

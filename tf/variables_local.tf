@@ -83,6 +83,7 @@ locals {
     monitor = ( local.create_log_analytics_workspace || local.use_existing_ws ) ? true : false
     ama_install = try(local.configuration_yml["monitoring"]["azure_monitor_agent"], true) && local.monitor ? true : false
     create_grafana = try(local.configuration_yml["monitoring"]["grafana"], true)
+    create_ondemand = try(length(local.configuration_yml["ondemand"]) > 0, false)
 
     alert_email = try(local.configuration_yml["alerting"]["admin_email"], "admin.mail@contoso.com")
 
@@ -290,24 +291,45 @@ locals {
     # If create NSG then use the local resource group otherwise use the configured one. Default to local resource group
     asg_resource_group = local.create_nsg ? local.resource_group : try(length(local.configuration_yml["network"]["asg"]["resource_group"]) > 0 ? local.configuration_yml["network"]["asg"]["resource_group"] : local.resource_group, local.resource_group )
 
-    _default_asgs = {
-        asg-ssh = "asg-ssh"
-        asg-rdp = "asg-rdp"
-        asg-jumpbox = "asg-jumpbox"
+    _asg_ad = {
         asg-ad = "asg-ad"
         asg-ad-client = "asg-ad-client"
-        asg-lustre-client = "asg-lustre-client"
-        asg-pbs = "asg-pbs"
-        asg-pbs-client = "asg-pbs-client"
-        asg-cyclecloud = "asg-cyclecloud"
-        asg-cyclecloud-client = "asg-cyclecloud-client"
-        asg-nfs-client = "asg-nfs-client"
+        asg-rdp = "asg-rdp"
+     }
+
+    _asg_grafana = {
         asg-telegraf = "asg-telegraf"
         asg-grafana = "asg-grafana"
+    }
+
+    _asg_ondemand = {
         asg-ondemand = "asg-ondemand"
-        asg-deployer = "asg-deployer"
+    }
+
+    _asg_lustre = {
+        asg-lustre-client = "asg-lustre-client"
+    }
+
+    _asg_mariadb = {
         asg-mariadb-client = "asg-mariadb-client"
     }
+
+    _default_asgs = merge ({
+            asg-ssh = "asg-ssh"
+            asg-jumpbox = "asg-jumpbox"
+            asg-sched = "asg-sched"
+            asg-cyclecloud = "asg-cyclecloud"
+            asg-cyclecloud-client = "asg-cyclecloud-client"
+            asg-nfs-client = "asg-nfs-client"
+            asg-deployer = "asg-deployer"
+        },
+        local.create_ad || local.use_existing_ad ? local._asg_ad : {},
+        local.create_grafana ? local._asg_grafana : {},
+        local.create_ondemand ? local._asg_ondemand : {},
+        local.lustre_enabled ? local._asg_lustre : {},
+        local.create_database || local.use_existing_database ? local._asg_mariadb : {}
+    )
+
     #asgs = local.create_nsg ? local._default_asgs :  try(local.configuration_yml["network"]["asg"]["names"], local._default_asgs)
     asgs = try(local.configuration_yml["network"]["asg"]["names"], local._default_asgs)
     #asgs = { for v in local.default_asgs : v => v }
@@ -315,14 +337,30 @@ locals {
     empty_map = { for v in local.empty_array : v => v }
 
     # VM name to list of ASGs associations
-    # TODO : Add mapping for names
+    asg_asso_ad = ["asg-ad", "asg-rdp", "asg-ad-client"] # asg-ad-client will allow the secondary DC scenario
+    asg_asso_ccportal = concat(["asg-ssh", "asg-cyclecloud"], 
+                            local.create_grafana ? ["asg-telegraf"] : [], 
+                            local.create_ad || local.use_existing_ad ? ["asg-ad-client"] : [])
+    asg_asso_grafana = concat(["asg-ssh", "asg-grafana", "asg-telegraf", "asg-nfs-client"], 
+                            local.create_ad || local.use_existing_ad ? ["asg-ad-client"] : [])
+    asg_asso_jumpbox = concat(["asg-ssh", "asg-jumpbox" ],
+                                local.create_grafana ? ["asg-telegraf"] : [])
+    asg_asso_ondemand = concat(["asg-ssh", "asg-ondemand", "asg-nfs-client", "asg-sched", "asg-cyclecloud-client" ],
+                            local.create_grafana ? ["asg-telegraf"] : [],
+                            local.lustre_enabled ? ["asg-lustre-client"] : [],
+                            local.create_ad || local.use_existing_ad ? ["asg-ad-client"] : [])
+    asg_asso_scheduler = concat(["asg-ssh", "asg-sched", "asg-cyclecloud-client", "asg-nfs-client"],
+                            local.create_grafana ? ["asg-telegraf"] : [], 
+                            local.create_ad || local.use_existing_ad ? ["asg-ad-client"] : [],
+                            local.create_database || local.use_existing_database ? ["asg-mariadb-client"] : [])
+
     asg_associations = {
-        ad        = ["asg-ad", "asg-rdp", "asg-ad-client"] # asg-ad-client will allow the secondary DC scenario
-        ccportal  = ["asg-ssh", "asg-cyclecloud", "asg-telegraf", "asg-ad-client"]
-        grafana   = ["asg-ssh", "asg-grafana", "asg-ad-client", "asg-telegraf", "asg-nfs-client"]
-        jumpbox   = ["asg-ssh", "asg-jumpbox", "asg-ad-client", "asg-telegraf", "asg-nfs-client"]
-        ondemand  = ["asg-ssh", "asg-ondemand", "asg-ad-client", "asg-nfs-client", "asg-pbs-client", "asg-lustre-client", "asg-telegraf", "asg-cyclecloud-client", "asg-mariadb-client"]
-        scheduler = ["asg-ssh", "asg-pbs", "asg-ad-client", "asg-cyclecloud-client", "asg-nfs-client", "asg-telegraf", "asg-mariadb-client"]
+        ad        = local.asg_asso_ad 
+        ccportal  = local.asg_asso_ccportal
+        grafana   = local.asg_asso_grafana
+        jumpbox   = local.asg_asso_jumpbox
+        ondemand  = local.asg_asso_ondemand
+        scheduler = local.asg_asso_scheduler
     }
 
     # Open ports for NSG TCP rules
@@ -341,8 +379,9 @@ locals {
         NoVnc = ["80", "443", "5900-5910", "61001-61010"]
         Dns = ["53"]
         Rdp = ["3389"]
-        Pbs = ["6200", "15001-15009", "17001", "32768-61000", "6817-6819"]
-        Slurmd = ["6818"]
+        #Pbs = ["6200", "15001-15009", "17001", "32768-61000"]
+        #Slurmd = ["6817-6819"]
+        Sched = (local.queue_manager == "slurm") ? ["6817-6819"] : ["6200", "15001-15009", "17001", "32768-61000"]
         Lustre = ["635", "988"]
         Nfs = ["111", "635", "2049", "4045", "4046"]
         SMB = ["445"]
@@ -382,17 +421,6 @@ locals {
         #                           #     #   ##  #    #  #    #  #    #  #   ##  #    #
         #                          ###    #    #  #####    ####    ####   #    #  #####
         # ================================================================================================================================================================
-        # AD communication
-        AllowAdServerTcpIn        = ["220", "Inbound", "Allow", "Tcp", "DomainControlerTcp", local.ad_nsg_index, "asg/asg-ad-client"],
-        AllowAdServerUdpIn        = ["230", "Inbound", "Allow", "Udp", "DomainControlerUdp", local.ad_nsg_index, "asg/asg-ad-client"],
-        AllowAdClientTcpIn        = ["240", "Inbound", "Allow", "Tcp", "DomainControlerTcp", "asg/asg-ad-client", local.ad_nsg_index],
-        AllowAdClientUdpIn        = ["250", "Inbound", "Allow", "Udp", "DomainControlerUdp", "asg/asg-ad-client", local.ad_nsg_index],
-        AllowAdServerComputeTcpIn = ["260", "Inbound", "Allow", "Tcp", "DomainControlerTcp", local.ad_nsg_index, "subnet/compute"],
-        AllowAdServerComputeUdpIn = ["270", "Inbound", "Allow", "Udp", "DomainControlerUdp", local.ad_nsg_index, "subnet/compute"],
-        AllowAdClientComputeTcpIn = ["280", "Inbound", "Allow", "Tcp", "DomainControlerTcp", "subnet/compute", local.ad_nsg_index],
-        AllowAdClientComputeUdpIn = ["290", "Inbound", "Allow", "Udp", "DomainControlerUdp", "subnet/compute", local.ad_nsg_index],
-        AllowAdServerNetappTcpIn  = ["300", "Inbound", "Allow", "Tcp", "DomainControlerTcp", "subnet/netapp", local.ad_nsg_index],
-        AllowAdServerNetappUdpIn  = ["310", "Inbound", "Allow", "Udp", "DomainControlerUdp", "subnet/netapp", local.ad_nsg_index],
 
         # SSH internal rules
         AllowSshFromJumpboxIn       = ["320", "Inbound", "Allow", "Tcp", "Ssh",                "asg/asg-jumpbox",   "asg/asg-ssh"],
@@ -402,41 +430,22 @@ locals {
         AllowSshToComputeIn         = ["360", "Inbound", "Allow", "Tcp", "Ssh",                "asg/asg-ssh",       "subnet/compute"],
         AllowSshComputeComputeIn    = ["365", "Inbound", "Allow", "Tcp", "Ssh",                "subnet/compute",    "subnet/compute"],
 
-        # PBS
-        AllowPbsIn                  = ["369", "Inbound", "Allow", "*",   "Pbs",                "asg/asg-pbs",        "asg/asg-pbs-client"],
-        AllowPbsClientIn            = ["370", "Inbound", "Allow", "*",   "Pbs",                "asg/asg-pbs-client", "asg/asg-pbs"],
-        AllowPbsComputeIn           = ["380", "Inbound", "Allow", "*",   "Pbs",                "asg/asg-pbs",        "subnet/compute"],
-        AllowComputePbsClientIn     = ["390", "Inbound", "Allow", "*",   "Pbs",                "subnet/compute",     "asg/asg-pbs-client"],
-        AllowComputePbsIn           = ["400", "Inbound", "Allow", "*",   "Pbs",                "subnet/compute",     "asg/asg-pbs"],
-        AllowComputeComputePbsIn    = ["401", "Inbound", "Allow", "*",   "Pbs",                "subnet/compute",     "subnet/compute"],
-
-        # SLURM
-        AllowComputeSlurmIn         = ["405", "Inbound", "Allow", "*",   "Slurmd",             "asg/asg-ondemand",    "subnet/compute"],
-
-        # Lustre
-        AllowLustreClientIn         = ["410", "Inbound", "Allow", "Tcp", "Lustre",             "asg/asg-lustre-client", "subnet/admin"],
-        AllowLustreClientComputeIn  = ["420", "Inbound", "Allow", "Tcp", "Lustre",             "subnet/compute",        "subnet/admin"],
+        # Scheduler
+        AllowSchedIn                = ["369", "Inbound", "Allow", "*",   "Sched",                "asg/asg-sched",      "asg/asg-sched"],
+        #AllowPbsClientIn            = ["370", "Inbound", "Allow", "*",   "Sched",                "asg/asg-pbs-client", "asg/asg-pbs"],
+        AllowSchedComputeIn         = ["380", "Inbound", "Allow", "*",   "Sched",                "asg/asg-sched",      "subnet/compute"],
+        #AllowComputePbsClientIn     = ["390", "Inbound", "Allow", "*",   "Sched",                "subnet/compute",     "asg/asg-pbs-client"],
+        AllowComputeSchedIn         = ["400", "Inbound", "Allow", "*",   "Sched",                "subnet/compute",     "asg/asg-sched"],
+        AllowComputeComputeSchedIn  = ["401", "Inbound", "Allow", "*",   "Sched",                "subnet/compute",     "subnet/compute"],
 
         # NFS
         AllowNfsIn                  = ["430", "Inbound", "Allow", "*",   "Nfs",                "asg/asg-nfs-client",       "subnet/netapp"],
         AllowNfsComputeIn           = ["435", "Inbound", "Allow", "*",   "Nfs",                "subnet/compute",           "subnet/netapp"],
 
         # CycleCloud
-        AllowCycleWebIn             = ["440", "Inbound", "Allow", "Tcp", "Web",                "asg/asg-ondemand",          "asg/asg-cyclecloud"],
         AllowCycleClientIn          = ["450", "Inbound", "Allow", "Tcp", "CycleCloud",         "asg/asg-cyclecloud-client", "asg/asg-cyclecloud"],
         AllowCycleClientComputeIn   = ["460", "Inbound", "Allow", "Tcp", "CycleCloud",         "subnet/compute",            "asg/asg-cyclecloud"],
         AllowCycleServerIn          = ["465", "Inbound", "Allow", "Tcp", "CycleCloud",         "asg/asg-cyclecloud",        "asg/asg-cyclecloud-client"],
-
-        # OnDemand NoVNC
-        AllowComputeNoVncIn         = ["470", "Inbound", "Allow", "Tcp", "NoVnc",              "subnet/compute",            "asg/asg-ondemand"],
-        AllowNoVncComputeIn         = ["480", "Inbound", "Allow", "Tcp", "NoVnc",              "asg/asg-ondemand",          "subnet/compute"],
-
-        # Admin and Deployment
-        AllowWinRMIn                = ["520", "Inbound", "Allow", "Tcp", "WinRM",              "asg/asg-jumpbox",          "asg/asg-rdp"],
-        AllowRdpIn                  = ["550", "Inbound", "Allow", "Tcp", "Rdp",                "asg/asg-jumpbox",          "asg/asg-rdp"],
-
-        # MariaDB
-        AllowMariaDBIn              = ["700", "Inbound", "Allow", "Tcp", "MariaDB",             "asg/asg-mariadb-client",    "subnet/admin"],
 
         # Deny all remaining traffic
         DenyVnetInbound             = ["3100", "Inbound", "Deny", "*", "All",                  "tag/VirtualNetwork",       "tag/VirtualNetwork"],
@@ -450,38 +459,19 @@ locals {
         #                            #     #  #    #     #    #    #  #    #  #    #  #   ##  #    #
         #                            #######   ####      #    #####    ####    ####   #    #  #####
         # ================================================================================================================================================================
-        # AD communication
-        AllowAdClientTcpOut        = ["200", "Outbound", "Allow", "Tcp", "DomainControlerTcp", "asg/asg-ad-client", local.ad_nsg_index],
-        AllowAdClientUdpOut        = ["210", "Outbound", "Allow", "Udp", "DomainControlerUdp", "asg/asg-ad-client", local.ad_nsg_index],
-        AllowAdClientComputeTcpOut = ["220", "Outbound", "Allow", "Tcp", "DomainControlerTcp", "subnet/compute", local.ad_nsg_index],
-        AllowAdClientComputeUdpOut = ["230", "Outbound", "Allow", "Udp", "DomainControlerUdp", "subnet/compute", local.ad_nsg_index],
-        AllowAdServerTcpOut        = ["240", "Outbound", "Allow", "Tcp", "DomainControlerTcp", local.ad_nsg_index, "asg/asg-ad-client"],
-        AllowAdServerUdpOut        = ["250", "Outbound", "Allow", "Udp", "DomainControlerUdp", local.ad_nsg_index, "asg/asg-ad-client"],
-        AllowAdServerComputeTcpOut = ["260", "Outbound", "Allow", "Tcp", "DomainControlerTcp", local.ad_nsg_index, "subnet/compute"],
-        AllowAdServerComputeUdpOut = ["270", "Outbound", "Allow", "Udp", "DomainControlerUdp", local.ad_nsg_index, "subnet/compute"],
-        AllowAdServerNetappTcpOut  = ["280", "Outbound", "Allow", "Tcp", "DomainControlerTcp", local.ad_nsg_index, "subnet/netapp"],
-        AllowAdServerNetappUdpOut  = ["290", "Outbound", "Allow", "Udp", "DomainControlerUdp", local.ad_nsg_index, "subnet/netapp"],
 
         # CycleCloud
         AllowCycleServerOut         = ["300", "Outbound", "Allow", "Tcp", "CycleCloud",         "asg/asg-cyclecloud",        "asg/asg-cyclecloud-client"],
         AllowCycleClientOut         = ["310", "Outbound", "Allow", "Tcp", "CycleCloud",         "asg/asg-cyclecloud-client", "asg/asg-cyclecloud"],
         AllowComputeCycleClientIn   = ["320", "Outbound", "Allow", "Tcp", "CycleCloud",         "subnet/compute",            "asg/asg-cyclecloud"],
-        AllowCycleWebOut            = ["330", "Outbound", "Allow", "Tcp", "Web",                "asg/asg-ondemand",          "asg/asg-cyclecloud"],
 
-        # PBS
-        AllowPbsOut                 = ["340", "Outbound", "Allow", "*",   "Pbs",                "asg/asg-pbs",        "asg/asg-pbs-client"],
-        AllowPbsClientOut           = ["350", "Outbound", "Allow", "*",   "Pbs",                "asg/asg-pbs-client", "asg/asg-pbs"],
-        AllowPbsComputeOut          = ["360", "Outbound", "Allow", "*",   "Pbs",                "asg/asg-pbs",        "subnet/compute"],
-        AllowPbsClientComputeOut    = ["370", "Outbound", "Allow", "*",   "Pbs",                "subnet/compute",     "asg/asg-pbs"],
-        AllowComputePbsClientOut    = ["380", "Outbound", "Allow", "*",   "Pbs",                "subnet/compute",     "asg/asg-pbs-client"],
-        AllowComputeComputePbsOut   = ["381", "Outbound", "Allow", "*",   "Pbs",                "subnet/compute",     "subnet/compute"],
-
-        # SLURM
-        AllowSlurmComputeOut        = ["385", "Outbound", "Allow", "*",   "Slurmd",             "asg/asg-ondemand",        "subnet/compute"],
-
-        # Lustre
-        AllowLustreClientOut        = ["400", "Outbound", "Allow", "Tcp", "Lustre",             "asg/asg-lustre-client",    "subnet/admin"],
-        AllowLustreClientComputeOut = ["420", "Outbound", "Allow", "Tcp", "Lustre",             "subnet/compute",           "subnet/admin"],
+        # Scheduler
+        AllowSchedOut               = ["340", "Outbound", "Allow", "*",   "Sched",                "asg/asg-sched",      "asg/asg-sched"],
+        #AllowPbsClientOut           = ["350", "Outbound", "Allow", "*",   "Sched",                "asg/asg-pbs-client", "asg/asg-pbs"],
+        AllowSchedComputeOut        = ["360", "Outbound", "Allow", "*",   "Sched",                "asg/asg-sched",      "subnet/compute"],
+        AllowComputeSchedOut        = ["370", "Outbound", "Allow", "*",   "Sched",                "subnet/compute",     "asg/asg-sched"],
+        #AllowComputePbsClientOut    = ["380", "Outbound", "Allow", "*",   "Sched",                "subnet/compute",     "asg/asg-pbs-client"],
+        AllowComputeComputeSchedOut = ["381", "Outbound", "Allow", "*",   "Sched",                "subnet/compute",     "subnet/compute"],
 
         # NFS
         AllowNfsOut                 = ["440", "Outbound", "Allow", "*",   "Nfs",                "asg/asg-nfs-client",       "subnet/netapp"],
@@ -498,17 +488,8 @@ locals {
         AllowSshFromComputeOut      = ["530", "Outbound", "Allow", "Tcp", "Ssh",                "subnet/compute",           "asg/asg-ssh"],
         AllowSshComputeComputeOut   = ["540", "Outbound", "Allow", "Tcp", "Ssh",                "subnet/compute",           "subnet/compute"],
 
-        # OnDemand NoVNC
-        AllowComputeNoVncOut        = ["550", "Outbound", "Allow", "Tcp", "NoVnc",              "subnet/compute",            "asg/asg-ondemand"],
-        AllowNoVncComputeOut        = ["560", "Outbound", "Allow", "Tcp", "NoVnc",              "asg/asg-ondemand",          "subnet/compute"],
-
         # Admin and Deployment
-        AllowRdpOut                 = ["570", "Outbound", "Allow", "Tcp", "Rdp",                "asg/asg-jumpbox",          "asg/asg-rdp"],
-        AllowWinRMOut               = ["580", "Outbound", "Allow", "Tcp", "WinRM",              "asg/asg-jumpbox",          "asg/asg-rdp"],
         AllowDnsOut                 = ["590", "Outbound", "Allow", "*",   "Dns",                "tag/VirtualNetwork",       "tag/VirtualNetwork"],
-
-        # MariaDB
-        AllowMariaDBOut             = ["700", "Outbound", "Allow", "Tcp", "MariaDB",             "asg/asg-mariadb-client",    "subnet/admin"],
 
         # Deny all remaining traffic and allow Internet access
         AllowInternetOutBound       = ["3000", "Outbound", "Allow", "Tcp", "All",               "tag/VirtualNetwork",       "tag/Internet"],
@@ -517,13 +498,43 @@ locals {
 
     internet_nsg_rules = {
         AllowInternetSshIn          = ["200", "Inbound", "Allow", "Tcp", "Public_Ssh",         "tag/Internet", "asg/asg-jumpbox"], # Only when using a PIP
-        AllowInternetHttpIn         = ["210", "Inbound", "Allow", "Tcp", "Web",                "tag/Internet", "asg/asg-ondemand"], # Only when using a PIP
+        AllowInternetHttpIn         = ["210", "Inbound", "Allow", "Tcp", "Web",                "tag/Internet", "subnet/frontend"], # Only when using a PIP
     }
 
     hub_nsg_rules = {
-        AllowHubSshIn          = ["200", "Inbound", "Allow", "Tcp", "Public_Ssh",               "tag/VirtualNetwork", "asg/asg-jumpbox"],
-        AllowHubHttpIn         = ["210", "Inbound", "Allow", "Tcp", "Web",                      "tag/VirtualNetwork", "asg/asg-ondemand"],
-        AllowPackerWinRMIn     = ["560", "Inbound", "Allow", "Tcp", "WinRM",                    "tag/VirtualNetwork", "subnet/compute"],
+        AllowHubSshIn          = ["200", "Inbound", "Allow", "Tcp", "Public_Ssh",               "tag/VirtualNetwork", "tag/VirtualNetwork"],
+        AllowHubHttpIn         = ["210", "Inbound", "Allow", "Tcp", "Web",                      "tag/VirtualNetwork", "tag/VirtualNetwork"],
+    }
+
+    ad_nsg_rules = {
+        # Inbound
+        AllowAdServerTcpIn        = ["220", "Inbound", "Allow", "Tcp", "DomainControlerTcp", local.ad_nsg_index, "asg/asg-ad-client"],
+        AllowAdServerUdpIn        = ["230", "Inbound", "Allow", "Udp", "DomainControlerUdp", local.ad_nsg_index, "asg/asg-ad-client"],
+        AllowAdClientTcpIn        = ["240", "Inbound", "Allow", "Tcp", "DomainControlerTcp", "asg/asg-ad-client", local.ad_nsg_index],
+        AllowAdClientUdpIn        = ["250", "Inbound", "Allow", "Udp", "DomainControlerUdp", "asg/asg-ad-client", local.ad_nsg_index],
+        AllowAdServerComputeTcpIn = ["260", "Inbound", "Allow", "Tcp", "DomainControlerTcp", local.ad_nsg_index, "subnet/compute"],
+        AllowAdServerComputeUdpIn = ["270", "Inbound", "Allow", "Udp", "DomainControlerUdp", local.ad_nsg_index, "subnet/compute"],
+        AllowAdClientComputeTcpIn = ["280", "Inbound", "Allow", "Tcp", "DomainControlerTcp", "subnet/compute", local.ad_nsg_index],
+        AllowAdClientComputeUdpIn = ["290", "Inbound", "Allow", "Udp", "DomainControlerUdp", "subnet/compute", local.ad_nsg_index],
+        AllowAdServerNetappTcpIn  = ["300", "Inbound", "Allow", "Tcp", "DomainControlerTcp", "subnet/netapp", local.ad_nsg_index],
+        AllowAdServerNetappUdpIn  = ["310", "Inbound", "Allow", "Udp", "DomainControlerUdp", "subnet/netapp", local.ad_nsg_index],
+        AllowWinRMIn              = ["520", "Inbound", "Allow", "Tcp", "WinRM",              "asg/asg-jumpbox", "asg/asg-rdp"],
+        AllowRdpIn                = ["550", "Inbound", "Allow", "Tcp", "Rdp",                "asg/asg-jumpbox", "asg/asg-rdp"],
+        AllowPackerWinRMIn        = ["560", "Inbound", "Allow", "Tcp", "WinRM",              "tag/VirtualNetwork", "subnet/compute"],
+
+        # Outbound
+        AllowAdClientTcpOut        = ["200", "Outbound", "Allow", "Tcp", "DomainControlerTcp", "asg/asg-ad-client", local.ad_nsg_index],
+        AllowAdClientUdpOut        = ["210", "Outbound", "Allow", "Udp", "DomainControlerUdp", "asg/asg-ad-client", local.ad_nsg_index],
+        AllowAdClientComputeTcpOut = ["220", "Outbound", "Allow", "Tcp", "DomainControlerTcp", "subnet/compute", local.ad_nsg_index],
+        AllowAdClientComputeUdpOut = ["230", "Outbound", "Allow", "Udp", "DomainControlerUdp", "subnet/compute", local.ad_nsg_index],
+        AllowAdServerTcpOut        = ["240", "Outbound", "Allow", "Tcp", "DomainControlerTcp", local.ad_nsg_index, "asg/asg-ad-client"],
+        AllowAdServerUdpOut        = ["250", "Outbound", "Allow", "Udp", "DomainControlerUdp", local.ad_nsg_index, "asg/asg-ad-client"],
+        AllowAdServerComputeTcpOut = ["260", "Outbound", "Allow", "Tcp", "DomainControlerTcp", local.ad_nsg_index, "subnet/compute"],
+        AllowAdServerComputeUdpOut = ["270", "Outbound", "Allow", "Udp", "DomainControlerUdp", local.ad_nsg_index, "subnet/compute"],
+        AllowAdServerNetappTcpOut  = ["280", "Outbound", "Allow", "Tcp", "DomainControlerTcp", local.ad_nsg_index, "subnet/netapp"],
+        AllowAdServerNetappUdpOut  = ["290", "Outbound", "Allow", "Udp", "DomainControlerUdp", local.ad_nsg_index, "subnet/netapp"],
+        AllowRdpOut                = ["570", "Outbound", "Allow", "Tcp", "Rdp", "asg/asg-jumpbox", "asg/asg-rdp"],
+        AllowWinRMOut              = ["580", "Outbound", "Allow", "Tcp", "WinRM", "asg/asg-jumpbox", "asg/asg-rdp"],
     }
 
     bastion_nsg_rules = {
@@ -534,6 +545,19 @@ locals {
         AllowInternalWebUsersIn     = ["540", "Inbound", "Allow", "Tcp", "Web",                "subnet/gateway",           "asg/asg-ondemand"],
     }
 
+    ondemand_nsg_rules = {
+        # Inbound
+#        AllowComputeSlurmIn         = ["405", "Inbound", "Allow", "*",   "Slurmd",             "asg/asg-ondemand",    "subnet/compute"],
+        AllowCycleWebIn             = ["440", "Inbound", "Allow", "Tcp", "Web",                "asg/asg-ondemand",          "asg/asg-cyclecloud"],
+        AllowComputeNoVncIn         = ["470", "Inbound", "Allow", "Tcp", "NoVnc",              "subnet/compute",            "asg/asg-ondemand"],
+        AllowNoVncComputeIn         = ["480", "Inbound", "Allow", "Tcp", "NoVnc",              "asg/asg-ondemand",          "subnet/compute"],
+        # Outbound
+        AllowCycleWebOut            = ["330", "Outbound", "Allow", "Tcp", "Web",                "asg/asg-ondemand",          "asg/asg-cyclecloud"],
+#        AllowSlurmComputeOut        = ["385", "Outbound", "Allow", "*",   "Slurmd",             "asg/asg-ondemand",        "subnet/compute"],
+        AllowComputeNoVncOut        = ["550", "Outbound", "Allow", "Tcp", "NoVnc",              "subnet/compute",            "asg/asg-ondemand"],
+        AllowNoVncComputeOut        = ["560", "Outbound", "Allow", "Tcp", "NoVnc",              "asg/asg-ondemand",          "subnet/compute"],
+
+    }
     grafana_nsg_rules = {
         # Telegraf / Grafana
         AllowTelegrafIn             = ["490", "Inbound", "Allow", "Tcp", "Telegraf",           "asg/asg-telegraf",          "asg/asg-grafana"],
@@ -546,11 +570,31 @@ locals {
         AllowGrafanaOut             = ["480", "Outbound", "Allow", "Tcp", "Grafana",            "asg/asg-ondemand",          "asg/asg-grafana"],
     }
 
+    mariadb_nsg_rules = {
+        # Inbound
+        AllowMariaDBIn              = ["700", "Inbound", "Allow", "Tcp", "MariaDB",             "asg/asg-mariadb-client",    "subnet/admin"],
+        # Outbound
+        AllowMariaDBOut             = ["700", "Outbound", "Allow", "Tcp", "MariaDB",             "asg/asg-mariadb-client",    "subnet/admin"],
+    }
+
+    lustre_nsg_rules = {
+        # Inbound
+        AllowLustreClientIn         = ["410", "Inbound", "Allow", "Tcp", "Lustre",             "asg/asg-lustre-client", "subnet/admin"],
+        AllowLustreClientComputeIn  = ["420", "Inbound", "Allow", "Tcp", "Lustre",             "subnet/compute",        "subnet/admin"],
+        # Outbound
+        AllowLustreClientOut        = ["400", "Outbound", "Allow", "Tcp", "Lustre",             "asg/asg-lustre-client",    "subnet/admin"],
+        AllowLustreClientComputeOut = ["420", "Outbound", "Allow", "Tcp", "Lustre",             "subnet/compute",           "subnet/admin"],
+
+    }
     nsg_rules = merge(  local._nsg_rules, 
+                        local.create_ad || local.use_existing_ad ? local.ad_nsg_rules : {},
                         local.no_bastion_subnet ? {} : local.bastion_nsg_rules, 
                         local.no_gateway_subnet ? {} : local.gateway_nsg_rules,
                         local.allow_public_ip ? local.internet_nsg_rules : local.hub_nsg_rules,
-                        local.create_grafana ? local.grafana_nsg_rules : {})
+                        local.create_grafana ? local.grafana_nsg_rules : {},
+                        local.create_database || local.use_existing_database ? local.mariadb_nsg_rules : {},
+                        local.create_ondemand ? local.ondemand_nsg_rules : {},
+                        local.lustre_enabled ? local.lustre_nsg_rules : {}
+                    )
 
 }
-
