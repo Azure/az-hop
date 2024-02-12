@@ -991,8 +991,7 @@
             "required": [
                 "admin",
                 "compute",
-                "frontend",
-                "netapp"
+                "frontend"
             ],
             "title": "Subnets"
         },

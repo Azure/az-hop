@@ -438,10 +438,6 @@ locals {
         AllowComputeSchedIn         = ["400", "Inbound", "Allow", "*",   "Sched",                "subnet/compute",     "asg/asg-sched"],
         AllowComputeComputeSchedIn  = ["401", "Inbound", "Allow", "*",   "Sched",                "subnet/compute",     "subnet/compute"],
 
-        # NFS
-        AllowNfsIn                  = ["430", "Inbound", "Allow", "*",   "Nfs",                "asg/asg-nfs-client",       "subnet/netapp"],
-        AllowNfsComputeIn           = ["435", "Inbound", "Allow", "*",   "Nfs",                "subnet/compute",           "subnet/netapp"],
-
         # CycleCloud
         AllowCycleClientIn          = ["450", "Inbound", "Allow", "Tcp", "CycleCloud",         "asg/asg-cyclecloud-client", "asg/asg-cyclecloud"],
         AllowCycleClientComputeIn   = ["460", "Inbound", "Allow", "Tcp", "CycleCloud",         "subnet/compute",            "asg/asg-cyclecloud"],
@@ -472,13 +468,6 @@ locals {
         AllowComputeSchedOut        = ["370", "Outbound", "Allow", "*",   "Sched",                "subnet/compute",     "asg/asg-sched"],
         #AllowComputePbsClientOut    = ["380", "Outbound", "Allow", "*",   "Sched",                "subnet/compute",     "asg/asg-pbs-client"],
         AllowComputeComputeSchedOut = ["381", "Outbound", "Allow", "*",   "Sched",                "subnet/compute",     "subnet/compute"],
-
-        # NFS
-        AllowNfsOut                 = ["440", "Outbound", "Allow", "*",   "Nfs",                "asg/asg-nfs-client",       "subnet/netapp"],
-        AllowNfsComputeOut          = ["450", "Outbound", "Allow", "*",   "Nfs",                "subnet/compute",           "subnet/netapp"],
-
-        # SMB
-        AllowSMBComputeOut          = ["455", "Outbound", "Allow", "*",   "SMB",                "subnet/compute",            "subnet/netapp"],
 
         # SSH internal rules
         AllowSshFromJumpboxOut      = ["490", "Outbound", "Allow", "Tcp", "Ssh",                "asg/asg-jumpbox",          "asg/asg-ssh"],
@@ -577,6 +566,16 @@ locals {
         AllowMariaDBOut             = ["700", "Outbound", "Allow", "Tcp", "MariaDB",             "asg/asg-mariadb-client",    "subnet/admin"],
     }
 
+    anf_nsg_rules = {
+        # Inbound
+        AllowNfsIn                  = ["430", "Inbound", "Allow", "*",   "Nfs",                "asg/asg-nfs-client",       "subnet/netapp"],
+        AllowNfsComputeIn           = ["435", "Inbound", "Allow", "*",   "Nfs",                "subnet/compute",           "subnet/netapp"],
+        # Outbound
+        AllowNfsOut                 = ["440", "Outbound", "Allow", "*",   "Nfs",                "asg/asg-nfs-client",       "subnet/netapp"],
+        AllowNfsComputeOut          = ["450", "Outbound", "Allow", "*",   "Nfs",                "subnet/compute",           "subnet/netapp"],
+        AllowSMBComputeOut          = ["455", "Outbound", "Allow", "*",   "SMB",                "subnet/compute",            "subnet/netapp"],
+    }
+
     lustre_nsg_rules = {
         # Inbound
         AllowLustreClientIn         = ["410", "Inbound", "Allow", "Tcp", "Lustre",             "asg/asg-lustre-client", "subnet/admin"],
@@ -586,6 +585,7 @@ locals {
         AllowLustreClientComputeOut = ["420", "Outbound", "Allow", "Tcp", "Lustre",             "subnet/compute",           "subnet/admin"],
 
     }
+    
     nsg_rules = merge(  local._nsg_rules, 
                         local.create_ad || local.use_existing_ad ? local.ad_nsg_rules : {},
                         local.no_bastion_subnet ? {} : local.bastion_nsg_rules, 
@@ -594,7 +594,8 @@ locals {
                         local.create_grafana ? local.grafana_nsg_rules : {},
                         local.create_database || local.use_existing_database ? local.mariadb_nsg_rules : {},
                         local.create_ondemand ? local.ondemand_nsg_rules : {},
-                        local.lustre_enabled ? local.lustre_nsg_rules : {}
+                        local.lustre_enabled ? local.lustre_nsg_rules : {},
+                        local.anf_nsg_rules
                     )
 
 }
