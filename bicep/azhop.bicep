@@ -66,6 +66,8 @@ var createComputeMI = computeMIoption && contains(azhopConfig.compute_vm_identit
 var computeMIname =   computeMIoption && contains(azhopConfig.compute_vm_identity, 'name') ? azhopConfig.compute_vm_identity.name : 'compute-mi'
 var existingComputeMIrg = !createComputeMI && computeMIoption && contains(azhopConfig.compute_vm_identity, 'resource_group') ? azhopConfig.compute_vm_identity.resource_group : ''
 
+var create_anf = contains(azhopConfig, 'anf') && contains(azhopConfig.anf, 'create') ? azhopConfig.anf.create : (contains(azhopConfig, 'anf') ? true : false)
+
 var nsgTargetForDC = {
   type: useExistingAD ? 'ips' : 'asg'
   target: useExistingAD ? azhopConfig.domain.existing_dc_details.domain_controller_ip_addresses : 'asg-ad'
@@ -152,7 +154,7 @@ var config = {
   }
 
   anf: {
-    create: contains(azhopConfig, 'anf') && contains(azhopConfig.anf, 'create') ? azhopConfig.anf.create : (contains(azhopConfig, 'anf') ? true : false)
+    create: create_anf
     dual_protocol: contains(azhopConfig, 'anf') && contains(azhopConfig.anf, 'dual_protocol') ? azhopConfig.anf.dual_protocol : false
     service_level: contains(azhopConfig, 'anf') && contains(azhopConfig.anf, 'homefs_service_level') ? azhopConfig.anf.homefs_service_level : 'Standard'
     size_gb: contains(azhopConfig, 'anf') && contains(azhopConfig.anf, 'homefs_size_tb') ? azhopConfig.anf.homefs_size_tb*1024 : 4096
@@ -186,13 +188,6 @@ var config = {
           'Microsoft.Storage'
         ]
       }
-      netapp: {
-        name: contains(azhopConfig.network.vnet.subnets.netapp, 'name') ? azhopConfig.network.vnet.subnets.netapp.name : 'netapp'
-        cidr: azhopConfig.network.vnet.subnets.netapp.address_prefixes
-        delegations: [
-          'Microsoft.Netapp/volumes'
-        ]
-      }
       compute: {
         name: contains(azhopConfig.network.vnet.subnets.compute, 'name') ? azhopConfig.network.vnet.subnets.compute.name : 'compute'
         cidr: azhopConfig.network.vnet.subnets.compute.address_prefixes
@@ -202,6 +197,15 @@ var config = {
         ]
       }
     },
+    create_anf ? {
+      netapp: {
+        name: contains(azhopConfig.network.vnet.subnets.netapp, 'name') ? azhopConfig.network.vnet.subnets.netapp.name : 'netapp'
+        cidr: azhopConfig.network.vnet.subnets.netapp.address_prefixes
+        delegations: [
+          'Microsoft.Netapp/volumes'
+        ]
+      }
+    } : {},
     deployLustre ? {
       lustre: {
         name: contains(azhopConfig.network.vnet.subnets.lustre, 'name') ? azhopConfig.network.vnet.subnets.lustre.name : 'lustre'
@@ -480,10 +484,6 @@ var config = {
 //      AllowComputePbsClientIn     : ['390', 'Inbound', 'Allow', '*', 'Pbs', 'subnet', 'compute', 'asg', 'asg-pbs-client']
       AllowComputeSchedIn         : ['400', 'Inbound', 'Allow', '*', 'Shed', 'subnet', 'compute', 'asg', 'asg-sched']
       AllowComputeComputeSchedIn  : ['401', 'Inbound', 'Allow', '*', 'Shed', 'subnet', 'compute', 'subnet', 'compute']
-    
-      // NFS
-      AllowNfsIn                  : ['434', 'Inbound', 'Allow', '*', 'Nfs', 'asg', 'asg-nfs-client', 'subnet', 'netapp']
-      AllowNfsComputeIn           : ['435', 'Inbound', 'Allow', '*', 'Nfs', 'subnet', 'compute', 'subnet', 'netapp']
       
       // CycleCloud
       AllowCycleClientIn          : ['450', 'Inbound', 'Allow', 'Tcp', 'CycleCloud', 'asg', 'asg-cyclecloud-client', 'asg', 'asg-cyclecloud']
@@ -509,10 +509,6 @@ var config = {
       AllowComputeSchedOut        : ['370', 'Outbound', 'Allow', '*', 'Shed', 'subnet', 'compute', 'asg', 'asg-sched']
       //AllowComputePbsClientOut    : ['380', 'Outbound', 'Allow', '*', 'Pbs', 'subnet', 'compute', 'asg', 'asg-pbs-client']
       AllowComputeComputeSchedOut : ['381', 'Outbound', 'Allow', '*', 'Shed', 'subnet', 'compute', 'subnet', 'compute']
-        
-      // NFS
-      AllowNfsOut                 : ['440', 'Outbound', 'Allow', '*', 'Nfs', 'asg', 'asg-nfs-client', 'subnet', 'netapp']
-      AllowNfsComputeOut          : ['450', 'Outbound', 'Allow', '*', 'Nfs', 'subnet', 'compute', 'subnet', 'netapp']
     
       // SSH internal rules
       AllowSshFromJumpboxOut      : ['490', 'Outbound', 'Allow', 'Tcp', 'Ssh', 'asg', 'asg-jumpbox', 'asg', 'asg-ssh']
@@ -586,6 +582,14 @@ var config = {
       // Outbound
       AllowMariaDBOut             : ['700', 'Outbound', 'Allow', 'Tcp', 'MariaDB', 'asg', 'asg-mariadb-client', 'subnet', 'admin']
     }
+    anf: {
+      // Inbound
+      AllowNfsIn                  : ['434', 'Inbound', 'Allow', '*', 'Nfs', 'asg', 'asg-nfs-client', 'subnet', 'netapp']
+      AllowNfsComputeIn           : ['435', 'Inbound', 'Allow', '*', 'Nfs', 'subnet', 'compute', 'subnet', 'netapp']
+      // Outbound
+      AllowNfsOut                 : ['440', 'Outbound', 'Allow', '*', 'Nfs', 'asg', 'asg-nfs-client', 'subnet', 'netapp']
+      AllowNfsComputeOut          : ['450', 'Outbound', 'Allow', '*', 'Nfs', 'subnet', 'compute', 'subnet', 'netapp']
+    }
     lustre: {
       // Inbound
       AllowLustreClientIn         : ['410', 'Inbound', 'Allow', 'Tcp', 'Lustre', 'asg', 'asg-lustre-client', 'subnet', 'lustre']
@@ -657,6 +661,7 @@ var nsgRules = items(union(
   config.public_ip ? config.nsg_rules.internet : config.nsg_rules.hub,
   config.deploy_bastion ? config.nsg_rules.bastion : {},
   config.deploy_gateway ? config.nsg_rules.gateway : {},
+  config.anf.create ? config.nsg_rules.anf : {},
   config.deploy_lustre ? config.nsg_rules.lustre : {},
   config.deploy_grafana ? config.nsg_rules.grafana : {},
   config.deploy_ondemand ? config.nsg_rules.ondemand: {},
