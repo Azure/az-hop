@@ -54,14 +54,32 @@
         }
       },
       {
+        "name": "adminPassword",
+        "type": "Microsoft.Common.PasswordBox",
+        "label": {
+          "password": "Admin Password",
+          "confirmPassword": "Confirm password"
+        },
+        "toolTip": "The Admin User password.",
+        "constraints": {
+          "required": "[not(basics('autogeneratePasswordsAndKeys'))]",
+          "regex": "^[\\x20-\\x7E]{12,}$",
+          "validationMessage": "Enter at least 12 characters"
+        },
+        "options": {
+          "hideConfirmation": false
+        },
+        "visible": "[not(basics('autogeneratePasswordsAndKeys'))]"
+      },
+      {
         "name": "adminSshPublicKey",
         "type": "Microsoft.Common.TextBox",
         "label": "Admin Ssh Public Key",
-        "toolTip": "SSH Public Key for the Virtual Machines.",
+        "toolTip": "SSH-RSA Public Key for the Virtual Machines.",
         "constraints": {
           "required": "[not(basics('autogeneratePasswordsAndKeys'))]",
-          "regex": "^ssh-rsa [0-9A-Za-z+/]+[=]{0,2} [A-Za-z0-9@._-]+$",
-          "validationMessage": "Invalid public key"
+          "regex": "^ssh-rsa AAAAB3NzaC1yc2[0-9A-Za-z+/]+[=]{0,3}(\\s.*)?$", 
+          "validationMessage": "Invalid ssh-rsa public key"
         },
         "visible": "[not(basics('autogeneratePasswordsAndKeys'))]"
       },
@@ -69,48 +87,12 @@
         "name": "adminSshPrivateKey",
         "type": "Microsoft.Common.TextBox",
         "label": "Admin Ssh Private Key",
-        "toolTip": "SSH Private Key for the Virtual Machines.",
+        "toolTip": "SSH-RSA Private Key for the Virtual Machines.",
         "multiLine": true,
         "constraints": {
           "required": "[not(basics('autogeneratePasswordsAndKeys'))]",
           "regex": "^-----BEGIN [A-Z]+ PRIVATE KEY-----\r?\n([a-zA-Z0-9+/]+={0,2}\r?\n)+-----END [A-Z]+ PRIVATE KEY-----$",
-          "validationMessage": "Invalid private key"
-        },
-        "visible": "[not(basics('autogeneratePasswordsAndKeys'))]"
-      },
-      {
-        "name": "adminPassword",
-        "type": "Microsoft.Common.PasswordBox",
-        "label": {
-          "password": "Admin Password",
-          "confirmPassword": "Confirm password"
-        },
-        "toolTip": "The Windows/Active Directory password.",
-        "constraints": {
-          "required": "[not(basics('autogeneratePasswordsAndKeys'))]",
-          "regex": "^[\\x20-\\x7E]{12,}$",
-          "validationMessage": "Enter at least 12 characters"
-        },
-        "options": {
-          "hideConfirmation": false
-        },
-        "visible": "[not(basics('autogeneratePasswordsAndKeys'))]"
-      },
-      {
-        "name": "databaseAdminPassword",
-        "type": "Microsoft.Common.PasswordBox",
-        "label": {
-          "password": "Database Admin Password",
-          "confirmPassword": "Confirm password"
-        },
-        "toolTip": "Password for the database admin user",
-        "constraints": {
-          "required": "[not(basics('autogeneratePasswordsAndKeys'))]",
-          "regex": "^[\\x20-\\x7E]{12,}$",
-          "validationMessage": "Enter at least 12 characters"
-        },
-        "options": {
-          "hideConfirmation": false
+          "validationMessage": "Invalid ssh-rsa private key"
         },
         "visible": "[not(basics('autogeneratePasswordsAndKeys'))]"
       }
@@ -416,7 +398,7 @@
             "name": "slurmVersion",
             "type": "Microsoft.Common.DropDown",
             "label": "Slurm Version",
-            "defaultValue": "22.05.9",
+            "defaultValue": "23.02.5",
             "toolTip": "Select the version of Slurm to use",
             "constraints": {
               "allowedValues": [
@@ -442,6 +424,24 @@
             "toolTip": "Select to enable Slurm job accounting in a managed MariaDB instance",
             "defaultValue": false,
             "visible": true
+          },
+          {
+            "name": "databaseAdminPassword",
+            "type": "Microsoft.Common.PasswordBox",
+            "label": {
+              "password": "Database Admin Password",
+              "confirmPassword": "Confirm password"
+            },
+            "toolTip": "Password for the Slurm accounting database admin user",
+            "constraints": {
+              "required": "[not(basics('autogeneratePasswordsAndKeys'))]",
+              "regex": "^[\\x20-\\x7E]{12,}$",
+              "validationMessage": "Enter at least 12 characters"
+            },
+            "options": {
+              "hideConfirmation": false
+            },
+            "visible": "[and(not(basics('autogeneratePasswordsAndKeys')), steps('scheduler').slurmAccounting)]"
           }
         ]
       },
@@ -658,7 +658,7 @@
               "name": "deployerSshPort",
               "type": "Microsoft.Common.TextBox",
               "label": "Deployer SSH Port",
-              "defaultValue": "22",
+              "defaultValue": "[if(steps('network').publicIp,8822,22)]",
               "toolTip": "SSH port for the deployer VM.",
               "constraints": {
                 "required": true,
@@ -677,7 +677,7 @@
       "adminSshPublicKey": "[if(basics('autogeneratePasswordsAndKeys'),'',basics('adminSshPublicKey'))]",
       "adminSshPrivateKey": "[if(basics('autogeneratePasswordsAndKeys'),'',basics('adminSshPrivateKey'))]",
       "adminPassword": "[if(basics('autogeneratePasswordsAndKeys'),'',basics('adminPassword'))]",
-      "databaseAdminPassword": "[if(basics('autogeneratePasswordsAndKeys'),'',basics('databaseAdminPassword'))]",
+      "databaseAdminPassword": "[if(and(basics('autogeneratePasswordsAndKeys'), steps('scheduler').slurmAccounting)),'',steps('scheduler').databaseAdminPassword)]",
       "azhopConfig": {}    
     }
   }
