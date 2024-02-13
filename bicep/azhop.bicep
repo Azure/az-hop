@@ -314,6 +314,7 @@ var config = {
         sku: azhopConfig.cyclecloud.vm_size
         osdisksku: 'StandardSSD_LRS'
         image: 'cyclecloud_base'
+        pip: enablePublicIP && !deployOnDemand
         datadisks: [
           {
             name: '${vmNamesMap.ccportal}-datadisk0'

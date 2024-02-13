@@ -17,7 +17,7 @@ resource publicIp 'Microsoft.Network/publicIPAddresses@2022-07-01' = if (contain
   name: '${name}-pip'
   location: location
   sku: {
-    name: 'Basic'
+    name: 'Standard'
   }
   properties: {
     publicIPAllocationMethod: 'Static'
