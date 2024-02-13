@@ -45,7 +45,7 @@ jobs:
         run: |
           set -e
           source /miniconda/bin/activate
-          ./marketplace/solution/build.sh
+          ./marketplace/solution/build.sh $BRANCH_NAME
           echo "escaped_branch_name=${BRANCH_NAME//\//_}" >> $GITHUB_ENV
 
       - uses: actions/upload-artifact@v4
