@@ -88,7 +88,7 @@ linux_base_image: almalinux:almalinux-x86_64:8_7-gen2:latest # publisher:offer:s
 
 deployer:
   vm_size: Standard_B2ms
-  ssh_port: "[basics('deployerSshPort')]"
+  ssh_port: "[int(steps('otherSettings').deployerSshPort)]"
 scheduler:
   vm_size: "[steps('scheduler').vmsize]"
 cyclecloud:
