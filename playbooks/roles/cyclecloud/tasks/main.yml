@@ -115,3 +115,8 @@
     insertafter: "[cyclecloud]"
     block: |
       default_project_locker = azure-storage
+
+- name: create cyclecloud logrotate config
+  copy:
+    src: files/cyclecloud.logrotate
+    dest: /etc/logrotate.d/cyclecloud
