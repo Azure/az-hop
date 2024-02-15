@@ -39,6 +39,8 @@ var resourcePostfix = '${uniqueString(subscription().subscriptionId, azhopResour
 var enablePublicIP = contains(azhopConfig, 'locked_down_network') ? azhopConfig.locked_down_network.public_ip : true
 var jumpboxSshPort = deployJumpbox ? (contains(azhopConfig.jumpbox, 'ssh_port') ? azhopConfig.jumpbox.ssh_port : 22) : 22
 var deployerSshPort = deployDeployer ? (contains(azhopConfig.deployer, 'ssh_port') ? azhopConfig.deployer.ssh_port : 22) : 22
+var incomingSSHPort = deployDeployer ? deployerSshPort : jumpboxSshPort
+
 
 var deployLustre = contains(azhopConfig, 'lustre') && contains(azhopConfig.lustre, 'create') ? azhopConfig.lustre.create : false
 var deployJumpbox = contains(azhopConfig, 'jumpbox') ? true : false
@@ -369,12 +371,12 @@ var config = {
           osdisksku: 'Standard_LRS'
           image: 'ubuntu'
           pip: enablePublicIP
-          sshPort: deployerSshPort
+          sshPort: incomingSSHPort
           asgs: union( 
             [ 'asg-ssh', 'asg-jumpbox', 'asg-deployer' ],
             deployGrafana ? ['asg-telegraf'] : []
             )    
-          deploy_script: replace(replace(loadTextContent('install.sh'), '__INSERT_AZHOP_BRANCH__', branchName), '__SSH_PORT__', string(deployerSshPort))
+          deploy_script: replace(replace(loadTextContent('install.sh'), '__INSERT_AZHOP_BRANCH__', branchName), '__SSH_PORT__', string(incomingSSHPort))
           identity: {
             keyvault: {
               secret_permissions: [ 'All' ]
@@ -406,12 +408,12 @@ var config = {
         osdisksku: 'StandardSSD_LRS'
         image: 'linux_base'
         pip: enablePublicIP
-        sshPort: jumpboxSshPort
+        sshPort: incomingSSHPort
         asgs: union(
           [ 'asg-ssh', 'asg-jumpbox' ],
           deployGrafana ? ['asg-telegraf'] : []
           )  
-        deploy_script: jumpboxSshPort != 22 ? replace(loadTextContent('jumpbox.yml'), '__SSH_PORT__', string(jumpboxSshPort)) : ''
+        deploy_script: incomingSSHPort != 22 ? replace(loadTextContent('jumpbox.yml'), '__SSH_PORT__', string(incomingSSHPort)) : ''
       }
     } : {},
     deployGrafana ? {
@@ -440,10 +442,10 @@ var config = {
 
   service_ports: {
     All: ['0-65535']
-    Bastion: ['22', '3389']
+    Bastion: (incomingSSHPort == 22) ? ['22, 3389'] : ['22', string(incomingSSHPort), '3389']
     Web: ['443', '80']
     Ssh: ['22']
-    HubSsh: deployDeployer ? [string(deployerSshPort)] : [string(jumpboxSshPort)]
+    HubSsh: [string(incomingSSHPort)]
     // DNS, Kerberos, RpcMapper, Ldap, Smb, KerberosPass, LdapSsl, LdapGc, LdapGcSsl, AD Web Services, RpcSam
     DomainControlerTcp: ['53', '88', '135', '389', '445', '464', '636', '3268', '3269', '9389', '49152-65535']
     // DNS, Kerberos, W32Time, NetBIOS, Ldap, KerberosPass, LdapSsl
@@ -973,7 +975,7 @@ output azhopGlobalConfig object = union(
     azure_environment             : envNameToCloudMap[environment().name]
     key_vault_suffix              : substring(kvSuffix, 1, length(kvSuffix) - 1) // vault.azure.net - remove leading dot from env
     blob_storage_suffix           : 'blob.${environment().suffixes.storage}' // blob.core.windows.net
-    jumpbox_ssh_port              : deployJumpbox ? config.vms.jumpbox.sshPort : 22
+    jumpbox_ssh_port              : incomingSSHPort
   },
   createComputeMI ? {
     compute_mi_id                 : resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', computemi.name)
@@ -1047,13 +1049,13 @@ output azhopInventory object = {
       deployJumpbox ? {
         jumpbox : {
           ansible_host: sshTunelIp
-          ansible_ssh_port: config.vms.jumpbox.sshPort
+          ansible_ssh_port: incomingSSHPort
           ansible_ssh_common_args: ''
         }
       } : {
         deployer : {
           ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIp
-          ansible_ssh_port: config.vms.deployer.sshPort
+          ansible_ssh_port: incomingSSHPort
           ansible_ssh_common_args: ''
         }
       },
@@ -1065,7 +1067,7 @@ output azhopInventory object = {
     )
     vars: {
       ansible_ssh_user: config.admin_user
-      ansible_ssh_common_args: deployJumpbox ? '-o ProxyCommand="ssh -i ${config.admin_user}_id_rsa -p ${config.vms.jumpbox.sshPort} -W %h:%p ${config.admin_user}@${sshTunelIp}"' : ''
+      ansible_ssh_common_args: deployJumpbox ? '-o ProxyCommand="ssh -i ${config.admin_user}_id_rsa -p ${incomingSSHPort} -W %h:%p ${config.admin_user}@${sshTunelIp}"' : ''
 
     }
   }
@@ -1081,7 +1083,7 @@ output azhopPackerOptions object = (config.deploy_sig) ? {
   var_virtual_network_subnet_name: config.vnet.subnets.compute.name
   var_virtual_network_resource_group_name: azhopResourceGroupName
   var_ssh_bastion_host: sshTunelIp
-  var_ssh_bastion_port: '${config.vms.jumpbox.sshPort}'
+  var_ssh_bastion_port: incomingSSHPort
   var_ssh_bastion_username: config.admin_user
   var_ssh_bastion_private_key_file: '../${config.admin_user}_id_rsa'
   var_queue_manager: config.queue_manager
@@ -1112,7 +1114,7 @@ case $1 in
     exec ssh -i {0}_id_rsa -o ProxyCommand="ssh -i {0}_id_rsa -p {1} -W %h:%p {0}@{2}" -o "User={0}" "$@"
     ;;
 esac
-''', config.admin_user, config.vms.jumpbox.sshPort, sshTunelIp)
+''', config.admin_user, incomingSSHPort, sshTunelIp)
 
 output azhopConnectScript string = deployDeployer ? azhopConnectScript : azhopSSHConnectScript
 
