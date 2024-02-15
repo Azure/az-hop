@@ -69,8 +69,11 @@ network:
         address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.32/28')]"
         create: "[equals(steps('homedir').type, 'anf')]"
       lustre:
-        address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.64/26')]"
+        address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.48/28')]"
         create: "[steps('lustre').deployLustre]"
+      bastion: # Bastion subnet name is always fixed to AzureBastionSubnet
+        address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.64/26')]" # CIDR minimal range must be /26
+        create: "[steps('network').bastion]"
       compute:
         name: compute
         address_prefixes: "[concat(_X1_, '.', _X2_, '.', if(equals(steps('network').cidrPrefix, '/24'), concat(_X3_, '.128/25'), if(equals(steps('network').cidrPrefix, '/23'), concat(string(add(_X3i_,1)), '.0/24'), if(equals(steps('network').cidrPrefix, '/22'), concat(string(add(_X3i_,2)), '.0/23'), if(equals(steps('network').cidrPrefix, '/21'), concat(string(add(_X3i_,4)), '.0/22'), concat(string(add(_X3i_,8)), '.0/21'))))))]"
@@ -85,6 +88,10 @@ locked_down_network:
   public_ip: "[steps('network').publicIp]" # Enable public IP creation for Jumpbox, OnDemand and create images. Default to true
 
 linux_base_image: almalinux:almalinux-x86_64:8_7-gen2:latest # publisher:offer:sku:version or image_id
+
+# Create a Bastion in the bastion subnet when defined
+bastion:
+  create: "[steps('network').bastion]"
 
 deployer:
   vm_size: Standard_B2ms
