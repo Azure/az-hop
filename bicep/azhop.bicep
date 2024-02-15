@@ -300,7 +300,7 @@ var config = {
         image: 'linux_base'
         pip: enablePublicIP
         asgs: union(
-          [ 'asg-ssh', 'asg-ondemand', 'asg-nfs-client', 'asg-sched', 'asg-cyclecloud-client', 'asg-mariadb-client' ],
+          [ 'asg-ssh', 'asg-ondemand', 'asg-nfs-client', 'asg-sched', 'asg-cyclecloud-client' ],
           deployGrafana ? ['asg-telegraf'] : [],
           (userAuth == 'ad') ? ['asg-ad-client'] : [],
           deployLustre ? [ 'asg-lustre-client' ] : []
