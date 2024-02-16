@@ -145,7 +145,7 @@ autoscale:
 queues:
   - name: htc
     vm_size: "[steps('Partitions').HTCSection.vmsize]"
-    max_count: "[steps('Partitions').HTCSection.NodeNumber)]"
+    max_count: "[steps('Partitions').HTCSection.NodeNumber]"
     image: "[steps('Partitions').HTCSection.ImageName]"
     ColocateNodes: false
   - name: hpc
