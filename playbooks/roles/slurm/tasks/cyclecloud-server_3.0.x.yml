@@ -85,15 +85,6 @@
     owner: slurm
     group: slurm
 
-- name: remove all SuspendTime* values from slurm.conf as they exists in azhop.conf
-  lineinfile:
-    path: /etc/slurm/slurm.conf
-    regexp: '^{{item}}'
-    state: absent
-  loop:
-    - SuspendTime
-    - SuspendTimeout
-
 - name: Include the azhop.conf in slurm.conf
   lineinfile:
     path: /etc/slurm/slurm.conf
