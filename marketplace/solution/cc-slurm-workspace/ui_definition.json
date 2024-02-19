@@ -22,7 +22,7 @@
         "label": "CycleCloud VM Size",
         "toolTip": "Select a size for the CycleCloud VM",
         "recommendedSizes": [
-          "Standard_B2ms"
+          "Standard_D4as_v4"
         ],
         "options": {
           "hideDiskTypeFilter": true
@@ -393,7 +393,7 @@
             "label": "Size",
             "toolTip": "Select a size for the Scheduler VM",
             "recommendedSizes": [
-              "Standard_B2ms"
+              "Standard_D4as_v4"
             ],
             "options": {
               "hideDiskTypeFilter": true
@@ -478,8 +478,10 @@
                   "hideDiskTypeFilter": true
                 },
                 "osPlatform": "Linux",
-                "visible": true
-              },
+                "visible": true,
+                "required": true,
+                "validationMessage": "VMSize is required."
+            },
               {
                 "name": "NodeNumber",
                 "type": "Microsoft.Common.Slider",
@@ -490,7 +492,9 @@
                 "min": 0,
                 "max": 512,
                 "step": 4,
-                "visible": true
+                "visible": true,
+                "required": true,
+                "validationMessage": "Number of nodes is required"
               },      
               {
                 "name": "ImageName",
@@ -514,7 +518,7 @@
                     }
                   ],
                   "required": true,
-                  "validationMessage": "A choice is required."
+                  "validationMessage": "Image Name is required."
                 }
               }
             ]
@@ -536,7 +540,9 @@
                   "hideDiskTypeFilter": true
                 },
                 "osPlatform": "Linux",
-                "visible": true
+                "visible": true,
+                "required": true,
+                "validationMessage": "VMSize is required."
               },
               {
                 "name": "NodeNumber",
@@ -548,7 +554,9 @@
                 "min": 0,
                 "max": 100,
                 "step": 2,
-                "visible": true
+                "visible": true,
+                "required": true,
+                "validationMessage": "Number of nodes is required"
               },
               {
                 "name": "ImageName",
@@ -572,7 +580,7 @@
                     }
                   ],
                   "required": true,
-                  "validationMessage": "A choice is required."
+                  "validationMessage": "Image Name is required."
                 }
               }
             ]
@@ -596,7 +604,9 @@
                   "hideDiskTypeFilter": true
                 },
                 "osPlatform": "Linux",
-                "visible": true
+                "visible": true,
+                "required": true,
+                "validationMessage": "VMSize is required."
               },
               {
                 "name": "NodeNumber",
@@ -608,7 +618,9 @@
                 "min": 0,
                 "max": 100,
                 "step": 2,
-                "visible": true
+                "visible": true,
+                "required": true,
+                "validationMessage": "Number of nodes is required"
               },
               {
                 "name": "ImageName",
@@ -632,7 +644,7 @@
                     }
                   ],
                   "required": true,
-                  "validationMessage": "A choice is required."
+                  "validationMessage": "Image Name is required."
                 }
               }
             ]
@@ -665,7 +677,7 @@
               "name": "deployerSshPort",
               "type": "Microsoft.Common.TextBox",
               "label": "Deployer SSH Port",
-              "defaultValue": "[if(steps('network').publicIp,8822,22)]",
+              "defaultValue": "[if(steps('network').publicIp,if(steps('network').bastion, 22, 8822),22)]",
               "toolTip": "SSH port for the deployer VM.",
               "constraints": {
                 "required": true,
