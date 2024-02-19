@@ -22,7 +22,7 @@
         "label": "CycleCloud VM Size",
         "toolTip": "Select a size for the CycleCloud VM",
         "recommendedSizes": [
-          "Standard_B2ms"
+          "Standard_D4as_v4"
         ],
         "options": {
           "hideDiskTypeFilter": true
@@ -393,7 +393,7 @@
             "label": "Size",
             "toolTip": "Select a size for the Scheduler VM",
             "recommendedSizes": [
-              "Standard_B2ms"
+              "Standard_D4as_v4"
             ],
             "options": {
               "hideDiskTypeFilter": true
