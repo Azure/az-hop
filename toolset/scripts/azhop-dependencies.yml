@@ -57,12 +57,6 @@
         state: present
       become: true
 
-    - name: debug
-      debug:
-        var: ansible_architecture
-        var: ansible_distribution
-        var: ansible_distribution_release
-
     - name: "AzureCLI: Add Microsoft repository (Ubuntu: kinetic-22.10)"
       apt_repository:
         # Following directions from https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest
@@ -266,7 +260,7 @@
         mode: 0755
       become: true
 
-    when: (ansible_distribution == "centos") or (ansible_distribution == 'AlmaLinux')
+    when: (ansible_distribution == "centos") or (ansible_distribution == 'almalinux')
 
   - block:
     - name: "Check if homebrew is installed for (macOS)"
