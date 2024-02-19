@@ -442,7 +442,7 @@ var config = {
 
   service_ports: {
     All: ['0-65535']
-    Bastion: (incomingSSHPort == 22) ? ['22, 3389'] : ['22', string(incomingSSHPort), '3389']
+    Bastion: (incomingSSHPort == 22) ? ['22', '3389'] : ['22', string(incomingSSHPort), '3389']
     Web: ['443', '80']
     Ssh: ['22']
     HubSsh: [string(incomingSSHPort)]
