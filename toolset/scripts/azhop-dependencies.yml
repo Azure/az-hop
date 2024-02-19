@@ -210,7 +210,7 @@
         dest: "{{ build_dir.path }}/{{ linux_azcopy_file }}"
         mode: 0755
 
-    - name: "AzCopy: Download and extract (Ubuntu)"
+    - name: "AzCopy: Download and extract (CentOS)"
       shell: |
         # Install azcopy
         cd /usr/bin
@@ -266,7 +266,7 @@
         mode: 0755
       become: true
 
-    when: ansible_distribution == "centos"
+    when: ansible_distribution == "centos" || ansible_distribution == 'AlmaLinux'
 
   - block:
     - name: "Check if homebrew is installed for (macOS)"
