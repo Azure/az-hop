@@ -266,7 +266,7 @@
         mode: 0755
       become: true
 
-    when: ansible_distribution == "centos" || ansible_distribution == 'AlmaLinux'
+    when: (ansible_distribution == "centos") or (ansible_distribution == 'AlmaLinux')
 
   - block:
     - name: "Check if homebrew is installed for (macOS)"
