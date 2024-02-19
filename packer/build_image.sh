@@ -151,6 +151,8 @@ if [ "$image_id" == "" ] || [ $FORCE -eq 1 ]; then
     az disk delete --ids $os_disk_id -o tsv -y
   fi
 
+  packer plugins install github.com/hashicorp/azure
+  
   packer build $PACKER_OPTIONS -var-file $OPTIONS_FILE \
     -var "var_use_azure_cli_auth=$use_azure_cli_auth" \
     -var "var_image=$image_name" \

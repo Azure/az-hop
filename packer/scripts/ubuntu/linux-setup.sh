@@ -39,3 +39,8 @@ fi
 if ! grep I_MPI_HYDRA_BOOTSTRAP /usr/share/modules/modulefiles/mpi/impi-2021 ; then
     echo "setenv I_MPI_HYDRA_BOOTSTRAP ssh" >> /usr/share/modules/modulefiles/mpi/impi-2021
 fi
+
+add-apt-repository -y ppa:apptainer/ppa
+apt install -y apptainer
+
+apt-get -s dist-upgrade | grep "^Inst" | grep -i securi | awk -F " " {'print $2'} | xargs apt-get -y install

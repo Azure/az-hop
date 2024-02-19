@@ -92,3 +92,4 @@ net.core.rmem_max=2097152
 net.core.wmem_max=2097152
 EOF
 
+apt-get -s dist-upgrade | grep "^Inst" | grep -i securi | awk -F " " {'print $2'} | xargs apt-get -y install
