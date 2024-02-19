@@ -14,4 +14,7 @@
         rotate 7
         sharedscripts
         size=100M
+        postrotate
+                /opt/cycle_server/cycle_server restart
+        endscript
 }
