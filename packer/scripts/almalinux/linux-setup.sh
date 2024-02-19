@@ -1,4 +1,6 @@
 #!/bin/bash
+# https://almalinux.org/blog/2023-12-20-almalinux-8-key-update/
+rpm --import https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux
 
 dnf install -y dnf-plugins-core
 dnf install -y epel-release
