@@ -677,7 +677,7 @@
               "name": "deployerSshPort",
               "type": "Microsoft.Common.TextBox",
               "label": "Deployer SSH Port",
-              "defaultValue": "[if(steps('network').publicIp,8822,22)]",
+              "defaultValue": "[if(steps('network').publicIp,if(steps('network').bastion, 22, 8822),22)]",
               "toolTip": "SSH port for the deployer VM.",
               "constraints": {
                 "required": true,
