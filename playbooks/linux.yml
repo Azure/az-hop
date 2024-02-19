@@ -125,7 +125,7 @@
 
 
 - name: Generate SSH keys on logon if not exists
-  hosts: ondemand
+  hosts: ondemand, scheduler
   become: true
   gather_facts: no
   vars_files:

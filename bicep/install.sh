@@ -85,7 +85,8 @@ export admin_pass="$(az keyvault secret show --vault-name $kv -n ${adminuser}-pa
 echo "* Getting keys from keyvault"
 az keyvault secret show --vault-name $kv -n ${adminuser}-pubkey --query "value" -o tsv > ../${adminuser}_id_rsa.pub
 az keyvault secret show --vault-name $kv -n ${adminuser}-privkey --query "value" -o tsv > ../${adminuser}_id_rsa
-chmod 600 ../${adminuser}_id_rsa*
+chmod 600 ../${adminuser}_id_rsa
+chmod 644 ../${adminuser}_id_rsa.pub
 
 echo "* Generating config files from templates"
 # config.yml
