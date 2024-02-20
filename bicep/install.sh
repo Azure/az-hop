@@ -1,6 +1,13 @@
 #!/bin/bash
 set -eo pipefail
 
+read_os()
+{
+    os_release=$(cat /etc/os-release | grep "^ID\=" | cut -d'=' -f 2 | xargs)
+    os_maj_ver=$(cat /etc/os-release | grep "^VERSION_ID\=" | cut -d'=' -f 2 | xargs)
+    full_version=$(cat /etc/os-release | grep "^VERSION\=" | cut -d'=' -f 2 | xargs)
+}
+
 retry_command() {
     local cmd=$1
     local retries=${2:-5}
@@ -26,18 +33,32 @@ retry_command() {
     set -eo pipefail
     return 1
 }
+read_os
 
-echo "* apt updating"
-retry_command "apt update"
+# echo "* apt updating"
+# retry_command "apt update"
 
 echo "* Update SSH port"
 sed -i 's/^#Port 22/Port __SSH_PORT__/' /etc/ssh/sshd_config
 systemctl restart sshd
 
-echo "* Installing git"
-retry_command "apt install -y git"
+case $os_release in
+    centos|rhel|almalinux)
+        echo "* Installing git"
+        retry_command "yum install -y git"
+        ;;
+    ubuntu)
+        echo "* Installing git"
+        retry_command "apt install -y git"
+        ;;
+    *)
+        echo "Unsupported OS"
+        ;;
+esac
+
 
 echo "* Cloning az-hop repo"
+cd /opt
 if [ -e az-hop ]; then
     rm -rf az-hop
 fi
@@ -110,16 +131,6 @@ jq '.azhopInventory.value' azhopOutputs.json | yq -P > $azhop_root/playbooks/inv
 sed -i "s/__ADMIN_PASSWORD__/$(sed 's/[&/\]/\\&/g' <<< $admin_pass)/g" $azhop_root/playbooks/inventory
 
 jq .azhopPackerOptions.value azhopOutputs.json > $azhop_root/packer/options.json
-
-# We probably don't want to build custom images as part of the cloud-init step
-# if [ "$(jq -r .azhopConfig.value.features.sig azhopOutputs.json)" == "true" ]; then
-#     echo "* Building images"
-#     cd $azhop_root/packer
-#     ./build_image.sh -i azhop-compute-centos-7.9.json
-#     ./build_image.sh -i azhop-desktop-centos-7.9.json
-# fi
-
- 
 
 echo "* Generating passwords"
 cd $azhop_root

@@ -259,6 +259,9 @@ cyclecloud:
   # Optional: use Ubuntu for the CycleCloud VM (default: linux_base_image)
   # image: "canonical:0001-com-ubuntu-server-focal:20_04-lts-gen2:latest"
   # plan: publisher:product:name
+  # Change this to, e.g., 2222, if security policies (like "zero trust") in your tenant automatically block access to port 22 from the internet
+  # ssh_port: 2222
+  # use_as_deployer: true # default to false - to be used when deploying without a deployer VM
 
 # Lustre cluster is optional and can be used to create a Lustre cluster in the environment.
 lustre:

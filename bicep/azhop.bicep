@@ -39,7 +39,8 @@ var resourcePostfix = '${uniqueString(subscription().subscriptionId, azhopResour
 var enablePublicIP = contains(azhopConfig, 'locked_down_network') ? azhopConfig.locked_down_network.public_ip : true
 var jumpboxSshPort = deployJumpbox ? (contains(azhopConfig.jumpbox, 'ssh_port') ? azhopConfig.jumpbox.ssh_port : 22) : 22
 var deployerSshPort = deployDeployer ? (contains(azhopConfig.deployer, 'ssh_port') ? azhopConfig.deployer.ssh_port : 22) : 22
-var incomingSSHPort = deployDeployer ? deployerSshPort : jumpboxSshPort
+var ccportalSshPort = cycleCloudAsDeployer ? (contains(azhopConfig.cyclecloud, 'ssh_port') ? azhopConfig.cyclecloud.ssh_port : 22) : 22
+var incomingSSHPort = deployDeployer ? deployerSshPort : (cycleCloudAsDeployer ?  ccportalSshPort : jumpboxSshPort )
 
 
 var deployLustre = contains(azhopConfig, 'lustre') && contains(azhopConfig.lustre, 'create') ? azhopConfig.lustre.create : false
@@ -47,6 +48,7 @@ var deployJumpbox = contains(azhopConfig, 'jumpbox') ? true : false
 var deployDeployer = contains(azhopConfig, 'deployer') ? true : false
 var deployGrafana = contains(azhopConfig, 'monitoring') && contains(azhopConfig.monitoring, 'grafana') ? azhopConfig.monitoring.grafana : true
 var deployOnDemand = contains(azhopConfig, 'ondemand') ? true : false
+var cycleCloudAsDeployer = contains(azhopConfig, 'cyclecloud') && contains(azhopConfig.cyclecloud, 'use_as_deployer') ? azhopConfig.cyclecloud.use_as_deployer : false
 
 var useExistingAD = contains(azhopConfig, 'domain') ? azhopConfig.domain.use_existing_dc : false
 var userAuth = contains(azhopConfig, 'authentication') && contains(azhopConfig.authentication, 'user_auth') ? azhopConfig.authentication.user_auth : 'ad'
@@ -317,6 +319,8 @@ var config = {
         osdisksku: 'StandardSSD_LRS'
         image: 'cyclecloud_base'
         pip: enablePublicIP && !deployOnDemand
+        sshPort: cycleCloudAsDeployer ? incomingSSHPort : 22
+        deploy_script: cycleCloudAsDeployer ? replace(replace(loadTextContent('install.sh'), '__INSERT_AZHOP_BRANCH__', branchName), '__SSH_PORT__', string(incomingSSHPort)) : ''
         datadisks: [
           {
             name: '${vmNamesMap.ccportal}-datadisk0'
@@ -327,12 +331,16 @@ var config = {
           }
         ]
         identity: {
+          keyvault: cycleCloudAsDeployer ? {
+            secret_permissions: [ 'All' ]
+          } : {}
           roles: [
             'Contributor'
           ]
         }
         asgs: union(
           [ 'asg-ssh', 'asg-cyclecloud' ],
+          cycleCloudAsDeployer ? [ 'asg-jumpbox', 'asg-deployer' ] : [],
           (userAuth == 'ad') ? ['asg-ad-client'] : [],
           deployGrafana ? ['asg-telegraf'] : []
         )
@@ -432,12 +440,12 @@ var config = {
   )
 
   asg_names: union([ 'asg-ssh', 'asg-jumpbox', 'asg-sched', 'asg-cyclecloud', 'asg-cyclecloud-client', 'asg-nfs-client' ],
-    deployLustre        ? [ 'asg-lustre-client' ] : [],
-    deployGrafana       ? [ 'asg-grafana', 'asg-telegraf' ] : [],
-    (userAuth == 'ad')  ? ['asg-rdp', 'asg-ad', 'asg-ad-client'] : [],
-    deployOnDemand      ? ['asg-ondemand']: [],
-    createDatabase      ? ['asg-mariadb-client']: [],
-    deployDeployer      ? ['asg-deployer']: []
+    deployLustre                           ? [ 'asg-lustre-client' ] : [],
+    deployGrafana                          ? [ 'asg-grafana', 'asg-telegraf' ] : [],
+    (userAuth == 'ad')                     ? ['asg-rdp', 'asg-ad', 'asg-ad-client'] : [],
+    deployOnDemand                         ? ['asg-ondemand']: [],
+    createDatabase                         ? ['asg-mariadb-client']: [],
+    deployDeployer || cycleCloudAsDeployer ? ['asg-deployer']: []
   )
 
   service_ports: {
@@ -1052,13 +1060,14 @@ output azhopInventory object = {
           ansible_ssh_port: incomingSSHPort
           ansible_ssh_common_args: ''
         }
-      } : {
+      } : {},
+      deployDeployer ? {
         deployer : {
           ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'deployer')].outputs.privateIp
           ansible_ssh_port: incomingSSHPort
           ansible_ssh_common_args: ''
         }
-      },
+      } : {},
       config.deploy_grafana ? {
         grafana: {
           ansible_host: azhopVm[indexOf(map(vmItems, item => item.key), 'grafana')].outputs.privateIp
