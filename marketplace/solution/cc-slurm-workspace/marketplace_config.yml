@@ -93,9 +93,6 @@ linux_base_image: almalinux:almalinux-x86_64:8_7-gen2:latest # publisher:offer:s
 bastion:
   create: "[steps('network').bastion]"
 
-deployer:
-  vm_size: Standard_B2ms
-  ssh_port: "[int(steps('otherSettings').deployerSshPort)]"
 scheduler:
   vm_size: "[steps('scheduler').vmsize]"
 cyclecloud:
@@ -103,6 +100,8 @@ cyclecloud:
   image: azurecyclecloud:azure-cyclecloud:cyclecloud8-gen2:8.4.220231009
   # az vm image terms accept --publisher azurecyclecloud --offer azure-cyclecloud --plan cyclecloud8-gen2
   plan: azurecyclecloud:azure-cyclecloud:cyclecloud8-gen2
+  ssh_port: "[int(steps('otherSettings').deployerSshPort)]"
+  use_as_deployer: true
 
 users:
   - { name: hpcuser, uid: 10001 }

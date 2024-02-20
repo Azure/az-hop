@@ -1,6 +1,13 @@
 #!/bin/bash
 set -eo pipefail
 
+read_os()
+{
+    os_release=$(cat /etc/os-release | grep "^ID\=" | cut -d'=' -f 2 | xargs)
+    os_maj_ver=$(cat /etc/os-release | grep "^VERSION_ID\=" | cut -d'=' -f 2 | xargs)
+    full_version=$(cat /etc/os-release | grep "^VERSION\=" | cut -d'=' -f 2 | xargs)
+}
+
 retry_command() {
     local cmd=$1
     local retries=${2:-5}
@@ -26,16 +33,29 @@ retry_command() {
     set -eo pipefail
     return 1
 }
+read_os
 
-echo "* apt updating"
-retry_command "apt update"
+# echo "* apt updating"
+# retry_command "apt update"
 
 echo "* Update SSH port"
 sed -i 's/^#Port 22/Port __SSH_PORT__/' /etc/ssh/sshd_config
 systemctl restart sshd
 
-echo "* Installing git"
-retry_command "apt install -y git"
+case $os_release in
+    centos|rhel|almalinux)
+        echo "* Installing git"
+        retry_command "yum install -y git"
+        ;;
+    ubuntu)
+        echo "* Installing git"
+        retry_command "apt install -y git"
+        ;;
+    *)
+        echo "Unsupported OS"
+        ;;
+esac
+
 
 echo "* Cloning az-hop repo"
 if [ -e az-hop ]; then

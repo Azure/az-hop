@@ -607,6 +607,15 @@
                 "plan": {
                     "description": "Image plan specification (when needed for the image). Terms must be accepted prior to deployment",
                     "type": "string"
+                },
+                "ssh_port": {
+                    "description": "Defaults to 22. Change this to, e.g., 2222, if security policies (like 'zero trust') in your tenant automatically block access to port 22 from the internet",
+                    "type": "integer"
+                },
+                "use_as_deployer": {
+                    "description": "If set to true, will use the CycleCloud VM as the deployer VM",
+                    "type": "boolean",
+                    "default": false
                 }
             },
             "required": [
