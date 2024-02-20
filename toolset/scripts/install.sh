@@ -75,7 +75,7 @@ printf -- "---------------------------------------------------------------------
 printf "$columns" Python `python3 --version | awk '{ print $2 }'`
 printf "$columns" Ansible `ansible --version | head -n 1 | awk '{ print $3 }' | sed 's/]//'`
 printf "$columns" Terraform `terraform --version | head -n 1 | awk '{ print $2 }' | sed 's/v//'`
-printf "$columns" Packer `packer --version`
+printf "$columns" Packer `/usr/bin/packer --version | awk '{ print $2 }'`
 printf "$columns" az-cli `az --version 2> /dev/null | head -n 1 | awk '{ print $2 }'`
 printf "$columns" azcopy `azcopy --version | awk '{ print $3 }'`
 printf "$columns" yq `yq --version | awk '{ print $4 }'`
