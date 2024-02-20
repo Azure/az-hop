@@ -544,6 +544,15 @@ queues:
     EnableAcceleratedNetworking: true
     max_hours: 12
     min_hours: 1
+# Login nodes
+  - name: login
+    type: login
+    vm_size: Standard_F2s_v2
+    initial_count: 1
+    max_count: 1
+    image: azhpc:azhop-compute:centos-7_9:latest
+    ColocateNodes: false
+    EnableAcceleratedNetworking: true
 
 # Application settings
 applications:
