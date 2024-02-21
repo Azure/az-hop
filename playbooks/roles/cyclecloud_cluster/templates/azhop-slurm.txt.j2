@@ -149,6 +149,7 @@ echo "cloud-init done" >> /tmp/cloud-init.txt
         [[[cluster-init cyclecloud/slurm:execute:{{cyclecloud_slurm_release}}]]]
 
 {% for queue in cc_queues %}
+{% if (queue.type is undefined) or (queue.type is defined and queue.type != 'login') %}
     [[nodearray {{ queue.name }}]]
     Extends = nodearraybase
     MachineType = {{ queue.vm_size }} 
@@ -199,4 +200,5 @@ echo "cloud-init done" >> /tmp/cloud-init.txt
         cyclecloud.cluster.autoscale.idle_time_before_jobs = {{queue.idle_timeout}}
       {% endif %}
         [[[cluster-init enroot:default:1.0.0]]]
+{% endif %}
 {% endfor %}
