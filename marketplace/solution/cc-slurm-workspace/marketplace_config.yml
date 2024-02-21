@@ -147,16 +147,25 @@ queues:
     max_count: "[steps('Partitions').HTCSection.NodeNumber]"
     image: "[steps('Partitions').HTCSection.ImageName]"
     ColocateNodes: false
+    type: compute
   - name: hpc
     vm_size: "[steps('Partitions').HPCSection.vmsize]"
     max_count: "[steps('Partitions').HPCSection.NodeNumber]"
     image: "[steps('Partitions').HPCSection.ImageName]"
     EnableAcceleratedNetworking: true
     ColocateNodes: true
+    type: compute
   - name: gpu
     vm_size: "[steps('Partitions').GPUSection.vmsize]"
     max_count: "[steps('Partitions').GPUSection.NodeNumber]"
     image: "[steps('Partitions').GPUSection.ImageName]"
     EnableAcceleratedNetworking: true
     ColocateNodes: true
-
+    type: compute
+  - name: login
+    vm_size: "[steps('login').vmsize]"
+    max_count: "[steps('login').NodeNumber]"
+    image: "[steps('login').ImageName]"
+    initial_count: "[steps('login').InitialCount]"
+    ColocateNodes: false
+    type: login
