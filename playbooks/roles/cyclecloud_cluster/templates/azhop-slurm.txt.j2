@@ -96,6 +96,48 @@ echo "cloud-init done" >> /tmp/cloud-init.txt
         address = {{mounts.home.server}}
         options = {{ mounts.home.options | default("rw,hard,rsize=262144,wsize=262144,vers=3,tcp,_netdev",true) }}
 
+{% for login in ( cc_queues | rejectattr('type', 'undefined') | selectattr('type', 'match', 'login'))%}
+    [[nodearray {{ login.name }}]]
+      InitialCount = {{ login.initial_count }}
+      MachineType = {{ login.vm_size }} 
+    {% if login.max_core_count is defined %}
+      MaxCoreCount = {{ login.max_core_count }}
+    {% endif %}
+    {% if login.max_count is defined %}
+      MaxCount = {{ login.max_count }}
+    {% endif %}
+    {% if login.EnableAcceleratedNetworking is defined %}
+      EnableAcceleratedNetworking = {{ login.EnableAcceleratedNetworking }}
+    {% endif %}
+    {% if login.spot is defined %}
+      Interruptible = {{login.spot}}
+    {% endif %}
+      Azure.MaxScaleSetSize = {{ login.MaxScaleSetSize | default(100) }}
+      EphemeralOSDisk = {{ login.EphemeralOSDisk | default(false) }}
+      # Lookup image version for that queue
+    {% if cc_image_lookup is iterable and login.name in cc_image_lookup %}
+      ImageName = {{ cc_image_lookup[login.name] }}
+    {% else %}
+      ImageName = {{ login.image }}
+    {% endif %}
+    {% if login.plan is defined %}
+      {% set plan_details = login.plan.split(':') %}
+      ImagePlan.Publisher = {{ plan_details[0] }}
+      ImagePlan.Product = {{ plan_details[1] }}
+      ImagePlan.Name = {{ plan_details[2] }}
+    {% endif %}
+    {% if login.location is defined %}
+      SubnetId = {{ login.subnet }}
+      Region = {{ login.location }}    
+    {% endif %}
+
+      [[[cluster-init cyclecloud/slurm:login:{{cyclecloud_slurm_release}}]]]
+      [[[configuration]]]
+      autoscale.enabled = false
+      slurm.use_nodename_as_hostname = true
+      slurm.node_prefix = ${StrJoin("-", ClusterName, "")}
+{% endfor %}
+
     [[node nodearraybase]]
     Abstract = true
         [[[configuration]]]
@@ -107,6 +149,7 @@ echo "cloud-init done" >> /tmp/cloud-init.txt
         [[[cluster-init cyclecloud/slurm:execute:{{cyclecloud_slurm_release}}]]]
 
 {% for queue in cc_queues %}
+{% if (queue.type is undefined) or (queue.type is defined and queue.type != 'login') %}
     [[nodearray {{ queue.name }}]]
     Extends = nodearraybase
     MachineType = {{ queue.vm_size }} 
@@ -157,4 +200,5 @@ echo "cloud-init done" >> /tmp/cloud-init.txt
         cyclecloud.cluster.autoscale.idle_time_before_jobs = {{queue.idle_timeout}}
       {% endif %}
         [[[cluster-init enroot:default:1.0.0]]]
+{% endif %}
 {% endfor %}

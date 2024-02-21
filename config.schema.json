@@ -1097,6 +1097,10 @@
                     "description": "Maximum number of nodes that can be allocated for the entire queue.",
                     "type": "integer"
                 },
+                "initial_count": {
+                    "description": "Initial number of nodes allocated.",
+                    "type": "integer"
+                },
                 "image": {
                     "description": "Can be either an image reference or an image_id from the image registry or a custom managed image",
                     "type": "string"
@@ -1142,7 +1146,8 @@
                     "description": "Type of queue - mandatory for remoteviz nodes",
                     "enum": [
                         "remoteviz",
-                        "compute"
+                        "compute",
+                        "login"
                     ],
                     "type": "string"
                 },
