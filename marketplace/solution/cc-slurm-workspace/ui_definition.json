@@ -453,6 +453,86 @@
         ]
       },
       {
+        "name": "login",
+        "label": "Login Node",
+        "subLabel": {
+          "preValidation": "Configure your Login node settings",
+          "postValidation": "Done"
+        },
+        "bladeTitle": "Login Node Settings",
+        "elements": [
+          {
+            "name": "vmsize",
+            "type": "Microsoft.Compute.SizeSelector",
+            "label": "Size",
+            "toolTip": "Select a VM Size for the Login nodes",
+            "recommendedSizes": [
+              "Standard_F4s_v2"
+            ],
+            "options": {
+              "hideDiskTypeFilter": true
+            },
+            "osPlatform": "Linux",
+            "visible": true,
+            "required": true,
+            "validationMessage": "VMSize is required."
+          },
+          {
+            "name": "InitialCount",
+            "type": "Microsoft.Common.Slider",
+            "label": "Number of nodes to start with",
+            "toolTip": "Number of nodes to start with when the cluster starts",
+            "subLabel": "Initial Count",
+            "defaultValue": 1,
+            "min": 0,
+            "max": 8,
+            "step": 1,
+            "visible": true,
+            "required": true,
+            "validationMessage": "Initial Number of nodes is required"
+          },
+          {
+            "name": "NodeNumber",
+            "type": "Microsoft.Common.Slider",
+            "label": "Max number of nodes",
+            "toolTip": "Maximum number of nodes to scale to",
+            "subLabel": "Number",
+            "defaultValue": 1,
+            "min": 0,
+            "max": 8,
+            "step": 1,
+            "visible": true,
+            "required": true,
+            "validationMessage": "Number of nodes is required"
+          },
+          {
+            "name": "ImageName",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Image Name",
+            "defaultValue": "Alma Linux 8.7",
+            "toolTip": "Select the image to use for the Login nodes",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "Ubuntu 20.04",
+                  "value": "microsoft-dsvm:ubuntu-hpc:2004:latest"
+                },
+                {
+                  "label": "Ubuntu 22.04",
+                  "value": "microsoft-dsvm:ubuntu-hpc:2204:latest"
+                },
+                {
+                  "label": "Alma Linux 8.7",
+                  "value": "almalinux:almalinux-hpc:8_7-hpc-gen2:latest"
+                }
+              ],
+              "required": true,
+              "validationMessage": "Image Name is required."
+            }
+          }
+        ]
+      },
+      {
         "name": "Partitions",
         "label": "Partitions",
         "subLabel": {
@@ -481,11 +561,11 @@
                 "visible": true,
                 "required": true,
                 "validationMessage": "VMSize is required."
-            },
+              },
               {
                 "name": "NodeNumber",
                 "type": "Microsoft.Common.Slider",
-                "label": "Number of nodes",
+                "label": "Max number of nodes",
                 "toolTip": "Maximum number of nodes to scale to",
                 "subLabel": "Number",
                 "defaultValue": 32,
@@ -494,7 +574,7 @@
                 "step": 4,
                 "visible": true,
                 "required": true,
-                "validationMessage": "Number of nodes is required"
+                "validationMessage": "Max number of nodes is required"
               },      
               {
                 "name": "ImageName",
@@ -547,7 +627,7 @@
               {
                 "name": "NodeNumber",
                 "type": "Microsoft.Common.Slider",
-                "label": "Number of nodes",
+                "label": "Max number of nodes",
                 "toolTip": "Maximum number of nodes to scale to",
                 "subLabel": "Number",
                 "defaultValue": 4,
@@ -556,7 +636,7 @@
                 "step": 2,
                 "visible": true,
                 "required": true,
-                "validationMessage": "Number of nodes is required"
+                "validationMessage": "Max number of nodes is required"
               },
               {
                 "name": "ImageName",
@@ -611,7 +691,7 @@
               {
                 "name": "NodeNumber",
                 "type": "Microsoft.Common.Slider",
-                "label": "Number of nodes",
+                "label": "Max number of nodes",
                 "toolTip": "Maximum number of nodes to scale to",
                 "subLabel": "Number",
                 "defaultValue": 4,
@@ -620,7 +700,7 @@
                 "step": 2,
                 "visible": true,
                 "required": true,
-                "validationMessage": "Number of nodes is required"
+                "validationMessage": "Max number of nodes is required"
               },
               {
                 "name": "ImageName",
@@ -697,6 +777,12 @@
       "adminSshPrivateKey": "[if(basics('autogeneratePasswordsAndKeys'),'',basics('adminSshPrivateKey'))]",
       "adminPassword": "[if(basics('autogeneratePasswordsAndKeys'),'',basics('adminPassword'))]",
       "databaseAdminPassword": "[if(and(basics('autogeneratePasswordsAndKeys'), steps('scheduler').slurmAccounting)),'',steps('scheduler').databaseAdminPassword)]",
+      "ccVMSize": "[basics('CycleCloudVmSize')]",
+      "schedulerVMSize": "[steps('scheduler').vmsize]",
+      "loginVMSize": "[steps('login').vmsize]",
+      "htcVMSize": "[steps('Partitions').HTCSection.vmsize]",
+      "hpcVMSize": "[steps('Partitions').HPCSection.vmsize]",
+      "gpuVMSize": "[steps('Partitions').GPUSection.vmsize]",
       "azhopConfig": {}    
     }
   }
