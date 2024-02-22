@@ -28,8 +28,8 @@ jobs:
 
     - name: Login azure
       run: |
-        az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
-        az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
+        az login --service-principal -u '${{ secrets.ARM_CLIENT_ID }}' -p '${{ secrets.ARM_CLIENT_SECRET }}' --tenant '${{ secrets.ARM_TENANT_ID }}'
+        az account set -s  ${{ secrets.ARM_SUBSCRIPTION_ID }}
         echo "local user: $(whoami)"
 
     # - name: 'Login via Azure CLI'
