@@ -37,8 +37,8 @@
       slurm_role: 'slurmserver'
       cc_admin: '{{admin_user}}'
       cc_password: '{{password.stdout}}'
-      cc_version: '{{cyclecloud.version | default("8.4.2-3186")}}'
-      slurm_version: '{{slurm.slurm_version | default("20.11.9")}}-1'
+      cc_version: '{{cyclecloud.version | default("8.5.0-3196")}}'
+      slurm_version: '{{slurm.slurm_version | default("20.11.10")}}-1'
       accounting_enabled: '{{slurm.accounting_enabled | default(false)}}'
     when: ( queue_manager is defined and queue_manager == "slurm" )
 
