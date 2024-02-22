@@ -4,7 +4,7 @@
     {
         "config": 
         {
-            "web_server": "https://{{ cyclecloud.name | default('ccportal') }}:9443/cyclecloud",
+            "web_server": "https://{{ cyclecloud.name | default('ccportal') }}:9443{{cycle_webServerContextPath}}",
             "username": "{{admin_user}}",
             "password": "{{cc_password}}"
         },
