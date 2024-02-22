@@ -213,10 +213,8 @@ def initialize_cyclecloud_cli(admin_user, cyclecloud_admin_pw):
 
     # Extract the webServerContextPath configuration
     webServerContextPath = read_cycle_server_property('webServerContextPath')
-    print(f'webServerContextPath: {webServerContextPath}')
-    
-    # Extract the webServerContextPath configuration
-    webServerContextPath = read_cycle_server_property('webServerContextPath')
+    if webServerContextPath == '/':
+        webServerContextPath = ''
     print(f'webServerContextPath: {webServerContextPath}')
 
     password_flag = ("--password=%s" % cyclecloud_admin_pw)
