@@ -40,6 +40,7 @@
       cc_ldap_server: '{{ldap_server}}'
       cc_version: '{{cyclecloud.version | default("")}}'
       install_cyclecloud: '{{not "azurecyclecloud" in (cyclecloud.image | default(""))}}' # don't install cyclecloud when using the azurecyclecloud marketplace image
+      cc_webserverpath: '{{cyclecloud.web_server_path | default("")}}'
 
   - name: Update Packages
     include_role:
