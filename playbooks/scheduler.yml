@@ -41,7 +41,7 @@
       cc_version: '{{cyclecloud.version | default("8.5.0-3196")}}'
       slurm_version: '{{slurm.slurm_version | default("20.11.10")}}-1'
       accounting_enabled: '{{slurm.accounting_enabled | default(false)}}'
-      cc_webserverpath: '{{cyclecloud.web_server_path | default("")}}'
+      cc_webserverpath: '{{cyclecloud.web_server_path | default("")}}'      
     when: ( queue_manager is defined and queue_manager == "slurm" )
 
   - name: Update Packages

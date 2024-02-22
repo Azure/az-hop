@@ -210,6 +210,10 @@ def read_cycle_server_property(property):
 
 def initialize_cyclecloud_cli(admin_user, cyclecloud_admin_pw):
     print("Setting up azure account in CycleCloud and initializing cyclecloud CLI")
+
+    # Extract the webServerContextPath configuration
+    webServerContextPath = read_cycle_server_property('webServerContextPath')
+    print(f'webServerContextPath: {webServerContextPath}')
     
     # Extract the webServerContextPath configuration
     webServerContextPath = read_cycle_server_property('webServerContextPath')
