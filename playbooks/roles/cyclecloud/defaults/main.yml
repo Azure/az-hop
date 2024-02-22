@@ -1,1 +1,2 @@
 cyclecloud_version: "{{'8.5.0-3196' if (cc_version | default('', true) | trim == '') else cc_version}}"
+cycle_webServerContextPath: "/" # Need to be /cyclecloud when using OOD as a proxy

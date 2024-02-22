@@ -78,7 +78,7 @@
 
 - name: Update cycle server properties
   shell: |
-    sed -i 's/^webServerContextPath=.*$/webServerContextPath=\/cyclecloud/g;s/^webServerRedirectHttp=.*$/webServerRedirectHttp=false/g' /opt/cycle_server/config/cycle_server.properties
+    sed -i 's/^webServerContextPath=.*$/webServerContextPath=\{{cycle_webServerContextPath}}/g;s/^webServerRedirectHttp=.*$/webServerRedirectHttp=false/g' /opt/cycle_server/config/cycle_server.properties
     /opt/cycle_server/cycle_server restart
 
 - name: Configure Cycle Cloud portal host
@@ -105,7 +105,7 @@
   when: cyclecloud_version == "8.2.2-1902"
 
 - name: Configure CycleCloud CLI
-  command: '/usr/local/bin/cyclecloud initialize --force --batch --name ccportal --url=https://localhost:9443/cyclecloud --verify-ssl=false --username={{cc_admin_user}} --password="{{cc_password}}"'
+  command: '/usr/local/bin/cyclecloud initialize --force --batch --name ccportal --url=https://localhost:9443{{cycle_webServerContextPath}} --verify-ssl=false --username={{cc_admin_user}} --password="{{cc_password}}"'
   args:
     creates: /root/.cycle/config.ini
 
