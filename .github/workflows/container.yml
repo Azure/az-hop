@@ -20,15 +20,22 @@ jobs:
 
     runs-on: ubuntu-latest
     permissions:
-      contents: read    
+      contents: read
+      id-token: write
 
     steps:
     - uses: actions/checkout@v4
 
-    - name: 'Login via Azure CLI'
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: Login azure
+      run: |
+        az login --service-principal -u '${{ secrets.ARM_CLIENT_ID }}' -p '${{ secrets.ARM_CLIENT_SECRET }}' --tenant '${{ secrets.ARM_TENANT_ID }}'
+        az account set -s  ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        echo "local user: $(whoami)"
+
+    # - name: 'Login via Azure CLI'
+    #   uses: azure/login@v1
+    #   with:
+    #     creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: 'ACR Login'
       uses: azure/docker-login@v1
