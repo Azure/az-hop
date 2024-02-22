@@ -66,7 +66,7 @@
     /tmp/cyclecloud-pbspro/initialize_default_queues.sh
     source /etc/profile.d/pbs.sh
     /tmp/cyclecloud-pbspro/install.sh  --venv /opt/cycle/pbspro/venv --install-venv
-    /tmp/cyclecloud-pbspro/generate_autoscale_json.sh  --install-dir /opt/cycle/pbspro --username {{ cc_admin }} --password "{{ cc_password }}" --url https://{{ccportal_name}}:9443/cyclecloud --cluster-name pbs1
+    /tmp/cyclecloud-pbspro/generate_autoscale_json.sh  --install-dir /opt/cycle/pbspro --username {{ cc_admin }} --password "{{ cc_password }}" --url https://{{ccportal_name}}:9443{{cycle_webServerContextPath}} --cluster-name pbs1
   args:
     chdir: /tmp/cyclecloud-pbspro
 

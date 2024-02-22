@@ -13,6 +13,7 @@
     yq_version: v4.40.5
     yq_binary: yq_linux_amd64
     ccportal_name: "{{cyclecloud.name | default('ccportal')}}"
+    web_server_path: "{{cyclecloud.web_server_path | default('/cyclecloud')}}"
 
   tasks:
   - name: Wait 300 seconds for the nodes to be ready
@@ -291,14 +292,14 @@
       insertafter: EOF
       marker: "# {mark} ANSIBLE MANAGED BLOCK - setup cyclecloud proxy"
       block: |
-          SetEnv OOD_CC_URI "/cyclecloud"
-          <Location "/cyclecloud">
+          SetEnv OOD_CC_URI "{{web_server_path}}"
+          <Location "{{web_server_path}}">
             {% for auth in httpd_auth  %}
             {{ auth }}
             {% endfor %}
 
-            ProxyPass http://{{ccportal_name}}:80/cyclecloud
-            ProxyPassReverse http://{{ccportal_name}}:80/cyclecloud
+            ProxyPass http://{{ccportal_name}}:80{{web_server_path}}
+            ProxyPassReverse http://{{ccportal_name}}:80{{web_server_path}}
           </Location>
   
   - name: Configure Lmod

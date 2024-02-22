@@ -616,6 +616,11 @@
                     "description": "If set to true, will use the CycleCloud VM as the deployer VM",
                     "type": "boolean",
                     "default": false
+                },
+                "web_server_path" : {
+                    "type": "string",
+                    "description": "Path to the web server path. Defaults to /cyclecloud",
+                    "default": "/cyclecloud"
                 }
             },
             "required": [
