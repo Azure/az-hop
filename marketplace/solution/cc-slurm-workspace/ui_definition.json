@@ -410,14 +410,14 @@
             "constraints": {
               "allowedValues": [
                 {
-                  "label": "22.05.9",
-                  "description": "Version 22.05.9",
-                  "value": "22.05.9"
+                  "label": "22.05.10",
+                  "description": "Version 22.05.10",
+                  "value": "22.05.10"
                 },
                 {
-                  "label": "23.02.5",
-                  "description": "Version 23.02.5",
-                  "value": "23.02.5"
+                  "label": "23.02.6",
+                  "description": "Version 23.02.6",
+                  "value": "23.02.6"
                 }
               ],
               "required": true

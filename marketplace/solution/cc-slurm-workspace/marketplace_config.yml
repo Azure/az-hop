@@ -102,6 +102,7 @@ cyclecloud:
   plan: azurecyclecloud:azure-cyclecloud:cyclecloud8-gen2
   ssh_port: "[int(steps('otherSettings').deployerSshPort)]"
   use_as_deployer: true
+  web_server_path: "/"
 
 users:
   - { name: hpcuser, uid: 10001 }
