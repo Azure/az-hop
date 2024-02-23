@@ -485,7 +485,7 @@
             "subLabel": "Initial Count",
             "defaultValue": 1,
             "min": 0,
-            "max": "[steps('login').InitialCount]",
+            "max": "[steps('login').NodeNumber]",
             "step": 1,
             "visible": true,
             "required": true,
