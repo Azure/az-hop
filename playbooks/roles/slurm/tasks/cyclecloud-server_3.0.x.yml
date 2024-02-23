@@ -60,6 +60,9 @@
     set -e
     cd {{jetpack_home}}/system/bootstrap/azure-slurm-install
     ./install.sh --mode scheduler --bootstrap-config {{jetpack_home}}/config/node.json
+  args: 
+    creates: '/etc/azslurm-bins.installed'
+  
 
 # Install autoscaling for slurm. 
 # For reference see https://github.com/Azure/cyclecloud-slurm/blob/master/specs/scheduler/cluster-init/scripts/00-install.sh
