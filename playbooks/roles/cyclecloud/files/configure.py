@@ -213,6 +213,8 @@ def initialize_cyclecloud_cli(admin_user, cyclecloud_admin_pw):
 
     # Extract the webServerContextPath configuration
     webServerContextPath = read_cycle_server_property('webServerContextPath')
+    if webServerContextPath == '/':
+        webServerContextPath = ''
     print(f'webServerContextPath: {webServerContextPath}')
     
     password_flag = ("--password=%s" % cyclecloud_admin_pw)
@@ -220,7 +222,6 @@ def initialize_cyclecloud_cli(admin_user, cyclecloud_admin_pw):
     _catch_sys_error([path_to_cyclecloud, "initialize", "--loglevel=debug", "--batch",
                       "--url=https://localhost:9443%s"% webServerContextPath, "--verify-ssl=false", 
                       "--username=%s" % admin_user, password_flag])
-
 
 def get_vm_metadata():
     metadata_url = "http://169.254.169.254/metadata/instance?api-version=2019-08-15"
