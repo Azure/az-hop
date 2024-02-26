@@ -112,7 +112,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-11-01' = {
       {
         computerName: name
         adminUsername: adminUser
-      }, contains(vm, 'deploy_script') ? { // deploy script
+      }, contains(vm, 'deploy_script') && vm.deploy_script != '' ? { // deploy script not empty
         customData: base64(vm.deploy_script)
       } : {}, contains(vm, 'windows') && vm.windows == true ? { // windows
         adminPassword: adminPassword
