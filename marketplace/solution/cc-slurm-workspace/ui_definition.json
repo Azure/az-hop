@@ -518,10 +518,6 @@
                   "value": "microsoft-dsvm:ubuntu-hpc:2004:latest"
                 },
                 {
-                  "label": "Ubuntu 22.04",
-                  "value": "microsoft-dsvm:ubuntu-hpc:2204:latest"
-                },
-                {
                   "label": "Alma Linux 8.7",
                   "value": "almalinux:almalinux-hpc:8_7-hpc-gen2:latest"
                 }
@@ -568,9 +564,9 @@
                 "label": "Max number of nodes",
                 "toolTip": "Maximum number of nodes to scale to",
                 "subLabel": "Number",
-                "defaultValue": 32,
+                "defaultValue": 16,
                 "min": 0,
-                "max": 512,
+                "max": 64,
                 "step": 4,
                 "visible": true,
                 "required": true,
@@ -587,10 +583,6 @@
                     {
                       "label": "Ubuntu 20.04",
                       "value": "microsoft-dsvm:ubuntu-hpc:2004:latest"
-                    },
-                    {
-                      "label": "Ubuntu 22.04",
-                      "value": "microsoft-dsvm:ubuntu-hpc:2204:latest"
                     },
                     {
                       "label": "Alma Linux 8.7",
@@ -651,10 +643,6 @@
                       "value": "microsoft-dsvm:ubuntu-hpc:2004:latest"
                     },
                     {
-                      "label": "Ubuntu 22.04",
-                      "value": "microsoft-dsvm:ubuntu-hpc:2204:latest"
-                    },
-                    {
                       "label": "Alma Linux 8.7",
                       "value": "almalinux:almalinux-hpc:8_7-hpc-gen2:latest"
                     }
@@ -713,10 +701,6 @@
                     {
                       "label": "Ubuntu 20.04",
                       "value": "microsoft-dsvm:ubuntu-hpc:2004:latest"
-                    },
-                    {
-                      "label": "Ubuntu 22.04",
-                      "value": "microsoft-dsvm:ubuntu-hpc:2204:latest"
                     },
                     {
                       "label": "Alma Linux 8.7",
