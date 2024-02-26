@@ -1,0 +1,20 @@
+##
+# CycleCloud catalina Logrotate Configuration
+# rotate daily up to 7 days and compress
+##
+/opt/cycle_server/logs/catalina.* {
+        compress
+        missingok
+        nocopytruncate
+        nodelaycompress
+        nomail
+        notifempty
+        noolddir
+        daily
+        rotate 7
+        sharedscripts
+        size=100M
+        postrotate
+                /opt/cycle_server/cycle_server restart
+        endscript
+}
