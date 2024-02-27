@@ -117,10 +117,10 @@
     ln -fs /sched/{{ slurm_cluster_name }}/gres.conf /etc/slurm/gres.conf && chown slurm:slurm /etc/slurm/gres.conf
 
 - name: Set the scheduler name in the accounting configuration file when accounting is enabled
-  lineinfile:
+  replace:
     path: /sched/{{ slurm_cluster_name }}/accounting.conf
-    line: 'AccountingStorageHost={{ scheduler.name | default("scheduler") }}'
-    state: present
+    regexp: 'AccountingStorageHost.*'
+    replace: 'AccountingStorageHost={{ scheduler.name | default("scheduler") }}' 
   when: accounting_enabled | default(false)
 
 # Start service. 
