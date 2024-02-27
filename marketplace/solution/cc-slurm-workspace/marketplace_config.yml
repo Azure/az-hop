@@ -87,6 +87,10 @@ locked_down_network:
   enforce: false
   public_ip: "[steps('network').publicIp]" # Enable public IP creation for Jumpbox, OnDemand and create images. Default to true
 
+# NAT Gateway is used for outbound internet connectivity
+nat_gateway:
+  create: "[steps('network').natgateway]"
+
 linux_base_image: almalinux:almalinux-x86_64:8_7-gen2:latest # publisher:offer:sku:version or image_id
 
 # Create a Bastion in the bastion subnet when defined
