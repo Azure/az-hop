@@ -26,6 +26,7 @@ module load mpi/impi-2021
 
 #export I_MPI_FABRICS="shm:ofi"
 export I_MPI_DEBUG=5
+export I_MPI_HYDRA_BOOTSTRAP=slurm
 #export FI_PROVIDER=mlx
 
 IMB_ROOT=$I_MPI_ROOT/bin
