@@ -116,6 +116,14 @@
     /root/bin/azslurm scale
     ln -fs /sched/{{ slurm_cluster_name }}/gres.conf /etc/slurm/gres.conf && chown slurm:slurm /etc/slurm/gres.conf
 
+# workaround for bug https://github.com/Azure/cyclecloud-slurm/issues/215
+- name: Set the scheduler name in the accounting configuration file when accounting is enabled
+  replace:
+    path: /sched/{{ slurm_cluster_name }}/accounting.conf
+    regexp: 'AccountingStorageHost.*'
+    replace: 'AccountingStorageHost={{ scheduler.name | default("scheduler") }}' 
+  when: accounting_enabled | default(false)
+
 # Start service. 
 # For reference see https://github.com/Azure/cyclecloud-slurm/blob/master/specs/scheduler/cluster-init/scripts/00-install.sh
 - name: start service
