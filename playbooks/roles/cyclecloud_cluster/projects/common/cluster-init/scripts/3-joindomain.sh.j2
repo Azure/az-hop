@@ -114,6 +114,19 @@ function add_localusers()
   {% endfor %}
 }
 
+function gen_sshkey()
+{
+  cat <<EOF >/etc/profile.d/gen_sshkey.sh
+#!/bin/sh
+if [ ! -f  ~/.ssh/id_rsa.pub ] ; then
+  ssh-keygen -q -t rsa -N '' -f ~/.ssh/id_rsa <<<y >/dev/null 2>&1
+  cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+  chmod 644 ~/.ssh/authorized_keys
+fi
+EOF
+  chmod 644 /etc/profile.d/gen_sshkey.sh  
+}
+
 rename_host
 
 case {{ authentication.user_auth | default("ad") }} in
@@ -125,6 +138,8 @@ case {{ authentication.user_auth | default("ad") }} in
     add_localusers
     ;;
 esac
+
+gen_sshkey
 
 # Grant sudo for users in the azhop-localadmins group
 echo "%{{ (usergroups | selectattr('gid', 'eq', 5002) | map(attribute='name'))[0] | default('azhop-localadmins', true) }} ALL=(ALL) NOPASSWD: ALL" | tee -a /etc/sudoers.d/azhop-localadmins
