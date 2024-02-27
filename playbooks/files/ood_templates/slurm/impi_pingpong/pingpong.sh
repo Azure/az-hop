@@ -11,5 +11,9 @@ module use /usr/share/Modules/modulefiles
 
 module load mpi/impi-2021
 
+export I_MPI_DEBUG=5
+export I_MPI_HYDRA_BOOTSTRAP=slurm
+#export I_MPI_PORT_RANGE=59000:61000
+
 echo "Running on $SLURM_NNODES nodes"
 mpirun -ppn 1 IMB-MPI1 PingPong
