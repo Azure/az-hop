@@ -474,7 +474,7 @@
             "label": "Size",
             "toolTip": "Select a VM Size for the Login nodes",
             "recommendedSizes": [
-              "Standard_F4s_v2"
+              "Standard_D4as_v4"
             ],
             "options": {
               "hideDiskTypeFilter": true
