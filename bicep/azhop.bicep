@@ -141,7 +141,7 @@ var config = {
 
   key_vault_name: contains(azhopConfig, 'azure_key_vault') ? azhopConfig.azure_key_vault.name : 'kv${resourcePostfix}'
   storage_account_name: contains(azhopConfig, 'azure_storage_account') ? azhopConfig.azure_storage_account.name : 'azhop${resourcePostfix}'
-  db_name: contains(azhopConfig, 'database') && contains(azhopConfig.database, 'name') ? azhopConfig.database.name : 'azhop-${resourcePostfix}'
+  db_name: contains(azhopConfig, 'database') && contains(azhopConfig.database, 'name') ? azhopConfig.database.name : 'mysql-${resourcePostfix}'
 
   deploy_grafana: deployGrafana
   deploy_ondemand: deployOnDemand
