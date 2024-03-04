@@ -67,6 +67,9 @@ network:
       # bastion: # Bastion subnet name is always fixed to AzureBastionSubnet
       #   address_prefixes: "10.128.0.64/26" # CIDR minimal range must be /26
       #   create: true
+      database:
+        address_prefixes: "10.128.0.224/28"
+        create: '{{slurm.accounting_enabled | default(false)}}'
       compute:
         name: compute
         address_prefixes: "10.128.1.0/24"
