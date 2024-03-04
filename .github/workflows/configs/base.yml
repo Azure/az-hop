@@ -69,7 +69,7 @@ network:
       #   create: true
       database:
         address_prefixes: "10.128.0.224/28"
-        create: '{{slurm.accounting_enabled | default(false)}}'
+        create: true
       compute:
         name: compute
         address_prefixes: "10.128.1.0/24"
