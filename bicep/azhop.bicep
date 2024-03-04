@@ -141,7 +141,7 @@ var config = {
 
   key_vault_name: contains(azhopConfig, 'azure_key_vault') ? azhopConfig.azure_key_vault.name : 'kv${resourcePostfix}'
   storage_account_name: contains(azhopConfig, 'azure_storage_account') ? azhopConfig.azure_storage_account.name : 'azhop${resourcePostfix}'
-  mariadb_name: contains(azhopConfig, 'database') && contains(azhopConfig.database, 'name') ? azhopConfig.database.name : 'azhop-${resourcePostfix}'
+  db_name: contains(azhopConfig, 'database') && contains(azhopConfig.database, 'name') ? azhopConfig.database.name : 'azhop-${resourcePostfix}'
 
   deploy_grafana: deployGrafana
   deploy_ondemand: deployOnDemand
@@ -201,6 +201,15 @@ var config = {
         ]
       }
     },
+    createDatabase ? {
+      database: {
+        name: contains(azhopConfig.network.vnet.subnets.database, 'name') ? azhopConfig.network.vnet.subnets.database.name : 'database'
+        cidr: azhopConfig.network.vnet.subnets.database.address_prefixes
+        delegations: [
+          'Microsoft.DBforMySQL/flexibleServers'
+        ]
+      }
+    } : {},
     create_anf ? {
       netapp: {
         name: contains(azhopConfig.network.vnet.subnets.netapp, 'name') ? azhopConfig.network.vnet.subnets.netapp.name : 'netapp'
@@ -355,7 +364,7 @@ var config = {
           [ 'asg-ssh', 'asg-sched', 'asg-cyclecloud-client', 'asg-nfs-client' ],
           (userAuth == 'ad') ? ['asg-ad-client'] : [],
           deployGrafana ? ['asg-telegraf'] : [],
-          createDatabase ? ['asg-mariadb-client'] : []
+          createDatabase ? ['asg-mysql-client'] : []
         )
       }
     },
@@ -444,7 +453,7 @@ var config = {
     deployGrafana                          ? [ 'asg-grafana', 'asg-telegraf' ] : [],
     (userAuth == 'ad')                     ? ['asg-rdp', 'asg-ad', 'asg-ad-client'] : [],
     deployOnDemand                         ? ['asg-ondemand']: [],
-    createDatabase                         ? ['asg-mariadb-client']: [],
+    createDatabase                         ? ['asg-mysql-client']: [],
     deployDeployer || cycleCloudAsDeployer ? ['asg-deployer']: []
   )
 
@@ -472,7 +481,7 @@ var config = {
     Grafana: ['3000']
     // HTTPS, AMQP
     CycleCloud: ['9443', '5672']
-    MariaDB: ['3306', '33060']
+    MySQL: ['3306', '33060']
     WinRM: ['5985', '5986']
   }
 
@@ -583,11 +592,11 @@ var config = {
       AllowNoVncComputeOut        : ['560', 'Outbound', 'Allow', 'Tcp', 'NoVnc', 'asg', 'asg-ondemand', 'subnet', 'compute']
       // AllowWebDeployerOut         : ['595', 'Outbound', 'Allow', 'Tcp', 'Web', 'asg', 'asg-deployer', 'asg', 'asg-ondemand']
     }
-    mariadb: {
+    mysql: {
       // Inbound
-      AllowMariaDBIn              : ['700', 'Inbound', 'Allow', 'Tcp', 'MariaDB', 'asg', 'asg-mariadb-client', 'subnet', 'admin']
+      AllowMySQLIn              : ['700', 'Inbound', 'Allow', 'Tcp', 'MySQL', 'asg', 'asg-mysql-client', 'subnet', 'database']
       // Outbound
-      AllowMariaDBOut             : ['700', 'Outbound', 'Allow', 'Tcp', 'MariaDB', 'asg', 'asg-mariadb-client', 'subnet', 'admin']
+      AllowMySQLOut             : ['700', 'Outbound', 'Allow', 'Tcp', 'MySQL', 'asg', 'asg-mysql-client', 'subnet', 'database']
     }
     anf: {
       // Inbound
@@ -681,7 +690,7 @@ var nsgRules = items(union(
   config.deploy_lustre ? config.nsg_rules.lustre : {},
   config.deploy_grafana ? config.nsg_rules.grafana : {},
   config.deploy_ondemand ? config.nsg_rules.ondemand: {},
-  createDatabase ? config.nsg_rules.mariadb: {},
+  createDatabase ? config.nsg_rules.mysql: {},
   deployDeployer ? config.nsg_rules.deployer: {}
 ))
 
@@ -858,16 +867,27 @@ module azhopSig './sig.bicep' = if (config.deploy_sig) {
   }
 }
 
-module azhopMariaDB './mariadb.bicep' = if (createDatabase) {
-  name: 'azhopMariaDB'
+// module azhopMariaDB './mariadb.bicep' = if (createDatabase) {
+//   name: 'azhopMariaDB'
+//   params: {
+//     location: location
+//     mariaDbName: config.mariadb_name
+//     adminUser: config.slurm.admin_user
+//     adminPassword: autogenerateSecrets ? kv.getSecret(azhopSecrets.outputs.secrets.databaseAdminPassword) : databaseAdminPassword
+//     adminSubnetId: subnetIds.admin
+//     vnetId: azhopNetwork.outputs.vnetId
+//     sslEnforcement: true
+//   }
+// }
+
+module mySQL './mysql.bicep' = if (createDatabase) {
+  name: 'mySQLDB'
   params: {
     location: location
-    mariaDbName: config.mariadb_name
+    Name: config.db_name
     adminUser: config.slurm.admin_user
     adminPassword: autogenerateSecrets ? kv.getSecret(azhopSecrets.outputs.secrets.databaseAdminPassword) : databaseAdminPassword
-    adminSubnetId: subnetIds.admin
-    vnetId: azhopNetwork.outputs.vnetId
-    sslEnforcement: true
+    subnetId: subnetIds.database
   }
 }
 
@@ -978,7 +998,7 @@ output azhopGlobalConfig object = union(
     sig_name                      : (config.deploy_sig) ? 'azhop_${resourcePostfix}' : ''
     lustre_hsm_storage_account    : config.storage_account_name
     lustre_hsm_storage_container  : 'lustre'
-    database_fqdn                 : createDatabase ? azhopMariaDB.outputs.mariaDb_fqdn : ''
+    database_fqdn                 : createDatabase ? mySQL.outputs.fqdn : ''
     database_user                 : config.slurm.admin_user
     azure_environment             : envNameToCloudMap[environment().name]
     key_vault_suffix              : substring(kvSuffix, 1, length(kvSuffix) - 1) // vault.azure.net - remove leading dot from env
