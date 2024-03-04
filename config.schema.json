@@ -1000,6 +1000,9 @@
                 },
                 "outbounddns": {
                     "$ref": "#/definitions/subnetClass"
+                },
+                "database": {
+                    "$ref": "#/definitions/subnetClass"
                 }
             },
             "required": [

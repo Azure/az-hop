@@ -24,6 +24,6 @@ PidFile=/var/run/slurmdbd.pid
 SlurmUser=slurm
 StorageHost={{ database_fqdn }}
 StoragePass="{{ database_password }}"
-StorageUser={{ database_user }}@{{ database_fqdn }}
+StorageUser={{ database_user }}
 StorageType=accounting_storage/mysql
-StorageParameters=SSL_CA=/etc/slurm/DigiCertGlobalRootG2.crt.pem
+StorageParameters=SSL_CA=/etc/slurm/DigiCertGlobalRootCA.crt.pem
