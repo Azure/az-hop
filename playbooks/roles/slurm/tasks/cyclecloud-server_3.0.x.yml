@@ -61,8 +61,7 @@
     cd {{jetpack_home}}/system/bootstrap/azure-slurm-install
     ./install.sh --mode scheduler --bootstrap-config {{jetpack_home}}/config/node.json
   args: 
-    creates: '/etc/azslurm-bins.installed'
-  
+    creates: '/etc/azslurm-bins.installed' 
 
 # Install autoscaling for slurm. 
 # For reference see https://github.com/Azure/cyclecloud-slurm/blob/master/specs/scheduler/cluster-init/scripts/00-install.sh
@@ -110,18 +109,38 @@
     group: slurm
     mode: 0755
 
-- name: refresh slurm node list
-  shell: |
-    set -e
-    /root/bin/azslurm scale
-    ln -fs /sched/{{ slurm_cluster_name }}/gres.conf /etc/slurm/gres.conf && chown slurm:slurm /etc/slurm/gres.conf
+- name: configuration for accounting
+  block:
+    # workaround for bug https://github.com/Azure/cyclecloud-slurm/issues/215
+    - name: Set the scheduler name in the accounting configuration file when accounting is enabled
+      replace:
+        path: /sched/{{ slurm_cluster_name }}/accounting.conf
+        regexp: 'AccountingStorageHost.*'
+        replace: 'AccountingStorageHost={{ scheduler.name | default("scheduler") }}' 
 
-# workaround for bug https://github.com/Azure/cyclecloud-slurm/issues/215
-- name: Set the scheduler name in the accounting configuration file when accounting is enabled
-  replace:
-    path: /sched/{{ slurm_cluster_name }}/accounting.conf
-    regexp: 'AccountingStorageHost.*'
-    replace: 'AccountingStorageHost={{ scheduler.name | default("scheduler") }}' 
+    # https://learn.microsoft.com/en-us/azure/mysql/flexible-server/how-to-connect-tls-ssl
+    - name: download DigiCertGlobalRootCA certificate
+      get_url:
+        url: 'https://dl.cacerts.digicert.com/DigiCertGlobalRootCA.crt.pem'
+        dest: /sched/{{ slurm_cluster_name }}/DigiCertGlobalRootCA.crt.pem
+        mode: 0644
+        owner: slurm
+        group: slurm
+        timeout: 180
+
+    - name: symbolic link for DigiCertGlobalRootCA.crt.pem
+      file:
+        src: /sched/{{ slurm_cluster_name }}/DigiCertGlobalRootCA.crt.pem
+        dest: /etc/slurm/DigiCertGlobalRootCA.crt.pem
+        state: link
+        force: true
+
+    - name: Set the root certificate in the slurmdbd configuration file when accounting is enabled
+      replace:
+        path: /sched/{{ slurm_cluster_name }}/slurmdbd.conf
+        regexp: 'AzureCA.pem'
+        replace: 'DigiCertGlobalRootCA.crt.pem' 
+
   when: accounting_enabled | default(false)
 
 # Start service. 
@@ -140,3 +159,9 @@
     name: munge 
     state: restarted
     enabled: yes
+
+- name: refresh slurm node list
+  shell: |
+    set -e
+    /root/bin/azslurm scale
+    ln -fs /sched/{{ slurm_cluster_name }}/gres.conf /etc/slurm/gres.conf && chown slurm:slurm /etc/slurm/gres.conf

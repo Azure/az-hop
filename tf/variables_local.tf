@@ -210,7 +210,7 @@ locals {
 
     key_vault_name = try(local.configuration_yml["azure_key_vault"]["name"], format("%s%s", "kv", random_string.resource_postfix.result))
     storage_account_name = try(local.configuration_yml["azure_storage_account"]["name"], "azhop${random_string.resource_postfix.result}")
-    mariadb_name = try(local.configuration_yml["database"]["name"], "azhop-${random_string.resource_postfix.result}")
+    db_name = try(local.configuration_yml["database"]["name"], "mysql-${random_string.resource_postfix.result}")
 
     # Lustre - AMLFS not implemented for TF
     lustre_enabled = false
@@ -225,7 +225,7 @@ locals {
     create_database  = ( try(local.configuration_yml["slurm"].accounting_enabled, false) ) && (! local.use_existing_database)
     use_existing_database = try(length(local.configuration_yml["database"].fqdn) > 0 ? true : false, false)
     database_user = local.create_database ? "sqladmin" : (local.use_existing_database ? try(local.configuration_yml["database"].user, "") : "")
-    mariadb_private_dns_zone = local.azure_endpoints[local.azure_environment].MariaDBPrivateLink
+    #mariadb_private_dns_zone = local.azure_endpoints[local.azure_environment].MariaDBPrivateLink
 
     create_sig = try(local.configuration_yml["image_gallery"]["create"], false)
     
@@ -252,13 +252,15 @@ locals {
         admin = "admin",
         netapp = "netapp",
         compute = "compute",
-        ad = "ad"
+        ad = "ad",
+        database = "database"
     }
 
     # Create subnet if required. If not specified create only if vnet is created
     create_frontend_subnet = try(local.configuration_yml["network"]["vnet"]["subnets"]["frontend"]["create"], local.create_vnet )
     create_admin_subnet    = try(local.configuration_yml["network"]["vnet"]["subnets"]["admin"]["create"], local.create_vnet )
     create_netapp_subnet   = try(local.configuration_yml["network"]["vnet"]["subnets"]["netapp"]["create"], local.create_vnet )
+    create_database_subnet = try(local.configuration_yml["network"]["vnet"]["subnets"]["database"]["create"], local.create_vnet )
     create_compute_subnet  = try(local.configuration_yml["network"]["vnet"]["subnets"]["compute"]["create"], local.create_vnet )
 
     ad_subnet        = try(local.configuration_yml["network"]["vnet"]["subnets"]["ad"], null)
@@ -310,8 +312,8 @@ locals {
         asg-lustre-client = "asg-lustre-client"
     }
 
-    _asg_mariadb = {
-        asg-mariadb-client = "asg-mariadb-client"
+    _asg_mysql = {
+        asg-mysql-client = "asg-mysql-client"
     }
 
     _default_asgs = merge ({
@@ -327,7 +329,7 @@ locals {
         local.create_grafana ? local._asg_grafana : {},
         local.create_ondemand ? local._asg_ondemand : {},
         local.lustre_enabled ? local._asg_lustre : {},
-        local.create_database || local.use_existing_database ? local._asg_mariadb : {}
+        local.create_database || local.use_existing_database ? local._asg_mysql : {}
     )
 
     #asgs = local.create_nsg ? local._default_asgs :  try(local.configuration_yml["network"]["asg"]["names"], local._default_asgs)
@@ -352,7 +354,7 @@ locals {
     asg_asso_scheduler = concat(["asg-ssh", "asg-sched", "asg-cyclecloud-client", "asg-nfs-client"],
                             local.create_grafana ? ["asg-telegraf"] : [], 
                             local.create_ad || local.use_existing_ad ? ["asg-ad-client"] : [],
-                            local.create_database || local.use_existing_database ? ["asg-mariadb-client"] : [])
+                            local.create_database || local.use_existing_database ? ["asg-mysql-client"] : [])
 
     asg_associations = {
         ad        = local.asg_asso_ad 
@@ -389,8 +391,8 @@ locals {
         Grafana = ["3000"]
         # HTTPS, AMQP
         CycleCloud = ["9443", "5672"],
-        # MariaDB
-        MariaDB = ["3306", "33060"],
+        # MySQL
+        MySQL = ["3306", "33060"],
         # WinRM
         WinRM = ["5985", "5986"]
     }
@@ -559,11 +561,11 @@ locals {
         AllowGrafanaOut             = ["480", "Outbound", "Allow", "Tcp", "Grafana",            "asg/asg-ondemand",          "asg/asg-grafana"],
     }
 
-    mariadb_nsg_rules = {
+    mysql_nsg_rules = {
         # Inbound
-        AllowMariaDBIn              = ["700", "Inbound", "Allow", "Tcp", "MariaDB",             "asg/asg-mariadb-client",    "subnet/admin"],
+        AllowMySQLIn              = ["700", "Inbound", "Allow", "Tcp", "MySQL",             "asg/asg-mysql-client",    "subnet/database"],
         # Outbound
-        AllowMariaDBOut             = ["700", "Outbound", "Allow", "Tcp", "MariaDB",             "asg/asg-mariadb-client",    "subnet/admin"],
+        AllowMySQLOut             = ["700", "Outbound", "Allow", "Tcp", "MySQL",             "asg/asg-mysql-client",    "subnet/database"],
     }
 
     anf_nsg_rules = {
@@ -592,7 +594,7 @@ locals {
                         local.no_gateway_subnet ? {} : local.gateway_nsg_rules,
                         local.allow_public_ip ? local.internet_nsg_rules : local.hub_nsg_rules,
                         local.create_grafana ? local.grafana_nsg_rules : {},
-                        local.create_database || local.use_existing_database ? local.mariadb_nsg_rules : {},
+                        local.create_database || local.use_existing_database ? local.mysql_nsg_rules : {},
                         local.create_ondemand ? local.ondemand_nsg_rules : {},
                         local.lustre_enabled ? local.lustre_nsg_rules : {},
                         local.anf_nsg_rules

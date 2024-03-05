@@ -111,6 +111,10 @@ network:
         name: frontend
         address_prefixes: "10.0.0.0/29"
         create: true # create the subnet if true. default to true when not specified, default to false if using an existing VNET when not specified
+      ad:
+        name: ad
+        address_prefixes: "10.0.0.8/29"
+        create: true
       admin:
         name: admin
         address_prefixes: "10.0.0.16/28"
@@ -124,10 +128,6 @@ network:
       #   name: outbounddns
       #   address_prefixes: "10.0.0.48/28"
       #   create: true
-      ad:
-        name: ad
-        address_prefixes: "10.0.0.8/29"
-        create: true
       # Bastion and Gateway subnets are optional and can be added if a Bastion or a VPN need to be created in the environment
       # bastion: # Bastion subnet name is always fixed to AzureBastionSubnet
       #   address_prefixes: "10.0.0.64/26" # CIDR minimal range must be /26
@@ -137,6 +137,9 @@ network:
       #   create: true
       # gateway: # Gateway subnet name is always fixed to GatewaySubnet
       #   address_prefixes: "10.0.0.192/27" # Recommendation is to use /27 or /26 network
+      #   create: true
+      # database: # database subnet, has to be enabled when using a managed mysql instance for slurm accounting
+      #   address_prefixes: "10.0.0.224/28"
       #   create: true
       compute:
         name: compute
@@ -160,7 +163,7 @@ network:
 #     asg-grafana: asg-grafana
 #     asg-ondemand: asg-ondemand
 #     asg-deployer: asg-deployer
-#     asg-mariadb-client: asg-mariadb-client
+#     asg-mysql-client: asg-mysql-client
     
 #  peering: # This list is optional, and can be used to create VNet Peerings in the same subscription.
 #    - vnet_name: #"VNET Name to Peer to"
@@ -320,7 +323,7 @@ queue_manager: openpbs
 
 # Specific SLURM configuration
 slurm:
-  # Enable SLURM accounting, this will create a SLURM accounting database in a managed MariaDB server instance
+  # Enable SLURM accounting, this will create a SLURM accounting database in a managed mysql server instance
   accounting_enabled: false
   # SLURM version to install. Currently supported: only [20.11.9 | 22.05.3] with cyclecloud_slurm_version==2.7.x and [22.05.9 | 23.02.5] with cyclecloud_slurm_version==3.0.x.
   slurm_version: 22.05.9
@@ -335,10 +338,10 @@ enroot:
   enroot_version: 3.4.1
 
 #database:
-  # Resource name of the MariaDB instance to be created
-  #name: custom_mariadb_name
+  # Resource name of the mysql instance to be created
+  #name: custom_mysql_name
 
-  # If using an existing Managed MariaDB instance for SLURM accounting, specify these values
+  # If using an existing Managed mysql instance for SLURM accounting, specify these values
   # Admin user of the database for which the password will be retrieved from the azhop keyvault
   #user: sqladmin
   # FQDN of the existing managed instance

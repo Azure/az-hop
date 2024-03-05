@@ -435,7 +435,7 @@
             "name": "slurmAccounting",
             "type": "Microsoft.Common.CheckBox",
             "label": "Slurm job accounting",
-            "toolTip": "Select to enable Slurm job accounting in a managed MariaDB instance",
+            "toolTip": "Select to enable Slurm job accounting in a managed MySQL Flexible Server instance",
             "defaultValue": false,
             "visible": true
           },

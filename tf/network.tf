@@ -84,6 +84,30 @@ resource "azurerm_subnet" "netapp" {
   }
 }
 
+# database subnet
+data "azurerm_subnet" "database" {
+  count                = local.create_database_subnet ? 0 : 1
+  name                 = try(local.configuration_yml["network"]["vnet"]["subnets"]["database"]["name"], "database")
+  resource_group_name  = try(split("/", local.vnet_id)[4], "foo")
+  virtual_network_name = try(split("/", local.vnet_id)[8], "foo")
+}
+
+resource "azurerm_subnet" "database" {
+  count                = local.create_database_subnet ? 1 : 0
+  name                 = try(local.configuration_yml["network"]["vnet"]["subnets"]["database"]["name"], "database")
+  virtual_network_name = local.create_vnet ? azurerm_virtual_network.azhop[count.index].name : data.azurerm_virtual_network.azhop[count.index].name
+  resource_group_name  = local.create_vnet ? azurerm_virtual_network.azhop[count.index].resource_group_name : data.azurerm_virtual_network.azhop[count.index].resource_group_name
+  address_prefixes     = [try(local.configuration_yml["network"]["vnet"]["subnets"]["database"]["address_prefixes"], "10.0.0.224/28")]
+  delegation {
+    name = "database"
+
+    service_delegation {
+      name    = "Microsoft.DBforMySQL/flexibleServers"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
+    }
+  }
+}
+
 # ad subnet
 data "azurerm_subnet" "ad" {
   count                = local.create_ad_subnet ? 0 : (local.create_ad ? 1 : 0)
