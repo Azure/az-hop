@@ -430,7 +430,7 @@ locals {
         AllowSshFromDeployerIn      = ["340", "Inbound", "Allow", "Tcp", "Ssh",                "asg/asg-deployer",  "asg/asg-ssh"], # Only in a deployer VM scenario
         AllowDeployerToPackerSshIn  = ["350", "Inbound", "Allow", "Tcp", "Ssh",                "asg/asg-deployer",  "subnet/admin"], # Only in a deployer VM scenario
         AllowSshToComputeIn         = ["360", "Inbound", "Allow", "Tcp", "Ssh",                "asg/asg-ssh",       "subnet/compute"],
-        AllowSshComputeComputeIn    = ["365", "Inbound", "Allow", "Tcp", "Ssh",                "subnet/compute",    "subnet/compute"],
+        AllowAllComputeComputeIn    = ["365", "Inbound", "Allow", "Tcp", "All",                "subnet/compute",    "subnet/compute"],
 
         # Scheduler
         AllowSchedIn                = ["369", "Inbound", "Allow", "*",   "Sched",                "asg/asg-sched",      "asg/asg-sched"],
@@ -438,7 +438,7 @@ locals {
         AllowSchedComputeIn         = ["380", "Inbound", "Allow", "*",   "Sched",                "asg/asg-sched",      "subnet/compute"],
         #AllowComputePbsClientIn     = ["390", "Inbound", "Allow", "*",   "Sched",                "subnet/compute",     "asg/asg-pbs-client"],
         AllowComputeSchedIn         = ["400", "Inbound", "Allow", "*",   "Sched",                "subnet/compute",     "asg/asg-sched"],
-        AllowComputeComputeSchedIn  = ["401", "Inbound", "Allow", "*",   "Sched",                "subnet/compute",     "subnet/compute"],
+        #AllowComputeComputeSchedIn  = ["401", "Inbound", "Allow", "*",   "Sched",                "subnet/compute",     "subnet/compute"],
 
         # CycleCloud
         AllowCycleClientIn          = ["450", "Inbound", "Allow", "Tcp", "CycleCloud",         "asg/asg-cyclecloud-client", "asg/asg-cyclecloud"],
@@ -469,7 +469,7 @@ locals {
         AllowSchedComputeOut        = ["360", "Outbound", "Allow", "*",   "Sched",                "asg/asg-sched",      "subnet/compute"],
         AllowComputeSchedOut        = ["370", "Outbound", "Allow", "*",   "Sched",                "subnet/compute",     "asg/asg-sched"],
         #AllowComputePbsClientOut    = ["380", "Outbound", "Allow", "*",   "Sched",                "subnet/compute",     "asg/asg-pbs-client"],
-        AllowComputeComputeSchedOut = ["381", "Outbound", "Allow", "*",   "Sched",                "subnet/compute",     "subnet/compute"],
+        #AllowComputeComputeSchedOut = ["381", "Outbound", "Allow", "*",   "Sched",                "subnet/compute",     "subnet/compute"],
 
         # SSH internal rules
         AllowSshFromJumpboxOut      = ["490", "Outbound", "Allow", "Tcp", "Ssh",                "asg/asg-jumpbox",          "asg/asg-ssh"],
@@ -477,7 +477,7 @@ locals {
         AllowSshDeployerOut         = ["510", "Outbound", "Allow", "Tcp", "Ssh",                "asg/asg-deployer",         "asg/asg-ssh"],
         AllowSshDeployerPackerOut   = ["520", "Outbound", "Allow", "Tcp", "Ssh",                "asg/asg-deployer",         "subnet/admin"],
         AllowSshFromComputeOut      = ["530", "Outbound", "Allow", "Tcp", "Ssh",                "subnet/compute",           "asg/asg-ssh"],
-        AllowSshComputeComputeOut   = ["540", "Outbound", "Allow", "Tcp", "Ssh",                "subnet/compute",           "subnet/compute"],
+        AllowAllComputeComputeOut   = ["540", "Outbound", "Allow", "Tcp", "All",                "subnet/compute",           "subnet/compute"],
 
         # Admin and Deployment
         AllowDnsOut                 = ["590", "Outbound", "Allow", "*",   "Dns",                "tag/VirtualNetwork",       "tag/VirtualNetwork"],

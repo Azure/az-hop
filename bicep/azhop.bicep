@@ -495,7 +495,9 @@ var config = {
       AllowSshFromJumpboxIn       : ['320', 'Inbound', 'Allow', 'Tcp', 'Ssh', 'asg', 'asg-jumpbox', 'asg', 'asg-ssh']
       AllowSshFromComputeIn       : ['330', 'Inbound', 'Allow', 'Tcp', 'Ssh', 'subnet', 'compute', 'asg', 'asg-ssh']
       AllowSshToComputeIn         : ['360', 'Inbound', 'Allow', 'Tcp', 'Ssh', 'asg', 'asg-ssh', 'subnet', 'compute']
-      AllowSshComputeComputeIn    : ['365', 'Inbound', 'Allow', 'Tcp', 'Ssh', 'subnet', 'compute', 'subnet', 'compute']
+
+      // All communications inside compute subnet
+      AllowAllComputeComputeIn    : ['365', 'Inbound', 'Allow', 'Tcp', 'All', 'subnet', 'compute', 'subnet', 'compute']
     
       // Scheduler
       AllowSchedIn                : ['369', 'Inbound', 'Allow', '*', 'Shed', 'asg', 'asg-sched', 'asg', 'asg-sched']
@@ -503,7 +505,7 @@ var config = {
       AllowSchedComputeIn         : ['380', 'Inbound', 'Allow', '*', 'Shed', 'asg', 'asg-sched', 'subnet', 'compute']
 //      AllowComputePbsClientIn     : ['390', 'Inbound', 'Allow', '*', 'Pbs', 'subnet', 'compute', 'asg', 'asg-pbs-client']
       AllowComputeSchedIn         : ['400', 'Inbound', 'Allow', '*', 'Shed', 'subnet', 'compute', 'asg', 'asg-sched']
-      AllowComputeComputeSchedIn  : ['401', 'Inbound', 'Allow', '*', 'Shed', 'subnet', 'compute', 'subnet', 'compute']
+//      AllowComputeComputeSchedIn  : ['401', 'Inbound', 'Allow', '*', 'Shed', 'subnet', 'compute', 'subnet', 'compute']
       
       // CycleCloud
       AllowCycleClientIn          : ['450', 'Inbound', 'Allow', 'Tcp', 'CycleCloud', 'asg', 'asg-cyclecloud-client', 'asg', 'asg-cyclecloud']
@@ -528,13 +530,15 @@ var config = {
       AllowSchedComputeOut        : ['360', 'Outbound', 'Allow', '*', 'Shed', 'asg', 'asg-sched', 'subnet', 'compute']
       AllowComputeSchedOut        : ['370', 'Outbound', 'Allow', '*', 'Shed', 'subnet', 'compute', 'asg', 'asg-sched']
       //AllowComputePbsClientOut    : ['380', 'Outbound', 'Allow', '*', 'Pbs', 'subnet', 'compute', 'asg', 'asg-pbs-client']
-      AllowComputeComputeSchedOut : ['381', 'Outbound', 'Allow', '*', 'Shed', 'subnet', 'compute', 'subnet', 'compute']
+//      AllowComputeComputeSchedOut : ['381', 'Outbound', 'Allow', '*', 'Shed', 'subnet', 'compute', 'subnet', 'compute']
     
       // SSH internal rules
       AllowSshFromJumpboxOut      : ['490', 'Outbound', 'Allow', 'Tcp', 'Ssh', 'asg', 'asg-jumpbox', 'asg', 'asg-ssh']
       AllowSshComputeOut          : ['500', 'Outbound', 'Allow', 'Tcp', 'Ssh', 'asg', 'asg-ssh', 'subnet', 'compute']
       AllowSshFromComputeOut      : ['530', 'Outbound', 'Allow', 'Tcp', 'Ssh', 'subnet', 'compute', 'asg', 'asg-ssh']
-      AllowSshComputeComputeOut   : ['540', 'Outbound', 'Allow', 'Tcp', 'Ssh', 'subnet', 'compute', 'subnet', 'compute']
+
+      // All communications inside compute subnet
+      AllowAllComputeComputeOut   : ['540', 'Outbound', 'Allow', 'Tcp', 'All', 'subnet', 'compute', 'subnet', 'compute']
         
       // Admin and Deployment
       AllowDnsOut                 : ['590', 'Outbound', 'Allow', '*', 'Dns', 'tag', 'VirtualNetwork', 'tag', 'VirtualNetwork']
