@@ -210,7 +210,7 @@ locals {
 
     key_vault_name = try(local.configuration_yml["azure_key_vault"]["name"], format("%s%s", "kv", random_string.resource_postfix.result))
     storage_account_name = try(local.configuration_yml["azure_storage_account"]["name"], "azhop${random_string.resource_postfix.result}")
-    db_name = try(local.configuration_yml["database"]["name"], "azhop-${random_string.resource_postfix.result}")
+    db_name = try(local.configuration_yml["database"]["name"], "mysql-${random_string.resource_postfix.result}")
 
     # Lustre - AMLFS not implemented for TF
     lustre_enabled = false
