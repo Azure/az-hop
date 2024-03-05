@@ -16,7 +16,7 @@ on:
       scheduler:
         description: 'Job Scheduler to be installed : openpbs/slurm'
         required: true
-        default: 'openpbs' # use it with ${{ inputs.scheduler }}
+        default: 'slurm' # use it with ${{ inputs.scheduler }}
         type: string
       images:
         description: 'Images to be used (marketplace/shared) or built (private): marketplace/shared/private'
@@ -46,7 +46,7 @@ on:
       infra_os:
         description: 'Operating System for the infrastructure: centos/almalinux - Default to centos'
         required: false
-        default: 'centos' # use it with ${{ inputs.infra_os }}
+        default: 'almalinux' # use it with ${{ inputs.infra_os }}
         type: string
       cycle_slurm_version:
         description: 'Version of the cyclecloud slurm project 2.7 or 3.0 - default to 2.7'

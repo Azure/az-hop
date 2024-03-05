@@ -39,7 +39,7 @@ on:
       infra_os:
         description: "Infrastructure OS - ['centos', 'almalinux'] - Default to ['centos']"
         required: false
-        default: "['centos']" # use it with ${{ github.event.inputs.infra_os }}
+        default: "['almalinux']" # use it with ${{ github.event.inputs.infra_os }}
       deploy_with:
         description: "Deploy With - 'tf' or 'bicep' or 'arm'] - Default to 'bicep'"
         required: false
