@@ -38,7 +38,7 @@ resource "local_file" "global_variables" {
       tenant_id           = data.azurerm_subscription.primary.tenant_id
       key_vault           = azurerm_key_vault.azhop.name
       sig_name            = local.create_sig ? azurerm_shared_image_gallery.sig[0].name : ""
-      database-fqdn       = local.create_database ? azurerm_mariadb_server.mariadb[0].fqdn : (local.use_existing_database ? local.configuration_yml["database"].fqdn : "")
+      database-fqdn       = local.create_database ? azurerm_mysql_flexible_server.mysql[0].fqdn : (local.use_existing_database ? local.configuration_yml["database"].fqdn : "")
       database-user       = local.database_user
       jumpbox-ssh-port    = local.jumpbox_ssh_port
       dns-ruleset-name    = local.create_dnsfw_rules ? azurerm_private_dns_resolver_dns_forwarding_ruleset.forwarding_ruleset[0].name : ""

@@ -60,6 +60,10 @@ network:
         name: frontend
         address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.0/29')]"
         create: true # create the subnet if true. default to true when not specified, default to false if using an existing VNET when not specified
+      database: 
+        name: database
+        address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.8/29')]"
+        create: "[steps('scheduler').slurmAccounting]" 
       admin:
         name: admin
         address_prefixes: "[concat(_X1_, '.', _X2_, '.', _X3_, '.16/28')]"

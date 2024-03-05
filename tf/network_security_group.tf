@@ -31,7 +31,8 @@ data "azurerm_subnet" "subnets" {
                   azurerm_subnet.frontend, 
                   azurerm_subnet.admin, 
                   azurerm_subnet.netapp, 
-                  azurerm_subnet.compute, 
+                  azurerm_subnet.compute,
+                  azurerm_subnet.database,
                   azurerm_subnet.bastion, 
                   azurerm_subnet.gateway,
                   azurerm_subnet.outbounddns]
@@ -70,8 +71,6 @@ resource "azurerm_network_security_group" "common" {
   }
 }
 
-# NSG cannot be applied on a delegated subnet for Azure Netapp files https://docs.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-delegate-subnet, nor on Bastion
-
 resource "azurerm_subnet_network_security_group_association" "frontend" {
   count                     = local.create_nsg ? 1 : 0
   subnet_id                 = local.create_frontend_subnet ? azurerm_subnet.frontend[0].id : data.azurerm_subnet.frontend[0].id
@@ -93,6 +92,12 @@ resource "azurerm_subnet_network_security_group_association" "compute" {
 resource "azurerm_subnet_network_security_group_association" "admin" {
   count                     = local.create_nsg ? 1 : 0
   subnet_id                 = local.create_admin_subnet ? azurerm_subnet.admin[0].id : data.azurerm_subnet.admin[0].id
+  network_security_group_id = azurerm_network_security_group.common[0].id
+}
+
+resource "azurerm_subnet_network_security_group_association" "database" {
+  count                     = local.create_nsg ? 1 : 0
+  subnet_id                 = local.create_database_subnet ? azurerm_subnet.database[0].id : data.azurerm_subnet.database[0].id
   network_security_group_id = azurerm_network_security_group.common[0].id
 }
 
