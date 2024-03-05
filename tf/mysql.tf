@@ -22,9 +22,9 @@ resource "azurerm_mysql_flexible_server" "mysql" {
   }
 
     lifecycle {
-    ignore_changes = [
-      zone
-    ]
+      ignore_changes = [
+        zone
+      ]
   }
 }
 
