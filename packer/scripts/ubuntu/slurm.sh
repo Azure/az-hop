@@ -11,22 +11,22 @@ mkdir -p $BUILD_DIR
 # Build PMIx
 #
 apt-get update
-apt-get install -y git libevent-dev libhwloc-dev autoconf flex make gcc libxml2
+apt-get install -y git git libevent-dev libhwloc-dev autoconf flex make gcc libxml2
 
 cd $BUILD_DIR
-mkdir -p /opt/pmix/v3
-mkdir -p pmix/build/v3
+mkdir -p /opt/pmix/v4
+mkdir -p pmix/build/v4
 
 cd pmix
-git clone https://github.com/openpmix/openpmix.git source
-cd source/
-git branch -a
-git checkout v3.1
-git pull
-./autogen.sh
-cd ../build/v3/
-../../source/configure --prefix=/opt/pmix/v3
+
+rm -rf openpmix
+git clone --recursive https://github.com/openpmix/openpmix.git
+cd openpmix
+git checkout v4.2.9
+./autogen.pl
+./configure --prefix=/opt/pmix/v4
 make -j install
+
 
 if [ "$INSTALL_SLURM" = "yes" ]; then
 
