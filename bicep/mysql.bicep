@@ -28,7 +28,7 @@ resource server 'Microsoft.DBforMySQL/flexibleServers@2023-10-01-preview' = {
     version: '8.0.21'
     administratorLogin: adminUser
     administratorLoginPassword: adminPassword
-    availabilityZone: ''
+//    availabilityZone: ''
     highAvailability: {
       mode: 'Disabled'
 //      standbyAvailabilityZone: standbyAvailabilityZone
