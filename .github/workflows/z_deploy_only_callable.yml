@@ -16,7 +16,7 @@ on:
       scheduler:
         description: 'Job Scheduler to be installed : openpbs/slurm'
         required: true
-        default: 'openpbs' # use it with ${{ inputs.scheduler }}
+        default: 'slurm' # use it with ${{ inputs.scheduler }}
         type: string
       home_type:
         description: 'Home directory type anf/azurefiles- Default to anf'

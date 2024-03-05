@@ -7,7 +7,7 @@ name : changelog
 on:
   push:
     tags:
-      - '*'
+      - 'v1.*'
 
 jobs:
   release:
