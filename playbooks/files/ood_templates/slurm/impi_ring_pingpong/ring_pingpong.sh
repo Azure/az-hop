@@ -5,6 +5,7 @@
 #SBATCH -p hpc
 #SBATCH -t 5
 #SBATCH --export=NONE
+#SBACTH --exclusive
 
 TYPE=latency
 
