@@ -60,16 +60,15 @@
 - name: Create a data record for azhop and start cycleserver
   shell: |
     set -e
-    # create a data record to identify this installation as an az-hop VM
-    cat > /opt/cycle_server/config/data/azhop.txt <<EOF
+    # create a data record to identify this installation
+    cat > /opt/cycle_server/config/data/distribution_method.txt <<EOF
     AdType = "Application.Setting"
     Name = "distribution_method"
-    Value = "azhop"
+    Value = "{{cycle_distribution_method}}"
     EOF
     /opt/cycle_server/cycle_server await_startup
-    #/opt/cycle_server/cycle_server execute 'update Application.Setting set Value = undefined where Name == "site_id" || Name == "reported_version"'
   args:
-    creates: /opt/cycle_server/config/data/azhop.txt.imported
+    creates: /opt/cycle_server/config/data/distribution_method.txt.imported
 
 - name: stop cycle_server
   service:

@@ -106,6 +106,7 @@ cyclecloud:
   plan: azurecyclecloud:azure-cyclecloud:cyclecloud8-gen2
   ssh_port: "[int(steps('otherSettings').deployerSshPort)]"
   use_as_deployer: true
+  distribution_method: slurm_workspace
 
 users:
   - { name: hpcuser, uid: 10001 }
