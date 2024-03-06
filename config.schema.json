@@ -621,6 +621,11 @@
                     "type": "string",
                     "description": "Path to the web server path. Defaults to /cyclecloud",
                     "default": "/cyclecloud"
+                },
+                "distribution_method" : {
+                    "type": "string",
+                    "description": "The distribution method for the CycleCloud installation. Defaults to 'azhop'",
+                    "default": "azhop"
                 }
             },
             "required": [
