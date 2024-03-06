@@ -101,11 +101,12 @@ scheduler:
   vm_size: "[steps('scheduler').vmsize]"
 cyclecloud:
   vm_size: "[basics('CycleCloudVmSize')]"
-  image: azurecyclecloud:azure-cyclecloud:cyclecloud8-gen2:8.4.220231009
+  image: azurecyclecloud:azure-cyclecloud:cyclecloud8-gen2:8.5.02023120
   # az vm image terms accept --publisher azurecyclecloud --offer azure-cyclecloud --plan cyclecloud8-gen2
   plan: azurecyclecloud:azure-cyclecloud:cyclecloud8-gen2
   ssh_port: "[int(steps('otherSettings').deployerSshPort)]"
   use_as_deployer: true
+  web_server_path: "/"
 
 users:
   - { name: hpcuser, uid: 10001 }
@@ -130,7 +131,7 @@ slurm:
   accounting_enabled: "[steps('scheduler').slurmAccounting]"
   slurm_version: "[steps('scheduler').slurmVersion]"
   # CycleCloud for SLURM project version as defined in https://github.com/Azure/cyclecloud-slurm/releases
-  cyclecloud_slurm_version: 3.0.4
+  cyclecloud_slurm_version: 3.0.5
 
 enroot:
   enroot_version: 3.4.1
