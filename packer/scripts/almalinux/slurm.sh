@@ -38,16 +38,16 @@ fi
 #
 dnf -y install autoconf flex libevent-devel git
 cd $BUILD_DIR
-mkdir -p /opt/pmix/v3
+mkdir -p /opt/pmix/v4
 mkdir -p pmix
 
-git clone https://github.com/openpmix/openpmix.git openpmix
+rm -rf openpmix
+git clone --recursive https://github.com/openpmix/openpmix.git
 cd openpmix
-git checkout v3.1
-./autogen.sh
-./configure --prefix=/opt/pmix/v3
-make -j
-make install
+git checkout v4.2.9
+./autogen.pl
+./configure --prefix=/opt/pmix/v4
+make -j install
 
 
 if [ "$INSTALL_SLURM" = "yes" ]; then
