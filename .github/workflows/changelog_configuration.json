@@ -1,11 +1,11 @@
 {
   "categories": [
       {
-          "title": "## Enhancements",
+          "title": "## 🚀 Enhancements",
           "labels": ["kind/feature"]
       },
       {
-          "title": "## Bug Fixes",
+          "title": "## 🐛 Bug Fixes",
           "labels": ["fix"]
         },
         {
@@ -14,8 +14,8 @@
         }
     ],
   "sort": "ASC",
-  "template": "${{CHANGELOG}}",
-  "pr_template": "- ${{TITLE}}   - PR: #${{NUMBER}}",
+  "template": "#{{CHANGELOG}}",
+  "pr_template": "- #{{TITLE}}   - PR: ##{{NUMBER}}",
   "empty_template": "- no changes",
   "label_extractor": [
     {
@@ -38,6 +38,10 @@
   "max_pull_requests": 200,
   "max_back_track_time_days": 365,
   "tag_resolver": {
-    "method": "semver"
-  }  
+    "method": "semver",
+    "filter": {
+      "pattern": "v(.+)",
+      "flags": "gu"
+    }
+  }
 }
