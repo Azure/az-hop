@@ -293,6 +293,13 @@
             "defaultValue": true
           },
           {
+            "name": "natgateway",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Create a NAT Gateway",
+            "toolTip": "Deploy a NAT Gateway for outbound internet connections",
+            "defaultValue": false
+          },
+          {
             "name": "peering",
             "type": "Microsoft.Common.CheckBox",
             "label": "Peer to an existing VNET.",
@@ -467,7 +474,7 @@
             "label": "Size",
             "toolTip": "Select a VM Size for the Login nodes",
             "recommendedSizes": [
-              "Standard_F4s_v2"
+              "Standard_D4as_v4"
             ],
             "options": {
               "hideDiskTypeFilter": true
@@ -485,7 +492,7 @@
             "subLabel": "Initial Count",
             "defaultValue": 1,
             "min": 0,
-            "max": 8,
+            "max": "[steps('login').NodeNumber]",
             "step": 1,
             "visible": true,
             "required": true,
@@ -516,10 +523,6 @@
                 {
                   "label": "Ubuntu 20.04",
                   "value": "microsoft-dsvm:ubuntu-hpc:2004:latest"
-                },
-                {
-                  "label": "Ubuntu 22.04",
-                  "value": "microsoft-dsvm:ubuntu-hpc:2204:latest"
                 },
                 {
                   "label": "Alma Linux 8.7",
@@ -568,9 +571,9 @@
                 "label": "Max number of nodes",
                 "toolTip": "Maximum number of nodes to scale to",
                 "subLabel": "Number",
-                "defaultValue": 32,
+                "defaultValue": 16,
                 "min": 0,
-                "max": 512,
+                "max": 64,
                 "step": 4,
                 "visible": true,
                 "required": true,
@@ -587,10 +590,6 @@
                     {
                       "label": "Ubuntu 20.04",
                       "value": "microsoft-dsvm:ubuntu-hpc:2004:latest"
-                    },
-                    {
-                      "label": "Ubuntu 22.04",
-                      "value": "microsoft-dsvm:ubuntu-hpc:2204:latest"
                     },
                     {
                       "label": "Alma Linux 8.7",
@@ -651,10 +650,6 @@
                       "value": "microsoft-dsvm:ubuntu-hpc:2004:latest"
                     },
                     {
-                      "label": "Ubuntu 22.04",
-                      "value": "microsoft-dsvm:ubuntu-hpc:2204:latest"
-                    },
-                    {
                       "label": "Alma Linux 8.7",
                       "value": "almalinux:almalinux-hpc:8_7-hpc-gen2:latest"
                     }
@@ -713,10 +708,6 @@
                     {
                       "label": "Ubuntu 20.04",
                       "value": "microsoft-dsvm:ubuntu-hpc:2004:latest"
-                    },
-                    {
-                      "label": "Ubuntu 22.04",
-                      "value": "microsoft-dsvm:ubuntu-hpc:2204:latest"
                     },
                     {
                       "label": "Alma Linux 8.7",
