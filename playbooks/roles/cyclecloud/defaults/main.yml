@@ -1,2 +1,3 @@
 cyclecloud_version: "{{'8.4.2-3186' if (cc_version | default('', true) | trim == '') else cc_version}}"
 cycle_webServerContextPath: "{{'/cyclecloud' if (cc_webserverpath | default('', true) | trim == '') else cc_webserverpath}}"
+cycle_distribution_method: "azhop"
