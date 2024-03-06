@@ -38,11 +38,10 @@ These ready to go images are built on top of existing Azure HPC images, and the 
 ||||2024.0219.1113|microsoft-dsvm:ubuntu-hpc:2004:20.04.2023111801||
 ||||2024.0305.1339|microsoft-dsvm:ubuntu-hpc:2004:20.04.2023111801||
 
-
 ## End of Support
+
 |Publisher|Offer|SKU|Version|Date|
 |---------|-----|---|-------|----|
-|azhpc|azhop-compute|centos-7_9|all|June 30, 2024
-|azhpc|azhop-desktop|centos-7_9-gen1|all|June 30, 2024
-|azhpc|azhop-compute|ubuntu-18_04|all|Deprecated
-
+|azhpc|azhop-compute|centos-7_9|all|June 30, 2024|
+|azhpc|azhop-desktop|centos-7_9-gen1|all|June 30, 2024|
+|azhpc|azhop-compute|ubuntu-18_04|all|Deprecated|
