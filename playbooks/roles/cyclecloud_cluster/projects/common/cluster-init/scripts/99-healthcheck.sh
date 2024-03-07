@@ -1,8 +1,9 @@
 #!/bin/bash
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+JETPACK=/opt/cycle/jetpack/bin/jetpack
 
 # Don't run health checks if not enabled
-enabled_nhc=$(jetpack config healthchecks.enabled | tr '[:upper:]' '[:lower:]')
+enabled_nhc=$($JETPACK config healthchecks.enabled | tr '[:upper:]' '[:lower:]')
 if [[ $enabled_nhc != "true" ]]; then
     exit 0
 fi
@@ -26,7 +27,6 @@ if [ -e /opt/azurehpc/test/azurehpc-health-checks/run-health-checks.sh ]; then
     # In case of health check failure, shutdown the node by calling the script /usr/libexec/nhc/azhop-node-offline.sh
     if [ $error -eq 1 ]; then
         $OFFLINE_NODE $(hostname) "$errormessage"
-        JETPACK=/opt/cycle/jetpack/bin/jetpack
         $JETPACK shutdown --unhealthy
     fi
 else
