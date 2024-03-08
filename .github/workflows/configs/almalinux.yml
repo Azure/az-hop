@@ -51,12 +51,6 @@ queues:
     ColocateNodes: true
     EnableAcceleratedNetworking: true
 
-  - name: nc24v3
-    vm_size: Standard_NC24rs_v3
-    max_count: 4
-    image: azhpc:azhop-compute:almalinux-8_7:latest
-    ColocateNodes: true
-
 # Remote Viz Queues
   - name: viz3d
     type: remoteviz

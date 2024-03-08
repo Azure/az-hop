@@ -1,5 +1,5 @@
-HealthCheckProgram=/usr/sbin/nhc
-HealthCheckInterval=300
+#HealthCheckProgram=/mnt/cluster-init/common/default/scripts/99-healthcheck.sh
+HealthCheckInterval=0
 HealthCheckNodeState=IDLE
 SrunPortRange=59000-61000
 Prolog=/sched/{{ slurm_cluster_name }}/prolog.sh

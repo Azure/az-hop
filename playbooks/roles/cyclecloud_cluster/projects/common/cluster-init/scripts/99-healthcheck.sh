@@ -1,20 +1,32 @@
 #!/bin/bash
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+JETPACK=/opt/cycle/jetpack/bin/jetpack
+
 # Don't run health checks if not enabled
-enabled_nhc=$(jetpack config healthchecks.enabled | tr '[:upper:]' '[:lower:]')
+enabled_nhc=$($JETPACK config healthchecks.enabled | tr '[:upper:]' '[:lower:]')
 if [[ $enabled_nhc != "true" ]]; then
     exit 0
 fi
-NHC_CONFIG_FILE="/etc/nhc/nhc.conf"
 
 # if run-health-checks.sh exists, then runit
 if [ -e /opt/azurehpc/test/azurehpc-health-checks/run-health-checks.sh ]; then
-    errormessage=$( /opt/azurehpc/test/azurehpc-health-checks/run-health-checks.sh -c $NHC_CONFIG_FILE 2>&1)
+    . /etc/os-release
+    case $ID in
+        ubuntu)
+            LIBEXEDIR=/usr/lib;;
+        *) 
+            LIBEXEDIR=/usr/libexec;;
+    esac
+    NHC_COMMON_FILE=$SCRIPT_DIR/../files/nhc/nhc_common.conf
+    export OFFLINE_NODE=$LIBEXEDIR/nhc/azhop-node-offline.sh
+    export ONLINE_NODE=$LIBEXEDIR/nhc/node-mark-online
+
+    errormessage=$( /opt/azurehpc/test/azurehpc-health-checks/run-health-checks.sh -e $NHC_COMMON_FILE 2>&1)
     error=$?
 
     # In case of health check failure, shutdown the node by calling the script /usr/libexec/nhc/azhop-node-offline.sh
     if [ $error -eq 1 ]; then
-        /usr/libexec/nhc/azhop-node-offline.sh $(hostname) "$errormessage"
-        JETPACK=/opt/cycle/jetpack/bin/jetpack
+        $OFFLINE_NODE $(hostname) "$errormessage"
         $JETPACK shutdown --unhealthy
     fi
 else
