@@ -233,7 +233,7 @@
     group: slurm
     mode: 0755
 
-- include: accounting.yml
+- import_tasks: accounting.yml
   become: true
   tags: [ 'accounting' ]
   vars:

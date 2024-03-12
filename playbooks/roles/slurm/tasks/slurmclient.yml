@@ -1,8 +1,8 @@
-- include: cyclecloud-client_2.7.x.yml
+- import_tasks: cyclecloud-client_2.7.x.yml
   become: true
   when: ('2.7.' in cyclecloud_slurm_release)
 
-- include: cyclecloud-client_3.0.x.yml
+- import_tasks: cyclecloud-client_3.0.x.yml
   become: true
   when: ('3.0.' in cyclecloud_slurm_release)
 
