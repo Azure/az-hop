@@ -166,11 +166,13 @@ queues:
     max_core_count: 1200
     image: azhpc:azhop-compute:almalinux-8_7:latest
     EnableAcceleratedNetworking: true
+    ColocateNodes: true
   - name: gpu
     vm_size: Standard_NC24ads_A100_v4
     max_core_count: 0
     image: azhpc:azhop-compute:almalinux-8_7:latest
     EnableAcceleratedNetworking: true
+    ColocateNodes: true
     # Queue dedicated to GPU remote viz nodes. This name is fixed and can't be changed
   - name: viz3d
     vm_size: Standard_NV12s_v3
