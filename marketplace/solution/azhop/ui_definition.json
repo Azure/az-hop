@@ -272,6 +272,13 @@
             "defaultValue": true
           },
           {
+            "name": "natgateway",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Create a NAT Gateway",
+            "toolTip": "Deploy a NAT Gateway for outbound internet connections",
+            "defaultValue": false
+          },
+          {
             "name": "peering",
             "type": "Microsoft.Common.CheckBox",
             "label": "Peer to an existing VNET.",
