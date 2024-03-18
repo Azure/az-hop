@@ -1,14 +1,33 @@
 #!/bin/bash
+
+cyclecloud_pbspro=$1
+openpbs_version=$2
+
+major_installed_pbs_version=$(cat /var/spool/pbs/pbs_version | cut -d '=' -f2 | cut -d '.' -f1)
+major_wanted_pbs_version=$(echo $openpbs_version | cut -d '.' -f1)
+
 cd /mnt
-wget -q https://github.com/openpbs/openpbs/releases/download/v19.1.1/pbspro-19.1.1.tar.gz -O pbspro-19.1.1.tar.gz
-tar -xzf pbspro-19.1.1.tar.gz
-cd pbspro-19.1.1/
+function install_version() {
+    local version=$1
+    case $version in
+        22)
+            install
+            ;;
+        *)
+            echo "Unsupported PBS version: $version"
+            exit 1
+            ;;
+    esac
+}
 
-apt-get install -y gcc make libtool libhwloc-dev libx11-dev libxt-dev libedit-dev libical-dev ncurses-dev perl postgresql-server-dev-all postgresql-contrib python-dev tcl-dev tk-dev swig libexpat-dev libssl-dev libxext-dev libxft-dev autoconf automake
-./autogen.sh
-./configure --prefix=/opt/pbs PYTHON=/usr/bin/python2.7
-make
-make install
+function install() {
+    apt install libpq5 -y
+    wget -q https://vcdn.altair.com/rl/OpenPBS/openpbs_${openpbs_version}.ubuntu_20.04.zip
+    unzip -o openpbs_${openpbs_version}.ubuntu_20.04.zip
+    dpkg -i --force-overwrite --force-confnew ./openpbs_${openpbs_version}.ubuntu_20.04/openpbs-execution_${openpbs_version}-1_amd64.deb
+    rm -rf openpbs_${openpbs_version}.ubuntu_20.04
+    rm -f openpbs_${openpbs_version}.ubuntu_20.04.zip
+}
 
-/opt/pbs/libexec/pbs_postinstall execution
-chmod 4755 /opt/pbs/sbin/pbs_iff /opt/pbs/sbin/pbs_rcp
+install_version $major_wanted_pbs_version
+
