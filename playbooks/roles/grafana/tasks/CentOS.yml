@@ -1,0 +1,21 @@
+---
+
+- name: Add the Grafana YUM repository
+  yum_repository:
+    name: "grafana"
+    description: "grafana"
+    baseurl: "https://rpm.grafana.com"
+    gpgkey: "https://rpm.grafana.com/gpg.key"
+    gpgcheck: true
+    state: present
+    exclude: "*beta*"
+    sslverify: 1
+    sslcacert: "/etc/pki/tls/certs/ca-bundle.crt"
+    timeout: 180
+
+- name: Install Grafana
+  yum: 
+    name:
+      - grafana-{{grafana_version}}
+    state: present
+    lock_timeout : 180
