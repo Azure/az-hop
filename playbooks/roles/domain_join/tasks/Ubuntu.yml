@@ -1,0 +1,24 @@
+---
+
+- name: Remove /etc/dhcp/dhclient.conf
+  file:
+    path: /etc/dhcp/dhclient.conf
+    state: absent
+
+- name: restart systemd-networkd
+  service:
+    name: systemd-networkd
+    state: restarted
+
+- name: restart systemd-logind
+  service:
+    name: systemd-logind
+    state: restarted
+
+# This is required otherwise domain join will failed with a permisssion error
+- name: Disable rdns for libdefaults in /etc/krb5.conf
+  ansible.builtin.blockinfile:
+    path: /etc/krb5.conf
+    block: |
+      [libdefaults]
+        rdns = false
