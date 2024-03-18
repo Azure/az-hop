@@ -42,11 +42,3 @@
       install_cyclecloud: '{{not "azurecyclecloud" in (cyclecloud.image | default(""))}}' # don't install cyclecloud when using the azurecyclecloud marketplace image
       cc_webserverpath: '{{cyclecloud.web_server_path | default("")}}'
       cycle_distribution_method: '{{cyclecloud.distribution_method | default("azhop")}}'
-
-  - name: Update Packages
-    include_role:
-      name: pkg_update
-      apply: 
-        become: true
-    vars:
-      packages_to_exclude_from_upgrade: "cyclecloud*"
