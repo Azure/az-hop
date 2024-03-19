@@ -12,25 +12,8 @@
       ansible.builtin.fail:
         msg: "unable to find anything in vars/ for this operating system! {{ ansible_distribution }}"
 
-- name: Install dependencies
-  yum:
-    name: python3, nfs-utils, jq
-    lock_timeout : 180
-
-- name: Download pbspro 
-  unarchive:
-    src: "{{openpbs_package}}"
-    dest: /mnt/resource
-    remote_src: yes
-  when: openpbs_package != "null"
-
-- name: Install pbspro
-  yum:
-    name: 
-      - "{{openpbs_server_rpm}}"
-    state: present
-    disable_gpg_check: true
-    lock_timeout : 180
+- name: Perform OS dependent configuration tasks
+  include_tasks: "{{ansible_distribution}}.yml"
 
 - name: Ensure pbs-server is running.
   service: 

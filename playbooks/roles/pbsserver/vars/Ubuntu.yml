@@ -1,0 +1,5 @@
+openpbs_version: 22.05.11
+openpbs_package: https://vcdn.altair.com/rl/OpenPBS/openpbs_{{openpbs_version}}.ubuntu_20.04.zip
+openpbs_server_rpm: /mnt/openpbs_{{openpbs_version}}.ubuntu_20.04/openpbs-server_{{openpbs_version}}-1_amd64.deb
+
+

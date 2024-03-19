@@ -12,13 +12,6 @@
       ansible.builtin.fail:
         msg: "unable to find anything in vars/ for this operating system! {{ ansible_distribution }}"
 
-- name: Install dependencies
-  ansible.builtin.package:
-    name: '{{item}}'
-    state: present
-  loop: '{{domain_join_packages}}'
-  notify: restart dbus
-
 - name: Perform OS dependent configuration tasks
   include_tasks: "{{ansible_distribution}}.yml"
 

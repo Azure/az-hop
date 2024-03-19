@@ -1,4 +1,14 @@
 ---
+- name: Update apt cache
+  ansible.builtin.apt: 
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Install dependencies
+  ansible.builtin.apt:
+    name: '{{item}}'
+    state: present
+  loop: '{{domain_join_packages}}'
 
 - name: Remove /etc/dhcp/dhclient.conf
   file:

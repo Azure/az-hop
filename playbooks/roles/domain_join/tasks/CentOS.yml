@@ -1,4 +1,11 @@
 ---
+- name: Install dependencies
+  ansible.builtin.package:
+    name: '{{item}}'
+    state: present
+  loop: '{{domain_join_packages}}'
+  notify: restart dbus
+
 - name: Disable SELinux
   selinux:
     state: disabled

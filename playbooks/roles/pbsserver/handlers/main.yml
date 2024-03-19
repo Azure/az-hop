@@ -1,0 +1,10 @@
+--- 
+- name: restart pbs
+  service:
+    name: pbs
+    state: restarted
+
+- name: restart postgresql
+  service:
+    name: postgresql
+    state: restarted
