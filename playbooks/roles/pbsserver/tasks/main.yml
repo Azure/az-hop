@@ -48,7 +48,7 @@
     /tmp/cyclecloud-pbspro/initialize_pbs.sh 
     /tmp/cyclecloud-pbspro/initialize_default_queues.sh
     source /etc/profile.d/pbs.sh
-    /tmp/cyclecloud-pbspro/install.sh  --venv /opt/cycle/pbspro/venv --install-venv
+    /tmp/cyclecloud-pbspro/install.sh  --install-python3 --venv $INSTALLDIR/venv --cron-method pbs_hook
     /tmp/cyclecloud-pbspro/generate_autoscale_json.sh  --install-dir /opt/cycle/pbspro --username {{ cc_admin }} --password "{{ cc_password }}" --url https://{{ccportal_name}}:9443{{cycle_webServerContextPath}} --cluster-name pbs1
   args:
     chdir: /tmp/cyclecloud-pbspro
@@ -107,7 +107,6 @@
   args:
     chdir: /opt/cycle/pbspro
   when: openpbs_version == "19.1.1"
-
 
 - name: Restart pbs-server 
   service: 

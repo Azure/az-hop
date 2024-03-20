@@ -10,7 +10,11 @@
     path: /etc/postgresql/12/main/postgresql.conf
     regexp: '^port = 5432'
     line: 'port = 15007'
-  notify: restart postgresql
+
+- name: Stop postgresql
+  service:
+    name: postgresql
+    state: stopped
 
 - name: Download pbspro 
   unarchive:
