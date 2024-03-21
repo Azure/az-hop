@@ -51,6 +51,8 @@
     ./initialize_pbs.sh 
     ./initialize_default_queues.sh
     ./install.sh  --install-python3 --venv /opt/cycle/pbspro/venv --cron-method pbs_hook
+    # remove /etc/profile.d/azpbs_autocomplete.sh to fix PBS Dataservice not starting
+    rm -rf /etc/profile.d/azpbs_autocomplete.sh
     ./generate_autoscale_json.sh  --install-dir /opt/cycle/pbspro --username {{ cc_admin }} --password "{{ cc_password }}" --url https://{{ccportal_name}}:9443{{cycle_webServerContextPath}} --cluster-name pbs1
   args:
     chdir: /tmp/cyclecloud-pbspro
