@@ -154,3 +154,11 @@
       chmod 644 /etc/profile.d/gen_sshkey.sh
     args: 
       creates: /etc/profile.d/gen_sshkey.sh
+
+  - name: add pam_mkhomedir to pam to create users home directory if not exist (Ubuntu only)
+    lineinfile:
+      path: /etc/pam.d/common-session
+      line: 'session  required  pam_mkhomedir.so skel=/etc/skel'
+      state: present
+      create: yes
+    when: ansible_distribution == 'Ubuntu'
