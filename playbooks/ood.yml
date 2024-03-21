@@ -10,6 +10,7 @@
     - '{{global_config_file}}'
   vars:
     ondemand_version: 3.0.3
+    ood_package: "{{ ('ondemand=' if ( ansible_distribution == 'Ubuntu') else 'ondemand-') }}{{ondemand_version}}"
     yq_version: v4.40.5
     yq_binary: yq_linux_amd64
     ccportal_name: "{{cyclecloud.name | default('ccportal')}}"
@@ -46,29 +47,42 @@
             - Require valid-user
         when:
           - ansible_distribution == 'CentOS'
-          - ansible_distribution_major_version == '7'  
+          - ansible_distribution_major_version == '7'
+
+      - name: set httpd_auth values when using basic auth on Ubuntu
+        set_fact:
+          httpd_auth:
+            - AuthType Basic
+            - AuthName "Open OnDemand"
+            - AuthBasicProvider PAM
+            - AuthPAMService ood
+            - Require valid-user
+        when:
+          - ansible_distribution == 'Ubuntu'
 
     when:
       - authentication.httpd_auth is defined
       - authentication.httpd_auth == 'basic'
 
-  # - name: debug
-  #   debug:
-  #     msg: 
-  #       - "{{ ('ondemand*,amlfs*' if ( lustre.create | default(false)) else 'ondemand*') }}"
+  - name: debug
+    debug:
+      msg:
+        - "{{ ood_package }}" 
+#        - "{{ ('ondemand*,amlfs*' if ( lustre.create | default(false)) else 'ondemand*') }}"
 
   - name: Make sure we have the latest root certificates
     yum:
       name: ca-certificates
       state: latest
       lock_timeout : 180
+    when: 
+      - (ansible_distribution == 'AlmaLinux') or (ansible_distribution == 'CentOS')
 
   - name: Set up PAM authentication for OOD
     include_role:
       name: ood_pam_auth
     when: 
-      - ansible_distribution == 'CentOS'
-      - ansible_distribution_major_version == '7'
+      - ((ansible_distribution == 'CentOS') and (ansible_distribution_major_version == '7')) or (ansible_distribution == 'Ubuntu')
 
   - name: Set up mod_authnz_external modules (for cyclecloud proxy)
     yum:
@@ -103,7 +117,7 @@
         include_role:
           name: ood-ansible
         vars:
-          ondemand_package: 'ondemand-{{ ondemand_version }}'
+          ondemand_package: '{{ ood_package }}'
           servername: null
           oidc_client_secret: '{{ oidc_secret.stdout | default(None)}}'
           httpd_port: 80
@@ -214,7 +228,7 @@
     include_role:
       name: ood-ansible
     vars:
-      ondemand_package: 'ondemand-{{ ondemand_version }}'
+      ondemand_package: '{{ ood_package }}'
       servername: '{{ ondemand_fqdn }}'
       httpd_port: 443
       oidc_client_secret: '{{ oidc_secret.stdout | default(None)}}'
@@ -314,6 +328,12 @@
     yum: 
       name: Lmod, hwloc, numactl, jq
       lock_timeout : 180
+    when: (ansible_distribution == 'AlmaLinux') or (ansible_distribution == 'CentOS')
+
+  - name: add modules for job submission
+    apt: 
+      name: lmod, hwloc, numactl, jq
+    when: ansible_distribution == 'Ubuntu'
 
   - name: create ssh_config file
     copy:
@@ -506,6 +526,14 @@
       - ansible_distribution == 'AlmaLinux'
       - ansible_distribution_major_version == '8'
 
+  - name: Ensure apache is restarted
+    service: 
+      name: apache2
+      state: restarted
+      enabled: yes
+    when: 
+      - ansible_distribution == 'Ubuntu'
+
   - name: Add cvmsf-eessi support
     block:
       - name: Install cvmfs repo package
@@ -539,7 +567,7 @@
         shell: cvmfs_config setup 
     when:  ( cvmfs_eessi.enabled | default(false) )
 
-  - name: "yq: Download and install (CentOS)"
+  - name: "yq: Download and install"
     get_url:
       url: "https://github.com/mikefarah/yq/releases/download/{{ yq_version }}/{{ yq_binary }}"
       dest: /usr/bin/yq
@@ -579,4 +607,4 @@
       apply: 
         become: true
     vars:
-      packages_to_exclude_from_upgrade: "{{ ('ondemand*,amlfs*' if ( lustre.create | default(false)) else 'ondemand*') }}"
+      packages_to_exclude_from_upgrade: "{{ (['ondemand','amlfs'] if ( lustre.create | default(false)) else ['ondemand']) }}"
