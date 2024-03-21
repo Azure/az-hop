@@ -1,0 +1,6 @@
+---
+- name: install application dependencies
+  yum:
+    name: "python-flask"
+    state: present
+    lock_timeout : 180
