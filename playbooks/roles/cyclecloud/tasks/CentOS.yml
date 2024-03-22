@@ -102,3 +102,11 @@
     name: "jetpack8-{{cyclecloud_version}}"
     state: present
     lock_timeout : 180
+
+- name: Update Packages
+  include_role:
+    name: pkg_update
+    apply: 
+      become: true
+  vars:
+    packages_to_exclude_from_upgrade: "cyclecloud*"

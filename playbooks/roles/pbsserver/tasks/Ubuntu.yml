@@ -1,0 +1,35 @@
+---
+- name: Install dependencies
+  apt:
+    name: libpq5, jq, unzip, postgresql, postgresql-contrib, expat, libedit2, sendmail-bin, tcl, tk, python3-pip
+    state: present
+
+# Need to change postgresql.conf port to 15007
+- name: Change postgresql.conf port to 15007
+  lineinfile:
+    path: /etc/postgresql/12/main/postgresql.conf
+    regexp: '^port = 5432'
+    line: 'port = 15007'
+
+- name: Stop postgresql
+  service:
+    name: postgresql
+    state: stopped
+
+- name: Download pbspro 
+  unarchive:
+    src: "{{openpbs_package}}"
+    dest: /mnt
+    remote_src: yes
+  when: openpbs_package != "null"
+
+- name: Install pbspro
+  ansible.builtin.apt:
+    deb: "{{openpbs_server_rpm}}"
+    state: present
+
+- name: Initialize PBS
+  shell: |
+    /opt/pbs/libexec/pbs_postinstall
+    chmod 4755 /opt/pbs/sbin/pbs_iff /opt/pbs/sbin/pbs_rcp
+

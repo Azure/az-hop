@@ -12,23 +12,8 @@
       ansible.builtin.fail:
         msg: "unable to find anything in vars/ for this operating system! {{ ansible_distribution }}"
 
-- name: Add the Influxdb YUM repository
-  yum_repository:
-    name: "{{ influxdb_install_repo['name'] }}"
-    description: "{{ influxdb_install_repo['name'] }}"
-    baseurl: "{{ influxdb_install_repo['yum_repo'] }}"
-    gpgkey: "{{ influxdb_install_repo['yum_gpg_key'] | default(omit) }}"
-    gpgcheck: "{{ influxdb_install_repo['yum_gpg_check'] | default(false) }}"
-    state: present
-
-- name: Install Influxdb
-  yum: 
-    name:
-      - https://dl.influxdata.com/influxdb/releases/influxdb-1.8.10.x86_64.rpm
-      - python3-pip
-    state: present
-    lock_timeout : 180
-    disable_gpg_check: true
+- name: Perform OS dependent configuration tasks
+  include_tasks: "{{ansible_distribution}}.yml"
 
 - name: Install required pip packages
   pip:

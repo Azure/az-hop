@@ -1,0 +1,12 @@
+---
+- name: Download pbspro 
+  unarchive:
+    src: "{{openpbs_package}}"
+    dest: /mnt
+    remote_src: yes
+  when: openpbs_package != "null"
+
+- name: install PBS Client
+  ansible.builtin.apt: 
+    deb: "{{openpbs_execution_rpm}}"
+    state: present

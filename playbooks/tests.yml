@@ -10,6 +10,8 @@
   gather_facts: no
   vars_files:
     - '{{global_config_file}}'
+  vars:
+    allow_world_readable_tmpfiles: true
 
   tasks:
   - name: Wait 300 seconds for the nodes to be ready
@@ -17,6 +19,11 @@
       timeout: 300
   - name: Gather facts for first time
     setup:
+
+  - name: setup acl for ubuntu only
+    apt:
+      name: acl
+    when: ansible_distribution == 'Ubuntu'
 
   - name: Call tests role
     include_role:

@@ -1,0 +1,29 @@
+---
+- name: Install dependencies
+  yum:
+    name: python3, nfs-utils, jq
+    lock_timeout : 180
+
+- name: Disable SELinux
+  selinux:
+    state: disabled
+  register: selinux
+
+- name: reboot 
+  reboot:
+  when: selinux.reboot_required
+
+- name: Download pbspro 
+  unarchive:
+    src: "{{openpbs_package}}"
+    dest: /mnt/resource
+    remote_src: yes
+  when: openpbs_package != "null"
+
+- name: Install pbspro
+  yum:
+    name: 
+      - "{{openpbs_server_rpm}}"
+    state: present
+    disable_gpg_check: true
+    lock_timeout : 180

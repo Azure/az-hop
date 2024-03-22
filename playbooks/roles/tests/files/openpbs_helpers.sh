@@ -2,6 +2,7 @@
 # Define a correct maximum walltime
 PBS_MAX_WALLTIME="00:10:00" # 10 minutes to run a job
 MAX_WAIT_TIME=1800 # 30 minutes to wait for all jobs to finish
+. /etc/profile.d/pbs.sh
 
 function check_scheduler()
 {

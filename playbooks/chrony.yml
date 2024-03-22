@@ -5,7 +5,7 @@
 
 - hosts: jumpbox, ondemand, scheduler, grafana, ccportal
   become: true
-  gather_facts: no
+  gather_facts: yes
   vars_files:
     - '{{global_config_file}}'
 

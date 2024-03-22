@@ -1,41 +1,6 @@
 ---
 # chrony.conf for different OS versions https://docs.microsoft.com/en-us/azure/virtual-machines/linux/time-sync
 # On Ubuntu 19.10 and later versions, Red Hat Enterprise Linux, and CentOS 8.x, chrony is configured to use a PTP source clock. 
-# Instead of chrony, older Linux releases use the Network Time Protocol daemon (ntpd), which doesn't support PTP sources.
-# To enable PTP in those releases, chrony must be manually installed and configured (in chrony.conf)
-# for RHEL 7.x and CentOS 7.x reference see https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/system_administrators_guide/ch-configuring_ntp_using_the_chrony_suite
 
-- name: check if /dev/ptp_hyperv file exists
-  stat: 
-    path: /dev/ptp_hyperv
-  register: ptp_hyperv
-
-- name: set node chrony conf file
-  copy:
-    dest: /etc/chrony.conf
-    mode: 0644
-    content: |
-      driftfile /var/lib/chrony/drift
-      makestep 1.0 -1
-      rtcsync
-      logdir /var/log/chrony
-      refclock PHC /dev/ptp_hyperv poll 3 dpoll -2 offset 0 stratum 2
-  when: ptp_hyperv.stat.exists == True
-
-- name: set node chrony conf file
-  copy:
-    dest: /etc/chrony.conf
-    mode: 0644
-    content: |
-      driftfile /var/lib/chrony/drift
-      makestep 1.0 -1
-      rtcsync
-      logdir /var/log/chrony
-      refclock PHC /dev/ptp0 poll 3 dpoll -2 offset 0 stratum 2
-  when: ptp_hyperv.stat.exists == False
-
-- name: enable and start chronyd
-  service:
-    name: chronyd
-    enabled: yes
-    state: restarted
+- name: Perform OS dependent configuration tasks
+  include_tasks: "{{ansible_distribution}}.yml"

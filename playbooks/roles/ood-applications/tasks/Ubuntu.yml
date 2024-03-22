@@ -1,0 +1,15 @@
+---
+- name: install python3-pip
+  apt:
+    name: python3-pip
+    state: latest
+
+- name: install flask
+  shell: pip3 install flask
+
+- name: Use Python3 for passenger apps
+  lineinfile:
+    state: present
+    dest: /etc/ood/config/nginx_stage.yml
+    regexp: "^#passenger_python|^passenger_python"
+    line: "passenger_python: '/usr/bin/python3'"

@@ -1,0 +1,30 @@
+---
+- name: install epel
+  yum: 
+    name:
+      - epel-release
+    state: present
+    lock_timeout : 180
+
+- name: install common packages
+  yum: 
+    name:
+      - jq
+    state: present
+    lock_timeout : 180
+
+- name: Download pbspro 
+  unarchive:
+    src: "{{openpbs_package}}"
+    dest: /mnt/resource
+    remote_src: yes
+  when: openpbs_package != "null"
+
+- name: install PBS Client
+  yum: 
+    name:
+      - "{{openpbs_execution_rpm}}"
+    state: present
+    disable_gpg_check: true
+    lock_timeout : 180
+

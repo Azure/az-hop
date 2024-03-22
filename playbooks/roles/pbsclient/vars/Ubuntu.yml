@@ -1,0 +1,4 @@
+openpbs_version: 22.05.11
+openpbs_package: https://vcdn.altair.com/rl/OpenPBS/openpbs_{{openpbs_version}}.ubuntu_20.04.zip
+openpbs_execution_rpm: /mnt/openpbs_{{openpbs_version}}.ubuntu_20.04/openpbs-execution_{{openpbs_version}}-1_amd64.deb
+openpbs_server_regex: CHANGE_THIS_TO_PBS_SERVER_HOSTNAME

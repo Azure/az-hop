@@ -12,26 +12,8 @@
       ansible.builtin.fail:
         msg: "unable to find anything in vars/ for this operating system! {{ ansible_distribution }}"
 
-- name: Install dependencies
-  yum:
-    name: '{{item}}'
-    lock_timeout : 180
-  loop: '{{domain_join_packages}}'
-  notify: restart dbus
-
-- name: Disable SELinux
-  selinux:
-    state: disabled
-
-- name: Remove /etc/dhcp/dhclient.conf
-  file:
-    path: /etc/dhcp/dhclient.conf
-    state: absent
-
-- name: restart NetworkManager
-  service:
-    name: NetworkManager
-    state: restarted
+- name: Perform OS dependent configuration tasks
+  include_tasks: "{{ansible_distribution}}.yml"
 
 - name: Creates home directory mountpoint
   file:

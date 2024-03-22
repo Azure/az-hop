@@ -28,14 +28,6 @@
   include_tasks: "{{ansible_distribution}}.yml"
   when: install_cyclecloud
 
-- name: Update Packages
-  include_role:
-    name: pkg_update
-    apply: 
-      become: true
-  vars:
-    packages_to_exclude_from_upgrade: "cyclecloud*"
-
 - name: Extract and install the CLI
   shell: |
     set -e

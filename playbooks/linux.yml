@@ -40,23 +40,32 @@
   - name: Gather facts for first time
     setup:
 
-  - name: Install dependencies
-    yum:
-      name: epel-release, nfs-utils, python3
-      lock_timeout : 180
-      state: present
+  # - name: Install dependencies
+  #   ansible.builtin.package:
+  #     name: epel-release, nfs-utils, python3
+  #     state: present
 
   # use the private DNS when defined
-  - name: setup private domain if not set in resolv.conf
-    shell: |
-      if ! grep -q {{private_dns.name}} /etc/resolv.conf; then
-        sed -i 's/search /search {{private_dns.name}} /' /etc/resolv.conf
-        # Stop NetworkManager overwriting /etc/resolv.conf
-        cat > /etc/NetworkManager/conf.d/90-dns-none.conf << EOF
-        [main]
-        dns=none
-      EOF
-      fi
+  - name: setup private domain
+    block:
+      - name: setup private domain if not set in resolv.conf (for CentOS and AlmaLinux)
+        shell: |
+          if ! grep -q {{private_dns.name}} /etc/resolv.conf; then
+            sed -i 's/search /search {{private_dns.name}} /' /etc/resolv.conf
+            # Stop NetworkManager overwriting /etc/resolv.conf
+            cat > /etc/NetworkManager/conf.d/90-dns-none.conf << EOF
+            [main]
+            dns=none
+          EOF
+          fi
+        when: ansible_distribution in ['CentOS', 'AlmaLinux']
+
+      - name: setup private domain if not set in resolv.conf (for Ubuntu)
+        shell: |
+          if ! grep -q {{private_dns.name}} /etc/resolv.conf; then
+            sed -i 's/search /search {{private_dns.name}} /' /etc/resolv.conf
+          fi
+        when: ansible_distribution in ['Ubuntu']
     when: 
       - private_dns.create | default(false)
 
@@ -142,6 +151,10 @@
     shell: |
       cat <<EOF >/etc/profile.d/gen_sshkey.sh
       #!/bin/sh
+      # Only do this for uid >= 1000
+      if [ $(id -u) -le 1000 ]; then
+        return
+      fi
       if [ ! -f  ~/.ssh/id_rsa.pub ] ; then
         ssh-keygen -q -t rsa -N '' -f ~/.ssh/id_rsa <<<y >/dev/null 2>&1
         cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
@@ -151,3 +164,11 @@
       chmod 644 /etc/profile.d/gen_sshkey.sh
     args: 
       creates: /etc/profile.d/gen_sshkey.sh
+
+  - name: add pam_mkhomedir to pam to create users home directory if not exist (Ubuntu only)
+    lineinfile:
+      path: /etc/pam.d/common-session
+      line: 'session  required  pam_mkhomedir.so skel=/etc/skel'
+      state: present
+      create: yes
+    when: ansible_distribution == 'Ubuntu'

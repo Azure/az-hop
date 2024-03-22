@@ -1,19 +1,22 @@
 ---
 
-- name: Add the Grafana YUM repository
-  yum_repository:
-    name: "grafana"
-    description: "grafana"
-    baseurl: "https://rpm.grafana.com"
-    gpgkey: "https://rpm.grafana.com/gpg.key"
-    gpgcheck: true
+- name: Create the Grafana group
+  group:
+    name: "{{ grafana_group }}"
+    system: true
     state: present
-    exclude: "*beta*"
-    sslverify: 1
-    sslcacert: "/etc/pki/tls/certs/ca-bundle.crt"
-    timeout: 180
 
-- include_tasks: install.yml
+- name: Create the Grafana user
+  user:
+    name: "{{ grafana_user }}"
+    group: "{{ grafana_group }}"
+    system: yes
+    createhome: no
+    state: present
+
+- name: Perform OS dependent configuration tasks
+  include_tasks: "{{ansible_distribution}}.yml"
+
 - include_tasks: configure.yml
 - include_tasks: provisioning.yml
 

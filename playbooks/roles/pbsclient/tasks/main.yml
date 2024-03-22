@@ -12,34 +12,8 @@
       ansible.builtin.fail:
         msg: "unable to find anything in vars/ for this operating system! {{ ansible_distribution }}"
 
-- name: install epel
-  yum: 
-    name:
-      - epel-release
-    state: present
-    lock_timeout : 180
-
-- name: install common packages
-  yum: 
-    name:
-      - jq
-    state: present
-    lock_timeout : 180
-
-- name: Download pbspro 
-  unarchive:
-    src: "{{openpbs_package}}"
-    dest: /mnt/resource
-    remote_src: yes
-  when: openpbs_package != "null"
-
-- name: install PBS Client
-  yum: 
-    name:
-      - "{{openpbs_execution_rpm}}"
-    state: present
-    disable_gpg_check: true
-    lock_timeout : 180
+- name: Perform OS dependent configuration tasks
+  include_tasks: "{{ansible_distribution}}.yml"
 
 - name: Configure PBS server name in pbs.conf
   replace : 
@@ -64,18 +38,6 @@
     path: /opt/pbs/lib/init.d/limits.pbs_mom
     regexp: '^fi'
     replace: '#fi'
-
-#- name: Add vmssname as pool name attribute
-#  shell: |
-#    # Retrieve the VMSS name to be used as the pool name for multiple VMSS support
-#    poolName=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2018-10-01" | jq -r '.compute.vmScaleSetName')
-#    /opt/pbs/bin/qmgr -c "c n $(hostname) resources_available.pool_name='$poolName'" || exit 1
-
-#    mkdir -p /tmp/ansible/{{role_name}}
-#    touch /tmp/ansible/{{role_name}}/pool_name
-#  args:
-#    executable: /bin/bash
-#    creates: /tmp/ansible/{{role_name}}/pool_name
 
 - name: Ensure pbs is running.
   service: 

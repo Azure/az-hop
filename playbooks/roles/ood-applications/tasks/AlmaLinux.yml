@@ -1,0 +1,13 @@
+---
+- name: install application dependencies
+  yum:
+    name: "python3-flask"
+    state: present
+    lock_timeout : 180
+
+- name: Use Python3 for passenger apps
+  lineinfile:
+    state: present
+    dest: /etc/ood/config/nginx_stage.yml
+    regexp: "^#passenger_python|^passenger_python"
+    line: "passenger_python: '/usr/bin/python3'"
