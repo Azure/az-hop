@@ -44,7 +44,7 @@ on:
         default: 'grafana' # use it with ${{ inputs.monitoring }}
         type: string
       infra_os:
-        description: 'Operating System for the infrastructure: centos/almalinux - Default to centos'
+        description: 'Operating System for the infrastructure: centos/almalinux/ubuntu - Default to almalinux'
         required: false
         default: 'almalinux' # use it with ${{ inputs.infra_os }}
         type: string
