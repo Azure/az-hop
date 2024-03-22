@@ -86,6 +86,14 @@
         - ansible_distribution == 'AlmaLinux'
         - ansible_distribution_major_version == '8'
 
+    - name: Ensure apache is restarted
+      service: 
+        name: apache2
+        state: restarted
+        enabled: yes
+      when: 
+        - ansible_distribution == 'Ubuntu'
+
 - name: PBS metrics
   hosts: scheduler
   become: true
