@@ -1,17 +1,26 @@
 #!/bin/bash
 set -e
 
-# Run only on CryoSPARC master node
-[ $(hostname) != {{ applications.cryosparc.master_hostname }} ] && exit 0
-
 export INSTALL_DIR=/anfhome/apps/cryosparc
 SOURCES_DIR=${INSTALL_DIR}/sources
+
+# connect worker nodes to the master
+if [[ $(hostname) != {{ applications.cryosparc.master_hostname }} ]]; then
+    sudo chmod 777 /mnt
+    sudo su -c "$INSTALL_DIR/cryosparc_worker/bin/cryosparcw connect --worker $(hostname) \
+    --master {{ applications.cryosparc.master_hostname }} \
+    --port 39000 --ssdpath /mnt/" {{ applications.cryosparc.admin_user }}
+fi
+
+# Run only on CryoSPARC master node
+[ $(hostname) != {{ applications.cryosparc.master_hostname }} ] && exit 0
 
 ###################################################
 # Install CryoSPARC master locally on master node #
 ###################################################
 
 # CryoSPARC master must be installed as admin user
+sudo chown {{ applications.cryosparc.admin_user }} /cryosparc_data
 sudo -i -u {{ applications.cryosparc.admin_user }} bash << EOF
 cd /cryosparc_data
 tar xzf ${SOURCES_DIR}/cryosparc_master.tar.gz
@@ -62,6 +71,5 @@ export CUDA_PATH
 sudo -i -u {{ applications.cryosparc.admin_user }} bash << EOF
 cd ${INSTALL_DIR}/cryosparc_worker
 ./install.sh --license {{ applications.cryosparc.license_id }} \
-             --cudapath ${CUDA_PATH} \
              --yes
 EOF
