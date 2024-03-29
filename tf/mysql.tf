@@ -4,7 +4,7 @@ resource "azurerm_mysql_flexible_server" "mysql" {
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
 
-  administrator_login          = local.database_user
+  administrator_login          = local.create_database ? local.database_user : ""
   administrator_password       = random_password.db_password[0].result
 
   delegated_subnet_id          = local.create_database_subnet ? azurerm_subnet.database[0].id : data.azurerm_subnet.database[0].id
