@@ -234,7 +234,7 @@ var config = {
     } : {},
     contains(azhopConfig.network.vnet.subnets,'bastion') ? {
       bastion: {
-        apply_nsg: false
+        apply_nsg: true
         name: 'AzureBastionSubnet'
         cidr: azhopConfig.network.vnet.subnets.bastion.address_prefixes
       }
