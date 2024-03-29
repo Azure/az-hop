@@ -224,7 +224,7 @@ locals {
     # Create Database
     create_database  = ( try(local.configuration_yml["slurm"].accounting_enabled, false) ) && (! local.use_existing_database)
     use_existing_database = try(length(local.configuration_yml["database"].fqdn) > 0 ? true : false, false)
-    database_user = local.create_database ? "sqladmin" : (local.use_existing_database ? try(local.configuration_yml["database"].user, "") : "")
+    database_user = local.create_database ? "sqladmin" : (local.use_existing_database ? try(local.configuration_yml["database"].user, "sqladmin") : "sqladmin")
     #mariadb_private_dns_zone = local.azure_endpoints[local.azure_environment].MariaDBPrivateLink
 
     create_sig = try(local.configuration_yml["image_gallery"]["create"], false)

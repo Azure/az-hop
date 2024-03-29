@@ -14,7 +14,7 @@ resource "azurerm_key_vault" "azhop" {
   # soft delete is enabled by default now (2021-8-25), with 90 days retention
   # soft_delete_enabled         = true
   soft_delete_retention_days  = 7
-  purge_protection_enabled    = false
+  purge_protection_enabled    = true
   # TODO => Add the option to enable VMs to keep secrets in KV
   sku_name = "standard"
 
