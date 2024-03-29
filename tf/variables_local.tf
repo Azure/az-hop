@@ -530,7 +530,7 @@ locals {
 
     bastion_nsg_rules = {
         AllowBastionIn              = ["530", "Inbound" , "Allow", "Tcp", "Bastion",            "subnet/bastion",           "tag/VirtualNetwork"],
-        AllowBastionOu              = ["531", "Outbound", "Allow", "Tcp", "Bastion",            "subnet/bastion",           "tag/VirtualNetwork"],
+        AllowBastionOut             = ["531", "Outbound", "Allow", "Tcp", "Bastion",            "subnet/bastion",           "tag/VirtualNetwork"],
     }
 
     gateway_nsg_rules = {
