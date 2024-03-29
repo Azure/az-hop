@@ -234,7 +234,7 @@ var config = {
     } : {},
     contains(azhopConfig.network.vnet.subnets,'bastion') ? {
       bastion: {
-        apply_nsg: false
+        apply_nsg: true
         name: 'AzureBastionSubnet'
         cidr: azhopConfig.network.vnet.subnets.bastion.address_prefixes
       }
@@ -630,7 +630,8 @@ var config = {
       AllowLustreSubnetAnyOutbound: ['430', 'Outbound', 'Allow', '*', 'All', 'subnet', 'lustre', 'subnet', 'lustre']
     }
     bastion: {
-      AllowBastionIn              : ['530', 'Inbound', 'Allow', 'Tcp', 'Bastion', 'subnet', 'bastion', 'tag', 'VirtualNetwork']
+      AllowBastionIn              : ['530', 'Inbound' , 'Allow', 'Tcp', 'Bastion', 'subnet', 'bastion', 'tag', 'VirtualNetwork']
+      AllowBastionOut             : ['531', 'Outbound', 'Allow', 'Tcp', 'Bastion', 'subnet', 'bastion', 'tag', 'VirtualNetwork']
     }
     gateway: {
       AllowInternalWebUsersIn     : ['540', 'Inbound', 'Allow', 'Tcp', 'Web', 'subnet', 'gateway', 'asg', 'asg-ondemand']

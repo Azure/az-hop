@@ -107,6 +107,12 @@ resource "azurerm_subnet_network_security_group_association" "netapp" {
   network_security_group_id = azurerm_network_security_group.common[0].id
 }
 
+resource "azurerm_subnet_network_security_group_association" "bastion" {
+  count                     = local.create_nsg ? (local.no_bastion_subnet ? 0 : 1) : 0
+  subnet_id                 = local.create_bastion_subnet ? azurerm_subnet.bastion[0].id : data.azurerm_subnet.bastion[0].id
+  network_security_group_id = azurerm_network_security_group.common[0].id
+}
+
 resource "azurerm_subnet_network_security_group_association" "outbounddns" {
   count                     = local.create_nsg ? (local.no_outbounddns_subnet ? 0 : 1) : 0
   subnet_id                 = local.create_outbounddns_subnet ? azurerm_subnet.outbounddns[0].id : data.azurerm_subnet.outbounddns[0].id
