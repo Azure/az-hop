@@ -5,7 +5,9 @@
     name: libapache2-mod-authnz-external, pwauth
     state: latest
 
-
+- name: Enable mod_authnz_external
+  shell: |
+    a2enmod authnz_external
 
 - name: Set up PAM authentication
   shell: |
