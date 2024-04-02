@@ -19,6 +19,8 @@ resource kv 'Microsoft.KeyVault/vaults@2022-11-01' = {
     enabledForTemplateDeployment: true
     tenantId: subscription().tenantId
     softDeleteRetentionInDays: 7
+    enableSoftDelete: true
+    enablePurgeProtection: true
     sku: {
       family: 'A'
       name: 'standard'
