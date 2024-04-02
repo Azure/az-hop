@@ -2,8 +2,9 @@
 
 - name: install libapache2-mod-authnz-external pwauth
   apt:
-    name: libapache2-mod-authnz-external, pwauth
+    name: apache2, libapache2-mod-authnz-external, pwauth, libapache2-mod-wsgi, python-dev
     state: latest
+    update_cache: yes
 
 - name: Enable mod_authnz_external
   shell: |
