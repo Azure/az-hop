@@ -34,8 +34,7 @@
             - AuthExternal pwauth
             - Require valid-user
         when:
-          - ansible_distribution == 'AlmaLinux'
-          - ansible_distribution_major_version == '8'      
+          - ansible_distribution in ['AlmaLinux', 'Ubuntu']
 
       - name: set httpd_auth values when using basic auth on CentOS 7
         set_fact:
@@ -49,16 +48,6 @@
           - ansible_distribution == 'CentOS'
           - ansible_distribution_major_version == '7'
 
-      - name: set httpd_auth values when using basic auth on Ubuntu
-        set_fact:
-          httpd_auth:
-            - AuthType Basic
-            - AuthName "Open OnDemand"
-            - AuthBasicProvider PAM
-            - AuthPAMService ood
-            - Require valid-user
-        when:
-          - ansible_distribution == 'Ubuntu'
 
     when:
       - authentication.httpd_auth is defined
@@ -297,8 +286,7 @@
     when: 
       - authentication.httpd_auth is defined
       - authentication.httpd_auth == 'basic'
-      - ansible_distribution == 'AlmaLinux'
-      - ansible_distribution_major_version == '8'
+      - ansible_distribution in ['AlmaLinux', 'Ubuntu']
 
   - name: setup cyclecloud proxy
     blockinfile:
@@ -565,7 +553,9 @@
 
       - name: Configure cvmfs 
         shell: cvmfs_config setup 
-    when:  ( cvmfs_eessi.enabled | default(false) )
+    when:  
+      - ( cvmfs_eessi.enabled | default(false) )
+      - ansible_distribution in ['AlmaLinux', 'CentOS']
 
   - name: "yq: Download and install"
     get_url:

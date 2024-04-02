@@ -1,15 +1,11 @@
 ---
 
-- name: install libapache2-mod-authnz-pam
+- name: install libapache2-mod-authnz-external pwauth
   apt:
-    name: libapache2-mod-authnz-pam
+    name: libapache2-mod-authnz-external, pwauth
     state: latest
 
-# - name: Add LoadModule line to 55-authnz_pam.conf
-#   ansible.builtin.lineinfile:
-#     path: /etc/httpd/conf.modules.d/55-authnz_pam.conf
-#     search_string: 'LoadModule authnz_pam_module'
-#     line: LoadModule authnz_pam_module modules/mod_authnz_pam.so
+
 
 - name: Set up PAM authentication
   shell: |
