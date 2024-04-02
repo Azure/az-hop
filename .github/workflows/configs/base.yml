@@ -124,10 +124,6 @@ usergroups:
     gid: 5002
     description: "For users with sudo right or local admin right on nodes"
 
-# Enable cvmfs-eessi - disabled by default
-cvmfs_eessi:
-  enabled: true
-
 enroot:
   enroot_version: 3.4.1
 

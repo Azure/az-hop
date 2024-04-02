@@ -2,6 +2,10 @@ linux_base_image: canonical:0001-com-ubuntu-server-focal:20_04-lts-gen2:latest #
 # linux image plan if required, format is publisher:product:name
 #linux_base_plan: almalinux:almalinux-hpc:8_7-hpc-gen2
 
+# Enable cvmfs-eessi - disabled by default
+cvmfs_eessi:
+  enabled: false
+
 queues:
   - name: htc
     vm_size: Standard_F2s_v2
