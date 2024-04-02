@@ -19,7 +19,7 @@ jobs:
     uses: ./.github/workflows/z_base_callable.yml
     with:
       resource_group: 'AUTO_GENERATED'
-      location: 'westeurope'
+      location: 'southcentralus'
       scheduler: ${{ matrix.scheduler }}
       lustre: 'false'
       home_type: ${{ matrix.home_type }}
