@@ -274,7 +274,7 @@
       slurm_version: '{{slurm.slurm_version | default("20.11.9")}}-1'
     when: ( queue_manager is defined and queue_manager == "slurm" )
 
-  # temporary workaround waiting for this https://github.com/OSC/ood-ansible/issues/222 to be fixed
+  # temporary workaround waiting for this https://github.com/OSC/ood-ansible/issues/222, now fixed in OOD 3.1
   - name: Configure pwauth for Apache
     blockinfile:
       path: /opt/ood/ood-portal-generator/templates/ood-portal.conf.erb
@@ -286,8 +286,22 @@
     when: 
       - authentication.httpd_auth is defined
       - authentication.httpd_auth == 'basic'
-      - ansible_distribution in ['AlmaLinux', 'Ubuntu']
+      - ansible_distribution in ['AlmaLinux']
 
+  # temporary workaround waiting for this https://github.com/OSC/ood-ansible/issues/222, now fixed in OOD 3.1
+  - name: Configure pwauth for Apache
+    blockinfile:
+      path: /opt/ood/ood-portal-generator/templates/ood-portal.conf.erb
+      insertafter: OOD_PUN_STAGE_CMD
+      marker: "# {mark} ANSIBLE MANAGED BLOCK - Configure pwauth for Apache"
+      block: |
+          AddExternalAuth pwauth /usr/sbin/pwauth
+          SetExternalAuthMethod pwauth pipe
+    when: 
+      - authentication.httpd_auth is defined
+      - authentication.httpd_auth == 'basic'
+      - ansible_distribution in ['Ubuntu']
+      
   - name: setup cyclecloud proxy
     blockinfile:
       path: /opt/ood/ood-portal-generator/templates/ood-portal.conf.erb
