@@ -1,5 +1,9 @@
 ---
 
+- name: init home directory for {{test_user}}
+  shell: |
+    su - {{test_user}} -c exit
+
 - name: Upload test suite
   become_user: '{{test_user}}'
   copy:
