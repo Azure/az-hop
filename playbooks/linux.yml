@@ -152,7 +152,7 @@
       cat <<EOF >/etc/profile.d/gen_sshkey.sh
       #!/bin/sh
       # Only do this for uid >= 1000
-      if [ $(id -u) -le 1000 ]; then
+      if [ \$(id -u) -le 1000 ]; then
         return
       fi
       if [ ! -f  ~/.ssh/id_rsa.pub ] ; then
