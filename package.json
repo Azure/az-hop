@@ -1,6 +1,6 @@
 {
   "devDependencies": {
-    "@playwright/test": "^1.38.0"
+    "@playwright/test": "^1.42.1"
   },
   "dependencies": {
     "js-yaml": "^4.1.0"
