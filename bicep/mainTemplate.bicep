@@ -74,7 +74,7 @@ module azhopDeployment './azhop.bicep' = {
 
 var vnetPeerings = contains(azhopConfig.network, 'peering') ? azhopConfig.network.peering : []
 module azhopPeerings './vnetpeering.bicep' = [ for peer in vnetPeerings: {
-  name: 'peer_from${peer.vnet_name}'
+  name: 'peer_from${peer.vnet_name}_${guid(azhopResourceGroup.id)}'
   scope: resourceGroup(peer.vnet_resource_group)
   params: {
     name: '${azhopConfig.resource_group}_${azhopConfig.network.vnet.name}'
