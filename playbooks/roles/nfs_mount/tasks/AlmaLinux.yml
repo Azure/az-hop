@@ -1,0 +1,8 @@
+---
+
+- name: Install dependencies
+  ansible.builtin.package:
+    name: '{{item}}'
+    state: present
+  loop: '{{nfs_packages}}'
+

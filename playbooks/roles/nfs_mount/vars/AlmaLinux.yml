@@ -1,0 +1,5 @@
+nfs_packages:
+  - epel-release
+  - python3-policycoreutils
+  - nfs-utils
+  - python3

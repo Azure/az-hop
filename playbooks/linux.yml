@@ -25,7 +25,6 @@
     include_role:
       name: pkg_update
 
-
 - name: Join AD domain or create local users, mount shared home
   hosts: scheduler, ondemand, grafana
   become: true
@@ -39,11 +38,6 @@
       timeout: 300
   - name: Gather facts for first time
     setup:
-
-  # - name: Install dependencies
-  #   ansible.builtin.package:
-  #     name: epel-release, nfs-utils, python3
-  #     state: present
 
   # use the private DNS when defined
   - name: setup private domain
@@ -69,36 +63,30 @@
     when: 
       - private_dns.create | default(false)
 
-  - name: mount home
-    block:
-      - name: debug
-        debug:
-          msg:
-          - '{{ anf_home_ip }}:/{{ anf_home_path }}'
-          - '{{ homedir_mountpoint }}'
-          - '{{ anf_home_opts }}'
-      - name: Mount home NFS volume
-        mount:
-          src: '{{ anf_home_ip }}:/{{ anf_home_path }}'
-          path: '{{ homedir_mountpoint }}'
-          opts: '{{ anf_home_opts }}'
-          state: mounted
-          fstype: nfs
-        register: mount_success
-        until: mount_success is succeeded
-        retries: 3
-        delay: 30
+  - name: debug
+    debug:
+      msg:
+      - '{{ anf_home_ip }}:/{{ anf_home_path }}'
+      - '{{ homedir_mountpoint }}'
+      - '{{ anf_home_opts }}'
 
-      - name: Disable SELinux
-        selinux:
-          state: disabled
-        register: selinux
+  - name: Mount home NFS volume
+    include_role:
+      name: nfs_mount
+    vars:
+      nfs_source: '{{ anf_home_ip }}:/{{ anf_home_path }}'
+      nfs_path: '{{ homedir_mountpoint }}'
+      nfs_mount_opts: '{{ anf_home_opts }}'
 
-      - name: reboot 
-        reboot:
-        when: selinux.reboot_required
+  - name: Disable SELinux
+    selinux:
+      state: disabled
+    register: selinux
+    when: ansible_distribution == 'CentOS' or ansible_distribution == 'AlmaLinux'
 
-    when: (authentication.user_auth | default('ad')) == "local"
+  - name: reboot 
+    reboot:
+    when: selinux.reboot_required | default(false)
 
   - name: Domain Join
     block:
@@ -117,10 +105,6 @@
         domain_admin: "{{ad_join_user}}"
         domain_password: "{{password.stdout}}"
         domain: "{{domain_name}}"
-        domain_homedir: "{{homedir_mountpoint}}"
-        domain_mount_ip: "{{anf_home_ip}}"
-        domain_mount_path: "{{anf_home_path}}"
-        domain_mount_opts: "{{anf_home_opts}}"
         domain_join_ou: "{{domain.domain_join_ou | default('')}}"
 
     when: (authentication.user_auth | default('ad')) == "ad"
