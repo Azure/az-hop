@@ -1,21 +1,6 @@
-# Setup slurm when using cyclecloud-slurm version 3.0.x only
-- name: install CycleCloud repo
-  shell: |
-    cat > /etc/yum.repos.d/cyclecloud.repo <<EOF
-    [cyclecloud]
-    name=cyclecloud
-    baseurl=https://packages.microsoft.com/yumrepos/cyclecloud
-    gpgcheck=1
-    gpgkey=https://packages.microsoft.com/keys/microsoft.asc
-    EOF
-  args:
-    creates: /etc/yum.repos.d/cyclecloud.repo
-
-- name: Install Jetpack
-  yum:
-    name: "jetpack8-{{cc_version}}"
-    state: present
-    lock_timeout : 180
+---
+- name: Perform OS dependent configuration tasks
+  include_tasks: "{{ansible_distribution}}/jetpack.yml"
 
 - name: fix jetpack permissions
   file:
@@ -75,9 +60,9 @@
 
 - name: install azure-slurm
   shell: |
-    set -e
     cd {{jetpack_home}}/system/bootstrap/azure-slurm
     source ~/.bash_profile
+    set -e
     ./install.sh
 
 - name: create slurm extension config
