@@ -67,6 +67,12 @@
     when: 
       - (ansible_distribution == 'AlmaLinux') or (ansible_distribution == 'CentOS')
 
+  - name: Make sure we have the latest root certificates in Ubuntu
+    apt:
+      name: ca-certificates
+      state: latest
+    when: ansible_distribution == 'Ubuntu'
+
   - name: Set up PAM authentication for OOD
     include_role:
       name: ood_pam_auth
