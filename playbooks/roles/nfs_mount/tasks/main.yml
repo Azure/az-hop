@@ -1,0 +1,34 @@
+---
+- name: Include distribution variables
+  block:
+    - name: Include distribution variables
+      ansible.builtin.include_vars: "{{ item }}"
+      with_first_found:
+        - "{{ ansible_distribution }}/{{ ansible_distribution_major_version }}.yml"
+        - "{{ ansible_distribution }}.yml"
+      tags: [ 'always' ]
+  rescue:
+    - name: Change error message
+      ansible.builtin.fail:
+        msg: "unable to find anything in vars/ for this operating system! {{ ansible_distribution }}"
+
+- name: Perform OS dependent configuration tasks
+  include_tasks: "{{ansible_distribution}}.yml"
+
+- name: Creates NFS directory mountpoint
+  file:
+    path: '{{nfs_path}}'
+    state: directory
+    mode: '0755'
+
+- name: Mount an NFS volume
+  mount:
+    src: '{{ nfs_source }}'
+    path: '{{ nfs_path }}'
+    opts: '{{ nfs_mount_opts}}'
+    state: mounted
+    fstype: nfs
+  register: mount_success
+  until: mount_success is succeeded
+  retries: 3
+  delay: 30

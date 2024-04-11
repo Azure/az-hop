@@ -12,5 +12,5 @@ domain_join_packages:
   - ldap-utils
   - packagekit
   - resolvconf
-  - nfs-common
-  - python3
+  # - nfs-common
+  # - python3

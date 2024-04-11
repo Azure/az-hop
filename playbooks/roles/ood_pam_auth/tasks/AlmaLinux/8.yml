@@ -1,21 +1,6 @@
 ---
 
-- name: Install mod_authnz_pam
+- name: Set up mod_authnz_external modules (for cyclecloud proxy)
   yum:
-    name: mod_authnz_pam
-    state: latest
-    lock_timeout : 180
-
-- name: Add LoadModule line to 55-authnz_pam.conf
-  ansible.builtin.lineinfile:
-    path: /etc/httpd/conf.modules.d/55-authnz_pam.conf
-    search_string: 'LoadModule authnz_pam_module'
-    line: LoadModule authnz_pam_module modules/mod_authnz_pam.so
-
-- name: Set up PAM authentication
-  shell: |
-    cp /etc/pam.d/sshd /etc/pam.d/ood
-    chmod 640 /etc/shadow
-    chgrp apache /etc/shadow
-  args:
-    creates: /etc/pam.d/ood
+    name: mod_authnz_external,pwauth
+    lock_timeout: 180  

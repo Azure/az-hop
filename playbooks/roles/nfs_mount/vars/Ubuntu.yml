@@ -1,0 +1,4 @@
+nfs_packages:
+  - nfs-common
+  # - python3
+  # - policycoreutils
