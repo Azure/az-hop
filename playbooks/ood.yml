@@ -108,6 +108,29 @@
           httpd_public_root: /var/www/ood/.well-known
         when: sslcert.stat.exists == False
 
+      - name: stop apache2 in Ubuntu
+        service:
+          name: apache2
+          state: stopped
+        when: ansible_distribution == 'Ubuntu'
+
+      - name: remove 000-default.conf in Ubuntu
+        file:
+          path: /etc/apache2/sites-enabled/000-default.conf
+          state: absent
+        when: ansible_distribution == 'Ubuntu'
+
+      - name: adding Indexes to ood-portal.conf in Ubuntu
+        shell: |
+          sed -i 's/Options FollowSymLinks/Options Indexes FollowSymLinks/g' /etc/apache2/sites-enabled/ood-portal.conf
+        when: ansible_distribution == 'Ubuntu'
+
+      - name: start apache2 in Ubuntu
+        service:
+          name: apache2
+          state: started
+        when: ansible_distribution == 'Ubuntu'
+      
       - name: Generate Let's Encrypt HTTPS certificate
         shell: |
           cd /root
