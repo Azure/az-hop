@@ -186,7 +186,11 @@ case $TARGET in
     run_playbook add_local_users
     run_playbook cccluster
     run_playbook scheduler
-    run_playbook ood $PLAYBOOKS_DIR/ood-overrides-common.yml $PLAYBOOKS_DIR/ood-overrides-$SCHEDULER.yml $PLAYBOOKS_DIR/ood-overrides-auth-$OOD_AUTH.yml
+    if [ "$OOD_AUTH" == "basic" ]; then
+      run_playbook ood $PLAYBOOKS_DIR/ood-overrides-common.yml $PLAYBOOKS_DIR/ood-overrides-$SCHEDULER.yml
+    else
+      run_playbook ood $PLAYBOOKS_DIR/ood-overrides-common.yml $PLAYBOOKS_DIR/ood-overrides-$SCHEDULER.yml $PLAYBOOKS_DIR/ood-overrides-auth-$OOD_AUTH.yml
+    fi
     run_playbook ood-custom
     run_playbook telegraf
     run_playbook chrony
@@ -195,7 +199,11 @@ case $TARGET in
     run_playbook $TARGET
   ;;
   ood)
-    run_playbook ood $PLAYBOOKS_DIR/ood-overrides-common.yml $PLAYBOOKS_DIR/ood-overrides-$SCHEDULER.yml $PLAYBOOKS_DIR/ood-overrides-auth-$OOD_AUTH.yml
+    if [ "$OOD_AUTH" == "basic" ]; then
+      run_playbook ood $PLAYBOOKS_DIR/ood-overrides-common.yml $PLAYBOOKS_DIR/ood-overrides-$SCHEDULER.yml
+    else
+      run_playbook ood $PLAYBOOKS_DIR/ood-overrides-common.yml $PLAYBOOKS_DIR/ood-overrides-$SCHEDULER.yml $PLAYBOOKS_DIR/ood-overrides-auth-$OOD_AUTH.yml
+    fi
     run_playbook ood-custom
   ;;
   *)
