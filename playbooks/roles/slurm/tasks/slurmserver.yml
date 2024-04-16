@@ -96,7 +96,7 @@
     state: restarted
     enabled: yes
 
-- name: Wait a maximum of 120 seconds until slurctld is running
+- name: Wait a maximum of 120 seconds until slurmctld is running
   wait_for:
     path: /var/log/slurmctld/slurmctld.log
     # slurmctld version \d+.\d+.\d+ started

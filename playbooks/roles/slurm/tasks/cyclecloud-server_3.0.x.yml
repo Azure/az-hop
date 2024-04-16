@@ -46,6 +46,7 @@
     cd {{jetpack_home}}/system/bootstrap/azure-slurm-install
     ./install.sh --mode scheduler --bootstrap-config {{jetpack_home}}/config/node.json
   args: 
+    executable: /bin/bash
     creates: '/etc/azslurm-bins.installed' 
 
 # Install autoscaling for slurm. 
@@ -62,8 +63,10 @@
   shell: |
     cd {{jetpack_home}}/system/bootstrap/azure-slurm
     source ~/.bash_profile
-    set -e
-    ./install.sh
+    set -eo pipefail
+    ./install.sh | tee azure-slurm-install.log
+  args: 
+    executable: /bin/bash
 
 - name: create slurm extension config
   template:
@@ -126,6 +129,12 @@
         regexp: 'AzureCA.pem'
         replace: 'DigiCertGlobalRootCA.crt.pem' 
 
+    - name: Install libmysqlclient-dev
+      package:
+        name: libmysqlclient-dev
+        state: present
+      when: ansible_distribution == 'Ubuntu'
+
   when: accounting_enabled | default(false)
 
 # Start service. 
@@ -145,8 +154,9 @@
     state: restarted
     enabled: yes
 
-- name: refresh slurm node list
-  shell: |
-    set -e
-    /root/bin/azslurm scale
-    ln -fs /sched/{{ slurm_cluster_name }}/gres.conf /etc/slurm/gres.conf && chown slurm:slurm /etc/slurm/gres.conf
+# No longer needed
+# - name: refresh slurm node list
+#   shell: |
+#     set -e
+#     /root/bin/azslurm scale
+#     ln -fs /sched/{{ slurm_cluster_name }}/gres.conf /etc/slurm/gres.conf && chown slurm:slurm /etc/slurm/gres.conf
