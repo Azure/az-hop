@@ -63,8 +63,9 @@
   shell: |
     cd {{jetpack_home}}/system/bootstrap/azure-slurm
     source ~/.bash_profile
-    set -eo pipefail
-    ./install.sh | tee azure-slurm-install.log
+    set -e
+    export PATH=$PATH:/opt/cycle/jetpack/bin
+    ./install.sh &> install.log
   args: 
     executable: /bin/bash
 
