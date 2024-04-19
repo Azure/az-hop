@@ -13,3 +13,8 @@
     name: "jetpack8={{cc_version}}"
     state: present
     lock_timeout : 180
+
+- name: Install dependencies
+  apt:
+    name: jq
+    state: present

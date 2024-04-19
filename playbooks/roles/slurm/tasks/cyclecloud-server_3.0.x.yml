@@ -107,36 +107,14 @@
         regexp: 'AccountingStorageHost.*'
         replace: 'AccountingStorageHost={{ scheduler.name | default("scheduler") }}' 
 
-    # https://learn.microsoft.com/en-us/azure/mysql/flexible-server/how-to-connect-tls-ssl
-    - name: download DigiCertGlobalRootCA certificate
-      get_url:
-        url: 'https://dl.cacerts.digicert.com/DigiCertGlobalRootCA.crt.pem'
-        dest: /sched/{{ slurm_cluster_name }}/DigiCertGlobalRootCA.crt.pem
-        mode: 0644
-        owner: slurm
-        group: slurm
-        timeout: 180
-
-    - name: symbolic link for DigiCertGlobalRootCA.crt.pem
-      file:
-        src: /sched/{{ slurm_cluster_name }}/DigiCertGlobalRootCA.crt.pem
-        dest: /etc/slurm/DigiCertGlobalRootCA.crt.pem
-        state: link
-        force: true
-
-    - name: Set the root certificate in the slurmdbd configuration file when accounting is enabled
-      replace:
-        path: /sched/{{ slurm_cluster_name }}/slurmdbd.conf
-        regexp: 'AzureCA.pem'
-        replace: 'DigiCertGlobalRootCA.crt.pem' 
-
-    - name: Install libmysqlclient-dev
-      package:
-        name: libmysqlclient-dev
-        state: present
-      when: ansible_distribution == 'Ubuntu'
-
   when: accounting_enabled | default(false)
+
+# Fixing https://github.com/Azure/cyclecloud-slurm/issues/221
+- name: Install libmysqlclient-dev
+  package:
+    name: libmysqlclient-dev
+    state: present
+  when: ansible_distribution == 'Ubuntu'
 
 # Start service. 
 # For reference see https://github.com/Azure/cyclecloud-slurm/blob/master/specs/scheduler/cluster-init/scripts/00-install.sh

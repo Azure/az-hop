@@ -25,18 +25,21 @@
             "name": "slurm",
             "uid": 11100,
             "gid": 11100
-          },
+        },
         "install": true,
         "use_nodename_as_hostname": false,
-        "role": "{{cc_role}}",
-        "node_prefix": "{{ ansible_hostname }}",
         "ensure_waagent_monitor_hostname": true,
+        "node_prefix": "{{ ansible_hostname }}",
+        "suspend_timeout": 300,
+        "resume_timeout": 1200,
         "accounting": {
             "enabled": {{ (slurm.accounting_enabled | lower) | default(false)}},
-            "user": "{{ database_user }}",
+            "url": "{{ database_fqdn }}",
+            "certificate_url": "https://dl.cacerts.digicert.com/DigiCertGlobalRootCA.crt.pem",
             "password": "{{ database_password | default('') }}",
-            "url": "{{ database_fqdn }}"
-        }
+            "user": "{{ database_user }}"
+        },
+        "role": "{{cc_role}}"
     },
     "munge":
     {
