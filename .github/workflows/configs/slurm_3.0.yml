@@ -6,5 +6,5 @@ slurm:
   # Enable SLURM accounting, this will create a SLURM accounting database in a managed MySQL server instance
   accounting_enabled: true
   # SLURM version to install.
-  slurm_version: 22.05.9
+  slurm_version: 23.02.5 #22.05.9 is creating a core dumped with Slurmdbd
   cyclecloud_slurm_version: 3.0.4
