@@ -86,6 +86,14 @@
     state: present
     firstmatch: yes
 
+- name: Update slurmdbd service to start after the home directory is mounted
+  lineinfile:
+    path: /lib/systemd/system/slurmdbd.service
+    insertafter: 'ConditionPathExists='
+    line: 'RequiresMountsFor={{homedir_mountpoint}}'
+    state: present
+    firstmatch: yes
+
 - name: restart daemon-reload
   shell: |
     systemctl daemon-reload
