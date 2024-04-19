@@ -81,4 +81,4 @@
       apply: 
         become: true
     vars:
-      packages_to_exclude_from_upgrade: "grafana*"
+      packages_to_exclude_from_upgrade: ["grafana"]

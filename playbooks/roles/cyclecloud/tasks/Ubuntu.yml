@@ -2,13 +2,12 @@
 - name: install AZ CLI repo (Ubuntu)
   shell: curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
-- name: install AZ CLI repo (Ubuntu)
+- name: install cyclecloud repo (Ubuntu)
   shell: |
     apt -y install wget gnupg2
     wget -qO - https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
     echo 'deb https://packages.microsoft.com/repos/cyclecloud bionic main' > /etc/apt/sources.list.d/cyclecloud.list
     sudo apt update
-#    sudo apt -y install cyclecloud8
   args:
     creates: /etc/apt/sources.list.d/cyclecloud.list
 
@@ -29,3 +28,11 @@
     name: "jetpack8={{cyclecloud_version}}"
     state: present
     lock_timeout : 180
+
+- name: Update Packages
+  include_role:
+    name: pkg_update
+    apply: 
+      become: true
+  vars:
+    packages_to_exclude_from_upgrade: [cyclecloud8, jetpack8]

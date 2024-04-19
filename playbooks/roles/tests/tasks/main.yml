@@ -1,5 +1,9 @@
 ---
 
+- name: init home directory for {{test_user}}
+  shell: |
+    su - {{test_user}} -c exit
+
 - name: Upload test suite
   become_user: '{{test_user}}'
   copy:
@@ -15,9 +19,11 @@
 - name: check scheduler
   become_user: '{{test_user}}'
   shell: |
-    source ~/{{ queue_manager }}_helpers.sh
-    source ~/.bash_profile
+    . ~/{{ queue_manager }}_helpers.sh
+    . ~/.profile
     check_scheduler
+  args:
+    executable: /bin/bash
 
 - name: Create random job name
   become_user: '{{test_user}}'
@@ -37,32 +43,37 @@
 - name: submit pingpong jobs
   become_user: '{{test_user}}'
   shell: |
-    source ~/{{ queue_manager }}_helpers.sh
-    source ~/.bash_profile
+    . ~/{{ queue_manager }}_helpers.sh
+    . ~/.profile
     if [ {{ (item.max_core_count | default(0)) or (item.max_count | default(0)) }} -gt 0 ]; then
       submit_job {{job_name}} 2 1 {{item.name}} ~/pingpong.sh
     fi
   with_items: "{{queues | selectattr('ColocateNodes') }}"
+  args:
+    executable: /bin/bash
 
 - name: submit single node jobs for non colocated queues
   become_user: '{{test_user}}'
   shell: |
-    source ~/{{ queue_manager }}_helpers.sh
-    source ~/.bash_profile
+    . ~/{{ queue_manager }}_helpers.sh
+    . ~/.profile
     if [ {{ (item.max_core_count | default(0)) or (item.max_count | default(0)) }} -gt 0 ]; then
       submit_job {{job_name}} 1 1 {{item.name}} ~/job.sh {{item.vm_size}}
     fi
   with_items: "{{queues | rejectattr('ColocateNodes') }}"
+  args:
+    executable: /bin/bash
 
 - name: wait jobs
   become_user: '{{test_user}}'
   shell: |
-    source ~/{{ queue_manager }}_helpers.sh
-    source ~/.bash_profile
+    . ~/{{ queue_manager }}_helpers.sh
+    . ~/.profile
     echo "Wait for jobs"
     wait_alljobs {{job_name}}
     echo "List nodes"
     list_nodes || exit 1
     echo "Get job status"
     check_jobstatus {{job_name}}
-
+  args:
+    executable: /bin/bash

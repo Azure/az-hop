@@ -10,6 +10,7 @@
     - '{{global_config_file}}'
   vars:
     ondemand_version: 3.0.3
+    ood_package: "{{ ('ondemand=' if ( ansible_distribution == 'Ubuntu') else 'ondemand-') }}{{ondemand_version}}"
     yq_version: v4.40.5
     yq_binary: yq_linux_amd64
     ccportal_name: "{{cyclecloud.name | default('ccportal')}}"
@@ -33,8 +34,7 @@
             - AuthExternal pwauth
             - Require valid-user
         when:
-          - ansible_distribution == 'AlmaLinux'
-          - ansible_distribution_major_version == '8'      
+          - ansible_distribution in ['AlmaLinux', 'Ubuntu']
 
       - name: set httpd_auth values when using basic auth on CentOS 7
         set_fact:
@@ -46,37 +46,34 @@
             - Require valid-user
         when:
           - ansible_distribution == 'CentOS'
-          - ansible_distribution_major_version == '7'  
-
+          - ansible_distribution_major_version == '7'
     when:
       - authentication.httpd_auth is defined
       - authentication.httpd_auth == 'basic'
 
-  # - name: debug
-  #   debug:
-  #     msg: 
-  #       - "{{ ('ondemand*,amlfs*' if ( lustre.create | default(false)) else 'ondemand*') }}"
+  - name: debug
+    debug:
+      msg:
+        - "{{ ood_package }}" 
+#        - "{{ ('ondemand*,amlfs*' if ( lustre.create | default(false)) else 'ondemand*') }}"
 
   - name: Make sure we have the latest root certificates
     yum:
       name: ca-certificates
       state: latest
       lock_timeout : 180
+    when: 
+      - (ansible_distribution == 'AlmaLinux') or (ansible_distribution == 'CentOS')
+
+  - name: Make sure we have the latest root certificates in Ubuntu
+    apt:
+      name: ca-certificates
+      state: latest
+    when: ansible_distribution == 'Ubuntu'
 
   - name: Set up PAM authentication for OOD
     include_role:
       name: ood_pam_auth
-    when: 
-      - ansible_distribution == 'CentOS'
-      - ansible_distribution_major_version == '7'
-
-  - name: Set up mod_authnz_external modules (for cyclecloud proxy)
-    yum:
-      name: mod_authnz_external,pwauth
-      lock_timeout: 180  
-    when: 
-      - ansible_distribution == 'AlmaLinux'
-      - ansible_distribution_major_version == '8'
 
   - name: Retrieve OIDC secret
     block:
@@ -103,7 +100,7 @@
         include_role:
           name: ood-ansible
         vars:
-          ondemand_package: 'ondemand-{{ ondemand_version }}'
+          ondemand_package: '{{ ood_package }}'
           servername: null
           oidc_client_secret: '{{ oidc_secret.stdout | default(None)}}'
           httpd_port: 80
@@ -111,6 +108,18 @@
           httpd_public_root: /var/www/ood/.well-known
         when: sslcert.stat.exists == False
 
+      - name: disable 000-default.conf and enable ood-portal.conf in Ubuntu
+        shell: |
+          a2dissite 000-default.conf
+          a2ensite ood-portal.conf
+        when: ansible_distribution == 'Ubuntu'
+
+      - name: activate new apache2 configuration in Ubuntu
+        service:
+          name: apache2
+          state: reloaded
+        when: ansible_distribution == 'Ubuntu'
+      
       - name: Generate Let's Encrypt HTTPS certificate
         shell: |
           cd /root
@@ -214,7 +223,7 @@
     include_role:
       name: ood-ansible
     vars:
-      ondemand_package: 'ondemand-{{ ondemand_version }}'
+      ondemand_package: '{{ ood_package }}'
       servername: '{{ ondemand_fqdn }}'
       httpd_port: 443
       oidc_client_secret: '{{ oidc_secret.stdout | default(None)}}'
@@ -224,6 +233,12 @@
       - "{{SSLCertificateChainFile | default(None)}}"
       - SSLProtocol all -SSLv2 -SSLv3 -TLSv1 -TLSv1.1
       - SSLCipherSuite ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256
+
+  - name: activate new apache2 configuration in Ubuntu
+    service:
+      name: apache2
+      state: reloaded
+    when: ansible_distribution == 'Ubuntu'
 
   - name: Copy logo
     copy: 
@@ -271,7 +286,7 @@
       slurm_version: '{{slurm.slurm_version | default("20.11.9")}}-1'
     when: ( queue_manager is defined and queue_manager == "slurm" )
 
-  # temporary workaround waiting for this https://github.com/OSC/ood-ansible/issues/222 to be fixed
+  # temporary workaround waiting for this https://github.com/OSC/ood-ansible/issues/222, now fixed in OOD 3.1
   - name: Configure pwauth for Apache
     blockinfile:
       path: /opt/ood/ood-portal-generator/templates/ood-portal.conf.erb
@@ -283,9 +298,22 @@
     when: 
       - authentication.httpd_auth is defined
       - authentication.httpd_auth == 'basic'
-      - ansible_distribution == 'AlmaLinux'
-      - ansible_distribution_major_version == '8'
+      - ansible_distribution in ['AlmaLinux']
 
+  # temporary workaround waiting for this https://github.com/OSC/ood-ansible/issues/222, now fixed in OOD 3.1
+  - name: Configure pwauth for Apache
+    blockinfile:
+      path: /opt/ood/ood-portal-generator/templates/ood-portal.conf.erb
+      insertafter: OOD_PUN_STAGE_CMD
+      marker: "# {mark} ANSIBLE MANAGED BLOCK - Configure pwauth for Apache"
+      block: |
+          AddExternalAuth pwauth /usr/sbin/pwauth
+          SetExternalAuthMethod pwauth pipe
+    when: 
+      - authentication.httpd_auth is defined
+      - authentication.httpd_auth == 'basic'
+      - ansible_distribution in ['Ubuntu']
+      
   - name: setup cyclecloud proxy
     blockinfile:
       path: /opt/ood/ood-portal-generator/templates/ood-portal.conf.erb
@@ -314,6 +342,12 @@
     yum: 
       name: Lmod, hwloc, numactl, jq
       lock_timeout : 180
+    when: (ansible_distribution == 'AlmaLinux') or (ansible_distribution == 'CentOS')
+
+  - name: add modules for job submission
+    apt: 
+      name: lmod, hwloc, numactl, jq
+    when: ansible_distribution == 'Ubuntu'
 
   - name: create ssh_config file
     copy:
@@ -506,6 +540,19 @@
       - ansible_distribution == 'AlmaLinux'
       - ansible_distribution_major_version == '8'
 
+  - name: Generate new ood_portal.conf file
+    shell: /opt/ood/ood-portal-generator/sbin/update_ood_portal -f
+    when: 
+      - ansible_distribution == 'Ubuntu'
+
+  - name: Ensure apache is restarted
+    service: 
+      name: apache2
+      state: restarted
+      enabled: yes
+    when: 
+      - ansible_distribution == 'Ubuntu'
+
   - name: Add cvmsf-eessi support
     block:
       - name: Install cvmfs repo package
@@ -537,9 +584,11 @@
 
       - name: Configure cvmfs 
         shell: cvmfs_config setup 
-    when:  ( cvmfs_eessi.enabled | default(false) )
+    when:  
+      - ( cvmfs_eessi.enabled | default(false) )
+      - ansible_distribution in ['AlmaLinux', 'CentOS']
 
-  - name: "yq: Download and install (CentOS)"
+  - name: "yq: Download and install"
     get_url:
       url: "https://github.com/mikefarah/yq/releases/download/{{ yq_version }}/{{ yq_binary }}"
       dest: /usr/bin/yq
@@ -579,4 +628,4 @@
       apply: 
         become: true
     vars:
-      packages_to_exclude_from_upgrade: "{{ ('ondemand*,amlfs*' if ( lustre.create | default(false)) else 'ondemand*') }}"
+      packages_to_exclude_from_upgrade: "{{ (['ondemand','amlfs', 'jetpack8'] if ( lustre.create | default(false)) else ['ondemand', 'jetpack8']) }}"

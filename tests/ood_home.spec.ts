@@ -27,7 +27,7 @@ test('Shell Session', async ({browser}) => {
     const page1Promise = page.waitForEvent('popup');
     await page.getByRole('link', { name: 'AZHOP - Cluster Shell Access', exact: true }).click();
     const page1 = await page1Promise;
-    await page1.frameLocator('iframe').getByText('['+process.env.AZHOP_USER+'@ondemand ~]$').click();
+    await page1.frameLocator('iframe').getByText(process.env.AZHOP_USER+'@ondemand').click();
   
     await page.close()
     // Close the browser

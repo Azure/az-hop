@@ -59,7 +59,7 @@ on:
         default: 'true' # use it with ${{ inputs.clean }}
         type: string
       infra_os:
-        description: 'Operating System for the infrastructure: centos/almalinux - Default to centos'
+        description: 'Operating System for the infrastructure: centos/almalinux/ubuntu - Default to almalinux'
         required: false
         default: 'almalinux' # use it with ${{ inputs.infra_os }}
         type: string

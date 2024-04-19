@@ -1,0 +1,19 @@
+---
+
+- name: install libapache2-mod-authnz-external pwauth
+  apt:
+    name: apache2, libapache2-mod-authnz-external, pwauth, libapache2-mod-wsgi, python-dev
+    state: latest
+    update_cache: yes
+
+- name: Enable mod_authnz_external
+  shell: |
+    a2enmod authnz_external
+
+- name: Set up PAM authentication
+  shell: |
+    cp /etc/pam.d/sshd /etc/pam.d/ood
+    chmod 640 /etc/shadow
+    #chgrp apache /etc/shadow
+  args:
+    creates: /etc/pam.d/ood

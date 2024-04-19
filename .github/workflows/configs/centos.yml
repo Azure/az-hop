@@ -42,21 +42,6 @@ queues:
     ColocateNodes: true
     EnableAcceleratedNetworking: true
 
-  - name: hbv3al
-    vm_size: Standard_HB120rs_v3
-    max_count: 10
-    image: azhpc:azhop-compute:almalinux-8_7:latest
-    __ALMA8_PLAN__
-    ColocateNodes: true
-    EnableAcceleratedNetworking: true
-
-  - name: hbv3u20
-    vm_size: Standard_HB120rs_v3
-    max_count: 10
-    image: azhpc:azhop-compute:ubuntu-20_04:latest
-    ColocateNodes: true
-    EnableAcceleratedNetworking: true
-
 # Remote Viz Queues
   - name: viz3d
     type: remoteviz

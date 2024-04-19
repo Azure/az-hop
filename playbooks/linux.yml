@@ -25,7 +25,6 @@
     include_role:
       name: pkg_update
 
-
 - name: Join AD domain or create local users, mount shared home
   hosts: scheduler, ondemand, grafana
   become: true
@@ -40,56 +39,54 @@
   - name: Gather facts for first time
     setup:
 
-  - name: Install dependencies
-    yum:
-      name: epel-release, nfs-utils, python3
-      lock_timeout : 180
-      state: present
-
   # use the private DNS when defined
-  - name: setup private domain if not set in resolv.conf
-    shell: |
-      if ! grep -q {{private_dns.name}} /etc/resolv.conf; then
-        sed -i 's/search /search {{private_dns.name}} /' /etc/resolv.conf
-        # Stop NetworkManager overwriting /etc/resolv.conf
-        cat > /etc/NetworkManager/conf.d/90-dns-none.conf << EOF
-        [main]
-        dns=none
-      EOF
-      fi
+  - name: setup private domain
+    block:
+      - name: setup private domain if not set in resolv.conf (for CentOS and AlmaLinux)
+        shell: |
+          if ! grep -q {{private_dns.name}} /etc/resolv.conf; then
+            sed -i 's/search /search {{private_dns.name}} /' /etc/resolv.conf
+            # Stop NetworkManager overwriting /etc/resolv.conf
+            cat > /etc/NetworkManager/conf.d/90-dns-none.conf << EOF
+            [main]
+            dns=none
+          EOF
+          fi
+        when: ansible_distribution in ['CentOS', 'AlmaLinux']
+
+      - name: setup private domain if not set in resolv.conf (for Ubuntu)
+        shell: |
+          if ! grep -q {{private_dns.name}} /etc/resolv.conf; then
+            sed -i 's/search /search {{private_dns.name}} /' /etc/resolv.conf
+          fi
+        when: ansible_distribution in ['Ubuntu']
     when: 
       - private_dns.create | default(false)
 
-  - name: mount home
-    block:
-      - name: debug
-        debug:
-          msg:
-          - '{{ anf_home_ip }}:/{{ anf_home_path }}'
-          - '{{ homedir_mountpoint }}'
-          - '{{ anf_home_opts }}'
-      - name: Mount home NFS volume
-        mount:
-          src: '{{ anf_home_ip }}:/{{ anf_home_path }}'
-          path: '{{ homedir_mountpoint }}'
-          opts: '{{ anf_home_opts }}'
-          state: mounted
-          fstype: nfs
-        register: mount_success
-        until: mount_success is succeeded
-        retries: 3
-        delay: 30
+  - name: debug
+    debug:
+      msg:
+      - '{{ anf_home_ip }}:/{{ anf_home_path }}'
+      - '{{ homedir_mountpoint }}'
+      - '{{ anf_home_opts }}'
 
-      - name: Disable SELinux
-        selinux:
-          state: disabled
-        register: selinux
+  - name: Mount home NFS volume
+    include_role:
+      name: nfs_mount
+    vars:
+      nfs_source: '{{ anf_home_ip }}:/{{ anf_home_path }}'
+      nfs_path: '{{ homedir_mountpoint }}'
+      nfs_mount_opts: '{{ anf_home_opts }}'
 
-      - name: reboot 
-        reboot:
-        when: selinux.reboot_required
+  - name: Disable SELinux
+    selinux:
+      state: disabled
+    register: selinux
+    when: ansible_distribution == 'CentOS' or ansible_distribution == 'AlmaLinux'
 
-    when: (authentication.user_auth | default('ad')) == "local"
+  - name: reboot 
+    reboot:
+    when: selinux.reboot_required | default(false)
 
   - name: Domain Join
     block:
@@ -108,10 +105,6 @@
         domain_admin: "{{ad_join_user}}"
         domain_password: "{{password.stdout}}"
         domain: "{{domain_name}}"
-        domain_homedir: "{{homedir_mountpoint}}"
-        domain_mount_ip: "{{anf_home_ip}}"
-        domain_mount_path: "{{anf_home_path}}"
-        domain_mount_opts: "{{anf_home_opts}}"
         domain_join_ou: "{{domain.domain_join_ou | default('')}}"
 
     when: (authentication.user_auth | default('ad')) == "ad"
@@ -142,6 +135,10 @@
     shell: |
       cat <<EOF >/etc/profile.d/gen_sshkey.sh
       #!/bin/sh
+      # Only do this for uid >= 1000
+      if [ \$(id -u) -le 1000 ]; then
+        return
+      fi
       if [ ! -f  ~/.ssh/id_rsa.pub ] ; then
         ssh-keygen -q -t rsa -N '' -f ~/.ssh/id_rsa <<<y >/dev/null 2>&1
         cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
@@ -151,3 +148,11 @@
       chmod 644 /etc/profile.d/gen_sshkey.sh
     args: 
       creates: /etc/profile.d/gen_sshkey.sh
+
+  - name: add pam_mkhomedir to pam to create users home directory if not exist (Ubuntu only)
+    lineinfile:
+      path: /etc/pam.d/common-session
+      line: 'session  required  pam_mkhomedir.so skel=/etc/skel'
+      state: present
+      create: yes
+    when: ansible_distribution == 'Ubuntu'

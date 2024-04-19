@@ -14,7 +14,7 @@ nonprimetime_prefix: np_
 node_sort_key: "sort_priority HIGH"	ALL
 provision_policy: "aggressive_provision"
 sort_queues:	true	ALL
-resources: "ncpus, mem, arch, host, vnode, aoe, slot_type, group_id, ungrouped, disk, ngpus, nodearray, vm_size"
+resources: "ncpus, mem, arch, host, vnode, aoe, eoe, slot_type, group_id, ungrouped, disk, ngpus, nodearray, vm_size"
 load_balancing: false	ALL
 smp_cluster_dist: pack
 fair_share: false	ALL

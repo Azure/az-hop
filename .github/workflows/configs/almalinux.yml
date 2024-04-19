@@ -1,6 +1,9 @@
 linux_base_image: almalinux:almalinux-x86_64:8_7-gen2:latest # almalinux:almalinux-hpc:8_7-hpc-gen2:latest # publisher:offer:sku:version or image_id
 # linux image plan if required, format is publisher:product:name
 #linux_base_plan: almalinux:almalinux-hpc:8_7-hpc-gen2
+# Enable cvmfs-eessi - disabled by default
+cvmfs_eessi:
+  enabled: true
 
 queues:
   - name: htc
@@ -41,13 +44,6 @@ queues:
     vm_size: Standard_NC24ads_A100_v4
     max_count: 4
     image: azhpc:azhop-compute:almalinux-8_7:latest
-    ColocateNodes: true
-    EnableAcceleratedNetworking: true
-
-  - name: hbv3u20
-    vm_size: Standard_HB120rs_v3
-    max_count: 10
-    image: azhpc:azhop-compute:ubuntu-20_04:latest
     ColocateNodes: true
     EnableAcceleratedNetworking: true
 

@@ -12,25 +12,8 @@
       ansible.builtin.fail:
         msg: "unable to find anything in vars/ for this operating system! {{ ansible_distribution }}"
 
-- name: Install dependencies
-  yum:
-    name: python3, nfs-utils, jq
-    lock_timeout : 180
-
-- name: Download pbspro 
-  unarchive:
-    src: "{{openpbs_package}}"
-    dest: /mnt/resource
-    remote_src: yes
-  when: openpbs_package != "null"
-
-- name: Install pbspro
-  yum:
-    name: 
-      - "{{openpbs_server_rpm}}"
-    state: present
-    disable_gpg_check: true
-    lock_timeout : 180
+- name: Perform OS dependent configuration tasks
+  include_tasks: "{{ansible_distribution}}.yml"
 
 - name: Ensure pbs-server is running.
   service: 
@@ -62,11 +45,15 @@
 
 - name: enable CycleCloud ScaleLib PBSPro
   shell: | 
-    /tmp/cyclecloud-pbspro/initialize_pbs.sh 
-    /tmp/cyclecloud-pbspro/initialize_default_queues.sh
     source /etc/profile.d/pbs.sh
-    /tmp/cyclecloud-pbspro/install.sh  --venv /opt/cycle/pbspro/venv --install-venv
-    /tmp/cyclecloud-pbspro/generate_autoscale_json.sh  --install-dir /opt/cycle/pbspro --username {{ cc_admin }} --password "{{ cc_password }}" --url https://{{ccportal_name}}:9443{{cycle_webServerContextPath}} --cluster-name pbs1
+    export PATH=$PATH:/opt/pbs/bin:/opt/pbs/sbin
+    set -xe
+    ./initialize_pbs.sh 
+    ./initialize_default_queues.sh
+    ./install.sh  --install-python3 --venv /opt/cycle/pbspro/venv --cron-method pbs_hook
+    # remove /etc/profile.d/azpbs_autocomplete.sh to fix PBS Dataservice not starting
+    rm -rf /etc/profile.d/azpbs_autocomplete.sh
+    ./generate_autoscale_json.sh  --install-dir /opt/cycle/pbspro --username {{ cc_admin }} --password "{{ cc_password }}" --url https://{{ccportal_name}}:9443{{cycle_webServerContextPath}} --cluster-name pbs1
   args:
     chdir: /tmp/cyclecloud-pbspro
 
@@ -116,15 +103,19 @@
 # Configure cgroups for largeviz3d machines
 # Due to a bug in PBSPro when using hyperthreaded machines we had to use our own cgroups python script.
 # This is now fixed in PBSPro 20.0.1. The _assign_resources function in the cgroups hook is the one that was broken, that entire function was backported in 19.1.1
-- name: configure cgroups for largeviz3d machines
+- name: import fixed pbs_cgroups python (only for 19.1.1)
   shell: |
-    /opt/pbs/bin/qmgr -c "import hook pbs_cgroups application/x-config default pbs_cgroups.CF"
     /opt/pbs/bin/qmgr -c "import hook pbs_cgroups application/x-python default pbs_cgroups.PY"
-    /opt/pbs/bin/qmgr -c "set hook pbs_cgroups enabled = true"
   args:
     chdir: /opt/cycle/pbspro
   when: openpbs_version == "19.1.1"
 
+- name: configure cgroups for largeviz3d machines
+  shell: |
+    /opt/pbs/bin/qmgr -c "import hook pbs_cgroups application/x-config default pbs_cgroups.CF"
+    /opt/pbs/bin/qmgr -c "set hook pbs_cgroups enabled = true"
+  args:
+    chdir: /opt/cycle/pbspro
 
 - name: Restart pbs-server 
   service: 

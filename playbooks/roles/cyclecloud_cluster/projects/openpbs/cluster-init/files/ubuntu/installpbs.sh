@@ -1,5 +1,4 @@
 #!/bin/bash
-
 cyclecloud_pbspro=$1
 openpbs_version=$2
 

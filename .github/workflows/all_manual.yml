@@ -37,7 +37,7 @@ on:
         required: false
         default: "['grafana']" # use it with ${{ github.event.inputs.monitoring }}
       infra_os:
-        description: "Infrastructure OS - ['centos', 'almalinux'] - Default to ['centos']"
+        description: "Infrastructure OS - ['centos', 'almalinux', 'ubuntu'] - Default to ['almalinux']"
         required: false
         default: "['almalinux']" # use it with ${{ github.event.inputs.infra_os }}
       deploy_with:

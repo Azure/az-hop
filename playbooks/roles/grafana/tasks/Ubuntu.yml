@@ -1,0 +1,15 @@
+---
+- name: Install Grafana dependencies
+  apt: 
+    name:
+      - adduser
+      - libfontconfig1
+      - musl
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+  
+- name: Download and install Grafana
+  shell: |
+    wget -q https://dl.grafana.com/oss/release/grafana_{{grafana_version}}_amd64.deb
+    dpkg -i grafana_{{grafana_version}}_amd64.deb

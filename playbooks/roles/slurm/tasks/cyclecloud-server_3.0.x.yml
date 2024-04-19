@@ -1,21 +1,6 @@
-# Setup slurm when using cyclecloud-slurm version 3.0.x only
-- name: install CycleCloud repo
-  shell: |
-    cat > /etc/yum.repos.d/cyclecloud.repo <<EOF
-    [cyclecloud]
-    name=cyclecloud
-    baseurl=https://packages.microsoft.com/yumrepos/cyclecloud
-    gpgcheck=1
-    gpgkey=https://packages.microsoft.com/keys/microsoft.asc
-    EOF
-  args:
-    creates: /etc/yum.repos.d/cyclecloud.repo
-
-- name: Install Jetpack
-  yum:
-    name: "jetpack8-{{cc_version}}"
-    state: present
-    lock_timeout : 180
+---
+- name: Perform OS dependent configuration tasks
+  include_tasks: "{{ansible_distribution}}/jetpack.yml"
 
 - name: fix jetpack permissions
   file:
@@ -61,6 +46,7 @@
     cd {{jetpack_home}}/system/bootstrap/azure-slurm-install
     ./install.sh --mode scheduler --bootstrap-config {{jetpack_home}}/config/node.json
   args: 
+    executable: /bin/bash
     creates: '/etc/azslurm-bins.installed' 
 
 # Install autoscaling for slurm. 
@@ -75,10 +61,13 @@
 
 - name: install azure-slurm
   shell: |
-    set -e
     cd {{jetpack_home}}/system/bootstrap/azure-slurm
     source ~/.bash_profile
-    ./install.sh
+    set -e
+    export PATH=$PATH:/opt/cycle/jetpack/bin
+    ./install.sh &> install.log
+  args: 
+    executable: /bin/bash
 
 - name: create slurm extension config
   template:
@@ -118,30 +107,14 @@
         regexp: 'AccountingStorageHost.*'
         replace: 'AccountingStorageHost={{ scheduler.name | default("scheduler") }}' 
 
-    # https://learn.microsoft.com/en-us/azure/mysql/flexible-server/how-to-connect-tls-ssl
-    - name: download DigiCertGlobalRootCA certificate
-      get_url:
-        url: 'https://dl.cacerts.digicert.com/DigiCertGlobalRootCA.crt.pem'
-        dest: /sched/{{ slurm_cluster_name }}/DigiCertGlobalRootCA.crt.pem
-        mode: 0644
-        owner: slurm
-        group: slurm
-        timeout: 180
-
-    - name: symbolic link for DigiCertGlobalRootCA.crt.pem
-      file:
-        src: /sched/{{ slurm_cluster_name }}/DigiCertGlobalRootCA.crt.pem
-        dest: /etc/slurm/DigiCertGlobalRootCA.crt.pem
-        state: link
-        force: true
-
-    - name: Set the root certificate in the slurmdbd configuration file when accounting is enabled
-      replace:
-        path: /sched/{{ slurm_cluster_name }}/slurmdbd.conf
-        regexp: 'AzureCA.pem'
-        replace: 'DigiCertGlobalRootCA.crt.pem' 
-
   when: accounting_enabled | default(false)
+
+# Fixing https://github.com/Azure/cyclecloud-slurm/issues/221
+- name: Install libmysqlclient-dev
+  package:
+    name: libmysqlclient-dev
+    state: present
+  when: ansible_distribution == 'Ubuntu'
 
 # Start service. 
 # For reference see https://github.com/Azure/cyclecloud-slurm/blob/master/specs/scheduler/cluster-init/scripts/00-install.sh
@@ -160,8 +133,9 @@
     state: restarted
     enabled: yes
 
-- name: refresh slurm node list
-  shell: |
-    set -e
-    /root/bin/azslurm scale
-    ln -fs /sched/{{ slurm_cluster_name }}/gres.conf /etc/slurm/gres.conf && chown slurm:slurm /etc/slurm/gres.conf
+# No longer needed
+# - name: refresh slurm node list
+#   shell: |
+#     set -e
+#     /root/bin/azslurm scale
+#     ln -fs /sched/{{ slurm_cluster_name }}/gres.conf /etc/slurm/gres.conf && chown slurm:slurm /etc/slurm/gres.conf

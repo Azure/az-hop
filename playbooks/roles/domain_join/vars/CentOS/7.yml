@@ -9,6 +9,6 @@ domain_join_packages:
   - samba-common-tools
   - krb5-workstation
   - openldap-clients
-  - policycoreutils-python
-  - nfs-utils
-  - python3
+  # - policycoreutils-python
+  # - nfs-utils
+  # - python3

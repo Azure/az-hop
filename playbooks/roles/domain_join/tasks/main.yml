@@ -12,40 +12,8 @@
       ansible.builtin.fail:
         msg: "unable to find anything in vars/ for this operating system! {{ ansible_distribution }}"
 
-- name: Install dependencies
-  yum:
-    name: '{{item}}'
-    lock_timeout : 180
-  loop: '{{domain_join_packages}}'
-  notify: restart dbus
-
-- name: Disable SELinux
-  selinux:
-    state: disabled
-
-- name: Remove /etc/dhcp/dhclient.conf
-  file:
-    path: /etc/dhcp/dhclient.conf
-    state: absent
-
-- name: restart NetworkManager
-  service:
-    name: NetworkManager
-    state: restarted
-
-- name: Creates home directory mountpoint
-  file:
-    path: '{{domain_homedir}}'
-    state: directory
-    mode: '0755'
-
-- name: Mount an NFS volume
-  mount:
-    src: '{{ domain_mount_ip }}:/{{ domain_mount_path }}'
-    path: '{{ domain_homedir }}'
-    opts: '{{ domain_mount_opts}}'
-    state: mounted
-    fstype: nfs
+- name: Perform OS dependent configuration tasks
+  include_tasks: "{{ansible_distribution}}.yml"
 
 # Fix bug https://bugzilla.redhat.com/show_bug.cgi?id=1858930
 - name: Update service dependencies on network-online.target

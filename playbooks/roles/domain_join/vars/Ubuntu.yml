@@ -1,0 +1,16 @@
+domain_join_packages:
+  - sssd
+  - libsss-simpleifp0
+  - sssd-dbus
+  - sssd-tools
+  - realmd
+  - oddjob
+  - oddjob-mkhomedir
+  - adcli
+  - samba-common
+  - krb5-user
+  - ldap-utils
+  - packagekit
+  - resolvconf
+  # - nfs-common
+  # - python3

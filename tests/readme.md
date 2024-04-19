@@ -9,7 +9,7 @@ sudo apt-get update
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
 source ~/.bashrc
 nvm list-remote
-nvm install v18.17.1
+nvm install v18.20.1
  
 sudo apt install npm
 

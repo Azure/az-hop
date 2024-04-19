@@ -86,6 +86,14 @@
     state: present
     firstmatch: yes
 
+- name: Update slurmdbd service to start after the home directory is mounted
+  lineinfile:
+    path: /lib/systemd/system/slurmdbd.service
+    insertafter: 'ConditionPathExists='
+    line: 'RequiresMountsFor={{homedir_mountpoint}}'
+    state: present
+    firstmatch: yes
+
 - name: restart daemon-reload
   shell: |
     systemctl daemon-reload
@@ -96,7 +104,7 @@
     state: restarted
     enabled: yes
 
-- name: Wait a maximum of 120 seconds until slurctld is running
+- name: Wait a maximum of 120 seconds until slurmctld is running
   wait_for:
     path: /var/log/slurmctld/slurmctld.log
     # slurmctld version \d+.\d+.\d+ started

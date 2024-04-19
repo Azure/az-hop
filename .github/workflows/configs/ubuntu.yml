@@ -1,0 +1,82 @@
+linux_base_image: canonical:0001-com-ubuntu-server-focal:20_04-lts-gen2:latest # almalinux:almalinux-hpc:8_7-hpc-gen2:latest # publisher:offer:sku:version or image_id
+# linux image plan if required, format is publisher:product:name
+#linux_base_plan: almalinux:almalinux-hpc:8_7-hpc-gen2
+
+# Enable cvmfs-eessi - disabled by default
+cvmfs_eessi:
+  enabled: false
+
+queues:
+  - name: htc
+    vm_size: Standard_F2s_v2
+    max_count: 256
+    image: azhpc:azhop-compute:ubuntu-20_04:latest
+    ColocateNodes: false
+
+  - name: hc44rs
+    vm_size: Standard_HC44rs
+    max_count: 10
+    image: azhpc:azhop-compute:ubuntu-20_04:latest
+    ColocateNodes: true
+    EnableAcceleratedNetworking: true
+
+  - name: hb60rs
+    vm_size: Standard_HB60rs
+    max_count: 10
+    image: azhpc:azhop-compute:ubuntu-20_04:latest
+    ColocateNodes: true
+    EnableAcceleratedNetworking: true
+
+  - name: hb120v2
+    vm_size: Standard_HB120rs_v2
+    max_count: 10
+    image: azhpc:azhop-compute:ubuntu-20_04:latest
+    ColocateNodes: true
+    EnableAcceleratedNetworking: true
+
+  - name: hpc
+    vm_size: Standard_HB120rs_v3
+    max_count: 10
+    image: azhpc:azhop-compute:ubuntu-20_04:latest
+    ColocateNodes: true
+    EnableAcceleratedNetworking: true
+
+  - name: gpu
+    vm_size: Standard_NC24ads_A100_v4
+    max_count: 4
+    image: azhpc:azhop-compute:ubuntu-20_04:latest
+    ColocateNodes: true
+    EnableAcceleratedNetworking: true
+
+# Remote Viz Queues
+  - name: viz3d
+    type: remoteviz
+    description: "With GPU - Small GPU node for single session"
+    vm_size: Standard_NV12s_v3
+    max_count: 4
+    image: azhpc:azhop-desktop:ubuntu-20_04:latest
+    ColocateNodes: false
+    EnableAcceleratedNetworking: true
+
+  - name: viz
+    type: remoteviz
+    description: "Without GPU - for single session"
+    vm_size: Standard_D8s_v5
+    max_count: 10
+    image: azhpc:azhop-desktop:ubuntu-20_04:latest
+    ColocateNodes: false
+    EnableAcceleratedNetworking: true
+    max_hours: 12 # Maximum session duration
+    min_hours: 1 # Minimum session duration - 0 is infinite
+
+  - name: largeviz3d
+    type: remoteviz
+    description: "Large With GPU - Intended for shared sessions"
+    shareable: true
+    vm_size: Standard_NV48s_v3
+    max_count: 4
+    image: azhpc:azhop-desktop:ubuntu-20_04:latest
+    ColocateNodes: false
+    EnableAcceleratedNetworking: true
+    max_hours: 12 # Maximum session duration
+    min_hours: 1 # Minimum session duration - 0 is infinite

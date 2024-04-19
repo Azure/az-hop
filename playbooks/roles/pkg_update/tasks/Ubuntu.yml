@@ -2,12 +2,14 @@
 - name: Update apt-cache
   apt:
     update_cache: yes
+    cache_valid_time: 3600
 
 - name: Prevent packages from being upgraded
   dpkg_selections:
     name: "{{ item }}"
     selection: hold
   loop: "{{ packages_to_exclude_from_upgrade }}"
+  when: packages_to_exclude_from_upgrade is defined
 
 - name: Update all packages to their latest version
   ansible.builtin.apt:
