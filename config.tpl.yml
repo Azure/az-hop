@@ -465,7 +465,27 @@ images:
     hyper_v: V2
     os_type: Linux
     version: 7.9
-
+  - name: base-ubuntu-20_04-v2-rdma-gpgpu
+    publisher: azhop
+    offer: 0001-com-ubuntu-server-focal
+    sku: 20_04-lts-gen2-rdma-gpgpu
+    hyper_v: V2
+    os_type: Linux
+    version: 20.04
+  - name: azhop-ubuntu-20_04-v2-rdma-gpgpu-ci
+    publisher: azhop
+    offer: 0001-com-ubuntu-server-focal
+    sku: 20_04-lts-gen2-rdma-gpgpu-ci
+    hyper_v: V2
+    os_type: Linux
+    version: 20.04
+  - name: azhop-ubuntu-20_04-desktop3d-ci
+    publisher: azhop
+    offer: 0001-com-ubuntu-server-focal
+    sku: 20_04-lts-gen2-desktop3d-ci
+    hyper_v: V2
+    os_type: Linux
+    version: 20.04
 # Autoscale default settings for all queues, can be overridden on each queue depending on the VM type if needed
 autoscale:
   idle_timeout: 1800 # Idle time in seconds before shutting down VMs - default to 1800 like in CycleCloud

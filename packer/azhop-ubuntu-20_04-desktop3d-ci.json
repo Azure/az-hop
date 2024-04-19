@@ -1,0 +1,59 @@
+{
+    "builders": [
+        {
+            "type": "azure-arm",
+            "use_azure_cli_auth": "{{user `var_use_azure_cli_auth`}}",
+            "shared_image_gallery": {
+                "subscription": "{{user `var_subscription_id`}}",
+                "resource_group": "{{user `var_resource_group`}}",
+                "gallery_name": "{{user `var_sig_name`}}",
+                "image_name": "base-ubuntu-20_04-v2-rdma-gpgpu",
+                "image_version": "latest"
+            },
+            "managed_image_resource_group_name": "{{user `var_resource_group`}}",
+            "managed_image_name": "{{user `var_image`}}",
+            "os_type": "Linux",
+            "vm_size": "Standard_NV12s_v3",
+            "managed_image_storage_account_type": "Premium_LRS",
+            "ssh_pty": "true",
+            "build_resource_group_name": "{{user `var_resource_group`}}",
+            "private_virtual_network_with_public_ip": "{{user `var_private_virtual_network_with_public_ip`}}",
+            "virtual_network_name": "{{user `var_virtual_network_name`}}",
+            "virtual_network_subnet_name": "{{user `var_virtual_network_subnet_name`}}",
+            "virtual_network_resource_group_name": "{{user `var_virtual_network_resource_group_name`}}",
+            "cloud_environment_name": "{{user `var_cloud_env`}}",
+            "ssh_bastion_host": "{{user `var_ssh_bastion_host`}}",
+            "ssh_bastion_port": "{{user `var_ssh_bastion_port`}}",
+            "ssh_bastion_username": "{{user `var_ssh_bastion_username`}}",
+            "ssh_bastion_private_key_file": "{{user `var_ssh_bastion_private_key_file`}}"
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "file",
+            "source": "scripts/ubuntu/",
+            "destination": "/tmp"
+        },
+        {
+            "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E sh '{{ .Path }}'",
+            "inline": [
+                "chmod +x /tmp/*.sh",
+                "/tmp/linux-setup.sh || exit 1",
+                "/tmp/lustreclient.sh  || exit 1",
+                "/tmp/interactive-desktop-3d.sh || exit 1",
+                "/tmp/desktop-packages.sh || exit 1",
+                "/tmp/{{user `var_queue_manager`}}.sh || exit 1",
+                "/tmp/telegraf.sh || exit 1",
+                "/tmp/zz-desktop-custom.sh || exit 1",
+                "echo ' This is the end '",
+                "rm -rf /tmp/*.sh",
+                "/usr/sbin/waagent -force -deprovision+user",
+                "sed -i 's/^send host-name =.*/send host-name = \"\"/' /etc/dhcp/dhclient.conf",
+                "export HISTSIZE=0 && sync"
+            ],
+            "inline_shebang": "/bin/sh -x",
+            "type": "shell",
+            "skip_clean": true
+        }
+    ]
+}
