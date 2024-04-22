@@ -15,6 +15,19 @@
   ansible.builtin.apt:
     name: "*"
     state: latest
+  # https://github.com/ansible/ansible/issues/51663
+  # There has been an intermittent issue with this task where it would fail and print the error:
+  # 
+  #     Unable to acquire the dpkg frontend lock (/var/lib/dpkg/lock-frontend), is another process
+  #     using it?
+  #
+  # The reason for this is unclear. It's not from unattended-upgrades as that has already been
+  # uninstalled when creating the base image. The workaround for now is to simply retry this task
+  # several times in the event that it fails, with a small delay between each attempt.
+  register: result
+  until: result is not failed
+  retries: 5
+  delay: 15
 
 - name: Check if reboot is required
   stat:
