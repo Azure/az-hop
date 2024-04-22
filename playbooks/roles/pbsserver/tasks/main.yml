@@ -138,3 +138,6 @@
   service: 
     name: pbs
     state: restarted
+
+- name: check pbs connection
+  command: qstat
