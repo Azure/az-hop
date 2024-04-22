@@ -14,3 +14,11 @@
 
 - import_tasks: '{{slurm_role}}.yml'
   become: true
+
+- name: Update Packages
+  include_role:
+    name: pkg_update
+    apply: 
+      become: true
+  vars:
+    packages_to_exclude_from_upgrade: "['jetpack8']"

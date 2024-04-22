@@ -628,4 +628,4 @@
       apply: 
         become: true
     vars:
-      packages_to_exclude_from_upgrade: "{{ (['ondemand','amlfs', 'jetpack8'] if ( lustre.create | default(false)) else ['ondemand', 'jetpack8']) }}"
+      packages_to_exclude_from_upgrade: "{{ (['ondemand','amlfs'] if ( lustre.create | default(false)) else ['ondemand']) }}"
