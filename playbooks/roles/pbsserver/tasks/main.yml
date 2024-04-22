@@ -127,3 +127,9 @@
     name: "remove PBS accounting files older than 90 days"
     special_time: daily
     job: "find /var/spool/pbs/server_logs -mtime +90 -type f -print -exec rm {} +"
+
+- name: Update Packages
+  include_role:
+    name: pkg_update
+    apply: 
+      become: true
