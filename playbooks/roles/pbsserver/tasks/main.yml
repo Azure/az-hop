@@ -129,15 +129,25 @@
     apply: 
       become: true
 
-- name: Restart postgresql 
+- name: stop postgresql 
   service: 
     name: postgresql
-    state: restarted
+    state: stopped
 
-- name: Restart pbs-server 
+- name: stop pbs-server 
   service: 
     name: pbs
-    state: restarted
+    state: stopped
+
+- name: start postgresql 
+  service: 
+    name: postgresql
+    state: started
+
+- name: start pbs-server 
+  service: 
+    name: pbs
+    state: started
 
 - name: check pbs connection
   command: qstat
