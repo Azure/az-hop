@@ -5,7 +5,7 @@
 #SBATCH -p hpc
 #SBATCH -t 5
 #SBATCH --export=NONE
-#SBACTH --exclusive
+#SBATCH --exclusive
 
 source /etc/profile.d/modules.sh
 module use /usr/share/Modules/modulefiles
