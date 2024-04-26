@@ -117,13 +117,37 @@
   args:
     chdir: /opt/cycle/pbspro
 
-- name: Restart pbs-server 
-  service: 
-    name: pbs
-    state: restarted
-
 - name: create cron entry to remove old accounting files
   cron:
     name: "remove PBS accounting files older than 90 days"
     special_time: daily
     job: "find /var/spool/pbs/server_logs -mtime +90 -type f -print -exec rm {} +"
+
+- name: Update Packages
+  include_role:
+    name: pkg_update
+    apply: 
+      become: true
+
+- name: stop postgresql 
+  service: 
+    name: postgresql
+    state: stopped
+
+- name: stop pbs-server 
+  service: 
+    name: pbs
+    state: stopped
+
+- name: start postgresql 
+  service: 
+    name: postgresql
+    state: started
+
+- name: start pbs-server 
+  service: 
+    name: pbs
+    state: started
+
+- name: check pbs connection
+  command: qstat

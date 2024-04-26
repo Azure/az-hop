@@ -44,10 +44,3 @@
       cc_webserverpath: '{{cyclecloud.web_server_path | default("")}}'      
     when: ( queue_manager is defined and queue_manager == "slurm" )
 
-  - name: Update Packages
-    include_role:
-      name: pkg_update
-      apply: 
-        become: true
-    vars:
-      packages_to_exclude_from_upgrade: "['jetpack8']"
