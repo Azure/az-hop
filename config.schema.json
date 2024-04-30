@@ -744,7 +744,7 @@
                 },
                 "sku": {
                     "description": "The Lustre tier to use",
-                    "enum": ["AMLFS-Durable-Premium-40", "AMLFS-Durable-Premium-120", "AMLFS-Durable-Premium-250", "AMLFS-Durable-Premium-500"],
+                    "enum": ["AMLFS-Durable-Premium-40", "AMLFS-Durable-Premium-125", "AMLFS-Durable-Premium-250", "AMLFS-Durable-Premium-500"],
                     "type": "string"
                 },
                 "capacity": {
