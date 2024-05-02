@@ -15,7 +15,7 @@
 
     - name: Set SLURM cluster name
       set_fact:
-        cluster_name: "slurm1"
+        cluster_name: '{{ slurm.cluster_name | default("slurm1") }}'
       when: (queue_manager == "slurm")
 
     # Remove any forbidden characters from the username so we conform to the keyvaul secret name rules '^[0-9a-zA-Z-]+$'

@@ -6,7 +6,7 @@
     dest: '{{project_root}}/azhop-slurm.txt'
 
 - name: Import Slurm Cluster
-  command: '/usr/local/bin/cyclecloud import_cluster slurm1 -f {{project_root}}/azhop-slurm.txt -c azhop-slurm --force'
+  command: '/usr/local/bin/cyclecloud import_cluster {{slurm_cluster_name}} -f {{project_root}}/azhop-slurm.txt -c azhop-slurm --force'
 
 - name: Start Slurm Cluster
-  command: '/usr/local/bin/cyclecloud start_cluster slurm1'
+  command: '/usr/local/bin/cyclecloud start_cluster {{slurm_cluster_name}}'

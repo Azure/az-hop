@@ -13,3 +13,4 @@ munge_uid: 11101
 munge_gid: 11101
 cvmfs_eessi_enabled: false
 cyclecloud_openbps_release: 2.0.19
+slurm_cluster_name: '{{ slurm.cluster_name | default("slurm1") }}'
