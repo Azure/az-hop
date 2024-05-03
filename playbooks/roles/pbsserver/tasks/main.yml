@@ -143,6 +143,7 @@
   service: 
     name: postgresql
     state: started
+  when: ansible_distribution in ['CentOS', 'AlmaLinux']
 
 - name: start pbs-server 
   service: 
@@ -150,4 +151,4 @@
     state: started
 
 - name: check pbs connection
-  command: qstat
+  command: /opt/pbs/bin/qstat
