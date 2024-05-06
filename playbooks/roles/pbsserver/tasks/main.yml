@@ -139,12 +139,6 @@
     name: pbs
     state: stopped
 
-- name: start postgresql 
-  service: 
-    name: postgresql
-    state: started
-  when: ansible_distribution in ['CentOS', 'AlmaLinux']
-
 - name: start pbs-server 
   service: 
     name: pbs
