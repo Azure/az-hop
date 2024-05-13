@@ -110,11 +110,7 @@ jobs:
           submodules: true
 
       - name: Login azure
-        run: |
-          pwd
-          ls -alt
-          ls -alt /
-          
+        run: |         
           source /miniconda/bin/activate
           #az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az login --identity 
