@@ -68,6 +68,10 @@ on:
         required: true
       ARM_CLIENT_SECRET:
         required: true
+      REGISTRY_USERNAME:
+        required: true
+      REGISTRY_PASSWORD:
+        required: true
 
 env:
   AZHOP_CONFIGURATION: '.github/workflows/configs/base.yml'
