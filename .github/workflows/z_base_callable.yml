@@ -74,9 +74,9 @@ on:
         required: true
       ARM_TENANT_ID:
         required: true
-      ARM_CLIENT_ID:
+      REGISTRY_USERNAME:
         required: true
-      ARM_CLIENT_SECRET:
+      REGISTRY_PASSWORD:
         required: true
 
 jobs:
@@ -93,10 +93,10 @@ jobs:
       infra_os: ${{ inputs.infra_os }}
       cycle_slurm_version: ${{ inputs.cycle_slurm_version }}
     secrets:
-      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
       ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+      REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+      REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
 
   deploy:
     uses: ./.github/workflows/z_deploy_callable.yml
@@ -105,8 +105,8 @@ jobs:
       resource_group: ${{ needs.create_config.outputs.resource_group }}
       deploy_with: ${{ inputs.deploy_with }}
     secrets:
-      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+      REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
       ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
@@ -116,8 +116,8 @@ jobs:
     with:
       resource_group: ${{ needs.create_config.outputs.resource_group }}
     secrets:
-      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+      REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
       ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
@@ -127,8 +127,8 @@ jobs:
     with:
       resource_group: ${{ needs.create_config.outputs.resource_group }}
     secrets:
-      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+      REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
       ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
@@ -139,8 +139,8 @@ jobs:
     with:
       resource_group: ${{ needs.create_config.outputs.resource_group }}
     secrets:
-      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+      REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
       ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
@@ -151,7 +151,7 @@ jobs:
     with:
       resource_group: ${{ needs.create_config.outputs.resource_group }}
     secrets:
-      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+      REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
       ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}

@@ -18,7 +18,7 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: seld-hosted
     permissions:
       contents: read
       id-token: write
@@ -28,7 +28,7 @@ jobs:
 
     - name: Login azure
       run: |
-        az login --service-principal -u '${{ secrets.ARM_CLIENT_ID }}' -p '${{ secrets.ARM_CLIENT_SECRET }}' --tenant '${{ secrets.ARM_TENANT_ID }}'
+        az login -i
         az account set -s  ${{ secrets.ARM_SUBSCRIPTION_ID }}
         echo "local user: $(whoami)"
 

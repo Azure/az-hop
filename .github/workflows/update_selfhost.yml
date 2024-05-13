@@ -34,4 +34,4 @@ jobs:
     - name: Install the toolchain
       run: |
         export HOME=/root # Hack to workaround miniconda installation
-        ./toolset/scripts/install.sh
+        ./toolset/scripts/install.sh /root/miniconda

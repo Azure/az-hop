@@ -127,6 +127,9 @@ var config = {
     name : contains(azhopConfig, 'domain') ? azhopConfig.domain.name : 'hpc.azure'
     domain_join_user: createAD ? {
       username: azhopConfig.admin_user
+      password_key_vault_name: 'foo'
+      password_key_vault_resource_group_name: 'foo'
+      password_key_vault_secret_name: 'foo'
     } : useExistingAD ? {
       username: azhopConfig.domain.domain_join_user.username
       password_key_vault_name: azhopConfig.domain.domain_join_user.password_key_vault_name

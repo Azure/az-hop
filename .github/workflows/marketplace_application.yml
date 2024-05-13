@@ -16,8 +16,6 @@ on:
   workflow_dispatch:
 
 env:
-  ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }}  # https://docs.github.com/en/actions/learn-github-actions/contexts#github-context
 
 defaults:
@@ -33,8 +31,8 @@ jobs:
     container:
       image: azhop.azurecr.io/hpcrover:latest
       credentials:
-        username: ${{ env.ARM_CLIENT_ID }}
-        password: ${{ env.ARM_CLIENT_SECRET }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
       options: --user 0
 
     steps:

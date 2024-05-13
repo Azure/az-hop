@@ -7,7 +7,7 @@ MINICONDA_URL_LINUX_X86="https://repo.anaconda.com/miniconda/Miniconda3-latest-L
 MINICONDA_URL_LINUX_ARM="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-aarch64.sh"
 MINICONDA_URL_MAC_X86="https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh"
 MINICONDA_URL_MAC_ARM="https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh"
-MINICONDA_INSTALL_DIR="miniconda"
+MINICONDA_INSTALL_DIR=${1:-miniconda}
 MINICONDA_INSTALL_SCRIPT="miniconda-installer.sh"
 
 # Always use of virtual environment
