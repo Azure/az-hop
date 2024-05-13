@@ -13,14 +13,12 @@ on:
         required: true
       ARM_TENANT_ID:
         required: true
-      ARM_CLIENT_ID:
+      REGISTRY_USERNAME:
         required: true
-      ARM_CLIENT_SECRET:
+      REGISTRY_PASSWORD:
         required: true
 
 env:
-  ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
   ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
   ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
   AZHOP_STATE_CONTAINER: environments
@@ -41,8 +39,8 @@ jobs:
     container:
       image: azhop.azurecr.io/hpcrover:latest
       credentials:
-        username: ${{ env.ARM_CLIENT_ID }}
-        password: ${{ env.ARM_CLIENT_SECRET }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
       options: --user 0
 
     steps:
@@ -53,7 +51,6 @@ jobs:
       - name: Login azure
         run: |
           source /miniconda/bin/activate
-          #az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az login -i
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
           echo "local user: $(whoami)"

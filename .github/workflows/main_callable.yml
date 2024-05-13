@@ -68,9 +68,9 @@ on:
         required: true
       ARM_TENANT_ID:
         required: true
-      ARM_CLIENT_ID:
+      REGISTRY_USERNAME:
         required: true
-      ARM_CLIENT_SECRET:
+      REGISTRY_PASSWORD:
         required: true
 
 env:
@@ -80,8 +80,6 @@ env:
   AZHOP_CONFIGURATION: '.github/workflows/configs/${{ inputs.config }}.yml'
   AZHOP_LUSTRE_CONFIGURATION: '.github/workflows/configs/lustre.yml'
   AZHOP_IMAGES_CONFIGURATION: '.github/workflows/configs/images.yml'
-  ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
   ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
   ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
   SHARED_SIG: /subscriptions/${{ secrets.ARM_SUBSCRIPTION_ID }}/resourceGroups/azhop_build_images/providers/Microsoft.Compute/galleries/azhop_4ehhye3z
@@ -104,8 +102,8 @@ jobs:
     container:
       image: azhop.azurecr.io/hpcrover:latest
       credentials:
-        username: ${{ env.ARM_CLIENT_ID }}
-        password: ${{ env.ARM_CLIENT_SECRET }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
       options: --user 0
 
     outputs:
@@ -129,7 +127,6 @@ jobs:
       - name: Login azure
         run: |
           source /miniconda/bin/activate
-          #az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az login -i
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
           echo "local user: $(whoami)"
@@ -334,8 +331,8 @@ jobs:
     container:
       image: azhop.azurecr.io/hpcrover:latest
       credentials:
-        username: ${{ env.ARM_CLIENT_ID }}
-        password: ${{ env.ARM_CLIENT_SECRET }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
       options: --user 0
 
     steps:
@@ -348,7 +345,7 @@ jobs:
         if: needs.deploy.outputs.run_ad_job == 'true'
         run: |
           source /miniconda/bin/activate
-          az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
+          az login -i
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: Install applications
@@ -372,8 +369,8 @@ jobs:
     container:
       image: azhop.azurecr.io/hpcrover:latest
       credentials:
-        username: ${{ env.ARM_CLIENT_ID }}
-        password: ${{ env.ARM_CLIENT_SECRET }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
       options: --user 0
 
     steps:
@@ -386,7 +383,7 @@ jobs:
         if: needs.deploy.outputs.run_lustre_job == 'true'
         run: |
           source /miniconda/bin/activate
-          az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
+          az login -i
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: Install applications
@@ -410,8 +407,8 @@ jobs:
     container:
       image: azhop.azurecr.io/hpcrover:latest
       credentials:
-        username: ${{ env.ARM_CLIENT_ID }}
-        password: ${{ env.ARM_CLIENT_SECRET }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
       options: --user 0
 
     steps:
@@ -424,7 +421,7 @@ jobs:
         if: needs.deploy.outputs.run_ood_job == 'true'
         run: |
           source /miniconda/bin/activate
-          az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
+          az login -i
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: Install applications
@@ -445,8 +442,8 @@ jobs:
     container:
       image: azhop.azurecr.io/hpcrover:latest
       credentials:
-        username: ${{ env.ARM_CLIENT_ID }}
-        password: ${{ env.ARM_CLIENT_SECRET }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
       options: --user 0
 
     steps:
@@ -459,7 +456,7 @@ jobs:
         if: needs.deploy.outputs.run_grafana_job == 'true'
         run: |
           source /miniconda/bin/activate
-          az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
+          az login -i
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: Install applications
@@ -480,8 +477,8 @@ jobs:
     container:
       image: azhop.azurecr.io/hpcrover:latest
       credentials:
-        username: ${{ env.ARM_CLIENT_ID }}
-        password: ${{ env.ARM_CLIENT_SECRET }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
       options: --user 0
 
     steps:
@@ -494,7 +491,7 @@ jobs:
         if: needs.deploy.outputs.run_cycle_job == 'true'
         run: |
           source /miniconda/bin/activate
-          az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
+          az login -i
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: Install applications
@@ -515,8 +512,8 @@ jobs:
     container:
       image: azhop.azurecr.io/hpcrover:latest
       credentials:
-        username: ${{ env.ARM_CLIENT_ID }}
-        password: ${{ env.ARM_CLIENT_SECRET }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
       options: --user 0
 
     steps:
@@ -529,7 +526,7 @@ jobs:
         if: needs.deploy.outputs.run_addusers_job == 'true'
         run: |
           source /miniconda/bin/activate
-          az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
+          az login -i
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: Install applications
@@ -550,8 +547,8 @@ jobs:
     container:
       image: azhop.azurecr.io/hpcrover:latest
       credentials:
-        username: ${{ env.ARM_CLIENT_ID }}
-        password: ${{ env.ARM_CLIENT_SECRET }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
       options: --user 0
 
     steps:
@@ -564,7 +561,7 @@ jobs:
         if: needs.deploy.outputs.run_cyclecluster_job == 'true'
         run: |
           source /miniconda/bin/activate
-          az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
+          az login -i
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: Install applications
@@ -586,8 +583,8 @@ jobs:
     container:
       image: azhop.azurecr.io/hpcrover:latest
       credentials:
-        username: ${{ env.ARM_CLIENT_ID }}
-        password: ${{ env.ARM_CLIENT_SECRET }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
       options: --user 0
 
     steps:
@@ -600,7 +597,7 @@ jobs:
         if: needs.deploy.outputs.run_telegraf_job == 'true'
         run: |
           source /miniconda/bin/activate
-          az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
+          az login -i
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: Install applications
@@ -623,8 +620,8 @@ jobs:
     container:
       image: azhop.azurecr.io/hpcrover:latest
       credentials:
-        username: ${{ env.ARM_CLIENT_ID }}
-        password: ${{ env.ARM_CLIENT_SECRET }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
       options: --user 0
 
     steps:
@@ -635,7 +632,7 @@ jobs:
       - name: Login azure
         run: |
           source /miniconda/bin/activate
-          az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
+          az login -i
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: list all images to be built
@@ -669,8 +666,8 @@ jobs:
     container:
       image: azhop.azurecr.io/hpcrover:latest
       credentials:
-        username: ${{ env.ARM_CLIENT_ID }}
-        password: ${{ env.ARM_CLIENT_SECRET }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
       options: --user 0
 
     steps:
@@ -683,7 +680,7 @@ jobs:
         if: needs.deploy.outputs.run_image_job == 'true'
         run: |
           source /miniconda/bin/activate
-          az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
+          az login -i
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: Build Images
@@ -707,8 +704,8 @@ jobs:
     container:
       image: azhop.azurecr.io/hpcrover:latest
       credentials:
-        username: ${{ env.ARM_CLIENT_ID }}
-        password: ${{ env.ARM_CLIENT_SECRET }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
       options: --user 0
 
     steps:
@@ -721,7 +718,7 @@ jobs:
         if: needs.deploy.outputs.run_tests_job == 'true'
         run: |
           source /miniconda/bin/activate
-          az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
+          az login -i
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: Run test playbook
@@ -743,8 +740,8 @@ jobs:
     container:
       image: azhop.azurecr.io/hpcrover:latest
       credentials:
-        username: ${{ env.ARM_CLIENT_ID }}
-        password: ${{ env.ARM_CLIENT_SECRET }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
       options: --user 0
 
     steps:
@@ -753,7 +750,7 @@ jobs:
       - name: Login azure
         run: |
           source /miniconda/bin/activate
-          az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
+          az login -i
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - name: Cleanup

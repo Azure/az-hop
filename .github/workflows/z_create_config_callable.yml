@@ -64,10 +64,6 @@ on:
         required: true
       ARM_TENANT_ID:
         required: true
-      ARM_CLIENT_ID:
-        required: true
-      ARM_CLIENT_SECRET:
-        required: true
       REGISTRY_USERNAME:
         required: true
       REGISTRY_PASSWORD:
@@ -78,8 +74,6 @@ env:
   AZHOP_CONFIGURATION_DIR: '.github/workflows/configs'
   AZHOP_LUSTRE_CONFIGURATION: '.github/workflows/configs/lustre.yml'
   AZHOP_IMAGES_CONFIGURATION: '.github/workflows/configs/images.yml'
-  ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
   ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
   ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
   AZHOP_STATE_CONTAINER: environments
@@ -103,8 +97,6 @@ jobs:
       credentials:
         username: ${{ secrets.REGISTRY_USERNAME }}
         password: ${{ secrets.REGISTRY_PASSWORD }}
-        # username: ${{ env.ARM_CLIENT_ID }}
-        # password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     outputs:
@@ -118,7 +110,6 @@ jobs:
       - name: Login azure
         run: |         
           source /miniconda/bin/activate
-          #az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az login --identity 
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
           echo "local user: $(whoami)"
