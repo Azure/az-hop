@@ -12,7 +12,7 @@ param serviceLevel string
 param sizeGB int
 
 
-resource anfAccount 'Microsoft.NetApp/netAppAccounts@2022-05-01' = {
+resource anfAccount 'Microsoft.NetApp/netAppAccounts@2023-07-01' = {
   name: 'azhop-${resourcePostfix}'
   location: location
   
@@ -29,7 +29,7 @@ resource anfAccount 'Microsoft.NetApp/netAppAccounts@2022-05-01' = {
   } : {}
 }
 
-resource anfPool 'Microsoft.NetApp/netAppAccounts/capacityPools@2022-05-01' = {
+resource anfPool 'Microsoft.NetApp/netAppAccounts/capacityPools@2023-07-01' = {
   name: 'anfpool-${resourcePostfix}'
   location: location
   parent: anfAccount
@@ -39,7 +39,7 @@ resource anfPool 'Microsoft.NetApp/netAppAccounts/capacityPools@2022-05-01' = {
   }
 }
 
-resource anfHome 'Microsoft.NetApp/netAppAccounts/capacityPools/volumes@2022-05-01' = {
+resource anfHome 'Microsoft.NetApp/netAppAccounts/capacityPools/volumes@2023-07-01' = {
   name: 'anfhome'
   location: location
   parent: anfPool
