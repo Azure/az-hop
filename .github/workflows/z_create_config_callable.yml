@@ -94,12 +94,12 @@ jobs:
       contents: read
     timeout-minutes: 60
 
-    # container:
-    #   image: azhop.azurecr.io/hpcrover:latest
-    #   credentials:
-    #     username: ${{ env.ARM_CLIENT_ID }}
-    #     password: ${{ env.ARM_CLIENT_SECRET }}
-    #   options: --user 0
+    container:
+      image: azhop.azurecr.io/hpcrover:latest
+      credentials:
+        username: ${{ env.ARM_CLIENT_ID }}
+        password: ${{ env.ARM_CLIENT_SECRET }}
+      options: --user 0
 
     outputs:
         resource_group: ${{ steps.build_config.outputs.resource_group }}
@@ -113,9 +113,11 @@ jobs:
         run: |
           pwd
           ls -alt
-          source /root/miniconda/bin/activate
+          ls -alt /
+          
+          source /miniconda/bin/activate
           #az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
-          az login -i
+          az login --identity 
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
           echo "local user: $(whoami)"
 
