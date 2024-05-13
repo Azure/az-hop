@@ -97,8 +97,10 @@ jobs:
     container:
       image: azhop.azurecr.io/hpcrover:latest
       credentials:
-        username: ${{ env.ARM_CLIENT_ID }}
-        password: ${{ env.ARM_CLIENT_SECRET }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+        # username: ${{ env.ARM_CLIENT_ID }}
+        # password: ${{ env.ARM_CLIENT_SECRET }}
       options: --user 0
 
     outputs:
