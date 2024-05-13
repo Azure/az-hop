@@ -113,7 +113,7 @@ jobs:
         run: |
           pwd
           ls -alt
-          source /miniconda/bin/activate
+          source /root/miniconda/bin/activate
           #az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az login -i
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
