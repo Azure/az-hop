@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 # Arguments set during docker-compose build -b --build from .env file
 
@@ -20,6 +20,11 @@ RUN echo "APT::Get::Assume-Yes \"true\";" > /etc/apt/apt.conf.d/90assumeyes && \
     apt install -y wget openssh-client sudo && \
     chmod +x /tmp/install.sh && \
     /tmp/install.sh && \
+    apt-get update && \
+    apt-get upgrade -y && \
+    apt-get full-upgrade -y && \
+    apt-get autoremove -y && \
+    apt-get autoclean -y && \
 #
     echo "Creating ${USERNAME} user..." && \
     useradd --uid $USER_UID -m ${USERNAME} && \
