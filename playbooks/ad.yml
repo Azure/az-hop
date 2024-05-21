@@ -179,6 +179,15 @@
           data: 0
           type: dword
           state: present
+      # Enfore LDAP Channel Binding
+      # https://support.microsoft.com/en-us/topic/2020-2023-and-2024-ldap-channel-binding-and-ldap-signing-requirements-for-windows-kb4520412-ef185fb8-00f7-167d-744c-f299a66fc00a
+      - name: Enfore LDAP Channel Binding
+        win_regedit:
+          path: HKLM:\system\currentcontrolset\services\NTDS\parameters\LdapEnforceChannelBinding
+          name: Enabled
+          data: 1
+          type: dword
+          state: present
 
     always:
       - name: close session on local port
