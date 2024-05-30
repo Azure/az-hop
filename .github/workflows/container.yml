@@ -3,6 +3,8 @@ name : container
 on:
   # manual only
   workflow_dispatch:
+  schedule:
+    - cron: "10 1 * * 0" # At 01:10 UTC on each Saturday
   push:
     branches:
       - main
