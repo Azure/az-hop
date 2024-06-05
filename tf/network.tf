@@ -86,14 +86,14 @@ resource "azurerm_subnet" "netapp" {
 
 # database subnet
 data "azurerm_subnet" "database" {
-  count                = local.create_database_subnet ? 0 : 1
+  count                = local.create_database_subnet ? 0 : (local.no_database_subnet ? 0 : 1)
   name                 = try(local.configuration_yml["network"]["vnet"]["subnets"]["database"]["name"], "database")
   resource_group_name  = try(split("/", local.vnet_id)[4], "foo")
   virtual_network_name = try(split("/", local.vnet_id)[8], "foo")
 }
 
 resource "azurerm_subnet" "database" {
-  count                = local.create_database_subnet ? 1 : 0
+  count                = local.create_database_subnet ? (local.no_database_subnet ? 0 : 1) : 0
   name                 = try(local.configuration_yml["network"]["vnet"]["subnets"]["database"]["name"], "database")
   virtual_network_name = local.create_vnet ? azurerm_virtual_network.azhop[count.index].name : data.azurerm_virtual_network.azhop[count.index].name
   resource_group_name  = local.create_vnet ? azurerm_virtual_network.azhop[count.index].resource_group_name : data.azurerm_virtual_network.azhop[count.index].resource_group_name
