@@ -4,6 +4,11 @@ resource "azurerm_public_ip" "jumpbox-pip" {
   location            = local.create_rg ? azurerm_resource_group.rg[0].location : data.azurerm_resource_group.rg[0].location
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   allocation_method   = "Static"
+  sku                 = "Standard"
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "azurerm_network_interface" "jumpbox-nic" {

@@ -5,6 +5,11 @@ resource "azurerm_public_ip" "ondemand-pip" {
   resource_group_name = local.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   allocation_method   = "Static"
   domain_name_label   = "ondemand${random_string.resource_postfix.result}"
+  sku                 = "Standard"
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "azurerm_network_interface" "ondemand-nic" {
