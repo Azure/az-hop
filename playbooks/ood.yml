@@ -122,6 +122,7 @@
       
       - name: Generate Let's Encrypt HTTPS certificate
         shell: |
+          set -e
           cd /root
 
           # get ssl
@@ -138,7 +139,7 @@
           ./getssl {{ ondemand_fqdn }} 2>&1 | tee getssl-{{ ondemand_fqdn }}.log
 
           # set the certificate
-          mkdir /etc/ssl/{{ ondemand_fqdn }}
+          mkdir -pv /etc/ssl/{{ ondemand_fqdn }}
           cp /root/.getssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.crt /etc/ssl/{{ ondemand_fqdn }}
           cp /root/.getssl/{{ ondemand_fqdn }}/{{ ondemand_fqdn }}.key /etc/ssl/{{ ondemand_fqdn }}
           wget https://letsencrypt.org/certs/letsencryptauthorityx3.pem.txt -O /etc/ssl/{{ ondemand_fqdn }}/letsencryptauthorityx3.pem.txt
