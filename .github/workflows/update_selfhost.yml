@@ -29,6 +29,7 @@ jobs:
     # https://docs.docker.com/engine/install/ubuntu/
     - name: upgrade docker
       run: |
+        set +e
         for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do apt-get remove $pkg; done
         apt autoremove
   
