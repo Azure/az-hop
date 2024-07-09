@@ -44,7 +44,7 @@ on:
         default: 'grafana' # use it with ${{ inputs.monitoring }}
         type: string
       infra_os:
-        description: 'Operating System for the infrastructure: centos/almalinux/ubuntu - Default to almalinux'
+        description: 'Operating System for the infrastructure: almalinux/ubuntu - Default to almalinux'
         required: false
         default: 'almalinux' # use it with ${{ inputs.infra_os }}
         type: string
@@ -192,8 +192,6 @@ jobs:
                 ;;
               shared)
                 echo "Using shared images"
-                sed -i "s|azhpc:azhop-compute:centos-7_9:latest|$SHARED_SIG/azhop-compute-centos-7_9/latest|g" config.yml
-                sed -i "s|azhpc:azhop-desktop:centos-7_9:latest|$SHARED_SIG/azhop-desktop-centos-7_9/latest|g" config.yml
                 sed -i "s|azhpc:azhop-compute:almalinux-8_7:latest|$SHARED_SIG/azhop-compute-almalinux-8_7/latest|g" config.yml
                 sed -i "s|azhpc:azhop-desktop:almalinux-8_7:latest|$SHARED_SIG/azhop-desktop-almalinux-8_7/latest|g" config.yml
                 sed -i "s|azhpc:azhop-compute:ubuntu-20_04:latest|$SHARED_SIG/azhop-compute-ubuntu-2004/latest|g" config.yml
@@ -204,8 +202,6 @@ jobs:
                 echo "Using private images"
                 cat $AZHOP_IMAGES_CONFIGURATION >> config.yml
                 SIG="/subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images"
-                sed -i "s|azhpc:azhop-compute:centos-7_9:latest|$SIG/azhop-compute-centos-7_9/latest|g" config.yml
-                sed -i "s|azhpc:azhop-desktop:centos-7_9:latest|$SIG/azhop-desktop-centos-7_9/latest|g" config.yml
                 sed -i "s|azhpc:azhop-compute:almalinux-8_7:latest|$SIG/azhop-compute-almalinux-8_7/latest|g" config.yml
                 sed -i "s|azhpc:azhop-desktop:almalinux-8_7:latest|$SIG/azhop-desktop-almalinux-8_7/latest|g" config.yml
                 sed -i "s|azhpc:azhop-compute:ubuntu-20_04:latest|$SIG/azhop-compute-ubuntu-2004/latest|g" config.yml

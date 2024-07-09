@@ -188,8 +188,7 @@ nat_gateway:
 
 # Base image configuration. Can be either an image reference or an image_id from the image registry or a custom managed image
 # For AlmaLinux 8.7 use almalinux:almalinux-x86_64:8_7-gen2:latest
-# For CentOS 7.9 use OpenLogic:CentOS:7_9-gen2:latest
-linux_base_image: "OpenLogic:CentOS:7_9-gen2:latest" # publisher:offer:sku:version or image_id
+linux_base_image: "almalinux:almalinux-x86_64:8_7-gen2:latest" # publisher:offer:sku:version or image_id
 # linux image plan if required, format is publisher:product:name
 #linux_base_plan:
 windows_base_image: "MicrosoftWindowsServer:WindowsServer:2019-Datacenter-smalldisk:latest" # publisher:offer:sku:version or image_id
@@ -386,11 +385,11 @@ image_gallery:
 images:
   # - name: image_definition_name # Should match the packer configuration file name, one per packer file
   #   publisher: azhop
-  #   offer: CentOS
-  #   sku: 7_9-gen2
+  #   offer: almalinux
+  #   sku: 8_7-hpc-gen2
   #   hyper_v: V2 # V1 or V2 (V1 is the default)
   #   os_type: Linux # Linux or Windows
-  #   version: 7.9 # Version of the image to create the image definition in SIG. Pattern is major.minor where minor is mandatory
+  #   version: 8.7 # Version of the image to create the image definition in SIG. Pattern is major.minor where minor is mandatory
 # Pre-defined images
   - name: azhop-compute-almalinux-8_7
     publisher: azhop
@@ -399,50 +398,6 @@ images:
     hyper_v: V2
     os_type: Linux
     version: 8.7
-  - name: azhop-centos79-v2-rdma-gpgpu
-    publisher: azhop
-    offer: CentOS
-    sku: 7.9-gen2
-    hyper_v: V2
-    os_type: Linux
-    version: 7.9
-  # Image definition when using a custom image to build compute nodes images
-  - name: azhop-centos79-v2-rdma-ci
-    publisher: azhop
-    offer: CentOS
-    sku: 7.9-gen2-ci
-    hyper_v: V2
-    os_type: Linux
-    version: 7.9
-  # Image definition when using a custom image to build remote viz nodes images
-  - name: azhop-centos79-desktop3d-ci
-    publisher: azhop
-    offer: CentOS
-    sku: 7.9-gen2-desktop3d-ci
-    hyper_v: V2
-    os_type: Linux
-    version: 7.9
-  - name: azhop-centos79-desktop3d
-    publisher: azhop
-    offer: CentOS
-    sku: 7.9-gen2-desktop3d
-    hyper_v: V2
-    os_type: Linux
-    version: 7.9
-  - name: azhop-compute-centos-7_9
-    publisher: azhpc
-    offer: azhop-compute
-    sku: centos-7_9
-    hyper_v: V2
-    os_type: Linux
-    version: 7.9
-  - name: azhop-desktop-centos-7_9
-    publisher: azhpc
-    offer: azhop-desktop
-    sku: centos-7_9
-    hyper_v: V2
-    os_type: Linux
-    version: 7.9
   - name: azhop-desktop-ubuntu-20_04
     publisher: azhpc
     offer: azhop-desktop
@@ -457,14 +412,6 @@ images:
     hyper_v: V1
     os_type: Windows
     version: 10.19043
-  # Base image when building your own HPC image and not using the HPC marketplace images
-  - name: base-centos79-v2-rdma
-    publisher: azhop
-    offer: CentOS
-    sku: 7.9-gen2-rdma-nogpu
-    hyper_v: V2
-    os_type: Linux
-    version: 7.9
   - name: base-ubuntu-20_04-v2-rdma-gpgpu
     publisher: azhop
     offer: 0001-com-ubuntu-server-focal
@@ -501,9 +448,9 @@ queues:
     # maximum number of nodes that can be instanciated. The lower of the two will be used
     max_count: 128
     # Use the pre-built azhop image from the marketplace
-    image: azhpc:azhop-compute:centos-7_9:latest
+    image: azhpc:azhop-compute:almalinux-8_7:latest
     # Use this image ID when building your own custom images
-    #image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-v2-rdma-gpgpu/latest
+    #image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-compute-almalinux-8_7/latest
     # Image plan specification (when needed for the image). Terms must be accepted prior to deployment
     # plan: publisher:product:name
     # Set to true if AccelNet need to be enabled. false is the default value
@@ -524,12 +471,12 @@ queues:
   - name: hpc
     vm_size: Standard_HB120rs_v3
     max_count: 10
-    image: azhpc:azhop-compute:centos-7_9:latest
+    image: azhpc:azhop-compute:almalinux-8_7:latest
     EnableAcceleratedNetworking: true
   - name: gpu
     vm_size: Standard_NC24ads_A100_v4
     max_count: 0
-    image: azhpc:azhop-compute:centos-7_9:latest
+    image: azhpc:azhop-compute:almalinux-8_7:latest
     EnableAcceleratedNetworking: true
 
 # Queues for remote visualization
@@ -539,9 +486,9 @@ queues:
     vm_size: Standard_NV12s_v3
     max_count: 4
     # Use the pre-built azhop image from the marketplace
-    image: azhpc:azhop-desktop:centos-7_9:latest
+    image: azhpc:azhop-desktop:almalinux-8_7:latest
     # Use this image ID when building your own custom images
-    #image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-centos79-desktop3d/latest
+    #image: /subscriptions/{{subscription_id}}/resourceGroups/{{resource_group}}/providers/Microsoft.Compute/galleries/{{sig_name}}/images/azhop-desktop-ubuntu-20_04/latest
     ColocateNodes: false
     EnableAcceleratedNetworking: true
     max_hours: 12 # Maximum session duration
@@ -553,7 +500,7 @@ queues:
     shareable: true # Set to true to allow multiple users to connect to the same node - false by default
     vm_size: Standard_NV48s_v3
     max_count: 2
-    image: azhpc:azhop-desktop:centos-7_9:latest
+    image: azhpc:azhop-desktop:almalinux-8_7:latest
     ColocateNodes: false
     EnableAcceleratedNetworking: true
     max_hours: 12
@@ -564,7 +511,7 @@ queues:
     description: "Without GPU - for single session"
     vm_size: Standard_D8s_v5
     max_count: 10
-    image: azhpc:azhop-desktop:centos-7_9:latest
+    image: azhpc:azhop-desktop:almalinux-8_7:latest
     ColocateNodes: false
     EnableAcceleratedNetworking: true
     max_hours: 12
@@ -575,7 +522,7 @@ queues:
     vm_size: Standard_F2s_v2
     initial_count: 1
     max_count: 1
-    image: azhpc:azhop-compute:centos-7_9:latest
+    image: azhpc:azhop-compute:almalinux-8_7:latest
     ColocateNodes: false
     EnableAcceleratedNetworking: true
 

@@ -64,7 +64,7 @@ locked_down_network:
   public_ip: false # Enable public IP creation for Jumpbox, OnDemand and create images. Default to true
 
 # Base image configuration. Can be either an image reference or an image_id from the image registry or a custom managed image
-linux_base_image: "OpenLogic:CentOS:7_9-gen2:latest" # publisher:offer:sku:version or image_id
+linux_base_image: "almalinux:almalinux-x86_64:8_7-gen2:latest" # publisher:offer:sku:version or image_id
 windows_base_image: "MicrosoftWindowsServer:WindowsServer:2019-Datacenter-smalldisk:latest" # publisher:offer:sku:version or image_id
 
 jumpbox:
@@ -110,12 +110,12 @@ queues:
   - name: htc
     vm_size: Standard_F2s_v2
     max_count: 32
-    image: azhpc:azhop-compute:centos-7_9:latest
+    image: azhpc:azhop-compute:almalinux-8_7:latest
     ColocateNodes: false
   - name: hpc
     vm_size: Standard_HB120rs_v3
     max_count: 4
-    image: azhpc:azhop-compute:centos-7_9:latest
+    image: azhpc:azhop-compute:almalinux-8_7:latest
     ColocateNodes: true
     EnableAcceleratedNetworking: true
   - name: hbv3al
@@ -136,19 +136,19 @@ queues:
   - name: viz3d
     vm_size: Standard_NV12s_v3
     max_count: 2
-    image: azhpc:azhop-desktop:centos-7_9:latest
+    image: azhpc:azhop-desktop:almalinux-8_7:latest
     ColocateNodes: false
     EnableAcceleratedNetworking: true
   - name: viz
     vm_size: Standard_D8s_v5
     max_count: 4
-    image: azhpc:azhop-desktop:centos-7_9:latest
+    image: azhpc:azhop-desktop:almalinux-8_7:latest
     ColocateNodes: false
     EnableAcceleratedNetworking: true
   - name: largeviz3d
     vm_size: Standard_NV48s_v3
     max_count: 2
-    image: azhpc:azhop-desktop:centos-7_9:latest
+    image: azhpc:azhop-desktop:almalinux-8_7:latest
     ColocateNodes: false
     EnableAcceleratedNetworking: true
 

@@ -128,9 +128,9 @@ locals {
     use_cyclecloud_image_reference = try(length(split(":", local.configuration_yml["cyclecloud"]["image"])[1])>0, false)
 
     linux_base_image_reference = {
-        publisher = local.use_linux_image_reference ? split(":", local.configuration_yml["linux_base_image"])[0] : "OpenLogic"
-        offer     = local.use_linux_image_reference ? split(":", local.configuration_yml["linux_base_image"])[1] : "CentOS"
-        sku       = local.use_linux_image_reference ? split(":", local.configuration_yml["linux_base_image"])[2] : "7_9-gen2"
+        publisher = local.use_linux_image_reference ? split(":", local.configuration_yml["linux_base_image"])[0] : "almalinux"
+        offer     = local.use_linux_image_reference ? split(":", local.configuration_yml["linux_base_image"])[1] : "almalinux-x86_64"
+        sku       = local.use_linux_image_reference ? split(":", local.configuration_yml["linux_base_image"])[2] : "8_7-gen2"
         version   = local.use_linux_image_reference ? split(":", local.configuration_yml["linux_base_image"])[3] : "latest"
     }
     windows_base_image_reference = {
