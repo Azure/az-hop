@@ -26,10 +26,6 @@ jobs:
     permissions: {}
 
     steps:
-    - name: Cleanup Docker
-      run: |
-        docker system prune -a -f
-        docker volume prune -f
     # https://docs.docker.com/engine/install/ubuntu/
     - name: upgrade docker
       run: |
@@ -52,6 +48,11 @@ jobs:
         apt-get update
 
         apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+    - name: Cleanup Docker
+      run: |
+        docker system prune -a -f
+        docker volume prune -f
 
     - uses: actions/checkout@v4
     - name: Install the toolchain
