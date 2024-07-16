@@ -47,7 +47,7 @@ if [ $INSTALL_IN_CONDA = true ]; then
         source "${MINICONDA_INSTALL_DIR}/bin/activate"
     fi
 
-    printf "Update packages"
+    printf "Update packages\n"
     conda update -y --all
 else
     printf "Attempting to install Ansible in base environment\n"

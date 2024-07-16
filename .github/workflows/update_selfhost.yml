@@ -3,6 +3,8 @@ name : update selfhost nodes
 on:
   # manual only
   workflow_dispatch:
+  schedule:
+    - cron: "05 0 * * 0" # At 00:05 UTC on each Saturday
   push:
     branches:
       - main
