@@ -77,7 +77,7 @@ printf "$columns" Ansible `ansible --version | head -n 1 | awk '{ print $3 }' | 
 printf "$columns" Terraform `terraform --version | head -n 1 | awk '{ print $2 }' | sed 's/v//'`
 printf "$columns" Packer `/usr/bin/packer --version | awk '{ print $2 }'`
 printf "$columns" az-cli `az --version 2> /dev/null | head -n 1 | awk '{ print $2 }'`
-printf "$columns" azcopy `azcopy --version | awk '{ print $3 }'`
+printf "$columns" azcopy `azcopy --version | head -n 1 | awk '{ print $3 }'`
 printf "$columns" yq `yq --version | awk '{ print $4 }'`
 printf "$columns" check-jsonschema `check-jsonschema --version | awk '{ print $3 }'`
 printf "===============================================================================\n"
