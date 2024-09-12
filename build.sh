@@ -469,9 +469,9 @@ fi
 check_azcli_version
 case $DEPLOY_LANGUAGE in
   tf)
-    terraform_init
     get_azure_context
-    get_azure_cloud_env
+    get_azure_cloud_env  
+    terraform_init
     terraform_run
     ;;
   bicep)
