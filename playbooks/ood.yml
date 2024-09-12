@@ -594,6 +594,16 @@
       dest: /usr/bin/yq
       mode: 0755
 
+  - name: create ood shell env directory
+    file:
+      path: /etc/ood/config/apps/shell
+      state: directory
+
+  - name: Copy the shell env file
+    template:
+      src: 'env.j2'
+      dest: '/etc/ood/config/apps/shell/env'
+
 # Configure bc_desktop for dynamic remote viz targets
   - name: copy bc_desktop file
     copy:
