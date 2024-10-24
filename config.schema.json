@@ -1220,13 +1220,13 @@
                 },
                 "slurm_version": {
                     "type": "string",
-                    "enum": ["20.11.9", "22.05.3", "22.05.9", "23.02.5"],
+                    "enum": ["20.11.9", "22.05.3", "22.05.9", "23.02.5", "23.11.9"],
                     "default": "22.05.9",
                     "description": "SLURM version to install. Currently supported: only [20.11.9 | 22.05.3] with cyclecloud_slurm_version==2.7.x and [22.05.9 | 23.02.5] with cyclecloud_slurm_version==3.0.x."
                 },
                 "cyclecloud_slurm_version": {
                     "type": "string",
-                    "enum": ["2.7.0", "2.7.1", "2.7.2", "3.0.4"],
+                    "enum": ["2.7.0", "2.7.1", "2.7.2", "3.0.4", "3.0.9"],
                     "default": "3.0.4",
                     "description": "CycleCloud for SLURM project version as defined in https://github.com/Azure/cyclecloud-slurm/releases. Currently supported: 2.7.0-2.7.2, 3.0.4."
                 }

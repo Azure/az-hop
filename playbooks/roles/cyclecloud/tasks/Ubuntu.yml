@@ -17,6 +17,11 @@
     state: present
     lock_timeout : 180
 
+- name: Extract major and minor version from cycle
+  set_fact:
+    major_version: "{{ cyclecloud_version.split('-')[0].split('.')[0] | int }}"
+    minor_version: "{{ cyclecloud_version.split('-')[0].split('.')[1] | int }}"
+
 - name: Install CycleCloud (Ubuntu)
   package:
     name: "cyclecloud8={{cyclecloud_version}}"
@@ -28,6 +33,10 @@
     name: "jetpack8={{cyclecloud_version}}"
     state: present
     lock_timeout : 180
+  when:
+    - major_version | int == 8
+    - minor_version | int <= 4
+
 
 - name: Update Packages
   include_role:

@@ -1,0 +1,8 @@
+{
+    "cluster": "{{ slurm_cluster_name }}",
+    "password": "{{ cc_password }}",
+    "proxy_method": "none",
+    "url": "https://{{ cyclecloud.name | default('ccportal') }}:9443{{cycle_webServerContextPath}}",
+    "username": "{{ cc_admin }}"
+}
+

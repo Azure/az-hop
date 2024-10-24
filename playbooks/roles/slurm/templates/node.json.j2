@@ -1,3 +1,5 @@
+{% set major_version = cc_version.split('-')[0].split('.')[0] | int %}
+{% set minor_version = cc_version.split('-')[0].split('.')[1] | int %}
 {
     "hostname": "{{ ansible_hostname }}",
     "cyclecloud": 
@@ -57,5 +59,7 @@
                 "tags": "ClusterId:{{ slurm_cluster_name }}(user@foo:unique);ClusterName:{{ slurm_cluster_name }}"
             }
         }
-    }
+    }{% if major_version > 8 or (major_version == 8 and minor_version >= 6) %},
+    "ipaddress": "{{ ansible_default_ipv4.address }}"
+    {% endif %}
 }

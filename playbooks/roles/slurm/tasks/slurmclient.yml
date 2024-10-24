@@ -12,6 +12,13 @@
     state: restarted
     enabled: yes
 
+- name: create symlink for slurm library (Ubuntu 22)
+  file:
+    src: /lib/x86_64-linux-gnu/slurm
+    dest: /usr/lib64/slurm
+    state: link
+  when : ansible_distribution == 'Ubuntu' and ansible_distribution_major_version == '22'
+
 - name: Configure Pyxis plugin
   block:
     - name: Install pyxis plugin

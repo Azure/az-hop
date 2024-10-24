@@ -1,4 +1,10 @@
 ---
+- name: Extract major and minor version from cycle
+  set_fact:
+    major_version: "{{ cc_version.split('-')[0].split('.')[0] | int }}"
+    minor_version: "{{ cc_version.split('-')[0].split('.')[1] | int }}"
+
+
 - name: install cyclecloud repo (Ubuntu)
   shell: |
     apt -y install wget gnupg2
@@ -7,6 +13,22 @@
     sudo apt update
   args:
     creates: /etc/apt/sources.list.d/cyclecloud.list
+
+- name: Create Jetpack config directory (Ubuntu)
+  file: 
+    path: /opt/cycle/jetpack/config
+    state: directory
+    mode: 0750
+  when: 
+    - major_version | int > 8 or ( major_version | int == 8 and minor_version | int >= 6 )
+
+- name: Create Jetpack connection.json file (Ubuntu)
+  template:
+    src: 'connection.json.j2'
+    dest: /opt/cycle/jetpack/config/connection.json
+    mode: 0640
+  when:
+    - major_version | int > 8 or ( major_version | int == 8 and minor_version | int >= 6 )
 
 - name: Install Jetpack (Ubuntu)
   package:
