@@ -41,7 +41,6 @@
                 "/tmp/linux-setup.sh || exit 1",
                 "/tmp/{{user `var_queue_manager`}}.sh || exit 1",
                 "/tmp/telegraf.sh || exit 1",
-                "/tmp/lustreclient.sh  || exit 1",
                 "/tmp/zz-compute-custom.sh || exit 1",
                 "echo ' This is the end '",
                 "rm -rf /tmp/*.sh",

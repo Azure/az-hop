@@ -12,6 +12,7 @@
             "managed_image_name": "{{user `var_image`}}",
             "os_type": "Linux",
             "vm_size": "Standard_HB120rs_v3",
+            "os_disk_size_gb": "128",
             "managed_image_storage_account_type": "Premium_LRS",
             "ssh_pty": "true",
             "build_resource_group_name": "{{user `var_resource_group`}}",

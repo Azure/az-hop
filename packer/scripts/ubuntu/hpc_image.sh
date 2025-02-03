@@ -9,9 +9,9 @@ apt-get install -y git
 
 cd /mnt/
 
-git clone https://github.com/Azure/azhpc-images -b ubuntu-hpc-20231127
+git clone https://github.com/Azure/azhpc-images -b ubuntu-hpc-20241023
 
-sed -i 's/LUSTRE_VERSION=2.15.1-29-gbae0abe/LUSTRE_VERSION=2.15.4-42-gd6d405d/g' ./azhpc-images/ubuntu/common/install_lustre_client.sh
+sed -i 's/azcopyvnext.azureedge/azcopyvnext-awgzd8g7aagqhzhe.b02.azurefd/g' ./azhpc-images/common/install_azcopy.sh
 
 cd ./azhpc-images/ubuntu/ubuntu-20.x/ubuntu-20.04-hpc
 
