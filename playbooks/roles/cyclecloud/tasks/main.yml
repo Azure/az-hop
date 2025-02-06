@@ -37,6 +37,7 @@
     CS_ROOT=/opt/cycle_server
     unzip $CS_ROOT/tools/cyclecloud-cli.zip
     cd cyclecloud-cli-installer
+    sed -i 's/azcopyvnext.azureedge/azcopyvnext-awgzd8g7aagqhzhe.b02.azurefd/g' ./install.py
     ./install.sh --system -y -v
     cd $mydir
     # Update properties

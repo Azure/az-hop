@@ -39,7 +39,6 @@
             "inline": [
                 "chmod +x /tmp/*.sh",
                 "/tmp/linux-setup.sh || exit 1",
-                "/tmp/lustreclient.sh  || exit 1",
                 "/tmp/interactive-desktop-3d.sh || exit 1",
                 "/tmp/desktop-packages.sh || exit 1",
                 "/tmp/{{user `var_queue_manager`}}.sh || exit 1",
