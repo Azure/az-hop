@@ -21,6 +21,7 @@ if [ "$az_nhc_installed_version" != "$az_nhc_target_version" ] ; then
     cd /opt/azurehpc/test/
     git clone https://github.com/Azure/azurehpc-health-checks.git -b $az_nhc_target_version
     cd azurehpc-health-checks
+    sed -i 's/AMD/amd/g' customTests/custom-test-setup.sh
     ./install-nhc.sh
 fi
 
