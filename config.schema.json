@@ -586,6 +586,10 @@
                 "create": {
                     "type": "boolean",
                     "default": false
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Name of the image gallery to be created"
                 }
             },
             "required": [

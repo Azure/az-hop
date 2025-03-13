@@ -210,6 +210,7 @@ locals {
 
     key_vault_name = try(local.configuration_yml["azure_key_vault"]["name"], format("%s%s", "kv", random_string.resource_postfix.result))
     storage_account_name = try(local.configuration_yml["azure_storage_account"]["name"], "azhop${random_string.resource_postfix.result}")
+    sig_name = try(local.configuration_yml["image_gallery"]["name"], "azhop_${random_string.resource_postfix.result}")
     db_name = try(local.configuration_yml["database"]["name"], "mysql-${random_string.resource_postfix.result}")
 
     # Lustre - AMLFS not implemented for TF
@@ -253,14 +254,12 @@ locals {
         netapp = "netapp",
         compute = "compute",
         ad = "ad",
-        database = "database"
     }
 
     # Create subnet if required. If not specified create only if vnet is created
     create_frontend_subnet = try(local.configuration_yml["network"]["vnet"]["subnets"]["frontend"]["create"], local.create_vnet )
     create_admin_subnet    = try(local.configuration_yml["network"]["vnet"]["subnets"]["admin"]["create"], local.create_vnet )
     create_netapp_subnet   = try(local.configuration_yml["network"]["vnet"]["subnets"]["netapp"]["create"], local.create_vnet )
-    create_database_subnet = try(local.configuration_yml["network"]["vnet"]["subnets"]["database"]["create"], local.create_vnet )
     create_compute_subnet  = try(local.configuration_yml["network"]["vnet"]["subnets"]["compute"]["create"], local.create_vnet )
 
     ad_subnet        = try(local.configuration_yml["network"]["vnet"]["subnets"]["ad"], null)
@@ -279,13 +278,20 @@ locals {
     no_outbounddns_subnet = try(length(local.outbounddns_subnet) > 0 ? false : true, true )
     create_outbounddns_subnet  = try(local.outbounddns_subnet["create"], local.create_vnet ? (local.no_outbounddns_subnet ? false : true) : false )
 
+    database_subnet = try(local.configuration_yml["network"]["vnet"]["subnets"]["database"], null)
+    no_database_subnet = try(length(local.database_subnet) > 0 ? false : true, true )
+    create_database_subnet  = try(local.database_subnet["create"], local.create_vnet ? (local.no_database_subnet ? false : true) : false )
+
+
     dns_forwarders = try(local.configuration_yml["dns"]["forwarders"], [])
     create_dnsfw_rules = length(local.dns_forwarders) > 0 ? true : false
+
 
     subnets = merge(local._subnets, 
                     local.no_bastion_subnet ? {} : {bastion = "AzureBastionSubnet"},
                     local.no_gateway_subnet ? {} : {gateway = "GatewaySubnet"},
-                    local.no_outbounddns_subnet ? {} : {outbounddns = "outbounddns"}
+                    local.no_outbounddns_subnet ? {} : {outbounddns = "outbounddns"},
+                    local.no_database_subnet ? {} : {database = "database"}
                     )
 
     # Application Security Groups
