@@ -86,7 +86,7 @@ resource "azurerm_subnet" "netapp" {
 
 # database subnet
 data "azurerm_subnet" "database" {
-  count                = local.create_database_subnet ? 0 : 1
+  count                = local.create_database_subnet  ? 0 : (local.no_database_subnet ? 0 : 1)
   name                 = try(local.configuration_yml["network"]["vnet"]["subnets"]["database"]["name"], "database")
   resource_group_name  = try(split("/", local.vnet_id)[4], "foo")
   virtual_network_name = try(split("/", local.vnet_id)[8], "foo")
