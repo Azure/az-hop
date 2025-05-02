@@ -1,3 +1,6 @@
+>NOTE: `az-hop` is end of life and will not be maintained. Please use [Azure CycleCloud Workspace for Slurm](https://learn.microsoft.com/azure/cyclecloud/qs-deploy-ccws?view=cyclecloud-8) for your HPC deployments instead.
+
+
 [![Daily Deployment](https://github.com/Azure/az-hop/actions/workflows/deploy_daily.yml/badge.svg)](https://github.com/Azure/az-hop/actions/workflows/deploy_daily.yml)
 # Azure HPC On-Demand Platform, your deployment to be HPC-Ready! 
 
