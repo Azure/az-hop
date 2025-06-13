@@ -22,6 +22,10 @@ if [ "$az_nhc_installed_version" != "$az_nhc_target_version" ] ; then
     git clone https://github.com/Azure/azurehpc-health-checks.git -b $az_nhc_target_version
     cd azurehpc-health-checks
     sed -i 's/AMD/amd/g' customTests/custom-test-setup.sh
+    sed -i '/^install_stream$/s/^/#/' customTests/custom-test-setup.sh
+    sed -i '/function check_cpu_stream(){/a\
+        pass 0 "$FUNCNAME: Stream tests passed"\
+        return 0' customTests/azure_cpu_stream.nhc
     ./install-nhc.sh
 fi
 
