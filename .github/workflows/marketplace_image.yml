@@ -45,7 +45,7 @@ jobs:
       options: --user 0
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Login azure
         run: |
@@ -92,7 +92,7 @@ jobs:
       options: --user 0
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Login azure
         run: |
@@ -128,7 +128,7 @@ jobs:
       options: --user 0
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Login azure
         run: |
@@ -186,7 +186,7 @@ jobs:
       options: --user 0
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Login azure
         run: |
