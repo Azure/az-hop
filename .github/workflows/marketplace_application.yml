@@ -46,7 +46,7 @@ jobs:
           ./marketplace/solution/build.sh $BRANCH_NAME
           echo "escaped_branch_name=${BRANCH_NAME//\//_}" >> $GITHUB_ENV
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
 #        if: startsWith(github.ref, 'refs/tags/v')
         with:
           name: marketplace package
