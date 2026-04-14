@@ -23,9 +23,58 @@ rmmod nvidia
 
 echo "################### INSTALL NVIDIA GRID DRIVERS"
 
-wget -O NVIDIA-Linux-x86_64-grid.run https://go.microsoft.com/fwlink/?linkid=874272  
+# ---- Diagnostics: check GPU hardware before driver install ----
+echo "################### PRE-INSTALL GPU DIAGNOSTICS"
+echo "Running kernel: $(uname -r)"
+echo "Available kernel headers:"
+dpkg -l | grep linux-headers | grep -i azure || echo "  (none found)"
+echo "PCI GPU devices:"
+lspci | grep -iE '3d|vga|display|nvidia' || echo "  WARNING: No GPU device found via lspci!"
+echo "Existing NVIDIA kernel modules:"
+lsmod | grep nvidia || echo "  (none loaded)"
+echo "DKMS status:"
+dkms status 2>/dev/null || echo "  (dkms not available)"
+echo "################### END PRE-INSTALL DIAGNOSTICS"
+
+# Abort early if no GPU hardware is detected
+if ! lspci | grep -iqE 'nvidia|3d controller|vga.*nvidia'; then
+    echo "ERROR: No NVIDIA GPU detected in lspci output. The VM SKU may not have a GPU."
+    echo "Full lspci output:"
+    lspci
+    exit 1
+fi
+
+# Ensure kernel headers match the running kernel for NVIDIA driver compilation
+apt-get install -y linux-headers-$(uname -r)
+
+# Remove pre-existing NVIDIA DKMS modules from the base image to avoid conflicts
+dkms status | grep nvidia | cut -d',' -f1 | while read -r mod; do
+    echo "Removing DKMS module: $mod"
+    dkms remove "$mod" --all 2>/dev/null || true
+done
+
+# Check https://github.com/Azure/azhpc-extensions/ for the latest NVIDIA GRID driver supported by Azure and compatible with the Linux kernel version of the image. The link is usually in the release notes of the extension.
+# NOTE: The FwLink https://go.microsoft.com/fwlink/?linkid=874272 points to the latest GRID driver (570.x+),
+# which dropped support for Maxwell GPUs (Tesla M60, NVv3-series). Pin to 535.161.08 (vGPU 16.5),
+# the last GRID version supporting Tesla M60.
+GRID_DRIVER_URL="https://download.microsoft.com/download/8/d/a/8da4fb8e-3a9b-4e6a-bc9a-72ff64d7a13c/NVIDIA-Linux-x86_64-535.161.08-grid-azure.run"
+wget -O NVIDIA-Linux-x86_64-grid.run "$GRID_DRIVER_URL"
 chmod +x NVIDIA-Linux-x86_64-grid.run
 ./NVIDIA-Linux-x86_64-grid.run -s
+
+# ---- Post-install diagnostics ----
+echo "################### POST-INSTALL DIAGNOSTICS"
+echo "nvidia-installer log (last 30 lines):"
+tail -30 /var/log/nvidia-installer.log 2>/dev/null || echo "  (no installer log found)"
+echo "Attempting to load nvidia kernel module:"
+modprobe nvidia 2>&1 || echo "  WARNING: modprobe nvidia failed"
+echo "Loaded NVIDIA modules:"
+lsmod | grep nvidia || echo "  WARNING: No nvidia modules loaded!"
+echo "NVIDIA device nodes:"
+ls -la /dev/nvidia* 2>/dev/null || echo "  WARNING: No /dev/nvidia* device nodes found"
+echo "dmesg nvidia messages (last 20):"
+dmesg | grep -i nvidia | tail -20 || echo "  (none)"
+echo "################### END POST-INSTALL DIAGNOSTICS"
 
 sudo cp /etc/nvidia/gridd.conf.template /etc/nvidia/gridd.conf
 
