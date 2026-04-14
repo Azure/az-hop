@@ -4,6 +4,16 @@ echo " *                                                                        
 echo " *     LINUX SETUP                                                                * "
 echo " *                                                                                * "
 echo " ********************************************************************************** "
+
+# Disable automatic apt services that hold the dpkg lock in the background
+systemctl stop apt-daily.timer apt-daily-upgrade.timer apt-daily.service apt-daily-upgrade.service unattended-upgrades.service 2>/dev/null || true
+systemctl disable apt-daily.timer apt-daily-upgrade.timer 2>/dev/null || true
+# Wait for any in-progress apt/dpkg process to finish
+while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
+    echo "Waiting for dpkg lock to be released..."
+    sleep 5
+done
+
 packages="nfs-common sssd libsss-simpleifp0 sssd-dbus sssd-tools realmd oddjob oddjob-mkhomedir adcli samba-common krb5-user ldap-utils packagekit resolvconf jq chrony netcat"
 
 apt-get clean -y
@@ -43,4 +53,4 @@ fi
 add-apt-repository -y ppa:apptainer/ppa
 apt install -y apptainer
 
-apt-get -s dist-upgrade | grep "^Inst" | grep -i securi | awk -F " " {'print $2'} | xargs apt-get -y install
+apt-get -s dist-upgrade | grep "^Inst" | grep -i securi | awk -F " " {'print $2'} | grep -v -E '^linux-(image|headers|modules|azure)' | xargs apt-get -y install
